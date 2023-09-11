@@ -6,14 +6,14 @@
 
       <div class="w-full z-30 mx-auto   rounded-md mb-3 ">
 
-        <div class="intro-y box mt-5 px-3">
-          <div class="flex flex-col sm:flex-row items-center justify-between h-auto border-b border-slate-200/60 dark:border-darkmode-400 bg-[#0E74BC]">
-             <img class="bg-white h-20" src="../../assets/images/logo-gouv.webp" alt="">
-             <p class="text-2xl font-bold text-white" > Programme Redevabilité phase 2 </p>
-             <img class="bg-white h-20" src="../../assets/images/Logo_der_Schweizerischen_Eidgenossenschaft.svg" alt="">
+        <div class="intro-y box mt-5 p-3">
+          <div class="flex flex-col sm:flex-row items-center  justify-between h-auto border-b border-slate-200/60 dark:border-darkmode-400 bg-[#0E74BC]">
+            <img class="bg-white h-20" src="../../assets/images/logo-gouv.webp" alt="">
+            <p class="text-2xl font-bold text-white">Campagne 1 : Programme Redevabilité phase 2 </p>
+            <img class="bg-white h-20" src="../../assets/images/Logo_der_Schweizerischen_Eidgenossenschaft.svg" alt="">
           </div>
-          <div class="flex flex-col lg:flex-row border-b border-slate-200/60 dark:border-darkmode-400 px-3 pb-5 -mx-5">
-            <div class="flex flex-1 px-5 items-center justify-center lg:justify-start">
+          <div class="flex flex-col text-center lg:flex-row border-b border-slate-200/60 dark:border-darkmode-400 px-3 pb-5 ">
+            <div class="flex flex-1 px-5 items-center justify-center ">
               <div class="p-5">
                 <div class=" my-5 lg:my-0">
                   <img v-if="entrepriseLogo" class="mx-auto max-h-[100px]   " :src="entrepriseLogo">
@@ -28,8 +28,7 @@
                 <div class="text-slate-500">{{ $f()[0].jobs[0] }}</div>
               </div>
             </div>
-            <div
-              class="mt-6 lg:mt-0 flex-1 px-5 border-l border-r border-slate-200/60 dark:border-darkmode-400 border-t lg:border-t-0 pt-5 lg:pt-0">
+            <div class="mt-6 lg:mt-0 flex-1 px-5 border-l border-r border-slate-200/60 dark:border-darkmode-400 border-t lg:border-t-0 pt-5 lg:pt-0">
               <div class="font-medium text-center lg:text-left lg:mt-3">
                 Détails de l'organisation
               </div>
@@ -48,64 +47,85 @@
                 </div>
               </div>
             </div>
-            <div
-              class="mt-6 lg:mt-0 flex-1 px-5 border-t lg:border-0 border-slate-200/60 dark:border-darkmode-400 pt-5 lg:pt-0">
-              <div class="font-medium text-center lg:text-left lg:mt-5">
-                Sales Growth
-              </div>
-              <div class="flex items-center justify-center lg:justify-start mt-2">
-                <div class="mr-2 w-20 flex">
-                  USP: <span class="ml-3 font-medium text-success">+23%</span>
-                </div>
-                <div class="w-3/4">
-                  <SimpleLineChart1 :height="55" class="-mr-5" />
-                </div>
-              </div>
-              <div class="flex items-center justify-center lg:justify-start">
-                <div class="mr-2 w-20 flex">
-                  STP: <span class="ml-3 font-medium text-danger">-2%</span>
-                </div>
-                <div class="w-3/4">
-                  <SimpleLineChart2 :height="55" class="-mr-5" />
-                </div>
-              </div>
-            </div>
           </div>
+          <p v-if="campagneEnCours.nom" class="text-3xl w-2/3 mx-auto font-black  text-center intro-x   my-3">Principe :
+            Redevabilité</p>
         </div>
-      </div>
-      <!-- DEBUT CARD jout des conjoints et enfants -->
-      <div class="w-2/3 mx-auto rounded-md" v-for="item in campagneEnCours.indicateurSelect">
-        <div class=" intro-x">
-          <div class="flex items-center justify-between mb-5 px-5 py-4 box zoom-in ">
-            <div>
-              <p v-if="campagneEnCours.nom" class="text-lg  intro-x  text-center my-3">{{ campagneEnCours.nom
-              }}</p>
 
+      </div>
+
+      <!-- DEBUT CARD jout des conjoints et enfants -->
+      <div class="w-2/3 mx-auto rounded-md" v-for="(item, index) in campagneEnCours.indicateurSelect" :key="index">
+        <div class=" intro-x">
+
+          <div class="flex flex-col  items-center justify-between mb-5 px-5 py-4 box zoom-in relative ">
+            <hr class="h-full w-2 bg-[#0E74BC] absolute left-0 top-0 rounded-l-xl">
+            <div>
               <h1 v-if="indicateurEnCours.nom"
-                class="text-xl w-2/3 sm:w-full sm:text-xl md:text-2xl lg:text-3xl intro-x   xl:text-2xl  2xl:text-4xl  font-black text-black  _text-violet-900  border-blue-700 inline-block mx-auto ">
-                {{ i + 1 }} - {{ indicateurEnCours.nom }}
+                class="text-xl w-2/3 sm:w-full sm:text-xl  intro-x    font-black  text-center  border-blue-700 inline-block mx-auto text-blue-500 ">
+                {{ index + 1 }}- Existence d’un dispositif d’écoute et de prise en compte des préoccupations des
+                bénéficiaires
               </h1>
             </div>
             <div class="mt-3">
-              <div class="flex flex-col sm:flex-row mt-2">
-                <div class="form-check mr-2">
+              <div class="grid grid-cols-12 gap-4">
+                <div class="col-span-6 lg:col-span-4 mr-2">
                   <input id="radio-switch-4" class="form-check-input" type="radio" name="horizontal_radio_button"
                     value="horizontal-radio-chris-evans" />
-                  <label class="form-check-label" for="radio-switch-4"> Oui </label>
+                  <label class="form-check-label" for="radio-switch-4"> Ne peux répondre </label>
                 </div>
-                <div class="form-check mr-2 mt-2 sm:mt-0">
+                <div class="col-span-6 lg:col-span-4 mr-2 mt-2 sm:mt-0">
                   <input id="radio-switch-5" class="form-check-input" type="radio" name="horizontal_radio_button"
                     value="horizontal-radio-liam-neeson" />
-                  <label class="form-check-label" for="radio-switch-5"> Non </label>
+                  <label class="form-check-label" for="radio-switch-5"> Pas du tout </label>
+                </div>
+                <div class="col-span-6 lg:col-span-4 mr-2">
+                  <input id="radio-switch-4" class="form-check-input" type="radio" name="horizontal_radio_button"
+                    value="horizontal-radio-chris-evans" />
+                  <label class="form-check-label" for="radio-switch-4"> Faiblement </label>
+                </div>
+                <div class="col-span-6 lg:col-span-4 mr-2 mt-2 sm:mt-0">
+                  <input id="radio-switch-5" class="form-check-input" type="radio" name="horizontal_radio_button"
+                    value="horizontal-radio-liam-neeson" />
+                  <label class="form-check-label" for="radio-switch-5"> Moyennement </label>
+                </div>
+                <div class="col-span-6 lg:col-span-4 mr-2">
+                  <input id="radio-switch-4" class="form-check-input" type="radio" name="horizontal_radio_button"
+                    value="horizontal-radio-chris-evans" />
+                  <label class="form-check-label" for="radio-switch-4"> Dans une grande mesure </label>
+                </div>
+                <div class="col-span-6 lg:col-span-4 mr-2 mt-2 sm:mt-0">
+                  <input id="radio-switch-5" class="form-check-input" type="radio" name="horizontal_radio_button"
+                    value="horizontal-radio-liam-neeson" />
+                  <label class="form-check-label" for="radio-switch-5"> Totalement </label>
                 </div>
               </div>
             </div>
 
           </div>
-
-
         </div>
 
+
+
+      </div>
+
+      <div class="w-2/3 mx-auto text-center">
+        <!-- Responsive Arrow Progress Bar -->
+        <div class="">
+          <div class="arrow-steps clearfix ">
+            <div class="step current"> <span> <a href="#">1</a></span> </div>
+            <div class="step"> <span><a href="#">2</a></span> </div>
+            <div class="step"> <span><a href="#">3</a></span> </div>
+            <div class="step"> <span><a href="#">4</a></span> </div>
+          </div>
+        </div>
+      </div>
+
+
+
+      <div class="intro-y  w-2/3 my-6 mx-auto flex items-center justify-center mt-5">
+        <button class="btn btn-secondary w-24 prev">Previous</button>
+        <button class="btn btn-primary w-24 ml-2 next pull-right">Next</button>
       </div>
 
       <div
@@ -185,6 +205,7 @@ import { useRouter, useRoute } from 'vue-router'
 import BsdService from "@/services/modules/bsd.service";
 import CampagneService from "@/services/modules/campagne.service";
 import { API_BASE_URL } from "@/services/configs/environment";
+import $ from 'jquery';
 
 
 const router = useRouter()
@@ -247,8 +268,8 @@ const campagneEnCours = reactive({
   entreprise: {
     nom: '',
     arrondissement: "",
-    contact:"",
-    ville:"",
+    contact: "",
+    ville: "",
     refresh: 0
   },
   indicateurSelect: []
@@ -293,7 +314,7 @@ onMounted(function () {
 const entrepriseLogo = ref('')
 
 
- 
+
 function getCampagne() {
   BsdService.campagnes(route.params.code).then((data) => {
     campagnes.value = data.data.data[0]
@@ -777,18 +798,6 @@ function next() {
 
         end.value = 1
 
-
-
-
-
-
-
-
-
-
-
-
-
         message.type = 'success'
         message.message = 'Merci pour le temps que vous nous avez accordé'
         successNotificationToggles()
@@ -805,9 +814,6 @@ function next() {
 
     indicateurEnCours.nom = campagneEnCours.indicateurSelect[i.value].nom
     indicateurEnCours.id = campagneEnCours.indicateurSelect[i.value].id
-
-
-
 
   }
 
@@ -857,9 +863,37 @@ function inputChange(e) {
   e.target.style.height = e.target.scrollHeight + 'px';
 }
 
+
+$(document).ready(function () {
+
+  var back = $(".prev");
+  var next = $(".next");
+  var steps = $(".step");
+
+  next.bind("click", function () {
+    $.each(steps, function (i) {
+      if (!$(steps[i]).hasClass('current') && !$(steps[i]).hasClass('done')) {
+        $(steps[i]).addClass('current');
+        $(steps[i - 1]).removeClass('current').addClass('done');
+        return false;
+      }
+    })
+  });
+  back.bind("click", function () {
+    $.each(steps, function (i) {
+      if ($(steps[i]).hasClass('done') && $(steps[i + 1]).hasClass('current')) {
+        $(steps[i + 1]).removeClass('current');
+        $(steps[i]).removeClass('done').addClass('current');
+        return false;
+      }
+    })
+  });
+
+})
+
 </script>
 
-<style  scoped>
+<style  >
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
@@ -912,7 +946,6 @@ function inputChange(e) {
   height: 100vh;
   overflow: hidden;
 }
-
 
 
 
@@ -1071,6 +1104,126 @@ textarea::placeholder {
   }
 
 
+}
+
+.clearfix:after {
+  clear: both;
+  content: "";
+  display: flex;
+  justify-content: center;
+  justify-items: center;
+  height: 0;
+
+}
+
+/* Responsive Arrow Progress Bar */
+
+.container {
+  font-family: 'Lato', sans-serif;
+
+}
+
+.arrow-steps .step {
+  font-size: 14px;
+  text-align: center;
+  color: #777;
+  cursor: default;
+  margin: 0 1px 0 0;
+  padding: 10px 0px 10px 0px;
+  width: 15%;
+  display: inline-block;
+  position: relative;
+  background-color: #ddd;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.arrow-steps .step a {
+  color: #777;
+  text-decoration: none;
+}
+
+.arrow-steps .step:after,
+.arrow-steps .step:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: -17px;
+  width: 0;
+  height: 0;
+  border-top: 19px solid transparent;
+  border-bottom: 17px solid transparent;
+  border-left: 17px solid #ddd;
+  z-index: 2;
+}
+
+.arrow-steps .step:before {
+  right: auto;
+  left: 0;
+  border-left: 17px solid #fff;
+  z-index: 0;
+}
+
+.arrow-steps .step:first-child:before {
+  border: none;
+}
+
+.arrow-steps .step:last-child:after {
+  border: none;
+}
+
+.arrow-steps .step:first-child {
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+.arrow-steps .step:last-child {
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+.arrow-steps .step span {
+  position: relative;
+}
+
+*.arrow-steps .step.done span:before {
+  opacity: 1;
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -10px;
+  font-size: 11px;
+  line-height: 21px;
+}
+
+.arrow-steps .step.current {
+  color: #fff;
+  background-color: #5599e5;
+}
+
+.arrow-steps .step.current a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.arrow-steps .step.current:after {
+  border-left: 17px solid #5599e5;
+}
+
+.arrow-steps .step.done {
+  color: #173352;
+  background-color: #2f69aa;
+}
+
+.arrow-steps .step.done a {
+  color: #173352;
+  text-decoration: none;
+}
+
+.arrow-steps .step.done:after {
+  border-left: 17px solid #2f69aa;
 }
 
 
