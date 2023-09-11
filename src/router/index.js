@@ -28,7 +28,7 @@ import Voter from "../views/voter/voter.vue"
 import Tools from "../views/gfa/Tools.vue";
 import ToolsPerception from "../views/gfa/ToolsPerception.vue";
 import FicheFactuel from "../views/gfa/FicheFactuel.vue";
-import FicheFactuel from "../views/gfa/FichePerception.vue";
+import FichePerception from "../views/gfa/FichePerception.vue";
 
 
 
