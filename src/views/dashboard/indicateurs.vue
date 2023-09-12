@@ -45,12 +45,43 @@
           <div class="my-2">
             <label for="regular-form-1" class="form-label">Nom</label>
             <input id="regular-form-1" type="text" required v-model="formData.nom" class="form-control"
-              placeholder="libellé du groupe" />
+              placeholder="libellé de l'indicateur" />
           </div>
           <div class="my-2">
             <label for="regular-form-1" class="form-label"> Description </label>
             <input id="regular-form-1" type="text" required v-model="formData.description" class="form-control"
               placeholder="Description" />
+          </div>
+          <div class="my-2">
+            <label for="regular-form-1" class="form-label">Outils </label>
+            <TomSelect v-model="formData.outil" :options="{ placeholder: 'Selectionez un groupe' }" class="w-full">
+              <option value="">Veuillez choisir un outil</option>
+              <option :value="true">Perception</option>
+              <option :value="false">Factuel</option>
+            </TomSelect>
+
+          </div>
+          <div class="my-2">
+            <label for="regular-form-1" class="form-label">Type de réponse</label>
+            <TomSelect v-model="formData.multipleAns" :options="{ placeholder: 'Selectionez un groupe' }" class="w-full">
+              <option value="">Veuillez choisir un type de réponse</option>
+              <option :value="true">Multiple</option>
+              <option :value="false">Unique</option>
+            </TomSelect>
+
+          </div>
+          <div class="my-2">
+            <label for="regular-form-1" class="form-label">Type de réponse</label>
+            <TomSelect v-model="formData.typeAns" :options="{ placeholder: 'Selectionez un groupe' }" class="w-full">
+              <option value="">Veuillez choisir un type de réponse</option>
+              <option value="boolean"> Vrai/Faux</option>
+              <option value="checkbox">Réponse multiple</option>
+              <option value="feedBack">Commentaire</option>
+              <option value="list">List</option>
+              <option value="rate">Vote</option>
+              <option value="image">Image</option>
+              <option value="text">Text</option>
+            </TomSelect>
           </div>
           <button class="btn btn-primary py-3 px-4 w-full my-3  xl:mr-3 align-top">
             <span class="text-sm font-semibold uppercase" v-if="!chargement">
@@ -271,7 +302,10 @@ const itemsPerPage = ref(10)
 const formData = reactive({
   nom: '',
   description: '',
-  critere_id: ''
+  critere_id: '',
+  multipleAns: Boolean,
+  outil: '',
+  typeAns: ''
 })
 
 const message = reactive({
@@ -297,27 +331,29 @@ const resultQuery = computed(() => {
 })
 
 onMounted(function () {
+
   getData()
-  getGroupe()
+
+  // getGroupe()
 })
 
 const getData = function () {
   IndicateurService.get(route.params.id).then((data) => {
     indicateurs.value = data.data.data
-    groupe.value = indicateurs.value[0].groupe.nom
+    // groupe.value = indicateurs.value[0].groupe.nom
   }).catch((e) => {
     // disabled()
     alert(e)
   })
 }
-const getGroupe = function () {
-  GroupeService.getGroupeByEntreprise().then((data) => {
-    groupes.value = data.data.data
-  }).catch((e) => {
-    // disabled()
-    alert(e)
-  })
-}
+// const getGroupe = function () {
+//   GroupeService.getGroupeByEntreprise().then((data) => {
+//     groupes.value = data.data.data
+//   }).catch((e) => {
+//     // disabled()
+//     alert(e)
+//   })
+// }
 function close() {
   formData.nom = ''
   formData.description = ''
@@ -353,9 +389,15 @@ const goToPage = (pageNumber) => {
 
 
 const storeIndicateur = function () {
+
+
+
   if (chargement.value == false) {
     chargement.value = true
     formData.critere_id = route.params.id
+
+    console.log(formData)
+
     IndicateurService.create(formData).then((data) => {
       message.type = 'success'
       message.message = 'Nouveaux indicateur créee'
@@ -414,13 +456,16 @@ const deleteIndicateur = function () {
 }
 
 const modifier = function (index, data) {
+
+  console.log(data)
+
   saveUpdate.nom = data.nom
   saveUpdate.description = data.description
-  saveUpdate.id = data.id
-  saveUpdate.groupeId = data.groupe.id
-  saveUpdate.groupeNom = data.groupe.nom
-  showModal.value = true
-  isUpdate.value = true
+  saveUpdate.critere_id = data.id
+  // saveUpdate.groupeId = data.critere.id
+  // saveUpdate.critereNom = data.critere.nom
+  // showModal.value = true
+  // isUpdate.value = true
 }
 const updateIndicateur = function () {
   if (chargement.value == false) {
@@ -428,7 +473,7 @@ const updateIndicateur = function () {
     const formData = {
       nom: saveUpdate.nom,
       description: saveUpdate.description,
-      groupeId: saveUpdate.groupeId
+      critere_id: saveUpdate.critere_id
     }
     IndicateurService.update(saveUpdate.id, formData).then((data) => {
       chargement.value = false
