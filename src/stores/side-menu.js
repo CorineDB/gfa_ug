@@ -5,6 +5,11 @@ export const useSideMenuStore = defineStore("sideMenu", {
     menu: [
       {
         icon: "GridIcon",
+        pageName: "DashboardGfa",
+        title: "Dashboard GFA",
+      },
+      {
+        icon: "GridIcon",
         pageName: "side-menu-dashboard-overview-1",
         title: "Dashboard",
       },
