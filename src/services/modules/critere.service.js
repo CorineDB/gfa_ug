@@ -10,7 +10,7 @@ const CritereService = {
     },
 
     get(slug) {
-      return ApiService.get(`principes/${slug}/criteres`);
+      return ApiService.get(`principe/${slug}/criteres`);
     },
     getAll(slug) {
       return ApiService.get(`criteres`);

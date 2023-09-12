@@ -14,22 +14,19 @@
     <div class=" sm:px-10 md:px-0 ">
       <div class="block xl:grid grid-cols-2 gap-4">
         <!-- BEGIN: Login Info -->
-        <div class="hidden  bg-primary xl:flex flex-col min-h-screen px-20">
-          <a href="" class="-intro-x pt-5">
-            <img alt="Midone Tailwind HTML Admin Template" class="w-48 mx-auto"
-              src="../../assets/images/logo-BSD_white.webp" />
+        <div class="hidden  bg-primary xl:flex flex-col min-h-screen p-5">
+          <a href="" class="-intro-x pt-5 bg-white border h-fit w-fit p-2 mx-auto rounded-xl shadow-sm">
+            <img alt="Midone Tailwind HTML Admin Template" class="w-48 mx-auto" src="../../assets/images/GFA.png" />
 
           </a>
           <div class=" text-center my-auto bg-primary">
-            <img alt="Midone Tailwind HTML Admin Template" class="-intro-x w-1/2 -mt-16 mx-auto"
-              src="@/assets/images/illustration.svg" />
+            <img alt="Midone Tailwind HTML Admin Template" class="-intro-x w-1/2 mx-auto"
+              src="@/assets/images/Checklist-rafiki.svg" />
             <div class="-intro-x text-white font-medium text-3xl leading-tight mt-10">
-              BSD (Boîte à Solution Digitale) <br />
+              GFA Survey <br />
             </div>
-            <div class="-intro-x mt-5 text-lg text-white text-opacity-70 dark:text-slate-400">
-              Collecter le feedback de vos clients ? Un levier de développement, d’amélioration de vos services et
-              produit.
-              Désormais, fédérez vos clients à perpétuité.
+            <div class="-intro-x mt-5 px-4 text-xl text-white text-opacity-70 dark:text-slate-400">
+              Responsabilité partagée, Qualité améliorée : Unis pour un meilleur service social.
             </div>
           </div>
         </div>
@@ -42,8 +39,7 @@
               Se connecter
             </h2>
             <div class="intro-x mt-2 text-slate-400 xl:hidden text-center">
-              A few more clicks to sign in to your account. Manage all your
-              e-commerce accounts in one place
+              Responsabilité partagée, Qualité améliorée : Unis pour un meilleur service social.
             </div>
             <div class="intro-x mt-8">
               <div>
@@ -104,7 +100,7 @@
                 <input id="remember-me" type="checkbox" class="form-check-input border mr-2" />
                 <label class="cursor-pointer select-none" for="remember-me">Se souvenir de moi</label>
               </div>
-              <router-link to="/change-password" >Mots de passe oublié?</router-link>
+              <router-link to="/change-password">Mots de passe oublié?</router-link>
             </div>
             <div class="intro-x mt-5 xl:mt-8 text-center xl:text-left">
               <button class="btn btn-primary py-3 px-4 w-full bg-primary  xl:mr-3 align-top">
@@ -182,7 +178,7 @@ const login = () => {
       message.message = 'Vous etes connectées'
       successNotificationToggle()
       router.push('/dashboard/bsd')
-      
+
     }).catch(err => {
       message.type = 'erreur'
       message.message = err

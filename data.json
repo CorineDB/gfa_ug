@@ -2807,4 +2807,4 @@ else {
     })
   }
 
-  choix2 ; choix1 ; reponse ; voirPrincipe ; storeIndicateur ; modifier ; voirPrincipe
+  storeCritere ; 

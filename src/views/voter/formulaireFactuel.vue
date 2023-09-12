@@ -73,13 +73,13 @@
             <div class="mt-3">
               <div class="grid grid-cols-12 gap-4">
                 <div class="col-span-6 lg:col-span-4 mr-2">
-                  <input id="radio-switch-4" class="form-check-input" type="radio" :name="'option' + index"
-                    :value="true" />
+                  <input id="radio-switch-4" class="form-check-input" type="radio" :name="'option' + index" :value="true"
+                    v-model="responseTab[index].reponse"  @change="showValue()" />
                   <label class="form-check-label" for="radio-switch-4"> Oui </label>
                 </div>
                 <div class="col-span-6 lg:col-span-4 mr-2 mt-2 sm:mt-0">
-                  <input id="radio-switch-5"  class="form-check-input" type="radio"
-                    :name="'option' + index"  :value="false"  />
+                  <input id="radio-switch-5" class="form-check-input" type="radio" :name="'option' + index" :value="false"
+                  v-model="responseTab[index].reponse"   @change="showValue()"/>
                   <label class="form-check-label" for="radio-switch-5"> Non </label>
                 </div>
               </div>
@@ -209,32 +209,26 @@ const infoModal = function () {
 
 }
 
-const reponse1 = ref(Boolean)
-const reponse2 = ref(Boolean)
-const choix1 = function (index) {
+const responseTab = ref([
+  {
+    id: '',
+    reponse: Boolean
+  },
+  {
+    id: '',
+    reponse: Boolean
+  },
+  {
+    id: '',
+    reponse: Boolean
+  },
 
-  console.log(index)
-  console.log(campagneEnCours.indicateurSelect[index].selected )
+])
 
-  reponse1.value = true
-  // campagneEnCours.indicateurSelect[index].selected = true
-  // reponse1.value = campagneEnCours.indicateurSelect[index].selected
-
- 
+const showValue = function(){
+  console.log(responseTab.value)
 }
 
-const choix2 = function (index) {
-
-  console.log(index)
-  console.log(campagneEnCours.indicateurSelect[index].selected )
-
-  reponse2.value = true
-
-  // campagneEnCours.indicateurSelect[index].selected = false
-  // reponse2.value = campagneEnCours.indicateurSelect[index].selected
-
- 
-}
 
 
 const messages = reactive({
@@ -296,6 +290,7 @@ const formData = reactive({
   bsdCampagneId: Number,
   commentaire: '',
 })
+
 
 
 

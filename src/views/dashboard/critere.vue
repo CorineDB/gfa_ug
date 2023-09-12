@@ -296,7 +296,8 @@ const currentPage = ref(1)
 const itemsPerPage = ref(10)
 const formData = reactive({
   nom: '',
-  description: ''
+  description: '',
+  principe_id: ''
 })
 
 const message = reactive({
@@ -382,7 +383,10 @@ const goToPage = (pageNumber) => {
 const storeCritere = function () {
   if (chargement.value == false) {
     chargement.value = true
-    formData.gouvernance_id = route.params.id
+    formData.principe_id = route.params.id
+
+   
+
     CritereService.create(formData).then((data) => {
       message.type = 'success'
       message.message = 'Nouveaux indicateur créee'
@@ -461,7 +465,7 @@ const updateCritere = function () {
     const formData = {
       nom: saveUpdate.nom,
       description: saveUpdate.description,
-      Critere_id: saveUpdate.Critere_id
+      critere_id: saveUpdate.Critere_id
     }
     CritereService.update(saveUpdate.Critere_id, formData).then((data) => {
       chargement.value = false
@@ -492,7 +496,7 @@ const updateCritere = function () {
 
 const voirCritere = function (index, id) {
   console.log(id)
-  router.push({ name: 'Critere', params: { id: id } })
+  router.push({ name: 'Indicateurs', params: { id: id } })
 }
 
 const toBack = function () {

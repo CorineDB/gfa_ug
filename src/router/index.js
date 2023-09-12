@@ -157,10 +157,15 @@ const routes = [
         component: Critere,
       },
       {
-        path: "groupe/:id/indicateur",
+        path: "gouvernance/:id/principe/:id/critere/:id/indicateur",
         name: "Indicateurs",
         component: Indicateurs,
       },
+      // {
+      //   path: "groupe/:id/indicateur",
+      //   name: "Indicateurs",
+      //   component: Indicateurs,
+      // },
       {
         path: "campagnes",
         name: "Campagnes",

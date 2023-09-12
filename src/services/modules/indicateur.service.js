@@ -10,7 +10,7 @@ const IndicateurService = {
     },
 
     get(slug) {
-      return ApiService.get(`groupe/${slug}/indicateurs`);
+      return ApiService.get(`critere/${slug}/indicateurs`);
     },
     getAll(slug) {
       return ApiService.get(`indicateurs`);

@@ -128,7 +128,7 @@
       <button @click="toBack"
         class="bg-indigo-500 text-white rounded-lg font-semibold px-3 py-2 outline-none flex space-x-2 items-center">
         <CornerUpLeftIcon />
-        <span class="uppercase font-semibold"> Groupe indicateur</span>
+        <span class="uppercase font-semibold">Critères</span>
       </button>
     </div>
     <!-- END: Modal Toggle -->
@@ -270,7 +270,8 @@ const currentPage = ref(1)
 const itemsPerPage = ref(10)
 const formData = reactive({
   nom: '',
-  description: ''
+  description: '',
+  critere_id: ''
 })
 
 const message = reactive({
@@ -354,7 +355,7 @@ const goToPage = (pageNumber) => {
 const storeIndicateur = function () {
   if (chargement.value == false) {
     chargement.value = true
-    formData.groupeId = route.params.id
+    formData.critere_id = route.params.id
     IndicateurService.create(formData).then((data) => {
       message.type = 'success'
       message.message = 'Nouveaux indicateur créee'
