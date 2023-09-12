@@ -179,6 +179,12 @@ const updatedMenu = () => {
       }
     }
 
+    else if (element.title == 'Fiche de Synthèse') {
+      if ($h.getPermission('read.indicateur') || $h.getPermission('write.indicateur')) {
+        updateMenu.push(element);
+      }
+    }
+
     else if (element.title == 'Programmation des Rapports') {
       if ($h.getPermission('read.rapport') || $h.getPermission('write.rapport')) {
         updateMenu.push(element);
