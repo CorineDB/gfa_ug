@@ -30,6 +30,7 @@ import ToolsPerception from "../views/gfa/ToolsPerception.vue";
 import FicheFactuel from "../views/gfa/FicheFactuel.vue";
 import FichePerception from "../views/gfa/FichePerception.vue";
 import FicheSynthese from "../views/gfa/FicheSynthese.vue";
+import DashboardGfa from "../views/gfa/Dashboard.vue"
 
 
 
@@ -45,6 +46,11 @@ const routes = [
         path: "dashboard-overview-1",
         name: "side-menu-dashboard-overview-1",
         component: DashboardOverview1,
+      },
+      {
+        path: "Dashboard",
+        name: "DashboardGfa",
+        component: DashboardGfa,
       },
       {
         path: "toolsFactuel",

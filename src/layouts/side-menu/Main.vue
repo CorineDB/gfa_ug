@@ -143,6 +143,12 @@ const updatedMenu = () => {
       }
     }
 
+    else if (element.title == 'Dashboard GFA') {
+      if ($h.getPermission('read.equipement') || $h.getPermission('write.equipement')) {
+        updateMenu.push(element);
+      }
+    }
+
     else if (element.title == 'Association') {
       if ($h.getPermission('read.equipement') || $h.getPermission('write.equipement')) {
         updateMenu.push(element);

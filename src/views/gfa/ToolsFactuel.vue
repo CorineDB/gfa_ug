@@ -178,62 +178,6 @@
           </tbody>
         </table>
 
-
-        <!-- <form v-if="!isUpdate" key="ajouter" @submit.prevent="storeGroupe">
-          <div class="my-2">
-            <label for="regular-form-1" class="form-label">Structure</label>
-            <input id="regular-form-1" type="text" required v-model="formData.nom" class="form-control"
-              placeholder="libellé du groupe" />
-          </div>
-          <div class="my-2">
-            <label for="regular-form-1" class="form-label"> Description </label>
-            <input id="regular-form-1" type="text" required v-model="formData.description" class="form-control"
-              placeholder="Description" />
-          </div>
-          <button class="btn btn-primary py-3 px-4 w-full my-3  xl:mr-3 align-top">
-            <span class="text-sm font-semibold uppercase" v-if="!chargement">
-              Ajouter
-            </span>
-            <span v-else class="flex justify-center items-center space-x-2">
-              <span class=" px-4 font-semibold ">
-                chargement ...
-              </span>
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-center animate-spin" fill="none"
-                viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-            </span>
-          </button>
-        </form> -->
-
-        <!-- <form v-else key="modifier" @submit.prevent="updateGroupe">
-          <div class="my-2">
-            <label for="regular-form-1" class="form-label">Structure affiche fiche</label>
-            <input id="regular-form-1" type="text" required v-model="saveUpdate.nom" class="form-control"
-              placeholder="libellé" />
-          </div>
-          <div class="my-2">
-            <label for="regular-form-1" class="form-label">Description</label>
-            <input id="regular-form-1" type="text" required v-model="saveUpdate.description" class="form-control"
-              placeholder="description" />
-          </div>
-          <button class="btn btn-primary py-3 px-4 w-full my-3  xl:mr-3 align-top">
-            <span class="text-sm font-semibold uppercase" v-if="!chargement">
-              modifier
-            </span>
-            <span v-else class="flex justify-center items-center space-x-2">
-              <span class=" px-4 font-semibold ">
-                chargement ...
-              </span>
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-center animate-spin" fill="none"
-                viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-            </span>
-          </button>
-        </form> -->
       </ModalBody>
     </Modal>
     <!-- END: Modal Content -->
@@ -645,16 +589,19 @@ const toBack = function () {
 
 </script>
 
-<style>
+<style scoped>
 .modal-body {
-    padding: 0.50rem!important;
+  padding: 0.50rem !important;
 }
+
 .modal.overflow-y-auto.show {
- padding-left: 0%!important;
+  padding-left: 0% !important;
 }
+
 .modal.show>.modal-dialog {
-  width: 100%!important;
+  width: 100% !important;
 }
+
 .modal.show>.modal-dialog.modal-dialog.modal-xxl {
   margin-top: 1% !important;
 }
@@ -691,5 +638,4 @@ const toBack = function () {
   border-color: #111111;
   padding: 3px 5px;
 } */
-
 </style>
