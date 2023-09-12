@@ -47,19 +47,24 @@
     <!-- BEGIN: Modal Content -->
     <Modal size="modal-xxl" :show="showModal" @hidden="close">
       <ModalBody class="lg:p-10 ">
+
+        <div class="w-full bg-blue-900 text-white text-center p-4 font-bold rounded">
+          FICHE SYNTHESE SCORE FACTUEL GOUVERNANCE
+        </div>
+
         <table class="border-collapse table-fixed w-full text-sm mt-12">
           <tbody>
             <tr class="border-b border-slate-300">
               <td class="font-medium p-2">Structure :</td>
-              <td>lvkdfnkvdf</td>
+              <td>Lorem ipsum dolor sit amet.</td>
             </tr>
             <tr class="border-b border-slate-300">
               <td class="font-medium p-2">Nom, Prénom et qualité du point focal Gouvernance :</td>
-              <td>lvkdfnkvdf</td>
+              <td>Lorem, ipsum dolor sit amet consectetur adipisicing elit.</td>
             </tr>
             <tr class="border-b border-slate-300">
               <td class="font-medium p-2">Date d’auto-évaluation :</td>
-              <td>lvkdfnkvdf</td>
+              <td>Lorem ipsum dolor sit.</td>
             </tr>
           </tbody>
         </table>
@@ -94,21 +99,22 @@
         </table>
 
         <table class="w-full table-auto border-collapse mt-12" border="0" cellpadding="0" cellspacing="0">
-          <thead class="bg-green-200 text-left">
+          <thead class="bg-blue-900 text-left">
             <tr>
-              <th scope="col" class="p-2">Principes</th>
-              <th scope="col" class="p-2">Critères</th>
-              <th scope="col" class="w-full p-2">Indicateurs</th>
-              <th scope="col" class="p-2 whitespace-nowrap">Réponse <br>(Oui / Non)</th>
-              <th scope="col" class="p-2">Note</th>
+              <th scope="col" class="p-2 text-white">Principes</th>
+              <th scope="col" class="p-2 text-white">Critères</th>
+              <th scope="col" class="w-full p-2 text-white">Indicateurs</th>
+              <th scope="col" class="p-2 text-white whitespace-nowrap">Réponse <br>(Oui / Non)</th>
+              <th scope="col" class="p-2 text-white">Note</th>
+              <th scope="col" class="p-2 text-white whitespace-nowrap">Sources de vérification</th>
             </tr>
             <tr class="bg-white border-t-8 border-white">
-              <th class="p-2 my-2 bg-yellow-300 text-center" colspan="4">INDICE FACTUEL DE GOUVERNANCE</th>
-              <th class="p-2 bg-yellow-300">0.59</th>
+              <th class="p-2 my-2 bg-yellow-300 text-center" colspan="5">INDICE FACTUEL DE GOUVERNANCE</th>
+              <th class="p-2 bg-yellow-300 text-center">0.59</th>
             </tr>
             <tr class="bg-white border-t-8 border-white">
-              <th class="p-2 my-2 bg-yellow-300" colspan="4">Gouvernance politique</th>
-              <th class="p-2 bg-yellow-300">0.59</th>
+              <th class="p-2 my-2 bg-yellow-300" colspan="5">Gouvernance politique</th>
+              <th class="p-2 bg-yellow-300 text-center">0.59</th>
             </tr>
           </thead>
 
@@ -679,11 +685,11 @@ const toBack = function () {
   color: #fff;
 } */
 
-table td {
+/* table td {
   border-width: 1px 1px 0 0;
   border-style: solid;
   border-color: #111111;
   padding: 3px 5px;
-}
+} */
 
 </style>

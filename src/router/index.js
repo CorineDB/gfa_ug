@@ -33,6 +33,7 @@ import ToolsFactuel from "../views/gfa/ToolsFactuel.vue";
 import ToolsPerception from "../views/gfa/ToolsPerception.vue";
 import FicheFactuel from "../views/gfa/FicheFactuel.vue";
 import FichePerception from "../views/gfa/FichePerception.vue";
+import FicheSynthese from "../views/gfa/FicheSynthese.vue";
 
 
 
@@ -68,6 +69,11 @@ const routes = [
         path: "/fichePerception",
         name: "FichePerception",
         component: FichePerception,
+      },
+      {
+        path: "/synthese",
+        name: "FicheSynthese",
+        component: FicheSynthese,
       },
       {
         path: "bsd",

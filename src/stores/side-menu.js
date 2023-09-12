@@ -44,6 +44,11 @@ export const useSideMenuStore = defineStore("sideMenu", {
         title: "Outil de Perception",
       },
       {
+        icon: "FileIcon",
+        pageName: "FicheSynthese",
+        title: "Fiche de Synthèse",
+      },
+      {
         icon: "WatchIcon",
         pageName: "ProgrammationRapport",
         title: "Programmation des Rapports",
