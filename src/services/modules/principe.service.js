@@ -12,7 +12,7 @@ const PrincipeService = {
     get(slug) {
       return ApiService.get(`gouvernance/${slug}/principes`);
     },
-    getAll(slug) {
+    getAll() {
       return ApiService.get(`principes`);
     },
     

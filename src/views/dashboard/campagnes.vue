@@ -422,12 +422,7 @@
         </div>
       </ModalBody>
     </Modal>
-
-
-
     <!-- plainte modal fin -->
-
-
 
     <!-- BEGIN: Modal Content -->
     <Modal :show="deleteModalPreview" @hidden="deleteModalPreview = false">
@@ -451,7 +446,6 @@
       </ModalBody>
     </Modal>
     <!-- END: Modal Content -->
-
 
     <!-- BEGIN: Modal Content -->
     <Modal :show="showModal" @hidden="close">
@@ -565,7 +559,7 @@
           <tr>
             <th class="whitespace-nowrap">#</th>
             <th class="whitespace-nowrap">Campagne </th>
-            <th class="whitespace-nowrap">Etat </th>
+            <th class="whitespace-nowrap">Etat</th>
             <!-- <th class="whitespace-nowrap">Debut </th>
             <th class="whitespace-nowrap">Fin </th> -->
             <th class="whitespace-nowrap">Indicateurs </th>
@@ -822,7 +816,6 @@ const deleteModalPreview = ref(false)
 const successNotification = ref();
 const search = ref('')
 const campagnes = ref([])
-const indicateurs = ref([])
 const deleteData = reactive({})
 const saveUpdate = reactive({})
 const chargement = ref(false)
@@ -945,7 +938,6 @@ const resultQuery = computed(() => {
 
 onMounted(function () {
   getData()
-  getIndicateur()
 })
 
 const getData = function () {
@@ -969,15 +961,6 @@ const goToPage = (pageNumber) => {
   currentPage.value = pageNumber;
 }
 
-
-const getIndicateur = function () {
-  IndicateurService.getAll().then((data) => {
-    indicateurs.value = data.data.data
-  }).catch((e) => {
-    // disabled()
-    alert(e)
-  })
-}
 
 function close() {
   formData.nom = ''

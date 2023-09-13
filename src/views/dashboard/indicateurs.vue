@@ -165,13 +165,14 @@
               <span v-else> Oui </span>
             </td>
             <td>{{ data.typeAns }}</td>
-            <td>{{ data.created_at }}</td>
-            <td>{{ data.updated_at }}</td>
             <td>
               <div v-for="e in data.choises" class="inline-block p-1">
                 {{ e.nom }}
               </div>
             </td>
+            <td>{{ data.updated_at }}</td>
+             <td>{{ data.created_at }}</td>
+           
             <td class="flex space-x-2 items-center">
               <Tippy tag="a" href="javascript:;" class="tooltip btn btn-secondary w-24 mr-1 mb-2" content="cliquez pour modifier">
                 <span @click="modifier(index, data)" class="text-blue-500 cursor-pointer">
@@ -184,18 +185,7 @@
                 </span>
               </Tippy>
             </td>
-            <td class="flex space-x-2 items-center">
-              <Tippy tag="a" href="javascript:;" class="tooltip" content="cliquez pour modifier">
-                <span @click="modifier(index, data)" class="text-blue-500 cursor-pointer">
-                  <EditIcon />
-                </span>
-              </Tippy>
-              <Tippy tag="a" href="javascript:;" class="tooltip" content="cliquez pour supprimer">
-                <span @click="supprimer(index, data)" class="text-red-500 cursor-pointer">
-                  <Trash2Icon />
-                </span>
-              </Tippy>
-            </td>
+           
           </tr>
         </tbody>
       </table>
