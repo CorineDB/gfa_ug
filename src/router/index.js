@@ -150,7 +150,7 @@ const routes = [
       },
       {
         path: "choix",
-        name: "CHOIX",
+        name: "choix",
         component: CHOIX,
       },
       {

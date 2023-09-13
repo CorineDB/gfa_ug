@@ -1,10 +1,11 @@
 <template>
   <div class="py-4">
     <!-- toast notification -->
-    <Notification refKey="successNotification" :options="{ duration: 3000, }" class="flex">
+    <Notification refKey="successNotification" :options="{ duration: 3000 }" class="flex">
       <CheckCircleIcon v-if="message.type === 'success'" class="text-success" />
       <div class="ml-4 mr-4">
-        <div :class="{ 'text-red-500 capitalize ': message.type != 'success' }" class="font-medium">{{ message.type }}
+        <div :class="{ 'text-red-500 capitalize ': message.type != 'success' }" class="font-medium">
+          {{ message.type }}
         </div>
         <div class="text-slate-500 mt-1">
           {{ message.message }}
@@ -13,44 +14,33 @@
     </Notification>
     <!-- toast notification -->
 
-
     <!-- BEGIN: Modal Content -->
     <Modal :show="deleteModalPreview" @hidden="deleteModalPreview = false">
       <ModalBody class="p-0">
         <div class="p-5 text-center">
           <XCircleIcon class="w-16 h-16 text-danger mx-auto mt-3" />
           <div class="text-3xl mt-5">Vous etes sur de supprimer {{ deleteData.nom }} ?</div>
-          <div class="text-slate-500 mt-2">
-            Cette operation est irreverssible ? <br />Cliquer
-            sur annuler pour annuler l'operation
-          </div>
+          <div class="text-slate-500 mt-2">Cette operation est irreverssible ? <br />Cliquer sur annuler pour annuler l'operation</div>
         </div>
         <div class="px-5 pb-8 text-center">
-          <button type="button" @click="deleteModalPreview = false" class="btn btn-outline-secondary w-24 mr-1">
-            Annuler
-          </button>
-          <button type="button" @click="deleteIndicateur" class="btn btn-danger w-24">
-            Supprimer
-          </button>
+          <button type="button" @click="deleteModalPreview = false" class="btn btn-outline-secondary w-24 mr-1">Annuler</button>
+          <button type="button" @click="deleteIndicateur" class="btn btn-danger w-24">Supprimer</button>
         </div>
       </ModalBody>
     </Modal>
     <!-- END: Modal Content -->
 
-
     <!-- BEGIN: Modal Content -->
     <Modal :show="showModal" @hidden="close">
-      <ModalBody class="p-10 ">
+      <ModalBody class="p-10">
         <form v-if="!isUpdate" key="ajouter" @submit.prevent="storeIndicateur">
           <div class="my-2">
             <label for="regular-form-1" class="form-label">Nom</label>
-            <input id="regular-form-1" type="text" required v-model="formData.nom" class="form-control"
-              placeholder="libellé de l'indicateur" />
+            <input id="regular-form-1" type="text" required v-model="formData.nom" class="form-control" placeholder="libellé de l'indicateur" />
           </div>
           <div class="my-2">
             <label for="regular-form-1" class="form-label"> Description </label>
-            <input id="regular-form-1" type="text" required v-model="formData.description" class="form-control"
-              placeholder="Description" />
+            <input id="regular-form-1" type="text" required v-model="formData.description" class="form-control" placeholder="Description" />
           </div>
           <div class="my-2">
             <label for="regular-form-1" class="form-label">Outils </label>
@@ -59,22 +49,20 @@
               <option :value="true">Perception</option>
               <option :value="false">Factuel</option>
             </TomSelect>
-
           </div>
           <div class="my-2">
-            <label for="regular-form-1" class="form-label">Type de réponse</label>
+            <label for="regular-form-1" class="form-label">Nombres de réponse</label>
             <TomSelect v-model="formData.multipleAns" :options="{ placeholder: 'Selectionez un groupe' }" class="w-full">
               <option value="">Veuillez choisir un type de réponse</option>
-              <option :value="true">Multiple</option>
+              <option :value="true">Plusieurs</option>
               <option :value="false">Unique</option>
             </TomSelect>
-
           </div>
           <div class="my-2">
-            <label for="regular-form-1" class="form-label">Type de réponse</label>
+            <label for="regular-form-1" class="form-label">Type dréponse</label>
             <TomSelect v-model="formData.typeAns" :options="{ placeholder: 'Selectionez un groupe' }" class="w-full">
               <option value="">Veuillez choisir un type de réponse</option>
-              <option value="boolean"> Vrai/Faux</option>
+              <option value="boolean">Vrai/Faux</option>
               <option value="checkbox">Réponse multiple</option>
               <option value="feedBack">Commentaire</option>
               <option value="list">List</option>
@@ -83,18 +71,21 @@
               <option value="text">Text</option>
             </TomSelect>
           </div>
-          <button class="btn btn-primary py-3 px-4 w-full my-3  xl:mr-3 align-top">
-            <span class="text-sm font-semibold uppercase" v-if="!chargement">
-              Ajouter
-            </span>
+           <div class="my-2">
+            <label for="regular-form-1" class="form-label">Choix</label>
+            <TomSelect v-model="formData.choises" multiple  :options="{ placeholder: 'Selectionez un groupe' }" class="w-full">
+              <option v-for="(element, index) in choix" :key="index" :value="element.id">{{ element.nom }}
+                <option value=""> Rajouter des choix </option>
+              </option>
+            </TomSelect>
+
+          </div>
+          <button class="btn btn-primary py-3 px-4 w-full my-3 xl:mr-3 align-top">
+            <span class="text-sm font-semibold uppercase" v-if="!chargement"> Ajouter </span>
             <span v-else class="flex justify-center items-center space-x-2">
-              <span class=" px-4 font-semibold ">
-                chargement ...
-              </span>
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-center animate-spin" fill="none"
-                viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              <span class="px-4 font-semibold"> chargement ... </span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-center animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
             </span>
           </button>
@@ -103,37 +94,31 @@
         <form v-else key="modifier" @submit.prevent="updateIndicateur">
           <div class="my-2">
             <label for="regular-form-1" class="form-label">Nom</label>
-            <input id="regular-form-1" type="text" required v-model="saveUpdate.nom" class="form-control"
-              placeholder="libellé" />
+            <input id="regular-form-1" type="text" required v-model="saveUpdate.nom" class="form-control" placeholder="libellé" />
           </div>
           <div class="my-2">
             <label for="regular-form-1" class="form-label">Description</label>
-            <input id="regular-form-1" type="text" required v-model="saveUpdate.description" class="form-control"
-              placeholder="description" />
+            <input id="regular-form-1" type="text" required v-model="saveUpdate.description" class="form-control" placeholder="description" />
           </div>
 
           <div class="my-2">
-            <label for="regular-form-1" class="form-label">Groupes </label>
-
-            <TomSelect v-model="saveUpdate.groupeId" :options="{ placeholder: 'Selectionez un groupe' }" class="w-full">
-              <option :value="saveUpdate.promotionId"> {{ saveUpdate.groupeNom }} </option>
-              <option v-for="(groupe, index) in groupes" :key="index" :value="groupe.id">{{ groupe.nom }}</option>
+            <label for="regular-form-1" class="form-label">Choix</label>
+            <TomSelect v-model="saveUpdate.choises" :options="{ placeholder: 'Selectionez un groupe' }" class="w-full">
+              <option :value="saveUpdate.promotionId">
+                {{ saveUpdate.groupeNom }}
+              </option>
+              <option v-for="(groupe, index) in groupes" :key="index" :value="groupe.id">
+                {{ groupe.nom }}
+              </option>
             </TomSelect>
-
           </div>
 
-          <button class="btn btn-primary py-3 px-4 w-full my-3  xl:mr-3 align-top">
-            <span class="text-sm font-semibold uppercase" v-if="!chargement">
-              modifier
-            </span>
+          <button class="btn btn-primary py-3 px-4 w-full my-3 xl:mr-3 align-top">
+            <span class="text-sm font-semibold uppercase" v-if="!chargement"> modifier </span>
             <span v-else class="flex justify-center items-center space-x-2">
-              <span class=" px-4 font-semibold ">
-                chargement ...
-              </span>
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-center animate-spin" fill="none"
-                viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              <span class="px-4 font-semibold"> chargement ... </span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-center animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
             </span>
           </button>
@@ -142,22 +127,19 @@
     </Modal>
     <!-- END: Modal Content -->
     <!-- BEGIN: Modal Toggle -->
-    <div class=" flex justify-between ">
+    <div class="flex justify-between">
       <button @click="addIndicateur" class="btn btn-primary flex space-x-2 items-center">
         <PlusSquareIcon />
         <span class="uppercase font-semibold"> ajouter</span>
       </button>
       <div class="search hidden sm:block">
-        <input type="text" class="search__input form-control border-transparent" v-model="search"
-          placeholder="Recherche..." />
+        <input type="text" class="search__input form-control border-transparent" v-model="search" placeholder="Recherche..." />
         <SearchIcon class="search__icon dark:text-slate-500" />
       </div>
-
     </div>
-    <div class="my-4 flex justify-between items-center ">
+    <div class="my-4 flex justify-between items-center">
       <span class="text-xl uppercase font-bold">indicateurs {{ groupe }} </span>
-      <button @click="toBack"
-        class="bg-indigo-500 text-white rounded-lg font-semibold px-3 py-2 outline-none flex space-x-2 items-center">
+      <button @click="toBack" class="bg-indigo-500 text-white rounded-lg font-semibold px-3 py-2 outline-none flex space-x-2 items-center">
         <CornerUpLeftIcon />
         <span class="uppercase font-semibold">Critères</span>
       </button>
@@ -168,9 +150,9 @@
         <thead class="table-light">
           <tr>
             <th class="whitespace-nowrap">#</th>
-            <th class="whitespace-nowrap">Nom </th>
-            <th class="whitespace-nowrap">Description </th>
-            <th class="whitespace-nowrap">Outils </th>
+            <th class="whitespace-nowrap">Nom</th>
+            <th class="whitespace-nowrap">Description</th>
+            <th class="whitespace-nowrap">Outils</th>
             <th class="whitespace-nowrap">Choix multiple</th>
             <th class="whitespace-nowrap">Source de véfification</th>
             <th class="whitespace-nowrap">Type de réponse</th>
@@ -180,8 +162,8 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(data, index) in resultQuery " :key="index">
-            <td> {{ index + 1 }} </td>
+          <tr v-for="(data, index) in resultQuery" :key="index">
+            <td>{{ index + 1 }}</td>
             <td>{{ data.nom }}</td>
             <td>{{ data.description }}</td>
             <td>
@@ -197,15 +179,15 @@
               <span v-else> Oui </span>
             </td>
             <td>{{ data.typeAns }}</td>
-            <td> {{ data.created_at }} </td>
-            <td> {{ data.updated_at }}</td>
+            <td>{{ data.created_at }}</td>
+            <td>{{ data.updated_at }}</td>
             <td class="flex space-x-2 items-center">
-              <Tippy tag="a" href="javascript:;" class="tooltip " content="cliquez pour modifier">
+              <Tippy tag="a" href="javascript:;" class="tooltip" content="cliquez pour modifier">
                 <span @click="modifier(index, data)" class="text-blue-500 cursor-pointer">
                   <EditIcon />
                 </span>
               </Tippy>
-              <Tippy tag="a" href="javascript:;" class="tooltip " content="cliquez pour supprimer">
+              <Tippy tag="a" href="javascript:;" class="tooltip" content="cliquez pour supprimer">
                 <span @click="supprimer(index, data)" class="text-red-500 cursor-pointer">
                   <Trash2Icon />
                 </span>
@@ -215,168 +197,149 @@
         </tbody>
       </table>
       <div class="flex justify-center mt-4" v-if="totalPages() > 1">
-        <button
-          class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-l-md px-4 py-2 m-1 focus:outline-none"
-          :disabled="currentPage === 1" @click="currentPage--">Previous</button>
+        <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-l-md px-4 py-2 m-1 focus:outline-none" :disabled="currentPage === 1" @click="currentPage--">Previous</button>
         <template v-if="totalPages() <= 7">
-          <button
-            class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none"
-            :class="{ 'bg-gray-400': pageNumber === currentPage }" v-for="pageNumber in totalPages()" :key="pageNumber"
-            @click="goToPage(pageNumber)">
+          <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === currentPage }" v-for="pageNumber in totalPages()" :key="pageNumber" @click="goToPage(pageNumber)">
             {{ pageNumber }}
           </button>
         </template>
         <template v-else>
           <template v-if="currentPage <= 4">
-            <button
-              class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none"
-              :class="{ 'bg-gray-400': pageNumber === currentPage }" v-for="pageNumber in 5" :key="pageNumber"
-              @click="goToPage(pageNumber)">
+            <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === currentPage }" v-for="pageNumber in 5" :key="pageNumber" @click="goToPage(pageNumber)">
               {{ pageNumber }}
             </button>
             <span class="bg-gray-200 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1">...</span>
-            <button
-              class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none"
-              :class="{ 'bg-gray-400': pageNumber === totalPages() }" @click="goToPage(totalPages())">
+            <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === totalPages() }" @click="goToPage(totalPages())">
               {{ totalPages() }}
             </button>
           </template>
           <template v-else-if="currentPage >= totalPages() - 3">
-            <button
-              class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none"
-              :class="{ 'bg-gray-400': pageNumber === 1 }" @click="goToPage(1)">
-              1
-            </button>
+            <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === 1 }" @click="goToPage(1)">1</button>
             <span class="bg-gray-200 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1">...</span>
-            <button
-              class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none"
-              :class="{ 'bg-gray-400': pageNumber === currentPage }" v-for="pageNumber in 5" :key="pageNumber"
-              @click="goToPage(pageNumber)">
+            <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === currentPage }" v-for="pageNumber in 5" :key="pageNumber" @click="goToPage(pageNumber)">
               {{ pageNumber }}
             </button>
             <span class="bg-gray-200 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1">...</span>
-            <button
-              class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none"
-              :class="{ 'bg-gray-400': pageNumber === currentPage }"
-              v-for="pageNumber in [totalPages() - 3, totalPages() - 2, totalPages() - 1, totalPages()]" :key="pageNumber"
-              @click="goToPage(pageNumber)">
+            <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === currentPage }" v-for="pageNumber in [totalPages() - 3, totalPages() - 2, totalPages() - 1, totalPages()]" :key="pageNumber" @click="goToPage(pageNumber)">
               {{ pageNumber }}
             </button>
           </template>
           <template v-else>
-            <button
-              class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none"
-              :class="{ 'bg-gray-400': pageNumber === 1 }" @click="goToPage(1)">
-              1
-            </button>
+            <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === 1 }" @click="goToPage(1)">1</button>
             <span class="bg-gray-200 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1">...</span>
-            <button
-              class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none"
-              :class="{ 'bg-gray-400': pageNumber === currentPage }"
-              v-for="pageNumber in [currentPage - 1, currentPage, currentPage + 1]" :key="pageNumber"
-              @click="goToPage(pageNumber)">
+            <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === currentPage }" v-for="pageNumber in [currentPage - 1, currentPage, currentPage + 1]" :key="pageNumber" @click="goToPage(pageNumber)">
               {{ pageNumber }}
             </button>
             <span class="bg-gray-200 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1">...</span>
-            <button
-              class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none"
-              :class="{ 'bg-gray-400': pageNumber === totalPages() }" @click="goToPage(totalPages())">
+            <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === totalPages() }" @click="goToPage(totalPages())">
               {{ totalPages() }}
             </button>
           </template>
         </template>
-        <button
-          class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-r-md px-4 py-2 m-1 focus:outline-none"
-          :disabled="currentPage === totalPages()" @click="currentPage++">Next</button>
+        <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-r-md px-4 py-2 m-1 focus:outline-none" :disabled="currentPage === totalPages()" @click="currentPage++">Next</button>
       </div>
     </div>
-
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, provide, computed } from 'vue';
-import { useRouter, useRoute } from 'vue-router'
+import { ref, reactive, onMounted, provide, computed } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import IndicateurService from "@/services/modules/indicateur.service";
 import GroupeService from "@/services/modules/groupe.service";
+import ChoixService from "@/services/modules/choix.service";
 
-
-const router = useRouter()
-const route = useRoute()
-const showModal = ref(false)
-const deleteModalPreview = ref(false)
+const router = useRouter();
+const route = useRoute();
+const showModal = ref(false);
+const deleteModalPreview = ref(false);
 const successNotification = ref();
-const groupe = ref('')
-const search = ref('')
-const indicateurs = ref([])
-const groupes = ref([])
-const deleteData = reactive({})
-const saveUpdate = reactive({})
-const chargement = ref(false)
-const isUpdate = ref(false)
-const currentPage = ref(1)
-const itemsPerPage = ref(10)
+const groupe = ref("");
+const search = ref("");
+const indicateurs = ref([]);
+const groupes = ref([]);
+const deleteData = reactive({});
+const saveUpdate = reactive({});
+const chargement = ref(false);
+const isUpdate = ref(false);
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
 const formData = reactive({
-  nom: '',
-  description: '',
-  critere_id: '',
+  nom: "",
+  description: "",
+  critere_id: "",
   multipleAns: Boolean,
-  outil: '',
-  typeAns: ''
-})
+  outil: "",
+  typeAns: "",
+  poid:'',
+  choises : []
+});
 
 const message = reactive({
-  type: 'success',
-  message: '',
-})
+  type: "success",
+  message: "",
+});
+
+const choix = ref([])
+const getChoix = function () {
+  ChoixService.get()
+    .then((data) => {
+      choix.value = data.data.data;
+    })
+    .catch((e) => {
+      // disabled()
+      alert(e);
+    });
+};
 
 const resultQuery = computed(() => {
   if (search.value) {
     return indicateurs.value.filter((item) => {
-      return search.value.toLowerCase().split(' ').every(v => item.nom.toLowerCase().includes(v)) ||
-        search.value.toLowerCase().split(' ').every(v => item.description.toString().toLowerCase().includes(v)) ||
-        search.value.toLowerCase().split(' ').every(v => item.created_at.toLowerCase().includes(v))
-    })
+      return (
+        search.value
+          .toLowerCase()
+          .split(" ")
+          .every((v) => item.nom.toLowerCase().includes(v)) ||
+        search.value
+          .toLowerCase()
+          .split(" ")
+          .every((v) => item.description.toString().toLowerCase().includes(v)) ||
+        search.value
+          .toLowerCase()
+          .split(" ")
+          .every((v) => item.created_at.toLowerCase().includes(v))
+      );
+    });
   } else {
-
     // return indicateurs.value;
 
     const startIndex = (currentPage.value - 1) * itemsPerPage.value;
     const endIndex = startIndex + itemsPerPage.value;
     return indicateurs.value.slice(startIndex, endIndex);
   }
-})
+});
 
 onMounted(function () {
-
-  getData()
-
-  // getGroupe()
-})
+  getData();
+  getChoix()
+});
 
 const getData = function () {
-  IndicateurService.get(route.params.id).then((data) => {
-    indicateurs.value = data.data.data
-    // groupe.value = indicateurs.value[0].groupe.nom
-  }).catch((e) => {
-    // disabled()
-    alert(e)
-  })
-}
-// const getGroupe = function () {
-//   GroupeService.getGroupeByEntreprise().then((data) => {
-//     groupes.value = data.data.data
-//   }).catch((e) => {
-//     // disabled()
-//     alert(e)
-//   })
-// }
-function close() {
-  formData.nom = ''
-  formData.description = ''
-  showModal.value = false
-}
+  IndicateurService.get(route.params.id)
+    .then((data) => {
+      indicateurs.value = data.data.data;
+    })
+    .catch((e) => {
+      // disabled()
+      alert(e);
+    });
+};
 
+function close() {
+  formData.nom = "";
+  formData.description = "";
+  showModal.value = false;
+}
 
 provide("bind[successNotification]", (el) => {
   // Binding
@@ -387,11 +350,10 @@ const successNotificationToggle = () => {
   successNotification.value.showToast();
 };
 
-
 const addIndicateur = function () {
-  showModal.value = true
-  isUpdate.value = false
-}
+  showModal.value = true;
+  isUpdate.value = false;
+};
 
 function totalPages() {
   return Math.ceil(indicateurs.value.length / itemsPerPage.value);
@@ -402,125 +364,125 @@ const goToPage = (pageNumber) => {
     return;
   }
   currentPage.value = pageNumber;
-}
-
+};
 
 const storeIndicateur = function () {
-
-
-
   if (chargement.value == false) {
-    chargement.value = true
-    formData.critere_id = route.params.id
+    chargement.value = true;
+    formData.critere_id = route.params.id;
 
-    console.log(formData)
+    console.log(formData);
 
-    IndicateurService.create(formData).then((data) => {
-      message.type = 'success'
-      message.message = 'Nouveaux indicateur créee'
-      successNotificationToggle()
-      close()
-      getData()
-      chargement.value = false
-    }).catch((error) => {
-      chargement.value = false
+    IndicateurService.create(formData)
+      .then((data) => {
+        message.type = "success";
+        message.message = "Nouveaux indicateur créee";
+        successNotificationToggle();
+        close();
+        getData();
+        chargement.value = false;
+      })
+      .catch((error) => {
+        chargement.value = false;
+        if (error.response) {
+          // Requête effectuée mais le serveur a répondu par une erreur.
+          const erreurs = error.response.data.message;
+          message.type = "erreur";
+          message.message = erreurs;
+          successNotificationToggle();
+        } else if (error.request) {
+          // Demande effectuée mais aucune réponse n'est reçue du serveur.
+          //console.log(error.request);
+        } else {
+          // Une erreur s'est produite lors de la configuration de la demande
+          //console.log('dernier message', error.message);
+        }
+      });
+  }
+};
+
+const supprimer = function (index, data) {
+  deleteModalPreview.value = true;
+  deleteData.id = data.id;
+  deleteData.nom = data.nom;
+  deleteData.index = index;
+};
+const deleteIndicateur = function () {
+  deleteModalPreview.value = false;
+  indicateurs.value.splice(indicateurs.value.indexOf(deleteData.index), 1);
+  IndicateurService.destroy(deleteData.id)
+    .then((data) => {
+      message.type = "success";
+      message.message = "Operation éffectué avec success";
+      successNotificationToggle();
+      getData();
+    })
+    .catch((error) => {
       if (error.response) {
         // Requête effectuée mais le serveur a répondu par une erreur.
-        const erreurs = error.response.data.message
-        message.type = 'erreur'
-        message.message = erreurs
-        successNotificationToggle()
+        const erreurs = error.response.data.message;
+        message.type = "erreur";
+        message.message = erreurs;
+        successNotificationToggle();
       } else if (error.request) {
         // Demande effectuée mais aucune réponse n'est reçue du serveur.
         //console.log(error.request);
       } else {
         // Une erreur s'est produite lors de la configuration de la demande
-        //console.log('dernier message', error.message);
       }
-    })
-  }
-}
-
-const supprimer = function (index, data) {
-  deleteModalPreview.value = true
-  deleteData.id = data.id
-  deleteData.nom = data.nom
-  deleteData.index = index
-}
-const deleteIndicateur = function () {
-  deleteModalPreview.value = false
-  indicateurs.value.splice(indicateurs.value.indexOf(deleteData.index), 1);
-  IndicateurService.destroy(deleteData.id).then((data) => {
-    message.type = 'success'
-    message.message = 'Operation éffectué avec success'
-    successNotificationToggle()
-    getData()
-  }).catch((error) => {
-
-    if (error.response) {
-      // Requête effectuée mais le serveur a répondu par une erreur.
-      const erreurs = error.response.data.message
-      message.type = 'erreur'
-      message.message = erreurs
-      successNotificationToggle()
-    } else if (error.request) {
-      // Demande effectuée mais aucune réponse n'est reçue du serveur.
-      //console.log(error.request);
-    } else {
-      // Une erreur s'est produite lors de la configuration de la demande
-    }
-  })
-}
+    });
+};
 
 const modifier = function (index, data) {
+  console.log(data);
 
-  console.log(data)
-
-  saveUpdate.nom = data.nom
-  saveUpdate.description = data.description
-  saveUpdate.id = data.id
-  saveUpdate.groupeId = data.critere.id
-  saveUpdate.critereNom = data.critere.nom
-  showModal.value = true
-  isUpdate.value = true
-}
+  saveUpdate.nom = data.nom;
+  saveUpdate.description = data.description;
+  saveUpdate.id = data.id;
+  saveUpdate.groupeId = data.critere.id;
+  saveUpdate.critereNom = data.critere.nom;
+  showModal.value = true;
+  isUpdate.value = true;
+};
 const updateIndicateur = function () {
   if (chargement.value == false) {
-    chargement.value = true
+    chargement.value = true;
     const formData = {
       nom: saveUpdate.nom,
       description: saveUpdate.description,
-      groupeId: saveUpdate.groupeId
-    }
-    IndicateurService.update(saveUpdate.id, formData).then((data) => {
-      chargement.value = false
-      message.type = 'success'
-      message.message = 'Mise à jours éffectué avec succèss'
-      successNotificationToggle()
-      close()
-      getData()
-      this.getData()
-    }).catch((error) => {
-      chargement.value = false
-      if (error.response) {
-        // Requête effectuée mais le serveur a répondu par une erreur.
-        const erreurs = error.response.data.message
-        message.type = 'erreur'
-        message.message = erreurs
-        successNotificationToggle()
-      } else if (error.request) {
-        // Demande effectuée mais aucune réponse n'est reçue du serveur.
-        //console.log(error.request);
-      } else {
-        // Une erreur s'est produite lors de la configuration de la demande
-        //console.log('dernier message', error.message);
-      }
-    })
+      groupeId: saveUpdate.groupeId,
+    };
+    IndicateurService.update(saveUpdate.id, formData)
+      .then((data) => {
+        chargement.value = false;
+        message.type = "success";
+        message.message = "Mise à jours éffectué avec succèss";
+        successNotificationToggle();
+        close();
+        getData();
+        this.getData();
+      })
+      .catch((error) => {
+        chargement.value = false;
+        if (error.response) {
+          // Requête effectuée mais le serveur a répondu par une erreur.
+          const erreurs = error.response.data.message;
+          message.type = "erreur";
+          message.message = erreurs;
+          successNotificationToggle();
+        } else if (error.request) {
+          // Demande effectuée mais aucune réponse n'est reçue du serveur.
+          //console.log(error.request);
+        } else {
+          // Une erreur s'est produite lors de la configuration de la demande
+          //console.log('dernier message', error.message);
+        }
+      });
   }
-}
+};
 const toBack = function () {
-  router.go(-1)
-}
+  router.go(-1);
+};
 </script>
 
 <style lang="scss" scoped></style>
