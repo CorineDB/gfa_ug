@@ -159,6 +159,10 @@ const updatedMenu = () => {
       if ($h.getPermission("read.indicateur") || $h.getPermission("write.indicateur")) {
         updateMenu.push(element);
       }
+    } else if (element.title == "Structure") {
+      if ($h.getPermission("read.indicateur") || $h.getPermission("write.indicateur")) {
+        updateMenu.push(element);
+      }
     } else if (element.title == "Gouvernance") {
       if ($h.getPermission("read.indicateur") || $h.getPermission("write.indicateur")) {
         updateMenu.push(element);
@@ -219,6 +223,6 @@ onMounted(() => {
 <style scoped>
 .navColor {
   background: rgb(8, 10, 34);
-  color: rgb(165, 126, 126)
+  color: rgb(165, 126, 126);
 }
 </style>

@@ -54,7 +54,7 @@
               <h1 class="text-xl w-2/3 sm:w-full sm:text-xl intro-x font-black text-center border-blue-700 inline-block mx-auto text-blue-500">{{ element.nom }}</h1>
             </div>
             <div class="mt-3">
-              <div class="grid grid-cols-12 gap-4">
+              <div class="grid grid-cols-12 gap-4" v-if="element.choises.length">
                 <div class="col-span-6 lg:col-span-4 mr-2">
                   <input id="radio-switch-4" class="form-check-input" type="radio" :name="'option' + index" :value="element.choises[0].id" @change="showValue()" />
                   <label class="form-check-label" for="radio-switch-4"> {{ element.choises[0].nom }} </label>

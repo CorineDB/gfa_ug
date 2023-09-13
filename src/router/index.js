@@ -17,6 +17,7 @@ import Tarifications from "../views/dashboard/tarifications.vue";
 import CampagnesByBsd from "../views/dashboard/campagne-bsd.vue";
 import Resolution from "../views/dashboard/resolution.vue";
 import Indicateurs from "../views/dashboard/indicateurs.vue";
+import Structure from "../views/dashboard/structure.vue";
 import Principe from "../views/dashboard/principe.vue";
 import Critere from "../views/dashboard/critere.vue";
 import Utilisateur from "../views/dashboard/utilisateur.vue";
@@ -45,7 +46,7 @@ const routes = [
   {
     path: "/dashboard",
     component: SideMenu,
-    name: 'dashboard',
+    name: "dashboard",
     children: [
       {
         path: "dashboard-overview-1",
@@ -76,6 +77,11 @@ const routes = [
         path: "/fichePerception",
         name: "FichePerception",
         component: FichePerception,
+      },
+      {
+        path: "/structure",
+        name: "Structure",
+        component: Structure,
       },
       {
         path: "/synthese",
@@ -116,7 +122,7 @@ const routes = [
       {
         path: "resolution",
         name: "Resolution",
-        component: Resolution
+        component: Resolution,
       },
       {
         path: "utilisateurs",
@@ -199,13 +205,11 @@ const routes = [
         component: CampagnesByBsd,
       },
 
-
       // {
       //   path: "campagne/:id/vote",
       //   name: "Votes",
       //   component: Votes
       // },
-
     ],
   },
 
