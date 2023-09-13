@@ -2798,9 +2798,6 @@ else {
         const message = new SpeechSynthesisUtterance(indicateurEnCours.nom);
         window.speechSynthesis.speak(message);
       }, 2000);
-
-
-
     }).catch((e) => {
       // disabled()
       //alert(e)

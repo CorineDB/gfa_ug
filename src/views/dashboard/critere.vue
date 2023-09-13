@@ -138,31 +138,6 @@
                   <Trash2Icon />
                 </span>
               </Tippy>
-
-              <!-- <Dropdown class="inline-block" placement="top-end">
-                <DropdownToggle class="mr-1">
-                  <AlignJustifyIcon />
-                </DropdownToggle>
-                <DropdownMenu class="w-40">
-                  <DropdownContent>
-                    <Tippy tag="a" href="javascript:;" class="tooltip inline-block my-2" content="cliquez pour modifier">
-                      <span @click="modifier(index, data)" class="text-black cursor-pointer flex justify-start items-center"> <EditIcon class="mr-2" />Modifier </span>
-                    </Tippy>
-                    <Tippy tag="a" href="javascript:;" class="tooltip inline-block my-2" content="cliquez pour ajouter ou voir les critères">
-                      <span @click="voirIndicateur(index, data.id)" class="text-black cursor-pointer flex justify-start items-center"
-                        ><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus-circle mr-2">
-                          <circle cx="12" cy="12" r="10"></circle>
-                          <line x1="12" y1="8" x2="12" y2="16"></line>
-                          <line x1="8" y1="12" x2="16" y2="12"></line></svg
-                        >Ajouter Indicateur</span
-                      >
-                    </Tippy>
-                    <Tippy tag="a" href="javascript:;" class="tooltip inline-block my-2" content="cliquez pour supprimer">
-                      <span @click="supprimer(index, data)" class="text-black cursor-pointer flex justify-start items-center"> <Trash2Icon class="mr-2" />Supprimer </span>
-                    </Tippy>
-                  </DropdownContent>
-                </DropdownMenu>
-              </Dropdown> -->
             </td>
           </tr>
         </tbody>

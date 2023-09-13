@@ -218,7 +218,7 @@ onMounted(() => {
 </script>
 <style scoped>
 .navColor {
-  background: rgb(0, 9, 110);
-  color: rgb(165, 126, 126);
+  background: rgb(8, 10, 34);
+  color: rgb(165, 126, 126)
 }
 </style>
