@@ -153,7 +153,6 @@
                     <div class="text-3xl font-medium leading-8 mt-6 " v-if="statistique.mediocre"> {{
                       statistique.mediocre[0] }}</div>
 
-
                     <div class="text-base text-slate-500 mt-1">Moyennement Observé</div>
                   </div>
                 </div>
@@ -176,7 +175,6 @@
                   <div class="min-h-[62px] flex flex-col items-start justify-end">
                     <div class="text-3xl font-medium leading-8 mt-6 " v-if="statistique.mediocre"> {{
                       statistique.mediocre[0] }}</div>
-
 
                     <div class="text-base text-slate-500 mt-1">Observé</div>
                   </div>
@@ -236,7 +234,6 @@
                     <div class="text-3xl font-medium leading-8 mt-6 " v-if="statistique.excellent"> {{
                       statistique.excellent[0] }} </div>
 
-
                     <div class="text-base text-slate-500 mt-1">Non Observé</div>
                   </div>
 
@@ -286,7 +283,6 @@
                     <div class="text-3xl font-medium leading-8 mt-6 " v-if="statistique.mediocre"> {{
                       statistique.mediocre[0] }}</div>
 
-
                     <div class="text-base text-slate-500 mt-1">Moyennement Observé</div>
                   </div>
                 </div>
@@ -308,7 +304,6 @@
                   <div class="min-h-[62px] flex flex-col items-start justify-end">
                     <div class="text-3xl font-medium leading-8 mt-6 " v-if="statistique.mediocre"> {{
                       statistique.mediocre[0] }}</div>
-
 
                     <div class="text-base text-slate-500 mt-1">Observé</div>
                   </div>
