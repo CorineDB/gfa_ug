@@ -169,33 +169,7 @@
                   <td class="px-2">0.43</td>
                 </tr>
                 <!-- row 2 -->
-                <tr>
-                  <td class="p-2 font-bold" rowspan="5">Redevabilité</td>
-                  <td class="p-2" rowspan="4">Légitimité/légalité</td>
-                  <td class="p-2">Rôles et responsabilité clairement définis</td>
-                  <td class="p-2 text-center">1</td>
-                  <td class="p-2">10</td>
-                </tr>
-                <tr>
-                  <td class="p-2">Organes statutaires fonctionnels</td>
-                  <td class="p-2 text-center">2</td>
-                  <td class="p-2">15</td>
-                </tr>
-                <tr>
-                  <td class="p-2">Existence de statuts et règlement intérieur</td>
-                  <td class="p-2 text-center">3</td>
-                  <td class="p-2">6</td>
-                </tr>
-                <tr>
-                  <td class="p-2">Rédaction et validation des rapports d’activités</td>
-                  <td class="p-2 text-center">3</td>
-                  <td class="p-2">6</td>
-                </tr>
-                <tr class="subTotatlRow">
-                  <td colspan="2" class="px-2 sub-total-text"> ->\ </td>
-                  <td class="px-2 font-bold text-xs whitespace-nowrap">Score Factuel</td>
-                  <td class="px-2">0.43</td>
-                </tr>
+
 
               </tbody>
             </table>
