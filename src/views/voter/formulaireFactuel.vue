@@ -43,7 +43,7 @@
           </div>
           <p v-if="principeTab.length" class="text-3xl w-2/3 mx-auto font-black text-center intro-x my-3">{{ principeTab[etape].nom }}</p>
         </div>
-      </div>
+      </div> 
 
       <!-- DEBUT CARD indicateurs -->
       <div v-if="principeTab.length" class="w-2/3 mx-auto rounded-md">
@@ -304,10 +304,10 @@ const soumettre = function () {
     }
   }
 
-  console.log(Object.prototype.toString.apply(submit));
-  PrincipeService.submit(submit)
+  console.log(submit);
+  PrincipeService.submit( { reponse :submit })
     .then((data) => {
-      console.log(data);
+      // console.log(data);
     })
     .catch((e) => {});
   factuelStore.setSubmitTable(submit);

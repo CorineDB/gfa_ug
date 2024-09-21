@@ -10,9 +10,9 @@ const SiteService = {
     },
 
     get(slug) {
-      return ApiService.get("entreprise/sites", slug);
+      return ApiService.get("sites", slug);
     },
-   
+
     create(params) {
       return ApiService.post("sites", params);
     },
@@ -25,6 +25,9 @@ const SiteService = {
       return ApiService.delete(`sites/${slug}`);
     },
 
+    programme(slug) {
+      return ApiService.get(`programmes/${slug}/sites`);
+    }
 
   };
 

@@ -1,7 +1,7 @@
 
 import ApiService from '@/services/configs/api.service'
 
-const IndicateurService = {
+const IndicateursService = {
 
     query(type, params) {
       return ApiService.query("indicateurs", {
@@ -10,14 +10,18 @@ const IndicateurService = {
     },
 
     get(slug) {
-      return ApiService.get(`critere/${slug}/indicateurs`);
+      return ApiService.get("indicateurs", slug);
     },
-    getAll(slug) {
-      return ApiService.get(`indicateurs`);
+    getIndicateurBailleur() {
+      return ApiService.get("bailleur/indicateurs");
     },
-    
+
     create(params) {
       return ApiService.post("indicateurs", params);
+    },
+
+    filtre(params) {
+      return ApiService.post("indicateurs/filtres", params);
     },
 
     update(slug, params) {
@@ -28,8 +32,11 @@ const IndicateurService = {
       return ApiService.delete(`indicateurs/${slug}`);
     },
 
+    programmes(slug) {
+      return ApiService.get(`indicateurs/${slug}/programmes`);
+    }
 
   };
 
-  export default IndicateurService;
+  export default IndicateursService;
   

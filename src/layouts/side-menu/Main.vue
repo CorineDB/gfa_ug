@@ -209,14 +209,14 @@ const updatedMenu = () => {
 const usersProfileImage = ref("");
 
 onMounted(() => {
-  const usersInfo = JSON.parse(localStorage.getItem("bsdInfo"));
+  // const usersInfo = JSON.parse(localStorage.getItem("bsdInfo"));
 
-  if (usersInfo) {
-    usersProfileImage.value = API_BASE_URL + usersInfo.users.profil;
-  }
+  // if (usersInfo) {
+  //   usersProfileImage.value = API_BASE_URL + usersInfo.users.profil;
+  // }
 
-  dom("body").removeClass("error-page").removeClass("login").addClass("main");
-  updatedMenu();
+  // dom("body").removeClass("error-page").removeClass("login").addClass("main");
+  // updatedMenu();
   formattedMenu.value = $h.toRaw(lastMenu.value);
 });
 </script>

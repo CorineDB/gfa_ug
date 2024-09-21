@@ -39,9 +39,6 @@ import FicheSynthese from "../views/gfa/FicheSynthese.vue";
 import DashboardGfa from "../views/gfa/Dashboard.vue"
 
 
-
-
-
 const routes = [
   {
     path: "/dashboard",
@@ -268,15 +265,15 @@ const router = createRouter({
 
 
 
-router.beforeEach((to, from, next) => {
-  if (!localStorage.getItem('bsdInfo') && to.path !== '/') {
-    next('/')
-  } else {
-    next()
-  }
+// router.beforeEach((to, from, next) => {
+//   if (!localStorage.getItem('bsdInfo') && to.path !== '/') {
+//     next('/')
+//   } else {
+//     next()
+//   }
 
-  // next()
-})
+//   // next()
+// })
 
 
 export default router;
