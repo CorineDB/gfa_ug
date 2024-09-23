@@ -352,7 +352,7 @@ const resultQuery = computed(() => {
 onMounted(function () {
 
   if (!$h.getPermission('read.site')) {
-    router.push('/error-page')
+   // router.push('/error-page')
   }
   getData()
 })

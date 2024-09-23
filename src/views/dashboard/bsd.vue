@@ -1065,9 +1065,9 @@ const resultQuery = computed(() => {
 
 
 onMounted(function () {
-  if (!$h.getPermission('read.equipement')) {
-    router.push('/error-page')
-  }
+  // if (!$h.getPermission('read.equipement')) {
+  //   router.push('/error-page')
+  // }
   getData()
   getPacks()
   getGrilleTarifaires()

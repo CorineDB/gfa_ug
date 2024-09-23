@@ -133,26 +133,27 @@ const year = computed(() => {
 
 //methods
 const login = () => {
-  alert("ok");
-  router.push("/dashboard");
+  //alert("ok");
+  //router.push("/dashboard");
   // console.log(state)
 
-  // v$.value.$validate() // checks all inputs
+  v$.value.$validate(); // checks all inputs
 
-  // if (!v$.value.$error) {
-  //   store.login(state).then(payload => {
-  //     message.type = 'success'
-  //     message.message = 'Vous etes connectées'
-  //     successNotificationToggle()
-  //     router.push('/dashboard/bsd')
-
-  //   }).catch(err => {
-  //     message.type = 'erreur'
-  //     message.message = err
-  //     successNotificationToggle()
-
-  //   })
-  // }
+  if (!v$.value.$error) {
+    store
+      .login(state)
+      .then((payload) => {
+        message.type = "success";
+        message.message = "Vous etes connectées";
+        successNotificationToggle();
+        router.push("/dashboard/ano");
+      })
+      .catch((err) => {
+        message.type = "erreur";
+        message.message = err;
+        successNotificationToggle();
+      });
+  }
 };
 
 const invisible = () => {

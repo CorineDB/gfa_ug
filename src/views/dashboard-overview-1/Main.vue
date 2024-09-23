@@ -919,7 +919,7 @@ onBeforeMount(function () {
 onMounted(function () {
 
   if (!$h.getPermission('read.statistique')) {
-    router.push('/error-page')
+    //router.push('/error-page')
   }
   //getstatGeneral()
   const currentYear = new Date().getFullYear();

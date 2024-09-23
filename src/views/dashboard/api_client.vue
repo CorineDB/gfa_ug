@@ -285,9 +285,9 @@ const resultQuery = computed(() => {
 })
 
 onMounted(function () {
-  if (!$h.getPermission('read.api.client')) {
-    router.push('/error-page')
-  }
+  // if (!$h.getPermission('read.api.client')) {
+  //   router.push('/error-page')
+  // }
 
   getData()
 })

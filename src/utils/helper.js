@@ -16,11 +16,15 @@ const helpers = {
   },
   getPermission(data) {
     var permissions = JSON.parse(localStorage.getItem("bsdInfo"))?.permissions;
+    console.log(permissions);
     var tab = [];
 
     tab = permissions?.filter((item) => {
-      return data.toLowerCase().split(' ').every(v => item.slug.toLowerCase().includes(v))
-    })
+      return data
+        .toLowerCase()
+        .split(" ")
+        .every((v) => item.slug.toLowerCase().includes(v));
+    });
 
     return tab?.length ? true : false;
   },
@@ -60,9 +64,7 @@ const helpers = {
     }
   },
   timeAgo(time) {
-    const date = new Date(
-      (time || "").replace(/-/g, "/").replace(/[TZ]/g, " ")
-    );
+    const date = new Date((time || "").replace(/-/g, "/").replace(/[TZ]/g, " "));
     const diff = (new Date().getTime() - date.getTime()) / 1000;
     const dayDiff = Math.floor(diff / 86400);
 
@@ -70,17 +72,7 @@ const helpers = {
       return dayjs(time).format("MMMM DD, YYYY");
     }
 
-    return (
-      (dayDiff === 0 &&
-        ((diff < 60 && "just now") ||
-          (diff < 120 && "1 minute ago") ||
-          (diff < 3600 && Math.floor(diff / 60) + " minutes ago") ||
-          (diff < 7200 && "1 hour ago") ||
-          (diff < 86400 && Math.floor(diff / 3600) + " hours ago"))) ||
-      (dayDiff === 1 && "Yesterday") ||
-      (dayDiff < 7 && dayDiff + " days ago") ||
-      (dayDiff < 31 && Math.ceil(dayDiff / 7) + " weeks ago")
-    );
+    return (dayDiff === 0 && ((diff < 60 && "just now") || (diff < 120 && "1 minute ago") || (diff < 3600 && Math.floor(diff / 60) + " minutes ago") || (diff < 7200 && "1 hour ago") || (diff < 86400 && Math.floor(diff / 3600) + " hours ago"))) || (dayDiff === 1 && "Yesterday") || (dayDiff < 7 && dayDiff + " days ago") || (dayDiff < 31 && Math.ceil(dayDiff / 7) + " weeks ago");
   },
   diffTimeByNow(time) {
     const startDate = dayjs(dayjs().format("YYYY-MM-DD HH:mm:ss").toString());
@@ -92,9 +84,7 @@ const helpers = {
     const days = Math.round(milliseconds / 86400000);
     const hours = Math.round((milliseconds % 86400000) / 3600000);
     let minutes = Math.round(((milliseconds % 86400000) % 3600000) / 60000);
-    const seconds = Math.round(
-      (((milliseconds % 86400000) % 3600000) % 60000) / 1000
-    );
+    const seconds = Math.round((((milliseconds % 86400000) % 3600000) % 60000) / 1000);
 
     if (seconds < 30 && seconds >= 0) {
       minutes += 1;
@@ -136,11 +126,7 @@ const helpers = {
       if (typeof value === "string") {
         if (value.replace("#", "").length == 6) {
           const aRgbHex = value.replace("#", "").match(/.{1,2}/g);
-          tempColors[key] = (opacity = 1) =>
-            `rgb(${parseInt(aRgbHex[0], 16)} ${parseInt(
-              aRgbHex[1],
-              16
-            )} ${parseInt(aRgbHex[2], 16)} / ${opacity})`;
+          tempColors[key] = (opacity = 1) => `rgb(${parseInt(aRgbHex[0], 16)} ${parseInt(aRgbHex[1], 16)} ${parseInt(aRgbHex[2], 16)} / ${opacity})`;
         }
       } else {
         tempColors[key] = helpers.toRGB(value);

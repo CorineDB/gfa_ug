@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import SideMenu from "../layouts/side-menu/Main.vue";
-import DashboardOverview1 from "../views/dashboard-overview-1/Main.vue";
+//import DashboardOverview1 from "../views/dashboard-overview-1/Main.vue";
 import Bsd from "../views/dashboard/bsd.vue";
 import Profil from "../views/dashboard/profil.vue";
 import Roles from "../views/dashboard/roles.vue";
@@ -22,23 +22,22 @@ import Principe from "../views/dashboard/principe.vue";
 import Critere from "../views/dashboard/critere.vue";
 import Utilisateur from "../views/dashboard/utilisateur.vue";
 import Login from "../views/login/Main.vue";
-import ResetPassword from "../views/reset-password/Main.vue"
+import ResetPassword from "../views/reset-password/Main.vue";
 import NewPassword from "../views/reset-password/_mails/newPassword.vue";
-import ResetPasswordFromDashboard from "../views/dashboard/resetPasswordFromDashboard.vue"
+import ResetPasswordFromDashboard from "../views/dashboard/resetPasswordFromDashboard.vue";
 import Feedback from "../views/dashboard/feedback.vue";
 import ErrorPage from "../views/error-page/Main.vue";
 import ProgramationRapport from "../views/dashboard/programmation_rapport.vue";
 import { Indent, QrCode } from "lucide-vue-next";
-import Voter from "../views/voter/voter.vue"
-import FormulaireFactuel from "../views/voter/formulaireFactuel.vue"
+import Voter from "../views/voter/voter.vue";
+import FormulaireFactuel from "../views/voter/formulaireFactuel.vue";
 import ToolsFactuel from "../views/gfa/ToolsFactuel.vue";
 import ToolsPerception from "../views/gfa/ToolsPerception.vue";
 import FicheFactuel from "../views/gfa/FicheFactuel.vue";
 import Ano from "../views/gfa/Ano.vue";
 import FichePerception from "../views/gfa/FichePerception.vue";
 import FicheSynthese from "../views/gfa/FicheSynthese.vue";
-import DashboardGfa from "../views/gfa/Dashboard.vue"
-
+import DashboardGfa from "../views/gfa/Dashboard.vue";
 
 const routes = [
   {
@@ -47,12 +46,7 @@ const routes = [
     name: "dashboard",
     children: [
       {
-        path: "dashboard-overview-1",
-        name: "side-menu-dashboard-overview-1",
-        component: DashboardOverview1,
-      },
-      {
-        path: "Dashboard",
+        path: "gfa",
         name: "DashboardGfa",
         component: DashboardGfa,
       },
@@ -267,19 +261,14 @@ const router = createRouter({
   },
 });
 
+router.beforeEach((to, from, next) => {
+  if (!localStorage.getItem("bsdInfo") && to.path !== "/") {
+    next("/");
+  } else {
+    next();
+  }
 
-
-
-
-// router.beforeEach((to, from, next) => {
-//   if (!localStorage.getItem('bsdInfo') && to.path !== '/') {
-//     next('/')
-//   } else {
-//     next()
-//   }
-
-//   // next()
-// })
-
+  // next()
+});
 
 export default router;

@@ -317,7 +317,7 @@ const resultQuery = computed(() => {
 
 onMounted(function () {
   if (!$h.getPermission('read.rapport')) {
-    router.push('/error-page')
+    //router.push('/error-page')
   }
   getData()
   getCampagne()

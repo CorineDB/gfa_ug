@@ -75,7 +75,8 @@
         <DropdownContent class="bg-primary text-white">
           <DropdownHeader tag="div" class="!font-normal">
             <div class="font-medium">
-              <span > {{  currentUsers.nom  }} {{  currentUsers.prenom }}
+              <!-- {{  currentUsers.prenom }} -->
+              <span > {{  currentUsers.nom  }} 
               </span>
             </div>
             <div class="text-xs text-white/70 mt-0.5 dark:text-slate-500">
@@ -240,10 +241,10 @@ onMounted(() => {
   if (usersInfo) {
     usersProfileImage.value = API_BASE_URL + usersInfo.users.profil
     currentUsers.nom = usersInfo.users.nom
-    currentUsers.prenom = usersInfo.users.prenom
+   // currentUsers.prenom = usersInfo.users.prenom
     currentUsers.role = usersInfo.users.role.nom
-   
-    let storeInitial = currentUsers.nom[0] + '' + currentUsers.prenom[0]
+  //  + currentUsers.prenom[0]
+    let storeInitial = currentUsers.nom[0] + '' 
     storeInitial = storeInitial.toUpperCase()
     initiale.value = storeInitial
     currentUsers.initiale = initiale.value

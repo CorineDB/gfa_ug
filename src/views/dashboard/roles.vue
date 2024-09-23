@@ -288,7 +288,7 @@ const resultQuery = computed(() => {
 
 onMounted(function () {
   if (!$h.getPermission('read.role')) {
-    router.push('/error-page')
+   // router.push('/error-page')
   }
 
 
