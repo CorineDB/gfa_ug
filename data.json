@@ -1,5 +1,4 @@
-this.categories getCategorie champsRecherche this.uniteDeMesures getUniteDeMesure filter
-
+addIndicateur formAjoutIndicateur showModal
 
 [
   {

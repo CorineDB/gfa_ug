@@ -223,6 +223,20 @@ export default {
         categorieId: "",
         uniteeMesureId: "",
       },
+      formAjoutIndicateur: {
+        nom: "",
+        anneeDeBase: Number,
+        valeurDeBase: "",
+        uniteeMesureId: "",
+        categorieId: "",
+        bailleurId: "",
+        valeurCibleTotal: "",
+        // kobo: "",
+        // koboVersion: "",
+        sourceDeVerification: "",
+        hypothese: "",
+        description: "",
+      },
     };
   },
   watch: {
@@ -607,20 +621,22 @@ export default {
             { name: "Année de base", cle: "anneeDeBase", width: "w-48" },
             { name: "Date de création", cle: "created_at", width: "w-48" },
           ];
-          this.champs = [
-            { name: "Nom", type: "text", key: "nom", placeholdere: "Nom de l'indicateur", isSelect: false, isTextArea: false, data: "", required: true, errors: [] },
-            { name: "Année de base", key: "anneeDeBase", type: "number", placeholdere: "l'année de base", isSelect: false, isTextArea: false, data: "", required: true, errors: [] },
-            { name: "Valeur de base", key: "valeurDeBase", type: "text", placeholdere: "Valeur de base", isSelect: false, isTextArea: false, data: "", required: true, errors: [] },
-            { name: "Unite de mesure", key: "uniteeMesureId", type: "", placeholdere: "Selectionnez une unité de mesure", canAdd: true, isSelect: true, isTextArea: false, data: "", options: this.uniteDeMesures, required: true, cle: "id", value: "nom", errors: [] },
-            { name: "Categories", key: "categorieId", type: "", placeholdere: "Selectionnez une categorie", canAdd: true, isSelect: true, isTextArea: false, data: "", options: this.categories, required: false, cle: "id", value: "nom", errors: [] },
-            { name: "Bailleurs", key: "bailleurId", type: "", placeholdere: "Selectionnez le bailleur", canAdd: true, isSelect: true, isTextArea: false, data: "", required: true, options: this.bailleurs, cle: "id", value: "sigle", errors: [] },
-            { name: "Valeur cible finale", type: "text", key: "valeurCibleTotal", placeholdere: "Valeur cible total", isSelect: false, isTextArea: false, data: "", required: false, errors: [] },
-            { name: "Kobo champs", type: "text", key: "kobo", placeholdere: "Paramètre champ kobo", isSelect: false, isTextArea: false, data: "", required: false, errors: [] },
-            { name: "Kobo version", type: "text", key: "koboVersion", placeholdere: "Paramètre version kobo", isSelect: false, isTextArea: false, data: "", required: false, errors: [] },
-            { name: "Source de verification", type: "text", key: "sourceDeVerification", placeholdere: "Source de verification", isSelect: false, isTextArea: false, data: "", required: false, errors: [] },
-            { name: "Hypothese", type: "text", key: "hypothese", placeholdere: "Hypothese", isSelect: false, isTextArea: false, data: "", required: false, errors: [] },
-            { name: "Description", key: "description", type: "", placeholdere: "Description", isSelect: false, isTextArea: true, data: "", required: false, errors: [] },
-          ];
+
+          this.champs = {
+            nom: "",
+            anneeDeBase: Number,
+            valeurDeBase: "",
+            uniteeMesureId: "",
+            categorieId: "",
+            bailleurId: "",
+            valeurCibleTotal: "",
+            kobo: "",
+            koboVersion: "",
+            sourceDeVerification: "",
+            hypothese: "",
+            description: "",
+          };
+
           this.champsRecherche = [
             { name: "Indicateur", key: "nom", type: "text", placeholdere: "Donnez un nom d'indicateur", isSelect: false, isTextArea: false, data: "", required: false },
             { name: "Année de base", key: "anneeDeBase", type: "numer", placeholdere: "l'année de base", isSelect: false, isTextArea: false, data: "", required: false },
@@ -1117,24 +1133,24 @@ export default {
     },
 
     sendForm() {
-      this.champs = this.champs.map((item) => {
-        item.errors = [];
-        return item;
-      });
-      this.champsUpdate = this.champsUpdate.map((item) => {
-        item.errors = [];
-        return item;
-      });
-      let indicateur = {};
-      if (this.isUpdate) {
-        indicateur = extractFormData(this.champsUpdate, this.indicateurAttributsUpdate);
-      } else {
-        indicateur = extractFormData(this.champs, this.indicateurAttributs);
-      }
+      // this.champs = this.champs.map((item) => {
+      //   item.errors = [];
+      //   return item;
+      // });
+      // this.champsUpdate = this.champsUpdate.map((item) => {
+      //   item.errors = [];
+      //   return item;
+      // });
+      // let indicateur = {};
+      // if (this.isUpdate) {
+      //   indicateur = extractFormData(this.champsUpdate, this.indicateurAttributsUpdate);
+      // } else {
+      //   indicateur = extractFormData(this.champs, this.indicateurAttributs);
+      // }
 
-      indicateur.bailleurId = indicateur.bailleurId.id;
-      indicateur.categorieId = indicateur.categorieId.id;
-      indicateur.uniteeMesureId = indicateur.uniteeMesureId.id;
+      // indicateur.bailleurId = indicateur.bailleurId.id;
+      // indicateur.categorieId = indicateur.categorieId.id;
+      // indicateur.uniteeMesureId = indicateur.uniteeMesureId.id;
 
       if (this.sendRequest == false) {
         this.sendRequest = true;
@@ -1154,21 +1170,20 @@ export default {
               this.sendRequest = false;
             });
         } else {
-          this.saveIndicateur(indicateur)
+          this.saveIndicateur(this.formAjoutIndicateur)
             .then((response) => {
               if (response.status == 200 || response.status == 201) {
-                this.close();
-                this.resetForm();
-                localStorage.removeItem("formData");
-                this.$toast.success("operation effectué avec success");
-                this.fetchIndicateur();
-
-                this.sendRequest = false;
+                // this.close();
+                // this.resetForm();
+                // localStorage.removeItem("formData");
+                // this.$toast.success("operation effectué avec success");
+                // this.fetchIndicateur();
+                // this.sendRequest = false;
               }
             })
             .catch((e) => {
-              this.$toast.error(e);
-              this.sendRequest = false;
+              // this.$toast.error(e);
+              // this.sendRequest = false;
             });
         }
       }
@@ -1185,7 +1200,7 @@ export default {
       // indicateur.categorieId = indicateur.categorieId?.id;
       // indicateur.uniteeMesureId = indicateur.uniteeMesureId?.id;
 
-     
+      console.log(this.filteredIndicateur);
 
       this.filtre(this.filteredIndicateur).then((response) => {
         if (response.status == 200 || response.status == 201) {
@@ -1458,7 +1473,7 @@ export default {
         <input type="text" v-model="filteredIndicateur.anneeDeBase" placeholder="Année de base" class="border p-2 rounded" />
 
         <div class="flex w-full">
-          <v-select class="w-full" :reduce="(categories) => id" v-model="filteredIndicateur.categorieId" label="nom" :options="categories">
+          <v-select class="w-full" :reduce="(categories) => categories.id" v-model="filteredIndicateur.categorieId" label="nom" :options="categories">
             <template #search="{ attributes, events }">
               <input class="vs__search form-input" :required="!filteredIndicateur.categorieId" v-bind="attributes" v-on="events" />
             </template>
@@ -1466,7 +1481,7 @@ export default {
           <label for="_input-wizard-10" class="form-label absolute ml-1 px-3 font-medium -translate-y-3 bg-white text-sm duration-100 ease-linear peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm z-10">Catégories</label>
         </div>
         <div class="flex w-full">
-          <v-select class="w-full" :reduce="(uniteDeMesures) => id" v-model="filteredIndicateur.uniteeMesureId" label="nom" :options="uniteDeMesures">
+          <v-select class="w-full" :reduce="(uniteDeMesures) => uniteDeMesures.id" v-model="filteredIndicateur.uniteeMesureId" label="nom" :options="uniteDeMesures">
             <template #search="{ attributes, events }">
               <input class="vs__search form-input" :required="!filteredIndicateur.uniteeMesureId" v-bind="attributes" v-on="events" />
             </template>
@@ -1474,7 +1489,7 @@ export default {
           <label for="_input-wizard-10" class="form-label absolute ml-1 px-3 font-medium -translate-y-3 bg-white text-sm duration-100 ease-linear peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm z-10"> Unité de mesure</label>
         </div>
         <div class="flex w-full">
-          <v-select class="w-full" :reduce="(bailleurs) => id" v-model="filteredIndicateur.bailleurId" label="sigle" :options="bailleurs">
+          <v-select class="w-full" :reduce="(bailleurs) => bailleurs.id" v-model="filteredIndicateur.bailleurId" label="sigle" :options="bailleurs">
             <template #search="{ attributes, events }">
               <input class="vs__search form-input" :required="!filteredIndicateur.bailleurId" v-bind="attributes" v-on="events" />
             </template>
@@ -1497,7 +1512,7 @@ export default {
   <div class="intro-y flex flex-col sm:flex-row items-center mt-8">
     <h2 class="text-lg font-medium mr-auto">Indicateur</h2>
     <div class="w-full sm:w-auto flex mt-4 sm:mt-0">
-      <button class="btn btn-primary shadow-md mr-2"><PlusIcon class="w-4 h-4 mr-3" /> Ajouter un nouvel Indicateur</button>
+      <button class="btn btn-primary shadow-md mr-2" @click="addIndicateur"><PlusIcon class="w-4 h-4 mr-3" /> Ajouter un nouvel Indicateur</button>
     </div>
   </div>
   <!-- BEGIN: HTML Table Data -->
@@ -1557,6 +1572,81 @@ export default {
     </div>
   </div>
   <!-- END: HTML Table Data -->
+
+  <Modal size="modal-xl" :show="showModal" @hidden="showModal = false">
+    <ModalHeader>
+      <h2 class="font-medium text-base mr-auto">Ajouter un indicateur</h2>
+    </ModalHeader>
+    <ModalBody>
+      <div class="grid grid-cols-12 gap-4 gap-y-3" v-if="!isUpdate" key="ajouter" @submit.prevent="storeGestionnaire">
+        <div class="col-span-12 sm:col-span-6">
+          <label for="modal-form-1" class="form-label">Nom</label>
+          <input id="modal-form-1" v-model="formAjoutIndicateur.nom" type="text" class="form-control" placeholder="Nom de votre indicateur" />
+        </div>
+        <div class="col-span-12 sm:col-span-6">
+          <label for="modal-form-2" class="form-label">Année de base </label>
+          <input id="modal-form-2" type="number" min="1900" max="2099" step="1" v-model="formAjoutIndicateur.anneeDeBase" class="form-control" placeholder="2023" />
+        </div>
+        <div class="col-span-12 sm:col-span-6">
+          <label for="modal-form-3" class="form-label">Valeur de base</label>
+          <input id="modal-form-3" type="text" class="form-control" v-model="formAjoutIndicateur.valeurDeBase" placeholder="Valeur de base" />
+        </div>
+        <div class="col-span-12 sm:col-span-6">
+          <label for="modal-form-3" class="form-label">Catégories</label>
+          <v-select class="w-full" :reduce="(categories) => categories.id" v-model="formAjoutIndicateur.categorieId" label="nom" :options="categories">
+            <template #search="{ attributes, events }">
+              <input class="vs__search form-input" :required="!formAjoutIndicateur.categorieId" v-bind="attributes" v-on="events" />
+            </template>
+          </v-select>
+        </div>
+        <div class="col-span-12 sm:col-span-6">
+          <label for="modal-form-3" class="form-label">Bailleurs</label>
+          <v-select class="w-full" :reduce="(bailleurs) => bailleurs.id" v-model="formAjoutIndicateur.bailleurId" label="sigle" :options="bailleurs">
+            <template #search="{ attributes, events }">
+              <input class="vs__search form-input" :required="!formAjoutIndicateur.bailleurId" v-bind="attributes" v-on="events" />
+            </template>
+          </v-select>
+        </div>
+        <div class="col-span-12 sm:col-span-6">
+          <label for="modal-form-3" class="form-label">Unité de mesure</label>
+          <v-select class="w-full" :reduce="(uniteDeMesures) => uniteDeMesures.id" v-model="formAjoutIndicateur.uniteeMesureId" label="nom" :options="uniteDeMesures">
+            <template #search="{ attributes, events }">
+              <input class="vs__search form-input" :required="!formAjoutIndicateur.uniteeMesureId" v-bind="attributes" v-on="events" />
+            </template>
+          </v-select>
+        </div>
+        <div class="col-span-12 sm:col-span-6">
+          <label for="modal-form-3" class="form-label">Valeur cible finale</label>
+          <input id="modal-form-3" type="text" class="form-control" v-model="formAjoutIndicateur.valeurCibleTotal" placeholder="Valeur cible finale" />
+        </div>
+        <div class="col-span-12 sm:col-span-6">
+          <label for="modal-form-3" class="form-label">Source de vérification</label>
+          <input id="modal-form-3" type="text" class="form-control" v-model="formAjoutIndicateur.sourceDeVerification" placeholder="Source de vérification" />
+        </div>
+        <div class="col-span-12 sm:col-span-6">
+          <label for="modal-form-4" class="form-label">Hypothèse</label>
+          <input id="modal-form-4" type="text" class="form-control" v-model="formAjoutIndicateur.hypothese" placeholder="Hypothèse" />
+        </div>
+        <div class="col-span-12 sm:col-span-6">
+          <label for="validation-form-6" class="form-label w-full flex flex-col sm:flex-row"> Description </label>
+          <textarea id="validation-form-6" v-model="formAjoutIndicateur.description" class="form-control" name="description" placeholder="Laissez une description"></textarea>
+        </div>
+        <div class="col-span-12 sm:col-span-6">
+          <!-- <label for="modal-form-6" class="form-label">Size</label>
+          <select id="modal-form-6" class="form-select">
+            <option>10</option>
+            <option>25</option>
+            <option>35</option>
+            <option>50</option>
+          </select> -->
+        </div>
+      </div>
+    </ModalBody>
+    <ModalFooter>
+      <button type="button" @click="showModal = false" class="btn btn-outline-secondary w-20 mr-1">Annuler</button>
+      <button type="button" class="btn btn-primary w-20" @click="sendForm()">Envoyer</button>
+    </ModalFooter>
+  </Modal>
 </template>
 
 <style scoped></style>

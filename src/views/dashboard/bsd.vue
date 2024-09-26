@@ -434,8 +434,6 @@
           </div>
           <div>
             <label for="regular-form-1" class="form-label">Type </label>
-
-
             <TomSelect v-model="formData.type" :options="{ placeholder: 'Selectionez le type' }" class="w-full">
 
               <option v-for="(type, index) in types" :key="index" :value="type.id">{{ type.nom }}
