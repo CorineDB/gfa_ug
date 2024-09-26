@@ -1,20 +1,4 @@
 <script>
-// import ModalTopRight from '@/components/ModalTopRight'
-// import SearchBar from '@/components/SearchBar'
-// import Vtable from '@/components/Vtable'
-// import Vform from '@/components/Vform'
-// import Vmodal from '@/components/Vmodal'
-// import Dashboard from '@/layouts/Dashboard'
-// import Preview from '@/components/Preview.vue'
-// import Vbutton from '@/components/Vbutton.vue'
-// import ModalChat from '@/components/ModalChat'
-// import Commentaire from '@/components/Commentaire.vue'
-// import ReponseAnos from '@/components/ReponseAnos.vue'
-// import PermissionsService from "@/services/modules/permission.service.js";
-//import DeleteAlert from "@/components/DeleteAlert.vue";
-// import { createIcons, icons } from "lucide";
-// import dom from "@left4code/tw-starter/dist/js/dom";
-
 import AnosService from "@/services/modules/ano.service.js";
 import BailleurService from "@/services/modules/bailleur.service";
 import { mapGetters, mapActions, mapMutations, mapState } from "vuex";
@@ -282,8 +266,7 @@ export default {
       this.updateFilter();
     },
     initTabulator() {
-      alert("ok");
-      console.log(this.anos);
+      // console.log(this.anos);
       this.tabulator = new Tabulator("#tabulator", {
         data: this.anos,
         rowClickMenu: [
@@ -321,7 +304,6 @@ export default {
               return `${cell.getData().bailleur.sigle}`;
             },
           },
-          // { title: "AGE", field: "age", minWidth: 150, hozAlign: "left" },
           {
             title: "Date de soumissions",
             field: "dateDeSoumission",
@@ -393,47 +375,7 @@ export default {
         ],
       });
     },
-    test() {
-      // Réinitialisation des variables pour 36 équipes
-      const nombreEquipes = 36;
-      const nombreMatchsParEquipe = 8;
 
-      // Liste pour suivre combien de matchs chaque équipe a joué
-      let matchsParEquipe = new Array(nombreEquipes).fill(0);
-
-      // Liste pour suivre les matchs déjà joués
-      let matchsJoues = [];
-
-      // Simulation des matchs en respectant les nouvelles règles
-      for (let i = 0; i < nombreEquipes; i++) {
-        // Si l'équipe a déjà joué 8 matchs, on passe à la suivante
-        if (matchsParEquipe[i] >= nombreMatchsParEquipe) {
-          continue;
-        }
-
-        // On cherche des équipes contre qui jouer
-        for (let j = i + 1; j < nombreEquipes; j++) {
-          // Vérifier si l'équipe `j` peut encore jouer (pas plus de 8 matchs)
-          if (matchsParEquipe[j] < nombreMatchsParEquipe) {
-            // Ajouter le match à la liste
-            matchsJoues.push([i, j]);
-
-            // Mettre à jour le nombre de matchs joués par chaque équipe
-            matchsParEquipe[i]++;
-            matchsParEquipe[j]++;
-
-            // Si l'équipe `i` a maintenant 8 matchs, on la retire (virtuellement)
-            if (matchsParEquipe[i] === nombreMatchsParEquipe) {
-              break; // Passer à l'équipe suivante
-            }
-          }
-        }
-      }
-
-      // Résultat : Nombre total de matchs
-      const nombreTotalMatchs = matchsJoues.length;
-      console.log(nombreTotalMatchs);
-    },
     // Export
     onExportCsv() {
       this.tabulator.download("csv", "data.csv");
@@ -690,7 +632,7 @@ export default {
     },
   },
   mounted() {
-    this.test();
+    // this.test();
     // this.initTabulator();
   },
 

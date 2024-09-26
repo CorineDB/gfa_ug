@@ -1,28 +1,15 @@
 <script>
-// import ModalTopRight from '@/components/ModalTopRight'
-// import SearchBar from '@/components/SearchBar'
-// import Titre from '@/components/Titre'
-// import IndicateurTable from '@/components/IndicateurTable'
-// import Vform from '@/components/Vform'
-// import Vmodal from '@/components/Vmodal'
-// import Vbutton from '@/components/Vbutton'
-// import Dashboard from '@/layouts/Dashboard'
-// import CardProgramme from '@/components/CardProgramme'
-// import extractFormData from "@/utils/extract-data";
-// add Unite de mesure modal
-// import DeleteAlert from "@/components/DeleteAlert.vue";
-// import JsonExcel from "vue-json-excel";
-// add bailleurs Modal import
-// import Dropdown from '@/components/Dropdown.vue'
 import { mapGetters, mapMutations, mapActions, mapState } from "vuex";
 import SuiviService from "@/services/modules/indicateur.suivi.service.js";
 import IndicateurService from "@/services/modules/indicateur.service";
 import CategorieService from "@/services/modules/categorie.service"; // add categorie modal
-
 import BailleurService from "@/services/modules/bailleur.service";
 import UniteDeMesureService from "@/services/modules/unitee.mesure.service";
-
 import { API_BASE_URL } from "@/services/configs/environment.js";
+import extractFormData from "@/utils/extract-data";
+//import { advancedTable } from "../../constant/basic-tablle-data";
+import xlsx from "xlsx";
+import Tabulator from "tabulator-tables";
 
 export default {
   components: {
@@ -225,6 +212,17 @@ export default {
       deleteData: {},
       deleteModal: false,
       componentKey: 0,
+      tabulator: null,
+      filterField: "",
+      filterType: "=",
+      filterValue: "",
+      filteredIndicateur: {
+        nom: "",
+        anneeDeBase: "",
+        bailleurId: "",
+        categorieId: "",
+        uniteeMesureId: "",
+      },
     };
   },
   watch: {
@@ -354,7 +352,7 @@ export default {
     // }),
     // ...mapGetters('auths', { currentUser: 'GET_AUTHENTICATE_USER' }),
 
-    filteredIndicateur() {
+    filteredIndicateurs() {
       var self = this;
       var colonnes = [];
       var i = 0;
@@ -407,6 +405,163 @@ export default {
     },
   },
   methods: {
+    initTabulator() {
+      console.log(this.indicateurs);
+      this.tabulator = new Tabulator("#tabulatorIndicateurs", {
+        data: this.indicateurs,
+        rowClickMenu: [
+          {
+            label: "Modifier",
+            action: function (e, row) {
+              console.log(row);
+              row.delete();
+            },
+          },
+          {
+            label: "Suprimer",
+            action: function (e, row) {
+              row.delete();
+            },
+          },
+        ],
+        // printHeader: "<h1 class='pdfPrint' >TABLEAU DE LA PAGE PROJET</h1>",
+        selectableRows: true, //assign data to table
+        layout: "fitColumns",
+        columns: [
+          //Define Table Columns
+          {
+            title: "INDICATEUR",
+            field: "nom",
+            minWidth: 125,
+            hozAlign: "left",
+          },
+          {
+            title: "Bailleur",
+            field: "bailleur",
+            minWidth: 150,
+            hozAlign: "left",
+            formatter(cell) {
+              return `${cell.getData().bailleur.sigle}`;
+            },
+          },
+          {
+            title: "Catégorie",
+            field: "categorie",
+            minWidth: 150,
+            hozAlign: "left",
+            formatter(cell) {
+              return `${cell.getData().categorie.nom}`;
+            },
+          },
+          {
+            title: "Valeur cible finale",
+            field: "valeurCibleTotal",
+            minWidth: 150,
+            hozAlign: "left",
+          },
+
+          {
+            title: "Unité de mesure",
+            field: "uniteeDeMesure",
+            minWidth: 150,
+            hozAlign: "left",
+            formatter(cell) {
+              return `${cell.getData().uniteeDeMesure.nom}`;
+            },
+          },
+          {
+            title: "Valeur de base",
+            field: "valeurDeBase",
+            minWidth: 150,
+            hozAlign: "left",
+          },
+          {
+            title: "Année de base",
+            field: "anneeDeBase",
+            minWidth: 150,
+            hozAlign: "left",
+          },
+          {
+            title: "Date de création",
+            minWidth: 200,
+            field: "created_at",
+            hozAlign: "center",
+            vertAlign: "middle",
+            print: false,
+            download: false,
+            formatter(cell) {
+              return `<div class="flex items-center lg:justify-center ${cell.getData().statut ? "text-success" : "text-danger"}">
+                <i data-lucide="check-square" class="w-4 h-4 mr-2"></i> ${cell.getData().statut ? "Active" : "Inactive"}
+              </div>`;
+            },
+          },
+          {
+            title: "ACTIONS",
+            minWidth: 200,
+            field: "actions",
+            responsive: 1,
+            hozAlign: "center",
+            vertAlign: "middle",
+            print: false,
+            download: false,
+
+            formatter() {
+              // Créer un conteneur pour le bouton et le menu dropdown
+              const div = document.createElement("div");
+              div.className = "relative inline-block text-left";
+
+              // Créer le bouton pour ouvrir le menu dropdown
+              const button = document.createElement("button");
+              button.className = "px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none";
+              button.innerHTML = "Options";
+
+              // Créer le menu dropdown caché
+              const menu = document.createElement("div");
+              menu.className = "absolute right-0 -mt-6 w-48 bg-white border border-gray-300 rounded shadow-lg hidden z-50";
+              // menu.style.zIndex = "9999"; // Définir un z-index élevé pour le menu dropdown
+              menu.innerHTML = `
+            <ul class="py-1">
+              <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Edit</a></li>
+              <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Delete</a></li>
+            </ul>
+          `;
+
+              div.appendChild(button);
+
+              return div;
+            },
+          },
+        ],
+      });
+    },
+    // Export
+    onExportCsv() {
+      this.tabulator.download("csv", "data.csv");
+    },
+
+    onExportJson() {
+      this.tabulator.download("json", "data.json");
+    },
+
+    onExportXlsx() {
+      const win = window;
+      win.XLSX = xlsx;
+      this.tabulator.download("xlsx", "data.xlsx", {
+        sheetName: "Products",
+      });
+    },
+
+    onExportHtml() {
+      this.tabulator.download("html", "data.html", {
+        style: true,
+      });
+    },
+
+    // Print
+    onPrint() {
+      this.tabulator.print();
+    },
+
     modalclose() {
       // this.suiviIndicateurs.annee='',
       // this.suiviIndicateurs.trimestre='',
@@ -432,12 +587,14 @@ export default {
     disabled() {
       this.$store.dispatch("disabled");
     },
+
     fetchIndicateurs() {
       // this.active();
       IndicateurService.get()
         .then((data) => {
           const datas = data.data.data;
           this.indicateurs = datas;
+          this.initTabulator();
           this.headers = [
             { name: "Indicateur ", cle: "nom", width: "w-48" },
             { name: "Bailleur", cle: "sigle", props: "bailleur", select: true, options: this.bailleurs, key: "sigle", updateKey: "bailleurId", width: "w-48" },
@@ -689,10 +846,10 @@ export default {
         .then((data) => {
           const datas = data.data.data;
           this.bailleurs = datas;
-          this.disabled();
+          // this.disabled();
         })
         .catch((error) => {
-          this.disabled();
+          //  this.disabled();
           if (error.response) {
             // Requête effectuée mais le serveur a répondu par une erreur.
             const message = error.response.data.message;
@@ -920,7 +1077,7 @@ export default {
     json_data() {
       let tab = [];
 
-      this.filteredIndicateur().forEach((element) => {
+      this.filteredIndicateurs().forEach((element) => {
         tab.push({
           nom: element.nom,
           description: element.description,
@@ -1018,23 +1175,46 @@ export default {
     },
 
     filter() {
-      this.champsRecherche = this.champsRecherche.map((item) => {
-        item.errors = [];
-        return item;
-      });
+      // this.champsRecherche = this.champsRecherche.map((item) => {
+      //   item.errors = [];
+      //   return item;
+      // });
 
-      let indicateur = extractFormData(this.champsRecherche, this.indicateurAttributsRecherche);
-      indicateur.bailleurId = indicateur.bailleurId?.id;
-      indicateur.categorieId = indicateur.categorieId?.id;
-      indicateur.uniteeMesureId = indicateur.uniteeMesureId?.id;
-
-      this.filtre(indicateur).then((response) => {
+      // let indicateur = extractFormData(this.champsRecherche, this.indicateurAttributsRecherche);
+      // indicateur.bailleurId = indicateur.bailleurId?.id;
+      // indicateur.categorieId = indicateur.categorieId?.id;
+      // indicateur.uniteeMesureId = indicateur.uniteeMesureId?.id;
+      alert("ok");
+      this.filtre(this.filteredIndicateur).then((response) => {
         if (response.status == 200 || response.status == 201) {
           const datas = response.data.data;
           this.indicateurs = datas;
-          this.close2();
+          this.clearObjectValues(this.filteredIndicateur);
+          // this.close2();
         }
       });
+    },
+    clearObjectValues(obj) {
+      for (let key in obj) {
+        if (obj.hasOwnProperty(key)) {
+          let value = obj[key];
+
+          if (typeof value === "string") {
+            obj[key] = "";
+          } else if (typeof value === "number") {
+            obj[key] = 0;
+          } else if (typeof value === "boolean") {
+            obj[key] = false;
+          } else if (Array.isArray(value)) {
+            obj[key] = [];
+          } else if (typeof value === "object" && value !== null) {
+            obj[key] = {}; // ou appliquer récursion pour vider les objets imbriqués
+            clearObjectValues(obj[key]); // récursion pour les objets imbriqués
+          } else {
+            obj[key] = null; // pour les autres types (null, undefined, etc.)
+          }
+        }
+      }
     },
 
     resetForm() {
@@ -1160,6 +1340,7 @@ export default {
         .then((data) => {
           const datas = data.data.data;
           this.uniteDeMesures = datas;
+          console.log(this.uniteDeMesures);
           this.champsUpdate.push({ name: "Unite de mesure", key: "uniteeMesureId", type: "", placeholdere: "Selectionnez une unité de mesure", isSelect: true, isTextArea: false, data: "", options: datas, required: true, cle: "id", value: "nom", errors: [] });
           // this.disabled();
         })
@@ -1200,6 +1381,7 @@ export default {
         .then((data) => {
           const datas = data.data.data;
           this.categories = datas;
+          console.log(datas);
           this.champsUpdate.push({ name: "Categories", key: "categorieId", type: "", placeholdere: "Selectionnez une categorie", isSelect: true, isTextArea: false, data: "", options: datas, required: false, cle: "id", value: "nom", errors: [] });
           // this.disabled();
         })
@@ -1264,24 +1446,11 @@ export default {
 
 <template>
   <div class="p-4">
-    <!-- Header section with buttons -->
-    <!-- <div class="flex items-center justify-between mb-4">
-      <div class="flex space-x-2">
-        Boutons Print, Export, Defer, Delete
-        <button class="bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 px-4 rounded">Print</button>
-        <button class="bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 px-4 rounded">Export</button>
-        <button class="bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 px-4 rounded">Defer</button>
-        <button class="bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 px-4 rounded">Delete</button>
-      </div>
-      Bouton Create Work Order
-      <button class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">Create Work Order</button>
-    </div> -->
-
     <!-- Filter and table section -->
-    <div class="bg-white rounded-lg shadow-md p-4">
+    <!-- <div class="bg-white rounded-lg shadow-md p-4">
       <h2 class="font-bold text-base ml-4">Filtre</h2>
       <div class="flex flex-wrap items-center justify-between p-4 border-b">
-        <!-- Filtre et affichage des colonnes -->
+        Filtre et affichage des colonnes
         <div class="grid grid-cols-6 gap-4">
           <input type="text" placeholder="Indicateur" class="border border-gray-300 rounded px-2 py-1" />
           <input type="text" placeholder="Année de base" class="border border-gray-300 rounded px-2 py-1" />
@@ -1300,55 +1469,56 @@ export default {
           </div>
         </div>
       </div>
-      <!-- Clear Filters -->
-      <!-- <a href="#" class="text-blue-500">Clear Filters</a> -->
-      <!-- Barre de recherche et boutons d'affichage -->
+      Clear Filters
+      Barre de recherche et boutons d'affichage
       <div class="flex items-center justify-between p-4">
-        <!-- Barre de recherche -->
+        Barre de recherche
         <input type="text" placeholder="Search" class="border border-gray-300 rounded px-2 py-1 w-1/3" />
-        <!-- Boutons de vue en grille et calendrier -->
+        Boutons de vue en grille et calendrier
         <div class="flex space-x-2">
           <button class="bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 px-4 rounded">Grid</button>
           <button class="bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 px-4 rounded">Calendar</button>
         </div>
       </div>
-    </div>
+    </div> -->
   </div>
 
   <div class="container mx-auto px-4">
-    <!-- Actions Bar -->
-    <!-- <div class="flex justify-between py-4">
-      <div>
-        <button class="bg-gray-200 py-2 px-4 rounded">Print</button>
-        <button class="bg-gray-200 py-2 px-4 rounded">Export</button>
-      </div>
-      <button class="bg-blue-500 text-white py-2 px-4 rounded">Create Work Order</button>
-    </div> -->
-
     <!-- Combined Filter Section -->
     <div class="bg-white shadow-md p-6 rounded-lg">
-      <h2 class="font-bold text-base ml-4">Filtre</h2>
+      <h2 class="font-bold text-base mb-4">Filtre</h2>
       <div class="grid grid-cols-3 gap-4">
-        <input type="text" placeholder="Indicateur" class="border p-2 rounded" />
-        <input type="text" placeholder="Année de base" class="border p-2 rounded" />
-        <input type="text" placeholder="Assignees" class="border p-2 rounded" />
+        <input type="text" v-model="filteredIndicateur.nom" placeholder="Indicateur" class="border p-2 rounded" />
+        <input type="text" v-model="filteredIndicateur.anneeDeBase" placeholder="Année de base" class="border p-2 rounded" />
 
         <div class="flex w-full">
-          <v-select class="w-full" :options="options"> </v-select>
+          <v-select class="w-full" :reduce="(categories) => id" v-model="filteredIndicateur.categorieId" label="nom" :options="categories">
+            <template #search="{ attributes, events }">
+              <input class="vs__search form-input" :required="!filteredIndicateur.categorieId" v-bind="attributes" v-on="events" />
+            </template>
+          </v-select>
           <label for="_input-wizard-10" class="form-label absolute ml-1 px-3 font-medium -translate-y-3 bg-white text-sm duration-100 ease-linear peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm z-10">Catégories</label>
         </div>
         <div class="flex w-full">
-          <v-select class="w-full" :options="options"> </v-select>
+          <v-select class="w-full" :reduce="(uniteDeMesures) => id" v-model="filteredIndicateur.uniteeMesureId" label="nom" :options="uniteDeMesures">
+            <template #search="{ attributes, events }">
+              <input class="vs__search form-input" :required="!filteredIndicateur.uniteeMesureId" v-bind="attributes" v-on="events" />
+            </template>
+          </v-select>
           <label for="_input-wizard-10" class="form-label absolute ml-1 px-3 font-medium -translate-y-3 bg-white text-sm duration-100 ease-linear peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm z-10"> Unité de mesure</label>
         </div>
         <div class="flex w-full">
-          <v-select class="w-full" :options="options"> </v-select>
+          <v-select class="w-full" :reduce="(bailleurs) => id" v-model="filteredIndicateur.bailleurId" label="sigle" :options="bailleurs">
+            <template #search="{ attributes, events }">
+              <input class="vs__search form-input" :required="!filteredIndicateur.bailleurId" v-bind="attributes" v-on="events" />
+            </template>
+          </v-select>
           <label for="_input-wizard-10" class="form-label absolute ml-1 px-3 font-medium -translate-y-3 bg-white text-sm duration-100 ease-linear peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm z-10"> Bailleurs</label>
         </div>
       </div>
       <div class="grid grid-cols-2 gap-4 mt-4">
-        <input type="text" placeholder="Search" class="border p-2 rounded" />
-        <button class="bg-blue-500 text-white py-2 px-4 rounded">Filtrer</button>
+        <input type="text" placeholder="Recherche" class="border p-2 rounded" />
+        <button class="bg-blue-500 text-white py-2 px-4 rounded" @click="filter()">Filtrer</button>
       </div>
     </div>
 
@@ -1361,20 +1531,7 @@ export default {
   <div class="intro-y flex flex-col sm:flex-row items-center mt-8">
     <h2 class="text-lg font-medium mr-auto">Indicateur</h2>
     <div class="w-full sm:w-auto flex mt-4 sm:mt-0">
-      <button class="btn btn-primary shadow-md mr-2"> <PlusIcon class="w-4 h-4 mr-3" /> Ajouter un nouvel Indicateur</button>
-      <!-- <Dropdown class="ml-auto sm:ml-0">
-        <DropdownToggle class="btn px-2 box">
-          <span class="w-5 h-5 flex items-center justify-center">
-            <PlusIcon class="w-4 h-4" />
-          </span>
-        </DropdownToggle>
-        <DropdownMenu class="w-40">
-          <DropdownContent>
-            <DropdownItem> <FilePlusIcon class="w-4 h-4 mr-2" /> New Category </DropdownItem>
-            <DropdownItem> <UserPlusIcon class="w-4 h-4 mr-2" /> New Group </DropdownItem>
-          </DropdownContent>
-        </DropdownMenu>
-      </Dropdown> -->
+      <button class="btn btn-primary shadow-md mr-2"><PlusIcon class="w-4 h-4 mr-3" /> Ajouter un nouvel Indicateur</button>
     </div>
   </div>
   <!-- BEGIN: HTML Table Data -->
@@ -1382,7 +1539,7 @@ export default {
     <div class="flex flex-row flex-wrap _sm:items-end _xl:items-start">
       <form id="tabulator-html-filter-form" class="xl:flex sm:mr-auto">
         <div class="sm:flex items-center sm:mr-4">
-          <label class="w-12 flex-none xl:w-auto xl:flex-initial mr-2">Champs</label>
+          <label class="w-12 flex-none xl:w-auto xl:flex-initial mr-2">Colonnes</label>
           <select id="tabulator-html-filter-field" v-model="filterField" class="form-select w-full _sm:w-32 2xl:w-full mt-2 sm:mt-0 sm:w-auto">
             <option value="nom">Nom</option>
             <option value="taille">Taille</option>
@@ -1391,7 +1548,7 @@ export default {
           </select>
         </div>
         <div class="sm:flex items-center sm:mr-4 mt-2 xl:mt-0">
-          <label class="w-12 flex-none xl:w-auto xl:flex-initial mr-2">Type</label>
+          <label class="w-12 flex-none xl:w-auto xl:flex-initial mr-2">Type d'égalité</label>
           <select id="tabulator-html-filter-type" v-model="filterType" class="form-select w-full mt-2 sm:mt-0 sm:w-auto">
             <option value="like" selected>like</option>
             <option value="=">=</option>
@@ -1403,11 +1560,11 @@ export default {
           </select>
         </div>
         <div class="sm:flex items-center sm:mr-4 mt-2 xl:mt-0">
-          <label class="w-12 flex-none xl:w-auto xl:flex-initial mr-2">Value</label>
-          <input id="tabulator-html-filter-value" v-model="filterValue" type="text" class="form-control sm:w-40 2xl:w-full mt-2 sm:mt-0" placeholder="Search..." />
+          <label class="w-12 flex-none xl:w-auto xl:flex-initial mr-2">Valeurs</label>
+          <input id="tabulator-html-filter-value" v-model="filterValue" type="text" class="form-control sm:w-40 2xl:w-full mt-2 sm:mt-0" placeholder="Rechercher..." />
         </div>
         <div class="mt-2 xl:mt-0">
-          <button id="tabulator-html-filter-go" type="button" class="btn btn-primary w-full sm:w-16" @click="updateFilter">Go</button>
+          <button id="tabulator-html-filter-go" type="button" class="btn btn-primary w-full sm:w-16 mr-3" @click="updateFilter">Go</button>
           <button id="tabulator-html-filter-reset" type="button" class="btn btn-secondary w-full sm:w-16 mt-2 sm:mt-0 sm:ml-1" @click="clearFilter">Reset</button>
         </div>
       </form>
@@ -1430,7 +1587,7 @@ export default {
       </div>
     </div>
     <div class="overflow-x-auto scrollbar-hidden">
-      <div id="tabulator" ref="tableRef" class="mt-5 table-report table-report--tabulator"></div>
+      <div id="tabulatorIndicateurs" ref="tableRef" class="mt-5 table-report table-report--tabulator"></div>
     </div>
   </div>
   <!-- END: HTML Table Data -->
