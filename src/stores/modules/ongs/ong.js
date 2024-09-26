@@ -1,5 +1,5 @@
 
-import User from '@/store/modules/users/user'
+import User from "../../modules/users/user";
 import { is } from 'ramda'
 
 export default class Ong {

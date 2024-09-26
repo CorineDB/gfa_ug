@@ -1,5 +1,5 @@
 import { is, isEmpty } from 'ramda'
-import Projet from '@/store/modules/projets/projet'
+import Projet from '../../modules/projets/projet'
 
 export default class PlanDeDecaissement {
   constructor (planDeDecaissement = {})

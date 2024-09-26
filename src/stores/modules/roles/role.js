@@ -1,5 +1,5 @@
 import { is } from 'ramda'
-import Permission from '@/store/modules/permissions/permission'
+import Permission from '../../modules/permissions/permission'
 
 export default class Role {
     constructor (role = {}) 

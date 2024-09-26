@@ -6,7 +6,7 @@ import {
     FILL,
     MODIFY as MODIFY_PLAN_DE_DECAISSEMENT,
     REMOVE as REMOE_PLAN_DE_DECAISSEMENT
-} from "@/store/mutations.type";
+} from "../../mutations.type";
 
 export default {
 

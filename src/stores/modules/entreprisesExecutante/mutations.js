@@ -6,7 +6,7 @@ import {
     FILL,
     MODIFY as MODIFY_ENTREPRISE_EXECUTANTE,
     REMOVE as REMOVE_ENTREPRISE_EXECUTANTE
-} from "@/store/mutations.type";
+} from "../../mutations.type";
 
 export default {
 

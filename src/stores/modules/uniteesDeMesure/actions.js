@@ -4,7 +4,7 @@ import {
     STORE as STORE_UNITEE_DE_MESURE,
     UPDATE as UPDATE_UNITEE_DE_MESURE,
     DESTROY as DESTROY_UNITEE_DE_MESURE,
-} from "@/store/actions.type"
+} from "../../actions.type"
 
 import {
     SET_LIST as SET_LIST_UNITEE_DE_MESURE,
@@ -12,7 +12,7 @@ import {
     ADD as ADD_UNITEE_DE_MESURE,
     MODIFY as MODIFY_UNITEE_DE_MESURE,
     REMOVE as REMOVE_UNITEE_DE_MESURE
-} from "@/store/mutations.type"
+} from "../../mutations.type"
 
 import UniteeDeMesureService from "@/services/modules/unitee.mesure.service";
 import UniteeDeMesure from "./unitee.mesure";

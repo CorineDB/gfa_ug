@@ -3,16 +3,17 @@ import { createApp } from "vue";
 import { createPinia } from "pinia";
 import App from "./App.vue";
 import router from "./router";
+import store from "./stores";
 import globalComponents from "./global-components";
 import utils from "./utils";
 import VueGoodTablePlugin from "vue-good-table-next";
 import "vue-good-table-next/dist/vue-good-table-next.css";
 import "./assets/css/app.css";
 import vSelect from "vue-select";
-import "vue-select/dist/vue-select.css"; 
+import "vue-select/dist/vue-select.css";
 // import { Vue3SimpleHtml2pdf } from 'vue3-simple-html2pdf'
 
-const app = createApp(App).use(router).use(VueGoodTablePlugin).use(createPinia());
+const app = createApp(App).use(router).use(VueGoodTablePlugin).use(createPinia()).use(store);
 
 globalComponents(app);
 utils(app);

@@ -1,5 +1,5 @@
 import { is, isEmpty } from 'ramda'
-import User from '@/store/modules/users/user'
+import User from '../../modules/users/user'
 
 export default class Ano {
   constructor (ano = {})

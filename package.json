@@ -39,6 +39,7 @@
     "pinia": "^2.0.9",
     "qrcode": "^1.5.1",
     "qrcode.vue": "^3.4.0",
+    "ramda": "^0.28.0",
     "simplebar": "^5.3.6",
     "tabulator-tables": "^4.9.3",
     "tiny-slider": "^2.9.3",

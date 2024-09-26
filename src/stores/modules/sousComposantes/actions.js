@@ -4,7 +4,7 @@ import {
     STORE as STORE_SOUS_COMPOSANTE,
     UPDATE as UPDATE_SOUS_COMPOSANTE,
     DESTROY as DESTROY_SOUS_COMPOSANTE,
-} from "@/store/actions.type"
+} from "../../actions.type"
 
 import {
     SET_LIST as SET_LIST_SOUS_COMPOSANTE,
@@ -12,7 +12,7 @@ import {
     ADD as ADD_SOUS_COMPOSANTE,
     MODIFY as MODIFY_SOUS_COMPOSANTE,
     REMOVE as REMOVE_SOUS_COMPOSANTE
-} from "@/store/mutations.type"
+} from "../../mutations.type"
 
 import SousComposanteService from "@/services/modules/composante.service";
 

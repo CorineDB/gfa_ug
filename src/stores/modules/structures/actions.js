@@ -4,11 +4,11 @@ import {
     STORE as STORE_STRUCTURE,
     UPDATE as UPDATE_STRUCTURE,
     DESTROY as DESTROY_STRUCTURE,
-} from "@/store/actions.type"
+} from "../../actions.type"
 
 import {
     SET_LIST as SET_LIST_STRUCTURE,
-} from "@/store/mutations.type"
+} from "../../mutations.type"
 
 import ProgrammeService from "@/services/modules/programme.service";
 import Structure from "./structure";

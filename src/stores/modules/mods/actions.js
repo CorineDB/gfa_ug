@@ -4,7 +4,7 @@ import {
     STORE as STORE_MOD,
     UPDATE as UPDATE_MOD,
     DESTROY as DESTROY_MOD,
-} from "@/store/actions.type"
+} from "../../actions.type"
 
 import {
     SET_LIST as SET_LIST_MOD,
@@ -12,7 +12,7 @@ import {
     ADD as ADD_MOD,
     MODIFY as MODIFY_MOD,
     REMOVE as REMOVE_MOD
-} from "@/store/mutations.type"
+} from "../../mutations.type"
 
 import ModService from "@/services/modules/mod.service";
 import ProgrammeService from "@/services/modules/programme.service";

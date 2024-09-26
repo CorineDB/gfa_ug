@@ -4,7 +4,7 @@ import {
     STORE as STORE_FORMULAIRE,
     UPDATE as UPDATE_FORMULAIRE,
     DESTROY as DESTROY_FORMULAIRE,
-} from "@/store/actions.type"
+} from "../../actions.type"
 
 import {
     SET_LIST as SET_LIST_FORMULAIRE,
@@ -12,7 +12,7 @@ import {
     ADD as ADD_FORMULAIRE,
     MODIFY as MODIFY_FORMULAIRE,
     REMOVE as REMOVE_FORMULAIRE
-} from "@/store/mutations.type"
+} from "../../mutations.type"
 
 import FormulaireService from "@/services/modules/formulaire.service";
 import Formulaire from "./formulaire";

@@ -6,7 +6,7 @@ import {
     FILL,
     MODIFY as MODIFY_UNITEE_DE_MESURE,
     REMOVE as REMOVE_UNITEE_DE_MESURE
-} from "@/store/mutations.type";
+} from "../../mutations.type";
 
 export default {
 

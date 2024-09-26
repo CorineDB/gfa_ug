@@ -4,7 +4,7 @@ import {
     STORE as STORE_REPONSE,
     UPDATE as UPDATE_REPONSE,
     DESTROY as DESTROY_REPONSE,
-} from "@/store/actions.type"
+} from "../../actions.type"
 
 import {
     SET_LIST as SET_LIST_REPONSE,
@@ -12,7 +12,7 @@ import {
     ADD as ADD_REPONSE,
     MODIFY as MODIFY_REPONSE,
     REMOVE as REMOVE_REPONSE
-} from "@/store/mutations.type"
+} from "../../mutations.type"
 
 import ReponseService from "@/services/modules/reponse.service";
 

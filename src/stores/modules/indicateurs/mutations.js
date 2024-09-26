@@ -6,7 +6,7 @@ import {
     FILL,
     MODIFY as MODIFY_INDICATEUR,
     REMOVE as REMOVE_INDICATEUR,
-} from "@/store/mutations.type";
+} from "../../mutations.type";
 
 export default {
 

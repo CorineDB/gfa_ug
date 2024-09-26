@@ -1,7 +1,7 @@
 import { is, isEmpty } from 'ramda'
-import Categorie from '@/store/modules/categories/categorie'
-import Bailleur from '@/store/modules/bailleurs/bailleur'
-import UniteDeMesure from '@/store/modules/uniteesDeMesure/unitee.mesure'
+import Categorie from '../../modules/categories/categorie'
+import Bailleur from '../../modules/bailleurs/bailleur'
+import UniteDeMesure from '../../modules/uniteesDeMesure/unitee.mesure'
 
 
 export default class Indicateur {

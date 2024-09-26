@@ -4,7 +4,7 @@ import {
     STORE as STORE_PASSATION,
     UPDATE as UPDATE_PASSATION,
     DESTROY as DESTROY_PASSATION,
-} from "@/store/actions.type"
+} from "../../actions.type"
 
 import {
     SET_LIST as SET_LIST_PASSATION,
@@ -12,7 +12,7 @@ import {
     ADD as ADD_PASSATION,
     MODIFY as MODIFY_PASSATION,
     REMOVE as REMOVE_PASSATION
-} from "@/store/mutations.type"
+} from "../../mutations.type"
 
 import PassationService from "@/services/modules/passation.service";
 

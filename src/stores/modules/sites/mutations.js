@@ -6,7 +6,7 @@ import {
     FILL,
     MODIFY as MODIFY_SITE,
     REMOVE as REMOVE_SITE,
-} from "@/store/mutations.type";
+} from "../../mutations.type";
 
 export default {
 

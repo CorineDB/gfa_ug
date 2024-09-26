@@ -1184,7 +1184,9 @@ export default {
       // indicateur.bailleurId = indicateur.bailleurId?.id;
       // indicateur.categorieId = indicateur.categorieId?.id;
       // indicateur.uniteeMesureId = indicateur.uniteeMesureId?.id;
-      alert("ok");
+
+     
+
       this.filtre(this.filteredIndicateur).then((response) => {
         if (response.status == 200 || response.status == 201) {
           const datas = response.data.data;
@@ -1445,43 +1447,7 @@ export default {
 </script>
 
 <template>
-  <div class="p-4">
-    <!-- Filter and table section -->
-    <!-- <div class="bg-white rounded-lg shadow-md p-4">
-      <h2 class="font-bold text-base ml-4">Filtre</h2>
-      <div class="flex flex-wrap items-center justify-between p-4 border-b">
-        Filtre et affichage des colonnes
-        <div class="grid grid-cols-6 gap-4">
-          <input type="text" placeholder="Indicateur" class="border border-gray-300 rounded px-2 py-1" />
-          <input type="text" placeholder="Année de base" class="border border-gray-300 rounded px-2 py-1" />
-          <input type="text" placeholder="Assignees" class="border border-gray-300 rounded px-2 py-1" />
-          <div class="flex w-full w-54">
-            <v-select class="w-64" :options="options"> </v-select>
-            <label for="_input-wizard-10" class="form-label absolute ml-1 px-3 font-medium -translate-y-3 bg-white text-sm duration-100 ease-linear peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm z-10">Catégories</label>
-          </div>
-          <div class="flex w-full w-54">
-            <v-select class="w-64" :options="options"> </v-select>
-            <label for="_input-wizard-10" class="form-label absolute ml-1 px-3 font-medium -translate-y-3 bg-white text-sm duration-100 ease-linear peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm z-10"> Unité de mesure</label>
-          </div>
-          <div class="flex w-full w-54">
-            <v-select class="w-64" :options="options"> </v-select>
-            <label for="_input-wizard-10" class="form-label absolute ml-1 px-3 font-medium -translate-y-3 bg-white text-sm duration-100 ease-linear peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm z-10"> Bailleurs</label>
-          </div>
-        </div>
-      </div>
-      Clear Filters
-      Barre de recherche et boutons d'affichage
-      <div class="flex items-center justify-between p-4">
-        Barre de recherche
-        <input type="text" placeholder="Search" class="border border-gray-300 rounded px-2 py-1 w-1/3" />
-        Boutons de vue en grille et calendrier
-        <div class="flex space-x-2">
-          <button class="bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 px-4 rounded">Grid</button>
-          <button class="bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 px-4 rounded">Calendar</button>
-        </div>
-      </div>
-    </div> -->
-  </div>
+  <div class="p-4"></div>
 
   <div class="container mx-auto px-4">
     <!-- Combined Filter Section -->

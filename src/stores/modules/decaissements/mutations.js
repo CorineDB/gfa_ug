@@ -6,7 +6,7 @@ import {
     FILL,
     MODIFY as MODIFY_DECAISSEMENT,
     REMOVE as REMOE_DECAISSEMENT
-} from "@/store/mutations.type";
+} from "../../mutations.type";
 
 export default {
 

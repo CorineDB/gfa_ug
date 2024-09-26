@@ -4,7 +4,7 @@ import {
   STORE as STORE_SUIVI,
   UPDATE as UPDATE_SUIVI,
   DESTROY as DESTROY_SUIVI,
-} from "@/store/actions.type"
+} from "../../actions.type"
 
 import {
   SET_LIST as SET_LIST_SUIVI,
@@ -12,7 +12,7 @@ import {
   ADD as ADD_SUIVI,
   MODIFY as MODIFY_SUIVI,
   REMOVE as REMOVE_SUIVI
-} from "@/store/mutations.type"
+} from "../../mutations.type"
 
 import SuiviIndicateursService from "@/services/modules/indicateur.suivi.mod.service";
 

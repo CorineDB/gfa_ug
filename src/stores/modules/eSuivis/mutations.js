@@ -6,7 +6,7 @@ import {
     FILL,
     MODIFY as MODIFY_ESUIVI,
     REMOVE as REMOVE_ESUIVI
-} from "@/store/mutations.type";
+} from "../../mutations.type";
 
 export default {
 

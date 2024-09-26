@@ -6,7 +6,7 @@ import {
     FILL,
     MODIFY as MODIFY_SUIVIFINANCIER,
     REMOVE as REMOVE_SUIVIFINANCIER
-} from "@/store/mutations.type";
+} from "../../mutations.type";
 
 export default {
 

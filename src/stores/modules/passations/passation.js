@@ -1,5 +1,5 @@
 import { is } from 'ramda'
-import EntrepriseExecutante from '@/store/modules/entreprisesExecutante/entreprise.executante'
+import EntrepriseExecutante from '../../modules/entreprisesExecutante/entreprise.executante'
 
 export default class Passation {
     constructor (passation = {})

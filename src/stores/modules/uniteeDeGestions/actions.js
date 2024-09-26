@@ -4,7 +4,7 @@ import {
     STORE as STORE_UNITEE_DE_GESTION,
     UPDATE as UPDATE_UNITEE_DE_GESTION,
     DESTROY as DESTROY_UNITEE_DE_GESTION,
-} from "@/store/actions.type"
+} from "../../actions.type"
 
 import {
     SET_LIST as SET_LIST_UNITEE_DE_GESTION,
@@ -12,7 +12,7 @@ import {
     ADD as ADD_UNITEE_DE_GESTION,
     MODIFY as MODIFY_UNITEE_DE_GESTION,
     REMOVE as REMOVE_UNITEE_DE_GESTION
-} from "@/store/mutations.type"
+} from "../../mutations.type"
 
 import UniteeDeGestionService from "@/services/modules/unitee.gestion.service";
 import UniteeDeGestion from "./unitee.gestion";

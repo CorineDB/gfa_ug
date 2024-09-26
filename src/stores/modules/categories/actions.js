@@ -4,7 +4,7 @@ import {
   STORE as STORE_CATEGORIE,
   UPDATE as UPDATE_CATEGORIE,
   DESTROY as DESTROY_CATEGORIE,
-} from "@/store/actions.type"
+} from "../../actions.type"
 
 import {
   SET_LIST as SET_LIST_CATEGORIE,
@@ -12,7 +12,7 @@ import {
   ADD as ADD_CATEGORIE,
   MODIFY as MODIFY_CATEGORIE,
   REMOVE as REMOVE_CATEGORIE
-} from "@/store/mutations.type"
+} from "../../mutations.type"
 
 import CategorieService from "@/services/modules/categorie.service";
 import Categorie from "./categorie";

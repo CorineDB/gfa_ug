@@ -6,7 +6,7 @@ import {
     FILL,
     MODIFY as MODIFY_SUIVI,
     REMOVE as REMOVE_SUIVI,
-} from "@/store/mutations.type";
+} from "../../mutations.type";
 
 export default {
 

@@ -6,7 +6,7 @@ import {
     FILL,
     MODIFY as MODIFY_GOUVERNEMENT,
     REMOVE as REMOVE_GOUVERNEMENT
-} from "@/store/mutations.type";
+} from "../../mutations.type";
 
 export default {
 

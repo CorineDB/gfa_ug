@@ -4,7 +4,7 @@ import {
   STORE as STORE_ANO,
   UPDATE as UPDATE_ANO,
   DESTROY as DESTROY_ANO,
-} from "@/store/actions.type"
+} from "../../actions.type"
 
 import {
   SET_LIST as SET_LIST_ANO,
@@ -12,7 +12,7 @@ import {
   ADD as ADD_ANO,
   MODIFY as MODIFY_ANO,
   REMOVE as REMOVE_ANO
-} from "@/store/mutations.type"
+} from "../../mutations.type"
 
 import AnoService from "@/services/modules/ano.service";
 import Ano from "./ano";

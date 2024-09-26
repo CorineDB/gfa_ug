@@ -1,6 +1,4 @@
-import {
-    FIND as findBailleur
-} from "@/store/mutations.type";
+import { FIND as findBailleur } from "../../mutations.type";
 
 export default {
 

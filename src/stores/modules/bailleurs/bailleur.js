@@ -1,6 +1,6 @@
 import { is, isEmpty } from 'ramda'
-import User from '@/store/modules/users/user'
-import Programme from '@/store/modules/programmes/programme'
+import User from "../../modules/users/user";
+import Programme from "../../modules/programmes/programme";
 
 export default class Bailleur {
     constructor (bailleur = {})

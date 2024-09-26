@@ -4,7 +4,7 @@ import {
   STORE as STORE_UTILISATEUR,
   UPDATE as UPDATE_UTILISATEUR,
   DESTROY as DESTROY_UTILISATEUR,
-} from "@/store/actions.type"
+} from "../../actions.type"
 
 import {
   SET_LIST as SET_UTILISATEUR,
@@ -12,7 +12,7 @@ import {
   ADD as ADD_UTILISATEUR,
   MODIFY as MODIFY_UTILISATEUR,
   REMOVE as REMOVE_UTILISATEUR
-} from "@/store/mutations.type"
+} from "../../mutations.type"
 
 import UtilisateurService from "@/services/modules/utilisateur.service";
 

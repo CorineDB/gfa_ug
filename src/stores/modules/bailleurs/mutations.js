@@ -6,7 +6,7 @@ import {
     FILL,
     MODIFY as MODIFY_BAILLEUR,
     REMOVE as REMOVE_BAILLEUR
-} from "@/store/mutations.type";
+} from "../../mutations.type";
 
 export default {
 

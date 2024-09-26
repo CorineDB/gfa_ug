@@ -4,7 +4,7 @@ import {
     STORE as STORE_PROGRAMME,
     UPDATE as UPDATE_PROGRAMME,
     DESTROY as DESTROY_PROGRAMME,
-} from "@/store/actions.type"
+} from "../../actions.type"
 
 import {
     SET_LIST as SET_LIST_PROGRAMME,
@@ -12,7 +12,7 @@ import {
     ADD as ADD_PROGRAMME,
     MODIFY as MODIFY_PROGRAMME,
     REMOVE as REMOVE_PROGRAMME
-} from "@/store/mutations.type"
+} from "../../mutations.type"
 
 import ProgrammeService from "@/services/modules/programme.service";
 import Programme from "./programme";

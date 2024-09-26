@@ -1,5 +1,5 @@
 import { is, isEmpty } from 'ramda'
-import Indicateur from '@/store/modules/indicateurs-mod/indicateur';
+import Indicateur from '../../modules/indicateurs-mod/indicateur';
 
 
 export default class Suivi {

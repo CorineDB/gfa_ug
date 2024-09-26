@@ -1,6 +1,4 @@
-import {
-    FIND as findAgenceDeCommunication
-} from "@/store/mutations.type";
+import { FIND as findAgenceDeCommunication } from "../../mutations.type";
 
 export default {
 

@@ -1,4 +1,4 @@
-import { SET_LIST as SET_LIST_ACTIVITE, FIND as findActivite, ADD as ADD_ACTIVITE, MODIFY as MODIFY_ACTIVITE, REMOVE as REMOVE_ACTIVITE } from "@/store/mutations.type";
+import { SET_LIST as SET_LIST_ACTIVITE, FIND as findActivite, ADD as ADD_ACTIVITE, MODIFY as MODIFY_ACTIVITE, REMOVE as REMOVE_ACTIVITE } from "../../mutations.type";
 
 import ActiviteService from "@/services/modules/activite.service";
 

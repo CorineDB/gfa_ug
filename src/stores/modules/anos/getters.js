@@ -1,6 +1,6 @@
 import {
   FIND as findAno
-} from "@/store/mutations.type";
+} from "../../mutations.type";
 
 export default {
 

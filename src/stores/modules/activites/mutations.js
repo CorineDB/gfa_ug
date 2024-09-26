@@ -6,7 +6,7 @@ import {
     FILL,
     MODIFY as MODIFY_ACTIVITE,
     REMOVE as REMOVE_ACTIVITE
-} from "@/store/mutations.type";
+} from "../../mutations.type";
 
 export default {
 

@@ -2,13 +2,9 @@ import {
     SET_ACCESS_TOKEN,
     SET_AUTH_DATA,
     RESET_AUTH_DATA
-} from '@/store/mutations.type';
+} from '../../mutations.type';
 
-import {
-    FETCH_AUTHENTICATE_USER,
-    LOGIN,
-    LOGOUT
-} from '@/store/actions.type';
+import { FETCH_AUTHENTICATE_USER, LOGIN, LOGOUT } from "../../actions.type";
 
 import AuthService from "@/services/modules/auth.service";
 

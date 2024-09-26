@@ -4,7 +4,7 @@ import {
     STORE as STORE_MISSION_DE_CONTROLE,
     UPDATE as UPDATE_MISSION_DE_CONTROLE,
     DESTROY as DESTROY_MISSION_DE_CONTROLE,
-} from "@/store/actions.type"
+} from "../../actions.type"
 
 import {
     SET_LIST as SET_LIST_MISSION_DE_CONTROLE,
@@ -12,7 +12,7 @@ import {
     ADD as ADD_MISSION_DE_CONTROLE,
     MODIFY as MODIFY_MISSION_DE_CONTROLE,
     REMOVE as REMOVE_MISSION_DE_CONTROLE
-} from "@/store/mutations.type"
+} from "../../mutations.type"
 
 import MissionDeControleService from "@/services/modules/mission.controle.service";
 import MissionDeControle from "./mission.controle";

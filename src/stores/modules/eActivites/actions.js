@@ -4,7 +4,7 @@ import {
     STORE as STORE_EACTIVITE,
     UPDATE as UPDATE_EACTIVITE,
     DESTROY as DESTROY_EACTIVITE,
-} from "@/store/actions.type"
+} from "../../actions.type"
 
 import {
     SET_LIST as SET_LIST_EACTIVITE,
@@ -12,7 +12,7 @@ import {
     ADD as ADD_EACTIVITE,
     MODIFY as MODIFY_EACTIVITE,
     REMOVE as REMOVE_EACTIVITE
-} from "@/store/mutations.type"
+} from "../../mutations.type"
 
 import EActiviteService from "@/services/modules/activite.environnement.service";
 

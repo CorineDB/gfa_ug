@@ -4,7 +4,7 @@ import {
     STORE as STORE_INSTITUTION,
     UPDATE as UPDATE_INSTITUTION,
     DESTROY as DESTROY_INSTITUTION,
-} from "@/store/actions.type"
+} from "../../actions.type"
 
 import {
     SET_LIST as SET_LIST_INSTITUTION,
@@ -12,7 +12,7 @@ import {
     ADD as ADD_INSTITUTION,
     MODIFY as MODIFY_INSTITUTION,
     REMOVE as REMOVE_INSTITUTION
-} from "@/store/mutations.type"
+} from "../../mutations.type"
 
 import InstitutionService from "@/services/modules/institution.service";
 import Institution from "./institution";

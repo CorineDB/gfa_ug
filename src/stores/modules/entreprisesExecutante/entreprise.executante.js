@@ -1,7 +1,7 @@
 import { is, isEmpty } from 'ramda'
-import User from '@/store/modules/users/user'
-import Passation from '@/store/modules/passations/passation'
-import Bailleur from '@/store/modules/bailleurs/bailleur'
+import User from '../../modules/users/user'
+import Passation from '../../modules/passations/passation'
+import Bailleur from '../../modules/bailleurs/bailleur'
 
 export default class EntrepriseExecutante{
     constructor (entrepriseExecutante = {})

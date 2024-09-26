@@ -6,7 +6,7 @@ import {
     FILL,
     MODIFY as MODIFY_SOUS_COMPOSANTE,
     REMOVE as REMOVE_SOUS_COMPOSANTE
-} from "@/store/mutations.type";
+} from "../../mutations.type";
 
 export default {
 

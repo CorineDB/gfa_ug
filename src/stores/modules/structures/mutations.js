@@ -3,7 +3,7 @@ import Mod from './structure';
 import {
     SET_LIST as SET_LIST_STRUCTURE,
     
-} from "@/store/mutations.type";
+} from "../../mutations.type";
 
 export default {
 

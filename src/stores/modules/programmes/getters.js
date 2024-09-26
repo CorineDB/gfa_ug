@@ -1,6 +1,6 @@
 import {
     FIND as findProgramme
-} from "@/store/mutations.type";
+} from "../../mutations.type";
 
 export default {
 

@@ -5,7 +5,7 @@ import {
     ADD as ADD_TACHE,
     MODIFY as MODIFY_TACHE,
     REMOVE as REMOVE_TACHE
-} from "@/store/mutations.type"
+} from "../../mutations.type"
 
 import TacheService from "@/services/modules/tache.service";
 import ActiviteService from "@/services/modules/activite.service";

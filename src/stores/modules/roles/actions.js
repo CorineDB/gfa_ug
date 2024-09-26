@@ -4,7 +4,7 @@ import {
   STORE as STORE_ROLE,
   UPDATE as UPDATE_ROLE,
   DESTROY as DESTROY_ROLE,
-} from "@/store/actions.type"
+} from "../../actions.type"
 
 import {
   SET_LIST as SET_LIST_ROLE,
@@ -12,7 +12,7 @@ import {
   ADD as ADD_ROLE,
   MODIFY as MODIFY_ROLE,
   REMOVE as REMOVE_INDICATEUR
-} from "@/store/mutations.type"
+} from "../../mutations.type"
 
 import RolesService from "@/services/modules/role.service";
 

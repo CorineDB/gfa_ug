@@ -1,7 +1,7 @@
 import {
     SET_LIST as SET_LIST_POINTFINANCIER,
 
-} from "@/store/mutations.type"
+} from "../../mutations.type"
 
 import PointFinancierService from "@/services/modules/pointFinancier.service";
 

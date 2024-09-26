@@ -4,7 +4,7 @@ import {
   ADD as ADD_TYPE_ANO,
   MODIFY as MODIFY_TYPE_ANO,
   REMOVE as REMOVE_TYPE_ANO
-} from "@/store/mutations.type"
+} from "../../mutations.type"
 
 import TypeAnoService from "@/services/modules/type.ano.service";
 

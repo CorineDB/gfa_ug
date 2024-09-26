@@ -4,7 +4,7 @@ import {
     STORE as STORE_PROJET,
     UPDATE as UPDATE_PROJET,
     DESTROY as DESTROY_PROJET,
-} from "@/store/actions.type"
+} from "../../actions.type"
 
 import {
     SET_LIST as SET_LIST_PROJET,
@@ -12,7 +12,7 @@ import {
     ADD as ADD_PROJET,
     MODIFY as MODIFY_PROJET,
     REMOVE as REMOVE_PROJET
-} from "@/store/mutations.type"
+} from "../../mutations.type"
 
 import ProjetService from "@/services/modules/projet.service";
 import ProgrammeService from "@/services/modules/programme.service";

@@ -6,7 +6,7 @@ import {
     FILL,
     MODIFY as MODIFY_EACTIVITE,
     REMOVE as REMOVE_EACTIVITE
-} from "@/store/mutations.type";
+} from "../../mutations.type";
 
 export default {
 

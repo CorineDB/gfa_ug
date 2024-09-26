@@ -4,7 +4,7 @@ import {
     STORE as STORE_ENTREPRISE_EXECUTANTE,
     UPDATE as UPDATE_ENTREPRISE_EXECUTANTE,
     DESTROY as DESTROY_ENTREPRISE_EXECUTANTE,
-} from "@/store/actions.type"
+} from "../../actions.type"
 
 import {
     SET_LIST as SET_LIST_ENTREPRISE_EXECUTANTE,
@@ -12,7 +12,7 @@ import {
     ADD as ADD_ENTREPRISE_EXECUTANTE,
     MODIFY as MODIFY_ENTREPRISE_EXECUTANTE,
     REMOVE as REMOVE_ENTREPRISE_EXECUTANTE
-} from "@/store/mutations.type"
+} from "../../mutations.type"
 
 import EntrepriseExecutanteService from "@/services/modules/entreprise.executante.service";
 import ProgrammeService from "@/services/modules/programme.service";

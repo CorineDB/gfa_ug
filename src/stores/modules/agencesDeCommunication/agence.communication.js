@@ -1,7 +1,7 @@
 
 import { is } from 'ramda'
 
-import User from '@/store/modules/users/user'
+import User from "../../modules/users/user";
 
 export default class AgenceDeCommunication{
     constructor (agenceDeCommunication = {}) 

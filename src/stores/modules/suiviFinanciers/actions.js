@@ -4,7 +4,7 @@ import {
     STORE as STORE_SUIVIFINANCIER,
     UPDATE as UPDATE_SUIVIFINANCIER,
     DESTROY as DESTROY_SUIVIFINANCIER,
-} from "@/store/actions.type"
+} from "../../actions.type"
 
 import {
     SET_LIST as SET_LIST_SUIVIFINANCIER,
@@ -12,7 +12,7 @@ import {
     ADD as ADD_SUIVIFINANCIER,
     MODIFY as MODIFY_SUIVIFINANCIER,
     REMOVE as REMOVE_SUIVIFINANCIER
-} from "@/store/mutations.type"
+} from "../../mutations.type"
 
 import SuiviFinancierService from "@/services/modules/suiviFinancier.service";
 

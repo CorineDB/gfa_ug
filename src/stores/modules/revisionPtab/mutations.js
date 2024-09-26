@@ -1,7 +1,7 @@
 
 import {
     SET_LIST as SET_LIST_SCOPE_PTAB
-} from "@/store/mutations.type";
+} from "../../mutations.type";
 
 export default {
 

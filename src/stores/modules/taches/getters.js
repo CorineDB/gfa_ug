@@ -1,6 +1,6 @@
 import {
     FIND as findTache
-} from "@/store/mutations.type";
+} from "../../mutations.type";
 
 export default {
 

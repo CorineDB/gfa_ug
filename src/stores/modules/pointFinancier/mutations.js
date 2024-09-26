@@ -1,6 +1,6 @@
 import {
     SET_LIST as SET_LIST_POINTFINANCIER,
-} from "@/store/mutations.type";
+} from "../../mutations.type";
 
 export default {
 

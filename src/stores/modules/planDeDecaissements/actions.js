@@ -4,7 +4,7 @@ import {
   ADD as ADD_PLAN_DE_DECAISSEMENT,
   MODIFY as MODIFY_PLAN_DE_DECAISSEMENT,
   REMOVE as REMOVE_PLAN_DE_DECAISSSMENT
-} from "@/store/mutations.type"
+} from "../../mutations.type"
 
 import PlanDeDecaissementService from "@/services/modules/plan.decaissement.service";
 import ActiviteService from "@/services/modules/activite.service";

@@ -6,7 +6,7 @@ import {
     FILL,
     MODIFY as MODIFY_TYPE_ANO,
     REMOVE as REMOVE_TYPE_ANO
-} from "@/store/mutations.type";
+} from "../../mutations.type";
 
 export default {
 

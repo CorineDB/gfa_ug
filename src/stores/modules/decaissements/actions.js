@@ -4,7 +4,7 @@ import {
   STORE as STORE_DECAISSEMENT,
   UPDATE as UPDATE_DECAISSEMENT,
   DESTROY as DESTROY_DECAISSEMENT,
-} from "@/store/actions.type"
+} from "../../actions.type"
 
 import {
   SET_LIST as SET_LIST_DECAISSEMENT,
@@ -12,7 +12,7 @@ import {
   ADD as ADD_DECAISSEMENT,
   MODIFY as MODIFY_DECAISSEMENT,
   REMOVE as REMOVE_DECAISSSMENT
-} from "@/store/mutations.type"
+} from "../../mutations.type"
 
 import DecaissementService from "@/services/modules/decaissement.service";
 import ProgrammeService from "@/services/modules/programme.service";

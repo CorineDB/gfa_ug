@@ -4,7 +4,7 @@ import {
     STORE as STORE_ESUIVI,
     UPDATE as UPDATE_ESUIVI,
     DESTROY as DESTROY_ESUIVI,
-} from "@/store/actions.type"
+} from "../../actions.type"
 
 import {
     SET_LIST as SET_LIST_ESUIVI,
@@ -12,7 +12,7 @@ import {
     ADD as ADD_ESUIVI,
     MODIFY as MODIFY_ESUIVI,
     REMOVE as REMOVE_ESUIVI
-} from "@/store/mutations.type"
+} from "../../mutations.type"
 
 import ESuiviService from "@/services/modules/eSuivi.service";
 

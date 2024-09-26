@@ -4,7 +4,7 @@ import {
     STORE as STORE_ONG,
     UPDATE as UPDATE_ONG,
     DESTROY as DESTROY_ONG,
-} from "@/store/actions.type"
+} from "../../actions.type"
 
 import {
     SET_LIST as SET_LIST_ONG,
@@ -12,7 +12,7 @@ import {
     ADD as ADD_ONG,
     MODIFY as MODIFY_ONG,
     REMOVE as REMOVE_ONG
-} from "@/store/mutations.type"
+} from "../../mutations.type"
 
 import OngService from "@/services/modules/ong.service"
 import Ong from "./ong"

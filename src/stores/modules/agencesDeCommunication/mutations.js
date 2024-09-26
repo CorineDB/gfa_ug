@@ -1,12 +1,6 @@
 import AgenceDeCommunication from "./agence.communication";
 
-import {
-    SET_LIST as SET_LIST_AGENCE_DE_COMMUNICATION,
-    ADD as ADD_NEW_AGENCE_DE_COMMUNICATION,
-    FILL,
-    MODIFY as MODIFY_AGENCE_DE_COMMUNICATION,
-    REMOVE as REMOVE_AGENCE_DE_COMMUNICATION
-} from "@/store/mutations.type";
+import { SET_LIST as SET_LIST_AGENCE_DE_COMMUNICATION, ADD as ADD_NEW_AGENCE_DE_COMMUNICATION, FILL, MODIFY as MODIFY_AGENCE_DE_COMMUNICATION, REMOVE as REMOVE_AGENCE_DE_COMMUNICATION } from "../../mutations.type";
 
 export default {
 

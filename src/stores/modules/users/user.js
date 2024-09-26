@@ -1,5 +1,5 @@
 import { is, isEmpty } from 'ramda'
-import Role from '@/store/modules/roles/role'
+import Role from '../../modules/roles/role'
 
 export default class User {
     constructor (user = {}) 

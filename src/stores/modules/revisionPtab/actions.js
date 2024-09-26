@@ -1,7 +1,7 @@
 
 import {
     SET_LIST as SET_LIST_SCOPE_PTAB
-} from "@/store/mutations.type"
+} from "../../mutations.type"
 
 import RevisionPtabService from "@/services/modules/revision.ptab.service";
 import ProgrammeService from "@/services/modules/programme.service";

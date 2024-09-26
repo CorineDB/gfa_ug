@@ -4,7 +4,7 @@ import {
     STORE as STORE_PAP,
     UPDATE as UPDATE_PAP,
     DESTROY as DESTROY_PAP,
-} from "@/store/actions.type"
+} from "../../actions.type"
 
 import {
     SET_LIST as SET_LIST_PAP,
@@ -12,7 +12,7 @@ import {
     ADD as ADD_PAP,
     MODIFY as MODIFY_PAP,
     REMOVE as REMOVE_PAP
-} from "@/store/mutations.type"
+} from "../../mutations.type"
 
 import PapService from "@/services/modules/paps.service";
 

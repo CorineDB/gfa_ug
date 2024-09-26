@@ -6,7 +6,7 @@ import {
     FILL,
     MODIFY as MODIFY_TACHE,
     REMOVE as REMOVE_TACHE
-} from "@/store/mutations.type";
+} from "../../mutations.type";
 
 export default {
 

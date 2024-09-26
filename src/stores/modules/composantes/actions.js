@@ -4,7 +4,7 @@ import {
     STORE as STORE_COMPOSANTE,
     UPDATE as UPDATE_COMPOSANTE,
     DESTROY as DESTROY_COMPOSANTE,
-} from "@/store/actions.type"
+} from "../../actions.type"
 
 import {
     SET_LIST as SET_LIST_COMPOSANTE,
@@ -12,7 +12,7 @@ import {
     ADD as ADD_COMPOSANTE,
     MODIFY as MODIFY_COMPOSANTE,
     REMOVE as REMOVE_COMPOSANTE
-} from "@/store/mutations.type"
+} from "../../mutations.type"
 
 import ComposanteService from "@/services/modules/composante.service";
 import ProjetService from "@/services/modules/projet.service";

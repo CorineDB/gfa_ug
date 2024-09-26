@@ -4,7 +4,7 @@ import {
     STORE as STORE_GOUVERNEMENT,
     UPDATE as UPDATE_GOUVERNEMENT,
     DESTROY as DESTROY_GOUVERNEMENT,
-} from "@/store/actions.type"
+} from "../../actions.type"
 
 import {
     SET_LIST as SET_LIST_GOUVERNEMENT,
@@ -12,7 +12,7 @@ import {
     ADD as ADD_GOUVERNEMENT,
     MODIFY as MODIFY_GOUVERNEMENT,
     REMOVE as REMOVE_GOUVERNEMENT
-} from "@/store/mutations.type"
+} from "../../mutations.type"
 
 import GouvernementService from "@/services/modules/gouvernement.service";
 import Gouvernement from "./gouvernements";

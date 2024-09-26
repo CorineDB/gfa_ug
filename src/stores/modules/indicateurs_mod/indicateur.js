@@ -1,5 +1,5 @@
 import { is, isEmpty } from 'ramda'
-import UniteDeMesure from '@/store/modules/uniteesDeMesure/unitee.mesure'
+import UniteDeMesure from '../../modules/uniteesDeMesure/unitee.mesure'
 
 
 export default class Indicateur {

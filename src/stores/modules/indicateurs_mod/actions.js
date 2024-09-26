@@ -4,7 +4,7 @@ import {
   STORE as STORE_INDICATEUR,
   UPDATE as UPDATE_INDICATEUR,
   DESTROY as DESTROY_INDICATEUR,
-} from "@/store/actions.type"
+} from "../../actions.type"
 
 import {
   SET_LIST as SET_LIST_INDICATEUR,
@@ -12,7 +12,7 @@ import {
   ADD as ADD_INDICATEUR,
   MODIFY as MODIFY_INDICATEUR,
   REMOVE as REMOVE_INDICATEUR
-} from "@/store/mutations.type"
+} from "../../mutations.type"
 
 import IndicateurService from "@/services/modules/indicateur.mod.service";
 

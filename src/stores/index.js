@@ -1,8 +1,8 @@
-import Vue from "vue";
+// import * as Vue from "vue";
 
 import Vuex from "vuex";
 
-// import auths from "@/store/modules/auths/index";
+// import auths from "../../modules/auths/index";
 
 import auths from "./modules/auths/index";
 
@@ -80,10 +80,11 @@ import gouvernements from "./modules/gouvernements/index";
 
 import indicateurs_mod from "./modules/indicateurs_mod/index";
 
-
 import { SET_LOADER, SET_ERRORS_MESSAGE, RESET_ERROR_MESSAGE_MUTATIONS } from "./mutations.type";
 
-Vue.use(Vuex);
+// const app = createApp(MyApp);
+// app.use(VueRouter);
+// Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {

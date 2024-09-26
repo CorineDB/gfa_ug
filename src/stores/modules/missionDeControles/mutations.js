@@ -6,7 +6,7 @@ import {
     FILL,
     MODIFY as MODIFY_MISSION_DE_CONTROLE,
     REMOVE as REMOVE_MISSION_DE_CONTROLE
-} from "@/store/mutations.type";
+} from "../../mutations.type";
 
 export default {
 

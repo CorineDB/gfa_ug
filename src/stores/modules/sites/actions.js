@@ -4,7 +4,7 @@ import {
   STORE as STORE_SITE,
   UPDATE as UPDATE_SITE,
   DESTROY as DESTROY_SITE,
-} from "@/store/actions.type"
+} from "../../actions.type"
 
 import {
   SET_LIST as SET_LIST_SITE,
@@ -12,7 +12,7 @@ import {
   ADD as ADD_SITE,
   MODIFY as MODIFY_SITE,
   REMOVE as REMOVE_SITE
-} from "@/store/mutations.type"
+} from "../../mutations.type"
 
 import SiteService from "@/services/modules/site.service";
 

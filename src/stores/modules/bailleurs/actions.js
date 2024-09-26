@@ -1,18 +1,6 @@
-import {
-    FETCH_LIST as FETCH_LIST_BAILLEUR,
-    GET as GET_BAILLEUR,
-    STORE as STORE_BAILLEUR,
-    UPDATE as UPDATE_BAILLEUR,
-    DESTROY as DESTROY_BAILLEUR,
-} from "@/store/actions.type"
+import { FETCH_LIST as FETCH_LIST_BAILLEUR, GET as GET_BAILLEUR, STORE as STORE_BAILLEUR, UPDATE as UPDATE_BAILLEUR, DESTROY as DESTROY_BAILLEUR } from "../../actions.type";
 
-import {
-    SET_LIST as SET_LIST_BAILLEUR,
-    FIND as findBailleur,
-    ADD as ADD_BAILLEUR,
-    MODIFY as MODIFY_BAILLEUR,
-    REMOVE as REMOVE_BAILLEUR
-} from "@/store/mutations.type"
+import { SET_LIST as SET_LIST_BAILLEUR, FIND as findBailleur, ADD as ADD_BAILLEUR, MODIFY as MODIFY_BAILLEUR, REMOVE as REMOVE_BAILLEUR } from "../../mutations.type";
 
 import BailleurService from "@/services/modules/bailleur.service";
 import Bailleur from "./bailleur";
