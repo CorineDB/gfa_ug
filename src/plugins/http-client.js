@@ -8,16 +8,16 @@ import { API_BASE_URL } from "@/services/configs/environment";
  * Some general configuration can be added like timeout, headers, params etc. More details can be found on https://github.com/axios/axios
  * */
 const config = {
-  baseURL: API_BASE_URL + "/api/",
-  timeout: 60 * 1000, // Timeout
-  //withCredentials: true, // Check cross-site Access-Control,
-  headers: {
-    common: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json,multipart/form-data',
-       
+    baseURL: API_BASE_URL + "/api/",
+    timeout: 60 * 1000, // Timeout
+    //withCredentials: true, // Check cross-site Access-Control,
+    headers: {
+        common: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json,multipart/form-data',
+
+        }
     }
-  }
 };
 
 /**
@@ -44,23 +44,22 @@ const httpClient = axios.create(config);
 */
 
 /** Adding the request interceptors */
-httpClient.interceptors.request.use(config =>{
+httpClient.interceptors.request.use(config => {
     /* if(storeToken != '' && storeToken != undefined) {
       config.headers.Authorization = `Bearer ${getToken}`
     } */
-   
-      const getToken = JSON.parse(localStorage.getItem("bsdInfo"));
-      if(getToken !=undefined || getToken !=null) {
+
+    const getToken = JSON.parse(localStorage.getItem('authenticateUser'));
+    if (getToken != undefined || getToken != null) {
         let token = getToken.token
         if (token) {
-          config.headers.Authorization = `Bearer ${token}`
+            config.headers.Authorization = `Bearer ${token}`
         }
-      }
-    
-    
+    }
+
+
     return config;
-  }
-);
+});
 
 
 

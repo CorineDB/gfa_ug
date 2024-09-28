@@ -1190,12 +1190,12 @@ const nextImportantNotes = () => {
 
 const subscribe = function () {
   var token = '';
-  const getToken = JSON.parse(localStorage.getItem("bsdInfo"));
+  const getToken = JSON.parse(localStorage.getItem('authenticateUser'));
     if(getToken !=undefined || getToken !=null) {
       token = getToken.token
   }
 
-  const usersInfo = JSON.parse(localStorage.getItem("bsdInfo"));
+  const usersInfo = JSON.parse(localStorage.getItem('authenticateUser'));
   var pusher = new Pusher(PUSHER_APP_KEY , {
     authEndpoint:  PUSHER_BASE_URL+ '/api/broadcasting/auth',
     cluster: PUSHER_APP_CLUSTER,

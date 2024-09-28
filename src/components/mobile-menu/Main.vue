@@ -158,7 +158,7 @@ watch(
 );
 const usersProfileImage = ref('')
 onMounted(() => {
-  const usersInfo = JSON.parse(localStorage.getItem("bsdInfo"));
+  const usersInfo = JSON.parse(localStorage.getItem('authenticateUser'));
 
   if (usersInfo) {
     usersProfileImage.value = API_BASE_URL + usersInfo.users.profil}

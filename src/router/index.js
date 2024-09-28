@@ -39,242 +39,248 @@ import FichePerception from "../views/gfa/FichePerception.vue";
 import FicheSynthese from "../views/gfa/FicheSynthese.vue";
 import DashboardGfa from "../views/gfa/Dashboard.vue";
 import indicateurs from "../views/gfa/indicateurs/index.vue";
+import projets from "../views/gfa/projets/index.vue";
 
-const routes = [
-  {
-    path: "/dashboard",
-    component: SideMenu,
-    name: "dashboard",
-    children: [
-      {
-        path: "gfa",
-        name: "DashboardGfa",
-        component: DashboardGfa,
-      },
-      {
-        path: "ano",
-        name: "Anos",
-        component: Ano,
-      },
-      {
-        path: "/dashboard/indicateurs",
-        component: indicateurs,
-        name: "indicateurs",
-      },
-      {
-        path: "toolsFactuel",
-        name: "ToolsFactuel",
-        component: ToolsFactuel,
-      },
-      {
-        path: "ToolsPerception",
-        name: "ToolsPerception",
-        component: ToolsPerception,
-      },
-      {
-        path: "/ficheFactuel",
-        name: "FicheFactuel",
-        component: FicheFactuel,
-      },
-      {
-        path: "/fichePerception",
-        name: "FichePerception",
-        component: FichePerception,
-      },
-      {
-        path: "/structure",
-        name: "Structure",
-        component: Structure,
-      },
-      {
-        path: "/synthese",
-        name: "FicheSynthese",
-        component: FicheSynthese,
-      },
-      {
-        path: "bsd",
-        name: "Bsd",
-        component: Bsd,
-      },
-      {
-        path: "profil",
-        name: "Profil",
-        component: Profil,
-      },
+const routes = [{
+        path: "/dashboard",
+        component: SideMenu,
+        name: "dashboard",
+        children: [{
+                path: "gfa",
+                name: "DashboardGfa",
+                component: DashboardGfa,
+            },
+            {
+                path: "ano",
+                name: "Anos",
+                component: Ano,
+            },
+            {
+                path: "/dashboard/indicateurs",
+                component: indicateurs,
+                name: "indicateurs",
+            },
+            {
+                path: "toolsFactuel",
+                name: "ToolsFactuel",
+                component: ToolsFactuel,
+            },
+            {
+                path: "ToolsPerception",
+                name: "ToolsPerception",
+                component: ToolsPerception,
+            },
+            {
+                path: "/ficheFactuel",
+                name: "FicheFactuel",
+                component: FicheFactuel,
+            },
+            {
+                path: "/fichePerception",
+                name: "FichePerception",
+                component: FichePerception,
+            },
+            {
+                path: "/structure",
+                name: "Structure",
+                component: Structure,
+            },
+            {
+                path: "/synthese",
+                name: "FicheSynthese",
+                component: FicheSynthese,
+            },
+            {
+                path: "bsd",
+                name: "Bsd",
+                component: Bsd,
+            },
+            {
+                path: "profil",
+                name: "Profil",
+                component: Profil,
+            },
 
-      {
-        path: "roles",
-        name: "Roles",
-        component: Roles,
-      },
-      {
-        path: "resetPassword",
-        name: "ResetPasswordFromDashboard",
-        component: ResetPasswordFromDashboard,
-      },
-      {
-        path: "feedback",
-        name: "Feedback",
-        component: Feedback,
-      },
-      {
-        path: "qr_code",
-        name: "Qr_Code",
-        component: Qr_Code,
-      },
-      {
-        path: "resolution",
-        name: "Resolution",
-        component: Resolution,
-      },
-      {
-        path: "utilisateurs",
-        name: "Utilisateur",
-        component: Utilisateur,
-      },
-      {
-        path: "promotions",
-        name: "Promotions",
-        component: Promotions,
-      },
-      {
-        path: "programmation_rapport",
-        name: "ProgrammationRapport",
-        component: ProgramationRapport,
-      },
-      {
-        path: "packs",
-        name: "Packs",
-        component: Packs,
-      },
-      {
-        path: "sites",
-        name: "Sites",
-        component: Sites,
-      },
-      {
-        path: "principes",
-        name: "Principes",
-        component: Principes,
-      },
-      {
-        path: "choix",
-        name: "choix",
-        component: CHOIX,
-      },
-      {
-        path: "gouvernance",
-        name: "Gouvernance",
-        component: Gouvernance,
-      },
-      {
-        path: "gouvernance/:id/principe",
-        name: "Principe",
-        component: Principe,
-      },
-      {
-        path: "gouvernance/:id/principe/:id/critere",
-        name: "Critere",
-        component: Critere,
-      },
-      {
-        path: "gouvernance/:id/principe/:id/critere/:id/indicateur",
-        name: "Indicateurs",
-        component: Indicateurs,
-      },
-      // {
-      //   path: "groupe/:id/indicateur",
-      //   name: "Indicateurs",
-      //   component: Indicateurs,
-      // },
-      {
-        path: "campagnes",
-        name: "Campagnes",
-        component: Campagnes,
-      },
-      {
-        path: "tarifications",
-        name: "Tarifications",
-        component: Tarifications,
-      },
-      {
-        path: "api_client",
-        name: "Api Client",
-        component: Api_client,
-      },
-      {
-        path: "campagne/:id/bsd",
-        name: "CampagnesByBsd",
-        component: CampagnesByBsd,
-      },
+            {
+                path: "roles",
+                name: "Roles",
+                component: Roles,
+            },
+            {
+                path: "resetPassword",
+                name: "ResetPasswordFromDashboard",
+                component: ResetPasswordFromDashboard,
+            },
+            {
+                path: "feedback",
+                name: "Feedback",
+                component: Feedback,
+            },
+            {
+                path: "qr_code",
+                name: "Qr_Code",
+                component: Qr_Code,
+            },
+            {
+                path: "resolution",
+                name: "Resolution",
+                component: Resolution,
+            },
+            {
+                path: "utilisateurs",
+                name: "Utilisateur",
+                component: Utilisateur,
+            },
+            {
+                path: "promotions",
+                name: "Promotions",
+                component: Promotions,
+            },
+            {
+                path: "programmation_rapport",
+                name: "ProgrammationRapport",
+                component: ProgramationRapport,
+            },
+            {
+                path: "packs",
+                name: "Packs",
+                component: Packs,
+            },
+            {
+                path: "sites",
+                name: "Sites",
+                component: Sites,
+            },
+            {
+                path: "principes",
+                name: "Principes",
+                component: Principes,
+            },
+            {
+                path: "projets",
+                name: "projets",
+                component: projets,
 
-      // {
-      //   path: "campagne/:id/vote",
-      //   name: "Votes",
-      //   component: Votes
-      // },
-    ],
-  },
+            },
+            {
+                path: "choix",
+                name: "choix",
+                component: CHOIX,
+            },
+            {
+                path: "gouvernance",
+                name: "Gouvernance",
+                component: Gouvernance,
+            },
+            {
+                path: "gouvernance/:id/principe",
+                name: "Principe",
+                component: Principe,
+            },
+            {
+                path: "gouvernance/:id/principe/:id/critere",
+                name: "Critere",
+                component: Critere,
+            },
+            {
+                path: "gouvernance/:id/principe/:id/critere/:id/indicateur",
+                name: "Indicateurs",
+                component: Indicateurs,
+            },
+            // {
+            //   path: "groupe/:id/indicateur",
+            //   name: "Indicateurs",
+            //   component: Indicateurs,
+            // },
+            {
+                path: "campagnes",
+                name: "Campagnes",
+                component: Campagnes,
+            },
+            {
+                path: "tarifications",
+                name: "Tarifications",
+                component: Tarifications,
+            },
+            {
+                path: "api_client",
+                name: "Api Client",
+                component: Api_client,
+            },
+            {
+                path: "campagne/:id/bsd",
+                name: "CampagnesByBsd",
+                component: CampagnesByBsd,
+            },
 
-  {
-    path: "/voter/:code",
-    name: "Voter",
-    component: Voter,
-  },
-  {
-    path: "/formulaireFactuel/:code",
-    name: "FormulaireFactuel",
-    component: FormulaireFactuel,
-  },
-  {
-    path: "/ok/:code/ok",
-    name: "ok",
-    component: Voter,
-  },
+            // {
+            //   path: "campagne/:id/vote",
+            //   name: "Votes",
+            //   component: Votes
+            // },
+        ],
+    },
 
-  {
-    path: "/",
-    name: "login",
-    component: Login,
-  },
+    {
+        path: "/voter/:code",
+        name: "Voter",
+        component: Voter,
+    },
+    {
+        path: "/formulaireFactuel/:code",
+        name: "FormulaireFactuel",
+        component: FormulaireFactuel,
+    },
+    {
+        path: "/ok/:code/ok",
+        name: "ok",
+        component: Voter,
+    },
 
-  {
-    path: "/reset-password",
-    name: "resetPassword",
-    component: ResetPassword,
-  },
-  {
-    path: "/password_update",
-    name: "NewPassword",
-    component: NewPassword,
-  },
-  {
-    path: "/error-page",
-    name: "error-page",
-    component: ErrorPage,
-  },
-  {
-    path: "/:pathMatch(.*)*",
-    component: ErrorPage,
-  },
+    {
+        path: "/",
+        name: "login",
+        component: Login,
+    },
+
+    {
+        path: "/reset-password",
+        name: "resetPassword",
+        component: ResetPassword,
+    },
+    {
+        path: "/password_update",
+        name: "NewPassword",
+        component: NewPassword,
+    },
+    {
+        path: "/error-page",
+        name: "error-page",
+        component: ErrorPage,
+    },
+    {
+        path: "/:pathMatch(.*)*",
+        component: ErrorPage,
+    },
 ];
 
 const router = createRouter({
-  history: createWebHistory(),
-  routes,
-  scrollBehavior(to, from, savedPosition) {
-    return savedPosition || { left: 0, top: 0 };
-  },
+    history: createWebHistory(),
+    routes,
+    scrollBehavior(to, from, savedPosition) {
+        return savedPosition || { left: 0, top: 0 };
+    },
 });
 
 router.beforeEach((to, from, next) => {
-  if (!localStorage.getItem("bsdInfo") && to.path !== "/") {
-    next("/");
-  } else {
-    next();
-  }
+    if (!localStorage.getItem('authenticateUser') && to.path !== "/") {
+        next("/");
+    } else {
 
-  // next()
+        next();
+    }
+
+    // next()
 });
 
 export default router;

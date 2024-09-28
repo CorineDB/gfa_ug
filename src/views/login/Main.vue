@@ -143,12 +143,15 @@ const login = () => {
     store
       .login(state)
       .then((payload) => {
+       
         message.type = "success";
         message.message = "Vous etes connectées";
         successNotificationToggle();
+       // alert("ok")
         router.push("/dashboard/ano");
       })
       .catch((err) => {
+        
         message.type = "erreur";
         message.message = err;
         successNotificationToggle();

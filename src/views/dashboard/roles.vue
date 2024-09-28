@@ -293,7 +293,7 @@ onMounted(function () {
 
 
 
-  const usersInfo = JSON.parse(localStorage.getItem("bsdInfo"));
+  const usersInfo = JSON.parse(localStorage.getItem('authenticateUser'));
   if (usersInfo) {
     permissions.value = usersInfo.users.role.permissions
     formData.entrepriseId = usersInfo.users.entrepriseId

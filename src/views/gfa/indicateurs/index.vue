@@ -111,7 +111,7 @@ export default {
       showUpdateImage: false,
       bailleurVisible: false,
       bailleurAdd: false,
-      programmeId: JSON.parse(localStorage.getItem("bsdInfo")).users?.programme?.id,
+      programmeId: JSON.parse(localStorage.getItem('authenticateUser')).users?.programme?.id,
       bailleurVisible: false,
       bailleurAdd: false,
       champsBailleur: [
@@ -997,7 +997,7 @@ export default {
     },
 
     getPermission() {
-      JSON.parse(localStorage.getItem("bsdInfo")).users.role[0].permissions.forEach((element) => {
+      JSON.parse(localStorage.getItem('authenticateUser')).users.role[0].permissions.forEach((element) => {
         if (element.slug === "voir-un-indicateur") {
           this.indicateurVisible = true;
         }
@@ -1410,8 +1410,8 @@ export default {
   mounted() {},
 
   created() {
-    console.log(JSON.parse(localStorage.getItem("bsdInfo")));
-    this.programmeId = JSON.parse(localStorage.getItem("bsdInfo")).users.programme.id;
+    console.log(JSON.parse(localStorage.getItem('authenticateUser')));
+    this.programmeId = JSON.parse(localStorage.getItem('authenticateUser')).users.programme.id;
     if (this.programmeId) {
       this.fetchBailleurs(this.programmeId);
     }
@@ -1420,11 +1420,11 @@ export default {
       this.$router.push("/401-non-autorise");
     }
 
-    if (JSON.parse(localStorage.getItem("bsdInfo")).users != undefined) {
-      this.currentRole = JSON.parse(localStorage.getItem("bsdInfo")).users.type;
-      this.programmeId = JSON.parse(localStorage.getItem("bsdInfo")).users.programme.id;
+    if (JSON.parse(localStorage.getItem('authenticateUser')).users != undefined) {
+      this.currentRole = JSON.parse(localStorage.getItem('authenticateUser')).users.type;
+      this.programmeId = JSON.parse(localStorage.getItem('authenticateUser')).users.programme.id;
 
-      if (JSON.parse(localStorage.getItem("bsdInfo")).users.type === "bailleur") {
+      if (JSON.parse(localStorage.getItem('authenticateUser')).users.type === "bailleur") {
         this.getIndicateurBailleurs();
         this.headers = [
           { name: "Indicateur", cle: "nom" },

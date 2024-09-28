@@ -199,7 +199,7 @@ const UserInfo = ref(null)
 const usersProfileImage = ref('')
 onMounted(() => {
 
-  const usersInfo = JSON.parse(localStorage.getItem("bsdInfo"));
+  const usersInfo = JSON.parse(localStorage.getItem('authenticateUser'));
   UserInfo.value = usersInfo
 
   usersProfileImage.value = API_BASE_URL + usersInfo.users.profil
@@ -263,7 +263,7 @@ const saveProfil = function() {
 
     
 
-      localStorage.setItem('bsdInfo', JSON.stringify(UserInfo.value))
+      localStorage.setItem('authenticateUser', JSON.stringify(UserInfo.value))
 
       console.log( localStorage.getItem('bsdInfo') )
 
@@ -316,7 +316,7 @@ const editUserInfo = () => {
       UserInfo.value.users.email = currentUsers.email
       UserInfo.value.userInitiale = currentUsers.initial
 
-      localStorage.setItem('bsdInfo', JSON.stringify(UserInfo.value));
+      localStorage.setItem('authenticateUser', JSON.stringify(UserInfo.value));
       
 
       // location.reload()

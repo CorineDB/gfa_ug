@@ -235,7 +235,7 @@ const message = reactive({
 const usersProfileImage = ref('')
 
 onMounted(() => {
-  const usersInfo = JSON.parse(localStorage.getItem("bsdInfo"));
+  const usersInfo = JSON.parse(localStorage.getItem('authenticateUser'));
 
  
   if (usersInfo) {

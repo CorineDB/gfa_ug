@@ -218,7 +218,7 @@ onMounted(function () {
   }
   getData()
 
-  userInfo.value = JSON.parse(localStorage.getItem("bsdInfo")); 
+  userInfo.value = JSON.parse(localStorage.getItem('authenticateUser')); 
   
 
   formData.refresh =  userInfo.value.users.entreprise.refresh
@@ -287,7 +287,7 @@ const updateRefresh = function () {
       userInfo.value.users.entreprise.refresh  =  formData.refresh 
 
 
-      localStorage.setItem("bsdInfo" ,  JSON.stringify(userInfo.value) ) 
+      localStorage.setItem("authenticateUser" ,  JSON.stringify(userInfo.value) ) 
 
 
       message.type = 'success'

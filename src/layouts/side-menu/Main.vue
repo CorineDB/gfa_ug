@@ -397,7 +397,7 @@ const updatedMenu = () => {
 const usersProfileImage = ref("");
 
 onMounted(() => {
-  const usersInfo = JSON.parse(localStorage.getItem("bsdInfo"));
+  const usersInfo = JSON.parse(localStorage.getItem('authenticateUser'));
   console.log(usersInfo);
 
   if (usersInfo) {
