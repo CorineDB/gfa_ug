@@ -13,16 +13,16 @@ export const useSimpleMenuStore = defineStore("simpleMenu", {
         pageName: "projets",
         title: "Projets",
       },
-      {
-        icon: "ListIcon",
-        pageName: "programme",
-        title: "Programme",
-      },
+      // {
+      //   icon: "ListIcon",
+      //   pageName: "programme",
+      //   title: "Programme",
+      // },
 
       {
         icon: "CpuIcon",
         pageName: "Ongs",
-        title: "Ongs",
+        title: "Organisations",
       },
 
       {

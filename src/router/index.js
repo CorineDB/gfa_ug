@@ -25,15 +25,18 @@ import FormulaireFactuel from "../views/voter/formulaireFactuel.vue";
 import ToolsFactuel from "../views/dashboard/ToolsFactuel.vue";
 import ToolsPerception from "../views/dashboard/ToolsPerception.vue";
 import FicheFactuel from "../views/dashboard/FicheFactuel.vue";
+import pta from "../views/dashboard/pta/index.vue";
 
 import Ong from "../views/dashboard/ong.vue";
 import FichePerception from "../views/dashboard/FichePerception.vue";
 import FicheSynthese from "../views/dashboard/FicheSynthese.vue";
 import DashboardGfa from "../views/dashboard/Dashboard.vue";
 import indicateurs from "../views/dashboard/indicateurs/index.vue";
-import projets from "../views/dashboard/projets/index.vue";
-import programme from "../views/dashboard/programme/index.vue"
+
 import typeGouvernance from "../views/dashboard/type_gouvernance/index.vue"
+
+import dashboard_projets_composantes_globale from "../views/dashboard/projets/composantes-globale/index.vue";
+import projets from "../views/dashboard/projets/index.vue";
 
 
 
@@ -48,10 +51,15 @@ const routes = [
         name: "DashboardGfa",
         component: DashboardGfa,
       },
-        {
+      {
         path: "ong",
         name: "Ongs",
         component: Ong,
+      },
+      {
+        path: "projets/composantes-globale",
+        component: dashboard_projets_composantes_globale,
+       
       },
       {
         path: "/dashboard/indicateurs",
@@ -69,6 +77,11 @@ const routes = [
         component: ToolsPerception,
       },
       {
+        path: "pta",
+        name: "pta",
+        component: pta,
+      },
+      {
         path: "typeGouvernance",
         name: "typeGouvernance",
         component: typeGouvernance,
@@ -83,7 +96,7 @@ const routes = [
         name: "FichePerception",
         component: FichePerception,
       },
-     
+
       {
         path: "/synthese",
         name: "FicheSynthese",
@@ -110,20 +123,19 @@ const routes = [
         name: "Feedback",
         component: Feedback,
       },
-     
+
       {
         path: "utilisateurs",
         name: "Utilisateur",
         component: Utilisateur,
       },
-     
+
       {
         path: "programmation_rapport",
         name: "ProgrammationRapport",
         component: ProgramationRapport,
       },
-    
-      
+
       {
         path: "principes",
         name: "Principes",
@@ -134,12 +146,7 @@ const routes = [
         name: "projets",
         component: projets,
       },
-      {
-        path: "programme",
-        name: "programme",
-        component: programme,
-      },
-      
+
       {
         path: "gouvernance",
         name: "Gouvernance",
@@ -160,17 +167,14 @@ const routes = [
         name: "Indicateurs",
         component: Indicateurs,
       },
-     
     ],
   },
 
- 
   {
     path: "/formulaireFactuel/:code",
     name: "FormulaireFactuel",
     component: FormulaireFactuel,
   },
-  
 
   {
     path: "/",

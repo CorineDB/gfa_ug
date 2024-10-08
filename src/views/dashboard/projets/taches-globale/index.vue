@@ -1,72 +1,13 @@
 <template>
-  <dashboard>
-
-    <!--  <div v-if="currentRole ==='bailleur'" class="p-0 w-full">
-     
-      <div class="flex bg-white p-2 shadow space-x-4">
-       <div class="w-full p-4">
-          <label for="" class="my-2 block">Selectionnez une composante</label>
-          <multiselect v-model="value" :options="composantes" @input="demoEcoute(value)" :custom-label="customLabel" :preselect-first="true" placeholder="selectionnez une composantes" label="nom" track-by="id"></multiselect>
-       </div>
-       <div class="w-full p-4">
-          <label for="" class="my-2 block">Selectionnez une sous  composante</label>
-          <multiselect v-model="valueSC" :options="sous_composantes" @input="demoEcouteSC(valueSC)" :custom-label="customLabelSC" :preselect-first="true" placeholder="selectionnez une composantes" label="nom" track-by="id"></multiselect>
-       </div>
-        <div class="w-full p-4">
-          <label for="" class="my-2 block">Selectionnez une activité</label>
-          <multiselect v-model="valueAC" :options="activites" @input="demoEcouteAC(valueAC)" :custom-label="customLabelSC" :preselect-first="true" placeholder="selectionnez une composantes" label="nom" track-by="id"></multiselect>
-       </div>
-      </div>
-       <div  class="grid grid-cols-1 my-4 lg:grid-cols-3 md:grid-cols-2 sm:gap-5">
-         <div v-for="(tache, index) in taches" :key="index">
-            <card-tache
-              :id="tache.id"
-              :bailleur="tache.bailleur.sigle"
-              :statut="getStatus(tache.statut)"
-              :poids="tache.poids"
-              :poidsActuel="tache.poidsActuel"
-              :libelle="tache.nom"
-              :montantNE="tache.montantNE"
-              :montantEPM="tache.montantEPM"
-              @validation="validation(tache)"
-              :isDelete="false"
-              :isUpdate="false"
-            ></card-tache>
-          </div>
-      </div>
-    </div> -->
-    <div class="w-full">
-      <div v-if="tacheReVisible" class="select w-52 
- mb-2" >
-        <select id="choice" v-model="version" @change="choiceVersion(version)"
-          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:border-primary block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-          <option value="" selected>Version actuelle</option>
-
-          <option v-for="(scopePtab, index) in scopes" :key="index" :value="scopePtab.id">
-            {{ scopePtab.nom }}
-          </option>
-        </select>
-      </div>
-      <div class="">
-        <tache-current v-if="currentPage"></tache-current>
-        <revisite v-else :version="version"></revisite>
-      </div>
-    </div>
-
-  </dashboard>
+ 
 </template>
 
 <script>
-import TacheCurrent from "@/components/TacheCurrent";
-import Revisite from "@/components/revisiteTache/Revisite.vue";
-import Dashboard from "@/layouts/Dashboard";
+
 import ComposanteService from "@/services/modules/composante.service.js";
-import SearchBar from '@/components/SearchBar.vue'
+
 import ProjetService from "@/services/modules/projet.service.js";
 import ActiviteService from "@/services/modules/activite.service.js";
-import Titre from '@/components/Titre.vue'
-import CardTache from '@/components/CardTache.vue'
-import Multiselect from 'vue-multiselect'
 import { getStringValueOfStatutCode } from '@/utils/index'
 import { mapGetters, mapActions } from "vuex";
 import TachesService from '@/services/modules/tache.service';

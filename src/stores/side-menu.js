@@ -13,16 +13,20 @@ export const useSideMenuStore = defineStore("sideMenu", {
         pageName: "projets",
         title: "Projets",
       },
-      {
-        icon: "ListIcon",
-        pageName: "programme",
-        title: "Programme",
-      },
-
+      // {
+      //   icon: "ListIcon",
+      //   pageName: "programme",
+      //   title: "Programme",
+      // },
       {
         icon: "CpuIcon",
         pageName: "Ongs",
-        title: "Ongs",
+        title: "Organisations",
+      },
+      {
+        icon: "CpuIcon",
+        pageName: "pta",
+        title: "PTAB",
       },
 
       {
@@ -46,21 +50,13 @@ export const useSideMenuStore = defineStore("sideMenu", {
         pageName: "Gouvernance",
         title: "Gouvernance",
       },
-      // {
-      //   icon: "GlobeIcon",
-      //   pageName: "choix",
-      //   title: "Choix",
-      // },
+
       {
         icon: "SettingsIcon",
         pageName: "ToolsFactuel",
         title: "Outil Factuel",
       },
-      // {
-      //   icon: "SettingsIcon",
-      //   pageName: "Structure",
-      //   title: "Structure",
-      // },
+
       {
         icon: "SettingsIcon",
         pageName: "ToolsPerception",
