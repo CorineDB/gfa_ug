@@ -3,18 +3,26 @@ import { createIcons, icons } from "lucide";
 createIcons({ icons });
 
 import OngService from "@/services/modules/ong.service.js";
+import ProgrammeService from "@/services/modules/programme.service.js";
 import BailleurService from "@/services/modules/bailleur.service";
 import { mapGetters, mapActions, mapMutations, mapState } from "vuex";
 import extractFormData from "@/utils/extract-data";
 import { advancedTable } from "../../constant/basic-tablle-data";
 import xlsx from "xlsx";
 import Tabulator from "tabulator-tables";
+import InputForm from "@/components/news/InputForm.vue";
+import VButton from "@/components/news/VButton.vue";
 
 export default {
-  components: {},
+  components: {
+    InputForm,
+    VButton,
+  },
 
   data() {
     return {
+      ajoutLoading: false,
+      programmes: [],
       savedInput: [],
       ongAttributs: ["dossier", "statut", "dateSoumission", "destinataire", "bailleurId", "fichiers"],
       ongAttributsUpdate: ["dossier", "statut", "dateDeSoumission", "destinataire", "bailleurId"],
@@ -102,6 +110,7 @@ export default {
         { nom: "Avril", taille: "70cm", age: "82 ans", stats: "tetraPlégique" },
         { nom: "William", taille: "130cm", age: "1 ans", stats: "jeune" },
       ],
+      programmes: [],
     };
   },
 
@@ -110,10 +119,14 @@ export default {
     ...mapState({
       loading: (state) => state.loading,
       errors: (state) => state.errors,
+      programme: (state) => state.programmes.programme,
     }),
+    //importation des variables du module auths
+
     ...mapGetters({
       hasErrors: "GET_ERREURS",
       isLoading: "IS_LOADING",
+
       ong: "ongs/getOng",
       typeOngs: "typeOngs/getTypeOngs",
       currentUser: "auths/GET_AUTHENTICATE_USER",
@@ -143,6 +156,29 @@ export default {
             // Requête effectuée mais le serveur a répondu par une erreur.
             const message = error.response.data.message;
             this.$toast.error(message);
+          } else if (error.request) {
+            // Demande effectuée mais aucune réponse n'est reçue du serveur.
+            //console.log(error.request);
+          } else {
+            // Une erreur s'est produite lors de la configuration de la demande
+          }
+        });
+    },
+    fetchProgrammes() {
+      // this.active();
+      ProgrammeService.get()
+        .then((data) => {
+          const datas = data.data.data;
+          this.programmes = datas;
+
+          // this.initTabulator();
+          // this.disabled();
+        })
+        .catch((error) => {
+          // this.disabled();
+          if (error.response) {
+            // Requête effectuée mais le serveur a répondu par une erreur.
+            const message = error.response.data.message;
           } else if (error.request) {
             // Demande effectuée mais aucune réponse n'est reçue du serveur.
             //console.log(error.request);
@@ -418,7 +454,7 @@ export default {
     //Charger les fonctions de communication avec le serveur
     ...mapMutations({
       setErrors: "SET_ERRORS_MESSAGE", // map `this.setErrors()` to `this.$store.commit('SET_ERRORS_MESSAGE')`,
-      setOng: "ongs/FILL", // map `this.CREATE_INSTANCE_Ong()` to `this.$store.commit('CREATE_INSTANCE_Ong')`
+      setOng: "ongs/FILL",
     }),
 
     ...mapActions("typeOngs", { fetchTypeOngs: "FETCH_LIST_TYPE_Ong" }),
@@ -644,6 +680,7 @@ export default {
     },
   },
   mounted() {
+    this.fetchProgrammes();
     // this.test();
     // this.initTabulator();
   },
@@ -698,65 +735,41 @@ export default {
 </script>
 
 <template>
-  <i data-lucide="trash"></i>
-  <Modal :show="showModal" @hidden="showModal = false">
+  <Modal backdrop="static" :show="showModal" @hidden="showModal = false">
     <ModalHeader>
-      <h2 class="font-medium text-base mr-auto">Broadcast Message</h2>
-      <button class="btn btn-outline-secondary hidden sm:flex"><FileIcon class="w-4 h-4 mr-2" /> Download Docs</button>
-      <Dropdown class="sm:hidden">
-        <DropdownToggle class="w-5 h-5 block" href="javascript:;">
-          <MoreHorizontalIcon class="w-5 h-5 text-slate-500" />
-        </DropdownToggle>
-        <DropdownMenu class="w-40">
-          <DropdownContent>
-            <DropdownItem>
-              <FileIcon class="w-4 h-4 mr-2" />
-              Download Docs
-            </DropdownItem>
-          </DropdownContent>
-        </DropdownMenu>
-      </Dropdown>
+      <h2 v-if="!update" class="font-medium text-base mr-auto">Ajouter une organisation</h2>
+      <h2 v-else class="font-medium text-base mr-auto">Modifier une organisation</h2>
     </ModalHeader>
     <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
-      <div class="col-span-12 sm:col-span-6">
-        <label for="modal-form-1" class="form-label">From</label>
-        <input id="modal-form-1" type="text" class="form-control" placeholder="example@gmail.com" />
-      </div>
-      <div class="col-span-12 sm:col-span-6">
-        <label for="modal-form-2" class="form-label">To</label>
-        <input id="modal-form-2" type="text" class="form-control" placeholder="example@gmail.com" />
-      </div>
-      <div class="col-span-12 sm:col-span-6">
-        <label for="modal-form-3" class="form-label">Subject</label>
-        <input id="modal-form-3" type="text" class="form-control" placeholder="Important Meeting" />
-      </div>
-      <div class="col-span-12 sm:col-span-6">
-        <label for="modal-form-4" class="form-label">Has the Words</label>
-        <input id="modal-form-4" type="text" class="form-control" placeholder="Job, Work, Documentation" />
-      </div>
-      <div class="col-span-12 sm:col-span-6">
-        <label for="modal-form-5" class="form-label">Doesn't Have</label>
-        <input id="modal-form-5" type="text" class="form-control" placeholder="Job, Work, Documentation" />
-      </div>
-      <div class="col-span-12 sm:col-span-6">
-        <label for="modal-form-6" class="form-label">Size</label>
-        <select id="modal-form-6" class="form-select">
-          <option>10</option>
-          <option>25</option>
-          <option>35</option>
-          <option>50</option>
-        </select>
+      <InputForm class="col-span-12" type="text" required="required" placeHolder="Nom de l'organisation" label="Nom" />
+      <InputForm class="col-span-12" type="number" required="required" placeHolder="Contact" label="Téléphone" />
+      <InputForm class="col-span-12" type="email" required="required" placeHolder="Entrer le mail de l'organisation" label="E-mail" />
+      <InputForm class="col-span-12" type="number" required="required" placeHolder="Ex : 2" label="Code" />
+
+      <div class="col-span-12">
+        <label>Programme</label>
+        <div class="mt-2">
+          <TomSelect
+            :options="{
+              placeholder: 'Veuillez choisir le programme auquel est associé l\'organisation',
+            }"
+            class="w-full"
+          >
+            <option v-for="(program, index) in programmes" :key="index" :value="program.id">{{ program.nom }}</option>
+          </TomSelect>
+        </div>
       </div>
     </ModalBody>
     <ModalFooter>
-      <button type="button" @click="showModal = false" class="btn btn-outline-secondary w-20 mr-1">Cancel</button>
+      <button type="button" @click="showModal = false" class="btn btn-outline-secondary w-20 mr-1">Annuler</button>
+      <VButton label="Ajouter" :loading="ajoutLoading" />
       <button type="button" class="btn btn-primary w-20">Send</button>
     </ModalFooter>
   </Modal>
   <div class="intro-y flex flex-col sm:flex-row items-center mt-8">
     <h2 class="text-lg font-medium mr-auto">Organisation</h2>
     <div class="w-full sm:w-auto flex mt-4 sm:mt-0">
-      <button class="btn btn-primary shadow-md mr-2">Ajouter une organisation</button>
+      <button class="btn btn-primary shadow-md mr-2" @click="showModal = true">Ajouter une organisation</button>
       <button class="btn btn-primary shadow-md mr-2" @click="sendForm">test</button>
       <Dropdown class="ml-auto sm:ml-0">
         <DropdownToggle class="btn px-2 box">
