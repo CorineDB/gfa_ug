@@ -111,6 +111,14 @@ export default {
         { nom: "William", taille: "130cm", age: "1 ans", stats: "jeune" },
       ],
       programmes: [],
+      formData: {
+        nom: "",
+        contact: "",
+        email: "@gmail.com",
+        sigle: "",
+        code: "",
+        programmeId: "",
+      },
     };
   },
 
@@ -134,6 +142,28 @@ export default {
   },
 
   methods: {
+     clearObjectValues(obj) {
+      for (let key in obj) {
+        if (obj.hasOwnProperty(key)) {
+          let value = obj[key];
+
+          if (typeof value === "string") {
+            obj[key] = "";
+          } else if (typeof value === "number") {
+            obj[key] = 0;
+          } else if (typeof value === "boolean") {
+            obj[key] = false;
+          } else if (Array.isArray(value)) {
+            obj[key] = [];
+          } else if (typeof value === "object" && value !== null) {
+            obj[key] = {}; // ou appliquer récursion pour vider les objets imbriqués
+            clearObjectValues(obj[key]); // récursion pour les objets imbriqués
+          } else {
+            obj[key] = null; // pour les autres types (null, undefined, etc.)
+          }
+        }
+      }
+    },
     active() {
       this.$store.dispatch("active");
     },
@@ -470,6 +500,7 @@ export default {
     },
 
     sendReponse() {
+
       if (this.chargement == false) {
         this.chargement = true;
         const formData = new FormData();
@@ -504,27 +535,7 @@ export default {
       }
     },
     sendForm() {
-      // this.champs = this.champs.map((item) => {
-      //   item.errors = [];
-      //   return item;
-      // });
-      // this.champsUpdate = this.champsUpdate.map((item) => {
-      //   item.errors = [];
-      //   return item;
-      // });
-      // let ong = {};
-      // if (this.isUpdate) {
-      //   ong = extractFormData(this.champsUpdate, this.ongAttributsUpdate);
-      //   ong.id = this.ongId;
-      // } else {
-      //   ong = extractFormData(this.champs, this.ongAttributs);
-      // }
-
-      // ong.bailleurId = ong.bailleurId.id;
-      // ong.statut = ong.statut.etat;
-
-      if (this.sendRequest == false) {
-        this.sendRequest = true;
+      
         if (this.update) {
           this.updateOng({ ong: ong, id: ong?.id })
             .then((response) => {
@@ -540,51 +551,31 @@ export default {
             });
         } else {
           this.sendRequest = true;
-          // const demo = {
-          //   dossier: ong.dossier,
-          //   statut: ong.statut,
-          //   dateSoumission: ong.dateSoumission,
-          //   destinataire: ong.destinataire,
-          //   bailleurId: ong.bailleurId,
-          // };
-          // const formData = new FormData();
-          // formData.append("dossier", demo.dossier);
-          // formData.append("statut", demo.statut);
-          // formData.append("dateSoumission", demo.dateSoumission);
-          // formData.append("destinataire", demo.destinataire);
-          // formData.append("bailleurId", demo.bailleurId);
-          // for (let i = 0; i < this.fichiers.length; i++) {
-          //   let file = this.fichiers[i];
-          //   formData.append("fichier" + i, file);
-          // }
-          let formData = {
-            nom: "test",
-            contact: 67217812,
-            email: "alaomoutawakil@gmail.com",
-            sigle: "TES",
-            code: "23",
-            programmeId: this.programmeId,
-          };
-
-          this.saveOng(formData)
+         
+          this.ajoutLoading = true
+          this.saveOng(this.formData)
             .then((response) => {
               if (response.status == 200 || response.status == 201) {
+                this.ajoutLoading = false
                 this.close();
-                this.resetForm();
-                localStorage.removeItem("formData");
-                this.sendRequest = false;
+                this.clearObjectValues(this.formData)
+                // this.resetForm();
+                // localStorage.removeItem("formData");
+                // this.sendRequest = false;
                 this.fetchOngs();
               }
             })
             .catch((error) => {
-              this.getFile();
-              this.setErrors({ message: error?.response?.data?.message, errors: error?.response?.data?.data?.errors });
-              this.sendRequest = false;
+              console.log(error)
+               this.ajoutLoading = false
+              // this.getFile();
+              // this.setErrors({ message: error?.response?.data?.message, errors: error?.response?.data?.data?.errors });
+              // this.sendRequest = false;
 
-              this.champs.map((value) => (value.errors = this.erreurs[value.key]));
+              // this.champs.map((value) => (value.errors = this.erreurs[value.key]));
             });
         }
-      }
+      
     },
 
     addOng() {
@@ -741,15 +732,16 @@ export default {
       <h2 v-else class="font-medium text-base mr-auto">Modifier une organisation</h2>
     </ModalHeader>
     <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
-      <InputForm class="col-span-12" type="text" required="required" placeHolder="Nom de l'organisation" label="Nom" />
-      <InputForm class="col-span-12" type="number" required="required" placeHolder="Contact" label="Téléphone" />
-      <InputForm class="col-span-12" type="email" required="required" placeHolder="Entrer le mail de l'organisation" label="E-mail" />
-      <InputForm class="col-span-12" type="number" required="required" placeHolder="Ex : 2" label="Code" />
+      <InputForm v-model="formData.nom" class="col-span-12" type="text" required="required" placeHolder="Nom de l'organisation" label="Nom" />
+      <InputForm v-model="formData.contact" class="col-span-12" type="number" required="required" placeHolder="Contact" label="Téléphone" />
+      <InputForm v-model="formData.email" class="col-span-12" type="email" required="required" placeHolder="Entrer le mail de l'organisation" label="E-mail" />
+      <InputForm v-model="formData.code" class="col-span-12" type="number" required="required" placeHolder="Ex : 2" label="Code" />
+      <InputForm v-model="formData.sigle" class="col-span-12" type="text" required="required" placeHolder="Ex : APF" label="Sigle" />
 
       <div class="col-span-12">
         <label>Programme</label>
         <div class="mt-2">
-          <TomSelect
+          <TomSelect v-model="formData.programmeId"
             :options="{
               placeholder: 'Veuillez choisir le programme auquel est associé l\'organisation',
             }"
@@ -761,9 +753,12 @@ export default {
       </div>
     </ModalBody>
     <ModalFooter>
-      <button type="button" @click="showModal = false" class="btn btn-outline-secondary w-20 mr-1">Annuler</button>
-      <VButton label="Ajouter" :loading="ajoutLoading" />
-      <button type="button" class="btn btn-primary w-20">Send</button>
+      <div class="flex items-center justify-center">
+        <pre>{{ajoutLoading}}</pre>
+        <button type="button" @click="showModal = false" class="btn btn-outline-secondary w-full mr-1">Annuler</button>
+        <VButton class="inline-block" label="Ajouter" :loading="ajoutLoading" @click="sendForm" />
+        <!-- <button type="button" class="btn btn-primary w-20">Send</button> -->
+      </div>
     </ModalFooter>
   </Modal>
   <div class="intro-y flex flex-col sm:flex-row items-center mt-8">
