@@ -50,7 +50,7 @@ export const useSimpleMenuStore = defineStore("simpleMenu", {
       {
         icon: "BarChart2Icon",
         pageName: "indicateurs",
-        title: "Indicateurs",
+        title: "Indicateurs de gouvernance",
       },
       {
         icon: "FolderIcon",

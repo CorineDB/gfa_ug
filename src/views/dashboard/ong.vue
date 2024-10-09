@@ -290,32 +290,60 @@ export default {
         columns: [
           //Define Table Columns
           {
-            title: "Dossier",
-            field: "dossier",
+            title: "Nom",
+            field: "nom",
             minWidth: 125,
             hozAlign: "left",
           },
           {
-            title: "Bailleur",
-            field: "bailleur",
+            title: "Sigle",
+            field: "sigle",
+            minWidth: 150,
+          },
+
+          {
+            title: "Projet associé",
+            field: "projet",
             minWidth: 150,
             hozAlign: "left",
+            hozAlign: "left",
             formatter(cell) {
-              return `${cell.getData().bailleur.sigle}`;
+              if (cell.getData().projet !== null) {
+                return `<div> ${cell.getData().projet.nom ?? "a"}</div>`;
+              } else {
+                return `<div>--</div>`;
+              }
             },
           },
           {
-            title: "Date de soumissions",
-            field: "dateDeSoumission",
+            title: "E-mail",
+            field: "user",
             minWidth: 150,
             hozAlign: "left",
+            hozAlign: "left",
+            formatter(cell) {
+              if (cell.getData().user.email !== null) {
+                return `<div> ${cell.getData().user.nom}</div>`;
+              } else {
+                return `<div></div>`;
+              }
+            },
           },
           {
-            title: "Destinataire",
-            field: "destinataire",
+            title: "Contact",
+            field: "user",
             minWidth: 150,
             hozAlign: "left",
+            hozAlign: "left",
+            formatter(cell) {
+              if (cell.getData().user.contact !== null) {
+                return `<div> ${cell.getData().user.contact}</div>`;
+              } else {
+                return `<div></div>`;
+              }
+            },
           },
+
           {
             title: "Date de création",
             field: "created_at",
@@ -323,54 +351,21 @@ export default {
             hozAlign: "left",
           },
           {
-            title: "STATUT",
-            minWidth: 200,
-            field: "statut",
-            hozAlign: "center",
-            vertAlign: "middle",
-            print: false,
-            download: false,
-            formatter(cell) {
-              return `<div class="flex items-center lg:justify-center ${cell.getData().statut ? "text-success" : "text-danger"}">
-                <i data-lucide="check-square" class="w-4 h-4 mr-2"></i> ${cell.getData().statut ? "Active" : "Inactive"}
-              </div>`;
-            },
-          },
-          {
-            title: "ACTIONS",
-            minWidth: 200,
+            title: "Actions",
             field: "actions",
-            responsive: 1,
-            hozAlign: "center",
-            vertAlign: "middle",
-            print: false,
-            download: false,
-
-            formatter() {
-              // Créer un conteneur pour le bouton et le menu dropdown
-              const div = document.createElement("div");
-              div.className = "relative inline-block text-left";
-
-              // Créer le bouton pour ouvrir le menu dropdown
-              const button = document.createElement("button");
-              button.className = "px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none";
-              button.innerHTML = "Options";
-
-              // Créer le menu dropdown caché
-              const menu = document.createElement("div");
-              menu.className = "absolute right-0 -mt-6 w-48 bg-white border border-gray-300 rounded shadow-lg hidden z-50";
-              // menu.style.zIndex = "9999"; // Définir un z-index élevé pour le menu dropdown
-              menu.innerHTML = `
-            <ul class="py-1">
-              <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Edit</a></li>
-              <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Delete</a></li>
-            </ul>
-          `;
-
-              div.appendChild(button);
-
-              return div;
+            formatter: function (cell, formatterParams) {
+              return `<button class='btn-suivre btn btn-primary'>
+                 <i data-lucide="trash"></i>
+                </button>`;
             },
+            cellClick: (e, cell) => {
+              // Utilisation d'une fonction fléchée pour garder le contexte de `this`
+              if (e.target.classList.contains("btn-suivre")) {
+                const rowData = cell.getRow().getData();
+                //this.suivreIndicateur(rowData.id); // Appel de la méthode
+              }
+            },
+            
           },
         ],
       });
@@ -406,7 +401,7 @@ export default {
 
     // call action
     ...mapActions("ongs", {
-      saveOng: "STORE_Ong",
+      saveOng: "STORE_ONG",
       updateOng: "UPDATE_Ong",
       deleteOng: "DESTROY_Ong",
     }),
@@ -464,28 +459,28 @@ export default {
       }
     },
     sendForm() {
-      this.champs = this.champs.map((item) => {
-        item.errors = [];
-        return item;
-      });
-      this.champsUpdate = this.champsUpdate.map((item) => {
-        item.errors = [];
-        return item;
-      });
-      let ong = {};
-      if (this.isUpdate) {
-        ong = extractFormData(this.champsUpdate, this.ongAttributsUpdate);
-        ong.id = this.ongId;
-      } else {
-        ong = extractFormData(this.champs, this.ongAttributs);
-      }
+      // this.champs = this.champs.map((item) => {
+      //   item.errors = [];
+      //   return item;
+      // });
+      // this.champsUpdate = this.champsUpdate.map((item) => {
+      //   item.errors = [];
+      //   return item;
+      // });
+      // let ong = {};
+      // if (this.isUpdate) {
+      //   ong = extractFormData(this.champsUpdate, this.ongAttributsUpdate);
+      //   ong.id = this.ongId;
+      // } else {
+      //   ong = extractFormData(this.champs, this.ongAttributs);
+      // }
 
-      ong.bailleurId = ong.bailleurId.id;
-      ong.statut = ong.statut.etat;
+      // ong.bailleurId = ong.bailleurId.id;
+      // ong.statut = ong.statut.etat;
 
       if (this.sendRequest == false) {
         this.sendRequest = true;
-        if (ong?.id) {
+        if (this.update) {
           this.updateOng({ ong: ong, id: ong?.id })
             .then((response) => {
               if (response.status == 200 || response.status == 201) {
@@ -500,26 +495,33 @@ export default {
             });
         } else {
           this.sendRequest = true;
-          const demo = {
-            dossier: ong.dossier,
-            statut: ong.statut,
-            dateSoumission: ong.dateSoumission,
-            destinataire: ong.destinataire,
-            bailleurId: ong.bailleurId,
-          };
-          const formData = new FormData();
-          formData.append("dossier", demo.dossier);
-          formData.append("statut", demo.statut);
-          formData.append("dateSoumission", demo.dateSoumission);
-          formData.append("destinataire", demo.destinataire);
-          formData.append("bailleurId", demo.bailleurId);
-          for (let i = 0; i < this.fichiers.length; i++) {
-            let file = this.fichiers[i];
-            formData.append("fichier" + i, file);
+          // const demo = {
+          //   dossier: ong.dossier,
+          //   statut: ong.statut,
+          //   dateSoumission: ong.dateSoumission,
+          //   destinataire: ong.destinataire,
+          //   bailleurId: ong.bailleurId,
+          // };
+          // const formData = new FormData();
+          // formData.append("dossier", demo.dossier);
+          // formData.append("statut", demo.statut);
+          // formData.append("dateSoumission", demo.dateSoumission);
+          // formData.append("destinataire", demo.destinataire);
+          // formData.append("bailleurId", demo.bailleurId);
+          // for (let i = 0; i < this.fichiers.length; i++) {
+          //   let file = this.fichiers[i];
+          //   formData.append("fichier" + i, file);
+          // }
+          let formData = {
+            nom : "test" ,
+            contact : 67217812 ,
+            email : "alaomoutawakil@gmail.com",
+            sigle :"TES",
+            code: "23",
+            programmeId : this.programmeId 
           }
 
-          this.saveOng(formData)
-            .then((response) => {
+          this.saveOng(formData).then((response) => {
               if (response.status == 200 || response.status == 201) {
                 this.close();
                 this.resetForm();
@@ -637,7 +639,7 @@ export default {
   },
 
   created() {
-     this.getPermission();
+    this.getPermission();
     // if (!this.ongVisible) {
     //   this.$router.push("/401-non-autorise");
     // } else {
@@ -647,12 +649,12 @@ export default {
     //   }
     //   this.fetchOngs();
     // }
-   
-     if (this.bailleurVisible) {
-        this.programmeId = JSON.parse(localStorage.getItem("authenticateUser")).programme.id;
-        this.fetchBailleurs(this.programmeId);
-      }
-      this.fetchOngs();
+
+    if (this.bailleurVisible) {
+      this.programmeId = JSON.parse(localStorage.getItem("authenticateUser")).programme.id;
+      this.fetchBailleurs(this.programmeId);
+    }
+    this.fetchOngs();
   },
 
   watch: {
@@ -686,10 +688,106 @@ export default {
 </script>
 
 <template>
+ <i data-lucide="trash"></i>
+   <Modal
+              :show="showModal"
+              @hidden="showModal = false"
+            >
+              <ModalHeader>
+                <h2 class="font-medium text-base mr-auto">Broadcast Message</h2>
+                <button class="btn btn-outline-secondary hidden sm:flex">
+                  <FileIcon class="w-4 h-4 mr-2" /> Download Docs
+                </button>
+                <Dropdown class="sm:hidden">
+                  <DropdownToggle class="w-5 h-5 block" href="javascript:;">
+                    <MoreHorizontalIcon class="w-5 h-5 text-slate-500" />
+                  </DropdownToggle>
+                  <DropdownMenu class="w-40">
+                    <DropdownContent>
+                      <DropdownItem>
+                        <FileIcon class="w-4 h-4 mr-2" />
+                        Download Docs
+                      </DropdownItem>
+                    </DropdownContent>
+                  </DropdownMenu>
+                </Dropdown>
+              </ModalHeader>
+              <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
+                <div class="col-span-12 sm:col-span-6">
+                  <label for="modal-form-1" class="form-label">From</label>
+                  <input
+                    id="modal-form-1"
+                    type="text"
+                    class="form-control"
+                    placeholder="example@gmail.com"
+                  />
+                </div>
+                <div class="col-span-12 sm:col-span-6">
+                  <label for="modal-form-2" class="form-label">To</label>
+                  <input
+                    id="modal-form-2"
+                    type="text"
+                    class="form-control"
+                    placeholder="example@gmail.com"
+                  />
+                </div>
+                <div class="col-span-12 sm:col-span-6">
+                  <label for="modal-form-3" class="form-label">Subject</label>
+                  <input
+                    id="modal-form-3"
+                    type="text"
+                    class="form-control"
+                    placeholder="Important Meeting"
+                  />
+                </div>
+                <div class="col-span-12 sm:col-span-6">
+                  <label for="modal-form-4" class="form-label"
+                    >Has the Words</label
+                  >
+                  <input
+                    id="modal-form-4"
+                    type="text"
+                    class="form-control"
+                    placeholder="Job, Work, Documentation"
+                  />
+                </div>
+                <div class="col-span-12 sm:col-span-6">
+                  <label for="modal-form-5" class="form-label"
+                    >Doesn't Have</label
+                  >
+                  <input
+                    id="modal-form-5"
+                    type="text"
+                    class="form-control"
+                    placeholder="Job, Work, Documentation"
+                  />
+                </div>
+                <div class="col-span-12 sm:col-span-6">
+                  <label for="modal-form-6" class="form-label">Size</label>
+                  <select id="modal-form-6" class="form-select">
+                    <option>10</option>
+                    <option>25</option>
+                    <option>35</option>
+                    <option>50</option>
+                  </select>
+                </div>
+              </ModalBody>
+              <ModalFooter>
+                <button
+                  type="button"
+                  @click="showModal = false"
+                  class="btn btn-outline-secondary w-20 mr-1"
+                >
+                  Cancel
+                </button>
+                <button type="button" class="btn btn-primary w-20">Send</button>
+              </ModalFooter>
+            </Modal>
   <div class="intro-y flex flex-col sm:flex-row items-center mt-8">
-    <h2 class="text-lg font-medium mr-auto">Ong</h2>
+    <h2 class="text-lg font-medium mr-auto">Organisation</h2>
     <div class="w-full sm:w-auto flex mt-4 sm:mt-0">
-      <button class="btn btn-primary shadow-md mr-2">Add New Product</button>
+      <button class="btn btn-primary shadow-md mr-2">Ajouter une organisation</button>
+      <button class="btn btn-primary shadow-md mr-2" @click="sendForm">test</button>
       <Dropdown class="ml-auto sm:ml-0">
         <DropdownToggle class="btn px-2 box">
           <span class="w-5 h-5 flex items-center justify-center">

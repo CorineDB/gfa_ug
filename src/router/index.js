@@ -61,9 +61,9 @@ const routes = [
       },
 
       {
-        path: "/dashboard/indicateurs",
+        path: "indicateursDeGouvernance",
         component: indicateurs,
-        name: "indicateurs",
+        name: "indicateursDeGouvernance",
       },
       {
         path: "projets/composantes-globale",

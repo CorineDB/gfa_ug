@@ -15,6 +15,11 @@ export const useSideMenuStore = defineStore("sideMenu", {
         subMenu: [
           {
             icon: "FolderIcon",
+            pageName: "projets",
+            title: "Projets",
+          },
+          {
+            icon: "FolderIcon",
             pageName: "dashboard_projets_composantes_globale",
             title: "OutComes",
           },
@@ -49,8 +54,8 @@ export const useSideMenuStore = defineStore("sideMenu", {
 
       {
         icon: "BarChart2Icon",
-        pageName: "indicateurs",
-        title: "Indicateurs",
+        pageName: "indicateursDeGouvernance",
+        title: "Indicateurs de gouvernance",
       },
       {
         icon: "FolderIcon",
