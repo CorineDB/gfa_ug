@@ -1,426 +1,265 @@
+<script setup>
+import { computed, onMounted, reactive, ref } from "vue";
+import VButton from "@/components/news/VButton.vue";
+import InputForm from "@/components/news/InputForm.vue";
+import Tabulator from "tabulator-tables";
+import DeleteButton from "@/components/news/DeleteButton.vue";
+import { toast } from "vue3-toastify";
+import LoaderSnipper from "@/components/LoaderSnipper.vue";
+import CritereGouvernance from "@/services/modules/critereGouvernance.service";
+import PrincipeGouvernance from "@/services/modules/principeGouvernance.service";
+
+const payload = reactive({
+  nom: "",
+  description: "",
+  principeDeGouvernanceId: "",
+});
+const tabulator = ref();
+const idSelect = ref("");
+const showModalCreate = ref(false);
+const deleteModalPreview = ref(false);
+const isLoading = ref(false);
+const isLoadingData = ref(true);
+const isCreate = ref(true);
+const principes = ref([]);
+const datas = ref([]);
+
+const createData = async () => {
+  isLoading.value = true;
+  await CritereGouvernance.create(payload)
+    .then(() => {
+      isLoading.value = false;
+      getDatas();
+      resetForm();
+      toast.success("Critère de gouvernace créer.");
+    })
+    .catch((e) => {
+      isLoading.value = false;
+      console.error(e);
+      toast.error("Vérifier les informations et ressayer.");
+    });
+};
+const getDatas = async () => {
+  isLoadingData.value = true;
+  await CritereGouvernance.get()
+    .then((result) => {
+      datas.value = result.data.data;
+      isLoadingData.value = false;
+    })
+    .catch((e) => {
+      console.error(e);
+      isLoadingData.value = false;
+      toast.error("Une erreur est survenue: Liste des Critère de gouvernance.");
+    });
+  initTabulator();
+};
+const updateData = async () => {
+  isLoading.value = true;
+  await CritereGouvernance.update(idSelect.value, payload)
+    .then(() => {
+      isLoading.value = false;
+      getDatas();
+      resetForm();
+      toast.success("Critère de gouvernace modifiée.");
+    })
+    .catch((e) => {
+      isLoading.value = false;
+      console.error(e);
+      toast.error("Vérifier les informations et ressayer.");
+    });
+};
+const submitData = () => (isCreate.value ? createData() : updateData());
+const deleteData = async () => {
+  isLoading.value = true;
+  await CritereGouvernance.destroy(idSelect.value)
+    .then(() => {
+      deleteModalPreview.value = false;
+      isLoading.value = false;
+      toast.success("Critère de gouvernance supprimé");
+      getDatas();
+    })
+    .catch((e) => {
+      isLoading.value = false;
+      console.error(e);
+      toast.error("Une erreur est survenue, ressayer");
+    });
+};
+const getPrincipes = () => {
+  PrincipeGouvernance.get()
+    .then((result) => {
+      principes.value = result.data.data;
+    })
+    .catch((e) => {
+      console.error(e);
+      toast.error("Une erreur est survenue: Liste des Programmes.");
+    });
+};
+const initTabulator = () => {
+  tabulator.value = new Tabulator("#tabulator", {
+    data: datas.value,
+    placeholder: "Aucune donnée disponible.",
+    layout: "fitColumns",
+    columns: [
+      {
+        title: "Nom",
+        field: "nom",
+      },
+      {
+        title: "Description",
+        field: "description",
+      },
+      {
+        title: "Actions",
+        field: "actions",
+        formatter: (cell) => {
+          const container = document.createElement("div");
+          container.className = "flex items-center justify-center gap-3";
+
+          const createButton = (label, className, onClick) => {
+            const button = document.createElement("button");
+            button.className = className;
+            button.innerText = label;
+            button.addEventListener("click", onClick);
+            return button;
+          };
+
+          const modifyButton = createButton("Modifier", "btn btn-primary", () => {
+            handleEdit(cell.getData());
+          });
+
+          const deleteButton = createButton("Supprimer", "btn btn-danger", () => {
+            handleDelete(cell.getData());
+          });
+
+          container.append(modifyButton, deleteButton);
+
+          return container;
+        },
+      },
+    ],
+  });
+};
+const handleEdit = (params) => {
+  console.log(params);
+
+  isCreate.value = false;
+  idSelect.value = params.id;
+  payload.nom = params.nom;
+  payload.description = params.description;
+  payload.principeDeGouvernanceId = params.principeDeGouvernanceId;
+  showModalCreate.value = true;
+};
+const handleDelete = (params) => {
+  idSelect.value = params.id;
+  deleteModalPreview.value = true;
+};
+const cancelSelect = () => {
+  deleteModalPreview.value = false;
+  idSelect.value = "";
+};
+const resetForm = () => {
+  payload.nom = "";
+  payload.description = "";
+  payload.principeDeGouvernanceId = "";
+  showModalCreate.value = false;
+};
+const openCreateModal = () => {
+  payload.principeDeGouvernanceId = "";
+  showModalCreate.value = isCreate.value = true;
+};
+
+const mode = computed(() => (isCreate.value ? "Ajouter" : "Modifier"));
+
+onMounted(() => {
+  getDatas();
+  getPrincipes();
+});
+</script>
+
 <template>
-  <div class="py-4">
-    <!-- toast notification -->
-    <Notification refKey="successNotification" :options="{ duration: 3000 }" class="flex">
-      <CheckCircleIcon v-if="message.type === 'success'" class="text-success" />
-      <div class="ml-4 mr-4">
-        <div :class="{ 'text-red-500 capitalize ': message.type != 'success' }" class="font-medium">{{ message.type }}</div>
-        <div class="text-slate-500 mt-1">
-          {{ message.message }}
+  <h2 class="mt-10 text-lg font-medium intro-y">Critère de gouvernance</h2>
+  <div class="grid grid-cols-12 gap-6 mt-5">
+    <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
+      <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
+        <div class="relative w-56 text-slate-500">
+          <input type="text" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
+          <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
         </div>
       </div>
-    </Notification>
-    <!-- toast notification -->
-
-    <!-- BEGIN: Modal Content -->
-    <Modal :show="deleteModalPreview" @hidden="deleteModalPreview = false">
-      <ModalBody class="p-0">
-        <div class="p-5 text-center">
-          <XCircleIcon class="w-16 h-16 text-danger mx-auto mt-3" />
-          <div class="text-3xl mt-5">Vous etes sur de supprimer {{ deleteData.nom }} ?</div>
-          <div class="text-slate-500 mt-2">Cette operation est irreverssible ? <br />Cliquer sur annuler pour annuler l'operation</div>
-        </div>
-        <div class="px-5 pb-8 text-center">
-          <button type="button" @click="deleteModalPreview = false" class="btn btn-outline-secondary w-24 mr-1">Annuler</button>
-          <button type="button" @click="deleteCritere" class="btn btn-danger w-24">Supprimer</button>
-        </div>
-      </ModalBody>
-    </Modal>
-    <!-- END: Modal Content -->
-
-    <!-- BEGIN: Modal Content -->
-    <Modal :show="showModal" @hidden="close">
-      <ModalBody class="p-10">
-        <form v-if="!isUpdate" key="ajouter" @submit.prevent="storeCritere">
-          <div class="my-2">
-            <label for="regular-form-1" class="form-label">Nom</label>
-            <input id="regular-form-1" type="text" required v-model="formData.nom" class="form-control" placeholder="libellé du groupe" />
-          </div>
-          <div class="my-2">
-            <label for="regular-form-1" class="form-label"> Description </label>
-            <input id="regular-form-1" type="text" required v-model="formData.description" class="form-control" placeholder="Description" />
-          </div>
-          <button class="btn btn-primary py-3 px-4 w-full my-3 xl:mr-3 align-top">
-            <span class="text-sm font-semibold uppercase" v-if="!chargement"> Ajouter </span>
-            <span v-else class="flex justify-center items-center space-x-2">
-              <span class="px-4 font-semibold"> chargement ... </span>
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-center animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-            </span>
-          </button>
-        </form>
-
-        <form v-else key="modifier" @submit.prevent="updateCritere">
-          <div class="my-2">
-            <label for="regular-form-1" class="form-label">Nom</label>
-            <input id="regular-form-1" type="text" required v-model="saveUpdate.nom" class="form-control" placeholder="libellé" />
-          </div>
-          <div class="my-2">
-            <label for="regular-form-1" class="form-label">Description</label>
-            <input id="regular-form-1" type="text" required v-model="saveUpdate.description" class="form-control" placeholder="description" />
-          </div>
-
-          <!-- <div class="my-2">
-            <label for="regular-form-1" class="form-label">Groupes </label>
-
-            <TomSelect v-model="saveUpdate.groupeId" :options="{ placeholder: 'Selectionez un groupe' }" class="w-full">
-              <option :value="saveUpdate.promotionId"> {{ saveUpdate.groupeNom }} </option>
-              <option v-for="(groupe, index) in groupes" :key="index" :value="groupe.id">{{ groupe.nom }}</option>
-            </TomSelect>
-
-          </div> -->
-
-          <button class="btn btn-primary py-3 px-4 w-full my-3 xl:mr-3 align-top">
-            <span class="text-sm font-semibold uppercase" v-if="!chargement"> modifier </span>
-            <span v-else class="flex justify-center items-center space-x-2">
-              <span class="px-4 font-semibold"> chargement ... </span>
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-center animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-            </span>
-          </button>
-        </form>
-      </ModalBody>
-    </Modal>
-    <!-- END: Modal Content -->
-    <!-- BEGIN: Modal Toggle -->
-    <div class="flex justify-between">
-      <button @click="addCritere" class="btn btn-primary flex space-x-2 items-center">
-        <PlusSquareIcon />
-        <span class="uppercase font-semibold"> ajouter</span>
-      </button>
-      <div class="search hidden sm:block">
-        <input type="text" class="search__input form-control border-transparent" v-model="search" placeholder="Recherche..." />
-        <SearchIcon class="search__icon dark:text-slate-500" />
-      </div>
-    </div>
-    <div class="my-4 flex justify-between items-center">
-      <span class="text-xl uppercase font-bold">Critere {{ groupe }} </span>
-      <button @click="toBack" class="bg-indigo-500 text-white rounded-lg font-semibold px-3 py-2 outline-none flex space-x-2 items-center">
-        <CornerUpLeftIcon />
-        <span class="uppercase font-semibold"> Principes </span>
-      </button>
-    </div>
-    <!-- END: Modal Toggle -->
-    <div class="overflow-x-auto mt-5">
-      <table class="table mt-5">
-        <thead class="table-light">
-          <tr>
-            <th class="whitespace-nowrap">#</th>
-            <th class="whitespace-nowrap">Nom</th>
-            <th class="whitespace-nowrap">Description</th>
-            <th class="whitespace-nowrap">Date creation</th>
-            <th class="whitespace-nowrap">Date mise à jours</th>
-            <th class="whitespace-nowrap">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(data, index) in resultQuery" :key="index">
-            <td>{{ index + 1 }}</td>
-            <td>{{ data.nom }}</td>
-            <td>{{ data.description }}</td>
-            <td>{{ data.created_at }}</td>
-            <td>{{ data.updated_at }}</td>
-            <td class="flex space-x-2 items-center">
-              <Tippy tag="a" href="javascript:;" class="tooltip btn btn-secondary w-24 mr-1 mb-2" content="cliquez pour modifier">
-                <span @click="modifier(index, data)" class="text-blue-500 cursor-pointer"> Modifier </span>
-              </Tippy>
-              <Tippy tag="a" href="javascript:;" class="tooltip btn btn-secondary w-24 mr-1 mb-2" content="cliquez pour ajouter ou voir les indicateurs">
-                <span @click="voirIndicateur(index, data.id)" class="text-blue-500 cursor-pointer">Principes</span>
-              </Tippy>
-              <Tippy tag="a" href="javascript:;" class="tooltip btn btn-secondary w-24 mr-1 mb-2" content="cliquez pour supprimer">
-                <span @click="supprimer(index, data)" class="text-red-500 cursor-pointer"> Supprimer </span>
-              </Tippy>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="flex justify-center mt-4" v-if="totalPages() > 1">
-        <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-l-md px-4 py-2 m-1 focus:outline-none" :disabled="currentPage === 1" @click="currentPage--">Previous</button>
-        <template v-if="totalPages() <= 7">
-          <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === currentPage }" v-for="pageNumber in totalPages()" :key="pageNumber" @click="goToPage(pageNumber)">
-            {{ pageNumber }}
-          </button>
-        </template>
-        <template v-else>
-          <template v-if="currentPage <= 4">
-            <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === currentPage }" v-for="pageNumber in 5" :key="pageNumber" @click="goToPage(pageNumber)">
-              {{ pageNumber }}
-            </button>
-            <span class="bg-gray-200 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1">...</span>
-            <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === totalPages() }" @click="goToPage(totalPages())">
-              {{ totalPages() }}
-            </button>
-          </template>
-          <template v-else-if="currentPage >= totalPages() - 3">
-            <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === 1 }" @click="goToPage(1)">1</button>
-            <span class="bg-gray-200 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1">...</span>
-            <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === currentPage }" v-for="pageNumber in 5" :key="pageNumber" @click="goToPage(pageNumber)">
-              {{ pageNumber }}
-            </button>
-            <span class="bg-gray-200 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1">...</span>
-            <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === currentPage }" v-for="pageNumber in [totalPages() - 3, totalPages() - 2, totalPages() - 1, totalPages()]" :key="pageNumber" @click="goToPage(pageNumber)">
-              {{ pageNumber }}
-            </button>
-          </template>
-          <template v-else>
-            <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === 1 }" @click="goToPage(1)">1</button>
-            <span class="bg-gray-200 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1">...</span>
-            <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === currentPage }" v-for="pageNumber in [currentPage - 1, currentPage, currentPage + 1]" :key="pageNumber" @click="goToPage(pageNumber)">
-              {{ pageNumber }}
-            </button>
-            <span class="bg-gray-200 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1">...</span>
-            <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === totalPages() }" @click="goToPage(totalPages())">
-              {{ totalPages() }}
-            </button>
-          </template>
-        </template>
-        <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-r-md px-4 py-2 m-1 focus:outline-none" :disabled="currentPage === totalPages()" @click="currentPage++">Next</button>
+      <div class="flex">
+        <button class="mr-2 shadow-md btn btn-primary" @click="openCreateModal">Ajouter un Critère de Gouvernace</button>
       </div>
     </div>
   </div>
+
+  <div class="p-5 mt-5 intro-y box">
+    <div class="flex flex-col sm:flex-row sm:items-end xl:items-start">
+      <div></div>
+      <div class="flex mt-5 sm:mt-0">
+        <button id="tabulator-print" class="w-1/2 mr-2 btn btn-outline-secondary sm:w-auto"><PrinterIcon class="w-4 h-4 mr-2" /> Print</button>
+        <Dropdown class="w-1/2 sm:w-auto">
+          <DropdownToggle class="w-full btn btn-outline-secondary sm:w-auto">
+            <FileTextIcon class="w-4 h-4 mr-2" /> Export
+            <ChevronDownIcon class="w-4 h-4 ml-auto sm:ml-2" />
+          </DropdownToggle>
+          <DropdownMenu class="w-40">
+            <DropdownContent>
+              <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Export CSV </DropdownItem>
+              <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Export JSON </DropdownItem>
+              <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Export XLSX </DropdownItem>
+              <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Export HTML </DropdownItem>
+            </DropdownContent>
+          </DropdownMenu>
+        </Dropdown>
+      </div>
+    </div>
+    <div class="overflow-x-auto scrollbar-hidden" v-if="!isLoadingData">
+      <div id="tabulator" class="mt-5 table-report table-report--tabulator"></div>
+    </div>
+    <LoaderSnipper v-if="isLoadingData" />
+  </div>
+
+  <!-- Modal Register & Update -->
+  <Modal backdrop="static" :show="showModalCreate" @hidden="showModalCreate = false">
+    <ModalHeader>
+      <h2 class="mr-auto text-base font-medium">{{ mode }} un critère de gouvernance</h2>
+    </ModalHeader>
+    <form @submit.prevent="submitData">
+      <ModalBody>
+        <div class="grid grid-cols-1 gap-4">
+          <InputForm label="Nom" v-model="payload.nom" />
+          <InputForm label="Description" v-model="payload.description" />
+          <div class="">
+            <label class="form-label">Principes de Gouvernance </label>
+            <TomSelect v-model="payload.principeDeGouvernanceId" :options="{ placeholder: 'Selectionez un programme' }" class="w-full">
+              <option v-for="(principe, index) in principes" :key="index" :value="principe.id">{{ principe.nom }}</option>
+            </TomSelect>
+          </div>
+        </div>
+      </ModalBody>
+      <ModalFooter>
+        <div class="flex gap-2">
+          <button type="button" @click="resetForm" class="w-full px-2 py-2 my-3 align-top btn btn-outline-secondary">Annuler</button>
+          <VButton :loading="isLoading" :label="mode" />
+        </div>
+      </ModalFooter>
+    </form>
+  </Modal>
+  <!-- End Modal -->
+
+  <!-- Modal Delete -->
+  <Modal :show="deleteModalPreview" @hidden="deleteModalPreview = false">
+    <ModalBody class="p-0">
+      <div class="p-5 text-center">
+        <XCircleIcon class="w-16 h-16 mx-auto mt-3 text-danger" />
+        <div class="mt-5 text-3xl">Suppression</div>
+        <div class="mt-2 text-slate-500">Supprimer ce critère de gouvernance?</div>
+      </div>
+      <div class="flex justify-center w-full gap-3 py-4 text-center">
+        <button type="button" @click="cancelSelect" class="mr-1 btn btn-outline-secondary">Annuler</button>
+        <DeleteButton :loading="isLoading" @click="deleteData" />
+      </div>
+    </ModalBody>
+  </Modal>
+  <!-- End Modal -->
 </template>
-
-<script setup>
-import { ref, reactive, onMounted, provide, computed } from "vue";
-import { useRouter, useRoute } from "vue-router";
-import CritereService from "@/services/modules/critere.service";
-import GroupeService from "@/services/modules/groupe.service";
-
-const router = useRouter();
-const route = useRoute();
-const showModal = ref(false);
-const deleteModalPreview = ref(false);
-const successNotification = ref();
-const groupe = ref("");
-const search = ref("");
-const Critere = ref([]);
-const groupes = ref([]);
-const deleteData = reactive({});
-const saveUpdate = reactive({});
-const chargement = ref(false);
-const isUpdate = ref(false);
-const currentPage = ref(1);
-const itemsPerPage = ref(10);
-const formData = reactive({
-  nom: "",
-  description: "",
-  principe_id: "",
-});
-
-const message = reactive({
-  type: "success",
-  message: "",
-});
-
-const resultQuery = computed(() => {
-  if (search.value) {
-    return Critere.value.filter((item) => {
-      return (
-        search.value
-          .toLowerCase()
-          .split(" ")
-          .every((v) => item.nom.toLowerCase().includes(v)) ||
-        search.value
-          .toLowerCase()
-          .split(" ")
-          .every((v) => item.description.toString().toLowerCase().includes(v)) ||
-        search.value
-          .toLowerCase()
-          .split(" ")
-          .every((v) => item.created_at.toLowerCase().includes(v))
-      );
-    });
-  } else {
-    // return Critere.value;
-
-    const startIndex = (currentPage.value - 1) * itemsPerPage.value;
-    const endIndex = startIndex + itemsPerPage.value;
-    return Critere.value.slice(startIndex, endIndex);
-  }
-});
-
-onMounted(function () {
-  getData();
-  // getGouvernance()
-});
-
-const getData = function () {
-  CritereService.get(route.params.id)
-    .then((data) => {
-      Critere.value = data.data.data;
-      groupe.value = Critere.value[0].groupe.nom;
-    })
-    .catch((e) => {
-      // disabled()
-      // alert(e)
-    });
-};
-
-// const getGouvernance = function () {
-//   GroupeService.getGroupeByEntreprise().then((data) => {
-//     groupes.value = data.data.data
-//   }).catch((e) => {
-//     // disabled()
-//     // alert(e)
-//   })
-// }
-
-function close() {
-  formData.nom = "";
-  formData.description = "";
-  showModal.value = false;
-}
-
-provide("bind[successNotification]", (el) => {
-  // Binding
-  successNotification.value = el;
-});
-const successNotificationToggle = () => {
-  // Show notification
-  successNotification.value.showToast();
-};
-
-const addCritere = function () {
-  showModal.value = true;
-  isUpdate.value = false;
-};
-
-function totalPages() {
-  return Math.ceil(Critere.value.length / itemsPerPage.value);
-}
-
-const goToPage = (pageNumber) => {
-  if (pageNumber < 1 || pageNumber > totalPages()) {
-    return;
-  }
-  currentPage.value = pageNumber;
-};
-
-const storeCritere = function () {
-  if (chargement.value == false) {
-    chargement.value = true;
-    formData.principe_id = route.params.id;
-
-    CritereService.create(formData)
-      .then((data) => {
-        message.type = "success";
-        message.message = "Nouveaux indicateur créee";
-        successNotificationToggle();
-        close();
-        getData();
-        chargement.value = false;
-      })
-      .catch((error) => {
-        chargement.value = false;
-        if (error.response) {
-          // Requête effectuée mais le serveur a répondu par une erreur.
-          const erreurs = error.response.data.message;
-          message.type = "erreur";
-          message.message = erreurs;
-          successNotificationToggle();
-        } else if (error.request) {
-          // Demande effectuée mais aucune réponse n'est reçue du serveur.
-          //console.log(error.request);
-        } else {
-          // Une erreur s'est produite lors de la configuration de la demande
-          //console.log('dernier message', error.message);
-        }
-      });
-  }
-};
-
-const supprimer = function (index, data) {
-  deleteModalPreview.value = true;
-  deleteData.id = data.id;
-  deleteData.nom = data.nom;
-  deleteData.index = index;
-};
-const deleteCritere = function () {
-  deleteModalPreview.value = false;
-  Critere.value.splice(Critere.value.indexOf(deleteData.index), 1);
-  CritereService.destroy(deleteData.id)
-    .then((data) => {
-      message.type = "success";
-      message.message = "Operation éffectué avec success";
-      successNotificationToggle();
-      getData();
-    })
-    .catch((error) => {
-      if (error.response) {
-        // Requête effectuée mais le serveur a répondu par une erreur.
-        const erreurs = error.response.data.message;
-        message.type = "erreur";
-        message.message = erreurs;
-        successNotificationToggle();
-      } else if (error.request) {
-        // Demande effectuée mais aucune réponse n'est reçue du serveur.
-        //console.log(error.request);
-      } else {
-        // Une erreur s'est produite lors de la configuration de la demande
-      }
-    });
-};
-
-const modifier = function (index, data) {
-  console.log(data.id);
-
-  saveUpdate.nom = data.nom;
-  saveUpdate.description = data.description;
-  saveUpdate.Critere_id = data.id;
-  // saveUpdate.gouvernance_id = data.id
-  // saveUpdate.groupeNom = data.groupe.nom
-  showModal.value = true;
-  isUpdate.value = true;
-};
-const updateCritere = function () {
-  console.log(saveUpdate.Critere_id);
-
-  if (chargement.value == false) {
-    chargement.value = true;
-    const formData = {
-      nom: saveUpdate.nom,
-      description: saveUpdate.description,
-      critere_id: saveUpdate.Critere_id,
-    };
-    CritereService.update(saveUpdate.Critere_id, formData)
-      .then((data) => {
-        chargement.value = false;
-        message.type = "success";
-        message.message = "Mise à jours éffectué avec succèss";
-        successNotificationToggle();
-        close();
-        getData();
-        this.getData();
-      })
-      .catch((error) => {
-        chargement.value = false;
-        if (error.response) {
-          // Requête effectuée mais le serveur a répondu par une erreur.
-          const erreurs = error.response.data.message;
-          message.type = "erreur";
-          message.message = erreurs;
-          successNotificationToggle();
-        } else if (error.request) {
-          // Demande effectuée mais aucune réponse n'est reçue du serveur.
-          //console.log(error.request);
-        } else {
-          // Une erreur s'est produite lors de la configuration de la demande
-          //console.log('dernier message', error.message);
-        }
-      });
-  }
-};
-
-const voirIndicateur = function (index, id) {
-  console.log(id);
-  router.push({ name: "Indicateurs", params: { id: id } });
-};
-
-const toBack = function () {
-  router.go(-1);
-};
-</script>
-
-<style lang="scss" scoped></style>
