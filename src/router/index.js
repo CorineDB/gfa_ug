@@ -35,6 +35,7 @@ import indicateurs from "../views/dashboard/indicateurs/index.vue";
 
 import typeGouvernance from "../views/dashboard/type_gouvernance/index.vue";
 import Programmation_enquete from "../views/dashboard/programmation_enquete/index.vue";
+import OptionReponse from "@/views/dashboard/OptionReponse.vue";
 
 //Projet/Outcomes/Activité/Taches
 import dashboard_projets_composantes_globale from "../views/dashboard/projets/composantes-globale/index.vue";
@@ -107,7 +108,7 @@ const routes = [
         component: pta,
       },
       {
-        path: "typeGouvernance",
+        path: "type-gouvernance",
         name: "typeGouvernance",
         component: typeGouvernance,
       },
@@ -162,8 +163,8 @@ const routes = [
       },
 
       {
-        path: "principes",
-        name: "Principes",
+        path: "principe-gouvernance",
+        name: "PrincipeGouvernance",
         component: Principes,
       },
       {
@@ -171,11 +172,15 @@ const routes = [
         name: "projets",
         component: projets,
       },
-
       {
-        path: "gouvernance",
-        name: "Gouvernance",
-        component: Gouvernance,
+        path: "critere-gouvernance",
+        name: "critereGouvernance",
+        component: Critere,
+      },
+      {
+        path: "option-reponse",
+        name: "optionReponse",
+        component: OptionReponse,
       },
       {
         path: "gouvernance/:id/principe",
@@ -183,12 +188,12 @@ const routes = [
         component: Principe,
       },
       {
-        path: "gouvernance/:id/principe/:id/critere",
+        path: "gouvernance/:id/principe/:idc/critere",
         name: "Critere",
         component: Critere,
       },
       {
-        path: "gouvernance/:id/principe/:id/critere/:id/indicateur",
+        path: "gouvernance/:id/principe/:idp/critere/:idc/indicateur",
         name: "Indicateurs",
         component: Indicateurs,
       },

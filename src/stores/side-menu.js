@@ -64,13 +64,13 @@ export const useSideMenuStore = defineStore("sideMenu", {
           },
           {
             icon: "GlobeIcon",
-            pageName: "Gouvernance",
-            title: "Gouvernance",
+            pageName: "PrincipeGouvernance",
+            title: "Principes de Gouvernance",
           },
           {
             icon: "GlobeIcon",
-            pageName: "Principes",
-            title: "Principes",
+            pageName: "critereGouvernance",
+            title: "Criteres de Gouvernance",
           },
           {
             icon: "FolderKanbanIcon",
@@ -101,6 +101,18 @@ export const useSideMenuStore = defineStore("sideMenu", {
         icon: "UsersIcon",
         pageName: "Utilisateur",
         title: "Utilisateurs",
+      },
+      {
+        icon: "SettingsIcon",
+        pageName: "setting",
+        title: "Paramètres",
+        subMenu: [
+          {
+            icon: "BarChart2Icon",
+            pageName: "optionReponse",
+            title: "Option de réponse",
+          },
+        ],
       },
     ],
   }),
