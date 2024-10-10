@@ -194,7 +194,7 @@ onMounted(() => {
         </div>
       </div>
       <div class="flex">
-        <button class="mr-2 shadow-md btn btn-primary" @click="openCreateModal">Ajouter une option de réponse</button>
+        <button class="mr-2 shadow-md btn btn-primary" @click="openCreateModal"><PlusIcon class="w-4 h-4 mr-3" />Ajouter une option de réponse</button>
       </div>
     </div>
   </div>
