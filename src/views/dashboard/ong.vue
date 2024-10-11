@@ -1,17 +1,29 @@
 <script>
+import { createIcons, icons } from "lucide";
+createIcons({ icons });
+
 import OngService from "@/services/modules/ong.service.js";
+import ProgrammeService from "@/services/modules/programme.service.js";
 import BailleurService from "@/services/modules/bailleur.service";
 import { mapGetters, mapActions, mapMutations, mapState } from "vuex";
 import extractFormData from "@/utils/extract-data";
 import { advancedTable } from "../../constant/basic-tablle-data";
 import xlsx from "xlsx";
 import Tabulator from "tabulator-tables";
+import InputForm from "@/components/news/InputForm.vue";
+import VButton from "@/components/news/VButton.vue";
+import { toast } from "vue3-toastify";
 
 export default {
-  components: {},
+  components: {
+    InputForm,
+    VButton,
+  },
 
   data() {
     return {
+      ajoutLoading: false,
+      programmes: [],
       savedInput: [],
       ongAttributs: ["dossier", "statut", "dateSoumission", "destinataire", "bailleurId", "fichiers"],
       ongAttributsUpdate: ["dossier", "statut", "dateDeSoumission", "destinataire", "bailleurId"],
@@ -99,6 +111,18 @@ export default {
         { nom: "Avril", taille: "70cm", age: "82 ans", stats: "tetraPlégique" },
         { nom: "William", taille: "130cm", age: "1 ans", stats: "jeune" },
       ],
+      programmes: [],
+      formData: {
+        nom: "",
+        contact: "",
+        email: "@gmail.com",
+        sigle: "",
+        code: "",
+        //programmeId: "",
+      },
+      showDeleteModal: false,
+      isLoading: false,
+      labels: "Ajouter",
     };
   },
 
@@ -107,10 +131,14 @@ export default {
     ...mapState({
       loading: (state) => state.loading,
       errors: (state) => state.errors,
+      programme: (state) => state.programmes.programme,
     }),
+    //importation des variables du module auths
+
     ...mapGetters({
       hasErrors: "GET_ERREURS",
       isLoading: "IS_LOADING",
+
       ong: "ongs/getOng",
       typeOngs: "typeOngs/getTypeOngs",
       currentUser: "auths/GET_AUTHENTICATE_USER",
@@ -118,6 +146,45 @@ export default {
   },
 
   methods: {
+    supprimer(data) {
+      this.showDeleteModal = true;
+      this.ongsId = data.id;
+      console.log(this.showDeleteModal);
+    },
+    modifierOrganisation(data) {
+      this.ongsId = data.id;
+      this.labels = "Modifier";
+      this.showModal = true;
+      this.update = true;
+      this.formData.nom = data.nom;
+      this.formData.contact = data.user.contact;
+      this.formData.email = data.user.email;
+      this.formData.sigle = data.sigle;
+      this.formData.code = data.code;
+      // this.formData.programmeId = data.projet.programmeId;
+    },
+    clearObjectValues(obj) {
+      for (let key in obj) {
+        if (obj.hasOwnProperty(key)) {
+          let value = obj[key];
+
+          if (typeof value === "string") {
+            obj[key] = "";
+          } else if (typeof value === "number") {
+            obj[key] = 0;
+          } else if (typeof value === "boolean") {
+            obj[key] = false;
+          } else if (Array.isArray(value)) {
+            obj[key] = [];
+          } else if (typeof value === "object" && value !== null) {
+            obj[key] = {}; // ou appliquer récursion pour vider les objets imbriqués
+            clearObjectValues(obj[key]); // récursion pour les objets imbriqués
+          } else {
+            obj[key] = null; // pour les autres types (null, undefined, etc.)
+          }
+        }
+      }
+    },
     active() {
       this.$store.dispatch("active");
     },
@@ -139,7 +206,30 @@ export default {
           if (error.response) {
             // Requête effectuée mais le serveur a répondu par une erreur.
             const message = error.response.data.message;
-            this.$toast.error(message);
+            // this.$toast.error(message);
+          } else if (error.request) {
+            // Demande effectuée mais aucune réponse n'est reçue du serveur.
+            //console.log(error.request);
+          } else {
+            // Une erreur s'est produite lors de la configuration de la demande
+          }
+        });
+    },
+    fetchProgrammes() {
+      // this.active();
+      ProgrammeService.get()
+        .then((data) => {
+          const datas = data.data.data;
+          this.programmes = datas;
+
+          // this.initTabulator();
+          // this.disabled();
+        })
+        .catch((error) => {
+          // this.disabled();
+          if (error.response) {
+            // Requête effectuée mais le serveur a répondu par une erreur.
+            const message = error.response.data.message;
           } else if (error.request) {
             // Demande effectuée mais aucune réponse n'est reçue du serveur.
             //console.log(error.request);
@@ -204,7 +294,7 @@ export default {
           if (error.response) {
             // Requête effectuée mais le serveur a répondu par une erreur.
             const message = error.response.data.message;
-            this.$toast.error(message);
+            // this.$toast.error(message);
           } else if (error.request) {
             // Demande effectuée mais aucune réponse n'est reçue du serveur.
             //console.log(error.request);
@@ -266,56 +356,67 @@ export default {
       this.updateFilter();
     },
     initTabulator() {
-      // console.log(this.ongs);
       this.tabulator = new Tabulator("#tabulator", {
         data: this.ongs,
-        rowClickMenu: [
-          {
-            label: "Modifier",
-            action: function (e, row) {
-              console.log(row);
-              row.delete();
-            },
-          },
-          {
-            label: "Suprimer",
-            action: function (e, row) {
-              row.delete();
-            },
-          },
-        ],
-        // printHeader: "<h1 class='pdfPrint' >TABLEAU DE LA PAGE PROJET</h1>",
+
         selectableRows: true, //assign data to table
         layout: "fitColumns",
         columns: [
-          //Define Table Columns
           {
-            title: "Dossier",
-            field: "dossier",
+            title: "Nom",
+            field: "nom",
             minWidth: 125,
             hozAlign: "left",
           },
           {
-            title: "Bailleur",
-            field: "bailleur",
+            title: "Sigle",
+            field: "sigle",
+            minWidth: 150,
+          },
+
+          {
+            title: "Projet associé",
+            field: "projet",
             minWidth: 150,
             hozAlign: "left",
+            hozAlign: "left",
             formatter(cell) {
-              return `${cell.getData().bailleur.sigle}`;
+              if (cell.getData().projet !== null) {
+                return `<div> ${cell.getData().projet.nom ?? "a"}</div>`;
+              } else {
+                return `<div>--</div>`;
+              }
             },
           },
           {
-            title: "Date de soumissions",
-            field: "dateDeSoumission",
+            title: "E-mail",
+            field: "user",
             minWidth: 150,
             hozAlign: "left",
+            hozAlign: "left",
+            formatter(cell) {
+              if (cell.getData().user.email !== null) {
+                return `<div> ${cell.getData().user.nom}</div>`;
+              } else {
+                return `<div></div>`;
+              }
+            },
           },
           {
-            title: "Destinataire",
-            field: "destinataire",
+            title: "Contact",
+            field: "user",
             minWidth: 150,
             hozAlign: "left",
+            hozAlign: "left",
+            formatter(cell) {
+              if (cell.getData().user.contact !== null) {
+                return `<div> ${cell.getData().user.contact}</div>`;
+              } else {
+                return `<div></div>`;
+              }
+            },
           },
+
           {
             title: "Date de création",
             field: "created_at",
@@ -323,53 +424,29 @@ export default {
             hozAlign: "left",
           },
           {
-            title: "STATUT",
-            minWidth: 200,
-            field: "statut",
-            hozAlign: "center",
-            vertAlign: "middle",
-            print: false,
-            download: false,
-            formatter(cell) {
-              return `<div class="flex items-center lg:justify-center ${cell.getData().statut ? "text-success" : "text-danger"}">
-                <i data-lucide="check-square" class="w-4 h-4 mr-2"></i> ${cell.getData().statut ? "Active" : "Inactive"}
-              </div>`;
-            },
-          },
-          {
-            title: "ACTIONS",
-            minWidth: 200,
+            title: "Actions",
             field: "actions",
-            responsive: 1,
-            hozAlign: "center",
-            vertAlign: "middle",
-            print: false,
-            download: false,
-
-            formatter() {
-              // Créer un conteneur pour le bouton et le menu dropdown
-              const div = document.createElement("div");
-              div.className = "relative inline-block text-left";
-
-              // Créer le bouton pour ouvrir le menu dropdown
-              const button = document.createElement("button");
-              button.className = "px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none";
-              button.innerHTML = "Options";
-
-              // Créer le menu dropdown caché
-              const menu = document.createElement("div");
-              menu.className = "absolute right-0 -mt-6 w-48 bg-white border border-gray-300 rounded shadow-lg hidden z-50";
-              // menu.style.zIndex = "9999"; // Définir un z-index élevé pour le menu dropdown
-              menu.innerHTML = `
-            <ul class="py-1">
-              <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Edit</a></li>
-              <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Delete</a></li>
-            </ul>
-          `;
-
-              div.appendChild(button);
-
-              return div;
+            formatter: function (cell, formatterParams) {
+              return ` 
+              <div class="flex items-center gap-3">
+                  <button class='btn-supprimer btn btn-danger'>
+                    Supprimer
+                  </button>
+                   <button class='btn-modifier btn btn-primary'>
+                    Modifier
+                  </button>
+                </div>
+               `;
+            },
+            cellClick: (e, cell) => {
+              console.log(e);
+              // Utilisation d'une fonction fléchée pour garder le contexte de `this`
+              const rowData = cell.getRow().getData();
+              if (e.target.classList.contains("btn-modifier")) {
+                this.modifierOrganisation(rowData);
+              } else if (e.target.classList.contains("btn-supprimer")) {
+                this.supprimer(rowData);
+              }
             },
           },
         ],
@@ -406,15 +483,15 @@ export default {
 
     // call action
     ...mapActions("ongs", {
-      saveOng: "STORE_Ong",
-      updateOng: "UPDATE_Ong",
+      saveOng: "STORE_ONG",
+      updateOng: "UPDATE_ONG",
       deleteOng: "DESTROY_Ong",
     }),
 
     //Charger les fonctions de communication avec le serveur
     ...mapMutations({
       setErrors: "SET_ERRORS_MESSAGE", // map `this.setErrors()` to `this.$store.commit('SET_ERRORS_MESSAGE')`,
-      setOng: "ongs/FILL", // map `this.CREATE_INSTANCE_Ong()` to `this.$store.commit('CREATE_INSTANCE_Ong')`
+      setOng: "ongs/FILL",
     }),
 
     ...mapActions("typeOngs", { fetchTypeOngs: "FETCH_LIST_TYPE_Ong" }),
@@ -464,78 +541,56 @@ export default {
       }
     },
     sendForm() {
-      this.champs = this.champs.map((item) => {
-        item.errors = [];
-        return item;
-      });
-      this.champsUpdate = this.champsUpdate.map((item) => {
-        item.errors = [];
-        return item;
-      });
-      let ong = {};
-      if (this.isUpdate) {
-        ong = extractFormData(this.champsUpdate, this.ongAttributsUpdate);
-        ong.id = this.ongId;
+      if (this.update) {
+        console.log("ongId", this.ongsId);
+        this.ajoutLoading = true;
+        this.updateOng({ ong: this.formData, id: this.ongsId })
+          .then((response) => {
+            if (response.status == 200 || response.status == 201) {
+              this.ajoutLoading = false;
+              this.showModal = false;
+              toast.success("Modification éffectuée");
+              this.close();
+              this.clearObjectValues(this.formData);
+              this.fetchOngs();
+              //this.sendRequest = false;
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+            this.ajoutLoading = false;
+            toast.error(error.response.data.errors.message);
+            // this.setErrors({ message: error?.response?.data?.message, errors: error?.response?.data?.data?.errors });
+            // this.sendRequest = false;
+            // this.champs.map((value) => (value.errors = this.erreurs[value.key]));
+          });
       } else {
-        ong = extractFormData(this.champs, this.ongAttributs);
-      }
-
-      ong.bailleurId = ong.bailleurId.id;
-      ong.statut = ong.statut.etat;
-
-      if (this.sendRequest == false) {
         this.sendRequest = true;
-        if (ong?.id) {
-          this.updateOng({ ong: ong, id: ong?.id })
-            .then((response) => {
-              if (response.status == 200 || response.status == 201) {
-                this.close();
-                this.sendRequest = false;
-              }
-            })
-            .catch((error) => {
-              this.setErrors({ message: error?.response?.data?.message, errors: error?.response?.data?.data?.errors });
-              this.sendRequest = false;
-              this.champs.map((value) => (value.errors = this.erreurs[value.key]));
-            });
-        } else {
-          this.sendRequest = true;
-          const demo = {
-            dossier: ong.dossier,
-            statut: ong.statut,
-            dateSoumission: ong.dateSoumission,
-            destinataire: ong.destinataire,
-            bailleurId: ong.bailleurId,
-          };
-          const formData = new FormData();
-          formData.append("dossier", demo.dossier);
-          formData.append("statut", demo.statut);
-          formData.append("dateSoumission", demo.dateSoumission);
-          formData.append("destinataire", demo.destinataire);
-          formData.append("bailleurId", demo.bailleurId);
-          for (let i = 0; i < this.fichiers.length; i++) {
-            let file = this.fichiers[i];
-            formData.append("fichier" + i, file);
-          }
 
-          this.saveOng(formData)
-            .then((response) => {
-              if (response.status == 200 || response.status == 201) {
-                this.close();
-                this.resetForm();
-                localStorage.removeItem("formData");
-                this.sendRequest = false;
-                this.fetchOngs();
-              }
-            })
-            .catch((error) => {
-              this.getFile();
-              this.setErrors({ message: error?.response?.data?.message, errors: error?.response?.data?.data?.errors });
-              this.sendRequest = false;
+        this.ajoutLoading = true;
+        this.saveOng(this.formData)
+          .then((response) => {
+            if (response.status == 200 || response.status == 201) {
+              this.ajoutLoading = false;
+              toast.errors("Ajout éffectué");
+              this.close();
+              this.clearObjectValues(this.formData);
+              // this.resetForm();
+              // localStorage.removeItem("formData");
+              // this.sendRequest = false;
+              this.fetchOngs();
+            }
+          })
+          .catch((error) => {
+            toast.error(error.response.data.errors.message);
 
-              this.champs.map((value) => (value.errors = this.erreurs[value.key]));
-            });
-        }
+            this.ajoutLoading = false;
+            // this.getFile();
+            // this.setErrors({ message: error?.response?.data?.message, errors: error?.response?.data?.data?.errors });
+            // this.sendRequest = false;
+
+            // this.champs.map((value) => (value.errors = this.erreurs[value.key]));
+          });
       }
     },
 
@@ -566,23 +621,27 @@ export default {
       });
     },
 
-    supprimer(ong, index) {
-      this.deleteModal = true;
-      this.deleteData.data = ong;
-      this.deleteData.index = index;
-    },
-    deleteOngs(data) {
-      this.ongs.splice(data.index, 1);
-      this.deleteModal = false;
-      OngService.destroy(data.data.id)
+    deleteOngs() {
+      // this.ongs.splice(data.index, 1);
+      // this.deleteModal = false;
+     
+      this.isLoading = true;
+      OngService.destroy(this.ongsId)
         .then((data) => {
-          this.$toast.success("Operation effectué avec success !");
+  
+          this.isLoading = false;
+          this.showDeleteModal  = false
+          toast.success("Suppression  éffectuée avec succès");
+          this.fetchOngs();
         })
         .catch((error) => {
+          console.log(error);
           if (error.response) {
             // Requête effectuée mais le serveur a répondu par une erreur.
             const message = error.response.data.message;
-            this.$toast.error(message);
+            this.isLoading = false;
+            toast.success(message);
+         
           } else if (error.request) {
             // Demande effectuée mais aucune réponse n'est reçue du serveur.
             //console.log(error.request);
@@ -632,12 +691,13 @@ export default {
     },
   },
   mounted() {
+    this.fetchProgrammes();
     // this.test();
     // this.initTabulator();
   },
 
   created() {
-     this.getPermission();
+    this.getPermission();
     // if (!this.ongVisible) {
     //   this.$router.push("/401-non-autorise");
     // } else {
@@ -647,12 +707,12 @@ export default {
     //   }
     //   this.fetchOngs();
     // }
-   
-     if (this.bailleurVisible) {
-        this.programmeId = JSON.parse(localStorage.getItem("authenticateUser")).programme.id;
-        this.fetchBailleurs(this.programmeId);
-      }
-      this.fetchOngs();
+
+    if (this.bailleurVisible) {
+      this.programmeId = JSON.parse(localStorage.getItem("authenticateUser")).programme.id;
+      this.fetchBailleurs(this.programmeId);
+    }
+    this.fetchOngs();
   },
 
   watch: {
@@ -686,59 +746,65 @@ export default {
 </script>
 
 <template>
+  <Modal :show="showDeleteModal" @hidden="showDeleteModal = false">
+    <ModalBody class="p-0">
+      <div class="p-5 text-center">
+        <XCircleIcon class="w-16 h-16 text-danger mx-auto mt-3" />
+        <div class="text-3xl mt-5">Etes vous sûr?</div>
+        <div class="text-slate-500 mt-2">Voulez vous supprimer l'organisation ? <br />Cette action ne peut être annulé</div>
+      </div>
+      <div class="px-5 pb-8 text-center flex gap-2">
+        <button type="button" @click="showDeleteModal = false" class="my-3 btn btn-outline-secondary w-full mr-1">Annuler</button>
+        <VButton :loading="isLoading" label="Supprimer" @click="deleteOngs" />
+      </div>
+    </ModalBody>
+  </Modal>
+
+  <Modal backdrop="static" :show="showModal" @hidden="showModal = false">
+    <ModalHeader>
+      <h2 v-if="!update" class="font-medium text-base mr-auto">Ajouter une organisation</h2>
+      <h2 v-else class="font-medium text-base mr-auto">Modifier une organisation</h2>
+    </ModalHeader>
+    <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
+      <InputForm v-model="formData.nom" class="col-span-12" type="text" required="required" placeHolder="Nom de l'organisation" label="Nom" />
+      <InputForm v-model="formData.contact" class="col-span-12" type="number" required="required" placeHolder="Contact" label="Téléphone" />
+      <InputForm v-model="formData.email" class="col-span-12" type="email" required="required" placeHolder="Entrer le mail de l'organisation" label="E-mail" />
+      <InputForm v-model="formData.code" class="col-span-12" type="number" required="required" placeHolder="Ex : 2" label="Code" />
+      <InputForm v-model="formData.sigle" class="col-span-12" type="text" required="required" placeHolder="Ex : APF" label="Sigle" />
+
+      <!-- <div class="col-span-12">
+        <label>Programme</label>
+        <div class="mt-2">
+          <TomSelect
+            v-model="formData.programmeId"
+            :options="{
+              placeholder: 'Veuillez choisir le programme auquel est associé l\'organisation',
+            }"
+            class="w-full"
+          >
+            <option v-for="(program, index) in programmes" :key="index" :value="program.id">{{ program.nom }}</option>
+          </TomSelect>
+        </div>
+      </div> -->
+    </ModalBody>
+    <ModalFooter>
+      <div class="flex items-center justify-center">
+        
+        <button type="button" @click="showModal = false" class="btn btn-outline-secondary w-full mr-1">Annuler</button>
+        <VButton class="inline-block" :label="labels" :loading="ajoutLoading" @click="sendForm" />
+        <!-- <button type="button" class="btn btn-primary w-20">Send</button> -->
+      </div>
+    </ModalFooter>
+  </Modal>
   <div class="intro-y flex flex-col sm:flex-row items-center mt-8">
-    <h2 class="text-lg font-medium mr-auto">Ong</h2>
+    <h2 class="text-lg font-medium mr-auto">Organisation</h2>
     <div class="w-full sm:w-auto flex mt-4 sm:mt-0">
-      <button class="btn btn-primary shadow-md mr-2">Add New Product</button>
-      <Dropdown class="ml-auto sm:ml-0">
-        <DropdownToggle class="btn px-2 box">
-          <span class="w-5 h-5 flex items-center justify-center">
-            <PlusIcon class="w-4 h-4" />
-          </span>
-        </DropdownToggle>
-        <DropdownMenu class="w-40">
-          <DropdownContent>
-            <DropdownItem> <FilePlusIcon class="w-4 h-4 mr-2" /> New Category </DropdownItem>
-            <DropdownItem> <UserPlusIcon class="w-4 h-4 mr-2" /> New Group </DropdownItem>
-          </DropdownContent>
-        </DropdownMenu>
-      </Dropdown>
+      <button class="btn btn-primary shadow-md mr-2" @click="showModal = true">Ajouter une organisation</button>
     </div>
   </div>
   <!-- BEGIN: HTML Table Data -->
   <div class="intro-y box p-5 mt-5">
-    <div class="flex flex-row flex-wrap _sm:items-end _xl:items-start">
-      <form id="tabulator-html-filter-form" class="xl:flex sm:mr-auto">
-        <div class="sm:flex items-center sm:mr-4">
-          <label class="w-12 flex-none xl:w-auto xl:flex-initial mr-2">Champs</label>
-          <select id="tabulator-html-filter-field" v-model="filterField" class="form-select w-full _sm:w-32 2xl:w-full mt-2 sm:mt-0 sm:w-auto">
-            <option value="nom">Nom</option>
-            <option value="taille">Taille</option>
-            <option value="age">Age</option>
-            <option value="stats">Stats</option>
-          </select>
-        </div>
-        <div class="sm:flex items-center sm:mr-4 mt-2 xl:mt-0">
-          <label class="w-12 flex-none xl:w-auto xl:flex-initial mr-2">Type</label>
-          <select id="tabulator-html-filter-type" v-model="filterType" class="form-select w-full mt-2 sm:mt-0 sm:w-auto">
-            <option value="like" selected>like</option>
-            <option value="=">=</option>
-            <option value="<">&lt;</option>
-            <option value="<=">&lt;=</option>
-            <option value=">">></option>
-            <option value=">=">>=</option>
-            <option value="!=">!=</option>
-          </select>
-        </div>
-        <div class="sm:flex items-center sm:mr-4 mt-2 xl:mt-0">
-          <label class="w-12 flex-none xl:w-auto xl:flex-initial mr-2">Value</label>
-          <input id="tabulator-html-filter-value" v-model="filterValue" type="text" class="form-control sm:w-40 2xl:w-full mt-2 sm:mt-0" placeholder="Search..." />
-        </div>
-        <div class="mt-2 xl:mt-0">
-          <button id="tabulator-html-filter-go" type="button" class="btn btn-primary w-full sm:w-16 mr-5" @click="updateFilter"><SearchIcon class="w-h4 h-4" /></button>
-          <button id="tabulator-html-filter-reset" type="button" class="btn btn-secondary w-full sm:w-16 mt-2 sm:mt-0 sm:ml-1" @click="clearFilter"><RotateCcwIcon class="w-h4 h-4" /></button>
-        </div>
-      </form>
+    <div class="flex flex-end flex-wrap _sm:items-end _xl:items-start">
       <div class="flex mt-5 sm:mt-0">
         <button id="tabulator-print" class="btn btn-outline-secondary w-1/2 sm:w-auto mr-2" @click="onPrint"><PrinterIcon class="w-4 h-4 mr-2" /> PDF</button>
         <Dropdown class="w-1/2 sm:w-auto">
