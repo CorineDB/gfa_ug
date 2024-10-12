@@ -413,7 +413,7 @@ export default {
         dictMaxFilesExceeded: "Vous ne pouvez plus charger de fichiers.",
         headers: { "My-Awesome-Header": "header value" },
       });
-      const dropzoneRef = null;
+      var dropzoneRef = null;
       // Gestion des événements de Dropzone après initialisation
       this.dropzoneInstance.on("addedfile", (file) => {
         var myDropzone = this;
