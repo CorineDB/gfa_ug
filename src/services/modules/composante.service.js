@@ -4,21 +4,21 @@ import ApiService from '@/services/configs/api.service'
 const ComposantesService = {
 
     query(type, params) {
-      return ApiService.query("composantes", {
+      return ApiService.query("/gfa/composantes", {
         params: params
       });
     },
 
     get(slug) {
-      return ApiService.get("composantes", slug);
+      return ApiService.get("/gfa/composantes", slug);
     },
 
     create(params) {
-      return ApiService.post("composantes", params);
+      return ApiService.post("/gfa/composantes", params);
     },
 
     mySuivis(slug) {
-      return ApiService.get(`composantes/${slug}/suivis`);
+      return ApiService.get(`/gfa/composantes/${slug}/suivis`);
     },
     getSuivi() {
       const params = {
@@ -28,23 +28,23 @@ const ComposantesService = {
     },
 
     update(slug, params) {
-      return ApiService.update("composantes", slug, params);
+      return ApiService.update("/gfa/composantes", slug, params);
     },
 
     destroy(slug) {
-      return ApiService.delete(`composantes/${slug}`);
+      return ApiService.delete(`/gfa/composantes/${slug}`);
     },
 
     activites(slug) {
-      return ApiService.get(`composantes/${slug}/activites`);
+      return ApiService.get(`/gfa/composantes/${slug}/activites`);
     },
 
     sousComposantes(slug) {
-      return ApiService.get(`composantes/${slug}/sousComposantes`);
+      return ApiService.get(`/gfa/composantes/${slug}/sousComposantes`);
     },
 
     projet(slug) {
-      return ApiService.get(`composantes/${slug}/projet`);
+      return ApiService.get(`/gfa/composantes/${slug}/projet`);
     }
 
   };
