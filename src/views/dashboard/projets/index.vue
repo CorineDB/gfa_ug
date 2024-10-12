@@ -119,8 +119,8 @@
 
       <div class="flex items-center justify-center p-5 border-t lg:justify-end border-slate-200/60 dark:border-darkmode-400">
         <a class="flex items-center mr-auto text-primary" href="javascript:;" @click="goToDetail(item)"> <EyeIcon class="w-4 h-4 mr-1" /> Détail </a>
-        <a class="flex items-center mr-3" href="javascript:;" @click="modifierProjet(projet)"> <CheckSquareIcon class="w-4 h-4 mr-1" /> Modifier </a>
-        <a class="flex items-center text-danger" href="javascript:;" @click="supprimerProjet(projet)"> <Trash2Icon class="w-4 h-4 mr-1" /> Supprimer </a>
+        <a class="flex items-center mr-3" href="javascript:;" @click="modifierProjet(item)"> <CheckSquareIcon class="w-4 h-4 mr-1" /> Modifier </a>
+        <a class="flex items-center text-danger" href="javascript:;" @click="supprimerProjet(item)"> <Trash2Icon class="w-4 h-4 mr-1" /> Supprimer </a>
       </div>
 
       <div class="absolute bottom-0 flex w-full">
@@ -296,49 +296,7 @@ export default {
           }
         });
     },
-<<<<<<< HEAD
-    initializeDropzone() {
-      const dropzoneElement = this.$refs.dropzoneElement;
-
-      // Initialisation explicite de Dropzone
-      this.dropzoneInstance = new Dropzone(dropzoneElement, {
-        url: "https://httpbin.org/post",
-        thumbnailWidth: 150,
-        maxFilesize: 1000,
-        addRemoveLinks: true,
-        dictDefaultMessage: "Déposez les fichiers ici pour les télécharger",
-        dictFallbackMessage: "Votre navigateur ne prend pas en charge les téléchargements de fichiers par glisser-déposer.",
-        dictCancelUpload: "Annuler chargement",
-        dictUploadCanceled: "Chargement Annulé.",
-        dictCancelUploadConfirmation: "Êtes-vous sûr de vouloir annuler ce téléchargement ?",
-        dictRemoveFile: "Supprimer le fichier",
-        dictMaxFilesExceeded: "Vous ne pouvez plus charger de fichiers.",
-        headers: { "My-Awesome-Header": "header value" },
-      });
-      //  const dropzoneRef = null;
-      // Gestion des événements de Dropzone après initialisation
-      this.dropzoneInstance.on("addedfile", (file) => {
-        var myDropzone = this;
-        //   dropzoneRef = myDropzone;
-
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const binaryData = event.target.result;
-          return binaryData;
-        };
-        reader.readAsBinaryString(file);
-        // this.FormProjet.append("fichier[]", file);
-
-        // this.FormProjet.forEach((value, key) => {
-        //   console.log(`${key}: ${value}`);
-        // });
-      });
-      // this.dropzoneMultipleRef = dropzoneRef;
-      console.log(this.dropzoneMultipleRef);
-    },
-=======
    
->>>>>>> dd084e4926d163b4b072153a5cf4c142aa6489c4
     getFile(data) {
       this.champs[7].data = data;
       for (const property in data) {
