@@ -1,11 +1,37 @@
 <template>
+ 
   <div class="flex flex-col items-center mt-8 mb-4 intro-y sm:flex-row">
     <h2 class="mr-auto text-lg font-medium">Liste des projets</h2>
     <div class="flex w-full mt-4 sm:w-auto sm:mt-0">
       <button class="mr-2 shadow-md btn btn-primary" @click="addProjet()">Ajouter un projet</button>
     </div>
   </div>
+  
+  <!-- <div style="height:600px; width:800px">
+    <l-map ref="map" v-model:zoom="zoom" :center="[47.41322, -1.219482]">
+      <l-tile-layer
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        layer-type="base"
+        name="OpenStreetMap"
+      ></l-tile-layer>
+      <l-marker :lat-lng="markerLatLng" >
 
+        <l-popup>Hello!</l-popup>
+
+      </l-marker>
+
+    </l-map>
+    
+  </div> -->
+  <!-- <l-map style="height: 350px" :zoom="zoom" :center="center">
+<l-tile-layer :url="url" :attribution="attribution"></l-tile-layer>
+<l-polygon :lat-lngs="polygon.latlngs" :color="polygon.color"></l-polygon>
+</l-map> -->
+  <div>
+    
+   <h3>An interactive leaflet map</h3>
+   <div id="map" style="height:40vh;"></div>
+</div>
   <Modal backdrop="static" :show="showModal" @hidden="showModal = false">
     <ModalHeader>
       <h2 v-if="!isUpdate" class="mr-auto text-base font-medium">Ajouter un projet</h2>
@@ -18,7 +44,7 @@
       <InputForm v-model="formData.fin" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de fin" label="Fin du projet " />
       <InputForm v-model="formData.nombreEmploie" class="col-span-12" type="number" required="required" placeHolder="Ex : 10" label="Nombre d'employé" />
       <InputForm v-model="formData.ville" class="col-span-12" type="text" required="required" placeHolder="Ex : Cotonou" label="Ville" />
-      <InputForm v-model="formData.budgetNational" class="col-span-12" type="number" required="required" placeHolder="Ex : 100000" label="Budget National" />
+      <InputForm v-model="formData.budgetNational" class="col-span-12" type="text" required="required" placeHolder="Ex : 100000" label="Budget " />
 
       <div class="col-span-12" v-if="!isUpdate">
         <InputForm class="col-span-12" type="file" @change="handleFileChange" required="required" placeHolder="choisir une image" label="Images" accept="image/*" />
@@ -99,20 +125,21 @@
       </div>
 
       <div class="m-5 text-slate-600 dark:text-slate-500">
-        <div class="flex items-center"><LinkIcon class="w-4 h-4 mr-2" /> Budget: {{ item.budgetNational }}</div>
-        <div v-if="item.owner !== null" class="flex items-center"><GlobeIcon class="w-4 h-4 mr-2" /> Organisation: {{ item.owner.user.nom }}</div>
+        <div class="flex items-center"><LinkIcon class="w-4 h-4 mr-2" /> Budget: {{ $h.formatCurrency(item.budgetNational) }} <div class="italic font-bold ml-2">Fcfa</div>
+          </div>
+        <div v-if="item.owner !== null" class="flex items-center"><GlobeIcon class="w-4 h-4 mr-2" /> Organisation:  <span class="pl-2  shadow-md p-1 rounded-md bg-green-400 text-white" >{{ item.owner.user.nom }}</span></div>
         <div class="flex items-center mt-2">
           <ClockIcon class="w-4 h-4 mr-2" />
           <div>
-            Début :<span class="pr-3 font-bold">{{ $h.reformatDate(item.debut) }}</span> Fin : <span class="font-bold"> {{ $h.reformatDate(item.fin) }}</span>
+            Date : Du <span class="pr-1 font-bold">  {{ $h.reformatDate(item.debut) }}</span> au  <span class="font-bold"> {{ $h.reformatDate(item.fin) }}</span>
           </div>
         </div>
         <div class="flex items-center mt-2">
-          <CheckSquareIcon class="w-4 h-4 mr-2" /> Statut :
-          <span class="pl-2" v-if="item.statut == -2"> Non validé </span>
-          <span class="pl-2" v-else-if="item.statut == -1"> Validé </span>
-          <span class="pl-2" v-else-if="item.statut == 0"> En cours </span>
-          <span class="pl-2" v-else-if="item.statut == 1"> En retard </span>
+          <CheckSquareIcon class="w-4 h-4 mr-2 " /> Statut :
+          <span class="pl-2 shadow-md p-1 rounded-md bg-black text-white" v-if="item.statut == -2"> Non validé </span>
+          <span class="pl-2 shadow-md p-1 rounded-md bg-green-500 text-white" v-else-if="item.statut == -1"> Validé </span>
+          <span class="pl-1 shadow-md p-1 rounded-md bg-yellow-500 text-white" v-else-if="item.statut == 0"> En cours </span>
+          <span class="pl-1 shadow-md p-1 rounded-md bg-red-500 text-white" v-else-if="item.statut == 1"> En retard </span>
           <span class="pl-2" v-else-if="item.statut == 2">Terminé</span>
         </div>
       </div>
@@ -146,11 +173,37 @@ import VButton from "@/components/news/VButton.vue";
 import OngService from "@/services/modules/ong.service.js";
 import { helper as $h } from "@/utils/helper";
 import { toast } from "vue3-toastify";
+import "leaflet/dist/leaflet.css"
+import * as L from 'leaflet';
+import { LMap, LTileLayer, LMarker,LPolygon ,LPopup } from "@vue-leaflet/vue-leaflet";
+
+ 
+import 'leaflet.markercluster/dist/MarkerCluster.css' ; 
+import  'leaflet.markercluster/dist/MarkerCluster.Default.css' ; 
+import  "leaflet.markercluster" ;
+import { addressPoints } from './markerDemo'
+import icon from './icon.png';
+import markerShadow from './marker-shadow.png';
 
 export default {
-  components: { InputForm, VButton },
+  components: { InputForm, VButton,   LMap,
+    LTileLayer,LMarker,LPolygon ,LPopup },
   data() {
     return {
+      url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      attribution:
+        '&copy; <a target="_blank" href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+      zoom: 8,
+      center: [47.313220, -1.319482],
+      polygon: {
+        latlngs: [[47.2263299, -1.6222], [47.21024000000001, -1.6270065], [47.1969447, -1.6136169], [47.18527929999999, -1.6143036], [47.1794457, -1.6098404], [47.1775788, -1.5985107], [47.1676598, -1.5753365], [47.1593731, -1.5521622], [47.1593731, -1.5319061], [47.1722111, -1.5143967], [47.1960115, -1.4841843], [47.2095404, -1.4848709], [47.2291277, -1.4683914], [47.2533687, -1.5116501], [47.2577961, -1.5531921], [47.26828069, -1.5621185], [47.2657179, -1.589241], [47.2589612, -1.6204834], [47.237287, -1.6266632], [47.2263299, -1.6222]],
+        color: 'green'
+      },
+      zoom: 2,
+      initialMap: null,
+      myIcon: null, 
+      markerLatLng: [47.313220, -1.319482] ,
+
       savedInput: [],
       base_url: API_BASE_URL,
       showModal: false,
@@ -693,6 +746,53 @@ export default {
     },
   },
   mounted() {
+
+        // Initialiser la carte lorsque le composant est monté
+  // Configurer l'icône
+  this.myIcon = L.icon({
+            iconUrl: icon,
+            iconSize: [30, 30],
+            iconAnchor: [22, 94],
+            popupAnchor: [-3, -76],
+            shadowUrl: markerShadow,
+            shadowSize: [60, 30],
+            shadowAnchor: [22, 94]
+        });
+
+        // Initialiser la carte
+        this.initialMap = L.map('map', {
+            zoomControl: true,
+            zoom: 1,
+            zoomAnimation: false,
+            fadeAnimation: true,
+            markerZoomAnimation: true
+        }).setView([6.8041, 2.4152], 6);
+
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(this.initialMap);
+
+        // Ajouter des marqueurs individuels
+        L.marker([6.3746, 2.6004], { icon: this.myIcon }).addTo(this.initialMap);
+        L.marker([6.3752, 2.8349], { icon: this.myIcon }).addTo(this.initialMap);
+
+        // Créer un groupe de marqueurs
+        const markers = L.markerClusterGroup();
+
+        // Ajouter des marqueurs à partir de `addressPoints`
+        addressPoints.forEach((element, index) => {
+            const each_marker = new L.marker(
+                [element.latitude, element.longitude], { icon: this.myIcon })
+                .bindPopup(`<strong> Hello Bangladesh! </strong> <br> I am a popup number ${index}`);
+            markers.addLayer(each_marker);
+        });
+
+        this.initialMap.addLayer(markers);
+    
+
+
+
     // Initialiser Dropzone après le montage du composant
     //  this.initializeDropzone();
     this.fetchOngs();
