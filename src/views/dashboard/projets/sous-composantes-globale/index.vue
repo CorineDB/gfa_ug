@@ -129,7 +129,7 @@ export default {
             }
           })
           .catch((error) => {
-           
+            delete this.formData.projetId;
             this.isLoading = false;
             toast.error(error.message);
           });
