@@ -7,7 +7,7 @@ import Principes from "../views/dashboard/principes.vue";
 
 import Gouvernance from "../views/dashboard/gouvernement.vue";
 
-import Indicateurs from "../views/dashboard/indicateurs.vue";
+import IndicateursDeGouvernance from "../views/dashboard/indicateurs.vue";
 
 import Principe from "../views/dashboard/principe.vue";
 import Critere from "../views/dashboard/critere.vue";
@@ -66,13 +66,13 @@ const routes = [
 
       {
         path: "indicateursDeGouvernance",
-        component: indicateurs,
+        component: IndicateursDeGouvernance,
         name: "indicateursDeGouvernance",
       },
       {
         path: "/projets/:id/details",
         component: projets_id_details,
-        
+
         name: "projets_id_details",
       },
       {
@@ -209,7 +209,7 @@ const routes = [
       {
         path: "gouvernance/:id/principe/:idp/critere/:idc/indicateur",
         name: "Indicateurs",
-        component: Indicateurs,
+        component: indicateurs,
       },
       {
         path: "form-factuel",
