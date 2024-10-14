@@ -40,6 +40,33 @@ export const useSideMenuStore = defineStore("sideMenu", {
           },
         ],
       },
+      {
+        icon: "FolderIcon",
+        pageName: "projets",
+        title: "Cadre de rendement",
+        subMenu: [
+          {
+            icon: "FolderKanbanIcon",
+            pageName: "cadreDeRendement",
+            title: "Cadre de rendemente",
+          },
+          {
+            icon: "FolderKanbanIcon",
+            pageName: "categorie",
+            title: "Categorie",
+          },
+          {
+            icon: "GlobeIcon",
+            pageName: "Indicateur",
+            title: "Indicateurs",
+          },
+          {
+            icon: "GlobeIcon",
+            pageName: "resultats",
+            title: "Résultats Escomptés",
+          },
+        ],
+      },
 
       {
         icon: "CpuIcon",
