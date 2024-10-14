@@ -15,6 +15,14 @@ import store from "../stores/index";
  * Configuration générale : timeout, headers, params, etc.
  */
 
+function determineContentType(payLoad) {
+  if (payLoad instanceof FormData) {
+    return "multipart/form-data";
+  } else {
+    return "application/json";
+  }
+}
+
 const config = {
     baseURL: `${API_BASE_URL}/api/`,
     timeout: 60 * 100000000, // Timeout
@@ -103,4 +111,4 @@ httpClient.interceptors.response.use(
     // responseErrorInterceptor
 );
 
-export { httpClient };
+export { httpClient , determineContentType };

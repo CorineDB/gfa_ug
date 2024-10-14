@@ -7,7 +7,7 @@ import Principes from "../views/dashboard/principes.vue";
 
 import Gouvernance from "../views/dashboard/gouvernement.vue";
 
-import Indicateurs from "../views/dashboard/indicateurs.vue";
+import IndicateursDeGouvernance from "../views/dashboard/indicateurs.vue";
 
 import Principe from "../views/dashboard/principe.vue";
 import Critere from "../views/dashboard/critere.vue";
@@ -41,11 +41,10 @@ import OptionReponse from "@/views/dashboard/OptionReponse.vue";
 //Projet/Outcomes/Activité/Taches
 import dashboard_projets_composantes_globale from "../views/dashboard/projets/composantes-globale/index.vue";
 import projets from "../views/dashboard/projets/index.vue";
-import dashboard_projets_activites_globale from "../views/dashboard/projets/activites-globale/_id/suivis.vue";
+import dashboard_projets_activites_globale from "../views/dashboard/projets/activites-globale/index.vue";
 import dashboard_projets_taches_globale from "../views/dashboard/projets/taches-globale/index.vue";
 import dashboard_projets_sous_composantes_globale from "../views/dashboard/projets/sous-composantes-globale/index.vue";
 import projets_id_details from "../views/dashboard/projets/_id/details.vue";
-import FormFactuel from "../views/dashboard/FormFactuel.vue";
 
 const routes = [
   {
@@ -66,13 +65,13 @@ const routes = [
 
       {
         path: "indicateursDeGouvernance",
-        component: indicateurs,
+        component: IndicateursDeGouvernance,
         name: "indicateursDeGouvernance",
       },
       {
         path: "/projets/:id/details",
         component: projets_id_details,
-        
+
         name: "projets_id_details",
       },
       {
@@ -209,12 +208,7 @@ const routes = [
       {
         path: "gouvernance/:id/principe/:idp/critere/:idc/indicateur",
         name: "Indicateurs",
-        component: Indicateurs,
-      },
-      {
-        path: "form-factuel",
-        name: "FormFactuel",
-        component: FormFactuel,
+        component: indicateurs,
       },
     ],
   },

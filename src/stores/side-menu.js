@@ -111,12 +111,6 @@ export const useSideMenuStore = defineStore("sideMenu", {
           },
         ],
       },
-
-      {
-        icon: "FileIcon",
-        pageName: "FormFactuel",
-        title: "Formulaire Factuel",
-      },
       {
         icon: "SettingsIcon",
         pageName: "ToolsFactuel",
