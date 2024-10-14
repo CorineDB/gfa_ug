@@ -112,7 +112,11 @@ export default {
       this.labels = "Ajouter";
     },
     sendForm() {
+      console.log(this.formData)
+
+      
       if (this.update) {
+        
         ComposantesService.update(this.composantsId, this.formData)
           .then((response) => {
             if (response.status == 200 || response.status == 201) {

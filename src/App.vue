@@ -1,5 +1,6 @@
 <template>
   <div class="overflow-hidden">
+    
     <div class="overflow-scroll scrollbar-hide">
       <router-view />
     </div>
