@@ -38,6 +38,10 @@ import typeGouvernance from "../views/dashboard/type_gouvernance/index.vue";
 import Programmation_enquete from "../views/dashboard/programmation_enquete/index.vue";
 import EnqueteAppreciations from "../views/dashboard/programmation_enquete/appreciations.vue";
 import OptionReponse from "@/views/dashboard/OptionReponse.vue";
+import UniteDeMesure from "@/views/dashboard/uniteDeMesure.vue";
+import KeyValue from "@/views/dashboard/keyValue.vue";
+import CategorieIndicateurs from "@/views/dashboard/categoriesIndicateurs.vue";
+
 
 //Projet/Outcomes/Activité/Taches
 import dashboard_projets_composantes_globale from "../views/dashboard/projets/composantes-globale/index.vue";
@@ -196,6 +200,21 @@ const routes = [
         path: "option-reponse",
         name: "optionReponse",
         component: OptionReponse,
+      },
+      {
+        path: "unite_de_mesure",
+        name: "UniteDeMesure",
+        component: UniteDeMesure,
+      },
+      {
+        path: "cle_valeurs",
+        name: "KeyValue",
+        component: KeyValue,
+      },
+      {
+        path: "categories_indicateurs",
+        name: "CategoriesIndicateurs",
+        component: CategorieIndicateurs,
       },
       {
         path: "gouvernance/:id/principe",

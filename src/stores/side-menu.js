@@ -120,6 +120,21 @@ export const useSideMenuStore = defineStore("sideMenu", {
             pageName: "optionReponse",
             title: "Option de réponse",
           },
+          {
+            icon: "BarChart2Icon",
+            pageName: "UniteDeMesure",
+            title: "Unité de Mesure",
+          },
+          {
+            icon: "BarChart2Icon",
+            pageName: "KeyValue",
+            title: "Clé Valeur Indicateur",
+          },
+          {
+            icon: "BarChart2Icon",
+            pageName: "CategoriesIndicateurs",
+            title: "Catégories d'indicateurs",
+          },
         ],
       },
     ],
