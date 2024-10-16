@@ -3,18 +3,22 @@ import { onMounted, ref } from "vue";
 import SyntheseService from "@/services/modules/synthese.service";
 import { toast } from "vue3-toastify";
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
+import { getColorForValue } from "../../utils/findColorIndicator";
+import { useRouter } from "vue-router";
 
-const organizationId = "R5P1oK0OP6DmWGvB21RNoeb9Xpgdwr7PNQ4zy0LAM8KnVZEJa5xlOjYkeWBv8aJy";
-const enqueteDeCollecteId = "EaPR3GQnP1z2YvMVZXEL0QorKA7BmkNLzWlnw9egqGOjbxJd3Ra68p4Dql46Yrj7";
-const selectStructureId = "";
+const router = useRouter();
+const organizationId = ref("R5P1oK0OP6DmWGvB21RNoeb9Xpgdwr7PNQ4zy0LAM8KnVZEJa5xlOjYkeWBv8aJy");
+const enqueteDeCollecteId = ref("EaPR3GQnP1z2YvMVZXEL0QorKA7BmkNLzWlnw9egqGOjbxJd3Ra68p4Dql46Yrj7");
+const selectStructureId = ref("");
 const datasCollection = ref({});
 const datasFactuel = ref([]);
 const datasPerception = ref([]);
 const structures = ref([]);
-const isLoadingData = ref(true);
+const isLoadingData = ref(false);
 
 const getDataCollection = async () => {
-  await SyntheseService.get(enqueteDeCollecteId, organizationId)
+  isLoadingData.value = true;
+  await SyntheseService.get(enqueteDeCollecteId.value, organizationId.value)
     .then((result) => {
       datasCollection.value = result.data.data;
       datasFactuel.value = datasCollection.value.analyse_factuel;
@@ -37,6 +41,11 @@ const getStructure = async () => {
       console.error(e);
       toast.error("Une erreur est survenue: Liste des structures .");
     });
+};
+
+const changeStructure = () => {
+  organizationId.value = selectStructureId.value;
+  getDataCollection();
 };
 
 const findColor = () => {
@@ -79,6 +88,7 @@ onMounted(() => {
                         placeholder: 'Sélectionner la structure',
                       }"
                       class="w-full"
+                      @change="changeStructure"
                     >
                       <option v-for="(structure, index) in structures" :key="index" :value="structure.id">{{ structure.nom }}</option>
                     </TomSelect>
@@ -153,7 +163,7 @@ onMounted(() => {
             <!-- Figure 8 : grille de notation et de détermination de la moyenne pondérée des questions opérationnelles -->
 
             <table class="w-full mt-12 text-sm border-collapse table-fixed">
-              <tbody class="text-black bg-green-700">
+              <tbody class="text-black bg-green-400">
                 <tr class="border-b rounded-sm border-slate-300 bg-slate-300">
                   <td class="p-2 font-medium">Structure :</td>
                   <td>
@@ -163,6 +173,7 @@ onMounted(() => {
                         placeholder: 'Sélectionner la structure',
                       }"
                       class="w-full"
+                      @change="changeStructure"
                     >
                       <option v-for="(structure, index) in structures" :key="index" :value="structure.id">{{ structure.nom }}</option>
                     </TomSelect>
@@ -181,9 +192,9 @@ onMounted(() => {
 
             <table v-if="!isLoadingData" class="w-full my-12 border border-collapse table-auto border-slate-500" cellpadding="0" cellspacing="0">
               <thead class="text-left bg-gray-400">
-                <tr class="bg-yellow-400 border-b-8 border-white">
+                <tr class="border-b-8 border-white" :style="{ 'background-color': getColorForValue(datasPerception.indice_de_perception) }">
                   <td colspan="2" class="p-2 text-center">Indice factuel de gouvernace</td>
-                  <td class="p-2 text-center">2</td>
+                  <td class="p-2 text-center">{{ datasPerception.indice_de_perception }}</td>
                 </tr>
                 <tr class="text-black">
                   <th class="p-2 text-center border border-slate-600">Principes</th>
@@ -192,15 +203,19 @@ onMounted(() => {
                 </tr>
               </thead>
 
-              <tbody v-for="(principe, index) in datasPerception" :key="principe.id" class="text-black bg-white">
+              <tbody v-for="(principe, index) in datasPerception.fiche_de_synthese_de_perception" :key="principe.id" class="text-black" :style="{ 'background-color': getColorForValue(principe.indice_de_perception) }">
                 <tr v-if="principe.indicateurs_de_gouvernance.length > 0">
-                  <td :rowspan="principe.indicateurs_de_gouvernance.length" class="p-2 border border-slate-600 text-start">{{ principe.nom }}</td>
+                  <td :rowspan="principe.indicateurs_de_gouvernance.length + 1" class="p-2 border border-slate-600 text-start">{{ principe.nom }}</td>
                   <td class="p-2 text-center border border-slate-600">{{ principe.indicateurs_de_gouvernance[0].nom }}</td>
                   <td class="p-2 text-center border border-slate-600">{{ principe.indicateurs_de_gouvernance[0].moyPQO }}</td>
                 </tr>
-                <tr v-for="(indicateur, index) in principe.indicateurs_de_gouvernance.slice(1)" :key="indicateur.id">
+                <tr v-for="(indicateur, index) in principe.indicateurs_de_gouvernance.slice(1)" :key="indicateur.id" :style="{ 'background-color': getColorForValue(indicateur.moyPQO) }">
                   <td class="p-2 text-center border border-slate-600">{{ indicateur.nom }}</td>
                   <td class="p-2 text-center border border-slate-600">{{ indicateur.moyPQO }}</td>
+                </tr>
+                <tr class="text-black" v-if="principe.indicateurs_de_gouvernance.length > 0">
+                  <td class="p-2 text-center border border-slate-600">Indice de perception du principe</td>
+                  <td class="p-2 text-center border border-slate-600">{{ principe.indice_de_perception }}</td>
                 </tr>
               </tbody>
             </table>

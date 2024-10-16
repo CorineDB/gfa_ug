@@ -168,7 +168,7 @@ const initTabulator = () => {
   });
 };
 const handleEdit = (params) => {
-  console.log("Edit:", params);
+  // console.log("Edit:", params);
   isCreate.value = false;
   idSelect.value = params.id;
   payload.nom = params.nom;
@@ -282,7 +282,6 @@ onMounted(() => {
 
   <!-- Modal Register & Update -->
   <Modal backdrop="static" :show="showModalCreate" @hidden="showModalCreate = false">
-    {{ typeof payload.can_have_multiple_reponse }} {{ payload.can_have_multiple_reponse }}
     <ModalHeader>
       <h2 class="mr-auto text-base font-medium">{{ mode }} un indicateur de gouvernance</h2>
     </ModalHeader>
