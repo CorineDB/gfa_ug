@@ -4,6 +4,7 @@ import { mapGetters, mapActions } from "vuex";
 import { getStringValueOfStatutCode } from "@/utils/index";
 import ProjetService from "@/services/modules/projet.service.js";
 import ComposantesService from "@/services/modules/composante.service";
+import ActiviteService from "@/services/modules/activite.service";
 import InputForm from "@/components/news/InputForm.vue";
 import VButton from "@/components/news/VButton.vue";
 import { toast } from "vue3-toastify";
@@ -27,6 +28,9 @@ export default {
       formData: {
         nom: "",
         poids: "",
+        debut: "",
+        fin: "",
+        type: "",
         composanteId: "",
         budgetNational: 0,
       },
@@ -103,27 +107,35 @@ export default {
           toast.error("Erreur lors de la suppression");
         });
     },
-    modifierSousComposante(data) {
+    modifierActivite(data) {
       this.labels = "Modifier";
       this.showModal = true;
       this.update = true;
       this.formData.nom = data.nom;
       this.formData.poids = data.poids;
+      this.formData.debut = data.debut;
+      this.formData.fin = data.fin;
       this.formData.composanteId = data.composanteId;
       this.formData.budgetNational = data.budgetNational;
-      this.sousComposantId = data.id;
+      this.activiteId = data.id;
     },
     addSousComposants() {
       this.showModal = true;
       this.isUpdate = false;
-      this.formData.composanteId = this.composantsId;
+      if (this.haveSousComposantes) {
+        this.formData.composanteId = this.sousComposantId;
+      } else {
+        this.formData.composanteId = this.composantsId;
+      }
+
       this.labels = "Ajouter";
     },
     sendForm() {
       if (this.update) {
+        this.formData.budgetNational = parseInt(this.formData.budgetNational);
         // this.formData.projetId = this.projetId
         this.isLoading = true;
-        ComposantesService.update(this.sousComposantId, this.formData)
+        ActiviteService.update(this.activiteId, this.formData)
           .then((response) => {
             if (response.status == 200 || response.status == 201) {
               this.update = false;
@@ -145,7 +157,7 @@ export default {
       } else {
         this.isLoading = true;
         this.formData.budgetNational = parseInt(this.formData.budgetNational);
-        ComposantesService.create(this.formData)
+        ActiviteService.create(this.formData)
           .then((response) => {
             if (response.status == 200 || response.status == 201) {
               this.isLoading = false;
@@ -193,14 +205,14 @@ export default {
     },
     getComposantById(data) {
       ComposantesService.detailComposant(data)
-        .then((data) => {
-          this.sousComposants = data.data.data.souscomposantes;
-          console.log(this.sousComposants);
+        .then((data) => {        
+         
+          this.activites = data.data.data.activites;
 
-          if (this.sousComposants.length > 0) {
+          if (data.data.data.souscomposantes.length > 0) {
+            this.sousComposants = data.data.data.souscomposantes;
             this.haveSousComposantes = true;
           }
-          console.log(this.sousComposants);
         })
         .catch((error) => {
           console.log(error);
@@ -212,14 +224,13 @@ export default {
 
   created() {},
   mounted() {
-   
     this.getListeProjet();
   },
 };
 </script>
 
 <template>
-  <h2 class="mt-10 text-lg font-medium intro-y">OutPut</h2>
+  <h2 class="mt-10 text-lg font-medium intro-y">Activités</h2>
 
   <!-- Filtre -->
   <div class="container px-4 mx-auto">
@@ -252,6 +263,7 @@ export default {
           </v-select>
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OUtComes</label>
         </div> -->
+
         <div class="flex w-full" v-if="haveSousComposantes">
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OUtPut</label>
           <TomSelect
@@ -287,7 +299,7 @@ export default {
         </div>
       </div>
       <div class="flex">
-        <button class="mr-2 shadow-md btn btn-primary" @click="addSousComposants()"><PlusIcon class="w-4 h-4 mr-3" />Ajouter un OutPut</button>
+        <button class="mr-2 shadow-md btn btn-primary" @click="addSousComposants()"><PlusIcon class="w-4 h-4 mr-3" />Ajouter une Activité</button>
       </div>
     </div>
   </div>
@@ -295,13 +307,13 @@ export default {
   <div v-if="!isLoadingData" class="grid grid-cols-12 gap-6 mt-5">
     <!-- BEGIN: Users Layout -->
     <!-- <pre>{{sousComposants}}</pre>   -->
-     <pre> {{activites}}</pre>
-    <div v-for="(item, index) in sousComposants" :key="index" class="col-span-12 intro-y md:col-span-6 lg:col-span-4">
+
+    <div v-for="(item, index) in activites" :key="index" class="col-span-12 intro-y md:col-span-6 lg:col-span-4">
       <div class="p-5 box">
         <div class="flex items-start pt-5 _px-5">
           <div class="flex flex-col items-center w-full lg:flex-row">
             <div class="flex items-center justify-center w-16 h-16 text-white rounded-full image-fit bg-primary">
-              {{ item.sigle }}
+              {{ item.type }}
               <!-- <img alt="Midone Tailwind HTML Admin Template" class="rounded-full" :src="faker.photos[0]" /> -->
             </div>
             <div class="mt-3 text-center lg:ml-4 lg:text-left lg:mt-0">
@@ -321,7 +333,7 @@ export default {
             </DropdownToggle>
             <DropdownMenu class="w-40">
               <DropdownContent>
-                <DropdownItem @click="modifierSousComposante(item)"> <Edit2Icon class="w-4 h-4 mr-2" /> Modifier </DropdownItem>
+                <DropdownItem @click="modifierActivite(item)"> <Edit2Icon class="w-4 h-4 mr-2" /> Modifier </DropdownItem>
                 <DropdownItem @click="supprimerComposant(item)"> <TrashIcon class="w-4 h-4 mr-2" /> Supprimer </DropdownItem>
               </DropdownContent>
             </DropdownMenu>
@@ -356,13 +368,68 @@ export default {
 
   <Modal backdrop="static" :show="showModal" @hidden="showModal = false">
     <ModalHeader>
-      <h2 v-if="!update" class="mr-auto text-base font-medium">Ajouter un Output</h2>
-      <h2 v-else class="mr-auto text-base font-medium">Modifier un Output</h2>
+      <h2 v-if="!update" class="mr-auto text-base font-medium">Ajouter une Activité</h2>
+      <h2 v-else class="mr-auto text-base font-medium">Modifier un Activité</h2>
     </ModalHeader>
     <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
       <InputForm v-model="formData.nom" class="col-span-12" type="text" required="required" placeHolder="Nom de l'organisation" label="Nom" />
       <InputForm v-model="formData.poids" class="col-span-12" type="number" required="required" placeHolder="Poids de l'activité " label="Poids" />
+      <InputForm v-model="formData.debut" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de début" label="Début du projet" />
+      <InputForm v-model="formData.fin" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de fin" label="Fin du projet " />
+      <div class="col-span-12">
+        <label for="modal-form-6" class="form-label">Type d'activité</label>
+        <div class="mt-2">
+          <TomSelect
+            v-model="formData.type"
+            :options="{
+              placeholder: 'Choisir un type d\'activité',
+            }"
+            class="w-full"
+          >
+            <option>Choisir un type d'activité</option>
+            <option value="pta">PTA</option>
+            <option value="ppm">PPM</option>
+          </TomSelect>
+        </div>
+      </div>
+        <div class="flex w-full">
+          <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OUtPut</label>
+          <TomSelect
+            v-model="formData.composanteId"
+            :options="{
+              placeholder: 'Choisir un Output',
+              create: false,
+              onOptionAdd: text(),
+            }"
+            class="w-full"
+          >
+            <option v-for="(element, index) in composants" :key="index" :value="element.id">{{ element.nom }}</option>
+          </TomSelect>
+        </div>
+        <div class="flex w-full" v-if="haveSousComposantes">
+          <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OUtPut</label>
+          <TomSelect
+            v-model="formData.composanteId"
+            :options="{
+              placeholder: 'Choisir un Output',
+              create: false,
+              onOptionAdd: text(),
+            }"
+            class="w-full"
+          >
+            <option v-for="(element, index) in composants" :key="index" :value="element.id">{{ element.nom }}</option>
+          </TomSelect>
+        </div>
       <div class="flex col-span-12">
+        <v-select class="w-full" :reduce="(composant) => composant.id" v-model="formData.composanteId" label="nom" :options="composants">
+          <template #search="{ attributes, events }">
+            <input class="vs__search form-input" :required="!formData.composanteId" v-bind="attributes" v-on="events" />
+          </template>
+        </v-select>
+        <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-bold duration-100 ease-linear -translate-y-3 bg-white _font-medium form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OutComes</label>
+      </div>
+
+       <div class="flex col-span-12">
         <v-select class="w-full" :reduce="(composant) => composant.id" v-model="formData.composanteId" label="nom" :options="composants">
           <template #search="{ attributes, events }">
             <input class="vs__search form-input" :required="!formData.composanteId" v-bind="attributes" v-on="events" />

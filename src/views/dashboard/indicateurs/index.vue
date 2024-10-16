@@ -1,3 +1,242 @@
+<script setup>
+import { computed, onMounted, reactive, ref, watch } from "vue";
+import VButton from "@/components/news/VButton.vue";
+import InputForm from "@/components/news/InputForm.vue";
+import IndicateurGouvernance from "@/services/modules/indicateurGouvernance.service";
+import Tabulator from "tabulator-tables";
+import DeleteButton from "@/components/news/DeleteButton.vue";
+import { toast } from "vue3-toastify";
+import LoaderSnipper from "@/components/LoaderSnipper.vue";
+import CritereGouvernance from "../../../services/modules/critereGouvernance.service";
+import PrincipeGouvernance from "../../../services/modules/principeGouvernance.service";
+import OptionReponse from "../../../services/modules/optionReponse.service";
+import { useRoute, useRouter } from "vue-router";
+
+const payload = reactive({
+  nom: "",
+  type: "factuel",
+  description: "",
+  can_have_multiple_reponse: false,
+  options_de_reponse: [],
+  principeable_id: "",
+});
+const tabulator = ref();
+const idSelect = ref("");
+const showModalCreate = ref(false);
+const deleteModalPreview = ref(false);
+const isLoading = ref(false);
+const isLoadingData = ref(true);
+const isCreate = ref(true);
+const principes = ref([]);
+const criteres = ref([]);
+const optionsReponses = ref([]);
+const datas = ref([]);
+
+const createData = async () => {
+  isLoading.value = true;
+  await IndicateurGouvernance.create(payload)
+    .then(() => {
+      isLoading.value = false;
+      getDatas();
+      resetForm();
+      toast.success("Indicateur de gouvernace créer.");
+    })
+    .catch((e) => {
+      isLoading.value = false;
+      console.error(e);
+      toast.error("Vérifier les informations et ressayer.");
+    });
+};
+const getDatas = async () => {
+  isLoadingData.value = true;
+  await IndicateurGouvernance.get()
+    .then((result) => {
+      datas.value = result.data.data;
+      isLoadingData.value = false;
+    })
+    .catch((e) => {
+      console.error(e);
+      isLoadingData.value = false;
+      toast.error("Une erreur est survenue: Liste des indicateurs de gouvernance.");
+    });
+  initTabulator();
+};
+const updateData = async () => {
+  isLoading.value = true;
+  await IndicateurGouvernance.update(idSelect.value, payload)
+    .then(() => {
+      isLoading.value = false;
+      getDatas();
+      resetForm();
+      toast.success("Indicateur de gouvernace modifiée.");
+    })
+    .catch((e) => {
+      isLoading.value = false;
+      console.error(e);
+      toast.error("Vérifier les informations et ressayer.");
+    });
+};
+const submitData = () => (isCreate.value ? createData() : updateData());
+const deleteData = async () => {
+  isLoading.value = true;
+  await IndicateurGouvernance.destroy(idSelect.value)
+    .then(() => {
+      deleteModalPreview.value = false;
+      isLoading.value = false;
+      toast.success("Indicateur de gouvernance supprimé");
+      getDatas();
+    })
+    .catch((e) => {
+      isLoading.value = false;
+      console.error(e);
+      toast.error("Une erreur est survenue, ressayer");
+    });
+};
+const getPrincipes = () => {
+  PrincipeGouvernance.get()
+    .then((result) => {
+      principes.value = result.data.data;
+    })
+    .catch((e) => {
+      console.error(e);
+      toast.error("Une erreur est survenue: Liste des Principes.");
+    });
+};
+const getCriteres = () => {
+  CritereGouvernance.get()
+    .then((result) => {
+      criteres.value = result.data.data;
+    })
+    .catch((e) => {
+      console.error(e);
+      toast.error("Une erreur est survenue: Liste des Criteres.");
+    });
+};
+const getOptions = () => {
+  OptionReponse.get()
+    .then((result) => {
+      optionsReponses.value = result.data.data;
+    })
+    .catch((e) => {
+      console.error(e);
+      toast.error("Une erreur est survenue: Liste des Reponses.");
+    });
+};
+const initTabulator = () => {
+  tabulator.value = new Tabulator("#tabulator", {
+    data: datas.value,
+    placeholder: "Aucune donnée disponible.",
+    layout: "fitColumns",
+    columns: [
+      {
+        title: "Nom",
+        field: "nom",
+      },
+      {
+        title: "Description",
+        field: "description",
+      },
+      {
+        title: "Actions",
+        field: "actions",
+        formatter: (cell) => {
+          const container = document.createElement("div");
+          container.className = "flex items-center justify-center gap-3";
+
+          const createButton = (label, className, onClick) => {
+            const button = document.createElement("button");
+            button.className = className;
+            button.innerText = label;
+            button.addEventListener("click", onClick);
+            return button;
+          };
+
+          const modifyButton = createButton("Modifier", "btn btn-primary", () => {
+            handleEdit(cell.getData());
+          });
+
+          const deleteButton = createButton("Supprimer", "btn btn-danger", () => {
+            handleDelete(cell.getData());
+          });
+
+          container.append(modifyButton, deleteButton);
+
+          return container;
+        },
+      },
+    ],
+  });
+};
+const handleEdit = (params) => {
+  // console.log("Edit:", params);
+  isCreate.value = false;
+  idSelect.value = params.id;
+  payload.nom = params.nom;
+  payload.description = params.description;
+  payload.type = params.type;
+  payload.can_have_multiple_reponse = params.can_have_multiple_reponse;
+  payload.options_de_reponse = params.options_de_reponse.map((item) => item.id);
+  // console.log(payload.options_de_reponse);
+  payload.principeable_id = params.principeable.id;
+  showModalCreate.value = true;
+};
+const handleDelete = (params) => {
+  idSelect.value = params.id;
+  deleteModalPreview.value = true;
+};
+const cancelSelect = () => {
+  deleteModalPreview.value = false;
+  idSelect.value = "";
+};
+const resetForm = () => {
+  payload.nom = "";
+  payload.description = "";
+  payload.type = "";
+  payload.can_have_multiple_reponse = false;
+  payload.principeable_id = "";
+  payload.options_de_reponse = [];
+  showModalCreate.value = false;
+};
+const openCreateModal = () => {
+  payload.principeable_id = "";
+  showModalCreate.value = isCreate.value = true;
+};
+
+const mode = computed(() => (isCreate.value ? "Ajouter" : "Modifier"));
+const principeable = computed(() => (payload.type === "factuel" ? criteres.value : principes.value));
+
+// watch(
+//   () => payload.can_have_multiple_reponse,
+//   (newValue) => {
+//     console.log(newValue);
+
+//     payload.can_have_multiple_reponse = Boolean(newValue);
+//   }
+// );
+watch(
+  () => payload.type,
+  () => {
+    payload.principeable_id = "";
+  }
+);
+
+// watch(
+//   () => payload.options_de_reponse,
+//   (newValue) => {
+//     if (!payload.can_have_multiple_reponse) {
+//       payload.options_de_reponse = newValue.split(",").map((option) => option.trim());
+//     }
+//   }
+// );
+
+onMounted(() => {
+  getDatas();
+  getCriteres();
+  getPrincipes();
+  getOptions();
+});
+</script>
+
 <template>
   <div class="py-4">
     <!-- toast notification -->
@@ -7,26 +246,102 @@
         <div :class="{ 'text-red-500 capitalize ': message.type != 'success' }" class="font-medium">
           {{ message.type }}
         </div>
-        <div class="text-slate-500 mt-1">
+        <div class="mt-1 text-slate-500">
           {{ message.message }}
         </div>
       </div>
     </Notification>
     <!-- toast notification -->
 
-    <!-- BEGIN: Modal Content -->
-    <Modal :show="deleteModalPreview" @hidden="deleteModalPreview = false">
-      <ModalBody class="p-0">
-        <div class="p-5 text-center">
-          <XCircleIcon class="w-16 h-16 text-danger mx-auto mt-3" />
-          <div class="text-3xl mt-5">Vous etes sur de supprimer {{ deleteData.nom }} ?</div>
-          <div class="text-slate-500 mt-2">Cette operation est irreverssible ? <br />Cliquer sur annuler pour annuler l'operation</div>
+    <div class="p-5 mt-5 intro-y box">
+      <div class="flex flex-col sm:flex-row sm:items-end xl:items-start">
+        <div></div>
+        <div class="flex mt-5 sm:mt-0">
+          <button id="tabulator-print" class="w-1/2 mr-2 btn btn-outline-secondary sm:w-auto"><PrinterIcon class="w-4 h-4 mr-2" /> Print</button>
+          <Dropdown class="w-1/2 sm:w-auto">
+            <DropdownToggle class="w-full btn btn-outline-secondary sm:w-auto">
+              <FileTextIcon class="w-4 h-4 mr-2" /> Export
+              <ChevronDownIcon class="w-4 h-4 ml-auto sm:ml-2" />
+            </DropdownToggle>
+            <DropdownMenu class="w-40">
+              <DropdownContent>
+                <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Export CSV </DropdownItem>
+                <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Export JSON </DropdownItem>
+                <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Export XLSX </DropdownItem>
+                <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Export HTML </DropdownItem>
+              </DropdownContent>
+            </DropdownMenu>
+          </Dropdown>
         </div>
-        <div class="px-5 pb-8 text-center">
-          <button type="button" @click="deleteModalPreview = false" class="btn btn-outline-secondary w-24 mr-1">Annuler</button>
-          <button type="button" @click="deleteIndicateur" class="btn btn-danger w-24">Supprimer</button>
-        </div>
-      </ModalBody>
+      </div>
+      <div class="overflow-x-auto scrollbar-hidden" v-if="!isLoadingData">
+        <div id="tabulator" class="mt-5 table-report table-report--tabulator"></div>
+      </div>
+      <LoaderSnipper v-if="isLoadingData" />
+    </div>
+
+  <!-- Modal Register & Update -->
+  <Modal backdrop="static" :show="showModalCreate" @hidden="showModalCreate = false">
+    <ModalHeader>
+      <h2 class="mr-auto text-base font-medium">{{ mode }} un indicateur de gouvernance</h2>
+    </ModalHeader>
+    <form @submit.prevent="submitData">
+      <ModalBody>
+        <div class="grid grid-cols-1 gap-4">
+          <InputForm label="Nom" v-model="payload.nom" />
+          <InputForm label="Description" v-model="payload.description" />
+          <div class="form-check">
+            <input v-model="payload.can_have_multiple_reponse" id="is-multiple" class="form-check-input" type="checkbox" checked />
+            <label class="form-check-label" for="is-multiple">Réponses Multiple</label>
+          </div>
+
+            <div>
+              <label class="form-label">Options de réponse </label>
+              <TomSelect
+                v-model="payload.options_de_reponse"
+                :options="{
+                  placeholder: 'Selectionner option de reponse',
+                }"
+                class="w-full"
+                multiple
+              >
+                <option v-for="(option, index) in optionsReponses" :key="index" :value="option.id">{{ option.libelle }}</option>
+              </TomSelect>
+            </div>
+            <!-- <div>
+            <label class="form-label">Options de réponse </label>
+            <TomSelect
+              v-model="payload.options_de_reponse"
+              :options="{
+                placeholder: 'Selectionner option de reponse',
+              }"
+              class="w-full"
+            >
+              <option v-for="(option, index) in optionsReponses" :key="index" :value="option.id">{{ option.libelle }}</option>
+            </TomSelect>
+          </div> -->
+            <div>
+              <label>Type</label>
+              <div class="flex flex-col mt-2 sm:flex-row">
+                <div class="mr-2 form-check">
+                  <input v-model="payload.type" id="factuel" class="form-check-input" type="radio" name="type" value="factuel" />
+                  <label class="form-check-label" for="factuel">Factuel</label>
+                </div>
+                <div class="mt-2 mr-2 form-check sm:mt-0">
+                  <input v-model="payload.type" id="perception" class="form-check-input" type="radio" name="type" value="perception" />
+                  <label class="form-check-label" for="perception">Perception</label>
+                </div>
+              </div>
+            </div>
+            <div class="">
+              <label class="form-label">Critères ou Principes </label>
+              <TomSelect v-model="payload.principeable_id" :options="{ placeholder: 'Selectionez une option' }" class="w-full">
+                <option v-for="(item, index) in principeable" :key="index" :value="item.id">{{ item.nom }}</option>
+              </TomSelect>
+            </div>
+          </div>
+        </ModalBody>
+      </form>
     </Modal>
     <!-- END: Modal Content -->
 
@@ -77,9 +392,9 @@
               <option v-for="(element, index) in choix" :key="index" :value="element.id">{{ element.nom }}</option>
             </TomSelect>
           </div>
-          <button class="btn btn-primary py-3 px-4 w-full my-3 xl:mr-3 align-top">
+          <button class="w-full px-4 py-3 my-3 align-top btn btn-primary xl:mr-3">
             <span class="text-sm font-semibold uppercase" v-if="!chargement"> Ajouter </span>
-            <span v-else class="flex justify-center items-center space-x-2">
+            <span v-else class="flex items-center justify-center space-x-2">
               <span class="px-4 font-semibold"> chargement ... </span>
               <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-center animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -98,9 +413,9 @@
             <input id="regular-form-1" type="text" required v-model="saveUpdate.description" class="form-control" placeholder="description" />
           </div>
 
-          <button class="btn btn-primary py-3 px-4 w-full my-3 xl:mr-3 align-top">
+          <button class="w-full px-4 py-3 my-3 align-top btn btn-primary xl:mr-3">
             <span class="text-sm font-semibold uppercase" v-if="!chargement"> modifier </span>
-            <span v-else class="flex justify-center items-center space-x-2">
+            <span v-else class="flex items-center justify-center space-x-2">
               <span class="px-4 font-semibold"> chargement ... </span>
               <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-center animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -113,24 +428,24 @@
     <!-- END: Modal Content -->
     <!-- BEGIN: Modal Toggle -->
     <div class="flex justify-between">
-      <button @click="addIndicateur" class="btn btn-primary flex space-x-2 items-center">
+      <button @click="addIndicateur" class="flex items-center space-x-2 btn btn-primary">
         <PlusSquareIcon />
-        <span class="uppercase font-semibold"> ajouter</span>
+        <span class="font-semibold uppercase"> ajouter</span>
       </button>
-      <div class="search hidden sm:block">
-        <input type="text" class="search__input form-control border-transparent" v-model="search" placeholder="Recherche..." />
+      <div class="hidden search sm:block">
+        <input type="text" class="border-transparent search__input form-control" v-model="search" placeholder="Recherche..." />
         <SearchIcon class="search__icon dark:text-slate-500" />
       </div>
     </div>
-    <div class="my-4 flex justify-between items-center">
-      <span class="text-xl uppercase font-bold">indicateurs {{ groupe }} </span>
-      <button @click="toBack" class="bg-indigo-500 text-white rounded-lg font-semibold px-3 py-2 outline-none flex space-x-2 items-center">
+    <div class="flex items-center justify-between my-4">
+      <span class="text-xl font-bold uppercase">indicateurs {{ groupe }} </span>
+      <button @click="toBack" class="flex items-center px-3 py-2 space-x-2 font-semibold text-white bg-indigo-500 rounded-lg outline-none">
         <CornerUpLeftIcon />
-        <span class="uppercase font-semibold">Critères</span>
+        <span class="font-semibold uppercase">Critères</span>
       </button>
     </div>
     <!-- END: Modal Toggle -->
-    <div class="overflow-x-auto mt-5">
+    <div class="mt-5 overflow-x-auto">
       <table class="table mt-5">
         <thead class="table-light">
           <tr>
@@ -171,311 +486,65 @@
               </div>
             </td>
             <td>{{ data.updated_at }}</td>
-             <td>{{ data.created_at }}</td>
-           
-            <td class="flex space-x-2 items-center">
-              <Tippy tag="a" href="javascript:;" class="tooltip btn btn-secondary w-24 mr-1 mb-2" content="cliquez pour modifier">
-                <span @click="modifier(index, data)" class="text-blue-500 cursor-pointer">
-                  Modifier
-                </span>
+            <td>{{ data.created_at }}</td>
+
+            <td class="flex items-center space-x-2">
+              <Tippy tag="a" href="javascript:;" class="w-24 mb-2 mr-1 tooltip btn btn-secondary" content="cliquez pour modifier">
+                <span @click="modifier(index, data)" class="text-blue-500 cursor-pointer"> Modifier </span>
               </Tippy>
-              <Tippy tag="a" href="javascript:;" class="tooltip btn btn-secondary w-24 mr-1 mb-2" content="cliquez pour supprimer">
-                <span @click="supprimer(index, data)" class="text-red-500 cursor-pointer">
-                  Supprimer
-                </span>
+              <Tippy tag="a" href="javascript:;" class="w-24 mb-2 mr-1 tooltip btn btn-secondary" content="cliquez pour supprimer">
+                <span @click="supprimer(index, data)" class="text-red-500 cursor-pointer"> Supprimer </span>
               </Tippy>
             </td>
-           
           </tr>
         </tbody>
       </table>
       <div class="flex justify-center mt-4" v-if="totalPages() > 1">
-        <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-l-md px-4 py-2 m-1 focus:outline-none" :disabled="currentPage === 1" @click="currentPage--">Previous</button>
+        <button class="px-4 py-2 m-1 text-gray-700 bg-gray-200 border border-gray-300 hover:bg-gray-300 rounded-l-md focus:outline-none" :disabled="currentPage === 1" @click="currentPage--">Previous</button>
         <template v-if="totalPages() <= 7">
-          <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === currentPage }" v-for="pageNumber in totalPages()" :key="pageNumber" @click="goToPage(pageNumber)">
+          <button class="px-4 py-2 m-1 text-gray-700 bg-gray-200 border border-gray-300 rounded-md hover:bg-gray-300 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === currentPage }" v-for="pageNumber in totalPages()" :key="pageNumber" @click="goToPage(pageNumber)">
             {{ pageNumber }}
           </button>
         </template>
         <template v-else>
           <template v-if="currentPage <= 4">
-            <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === currentPage }" v-for="pageNumber in 5" :key="pageNumber" @click="goToPage(pageNumber)">
+            <button class="px-4 py-2 m-1 text-gray-700 bg-gray-200 border border-gray-300 rounded-md hover:bg-gray-300 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === currentPage }" v-for="pageNumber in 5" :key="pageNumber" @click="goToPage(pageNumber)">
               {{ pageNumber }}
             </button>
-            <span class="bg-gray-200 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1">...</span>
-            <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === totalPages() }" @click="goToPage(totalPages())">
+            <span class="px-4 py-2 m-1 text-gray-700 bg-gray-200 border border-gray-300 rounded-md">...</span>
+            <button class="px-4 py-2 m-1 text-gray-700 bg-gray-200 border border-gray-300 rounded-md hover:bg-gray-300 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === totalPages() }" @click="goToPage(totalPages())">
               {{ totalPages() }}
             </button>
           </template>
           <template v-else-if="currentPage >= totalPages() - 3">
-            <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === 1 }" @click="goToPage(1)">1</button>
-            <span class="bg-gray-200 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1">...</span>
-            <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === currentPage }" v-for="pageNumber in 5" :key="pageNumber" @click="goToPage(pageNumber)">
+            <button class="px-4 py-2 m-1 text-gray-700 bg-gray-200 border border-gray-300 rounded-md hover:bg-gray-300 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === 1 }" @click="goToPage(1)">1</button>
+            <span class="px-4 py-2 m-1 text-gray-700 bg-gray-200 border border-gray-300 rounded-md">...</span>
+            <button class="px-4 py-2 m-1 text-gray-700 bg-gray-200 border border-gray-300 rounded-md hover:bg-gray-300 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === currentPage }" v-for="pageNumber in 5" :key="pageNumber" @click="goToPage(pageNumber)">
               {{ pageNumber }}
             </button>
-            <span class="bg-gray-200 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1">...</span>
-            <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === currentPage }" v-for="pageNumber in [totalPages() - 3, totalPages() - 2, totalPages() - 1, totalPages()]" :key="pageNumber" @click="goToPage(pageNumber)">
+            <span class="px-4 py-2 m-1 text-gray-700 bg-gray-200 border border-gray-300 rounded-md">...</span>
+            <button class="px-4 py-2 m-1 text-gray-700 bg-gray-200 border border-gray-300 rounded-md hover:bg-gray-300 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === currentPage }" v-for="pageNumber in [totalPages() - 3, totalPages() - 2, totalPages() - 1, totalPages()]" :key="pageNumber" @click="goToPage(pageNumber)">
               {{ pageNumber }}
             </button>
           </template>
           <template v-else>
-            <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === 1 }" @click="goToPage(1)">1</button>
-            <span class="bg-gray-200 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1">...</span>
-            <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === currentPage }" v-for="pageNumber in [currentPage - 1, currentPage, currentPage + 1]" :key="pageNumber" @click="goToPage(pageNumber)">
+            <button class="px-4 py-2 m-1 text-gray-700 bg-gray-200 border border-gray-300 rounded-md hover:bg-gray-300 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === 1 }" @click="goToPage(1)">1</button>
+            <span class="px-4 py-2 m-1 text-gray-700 bg-gray-200 border border-gray-300 rounded-md">...</span>
+            <button class="px-4 py-2 m-1 text-gray-700 bg-gray-200 border border-gray-300 rounded-md hover:bg-gray-300 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === currentPage }" v-for="pageNumber in [currentPage - 1, currentPage, currentPage + 1]" :key="pageNumber" @click="goToPage(pageNumber)">
               {{ pageNumber }}
             </button>
-            <span class="bg-gray-200 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1">...</span>
-            <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === totalPages() }" @click="goToPage(totalPages())">
+            <span class="px-4 py-2 m-1 text-gray-700 bg-gray-200 border border-gray-300 rounded-md">...</span>
+            <button class="px-4 py-2 m-1 text-gray-700 bg-gray-200 border border-gray-300 rounded-md hover:bg-gray-300 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === totalPages() }" @click="goToPage(totalPages())">
               {{ totalPages() }}
             </button>
           </template>
         </template>
-        <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-r-md px-4 py-2 m-1 focus:outline-none" :disabled="currentPage === totalPages()" @click="currentPage++">Next</button>
+        <button class="px-4 py-2 m-1 text-gray-700 bg-gray-200 border border-gray-300 hover:bg-gray-300 rounded-r-md focus:outline-none" :disabled="currentPage === totalPages()" @click="currentPage++">Next</button>
       </div>
     </div>
   </div>
 </template>
 
-<script setup>
-import { ref, reactive, onMounted, provide, computed } from "vue";
-import { useRouter, useRoute } from "vue-router";
-import IndicateurService from "@/services/modules/indicateur.service";
-import GroupeService from "@/services/modules/groupe.service";
-import ChoixService from "@/services/modules/choix.service";
 
-const router = useRouter();
-const route = useRoute();
-const showModal = ref(false);
-const deleteModalPreview = ref(false);
-const successNotification = ref();
-const groupe = ref("");
-const search = ref("");
-const indicateurs = ref([]);
-const groupes = ref([]);
-const deleteData = reactive({});
-const saveUpdate = reactive({});
-const chargement = ref(false);
-const isUpdate = ref(false);
-const currentPage = ref(1);
-const itemsPerPage = ref(10);
-const formData = reactive({
-  nom: "",
-  description: "",
-  critere_id: "",
-  multipleAns: Boolean,
-  outil: "",
-  typeAns: "",
-  poid: "",
-  choises: [],
-});
-
-const message = reactive({
-  type: "success",
-  message: "",
-});
-
-const choix = ref([]);
-const getChoix = function () {
-  ChoixService.get()
-    .then((data) => {
-      choix.value = data.data.data;
-    })
-    .catch((e) => {
-      // disabled()
-      alert(e);
-    });
-};
-
-const resultQuery = computed(() => {
-  if (search.value) {
-    return indicateurs.value.filter((item) => {
-      return (
-        search.value
-          .toLowerCase()
-          .split(" ")
-          .every((v) => item.nom.toLowerCase().includes(v)) ||
-        search.value
-          .toLowerCase()
-          .split(" ")
-          .every((v) => item.description.toString().toLowerCase().includes(v)) ||
-        search.value
-          .toLowerCase()
-          .split(" ")
-          .every((v) => item.created_at.toLowerCase().includes(v))
-      );
-    });
-  } else {
-    // return indicateurs.value;
-
-    const startIndex = (currentPage.value - 1) * itemsPerPage.value;
-    const endIndex = startIndex + itemsPerPage.value;
-    return indicateurs.value.slice(startIndex, endIndex);
-  }
-});
-
-onMounted(function () {
-  getData();
-  getChoix();
-});
-
-const getData = function () {
-  IndicateurService.get(route.params.id)
-    .then((data) => {
-      indicateurs.value = data.data.data;
-    })
-    .catch((e) => {
-      // disabled()
-      alert(e);
-    });
-};
-
-function close() {
-  formData.nom = "";
-  formData.description = "";
-  showModal.value = false;
-}
-
-provide("bind[successNotification]", (el) => {
-  // Binding
-  successNotification.value = el;
-});
-const successNotificationToggle = () => {
-  // Show notification
-  successNotification.value.showToast();
-};
-
-const addIndicateur = function () {
-  showModal.value = true;
-  isUpdate.value = false;
-};
-
-function totalPages() {
-  return Math.ceil(indicateurs.value.length / itemsPerPage.value);
-}
-
-const goToPage = (pageNumber) => {
-  if (pageNumber < 1 || pageNumber > totalPages()) {
-    return;
-  }
-  currentPage.value = pageNumber;
-};
-
-const storeIndicateur = function () {
-  if (chargement.value == false) {
-    chargement.value = true;
-    formData.critere_id = route.params.id;
-
-    console.log(formData);
-
-    IndicateurService.create(formData)
-      .then((data) => {
-        message.type = "success";
-        message.message = "Nouveaux indicateur créee";
-        successNotificationToggle();
-        close();
-        getData();
-        chargement.value = false;
-      })
-      .catch((error) => {
-        chargement.value = false;
-        if (error.response) {
-          // Requête effectuée mais le serveur a répondu par une erreur.
-          const erreurs = error.response.data.message;
-          message.type = "erreur";
-          message.message = erreurs;
-          successNotificationToggle();
-        } else if (error.request) {
-          // Demande effectuée mais aucune réponse n'est reçue du serveur.
-          //console.log(error.request);
-        } else {
-          // Une erreur s'est produite lors de la configuration de la demande
-          //console.log('dernier message', error.message);
-        }
-      });
-  }
-};
-
-const supprimer = function (index, data) {
-  deleteModalPreview.value = true;
-  deleteData.id = data.id;
-  deleteData.nom = data.nom;
-  deleteData.index = index;
-};
-const deleteIndicateur = function () {
-  deleteModalPreview.value = false;
-  indicateurs.value.splice(indicateurs.value.indexOf(deleteData.index), 1);
-  IndicateurService.destroy(deleteData.id)
-    .then((data) => {
-      message.type = "success";
-      message.message = "Operation éffectué avec success";
-      successNotificationToggle();
-      getData();
-    })
-    .catch((error) => {
-      if (error.response) {
-        // Requête effectuée mais le serveur a répondu par une erreur.
-        const erreurs = error.response.data.message;
-        message.type = "erreur";
-        message.message = erreurs;
-        successNotificationToggle();
-      } else if (error.request) {
-        // Demande effectuée mais aucune réponse n'est reçue du serveur.
-        //console.log(error.request);
-      } else {
-        // Une erreur s'est produite lors de la configuration de la demande
-      }
-    });
-};
-
-const modifier = function (index, data) {
-  console.log(data);
-
-  saveUpdate.nom = data.nom;
-  saveUpdate.description = data.description;
-  saveUpdate.id = data.id;
-  saveUpdate.groupeId = data.critere.id;
-  saveUpdate.critereNom = data.critere.nom;
-  showModal.value = true;
-  isUpdate.value = true;
-};
-const updateIndicateur = function () {
-  if (chargement.value == false) {
-    chargement.value = true;
-    const formData = {
-      nom: saveUpdate.nom,
-      description: saveUpdate.description,
-      groupeId: saveUpdate.groupeId,
-    };
-    IndicateurService.update(saveUpdate.id, formData)
-      .then((data) => {
-        chargement.value = false;
-        message.type = "success";
-        message.message = "Mise à jours éffectué avec succèss";
-        successNotificationToggle();
-        close();
-        getData();
-        this.getData();
-      })
-      .catch((error) => {
-        chargement.value = false;
-        if (error.response) {
-          // Requête effectuée mais le serveur a répondu par une erreur.
-          const erreurs = error.response.data.message;
-          message.type = "erreur";
-          message.message = erreurs;
-          successNotificationToggle();
-        } else if (error.request) {
-          // Demande effectuée mais aucune réponse n'est reçue du serveur.
-          //console.log(error.request);
-        } else {
-          // Une erreur s'est produite lors de la configuration de la demande
-          //console.log('dernier message', error.message);
-        }
-      });
-  }
-};
-const toBack = function () {
-  router.go(-1);
-};
-</script>
 
 <style lang="scss" scoped></style>

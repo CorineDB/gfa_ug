@@ -111,4 +111,4 @@ httpClient.interceptors.response.use(
   // responseErrorInterceptor
 );
 
-export { httpClient, determineContentType };
+export { httpClient , determineContentType };
