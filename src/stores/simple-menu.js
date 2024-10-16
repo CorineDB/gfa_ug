@@ -41,11 +41,11 @@ export const useSimpleMenuStore = defineStore("simpleMenu", {
         pageName: "Ongs",
         title: "Organisations",
       },
-      {
-        icon: "CpuIcon",
-        pageName: "pta",
-        title: "PTAB",
-      },
+      // {
+      //   icon: "CpuIcon",
+      //   pageName: "pta",
+      //   title: "PTAB",
+      // },
 
       {
         icon: "BarChart2Icon",

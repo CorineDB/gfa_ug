@@ -7,7 +7,7 @@ import ProgrammeService from "@/services/modules/programme.service.js";
 import BailleurService from "@/services/modules/bailleur.service";
 import { mapGetters, mapActions, mapMutations, mapState } from "vuex";
 import extractFormData from "@/utils/extract-data";
-import { advancedTable } from "../../constant/basic-tablle-data";
+//import { advancedTable } from "../../constant/basic-tablle-data";
 import xlsx from "xlsx";
 import Tabulator from "tabulator-tables";
 import InputForm from "@/components/news/InputForm.vue";
@@ -100,7 +100,6 @@ export default {
       programmeId: [],
       deleteData: {},
       deleteModal: false,
-      advancedTable,
       tabulator: null,
       filterField: "",
       filterType: "=",
@@ -355,6 +354,13 @@ export default {
       this.filterValue = "";
       this.updateFilter();
     },
+    voirPta(data) {
+      this.$router.push({ name: "pta", params: { ongId: data.id } });
+    },
+    printIcon(cell, formatterParams, onRendered) {
+      //plain text value
+      return "<i class='fa fa-print'></i>";
+    },
     initTabulator() {
       this.tabulator = new Tabulator("#tabulator", {
         data: this.ongs,
@@ -420,21 +426,25 @@ export default {
           {
             title: "Date de création",
             field: "created_at",
-            minWidth: 150,
+            minWidth: "200",
             hozAlign: "left",
           },
           {
             title: "Actions",
-            field: "actions",
+            minWidth: "400",
             formatter: function (cell, formatterParams) {
               return ` 
               <div class="flex items-center gap-3">
+                 <button class='btn-pta btn btn-pending'>
+                    voir pta
+                  </button>
                   <button class='btn-supprimer btn btn-danger'>
                     Supprimer
                   </button>
                    <button class='btn-modifier btn btn-primary'>
                     Modifier
                   </button>
+                 
                 </div>
                `;
             },
@@ -446,6 +456,8 @@ export default {
                 this.modifierOrganisation(rowData);
               } else if (e.target.classList.contains("btn-supprimer")) {
                 this.supprimer(rowData);
+              } else if (e.target.classList.contains("btn-pta")) {
+                this.voirPta(rowData);
               }
             },
           },
@@ -547,7 +559,7 @@ export default {
         this.updateOng({ ong: this.formData, id: this.ongsId })
           .then((response) => {
             if (response.status == 200 || response.status == 201) {
-              this.update =false
+              this.update = false;
               this.ajoutLoading = false;
               this.showModal = false;
               toast.success("Modification éffectuée");
@@ -625,13 +637,12 @@ export default {
     deleteOngs() {
       // this.ongs.splice(data.index, 1);
       // this.deleteModal = false;
-     
+
       this.isLoading = true;
       OngService.destroy(this.ongsId)
         .then((data) => {
-  
           this.isLoading = false;
-          this.showDeleteModal  = false
+          this.showDeleteModal = false;
           toast.success("Suppression  éffectuée avec succès");
           this.fetchOngs();
         })
@@ -642,7 +653,6 @@ export default {
             const message = error.response.data.message;
             this.isLoading = false;
             toast.success(message);
-         
           } else if (error.request) {
             // Demande effectuée mais aucune réponse n'est reçue du serveur.
             //console.log(error.request);
@@ -790,7 +800,6 @@ export default {
     </ModalBody>
     <ModalFooter>
       <div class="flex items-center justify-center">
-        
         <button type="button" @click="showModal = false" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
         <VButton class="inline-block" :label="labels" :loading="ajoutLoading" @click="sendForm" />
         <!-- <button type="button" class="w-20 btn btn-primary">Send</button> -->
@@ -800,11 +809,11 @@ export default {
   <div class="flex flex-col items-center mt-8 intro-y sm:flex-row">
     <h2 class="mr-auto text-lg font-medium">Organisation</h2>
     <div class="flex w-full mt-4 sm:w-auto sm:mt-0">
-      <button class="mr-2 shadow-md btn btn-primary" @click="showModal = true ,  labels = 'Ajouter' ">Ajouter une organisation</button>
+      <button class="mr-2 shadow-md btn btn-primary" @click="(showModal = true), (labels = 'Ajouter')">Ajouter une organisation</button>
     </div>
   </div>
   <!-- BEGIN: HTML Table Data -->
-  <div class="p-5 mt-5 intro-y box">
+  <div class="p-5 mt-5 intro-y box overflow-x-auto">
     <div class="flex flex-wrap flex-end _sm:items-end _xl:items-start">
       <div class="flex mt-5 sm:mt-0">
         <button id="tabulator-print" class="w-1/2 mr-2 btn btn-outline-secondary sm:w-auto" @click="onPrint"><PrinterIcon class="w-4 h-4 mr-2" /> PDF</button>
@@ -824,9 +833,10 @@ export default {
         </Dropdown>
       </div>
     </div>
-    <div class="overflow-x-auto scrollbar-hidden">
-      <div id="tabulator" ref="tableRef" class="mt-5 table-report table-report--tabulator"></div>
+    <div class="overflow-x-auto _scrollbar-hidden">
+      <div id="tabulator" ref="tableRef" class="mt-5 _table-report _table-report--tabulator overflow-x-auto"></div>
     </div>
   </div>
+
   <!-- END: HTML Table Data -->
 </template>

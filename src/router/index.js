@@ -25,9 +25,10 @@ import FormulaireFactuel from "../views/voter/formulaireFactuel.vue";
 import ToolsFactuel from "../views/dashboard/ToolsFactuel.vue";
 import ToolsPerception from "../views/dashboard/ToolsPerception.vue";
 import FicheFactuel from "../views/dashboard/FicheFactuel.vue";
-import pta from "../views/dashboard/pta/index.vue";
+import pta from "../views/dashboard/organisation/pta.vue";
 
-import Ong from "../views/dashboard/ong.vue";
+import Ong from "../views/dashboard/organisation/ong.vue";
+
 import FichePerception from "../views/dashboard/FichePerception.vue";
 import FicheSynthese from "../views/dashboard/FicheSynthese.vue";
 import DashboardGfa from "../views/dashboard/Dashboard.vue";
@@ -58,7 +59,7 @@ const routes = [
         component: DashboardGfa,
       },
       {
-        path: "ong",
+        path: "/organisation",
         name: "Ongs",
         component: Ong,
       },
@@ -116,7 +117,7 @@ const routes = [
         component: ToolsPerception,
       },
       {
-        path: "pta",
+        path: "pta/:ongId",
         name: "pta",
         component: pta,
       },

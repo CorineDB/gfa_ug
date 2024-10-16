@@ -46,12 +46,11 @@ export const useSideMenuStore = defineStore("sideMenu", {
         pageName: "Ongs",
         title: "Organisations",
       },
-      {
-        icon: "CpuIcon",
-        pageName: "pta",
-        title: "PTAB",
-      },
-
+      // {
+      //   icon: "CpuIcon",
+      //   pageName: "pta",
+      //   title: "PTAB",
+      // },
       {
         icon: "BarChart2Icon",
         pageName: "indicateursDeGouvernance",
