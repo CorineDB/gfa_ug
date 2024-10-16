@@ -78,11 +78,11 @@ export default {
     },
     supprimerComposant(data) {
       this.showDeleteModal = true;
-      this.composantsId = data.id;
+      this.sousComposantId = data.id;
     },
     deleteComposants() {
       this.deleteLoader = true;
-      ComposantesService.destroy(this.composantsId)
+      ComposantesService.destroy(this.sousComposantId)
         .then((data) => {
           this.deleteLoader = false;
           this.showDeleteModal = false;
@@ -112,7 +112,7 @@ export default {
     },
     sendForm() {
       if (this.update) {
-        this.formData.projetId = this.projetId
+        // this.formData.projetId = this.projetId
          this.isLoading = true;
         ComposantesService.update(this.sousComposantId, this.formData)
           .then((response) => {
@@ -123,13 +123,13 @@ export default {
               toast.success("Modification éffectuée");
               this.composantsId = this.formData.composanteId
               this.clearObjectValues(this.formData);
-              delete this.formData.projetId;
+              // delete this.formData.projetId;
               this.getListeProjet();
               //this.sendRequest = false;
             }
           })
           .catch((error) => {
-            delete this.formData.projetId;
+            // delete this.formData.projetId;
             this.isLoading = false;
             toast.error(error.message);
           });
@@ -163,7 +163,7 @@ export default {
             this.projetId = this.projets[0].id;
           }
 
-          //this.getProjetById(this.projetId);
+          this.getProjetById(this.projetId);
         })
         .catch((error) => {
           console.log(error);
@@ -176,7 +176,7 @@ export default {
           if (this.composantsId == "") {
             this.composantsId = this.composants[0].id;
           }
-          //this.getComposantById(this.composantsId);
+          this.getComposantById(this.composantsId);
         })
         .catch((error) => {
           console.log(error);

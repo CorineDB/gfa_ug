@@ -41,11 +41,11 @@ export const useSimpleMenuStore = defineStore("simpleMenu", {
         pageName: "Ongs",
         title: "Organisations",
       },
-      {
-        icon: "CpuIcon",
-        pageName: "pta",
-        title: "PTAB",
-      },
+      // {
+      //   icon: "CpuIcon",
+      //   pageName: "pta",
+      //   title: "PTAB",
+      // },
 
       {
         icon: "BarChart2Icon",
@@ -83,13 +83,13 @@ export const useSimpleMenuStore = defineStore("simpleMenu", {
       {
         icon: "SettingsIcon",
         pageName: "ToolsFactuel",
-        title: "Outil Factuel",
+        title: "Formulaire Factuel",
       },
 
       {
         icon: "SettingsIcon",
         pageName: "ToolsPerception",
-        title: "Outil de Perception",
+        title: "Formulaire de Perception",
       },
       {
         icon: "FileIcon",

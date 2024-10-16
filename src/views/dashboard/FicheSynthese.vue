@@ -1,357 +1,269 @@
 <script setup>
+import { onMounted, ref } from "vue";
+import SyntheseService from "@/services/modules/synthese.service";
+import { toast } from "vue3-toastify";
+import LoaderSnipper from "@/components/LoaderSnipper.vue";
+import { getColorForValue } from "../../utils/findColorIndicator";
+import { useRouter } from "vue-router";
 
+const router = useRouter();
+const organizationId = ref("R5P1oK0OP6DmWGvB21RNoeb9Xpgdwr7PNQ4zy0LAM8KnVZEJa5xlOjYkeWBv8aJy");
+const enqueteDeCollecteId = ref("EaPR3GQnP1z2YvMVZXEL0QorKA7BmkNLzWlnw9egqGOjbxJd3Ra68p4Dql46Yrj7");
+const selectStructureId = ref("");
+const datasCollection = ref({});
+const datasFactuel = ref([]);
+const datasPerception = ref([]);
+const structures = ref([]);
+const isLoadingData = ref(false);
 
+const getDataCollection = async () => {
+  isLoadingData.value = true;
+  await SyntheseService.get(enqueteDeCollecteId.value, organizationId.value)
+    .then((result) => {
+      datasCollection.value = result.data.data;
+      datasFactuel.value = datasCollection.value.analyse_factuel;
+      datasPerception.value = datasCollection.value.analyse_perception;
+      isLoadingData.value = false;
+    })
+    .catch((e) => {
+      isLoadingData.value = false;
+      console.error(e);
+      toast.error("Une erreur est survenue: Resultats des collections .");
+    });
+};
 
+const getStructure = async () => {
+  await SyntheseService.getOrganizations()
+    .then((result) => {
+      structures.value = result.data.data;
+    })
+    .catch((e) => {
+      console.error(e);
+      toast.error("Une erreur est survenue: Liste des structures .");
+    });
+};
+
+const changeStructure = () => {
+  organizationId.value = selectStructureId.value;
+  getDataCollection();
+};
+
+const findColor = () => {
+  switch (key) {
+    case value:
+      break;
+
+    default:
+      break;
+  }
+};
+
+onMounted(() => {
+  getDataCollection();
+  getStructure();
+});
 </script>
 
 <template>
   <!-- BEGIN: Boxed Tab -->
-  <PreviewComponent class="intro-y _box mt-5">
+  <PreviewComponent class="mt-5 intro-y _box">
     <Preview>
-      <TabGroup>
-        <TabList class="nav-boxed-tabs uppercase font-bold space-x-4">
+      <TabGroup :selectedIndex="1">
+        <TabList class="space-x-4 font-bold uppercase nav-boxed-tabs">
           <Tab class="w-full py-2 bg-white" tag="button">Outil Factuel</Tab>
           <Tab class="w-full py-2 bg-white" tag="button">Outil de Perception</Tab>
         </TabList>
         <TabPanels class="mt-5">
-
           <TabPanel class="leading-relaxed">
+            <div class="w-full p-4 font-bold text-center text-white bg-blue-900 rounded">FICHE SYNTHESE SCORE FACTUEL GOUVERNANCE</div>
 
-
-            <div class="w-full bg-blue-900 text-white text-center p-4 font-bold rounded">
-              FICHE SYNTHESE SCORE FACTUEL GOUVERNANCE
-            </div>
-
-            <table class="border-collapse table-fixed w-full text-sm mt-12">
+            <table class="w-full mt-12 text-sm border-collapse table-fixed">
               <tbody>
-                <tr class="border-b border-slate-300 bg-slate-300 rounded-sm">
-                  <td class="font-medium p-2">Structure :</td>
+                <tr class="border-b rounded-sm border-slate-300 bg-slate-300">
+                  <td class="p-2 font-medium">Structure :</td>
                   <td>
-                    <TomSelect v-model="select" :options="{
-                      placeholder: 'Sélectionner la structure',
-                    }" class="w-full">
-                      <option value="1">Leonardo DiCaprio</option>
-                      <option value="2">Johnny Deep</option>
-                      <option value="3">Robert Downey, Jr</option>
-                      <option value="4">Samuel L. Jackson</option>
-                      <option value="5">Morgan Freeman</option>
+                    <TomSelect
+                      v-model="selectStructureId"
+                      :options="{
+                        placeholder: 'Sélectionner la structure',
+                      }"
+                      class="w-full"
+                      @change="changeStructure"
+                    >
+                      <option v-for="(structure, index) in structures" :key="index" :value="structure.id">{{ structure.nom }}</option>
                     </TomSelect>
-                    <!-- <div class="">
-                      <TomSelect id="crud-form-2" v-model="categories" class="w-full" multiple>
-                        <option value="1">Sport & Outdoor</option>
-                        <option value="2">PC & Laptop</option>
-                        <option value="3">Smartphone & Tablet</option>
-                        <option value="4">Photography</option>
-                      </TomSelect>
-                    </div> -->
-                    <!-- <Dropdown class="md:ml-auto md:mt-0 w-full">
-                      <DropdownToggle class="btn btn-outline-secondary font-normal w-full text-left">
-                        {{ selectedIndicateur.name }}
-                        <ChevronDownIcon class="w-4 h-4 ml-2" />
-                      </DropdownToggle>
-                      <DropdownMenu class="w-40">
-                        <DropdownContent class="overflow-y-auto h-32">
-                          <DropdownItem v-for="(indicateurOfCampagne, index ) in indicateurOfCampagnes" :key="index"
-                            @click="choixIndicateur(indicateurOfCampagne)">
-                            {{
-                              indicateurOfCampagne.nom }}</DropdownItem>
-                        </DropdownContent>
-                      </DropdownMenu>
-                    </Dropdown> -->
                   </td>
                 </tr>
                 <tr class="border-b border-slate-300">
-                  <td class="font-medium p-2">Nom, Prénom et qualité du point focal Gouvernance :</td>
+                  <td class="p-2 font-medium">Nom, Prénom et qualité du point focal Gouvernance :</td>
                   <td>Lorem, ipsum dolor sit amet consectetur adipisicing elit.</td>
                 </tr>
                 <tr class="border-b border-slate-300">
-                  <td class="font-medium p-2">Date d’auto-évaluation :</td>
+                  <td class="p-2 font-medium">Date d’auto-évaluation :</td>
+                  <td>Lorem ipsum dolor sit.</td>
+                </tr>
+              </tbody>
+            </table>
+            <!-- Figure 3 : Grille de notation des indicateurs de la gouvernance politique -->
+            <table class="w-full my-12 border-collapse table-auto" cellpadding="0" cellspacing="0">
+              <thead class="text-left bg-blue-900">
+                <tr class="">
+                  <th class="p-2 text-center text-white">Principes</th>
+                  <th class="p-2 text-center text-white">Critères</th>
+                  <th class="p-2 text-center text-white">Indicateur</th>
+                  <th class="p-2 text-center text-white">Réponses (oui/non)</th>
+                  <th class="p-2 text-center text-white">Notes</th>
+                  <th class="p-2 text-center text-white">Source de vérification</th>
+                </tr>
+              </thead>
+
+              <tbody class="text-black bg-white">
+                <tr class="my-4 bg-blue-600 border-white border-y-8">
+                  <td colspan="4" class="p-2 text-center">Indice factuel de gouvernace</td>
+                  <td class="p-2 text-center">2</td>
+                  <td></td>
+                </tr>
+                <tr class="bg-red-400">
+                  <td rowspan="13" class="p-2 text-start">Redevabilité</td>
+                  <td rowspan="4" class="p-2 text-center">Legitimité</td>
+                  <td class="p-2 text-center">yy</td>
+                  <td class="p-2 text-center">yy</td>
+                  <td class="p-2 text-center">yy</td>
+                  <td class="p-2 text-center">yy</td>
+                </tr>
+                <tr>
+                  <td class="p-2 text-center">Roles et responsabilité reizuz zeuizhiu</td>
+                  <td class="p-2 text-center">Oui</td>
+                  <td class="p-2 text-center">10</td>
+                  <td class="p-2 text-center">source</td>
+                </tr>
+                <tr>
+                  <td class="p-2 text-center">Roles et responsabilité 2</td>
+                  <td class="p-2 text-center">Oui</td>
+                  <td class="p-2 text-center">10</td>
+                  <td class="p-2 text-center">source</td>
+                </tr>
+                <tr>
+                  <td class="p-2 text-center">Roles et responsabilité reizuz zeuizhiu</td>
+                  <td class="p-2 text-center">Oui</td>
+                  <td class="p-2 text-center">10</td>
+                  <td class="p-2 text-center">Dernier 1</td>
+                </tr>
+                <tr>
+                  <td colspan="3" class="p-2 text-right">Roles et responsabilité reizuz zeuizhiu</td>
+                  <td class="p-2 text-center">Oui</td>
+                  <td class="p-2 text-center"></td>
+                </tr>
+                <!-- Rows 2 -->
+              </tbody>
+            </table>
+          </TabPanel>
+          <!-- tab 2 -->
+          <TabPanel class="leading-relaxed">
+            <!-- Figure 8 : grille de notation et de détermination de la moyenne pondérée des questions opérationnelles -->
+
+            <table class="w-full mt-12 text-sm border-collapse table-fixed">
+              <tbody class="text-black bg-green-400">
+                <tr class="border-b rounded-sm border-slate-300 bg-slate-300">
+                  <td class="p-2 font-medium">Structure :</td>
+                  <td>
+                    <TomSelect
+                      v-model="selectStructureId"
+                      :options="{
+                        placeholder: 'Sélectionner la structure',
+                      }"
+                      class="w-full"
+                      @change="changeStructure"
+                    >
+                      <option v-for="(structure, index) in structures" :key="index" :value="structure.id">{{ structure.nom }}</option>
+                    </TomSelect>
+                  </td>
+                </tr>
+                <tr class="border-b border-slate-300">
+                  <td class="p-2 font-medium">Nom, Prénom et qualité du point focal Gouvernance :</td>
+                  <td>Lorem, ipsum dolor sit amet consectetur adipisicing elit.</td>
+                </tr>
+                <tr class="border-b border-slate-300">
+                  <td class="p-2 font-medium">Date d’auto-évaluation :</td>
                   <td>Lorem ipsum dolor sit.</td>
                 </tr>
               </tbody>
             </table>
 
-            <table class="border-collapse table-auto w-full text-sm mt-12">
-              <thead class="bg-green-200 text-left">
-                <th class="pl-2">Principe</th>
-                <th>Indice Factuel</th>
+            <table v-if="!isLoadingData" class="w-full my-12 border border-collapse table-auto border-slate-500" cellpadding="0" cellspacing="0">
+              <thead class="text-left bg-gray-400">
+                <tr class="border-b-8 border-white" :style="{ 'background-color': getColorForValue(datasPerception.indice_de_perception) }">
+                  <td colspan="2" class="p-2 text-center">Indice factuel de gouvernace</td>
+                  <td class="p-2 text-center">{{ datasPerception.indice_de_perception }}</td>
+                </tr>
+                <tr class="text-black">
+                  <th class="p-2 text-center border border-slate-600">Principes</th>
+                  <th class="p-2 text-center border border-slate-600">Questions opérationnelles</th>
+                  <th class="p-2 text-center border border-slate-600">Score</th>
+                </tr>
               </thead>
-              <tbody>
-                <tr class="border-b border-slate-300">
-                  <td class="font-medium p-2">Redevabilité</td>
-                  <td>0.56</td>
+
+              <tbody v-for="(principe, index) in datasPerception.fiche_de_synthese_de_perception" :key="principe.id" class="text-black" :style="{ 'background-color': getColorForValue(principe.indice_de_perception) }">
+                <tr v-if="principe.indicateurs_de_gouvernance.length > 0">
+                  <td :rowspan="principe.indicateurs_de_gouvernance.length + 1" class="p-2 border border-slate-600 text-start">{{ principe.nom }}</td>
+                  <td class="p-2 text-center border border-slate-600">{{ principe.indicateurs_de_gouvernance[0].nom }}</td>
+                  <td class="p-2 text-center border border-slate-600">{{ principe.indicateurs_de_gouvernance[0].moyPQO }}</td>
                 </tr>
-                <tr class="border-b border-slate-300">
-                  <td class="font-medium p-2">Transparence</td>
-                  <td>0.56</td>
+                <tr v-for="(indicateur, index) in principe.indicateurs_de_gouvernance.slice(1)" :key="indicateur.id" :style="{ 'background-color': getColorForValue(indicateur.moyPQO) }">
+                  <td class="p-2 text-center border border-slate-600">{{ indicateur.nom }}</td>
+                  <td class="p-2 text-center border border-slate-600">{{ indicateur.moyPQO }}</td>
                 </tr>
-                <tr class="border-b border-slate-300">
-                  <td class="font-medium p-2">Participation</td>
-                  <td>0.56</td>
-                </tr>
-                <tr class="border-b border-slate-300">
-                  <td class="font-medium p-2">Egalité et non-discrimination / inclusion</td>
-                  <td>0.56</td>
-                </tr>
-                <tr class="border-b border-slate-300">
-                  <td class="font-medium p-2">Efficacité et efficience</td>
-                  <td>0.56</td>
+                <tr class="text-black" v-if="principe.indicateurs_de_gouvernance.length > 0">
+                  <td class="p-2 text-center border border-slate-600">Indice de perception du principe</td>
+                  <td class="p-2 text-center border border-slate-600">{{ principe.indice_de_perception }}</td>
                 </tr>
               </tbody>
             </table>
+            <LoaderSnipper v-else />
+            <!-- <h2 class="py-4 mr-5 text-lg font-medium">Indice de Gouvernace</h2>
 
-
-            <!-- Figure 3 : Grille de notation des indicateurs de la gouvernance politique -->
-            <table class="w-full table-auto border-collapse my-12" cellpadding="0" cellspacing="0">
-              <thead class="bg-blue-900 text-left">
-                <tr class="">
-                  <th class="p-2 my-2 bg-yellow-300" _colspan="5">Indice factuel de Gouvernance politique (IFGP)</th>
-                  <th class="p-2 bg-yellow-300 text-center">0.59</th>
-                </tr>
-                <!-- <tr class=" bg-slate-200 border-t-8 border-white">
-                  <th class="p-2 my-2" _colspan="5">Score Factuel Redevabilité</th>
-                  <th class="p-2 text-center">0.59</th>
-                </tr> -->
-              </thead>
-
-              <tbody class=" bg-white">
-                <tr class=" bg-slate-200 border-t-8 border-white font-bold">
-                  <td class="p-2">Score Factuel Redevabilité</td>
-                  <td class="p-2 text-center">0.59</td>
-                </tr>
-                <tr class="border-l-2">
-                  <td class="px-4 py-1">Rôles et responsabilité clairement définis</td>
-                  <!-- <td class="p-2 text-center">10</td> -->
-                </tr>
-                <tr class="border-l-2">
-                  <td class="px-4 py-1 ">Organes statutaires fonctionnels</td>
-                  <!-- <td class="p-2 text-center">15</td> -->
-                </tr>
-                <tr class="border-l-2">
-                  <td class="px-4 py-1">Existence de statuts et règlement intérieur</td>
-                  <!-- <td class="p-2 text-center">6</td> -->
-                </tr>
-                <tr class="border-l-2">
-                  <td class="px-4 py-1">Rédaction et validation des rapports d’activités</td>
-                  <!-- <td class="p-2 text-center">6</td> -->
-                </tr>
-
-                <!-- row 2 -->
-                <tr class=" bg-slate-200 border-t-8 border-white font-bold">
-                  <td class="p-2">Score Factuel Transparence</td>
-                  <td class="p-2 text-center">0.59</td>
-                </tr>
-                <tr class="border-l-2">
-                  <td class="px-4 py-1">Informations accessibles</td>
-                  <!-- <td class="p-2 text-center">10</td> -->
-                </tr>
-                <tr class="border-l-2">
-                  <td class="px-4 py-1 ">Rapports publiés</td>
-                  <!-- <td class="p-2 text-center">15</td> -->
-                </tr>
-                <tr class="border-l-2">
-                  <td class="px-4 py-1">Procédures de prise de décision formalisées</td>
-                  <!-- <td class="p-2 text-center">6</td> -->
-                </tr>
-                <tr class="border-l-2">
-                  <td class="px-4 py-1">Procédures de prise de décision respectées</td>
-                  <!-- <td class="p-2 text-center">6</td> -->
-                </tr>
-              </tbody>
-            </table>
-
-            <!-- <table class="w-full table-auto border-collapse mt-12" border="0" cellpadding="0" cellspacing="0">
-              <thead class="bg-blue-900 text-left">
-                <tr>
-                  <th scope="col" class="p-2 text-white">Principes</th>
-                  <th scope="col" class="p-2 text-white">Critères</th>
-                  <th scope="col" class="w-full p-2 text-white">Indicateurs</th>
-                  <th scope="col" class="p-2 text-white whitespace-nowrap">Réponse <br>(Oui / Non)</th>
-                  <th scope="col" class="p-2 text-white">Note</th>
-                  <th scope="col" class="p-2 text-white whitespace-nowrap">Sources de vérification</th>
-                </tr>
-                <tr class="bg-white border-t-8 border-white">
-                  <th class="p-2 my-2 bg-yellow-300 text-center" colspan="5">INDICE FACTUEL DE GOUVERNANCE</th>
-                  <th class="p-2 bg-yellow-300 text-center">0.59</th>
-                </tr>
-                <tr class="bg-white border-t-8 border-white">
-                  <th class="p-2 my-2 bg-yellow-300" colspan="5">Gouvernance politique</th>
-                  <th class="p-2 bg-yellow-300 text-center">0.59</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                <tr>
-                  <td class="p-2 font-bold bg-yellow-500" rowspan="5">Redevabilité</td>
-                  <td class="p-2 bg-yellow-500" rowspan="4">Légitimité/légalité</td>
-                  <td class="p-2 bg-green-600">Rôles et responsabilité clairement définis</td>
-                  <td class="p-2 bg-green-600 text-center">1</td>
-                  <td class="p-2 bg-green-600">10</td>
-                </tr>
-                <tr class="bg-red-600 text-white">
-                  <td class="p-2 ">Organes statutaires fonctionnels</td>
-                  <td class="p-2 text-center">2</td>
-                  <td class="p-2">15</td>
-                </tr>
-                <tr class="bg-yellow-500">
-                  <td class="p-2">Existence de statuts et règlement intérieur</td>
-                  <td class="p-2 text-center">3</td>
-                  <td class="p-2">6</td>
-                </tr>
-                <tr class="bg-green-500">
-                  <td class="p-2">Rédaction et validation des rapports d’activités</td>
-                  <td class="p-2 text-center">3</td>
-                  <td class="p-2">6</td>
-                </tr>
-                <tr class=" bg-yellow-500 font-bold">
-                  <td colspan="2" class="px-2"></td>
-                  <td class="px-2 text-xs whitespace-nowrap">Score Factuel</td>
-                  <td class="px-2">0.43</td>
-                </tr>
-
-              </tbody>
-            </table> -->
-
-          </TabPanel>
-          <!-- tab 2 -->
-          <TabPanel class="leading-relaxed">
-
-            <!-- Figure 8 : grille de notation et de détermination de la moyenne pondérée des questions opérationnelles -->
-            <table class="w-full table-auto border-collapse mb-12" cellpadding="0" cellspacing="0">
-              <thead class="bg-blue-900 text-left">
-                <tr class="">
-                  <th class="p-2 my-2 bg-blue-900 text-center text-white" colspan="12">Pondérations</th>
-                </tr>
-                <tr class="bg-blue-900 text-white border-t-2 border-white">
-                  <th class="p-2 my-2 text-center" rowspan="2">Questions opérationnelles</th>
-                  <th class="p-2 my-2 text-center" colspan="2">Pas du tout</th>
-                  <th class="p-2 my-2 text-center" colspan="2">Faiblement</th>
-                  <th class="p-2 my-2 text-center" colspan="2">Moyennement</th>
-                  <th class="p-2 my-2 text-center" colspan="2">Dans une grande mesure</th>
-                  <th class="p-2 my-2 text-center" colspan="2">Totalement</th>
-                  <th class="p-2 my-2 text-center" rowspan="2">Moyenne pondérée</th>
-                </tr>
-                <tr class="bg-blue-900 text-white border-t border-white">
-                  <th class="p-2 text-center">Note(a)</th>
-                  <th class="p-2 my-2" _colspan="5">Nbre de reponses (a')</th>
-                  <th class="p-2 text-center">Note(b)</th>
-                  <th class="p-2 my-2" _colspan="5">Nbre de reponses (b')</th>
-                  <th class="p-2 text-center">Note(c)</th>
-                  <th class="p-2 my-2" _colspan="5">Nbre de reponses (c')</th>
-                  <th class="p-2 text-center">Note(d)</th>
-                  <th class="p-2 my-2" _colspan="5">Nbre de reponses (d')</th>
-                  <th class="p-2 text-center">Note(e)</th>
-                  <th class="p-2 my-2" _colspan="5">Nbre de reponses (e')</th>
-                </tr>
-                <tr class="bg-red-600 text-white border-t border-white">
-                  <th class="p-2 text-center" colspan="11">Moyenne pondérée</th>
-                  <th class="p-2 text-center">0.76</th>
-                </tr>
-              </thead>
-
-              <tbody class=" bg-white">
-                <tr class=" bg-blue-200 border-t-8 border-white font-bold">
-                  <td class="px-2 " colspan="12">Redevabilité</td>
-                </tr>
-                <tr class="border-l-2 border-b pb-2">
-                  <td class="px-4 py-1">Rôles et responsabilité clairement définis</td>
-                  <td class="p-2 text-center border-l">10</td>
-                  <td class="p-2 text-center border-l">10</td>
-                  <td class="p-2 text-center border-l">10</td>
-                  <td class="p-2 text-center border-l">10</td>
-                  <td class="p-2 text-center border-l">10</td>
-                  <td class="p-2 text-center border-l">10</td>
-                  <td class="p-2 text-center border-l">10</td>
-                  <td class="p-2 text-center border-l">10</td>
-                  <td class="p-2 text-center border-l">10</td>
-                  <td class="p-2 text-center border-l">10</td>
-                  <td class="p-2 text-center border-l">10</td>
-                </tr>
-
-                <!-- row 2 -->
-                <tr class="border-l-2 border-b">
-                  <td class="px-4 py-1">Les différentes instances de prise de décision de l’organisation jouent pleinement
-                    leur rôle</td>
-                  <td class="p-2 text-center border-l">10</td>
-                  <td class="p-2 text-center border-l">10</td>
-                  <td class="p-2 text-center border-l">10</td>
-                  <td class="p-2 text-center border-l">10</td>
-                  <td class="p-2 text-center border-l">10</td>
-                  <td class="p-2 text-center border-l">10</td>
-                  <td class="p-2 text-center border-l">10</td>
-                  <td class="p-2 text-center border-l">10</td>
-                  <td class="p-2 text-center border-l">10</td>
-                  <td class="p-2 text-center border-l">10</td>
-                  <td class="p-2 text-center border-l">10</td>
-                </tr>
-                <!-- row 3 -->
-                <tr class="border-l-2">
-                  <td class="px-4 py-1">Les différentes instances de prise de décision de l’organisation jouent pleinement
-                    leur rôle</td>
-                  <td class="p-2 text-center border-l">10</td>
-                  <td class="p-2 text-center border-l">10</td>
-                  <td class="p-2 text-center border-l">10</td>
-                  <td class="p-2 text-center border-l">10</td>
-                  <td class="p-2 text-center border-l">10</td>
-                  <td class="p-2 text-center border-l">10</td>
-                  <td class="p-2 text-center border-l">10</td>
-                  <td class="p-2 text-center border-l">10</td>
-                  <td class="p-2 text-center border-l">10</td>
-                  <td class="p-2 text-center border-l">10</td>
-                  <td class="p-2 text-center border-l">10</td>
-                </tr>
-
-              </tbody>
-            </table>
-
-            <h2 class="text-lg font-medium mr-5 py-4">Indice de Gouvernace</h2>
-
-            <table class="w-full table-auto border-collapse mb-12" cellpadding="0" cellspacing="0">
-              <thead class="bg-blue-900 text-left">
-                <tr class="bg-slate-600 text-white border-t border-white">
+            <table class="w-full mb-12 border-collapse table-auto" cellpadding="0" cellspacing="0">
+              <thead class="text-left bg-blue-900">
+                <tr class="text-white border-t border-white bg-slate-600">
                   <th class="p-2 text-left" _colspan="11">Principes</th>
                   <th class="p-2 text-center">Indice de Perception</th>
                   <th class="p-2 text-center">Indice Synthétique</th>
                 </tr>
               </thead>
 
-              <tbody class=" bg-white">
-                <tr class=" bg-blue-900 text-white border-t-8 border-white font-bold">
-                  <td class="px-2 " colspan="12">Gouvernance politique</td>
+              <tbody class="bg-white">
+                <tr class="font-bold text-white bg-blue-900 border-t-8 border-white">
+                  <td class="px-2" colspan="12">Gouvernance politique</td>
                 </tr>
-                <tr class="border-l-2 border-b pb-2">
-                  <td class="px-4 py-1 bg-sky-500 font-medium">Redevabilité</td>
+                <tr class="pb-2 border-b border-l-2">
+                  <td class="px-4 py-1 font-medium bg-sky-500">Redevabilité</td>
                   <td class="p-2 text-center">0.8</td>
                   <td class="p-2 text-center">0.15</td>
                 </tr>
 
-                <tr class="border-l-2 border-b pb-2">
-                  <td class="px-4 py-1 bg-sky-500 font-medium">Transparence</td>
+                <tr class="pb-2 border-b border-l-2">
+                  <td class="px-4 py-1 font-medium bg-sky-500">Transparence</td>
                   <td class="p-2 text-center">0.8</td>
                   <td class="p-2 text-center">0.15</td>
                 </tr>
 
-                <tr class="border-l-2 border-b pb-2">
-                  <td class="px-4 py-1 bg-sky-500 font-medium">Participation</td>
+                <tr class="pb-2 border-b border-l-2">
+                  <td class="px-4 py-1 font-medium bg-sky-500">Participation</td>
                   <td class="p-2 text-center">0.8</td>
                   <td class="p-2 text-center">0.15</td>
                 </tr>
 
-                <tr class="border-l-2 border-b pb-2">
-                  <td class="px-4 py-1 bg-sky-500 font-medium">Egalité et non-discrimination / inclusion</td>
+                <tr class="pb-2 border-b border-l-2">
+                  <td class="px-4 py-1 font-medium bg-sky-500">Egalité et non-discrimination / inclusion</td>
                   <td class="p-2 text-center">0.8</td>
                   <td class="p-2 text-center">0.15</td>
                 </tr>
               </tbody>
-            </table>
-
-
-
+            </table> -->
           </TabPanel>
         </TabPanels>
       </TabGroup>
     </Preview>
-
   </PreviewComponent>
   <!-- END: Boxed Tab -->
 </template>

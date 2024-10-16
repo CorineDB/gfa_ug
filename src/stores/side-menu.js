@@ -46,12 +46,11 @@ export const useSideMenuStore = defineStore("sideMenu", {
         pageName: "Ongs",
         title: "Organisations",
       },
-      {
-        icon: "CpuIcon",
-        pageName: "pta",
-        title: "PTAB",
-      },
-
+      // {
+      //   icon: "CpuIcon",
+      //   pageName: "pta",
+      //   title: "PTAB",
+      // },
       {
         icon: "BarChart2Icon",
         pageName: "indicateursDeGouvernance",
@@ -78,33 +77,32 @@ export const useSideMenuStore = defineStore("sideMenu", {
             title: "Criteres de Gouvernance",
           },
           {
-            icon: "FolderKanbanIcon",
-            pageName: "Programmation_enquete",
-            title: "Programmation d'enquête",
+            icon: "SettingsIcon",
+            pageName: "ToolsFactuel",
+            title: "Formulaire Factuel",
+          },
+
+          {
+            icon: "SettingsIcon",
+            pageName: "ToolsPerception",
+            title: "Formulaire de Perception",
           },
         ],
       },
-
       {
-        icon: "FileIcon",
-        pageName: "FormFactuel",
-        title: "Formulaire Factuel",
+        icon: "BarChart2Icon",
+        pageName: "Programmation_enquete",
+        title: " Enquête & résulats",
       },
+      // {
+      //   icon: "FileIcon",
+      //   pageName: "FicheSynthese",
+      //   title: "Fiche de Synthèse",
+      // },
       {
-        icon: "SettingsIcon",
-        pageName: "ToolsFactuel",
-        title: "Outil Factuel",
-      },
-
-      {
-        icon: "SettingsIcon",
-        pageName: "ToolsPerception",
-        title: "Outil de Perception",
-      },
-      {
-        icon: "FileIcon",
-        pageName: "FicheSynthese",
-        title: "Fiche de Synthèse",
+        icon: "BarChart2Icon",
+        pageName: "EnqueteIndividuel",
+        title: "Enquête individuelle",
       },
 
       {

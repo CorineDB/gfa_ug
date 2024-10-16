@@ -1,14 +1,6 @@
  const API_BASE_URL = "http://mybsd.shop"
 
-//const API_BASE_URL = "http://192.168.1.14:8000";
 
-// const API_BASE_URL = "https://se-papc.sirat.bj:8001";
-
-//const API_BASE_URL = "http://192.168.1.10:8000";
-
-//const API_BASE_URL = "http://192.168.1.14:8000";
-// const STAGGING_URL = "https://mybsd.shop:8000/"
-//d
 
 const DEPLOYMENT_URL = "https://mybsd.shop/";
 
