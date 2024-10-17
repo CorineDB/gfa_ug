@@ -52,15 +52,15 @@ const initTabulator = () => {
         field: "nom",
       },
       {
-        title: "Submitted by",
-        field: "nom",
-      },
-      {
         title: "Statut",
         field: "levelOfSubmission",
         formatter: (cell) => {
           return getStatusText(cell.getData().levelOfSubmission);
         },
+      },
+      {
+        title: "Submitted by",
+        field: "submitted_at",
       },
       {
         title: "Actions",
@@ -85,11 +85,16 @@ const initTabulator = () => {
               container.append(modifyButton);
             }
             else{
-              const modifyButton = createButton("Consulter Resultats", "btn btn-primary", () => {
+              const resultatButton = createButton("Consulter Resultats", "btn btn-primary", () => {
                 viewResultats(datas.value.id, cell.getData().id);
               });
 
-              container.append(modifyButton);
+              container.append(resultatButton);
+              const syntheseButton = createButton("Voir synthese", "btn btn-primary", () => {
+                viewSyntheses(datas.value.id, cell.getData().id);
+              });
+
+              container.append(syntheseButton);
             }
 
             return container;
@@ -150,11 +155,11 @@ const deleteData = async () => {
 
 
 const getStatusText = (param) => {
-  if(param>0){
-    return "En cours";
-  }
-  else if(param===100){
+  if(param===100){
     return "Soumis";
+  }
+  else if(param>0){
+    return "En cours";
   }
   else if(param===0){
     return "Non demarré";
@@ -179,19 +184,12 @@ const handleEdit = (params) => {
   router.push({ name: "ToolsFactuel", query: { enqueteId: route.params.id }  });
 };
 
-
 const viewResultats = (organisationId) => {
-  /*console.log(params);
-
-  isCreate.value = false;
-  idSelect.value = params.id;
-  payload.nom = params.nom;
-  payload.description = params.description;
-  payload.objectif = params.objectif;
-  payload.debut = params.debut;
-  payload.fin = params.fin;
-  showModalCreate.value = true;*/
   router.push({ name: "resultat_collecte", query: { enqueteId: route.params.id, organisationId: organisationId }  });
+};
+
+const viewSyntheses = (organisationId) => {
+  router.push({ name: "FicheSynthese", query: { enqueteId: route.params.id, organisationId: organisationId }  });
 };
 
 const handleDelete = (params) => {
@@ -210,9 +208,15 @@ const resetForm = () => {
   payload.fin = "";
   showModalCreate.value = false;
 };
-const openCreateModal = () => {
+const openFactuelModal = () => {
 
   router.push({ name: "ToolsFactuel"  });
+  //showModalCreate.value = isCreate.value = true;
+};
+
+const openPerceptionModal = () => {
+
+  router.push({ name: "ToolsPerception"  });
   //showModalCreate.value = isCreate.value = true;
 };
 
@@ -234,7 +238,9 @@ onMounted(() => {
         </div>
       </div>
       <div class="flex">
-        <button class="mr-2 shadow-md btn btn-primary" @click="openCreateModal"><PlusIcon class="w-4 h-4 mr-3" />Remplir formulaire</button>
+        <button class="mr-2 shadow-md btn btn-primary" @click="openFactuelModal"><PlusIcon class="w-4 h-4 mr-3" />Remplir formulaire Factuel</button>
+
+        <button class="mr-2 shadow-md btn btn-primary" @click="openPerceptionModal"><PlusIcon class="w-4 h-4 mr-3" />Remplir formulaire de perception</button>
       </div>
     </div>
   </div>
