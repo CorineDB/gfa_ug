@@ -40,6 +40,23 @@ export const useSideMenuStore = defineStore("sideMenu", {
           },
         ],
       },
+      {
+        icon: "FolderIcon",
+        // pageName: "projets",
+        title: "Indicateurs et Suivis",
+        subMenu: [
+          {
+            icon: "FolderIcon",
+            pageName: "Indicateurs",
+            title: "Indicateurs",
+          },
+          {
+            icon: "CpuIcon",
+            pageName: "SuiviIndicateurs",
+            title: "Suivi Indicateurs",
+          },
+        ],
+      },
 
       {
         icon: "CpuIcon",

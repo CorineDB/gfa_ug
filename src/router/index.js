@@ -33,6 +33,7 @@ import FichePerception from "../views/dashboard/FichePerception.vue";
 import FicheSynthese from "../views/dashboard/FicheSynthese.vue";
 import DashboardGfa from "../views/dashboard/Dashboard.vue";
 import indicateurs from "../views/dashboard/indicateurs/index.vue";
+import SuiviIndicateurs from "../views/dashboard/indicateurs/suivi.vue";
 
 import typeGouvernance from "../views/dashboard/type_gouvernance/index.vue";
 import Programmation_enquete from "../views/dashboard/programmation_enquete/index.vue";
@@ -41,7 +42,6 @@ import OptionReponse from "@/views/dashboard/OptionReponse.vue";
 import UniteDeMesure from "@/views/dashboard/uniteDeMesure.vue";
 import KeyValue from "@/views/dashboard/keyValue.vue";
 import CategorieIndicateurs from "@/views/dashboard/categoriesIndicateurs.vue";
-
 
 //Projet/Outcomes/Activité/Taches
 import dashboard_projets_composantes_globale from "../views/dashboard/projets/composantes-globale/index.vue";
@@ -231,10 +231,20 @@ const routes = [
         name: "EnqueteIndividuel",
         component: EnqueteIndividuel,
       },
+      // {
+      //   path: "gouvernance/:id/principe/:idp/critere/:idc/indicateur",
+      //   name: "Indicateurs",
+      //   component: indicateurs,
+      // },
       {
-        path: "gouvernance/:id/principe/:idp/critere/:idc/indicateur",
+        path: "indicateurs",
         name: "Indicateurs",
         component: indicateurs,
+      },
+      {
+        path: "suiviIndicateurs",
+        name: "SuiviIndicateurs",
+        component: SuiviIndicateurs,
       },
     ],
   },
