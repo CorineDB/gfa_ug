@@ -11,7 +11,9 @@ import { toast } from "vue3-toastify";
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
 import UniteeDeMesureService from "@/services/modules/unitee.mesure.service";
 import SiteService from "@/services/modules/site.service";
-
+import { useRouter, useRoute } from "vue-router";
+const router = useRouter();
+const route = useRoute();
 const payload = reactive({
   nom: "",
   description: "",
@@ -57,9 +59,10 @@ const years = computed(() => {
 });
 
 const cleChoisie = computed(() => {
+  let element = {};
   if (payload.value_keys.length > 0) {
     payload.value_keys.forEach((item) => {
-      console.log(keyIndicateursDatas.values.filter((key) => key.id === item)[0]);
+      console.log(keyIndicateursDatas.value.filter((key) => key.id === item)[0]).libelle;
     });
   }
 });
@@ -214,6 +217,7 @@ const initTabulator = () => {
       {
         title: "Actions",
         field: "actions",
+        minWidth: "400",
         formatter: (cell) => {
           const container = document.createElement("div");
           container.className = "flex items-center justify-center gap-3";
@@ -234,7 +238,11 @@ const initTabulator = () => {
             handleDelete(cell.getData());
           });
 
-          container.append(modifyButton, deleteButton);
+          const suiviButton = createButton("Voir le suivi", "btn btn-pending", () => {
+            showSuivi(cell.getData());
+          });
+
+          container.append(modifyButton, deleteButton, suiviButton);
 
           return container;
         },
@@ -250,6 +258,9 @@ const handleEdit = (params) => {
   payload.note = params.note;
   // payload.programmeId = params.programmeId;
   showModalCreate.value = true;
+};
+const showSuivi = (params) => {
+  router.push({ name: "indicateurs_suivi_details", params: { id: params.id } });
 };
 const handleDelete = (params) => {
   idSelect.value = params.id;
@@ -297,6 +308,8 @@ onMounted(() => {
       </div>
     </div>
   </div>
+
+  <pre>{{ cleChoisie }}</pre>
 
   <div class="p-5 mt-5 intro-y box">
     <div class="flex flex-col sm:flex-row sm:items-end xl:items-start">

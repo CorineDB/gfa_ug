@@ -1,1 +1,1 @@
-getCleIndicateursDatas  keyIndicateursDatas uniteDeMesureDatas getUniteMesureDatas siteDatas getSiteDatas
+getCleIndicateursDatas  keyIndicateursDatas uniteDeMesureDatas getUniteMesureDatas router.push getSiteDatas

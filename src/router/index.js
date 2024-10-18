@@ -27,6 +27,7 @@ import ToolsPerception from "../views/dashboard/ToolsPerception.vue";
 import FicheFactuel from "../views/dashboard/FicheFactuel.vue";
 import pta from "../views/dashboard/organisation/pta.vue";
 
+
 import Ong from "../views/dashboard/organisation/ong.vue";
 import audit from "../views/dashboard/audit/index.vue";
 
@@ -48,6 +49,8 @@ import CategorieIndicateurs from "@/views/dashboard/categoriesIndicateurs.vue";
 import Sites from "@/views/dashboard/sites.vue";
 import TypeResultat from "@/views/dashboard/typeResultat.vue";
 import finances_suivi from "../views/dashboard/finances/suivi.vue";
+import indicateurs_suivi_details from "../views/dashboard/indicateurs/_id/suivi.vue";
+
 
 
 //Projet/Outcomes/Activité/Taches
@@ -130,6 +133,12 @@ const routes = [
         component: audit,
       },
       {
+        path: "indicateurs/:id/suivi",
+        component: indicateurs_suivi_details,
+        
+        name: "indicateurs_suivi_details",
+      },
+      {
         path: "rapport",
         name: "rapport",
         component: rapport,
@@ -137,7 +146,7 @@ const routes = [
       {
         path: "/dashboard/finances/suivi",
         component: finances_suivi,
-        
+
         name: "finances_suivi",
       },
 

@@ -42,8 +42,39 @@ export const useSideMenuStore = defineStore("sideMenu", {
       },
       {
         icon: "FolderIcon",
-        pageName: "Indicateurs",
         title: "Cadre Mesure Rendement",
+        subMenu: [
+          {
+            icon: "BarChart2Icon",
+            pageName: "Indicateurs",
+            title: "Indicateurs",
+          },
+          {
+            icon: "BarChart2Icon",
+            pageName: "UniteDeMesure",
+            title: "Unité de Mesure",
+          },
+          {
+            icon: "BarChart2Icon",
+            pageName: "KeyValue",
+            title: "Clé Valeur Indicateur",
+          },
+          {
+            icon: "BarChart2Icon",
+            pageName: "CategoriesIndicateurs",
+            title: "Catégories d'indicateurs",
+          },
+          {
+            icon: "BarChart2Icon",
+            pageName: "Sites",
+            title: "Sites",
+          },
+          {
+            icon: "BarChart2Icon",
+            pageName: "TypeResultat",
+            title: "Résultats Cadre de rendement",
+          },
+        ],
       },
       {
         icon: "ServerIcon",
