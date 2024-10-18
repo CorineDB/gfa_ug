@@ -30,7 +30,7 @@ export default {
         poids: "",
         debut: "",
         fin: "",
-        type: "",
+        type: "pta",
         composanteId: "",
         budgetNational: 0,
       },
@@ -59,6 +59,11 @@ export default {
       }
     },
     sousComposantId(newValue, oldValue) {
+      if (this.sousComposants.length > 0) {
+        this.getComposantById(newValue);
+      }
+    },
+    composantId(newValue, oldValue) {
       if (this.sousComposants.length > 0) {
         this.getComposantById(newValue);
       }
@@ -95,7 +100,7 @@ export default {
     },
     deleteComposants() {
       this.deleteLoader = true;
-      ComposantesService.destroy(this.sousComposantId)
+      ActiviteService.destroy(this.activiteId)
         .then((data) => {
           this.deleteLoader = false;
           this.showDeleteModal = false;
@@ -115,7 +120,7 @@ export default {
       this.formData.poids = data.poids;
       this.formData.debut = data.debut;
       this.formData.fin = data.fin;
-      this.formData.type = data.type;
+      this.formData.type = "pta";
       this.formData.composanteId = data.composanteId;
       this.formData.budgetNational = data.budgetNational;
       this.activiteId = data.id;
@@ -158,6 +163,7 @@ export default {
       } else {
         this.isLoading = true;
         this.formData.budgetNational = parseInt(this.formData.budgetNational);
+        console.log(this.formData);
         ActiviteService.create(this.formData)
           .then((response) => {
             if (response.status == 200 || response.status == 201) {
@@ -373,11 +379,12 @@ export default {
       <h2 v-else class="mr-auto text-base font-medium">Modifier un Activité</h2>
     </ModalHeader>
     <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
-      <InputForm v-model="formData.nom" class="col-span-12" type="text" required="required" placeHolder="Nom de l'organisation" label="Nom" />
+      <InputForm v-model="formData.nom" class="col-span-12" type="text" required="required" placeHolder="Nom de l'activité" label="Nom" />
       <InputForm v-model="formData.poids" class="col-span-12" type="number" required="required" placeHolder="Poids de l'activité " label="Poids" />
-      <InputForm v-model="formData.debut" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de début" label="Début du projet" />
-      <InputForm v-model="formData.fin" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de fin" label="Fin du projet " />
-      <div class="col-span-12">
+      <InputForm v-model="formData.debut" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de début" label="Début de l'activité" />
+      <InputForm v-model="formData.fin" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de fin" label="Fin de l'activité" />
+      
+      <!--<div class="col-span-12">
         <label for="modal-form-6" class="form-label">Type d'activité</label>
         <div class="mt-2">
           <TomSelect
@@ -392,9 +399,23 @@ export default {
             <option value="ppm">PPM</option>
           </TomSelect>
         </div>
-      </div>
-        <div class="flex col-span-12" v-if="haveSousComposantes">
+      </div>-->
+      <div class="flex col-span-12" v-if="haveSousComposantes">
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OUtPut</label>
+          <TomSelect
+            v-model="formData.composanteId"
+            :options="{
+              placeholder: 'Choisir un Output',
+              create: false,
+              onOptionAdd: text(),
+            }"
+            class="w-full"
+          >
+            <option v-for="(element, index) in sousComposants" :key="index" :value="element.id">{{ element.nom }}</option>
+          </TomSelect>
+      </div>
+      <div class="flex col-span-12">
+          <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OutComes</label>
           <TomSelect
             v-model="formData.composanteId"
             :options="{
@@ -406,15 +427,15 @@ export default {
           >
             <option v-for="(element, index) in composants" :key="index" :value="element.id">{{ element.nom }}</option>
           </TomSelect>
-        </div>
-      <div class="flex col-span-12">
+      </div>
+      <!--<div class="flex col-span-12">
         <v-select class="w-full" :reduce="(composant) => composant.id" v-model="formData.composanteId" label="nom" :options="composants">
           <template #search="{ attributes, events }">
             <input class="vs__search form-input" :required="!formData.composanteId" v-bind="attributes" v-on="events" />
           </template>
         </v-select>
         <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-bold duration-100 ease-linear -translate-y-3 bg-white _font-medium form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OutComes</label>
-      </div>
+      </div>-->
 
       <InputForm v-model="formData.budgetNational" class="col-span-12" type="number" required="required" placeHolder="Ex : 2" label="Budget national" />
     </ModalBody>
