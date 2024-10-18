@@ -32,6 +32,10 @@ const criteres = ref([]);
 const optionsReponses = ref([]);
 const datas = ref([]);
 
+
+
+
+
 const createData = async () => {
   isLoading.value = true;
   await IndicateurGouvernance.create(payload)
