@@ -31,9 +31,7 @@ export default {
         poids: "",
         debut: "",
         fin: "",
-        type: "",
-        activiteId: "",
-        //budgetNational: 0,
+        activiteId: ""
       },
       composantsId: "",
       sousComposantId: "",
