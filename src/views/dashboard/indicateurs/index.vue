@@ -42,7 +42,7 @@ const programmes = ref([]);
 const datas = ref([]);
 const keyIndicateursDatas = ref([]);
 const uniteDeMesureDatas = ref([]);
-const siteDatas = ref([])
+const siteDatas = ref([]);
 
 const years = computed(() => {
   const currentYear = new Date().getFullYear();
@@ -53,6 +53,14 @@ const years = computed(() => {
     option.value = i;
     option.text = i;
     yearSelect.add(option);
+  }
+});
+
+const cleChoisie = computed(() => {
+  if (payload.value_keys.length > 0) {
+    payload.value_keys.forEach((item) => {
+      console.log(keyIndicateursDatas.values.filter((key) => key.id === item)[0]);
+    });
   }
 });
 
@@ -99,33 +107,27 @@ const getCleIndicateursDatas = async () => {
 };
 
 const getUniteMesureDatas = async () => {
-  
   await UniteeDeMesureService.get()
     .then((result) => {
       uniteDeMesureDatas.value = result.data.data;
-      
     })
     .catch((e) => {
       console.error(e);
-     
+
       toast.error("Une erreur est survenue: Liste des type des options.");
     });
- 
 };
 
 const getSiteDatas = async () => {
- 
   await SiteService.get()
     .then((result) => {
       siteDatas.value = result.data.data;
-      
     })
     .catch((e) => {
       console.error(e);
-     
+
       toast.error("Une erreur est survenue: Liste des type des options.");
     });
-  
 };
 
 const updateData = async () => {
@@ -276,7 +278,7 @@ onMounted(() => {
   getProgrammes();
   getCleIndicateursDatas();
   getUniteMesureDatas();
-  getSiteDatas()
+  getSiteDatas();
 });
 </script>
 
@@ -359,21 +361,23 @@ onMounted(() => {
               </div>
             </div>
           </div>
+
           <div class="">
             <label class="form-label">Entité à évaluer</label>
-            <TomSelect v-model="payload.value_keys" :options="{ placeholder: 'Selectionez une entité' }" class="w-full">
-              <option v-for="(item, index) in keyIndicateursDatas" :key="index" :value="item.id">{{ item.nom }}</option>
+            <TomSelect multiple v-model="payload.value_keys" :options="{ placeholder: 'Selectionez une entité' }" class="w-full">
+              <option v-for="(item, index) in keyIndicateursDatas" :key="index" :value="item.id">{{ item.libelle }}</option>
             </TomSelect>
           </div>
+
           <div class="">
             <label class="form-label">Unité de mesure</label>
             <TomSelect v-model="payload.uniteeMesureId" :options="{ placeholder: 'Selectionez une unité de mesure' }" class="w-full">
-              <option v-for="(item, index) in uniteDeMesureDatas" :key="index" :value="item.id">{{ item.libelle }}</option>
+              <option v-for="(item, index) in uniteDeMesureDatas" :key="index" :value="item.id">{{ item.nom }}</option>
             </TomSelect>
           </div>
           <div class="">
             <label class="form-label">Sites</label>
-            <TomSelect v-model="payload.sites" :options="{ placeholder: 'Selectionez un site' }" class="w-full">
+            <TomSelect multiple v-model="payload.sites" :options="{ placeholder: 'Selectionez un site' }" class="w-full">
               <option v-for="(item, index) in siteDatas" :key="index" :value="item.id">{{ item.nom }}</option>
             </TomSelect>
           </div>
