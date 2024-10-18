@@ -1,9 +1,9 @@
- const API_BASE_URL = "http://192.168.1.10:8000";
+ const API_BASE_URL = "http://mybsd.shop";
 
 
 const DEPLOYMENT_URL = "https://mybsd.shop/";
 
-const PUSHER_BASE_URL = "http://192.168.1.10:8000";
+const PUSHER_BASE_URL = "https://mybsd.shop/";
 
 const PUSHER_APP_KEY = "44c99c1fccbbcdb8d6fd";
 

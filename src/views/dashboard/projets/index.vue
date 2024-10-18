@@ -106,12 +106,12 @@
       <div class="absolute bottom-0 right-0 w-1/2 h-0 group-hover:h-full bg-[#02008052] transition-all duration-[.5s]"></div>
 
       <div class="relative h-64 overflow-hidden group/hw hway hway-active">
-        <img class="object-contain group-hover:opacity-30 transition-all duration-[.5s] h-auto" src="https://images.unsplash.com/photo-1497375638960-ca368c7231e4?q=80&w=1680&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="" />
+        <img class="object-contain group-hover:opacity-30 transition-all duration-[.5s] h-auto" :src="projetsImg[index]" alt="" />
         <!-- Description cachée avec effet de survol -->
         <div class="absolute inset-0 flex items-start justify-center p-5 text-white transition-opacity duration-500 bg-black opacity-0 bg-opacity-80 group-hover:opacity-100">
           <div>
             <p class="text-base font-bold lg:text-lg">Description du projet</p>
-            <p class="px-2 text-sm lg:text-base line-clamp-7">{{ item.description }}</p>
+            <p class="px-2 text-sm lg:text-base line-clamp-7">{{ item.description }} {{ key }}</p>
           </div>
         </div>
       </div>
@@ -160,10 +160,10 @@
       </div>
     </div>
   </div>
-</div>
+  </div>
 
 
-  <div class="grid grid-cols-1 gap-6 mt-6 md:grid-cols-2 lg:grid-cols-3">
+  <!-- <div class="grid grid-cols-1 gap-6 mt-6 md:grid-cols-2 lg:grid-cols-3">
     <div href="#" class="relative shadow-2xl box group _bg-white zoom-in" v-for="(item, index) in projets" :key="index">
       <div class="relative m-5 bg-white">
         <div class="text-[#171a1d] group-hover:text-[#007580] font-medium text-[14px] md:text-[16px] lg:text-[18px] leading-[30px] pt-[10px]">{{ item.nom }}</div>
@@ -172,16 +172,16 @@
       <div class="relative mt-[12px] m-5 h-40 2xl:h-56 image-fit rounded-md overflow-hidden before:block before:absolute before:w-full before:h-full before:top-0 before:left-0 before:z-10 before:bg-gradient-to-t before:from-black before:to-black/10">
         <div class="absolute top-0 left-0 w-1/2 h-0 group-hover:h-full bg-[#02008052] transition-all duration-[.5s]"></div>
         <div class="absolute bottom-0 right-0 w-1/2 h-0 group-hover:h-full bg-[#02008052] transition-all duration-[.5s]"></div>
-        <!-- <div class="absolute z-10 top-0 right-0 bottom-0 left-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-[.5s]">
+        <div class="absolute z-10 top-0 right-0 bottom-0 left-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-[.5s]">
           <div class="w-[60px] h-[60px] text-white bg-[#171a1d] rounded-[60px] rotate-90 flex justify-center items-center group-hover:rotate-45 transition-all duration-[.5s]">
             <ArrowUpIcon class="w-4 h-4" />
           </div>
-        </div> -->
+        </div>
         <div class="relative h-64 overflow-hidden group/hw hway hway-active">
-          <!-- <div class="absolute top-0 left-0 bg-[#007580] h-[55%] w-full group-[.hway-active]/hw:w-0 transition-all duration-[.5s]"></div>
-          <div class="absolute bottom-0 right-0 bg-[#007580] h-[55%] w-full group-[.hway-active]/hw:w-0 transition-all duration-[.5s]"></div> -->
+          <div class="absolute top-0 left-0 bg-[#007580] h-[55%] w-full group-[.hway-active]/hw:w-0 transition-all duration-[.5s]"></div>
+          <div class="absolute bottom-0 right-0 bg-[#007580] h-[55%] w-full group-[.hway-active]/hw:w-0 transition-all duration-[.5s]"></div>
           <img class="object-contain group-hover:opacity-30 transition-all duration-[.5s] h-auto" src="https://images.unsplash.com/photo-1497375638960-ca368c7231e4?q=80&w=1680&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="" />
-          <!-- Section description cachée au départ -->
+          Section description cachée au départ
           <div class="absolute inset-0 flex items-start justify-center p-5 text-white transition-opacity duration-500 bg-black opacity-0 bg-opacity-80 group-hover:opacity-100">
             <div>
               <p class="text-base font-bold lg:text-lg">Description du projet</p>
@@ -225,7 +225,7 @@
         </div>
       </div>
     </div>
-  </div>
+  </div> -->
 
   
 </template>
@@ -322,6 +322,14 @@ export default {
       bailleurs: [],
       deleteData: {},
       deleteModal: false,
+
+      projetsImg: [
+        "https://images.unsplash.com/photo-1473649085228-583485e6e4d7?q=80&w=1332&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "https://images.unsplash.com/photo-1516047001178-6dcd2a01c694?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "https://media.istockphoto.com/id/474234518/photo/clean-fresh-water-scarcity-symbol-black-girl-drinking-from-tap.jpg?s=1024x1024&w=is&k=20&c=Ae42yqkuqfOxBV1bedpkGtC1w2ifQqBB77Sl46nNDNQ=",
+        "https://images.unsplash.com/flagged/photo-1555251255-e9a095d6eb9d?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "https://images.unsplash.com/photo-1728158609567-42dc418139f9?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8TkdPJTIwYmxhY2t8ZW58MHx8MHx8fDA%3D"
+      ],
       formData: {
         nom: "",
         couleur: "",
