@@ -193,11 +193,11 @@ export default {
 </script>
 
 <template>
-<h2 class="mt-10 text-lg font-medium intro-y">Outcomes</h2>
+<!-- <h2 class="mt-10 text-lg font-medium intro-y">Outcomes</h2>
 
-<!-- Filtre -->
+Filtre
 <div class="container mx-auto px-4">
-  <!-- Combined Filter Section -->
+  Combined Filter Section
   <div class="bg-white p-6 rounded-lg shadow-md mt-3">
     <h2 class="text-base font-bold mb-4">Filtrer les Projets</h2>
 
@@ -217,30 +217,30 @@ export default {
     <button class="bg-blue-500 text-white py-2 px-4 rounded-md mt-4 w-full sm:w-auto sm:mt-0 sm:absolute sm:-translate-x-1/2 sm:left-1/2 sm:bottom-[-15px] hover:bg-blue-600 transition-all duration-300 ease-in-out" @click="filter()">Filtrer</button>
   </div>
 
-  <!-- Results Section -->
+  Results Section
   <div class="mt-8">
-    <!-- Placeholder for table or grid results -->
+    Placeholder for table or grid results
     <p class="text-center text-slate-600">Aucun résultat trouvé</p>
   </div>
 </div>
 
-<!-- Titre de la page et Actions -->
+Titre de la page et Actions
 <div class="grid grid-cols-12 gap-6 mt-5">
   <div class="intro-y col-span-12 sm:flex sm:justify-between items-center">
-    <!-- Recherche -->
+    Recherche
     <div class="relative sm:w-56 w-full">
       <input type="text" class="form-control box w-full pr-10" placeholder="Recherche..." />
       <SearchIcon class="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500" />
     </div>
 
-    <!-- Bouton Ajouter -->
+    Bouton Ajouter
     <div class="flex mt-3 sm:mt-0">
       <button class="bg-primary text-white flex items-center py-2 px-4 rounded-md shadow-md hover:bg-primary-dark transition-all duration-300">
         <PlusIcon class="w-4 h-4 mr-2" /> Ajouter un Outcome
       </button>
     </div>
   </div>
-</div>
+</div> -->
 
 
 
