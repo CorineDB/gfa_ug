@@ -8,9 +8,10 @@ import { useRoute, useRouter } from "vue-router";
 import FormulaireFactuel from "@/services/modules/toolsFactuel.service";
 
 const route = useRoute();
+const router = useRouter();
 
 const organizationId = ref("R5P1oK0OP6DmWGvB21RNoeb9Xpgdwr7PNQ4zy0LAM8KnVZEJa5xlOjYkeWBv8aJy");
-const enqueteDeCollecteId = ref("RmLpz4vVan0mOqYvjBE8bVZ3DX7or9yB45RxA6Jp4MGkwlPedKL1z2gQe32BXnE1");
+const enqueteDeCollecteId = ref("LrDVRGx0Gmqz79w1j3M2AlBbr6apLE5aKyK8XvDeOJYVZPo4dQgkRnx0mjpzOB7k");
 const selectStructureId = ref("");
 const datasCollection = ref({});
 const datasFactuel = ref([]);
@@ -62,6 +63,10 @@ const changeStructure = () => {
   getDataCollectionPerception();
 };
 
+const viewSyntheses = (organisationId) => {
+  router.push({ name: "FicheSynthese", query: { enqueteId: route.params.id, organisationId } });
+};
+
 onMounted(() => {
   getDataCollection();
   getDataCollectionPerception();
@@ -84,7 +89,25 @@ onBeforeMount(() => {
         <TabPanels class="mt-5">
           <TabPanel class="leading-relaxed">
             <div class="w-full p-4 font-bold text-center text-white bg-blue-900 rounded">FICHE SYNTHESE SCORE FACTUEL GOUVERNANCE</div>
-
+            <div class="flex justify-end my-6 sm:flex-row sm:items-end xl:items-start">
+              <div class="flex mt-5 sm:mt-0">
+                <button id="tabulator-print" class="w-1/2 mr-2 btn btn-outline-secondary sm:w-auto"><PrinterIcon class="w-4 h-4 mr-2" /> Imprimer</button>
+                <Dropdown class="w-1/2 sm:w-auto">
+                  <DropdownToggle class="w-full btn btn-outline-secondary sm:w-auto">
+                    <FileTextIcon class="w-4 h-4 mr-2" /> Exporter
+                    <ChevronDownIcon class="w-4 h-4 ml-auto sm:ml-2" />
+                  </DropdownToggle>
+                  <DropdownMenu class="w-40">
+                    <DropdownContent>
+                      <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Exporter CSV </DropdownItem>
+                      <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Exporter JSON </DropdownItem>
+                      <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Exporter XLSX </DropdownItem>
+                      <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Exporter HTML </DropdownItem>
+                    </DropdownContent>
+                  </DropdownMenu>
+                </Dropdown>
+              </div>
+            </div>
             <table class="w-full mt-12 text-sm border-collapse table-fixed">
               <tbody>
                 <tr class="border-b rounded-sm border-slate-300 bg-slate-300">
@@ -114,21 +137,7 @@ onBeforeMount(() => {
             </table>
             <div class="flex justify-end my-6 sm:flex-row sm:items-end xl:items-start">
               <div class="flex mt-5 sm:mt-0">
-                <button id="tabulator-print" class="w-1/2 mr-2 btn btn-outline-secondary sm:w-auto"><PrinterIcon class="w-4 h-4 mr-2" /> Imprimer</button>
-                <Dropdown class="w-1/2 sm:w-auto">
-                  <DropdownToggle class="w-full btn btn-outline-secondary sm:w-auto">
-                    <FileTextIcon class="w-4 h-4 mr-2" /> Exporter
-                    <ChevronDownIcon class="w-4 h-4 ml-auto sm:ml-2" />
-                  </DropdownToggle>
-                  <DropdownMenu class="w-40">
-                    <DropdownContent>
-                      <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Exporter CSV </DropdownItem>
-                      <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Exporter JSON </DropdownItem>
-                      <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Exporter XLSX </DropdownItem>
-                      <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Exporter HTML </DropdownItem>
-                    </DropdownContent>
-                  </DropdownMenu>
-                </Dropdown>
+                <button class="btn btn-primary sm:w-auto" @click="viewSyntheses(datasCollection.organisationId)">Fiche Synthèse</button>
               </div>
             </div>
             <table v-if="!isLoadingData" class="w-full my-12 border border-collapse table-auto border-slate-100" cellpadding="0" cellspacing="0">
