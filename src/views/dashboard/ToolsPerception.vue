@@ -9,6 +9,7 @@ import OngService from "../../services/modules/ong.service";
 import AuthService from "@/services/modules/auth.service";
 import InputForm from "@/components/news/InputForm.vue";
 import { useRouter } from "vue-router";
+import { computed } from "vue";
 
 const TYPE_ORGANISATION = "organisation";
 
@@ -72,7 +73,7 @@ const getcurrentUserAndFetchOrganization = async () => {
     });
 };
 const submitData = async () => {
-  isLoading.value = true;
+  // isLoading.value = true;
   filterFormData();
   const response = {
     perception: Object.keys(formData).map((indicateurId) => ({
@@ -86,13 +87,13 @@ const submitData = async () => {
   await FormulaireFactuel.create(idEnquete, payload)
     .then((result) => {
       isLoading.value = false;
-      payload.response_data = [];
+      // payload.response_data = [];
       toast.success(`${result.data.message}`);
     })
     .catch((e) => {
       console.error(e);
       isLoading.value = false;
-      payload.response_data = [];
+      // payload.response_data = [];
       toast.error("Erreur pour la collecte des données");
     });
 };
@@ -120,6 +121,10 @@ const filterFormData = () => {
   });
 };
 
+const filterFormDataPerception = computed(() => {
+  return formDataPerception.value.filter((item) => item.indicateurs_de_gouvernance.length > 0);
+});
+
 // watch(
 //   formData,
 //   (newValue) => {
@@ -134,10 +139,10 @@ onMounted(async () => {
 });
 </script>
 <template>
-  <h2 class="mt-10 text-lg font-medium intro-y">Outils de perception</h2>
-  <div v-if="nomProgram" class="w-full p-4 font-bold text-center text-white uppercase rounded bg-primary">{{ nomProgram }}</div>
+  <h2 class="mt-10 text-lg font-medium intro-y"></h2>
+  <div v-if="nomProgram" class="w-full p-4 font-bold text-center text-white uppercase rounded bg-primary">Outils de perception</div>
   <div v-if="organisations.length > 0 && isOrganisation" class="flex justify-end my-5">
-    <div class="min-w-[250px]">
+    <div class="min-w-[250px] flex gap-3 items-center">
       <label class="form-label">Organisations</label>
       <TomSelect v-model="payload.organisationId" :options="{ placeholder: 'Selectionez une structure' }" class="w-full">
         <option v-for="(ong, index) in organisations" :key="index" :value="ong.id">{{ ong.nom }}</option>
@@ -150,7 +155,7 @@ onMounted(async () => {
         <div class="space-y-6">
           <!-- vfor Principe -->
           <AccordionGroup class="space-y-2">
-            <AccordionItem class="!px-0" v-show="principeIndex === currentPage" v-for="(principe, principeIndex) in formDataPerception" :key="principeIndex">
+            <AccordionItem class="!px-0" v-show="principeIndex === currentPage" v-for="(principe, principeIndex) in filterFormDataPerception" :key="`principe-${principe.id}`">
               <Accordion class="text-xl !p-4 font-semibold bg-primary/90 !text-white flex items-center justify-between">
                 <h2>{{ principe.nom }}</h2>
                 <ChevronDownIcon />
@@ -163,14 +168,16 @@ onMounted(async () => {
                     <div class="flex flex-col items-center justify-center w-full gap-3">
                       <!-- vfor Option -->
                       <div class="inline-flex flex-wrap items-center gap-3">
-                        <div v-if="formData[indicateur.id]" v-for="(option, optionIndex) in indicateur.options_de_reponse" :key="optionIndex">
-                          <input v-model="formData[indicateur.id].selectedOption" :id="`radio-${indicateur.id}${optionIndex}`" class="form-check-input" type="radio" :name="'option-' + indicateur.id" :value="option.id" />
-                          <label class="text-base form-check-label" :for="`radio-${indicateur.id}${optionIndex}`">
-                            {{ option.libelle }}
-                          </label>
+                        <div v-for="(option, optionIndex) in indicateur.options_de_reponse" :key="optionIndex">
+                          <div v-if="formData[indicateur.id]">
+                            <input v-model="formData[indicateur.id].selectedOption" :id="`radio-${indicateur.id}${optionIndex}`" class="form-check-input" type="radio" :name="'option-' + indicateur.id" :value="option.id" />
+                            <label class="text-base form-check-label" :for="`radio-${indicateur.id}${optionIndex}`">
+                              {{ option.libelle }}
+                            </label>
+                          </div>
                         </div>
                       </div>
-                      <div v-if="formData[indicateur.id]">
+                      <div class="flex items-center gap-3" v-if="formData[indicateur.id]">
                         <label :for="`${indicateur.id}`" class="form-label">Commentaire</label>
                         <input :id="`${indicateur.id}`" type="text" required v-model="formData[indicateur.id].commentaire" class="form-control" placeholder="Commentaire" />
                       </div>
@@ -182,7 +189,7 @@ onMounted(async () => {
           </AccordionGroup>
         </div>
       </div>
-      <div class="flex justify-center w-full">
+      <div class="flex justify-end w-full my-4">
         <VButton label="Soumettre" class="px-8 py-3 w-max" :loading="isLoading" @click="submitData" />
       </div>
       <div class="flex justify-center gap-3 my-8">

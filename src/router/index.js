@@ -49,6 +49,7 @@ import dashboard_projets_sous_composantes_globale from "../views/dashboard/proje
 import projets_id_details from "../views/dashboard/projets/_id/details.vue";
 import EnqueteIndividuel from "../views/dashboard/enqueteIndividuel.vue";
 import FicheResultat from "../views/dashboard/FicheResultat.vue";
+import Marqueur from "../views/dashboard/marqueur.vue";
 
 const routes = [
   {
@@ -144,6 +145,11 @@ const routes = [
         path: "/synthese",
         name: "FicheSynthese",
         component: FicheSynthese,
+      },
+      {
+        path: "/marqueur",
+        name: "marqueur",
+        component: Marqueur,
       },
       {
         path: "profil",

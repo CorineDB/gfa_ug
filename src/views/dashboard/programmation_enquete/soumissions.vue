@@ -7,14 +7,14 @@ import DeleteButton from "@/components/news/DeleteButton.vue";
 import { toast } from "vue3-toastify";
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
 import EnqueteDeColleteService from "@/services/modules/enqueteDeCollecte.service";
-import { useRouter,useRoute } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 
 const router = useRouter();
 
 const route = useRoute();
 
 const payload = reactive({
-  nom: ""
+  nom: "",
 });
 
 const tabulator = ref();
@@ -66,38 +66,42 @@ const initTabulator = () => {
         title: "Actions",
         field: "actions",
         formatter: (cell) => {
-            const container = document.createElement("div");
-            container.className = "flex items-center justify-center gap-3";
+          const container = document.createElement("div");
+          container.className = "flex items-center justify-center gap-3";
 
-            const createButton = (label, className, onClick) => {
-              const button = document.createElement("button");
-              button.className = className;
-              button.innerText = label;
-              button.addEventListener("click", onClick);
-              return button;
-            };
+          const createButton = (label, className, onClick) => {
+            const button = document.createElement("button");
+            button.className = className;
+            button.innerText = label;
+            button.addEventListener("click", onClick);
+            return button;
+          };
 
-            if(cell.getData().levelOfSubmission < 100){
-              const modifyButton = createButton("Continuer", "btn btn-primary", () => {
-                handleEdit(cell.getData());
-              });
+          if (cell.getData().levelOfSubmission < 100) {
+            const modifyButton = createButton("Continuer", "btn btn-primary", () => {
+              handleEdit(cell.getData());
+            });
 
-              container.append(modifyButton);
-            }
-            else{
-              const resultatButton = createButton("Consulter Resultats", "btn btn-primary", () => {
-                viewResultats(datas.value.id, cell.getData().id);
-              });
+            container.append(modifyButton);
+          } else {
+            const resultatButton = createButton("Résultats", "btn btn-primary", () => {
+              viewResultats(datas.value.id, cell.getData().id);
+            });
 
-              container.append(resultatButton);
-              const syntheseButton = createButton("Voir synthese", "btn btn-primary", () => {
-                viewSyntheses(datas.value.id, cell.getData().id);
-              });
+            container.append(resultatButton);
+            const syntheseButton = createButton(" Synthese", "btn btn-primary", () => {
+              viewSyntheses(datas.value.id, cell.getData().id);
+            });
 
-              container.append(syntheseButton);
-            }
+            container.append(syntheseButton);
+            const marqueurButton = createButton(" Marqueur", "btn btn-primary", () => {
+              viewMarqueur(datas.value.id, cell.getData().id);
+            });
 
-            return container;
+            container.append(marqueurButton);
+          }
+
+          return container;
         },
       },
     ],
@@ -153,15 +157,12 @@ const deleteData = async () => {
     });
 };
 
-
 const getStatusText = (param) => {
-  if(param===100){
+  if (param === 100) {
     return "Soumis";
-  }
-  else if(param>0){
+  } else if (param > 0) {
     return "En cours";
-  }
-  else if(param===0){
+  } else if (param === 0) {
     return "Non demarré";
   }
 };
@@ -181,15 +182,18 @@ const handleEdit = (params) => {
   payload.debut = params.debut;
   payload.fin = params.fin;
   showModalCreate.value = true;*/
-  router.push({ name: "ToolsFactuel", query: { enqueteId: route.params.id }  });
+  router.push({ name: "ToolsFactuel", query: { enqueteId: route.params.id } });
 };
 
 const viewResultats = (organisationId) => {
-  router.push({ name: "resultat_collecte", query: { enqueteId: route.params.id, organisationId: organisationId }  });
+  router.push({ name: "resultat_collecte", query: { enqueteId: route.params.id, organisationId: organisationId } });
 };
 
 const viewSyntheses = (organisationId) => {
-  router.push({ name: "FicheSynthese", query: { enqueteId: route.params.id, organisationId: organisationId }  });
+  router.push({ name: "FicheSynthese", query: { enqueteId: route.params.id, organisationId: organisationId } });
+};
+const viewMarqueur = (organisationId) => {
+  router.push({ name: "marqueur", query: { enqueteId: route.params.id, organisationId } });
 };
 
 const handleDelete = (params) => {
@@ -209,14 +213,12 @@ const resetForm = () => {
   showModalCreate.value = false;
 };
 const openFactuelModal = () => {
-
-  router.push({ name: "ToolsFactuel"  });
+  router.push({ name: "ToolsFactuel" });
   //showModalCreate.value = isCreate.value = true;
 };
 
 const openPerceptionModal = () => {
-
-  router.push({ name: "ToolsPerception"  });
+  router.push({ name: "ToolsPerception" });
   //showModalCreate.value = isCreate.value = true;
 };
 

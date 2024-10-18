@@ -5,6 +5,7 @@ import { toast } from "vue3-toastify";
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
 import { getColorForValue } from "../../utils/findColorIndicator";
 import { useRouter } from "vue-router";
+import ReportPieChart from "@/components/report-pie-chart/Main.vue";
 
 const router = useRouter();
 const organizationId = ref("R5P1oK0OP6DmWGvB21RNoeb9Xpgdwr7PNQ4zy0LAM8KnVZEJa5xlOjYkeWBv8aJy");
@@ -28,7 +29,7 @@ const getDataCollection = async () => {
     .catch((e) => {
       isLoadingData.value = false;
       console.error(e);
-      toast.error("Une erreur est survenue: Resultats des collections .");
+      toast.error("Une erreur est survenue: Resultats des synthese .");
     });
 };
 
@@ -72,7 +73,25 @@ onMounted(() => {
         <TabPanels class="mt-5">
           <TabPanel class="leading-relaxed">
             <div class="w-full p-4 font-bold text-center text-white bg-blue-900 rounded">FICHE SYNTHESE SCORE FACTUEL GOUVERNANCE</div>
-
+            <div class="flex justify-end my-4 sm:flex-row sm:items-end xl:items-start">
+              <div class="flex mt-5 sm:mt-0">
+                <button id="tabulator-print" class="w-1/2 mr-2 btn btn-outline-secondary sm:w-auto"><PrinterIcon class="w-4 h-4 mr-2" /> Imprimer</button>
+                <Dropdown class="w-1/2 sm:w-auto">
+                  <DropdownToggle class="w-full btn btn-outline-secondary sm:w-auto">
+                    <FileTextIcon class="w-4 h-4 mr-2" /> Exporter
+                    <ChevronDownIcon class="w-4 h-4 ml-auto sm:ml-2" />
+                  </DropdownToggle>
+                  <DropdownMenu class="w-40">
+                    <DropdownContent>
+                      <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Exporter CSV </DropdownItem>
+                      <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Exporter JSON </DropdownItem>
+                      <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Exporter XLSX </DropdownItem>
+                      <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Exporter HTML </DropdownItem>
+                    </DropdownContent>
+                  </DropdownMenu>
+                </Dropdown>
+              </div>
+            </div>
             <table class="w-full mt-12 text-sm border-collapse table-fixed">
               <tbody>
                 <tr class="border-b rounded-sm border-slate-300 bg-slate-300">
@@ -100,25 +119,22 @@ onMounted(() => {
                 </tr>
               </tbody>
             </table>
-            <div class="flex justify-end my-6 sm:flex-row sm:items-end xl:items-start">
-              <div class="flex mt-5 sm:mt-0">
-                <button id="tabulator-print" class="w-1/2 mr-2 btn btn-outline-secondary sm:w-auto"><PrinterIcon class="w-4 h-4 mr-2" /> Imprimer</button>
-                <Dropdown class="w-1/2 sm:w-auto">
-                  <DropdownToggle class="w-full btn btn-outline-secondary sm:w-auto">
-                    <FileTextIcon class="w-4 h-4 mr-2" /> Exporter
-                    <ChevronDownIcon class="w-4 h-4 ml-auto sm:ml-2" />
-                  </DropdownToggle>
-                  <DropdownMenu class="w-40">
-                    <DropdownContent>
-                      <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Exporter CSV </DropdownItem>
-                      <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Exporter JSON </DropdownItem>
-                      <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Exporter XLSX </DropdownItem>
-                      <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Exporter HTML </DropdownItem>
-                    </DropdownContent>
-                  </DropdownMenu>
-                </Dropdown>
-              </div>
-            </div>
+            <table v-if="!isLoadingData" class="mt-12 text-sm border-collapse table-fixed w-max">
+              <thead class="text-left bg-gray-300 border border-slate-300">
+                <tr>
+                  <th class="p-2">Principe</th>
+                  <th class="p-2">Indice Factuel</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template v-for="(gouvernance, indexGouvernance) in datasFactuel" :key="indexGouvernance">
+                  <tr v-for="(principe, indexPrincipe) in gouvernance.principes_de_gouvernance" class="border-b border-slate-300" :key="indexPrincipe">
+                    <td class="p-2 font-medium">{{ principe.nom }}</td>
+                    <td class="text-center">{{ principe.score_factuel }}</td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
             <!-- Figure 3 : Grille de notation des indicateurs de la gouvernance politique -->
             <table class="w-full my-12 border border-collapse table-auto border-slate-500" cellpadding="0" cellspacing="0">
               <thead class="text-left bg-blue-900">
@@ -233,11 +249,33 @@ onMounted(() => {
                 <!-- Ajouter plus de sections si nécessaire -->
               </tbody>
             </table>
+            <div class="mt-3">
+              <ReportPieChart :chartData="chartData" :height="213" />
+            </div>
           </TabPanel>
           <!-- tab 2 -->
           <TabPanel class="leading-relaxed">
+            <div class="w-full p-4 font-bold text-center text-white bg-blue-900 rounded">FICHE SYNTHESE SCORE DE PERCEPTION GOUVERNANCE</div>
             <!-- Figure 8 : grille de notation et de détermination de la moyenne pondérée des questions opérationnelles -->
-
+            <div class="flex justify-end my-4 sm:flex-row sm:items-end xl:items-start">
+              <div class="flex mt-5 sm:mt-0">
+                <button id="tabulator-print" class="w-1/2 mr-2 btn btn-outline-secondary sm:w-auto"><PrinterIcon class="w-4 h-4 mr-2" /> Imprimer</button>
+                <Dropdown class="w-1/2 sm:w-auto">
+                  <DropdownToggle class="w-full btn btn-outline-secondary sm:w-auto">
+                    <FileTextIcon class="w-4 h-4 mr-2" /> Exporter
+                    <ChevronDownIcon class="w-4 h-4 ml-auto sm:ml-2" />
+                  </DropdownToggle>
+                  <DropdownMenu class="w-40">
+                    <DropdownContent>
+                      <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Exporter CSV </DropdownItem>
+                      <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Exporter JSON </DropdownItem>
+                      <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Exporter XLSX </DropdownItem>
+                      <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Exporter HTML </DropdownItem>
+                    </DropdownContent>
+                  </DropdownMenu>
+                </Dropdown>
+              </div>
+            </div>
             <table class="w-full mt-12 text-sm border-collapse table-fixed">
               <tbody class="text-black bg-green-400">
                 <tr class="border-b rounded-sm border-slate-300 bg-slate-300">
@@ -265,25 +303,19 @@ onMounted(() => {
                 </tr>
               </tbody>
             </table>
-            <div class="flex justify-end my-6 sm:flex-row sm:items-end xl:items-start">
-              <div class="flex mt-5 sm:mt-0">
-                <button id="tabulator-print" class="w-1/2 mr-2 btn btn-outline-secondary sm:w-auto"><PrinterIcon class="w-4 h-4 mr-2" /> Imprimer</button>
-                <Dropdown class="w-1/2 sm:w-auto">
-                  <DropdownToggle class="w-full btn btn-outline-secondary sm:w-auto">
-                    <FileTextIcon class="w-4 h-4 mr-2" /> Exporter
-                    <ChevronDownIcon class="w-4 h-4 ml-auto sm:ml-2" />
-                  </DropdownToggle>
-                  <DropdownMenu class="w-40">
-                    <DropdownContent>
-                      <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Exporter CSV </DropdownItem>
-                      <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Exporter JSON </DropdownItem>
-                      <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Exporter XLSX </DropdownItem>
-                      <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Exporter HTML </DropdownItem>
-                    </DropdownContent>
-                  </DropdownMenu>
-                </Dropdown>
-              </div>
-            </div>
+            <table v-if="!isLoadingData" class="mt-12 text-sm border-collapse table-fixed w-max">
+              <thead class="text-left bg-gray-300 border border-slate-300">
+                <th class="p-2">Principe</th>
+                <th class="p-2">Indice de perception</th>
+              </thead>
+              <tbody>
+                <tr v-for="(principe, indexPrincipe) in datasPerception" class="border-b border-slate-300" :key="indexPrincipe">
+                  <td class="p-2 font-medium">{{ principe.nom }}</td>
+                  <td class="text-center">{{ prinxipe.indice_de_perception }}</td>
+                </tr>
+              </tbody>
+            </table>
+
             <table v-if="!isLoadingData" class="w-full my-12 border border-collapse table-auto border-slate-500" cellpadding="0" cellspacing="0">
               <thead class="text-left bg-gray-400">
                 <tr class="border-b-8 border-white" :style="{ 'background-color': getColorForValue(datasPerception.indice_de_perception) }">
@@ -364,6 +396,6 @@ onMounted(() => {
 
 <style scoped>
 table td {
-  border: 1px solid #000;
+  border: 1px solid rgb(109, 109, 109);
 }
 </style>

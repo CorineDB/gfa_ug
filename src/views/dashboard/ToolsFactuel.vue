@@ -141,10 +141,10 @@ onMounted(async () => {
 });
 </script>
 <template>
-  <h2 class="mt-10 text-lg font-medium intro-y">Outil Factuel</h2>
-  <div v-if="nomProgram" class="w-full p-4 font-bold text-center text-white uppercase rounded bg-primary">{{ nomProgram }}</div>
+  <h2 class="mt-10 text-lg font-medium intro-y"></h2>
+  <div class="w-full p-4 font-bold text-center text-white uppercase rounded bg-primary">Outil Factuel</div>
   <div v-if="organisations.length > 0 && isOrganisation" class="flex justify-end mt-5">
-    <div class="min-w-[250px]">
+    <div class="min-w-[250px] flex items-center gap-3">
       <label class="form-label">Organisations</label>
       <TomSelect v-model="payload.organisationId" :options="{ placeholder: 'Selectionez une organisation' }" class="w-full">
         <option v-for="(ong, index) in organisations" :key="index" :value="ong.id">{{ ong.nom }}</option>
@@ -188,7 +188,7 @@ onMounted(async () => {
                                   </label>
                                 </div>
                               </div>
-                              <div v-if="formData[indicateur.id]">
+                              <div class="flex items-center gap-3" v-if="formData[indicateur.id]">
                                 <label :for="`${indicateur.id}`" class="form-label">Source</label>
                                 <input :id="`${indicateur.id}`" type="text" required v-model="formData[indicateur.id].source" class="form-control" placeholder="Source" />
                               </div>
@@ -204,8 +204,8 @@ onMounted(async () => {
           </div>
         </div>
       </div>
-      <div class="flex justify-center w-full mt-5">
-        <VButton label="Soumettre" class="px-8 py-3 w-max" :loading="isLoading" @click="submitData" />
+      <div class="flex justify-end w-full mt-5">
+        <VButton label="Pousuivre" class="px-8 py-3 w-max" :loading="isLoading" @click="submitData" />
       </div>
     </div>
     <LoaderSnipper v-else />
