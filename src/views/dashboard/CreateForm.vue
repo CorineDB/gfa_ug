@@ -8,6 +8,7 @@ import QuestionsOperationnel from "@/components/create-form/QuestionsOperationne
 import { reactive } from "vue";
 import { ref } from "vue";
 import FactuelStructure from "../../components/create-form/FactuelStructure.vue";
+import { computed } from "vue";
 
 const tabs = [
   {
@@ -20,13 +21,19 @@ const tabs = [
   },
 ];
 
+const currentTab = ref(0);
+const indexAccordion = ref(1);
+const resetCurrentForm = ref(false);
+const formFactuelData = ref([]);
+const formData = ref([]);
+
 const isAvailable = reactive({
-  option: false,
-  type: false,
-  principe: false,
-  critere: false,
+  option: true,
+  type: true,
+  principe: true,
+  critere: true,
   indicateur: true,
-  question: false,
+  question: true,
 });
 
 const currentFactuelFormData = reactive({
@@ -37,21 +44,66 @@ const currentFactuelFormData = reactive({
 });
 
 const dataFactuel = reactive({
-  indicateur: {},
+  type: "",
+  principe: "",
+  critere: "",
+  indicateur: "",
 });
 
+const resetCurrentFactuelFormData = () => {
+  Object.keys(currentFactuelFormData).forEach((key) => {
+    currentFactuelFormData[key] = "";
+  });
+};
+
+const changeIndexAccordion = (index) => {
+  indexAccordion.value = index;
+};
+
+const getType = (type) => {
+  changeIndexAccordion(1);
+  dataFactuel.type = type.id;
+  currentFactuelFormData.type = type.nom;
+};
+
+const getPrincipe = (principe) => {
+  changeIndexAccordion(5);
+  dataFactuel.principe = principe.id;
+  currentFactuelFormData.principe = principe.nom;
+};
+
+const getCritere = (critere) => {
+  changeIndexAccordion(4);
+  dataFactuel.critere = critere.id;
+  currentFactuelFormData.critere = critere.nom;
+};
+
 const getIndicateur = (indicateur) => {
-  dataFactuel.indicateur = indicateur;
+  changeIndexAccordion(3);
+  dataFactuel.indicateur = indicateur.id;
   currentFactuelFormData.indicateur = indicateur.nom;
 };
 
-const currentTab = ref(0);
+const getQuestion = (question) => {
+  dataFactuel.question = question.id;
+  currentFactuelFormData.question = question.nom;
+};
+
+const addIndicateur = () => {
+  formFactuelData.value.unshift({ ...currentFactuelFormData });
+  resetCurrentFactuelFormData();
+  resetCurrentForm.value = !resetCurrentForm.value;
+};
+
+const isCurrentFormValid = computed(() => {
+  return Object.values(currentFactuelFormData).every((value) => value.trim() !== "");
+});
 </script>
 
 <template>
   <div class="flex w-full gap-2">
     <section class="w-1/3 max-h-screen min-h-screen pr-1 overflow-auto border-r-2 pt-7">
-      <AccordionGroup class="space-y-8">
+      <AccordionGroup :selectedIndex="indexAccordion" class="space-y-8">
         <AccordionItem class="!p-0">
           <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
             <p>Options de réponses</p>
@@ -61,49 +113,54 @@ const currentTab = ref(0);
             <OptionsResponse />
           </AccordionPanel>
         </AccordionItem>
-        <AccordionItem class="!p-0">
-          <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
-            <p>Type de gouvernance</p>
-            <ChevronDownIcon />
-          </Accordion>
-          <AccordionPanel class="p-2">
-            <TypeGouvernance />
-          </AccordionPanel>
-        </AccordionItem>
-        <AccordionItem class="!p-0">
-          <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
-            <p>Principe de gouvernance</p>
-            <ChevronDownIcon />
-          </Accordion>
-          <AccordionPanel class="p-2">
-            <PrincipeGouvernance />
-          </AccordionPanel>
-        </AccordionItem>
-        <AccordionItem class="!p-0">
-          <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
-            <p>Critères de gouvernance</p>
-            <ChevronDownIcon />
-          </Accordion>
-          <AccordionPanel class="p-2">
-            <CritereGouvernance />
-          </AccordionPanel>
-        </AccordionItem>
+
         <AccordionItem v-show="currentTab === 0" class="!p-0">
           <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
             <p>Indicateurs de gouvernance</p>
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <IndicateurGouvernance :is-available="isAvailable.indicateur" @selected="getIndicateur" />
+            <IndicateurGouvernance :to-reset="resetCurrentForm" :is-available="isAvailable.indicateur" @selected="getIndicateur" />
           </AccordionPanel>
         </AccordionItem>
+
         <AccordionItem v-show="currentTab === 1" class="!p-0">
           <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
             <p>Questions opérationnelles</p>
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <QuestionsOperationnel />
+            <QuestionsOperationnel :to-reset="resetCurrentForm" :is-available="isAvailable.question" @selected="getIndicateur" />
+          </AccordionPanel>
+        </AccordionItem>
+
+        <AccordionItem class="!p-0">
+          <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
+            <p>Critères de gouvernance</p>
+            <ChevronDownIcon />
+          </Accordion>
+          <AccordionPanel class="p-2">
+            <CritereGouvernance :to-reset="resetCurrentForm" :is-available="isAvailable.critere" @selected="getCritere" />
+          </AccordionPanel>
+        </AccordionItem>
+
+        <AccordionItem class="!p-0">
+          <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
+            <p>Principe de gouvernance</p>
+            <ChevronDownIcon />
+          </Accordion>
+          <AccordionPanel class="p-2">
+            <PrincipeGouvernance :to-reset="resetCurrentForm" :is-available="isAvailable.principe" @selected="getPrincipe" />
+          </AccordionPanel>
+        </AccordionItem>
+
+        <AccordionItem class="!p-0">
+          <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
+            <p>Type de gouvernance</p>
+            <ChevronDownIcon />
+          </Accordion>
+          <AccordionPanel class="p-2">
+            <TypeGouvernance :to-reset="resetCurrentForm" :is-available="isAvailable.type" @selected="getType" />
           </AccordionPanel>
         </AccordionItem>
       </AccordionGroup>
@@ -117,6 +174,11 @@ const currentTab = ref(0);
         <TabPanels class="mt-5">
           <TabPanel class="leading-relaxed">
             <FactuelStructure :type="currentFactuelFormData.type" :principe="currentFactuelFormData.principe" :critere="currentFactuelFormData.critere" :indicateur="currentFactuelFormData.indicateur" />
+            <!-- <button :disabled="!isCurrentFormValid" @click="addIndicateur" class="my-4 text-sm btn btn-primary">Ajouter l'indicateur</button>
+            {{ formFactuelData }}
+            <br />
+            --------------------------------------------------------------------------------------------
+            {{ currentFactuelFormData }} -->
           </TabPanel>
           <TabPanel class="leading-relaxed"> It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like). </TabPanel>
         </TabPanels>

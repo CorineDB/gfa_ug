@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 import VButton from "@/components/news/VButton.vue";
 import InputForm from "@/components/news/InputForm.vue";
 import IndicateurGouvernance from "@/services/modules/indicateurGouvernance.service";
@@ -10,6 +10,7 @@ import { getAllErrorMessages } from "@/utils/gestion-error";
 
 const props = defineProps({
   isAvailable: Boolean,
+  toReset: Boolean,
 });
 
 const emit = defineEmits(["selected"]);
@@ -110,6 +111,13 @@ const closeModal = () => (showModalCreate.value = false);
 const closeDeleteModal = () => (deleteModalPreview.value = false);
 
 const modeText = computed(() => (isCreate.value ? "Ajouter" : "Modifier"));
+
+watch(
+  () => props.toReset,
+  () => {
+    idChecked.value = "";
+  }
+);
 
 // Fetch data on component mount
 onMounted(getDatas);

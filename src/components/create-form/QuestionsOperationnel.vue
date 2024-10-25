@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 import VButton from "@/components/news/VButton.vue";
 import InputForm from "@/components/news/InputForm.vue";
 import QuestionOperationnelle from "@/services/modules/questionOperationnelle.service";
@@ -7,6 +7,13 @@ import DeleteButton from "@/components/news/DeleteButton.vue";
 import { toast } from "vue3-toastify";
 import LoaderData from "./LoaderData.vue";
 import { getAllErrorMessages } from "@/utils/gestion-error";
+
+const props = defineProps({
+  isAvailable: Boolean,
+  toReset: Boolean,
+});
+
+const emit = defineEmits(["selected"]);
 
 // Reactive data structure
 const payload = reactive({ nom: "", description: "", type: "perception" });
@@ -19,6 +26,10 @@ const isLoading = ref(false);
 const isLoadingData = ref(true);
 const isCreate = ref(true);
 const datas = ref([]);
+
+function choiceOption(data) {
+  emit("selected", data);
+}
 
 // Fetch data
 const getDatas = async () => {
@@ -101,12 +112,19 @@ const closeDeleteModal = () => (deleteModalPreview.value = false);
 
 const modeText = computed(() => (isCreate.value ? "Ajouter" : "Modifier"));
 
+watch(
+  () => props.toReset,
+  () => {
+    idChecked.value = "";
+  }
+);
+
 // Fetch data on component mount
 onMounted(getDatas);
 </script>
 
 <template>
-  <div>
+  <div :class="[isAvailable ? '' : 'opacity-50 pointer-events-none']">
     <!-- Button to open modal -->
     <div class="flex justify-end mb-4">
       <button class="text-sm btn btn-primary" @click="openCreateModal"><PlusIcon class="mr-1 size-4" />Ajouter</button>
@@ -115,8 +133,8 @@ onMounted(getDatas);
     <!-- Data List -->
     <ul v-if="!isLoadingData" class="overflow-y-auto max-h-[300px]">
       <li v-for="(data, index) in datas" :key="data.id" class="flex items-center justify-between gap-2 px-1 py-1.5 text-base hover:bg-blue-100 list-data">
-        <div class="form-check p-2">
-          <input :id="`${data.id}${index}`" class="form-check-input" type="radio" name="question" :value="data.id" v-model="idChecked" />
+        <div class="p-2 form-check">
+          <input :id="`${data.id}${index}`" @change="choiceOption(data)" class="form-check-input" type="radio" name="question" :value="data.id" v-model="idChecked" />
           <label class="form-check-label" :for="`${data.id}${index}`">{{ data.nom }}</label>
         </div>
         <div v-if="data.id !== idChecked" class="flex items-center gap-1 transition-all opacity-0 container-buttons">
