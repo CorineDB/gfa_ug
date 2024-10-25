@@ -2,16 +2,16 @@
 import { computed, onMounted, reactive, ref } from "vue";
 import VButton from "@/components/news/VButton.vue";
 import InputForm from "@/components/news/InputForm.vue";
-import OptionReponse from "@/services/modules/optionReponse.service";
+import CritereGouvernance from "@/services/modules/critereGouvernance.service";
 import DeleteButton from "@/components/news/DeleteButton.vue";
 import { toast } from "vue3-toastify";
 import LoaderData from "./LoaderData.vue";
 import { getAllErrorMessages } from "@/utils/gestion-error";
 
 // Reactive data structure
-const payload = reactive({ libelle: "", description: "" });
+const payload = reactive({ nom: "", description: "" });
 const idSelect = ref("");
-const idChecked = ref([]);
+const idChecked = ref("");
 const nameSelect = ref("");
 const showModalCreate = ref(false);
 const deleteModalPreview = ref(false);
@@ -24,7 +24,7 @@ const datas = ref([]);
 const getDatas = async () => {
   try {
     isLoadingData.value = true;
-    const { data } = await OptionReponse.get();
+    const { data } = await CritereGouvernance.get();
     datas.value = data.data;
   } catch (e) {
     toast.error("Erreur lors de la récupération des données.");
@@ -36,10 +36,10 @@ const getDatas = async () => {
 // Submit data (create or update)
 const submitData = async () => {
   isLoading.value = true;
-  const action = isCreate.value ? OptionReponse.create(payload) : OptionReponse.update(idSelect.value, payload);
+  const action = isCreate.value ? CritereGouvernance.create(payload) : CritereGouvernance.update(idSelect.value, payload);
   try {
     await action;
-    toast.success(`Option de réponse ${isCreate.value ? "créée" : "modifiée"} avec succès.`);
+    toast.success(`Critère ${isCreate.value ? "crée" : "modifié"} avec succès.`);
     getDatas();
     resetForm();
   } catch (e) {
@@ -53,8 +53,8 @@ const submitData = async () => {
 const deleteData = async () => {
   try {
     isLoading.value = true;
-    await OptionReponse.destroy(idSelect.value);
-    toast.success("Option de réponse supprimée avec succès.");
+    await CritereGouvernance.destroy(idSelect.value);
+    toast.success("Critère supprimé avec succès.");
     getDatas();
   } catch (e) {
     console.error(e);
@@ -69,7 +69,7 @@ const deleteData = async () => {
 const handleEdit = (data) => {
   isCreate.value = false;
   idSelect.value = data.id;
-  payload.libelle = data.libelle;
+  payload.nom = data.nom;
   payload.description = data.description;
   showModalCreate.value = true;
 };
@@ -77,13 +77,13 @@ const handleEdit = (data) => {
 // Handle delete action
 const handleDelete = (data) => {
   idSelect.value = data.id;
-  nameSelect.value = data.libelle;
+  nameSelect.value = data.nom;
   deleteModalPreview.value = true;
 };
 
 // UI related functions
 const resetForm = () => {
-  payload.libelle = "";
+  payload.nom = "";
   payload.description = "";
   showModalCreate.value = false;
 };
@@ -113,13 +113,13 @@ onMounted(getDatas);
     </div>
 
     <!-- Data List -->
-    <ul v-if="!isLoadingData" class="overflow-y-auto listes max-h-[300px]">
+    <ul v-if="!isLoadingData" class="overflow-y-auto max-h-[300px]">
       <li v-for="data in datas" :key="data.id" class="flex items-center justify-between gap-2 px-1 py-1.5 text-base hover:bg-blue-100 list-data">
-        <div class="form-check">
-          <input :id="data.id" class="form-check-input" type="checkbox" :value="data.id" v-model="idChecked" />
-          <label class="form-check-label" :for="data.id">{{ data.libelle }}</label>
+        <div class="form-check p-2">
+          <input :id="data.id" class="form-check-input" type="radio" name="critere" :value="data.id" v-model="idChecked" />
+          <label class="form-check-label" :for="data.id">{{ data.nom }}</label>
         </div>
-        <div class="flex items-center gap-1 transition-all opacity-0 spacex-2 container-buttons">
+        <div v-if="data.id !== idChecked" class="flex items-center gap-1 transition-all opacity-0 spacex-2 container-buttons">
           <button class="p-2 text-primary" @click="handleEdit(data)">
             <EditIcon class="size-5" />
           </button>
@@ -134,12 +134,12 @@ onMounted(getDatas);
     <!-- Modal for creating/updating -->
     <Modal backdrop="static" :show="showModalCreate" @hidden="closeModal">
       <ModalHeader>
-        <h2 class="mr-auto text-base font-medium">{{ modeText }} une option de réponse</h2>
+        <h2 class="mr-auto text-base font-medium">{{ modeText }} un critère de gouvernance</h2>
       </ModalHeader>
       <form @submit.prevent="submitData">
         <ModalBody>
           <div class="grid grid-cols-1 gap-4">
-            <InputForm label="Libellé" v-model="payload.libelle" />
+            <InputForm label="Nom" v-model="payload.nom" />
             <InputForm label="Description" v-model="payload.description" :required="false" />
           </div>
         </ModalBody>
@@ -158,7 +158,7 @@ onMounted(getDatas);
         <div class="p-5 text-center">
           <XCircleIcon class="w-16 h-16 mx-auto mt-3 text-danger" />
           <div class="mt-5 text-lg">{{ nameSelect }}</div>
-          <div class="mt-2 text-slate-500">Supprimer l'option de réponse?</div>
+          <div class="mt-2 text-slate-500">Supprimer le principe de gouvernance?</div>
         </div>
         <div class="flex justify-center gap-3 py-4">
           <button type="button" @click="cancelDelete" class="btn btn-outline-secondary">Annuler</button>
@@ -172,10 +172,5 @@ onMounted(getDatas);
 <style scoped>
 .list-data:hover .container-buttons {
   opacity: 1;
-}
-
-.listes {
-  scrollbar-color: #a8a8a8 transparent;
-  scrollbar-arrow-color: transparent;
 }
 </style>

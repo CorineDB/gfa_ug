@@ -7,7 +7,13 @@ export const messageError = (error) => {
 };
 
 export function getAllErrorMessages(errorResponse) {
-  return Object.values(errorResponse.response.data.errors)
-    .flatMap((error) => error)
-    .join(", ");
+  if (errorResponse.response.data) {
+    const message = Object.values(errorResponse.response.data.errors)
+      .flatMap((error) => error)
+      .join(", ");
+    if (message) return message;
+    return "Une erreur est survenue.";
+  }
+
+  return "Une erreur est survenue.";
 }
