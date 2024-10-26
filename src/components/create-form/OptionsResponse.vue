@@ -18,6 +18,7 @@ const deleteModalPreview = ref(false);
 const isLoading = ref(false);
 const isLoadingData = ref(true);
 const isCreate = ref(true);
+const isEditOrDelete = ref(false);
 const datas = ref([]);
 
 // Fetch data
@@ -108,7 +109,11 @@ onMounted(getDatas);
 <template>
   <div>
     <!-- Button to open modal -->
-    <div class="flex justify-end mb-4">
+    <div class="flex items-center justify-between mb-4">
+      <div class="form-check form-switch">
+        <input id="response" class="form-check-input" type="checkbox" v-model="isEditOrDelete" />
+        <label class="form-check-label" for="response">Modifier/Supprimer</label>
+      </div>
       <button class="text-sm btn btn-primary" @click="openCreateModal"><PlusIcon class="mr-1 size-4" />Ajouter</button>
     </div>
 
@@ -130,7 +135,7 @@ onMounted(getDatas);
             </button>
           </div>
         </div>
-        <div v-if="!idChecked.includes(data.id)" class="flex items-center gap-1 space-x-1 transition-all opacity-0 container-buttons">
+        <div v-if="!idChecked.includes(data.id) && isEditOrDelete" class="flex items-center gap-1 space-x-1 transition-all opacity-0 container-buttons">
           <button class="p-1.5 text-white btn btn-primary" @click="handleEdit(data)">
             <Edit3Icon class="size-5" />
           </button>
