@@ -7,7 +7,6 @@ module.exports = {
     "./src/**/*.{php,html,js,jsx,ts,tsx,vue}",
     "./resources/**/*.{php,html,js,jsx,ts,tsx,vue}",
     "./node_modules/@left4code/tw-starter/**/*.js",
-    "./node_modules/flowbite/**/*.js",
     // ".//*.html",
   ],
   darkMode: "class",
@@ -101,7 +100,7 @@ module.exports = {
       },
     },
   },
-  plugins: [require("@tailwindcss/forms"), require("@tailwindcss/line-clamp"), require("flowbite/plugin")],
+  plugins: [require("@tailwindcss/forms")],
   variants: {
     extend: {
       boxShadow: ["dark"],
