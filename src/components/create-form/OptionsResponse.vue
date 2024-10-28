@@ -148,7 +148,7 @@ onMounted(getDatas);
             <label class="form-check-label" :for="data.id">{{ data.libelle }}</label>
           </div>
           <div v-if="idChecked.includes(data.id)" class="flex items-center gap-1 transition-all">
-            <input type="number" name="point" :id="`${data.id}${index}`" :value="globalOptionResponses.options_de_reponse.find((option) => option.id === data.id)?.point || ''" @input="updateTemporyOption(data.id, $event.target.value)" class="w-[75px] form-control" />
+            <input type="number" min="0.1" max="1" name="point" :id="`${data.id}${index}`" :value="globalOptionResponses.options_de_reponse.find((option) => option.id === data.id)?.point || ''" @input="updateTemporyOption(data.id, $event.target.value)" class="w-[75px] form-control" />
           </div>
         </div>
         <div v-if="!idChecked.includes(data.id) && isEditOrDelete" class="flex items-center gap-1 space-x-1 transition-all opacity-0 container-buttons">

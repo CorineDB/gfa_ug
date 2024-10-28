@@ -14,6 +14,7 @@ import InputForm from "@/components/news/InputForm.vue";
 import FormulaireFactuel from "@/services/modules/formFactuel.service";
 import PreviewFactuelForm from "@/components/create-form/PreviewFactuelForm.vue";
 import { getAllErrorMessages } from "@/utils/gestion-error";
+import ListFormFactuel from "@/components/create-form/ListFormFactuel.vue";
 
 const tabs = [
   {
@@ -31,12 +32,10 @@ const indexAccordion = ref(0);
 const resetCurrentForm = ref(false);
 const modalForm = ref(false);
 const isLoadingForm = ref(false);
-const isLoading = ref(false);
 const previewFormFactuelData = ref([]);
 const globalFormFactuelData = ref([]);
 const previewTypesGouvernance = ref({});
 const globalTypesGouvernance = ref({});
-const listForms = ref([]);
 const globalOptionResponses = ref({ options_de_reponse: [] });
 const typesGouvernance = ref({ types_de_gouvernance: [] });
 const uniqueKeys = new Map();
@@ -259,19 +258,6 @@ const createForm = async () => {
   }
 };
 
-const getListForm = async () => {
-  isLoading.value = true;
-  try {
-    const { data } = await FormulaireFactuel.get();
-    listForms.value = data.data;
-  } catch (e) {
-    toast.error("Erreur récupération liste des formulaires.");
-    console.log(e);
-  } finally {
-    isLoading.value = false;
-  }
-};
-
 const isCurrentFormValid = computed(() => {
   return Object.values(currentPreviewFactuelFormData).every((value) => value.id.trim() !== "");
 });
@@ -282,10 +268,6 @@ const showForm = computed(() => {
 
 onBeforeUnmount(() => {
   clearUniqueKeys();
-});
-
-onMounted(() => {
-  getListForm();
 });
 </script>
 
@@ -379,7 +361,9 @@ onMounted(() => {
               </div>
             </div>
           </TabPanel>
-          <TabPanel class="leading-relaxed"> It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like). </TabPanel>
+          <TabPanel class="">
+            <ListFormFactuel />
+          </TabPanel>
         </TabPanels>
       </TabGroup>
     </section>

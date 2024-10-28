@@ -7,8 +7,8 @@ const FormulaireFactuel = {
     });
   },
 
-  get() {
-    return ApiService.get(`gfa/formulaires-de-gouvernance`);
+  get(slug = "factuel") {
+    return ApiService.get(`gfa/formulaires-de-gouvernance?filters[type__eq]=${slug}`);
   },
 
   create(payload) {
