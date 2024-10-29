@@ -31,6 +31,7 @@ const resetCurrentForm = ref(false);
 const modalForm = ref(false);
 const isLoadingForm = ref(false);
 const fetchListForms = ref(false);
+const resetOptions = ref(false);
 const previewFormPerceptionData = ref([]);
 const globalFormPerceptionData = ref([]);
 const previewPrincipesGouvernance = ref({});
@@ -42,7 +43,6 @@ const uniqueKeys = new Map();
 const isAvailable = reactive({
   option: true,
   principe: true,
-  critere: true,
   indicateur: true,
 });
 
@@ -55,13 +55,11 @@ const payload = reactive({
 
 const currentPreviewPerceptionFormData = reactive({
   principe: { id: "", nom: "" },
-  critere: { id: "", nom: "" },
   indicateur: { id: "", nom: "" },
 });
 
 const currentGlobalPerceptionFormData = reactive({
   principe: "",
-  critere: "",
   indicateur: "",
 });
 
@@ -77,20 +75,13 @@ const organiseGlobalFormPerceptionData = (submissions) => {
     // Trouver ou créer le principe de gouvernance
     let principe = principesGouvernance.value.principes_de_gouvernance.find((p) => p.id === submission.principe);
     if (!principe) {
-      principe = { id: submission.principe, criteres_de_gouvernance: [] };
+      principe = { id: submission.principe, questions_operationnelle: [] };
       principesGouvernance.value.principes_de_gouvernance.push(principe);
     }
 
-    // Trouver ou créer le critère de gouvernance
-    let critere = principe.criteres_de_gouvernance.find((c) => c.id === submission.critere);
-    if (!critere) {
-      critere = { id: submission.critere, questions_operationnelle: [] };
-      principe.criteres_de_gouvernance.push(critere);
-    }
-
     // Ajouter l'indicateur de gouvernance s'il n'est pas déjà présent
-    if (!critere.questions_operationnelle.includes(submission.indicateur)) {
-      critere.questions_operationnelle.push(submission.indicateur);
+    if (!principe.questions_operationnelle.includes(submission.indicateur)) {
+      principe.questions_operationnelle.push(submission.indicateur);
     }
   });
 
@@ -103,22 +94,15 @@ const organisePreviewFormPerceptionData = (submissions) => {
     // Trouver ou créer le principe de gouvernance
     let principe = organisedData.principes_de_gouvernance.find((p) => p.id === submission.principe.id);
     if (!principe) {
-      principe = { id: submission.principe.id, nom: submission.principe.nom, criteres_de_gouvernance: [] };
+      principe = { id: submission.principe.id, nom: submission.principe.nom, questions_operationnelle: [] };
       organisedData.principes_de_gouvernance.push(principe);
     }
 
-    // Trouver ou créer le critère de gouvernance
-    let critere = principe.criteres_de_gouvernance.find((c) => c.id === submission.critere.id);
-    if (!critere) {
-      critere = { id: submission.critere.id, nom: submission.critere.nom, questions_operationnelle: [] };
-      principe.criteres_de_gouvernance.push(critere);
-    }
-
     // Trouver ou créer l'indicateur de gouvernance
-    let indicateur = critere.questions_operationnelle.find((i) => i.id === submission.indicateur.id);
+    let indicateur = principe.questions_operationnelle.find((i) => i.id === submission.indicateur.id);
     if (!indicateur) {
       indicateur = { id: submission.indicateur.id, nom: submission.indicateur.nom };
-      critere.questions_operationnelle.push(indicateur);
+      principe.questions_operationnelle.push(indicateur);
     }
   });
 
@@ -140,6 +124,10 @@ const resetCurrentGlobalFactuelFormData = () => {
 const resetAllForm = () => {
   resetCurrentGlobalFactuelFormData();
   resetCurrentPreviewFactuelFormData();
+  resetOptions.value = !resetOptions.value;
+  resetCurrentForm.value = !resetCurrentForm.value;
+  globalOptionResponses.value.options_de_reponse = [];
+  principesGouvernance.value.principes_de_gouvernance = [];
   globalFormPerceptionData.value = [];
   previewFormPerceptionData.value = [];
 };
@@ -159,11 +147,6 @@ const getPrincipe = (principe) => {
   changeIndexAccordion(1);
   currentGlobalPerceptionFormData.principe = principe.id;
   currentPreviewPerceptionFormData.principe = { id: principe.id, nom: principe.nom };
-};
-const getCritere = (critere) => {
-  changeIndexAccordion(3);
-  currentGlobalPerceptionFormData.critere = critere.id;
-  currentPreviewPerceptionFormData.critere = { id: critere.id, nom: critere.nom };
 };
 
 const getQuestion = (question) => {
@@ -222,7 +205,7 @@ const createForm = async () => {
     fetchListForms.value = !fetchListForms.value;
     resetForm();
     clearUniqueKeys();
-    // resetAllForm();
+    resetAllForm();
   } catch (e) {
     toast.error(getAllErrorMessages(e));
     console.log(e);
@@ -254,7 +237,7 @@ onBeforeUnmount(() => {
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <OptionsResponse v-model:globalOptionResponses="globalOptionResponses" />
+            <OptionsResponse :reset-to="resetOptions" v-model:globalOptionResponses="globalOptionResponses" />
           </AccordionPanel>
         </AccordionItem>
 
@@ -264,17 +247,7 @@ onBeforeUnmount(() => {
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <QuestionsOperationnel :to-reset="false" :is-available="isAvailable.indicateur" @selected="getQuestion" />
-          </AccordionPanel>
-        </AccordionItem>
-
-        <AccordionItem>
-          <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
-            <p>Critères de gouvernance</p>
-            <ChevronDownIcon />
-          </Accordion>
-          <AccordionPanel class="p-2">
-            <CritereGouvernance :to-reset="false" :is-available="isAvailable.critere" @selected="getCritere" />
+            <QuestionsOperationnel :to-reset="resetCurrentForm" :is-available="isAvailable.indicateur" @selected="getQuestion" />
           </AccordionPanel>
         </AccordionItem>
 
@@ -284,7 +257,7 @@ onBeforeUnmount(() => {
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <PrincipeGouvernance :to-reset="false" :is-available="isAvailable.principe" @selected="getPrincipe" />
+            <PrincipeGouvernance :to-reset="resetCurrentForm" :is-available="isAvailable.principe" @selected="getPrincipe" />
           </AccordionPanel>
         </AccordionItem>
       </AccordionGroup>
@@ -300,7 +273,7 @@ onBeforeUnmount(() => {
             <div class="flex flex-col gap-8">
               <div class="space-y-2">
                 <p class="text-lg font-medium">Ajouter des questions opérationnelles</p>
-                <PerceptionStructure :principe="currentPreviewPerceptionFormData.principe.nom" :critere="currentPreviewPerceptionFormData.critere.nom" :indicateur="currentPreviewPerceptionFormData.indicateur.nom" />
+                <PerceptionStructure :principe="currentPreviewPerceptionFormData.principe.nom" :indicateur="currentPreviewPerceptionFormData.indicateur.nom" />
                 <button :disabled="!isCurrentFormValid" @click="addNewIndicator" class="my-4 text-sm btn btn-primary"><PlusIcon class="mr-1 size-4" />Ajouter</button>
               </div>
               <div class="space-y-2">

@@ -25,7 +25,6 @@ const remove = (index) => {
                   <TrashIcon class="size-5" />
                 </button>
               </div>
-              <div class="text-black border-yellow-200 border-l-2 shadow rounded bg-white px-2 py-2.5 text-base font-medium truncate transition-all">{{ indicateur.critere.nom }}</div>
               <div class="text-black border-yellow-200 border-l-2 shadow rounded bg-white px-2 py-2.5 text-base font-medium truncate transition-all">{{ indicateur.principe.nom }}</div>
             </div>
           </AccordionPanel>

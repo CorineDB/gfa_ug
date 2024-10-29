@@ -32,6 +32,7 @@ const indexAccordion = ref(0);
 const resetCurrentForm = ref(false);
 const modalForm = ref(false);
 const isLoadingForm = ref(false);
+const resetOptions = ref(false);
 const fetchListForms = ref(false);
 const previewFormFactuelData = ref([]);
 const globalFormFactuelData = ref([]);
@@ -169,6 +170,12 @@ const resetCurrentGlobalFactuelFormData = () => {
 const resetAllForm = () => {
   resetCurrentGlobalFactuelFormData();
   resetCurrentPreviewFactuelFormData();
+  // resetOptions.value = !resetOptions.value;
+  // resetCurrentForm.value = !resetCurrentForm.value;
+  // globalOptionResponses.value.options_de_reponse = [];
+  // principesGouvernance.value.principes_de_gouvernance = [];
+  // globalTypesGouvernance.value.types_de_gouvernance = [];
+  // previewTypesGouvernance.value.types_de_gouvernance = [];
   globalFormFactuelData.value = [];
   previewFormFactuelData.value = [];
 };
@@ -291,7 +298,7 @@ onBeforeUnmount(() => {
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <OptionsResponse v-model:globalOptionResponses="globalOptionResponses" />
+            <OptionsResponse :is-reset="resetOptions" v-model:globalOptionResponses="globalOptionResponses" />
           </AccordionPanel>
         </AccordionItem>
 

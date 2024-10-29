@@ -8,6 +8,10 @@ import { toast } from "vue3-toastify";
 import LoaderData from "./LoaderData.vue";
 import { getAllErrorMessages } from "@/utils/gestion-error";
 
+const props = defineProps({
+  toReset: Boolean,
+});
+
 // Reactive data structure
 const payload = reactive({ libelle: "", description: "" });
 const idSelect = ref("");
@@ -124,6 +128,14 @@ watch(idChecked, (newChecked, oldChecked) => {
     }
   });
 });
+
+watch(
+  () => props.toReset,
+  () => {
+    idChecked.value = [];
+  }
+);
+
 // Fetch data on component mount
 onMounted(getDatas);
 </script>

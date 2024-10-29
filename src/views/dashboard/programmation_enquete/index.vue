@@ -269,15 +269,6 @@ onMounted(() => {
         <div @click="gotoAppreciations(item)" class="p-5 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg cursor-pointer box border-primary hover:scale-105 hover:bg-gray-50">
           <!-- En-tête avec sigle et titre -->
           <div class="relative flex items-start pt-5">
-            <div class="flex flex-col items-center w-full gap-2 lg:flex-row">
-              <!-- Item details -->
-              <div class="mt-3 text-center lg:text-left lg:mt-0">
-                <span class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary">
-                  {{ item.nom }}
-                </span>
-              </div>
-              <span :class="getStatusText(item.statut).class" class="px-2 py-1 mr-1 text-xs text-white rounded-full">{{ getStatusText(item.statut).label }}</span>
-            </div>
             <!-- Dropdown for actions -->
             <Dropdown class="absolute top-0 right-0 mt-2 mr-2">
               <DropdownToggle tag="a" class="block w-5 h-5 cursor-pointer">
@@ -290,6 +281,16 @@ onMounted(() => {
                 </DropdownContent>
               </DropdownMenu>
             </Dropdown>
+          </div>
+
+          <div class="flex flex-col items-center w-full gap-2 mt-2 xl:flex-row">
+            <!-- Item details -->
+            <div class="text-center lg:text-left lg:mt-0">
+              <span class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary">
+                {{ item.nom }}
+              </span>
+            </div>
+            <span :class="getStatusText(item.statut).class" class="px-2 py-1 mr-1 text-xs text-white rounded-full">{{ getStatusText(item.statut).label }}</span>
           </div>
 
           <!-- Description section with distinct styling -->

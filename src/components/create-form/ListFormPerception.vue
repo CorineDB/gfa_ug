@@ -5,7 +5,7 @@ import LoaderSnipper from "@/components/LoaderSnipper.vue";
 import Tabulator from "tabulator-tables";
 import { toast } from "vue3-toastify";
 import FormulaireFactuel from "@/services/modules/formFactuel.service";
-import PreviewDetailFactuelForm from "@/components/create-form/PreviewDetailFactuelForm.vue";
+import PreviewDetailPerceptionForm from "@/components/create-form/PreviewDetailPerceptionForm.vue";
 import DeleteButton from "@/components/news/DeleteButton.vue";
 
 const prop = defineProps({
@@ -177,7 +177,7 @@ onMounted(() => {
 
       <ModalBody class="space-y-5">
         <div class="max-h-[50vh] h-[50vh] overflow-y-auto">
-          <PreviewDetailFactuelForm :datas="previewForm.categories_de_gouvernance" />
+          <PreviewDetailPerceptionForm :datas="previewForm.categories_de_gouvernance" />
         </div>
       </ModalBody>
     </div>
