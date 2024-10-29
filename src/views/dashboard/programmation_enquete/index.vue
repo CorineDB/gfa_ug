@@ -7,9 +7,13 @@ import DeleteButton from "@/components/news/DeleteButton.vue";
 import { toast } from "vue3-toastify";
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
 import EnqueteDeColleteService from "@/services/modules/enqueteDeCollecte.service";
+import FormulaireFactuel from "@/services/modules/formFactuel.service";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
+
+const idFormFactuel = ref("");
+const idFormPerception = ref("");
 
 const payload = reactive({
   nom: "",
@@ -17,6 +21,7 @@ const payload = reactive({
   description: "",
   debut: "",
   fin: "",
+  formulaires: [],
 });
 
 const tabulator = ref();
@@ -27,9 +32,12 @@ const isLoading = ref(false);
 const isLoadingData = ref(true);
 const isCreate = ref(true);
 const datas = ref([]);
+const formulairesFactuel = ref([]);
+const formulairesPerception = ref([]);
 
 const createData = async () => {
   isLoading.value = true;
+  payload.formulaires = [idFormFactuel.value, idFormPerception.value];
   await EnqueteDeColleteService.create(payload)
     .then(() => {
       isLoading.value = false;
@@ -51,26 +59,44 @@ const getDatas = async () => {
       isLoadingData.value = false;
     })
     .catch((e) => {
-      console.error(e);
       isLoadingData.value = false;
       toast.error("Une erreur est survenue: Liste des enquêtes.");
     });
   initTabulator();
+};
+const getFormsFactuel = async () => {
+  await FormulaireFactuel.get()
+    .then((result) => {
+      formulairesFactuel.value = result.data.data;
+    })
+    .catch((e) => {
+      toast.error("Une erreur est survenue: Liste des formulaires factuel.");
+    });
+};
+const getFormsPerception = async () => {
+  await FormulaireFactuel.get("perception")
+    .then((result) => {
+      formulairesPerception.value = result.data.data;
+    })
+    .catch((e) => {
+      toast.error("Une erreur est survenue: Liste des formulaires de perception.");
+    });
 };
 
 const updateData = async () => {
   isLoading.value = true;
   await EnqueteDeColleteService.update(idSelect.value, payload)
     .then(() => {
-      isLoading.value = false;
       getDatas();
       resetForm();
       toast.success("Enquête modifiée.");
     })
     .catch((e) => {
-      isLoading.value = false;
       console.error(e);
       toast.error("Vérifier les informations et ressayer.");
+    })
+    .finally(() => {
+      isLoading.value = false;
     });
 };
 const submitData = () => (isCreate.value ? createData() : updateData());
@@ -157,13 +183,13 @@ const initTabulator = () => {
 const getStatusText = (param) => {
   switch (param) {
     case 2:
-      return "Terminé";
+      return { label: "Terminé", class: "bg-success" };
     case 1:
-      return "En cours";
+      return { label: "En cours", class: "bg-warning" };
     case 0:
-      return "Non demarré";
+      return { label: "Non demarré", class: "bg-primary" };
     default:
-      return "A déterminer";
+      return { label: "A déterminer", class: "bg-primary" };
   }
 };
 
@@ -176,8 +202,6 @@ function gotoAppreciations(enquete) {
 }
 
 const handleEdit = (params) => {
-  console.log(params);
-
   isCreate.value = false;
   idSelect.value = params.id;
   payload.nom = params.nom;
@@ -185,6 +209,8 @@ const handleEdit = (params) => {
   payload.objectif = params.objectif;
   payload.debut = params.debut;
   payload.fin = params.fin;
+  // idFormFactuel.value = params.formulaire;
+  // idFormPerception.value = params.formulaire;
   showModalCreate.value = true;
 };
 const handleDelete = (params) => {
@@ -201,6 +227,8 @@ const resetForm = () => {
   payload.objectif = "";
   payload.debut = "";
   payload.fin = "";
+  idFormFactuel.value = "";
+  idFormPerception.value = "";
   showModalCreate.value = false;
 };
 const openCreateModal = () => {
@@ -211,6 +239,7 @@ const mode = computed(() => (isCreate.value ? "Ajouter" : "Modifier"));
 
 onMounted(() => {
   getDatas();
+  getFormsFactuel();
 });
 </script>
 
@@ -230,31 +259,62 @@ onMounted(() => {
     </div>
   </div>
 
-  <div class="p-5 mt-5 intro-y box">
-    <div class="flex flex-col sm:flex-row sm:items-end xl:items-start">
-      <div></div>
-      <div class="flex mt-5 sm:mt-0">
-        <button id="tabulator-print" class="w-1/2 mr-2 btn btn-outline-secondary sm:w-auto"><PrinterIcon class="w-4 h-4 mr-2" /> Print</button>
-        <Dropdown class="w-1/2 sm:w-auto">
-          <DropdownToggle class="w-full btn btn-outline-secondary sm:w-auto">
-            <FileTextIcon class="w-4 h-4 mr-2" /> Export
-            <ChevronDownIcon class="w-4 h-4 ml-auto sm:ml-2" />
-          </DropdownToggle>
-          <DropdownMenu class="w-40">
-            <DropdownContent>
-              <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Export CSV </DropdownItem>
-              <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Export JSON </DropdownItem>
-              <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Export XLSX </DropdownItem>
-              <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Export HTML </DropdownItem>
-            </DropdownContent>
-          </DropdownMenu>
-        </Dropdown>
+  <div class="p-5 mt-5 intro-y">
+    <!-- <div class="overflow-x-auto scrollbar-hidden" v-if="!isLoadingData">
+      <div id="tabulator" class="mt-5 table-report table-report--tabulator"></div>
+    </div> -->
+    <LoaderSnipper v-if="isLoadingData" />
+    <div class="grid grid-cols-12 gap-6 mt-5">
+      <div v-for="(item, index) in datas" :key="index" class="col-span-12 p-4 md:col-span-6 lg:col-span-4">
+        <div @click="gotoAppreciations(item)" class="p-5 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg cursor-pointer box border-primary hover:scale-105 hover:bg-gray-50">
+          <!-- En-tête avec sigle et titre -->
+          <div class="relative flex items-start pt-5">
+            <!-- Dropdown for actions -->
+            <Dropdown class="absolute top-0 right-0 mt-2 mr-2">
+              <DropdownToggle tag="a" class="block w-5 h-5 cursor-pointer">
+                <MoreVerticalIcon class="w-5 h-5 text-gray-400 transition-colors hover:text-gray-600" />
+              </DropdownToggle>
+              <DropdownMenu class="w-40 bg-white rounded-md shadow-lg">
+                <DropdownContent>
+                  <DropdownItem @click="handleEdit(item)"> <Edit2Icon class="w-4 h-4 mr-2 text-gray-600" /> Modifier </DropdownItem>
+                  <DropdownItem @click="handleDelete(item)"> <TrashIcon class="w-4 h-4 mr-2 text-red-500" /> Supprimer </DropdownItem>
+                </DropdownContent>
+              </DropdownMenu>
+            </Dropdown>
+          </div>
+
+          <div class="flex flex-col items-center w-full gap-2 mt-2 xl:flex-row">
+            <!-- Item details -->
+            <div class="text-center lg:text-left lg:mt-0">
+              <span class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary">
+                {{ item.nom }}
+              </span>
+            </div>
+            <span :class="getStatusText(item.statut).class" class="px-2 py-1 mr-1 text-xs text-white rounded-full">{{ getStatusText(item.statut).label }}</span>
+          </div>
+
+          <!-- Description section with distinct styling -->
+          <div class="mt-5 text-center lg:text-left">
+            <div class="" v-if="item.description">
+              <p class="mb-3 text-base font-semibold text-primary">Description</p>
+              <p class="p-3 text-gray-600 rounded-lg shadow-sm bg-gray-50">{{ item.description }}</p>
+            </div>
+
+            <!-- Other details with iconized section headers -->
+            <div class="mt-5 space-y-3 text-gray-600">
+              <div class="flex items-center text-sm font-medium text-gray-700">
+                <CalendarIcon class="w-4 h-4 mr-2 text-primary" /> Date de début:
+                <span class="ml-2 font-semibold text-gray-900">{{ item.debut }}</span>
+              </div>
+              <div class="flex items-center text-sm font-medium text-gray-700">
+                <CalendarIcon class="w-4 h-4 mr-2 text-primary" /> Date de fin:
+                <span class="ml-2 font-semibold text-gray-900">{{ item.fin }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="overflow-x-auto scrollbar-hidden" v-if="!isLoadingData">
-      <div id="tabulator" class="mt-5 table-report table-report--tabulator"></div>
-    </div>
-    <LoaderSnipper v-if="isLoadingData" />
   </div>
 
   <!-- Modal Register & Update -->
@@ -268,8 +328,22 @@ onMounted(() => {
           <InputForm label="Nom" v-model="payload.nom" />
           <InputForm label="Objectif" v-model="payload.objectif" />
           <InputForm label="Description" v-model="payload.description" :required="false" />
-          <InputForm label="Début de l'enquete " v-model="payload.debut" type="date" />
-          <InputForm label="Début de l'enquete " v-model="payload.fin" type="date" />
+          <div class="flex w-full gap-4">
+            <InputForm label="Début de l'enquete " v-model="payload.debut" type="date" />
+            <InputForm label="Début de l'enquete " v-model="payload.fin" type="date" />
+          </div>
+          <div class="">
+            <label class="form-label">Formulaires Factuel</label>
+            <TomSelect v-model="idFormFactuel" :options="{ placeholder: 'Selectionez un formulaire' }" class="w-full">
+              <option v-for="(form, index) in formulairesFactuel" :key="index" :value="form.id">{{ form.libelle }}</option>
+            </TomSelect>
+          </div>
+          <div class="">
+            <label class="form-label">Formulaires de perception</label>
+            <TomSelect v-model="idFormPerception" :options="{ placeholder: 'Selectionez un formulaire' }" class="w-full">
+              <option v-for="(form, index) in formulairesPerception" :key="index" :value="form.id">{{ form.libelle }}</option>
+            </TomSelect>
+          </div>
         </div>
       </ModalBody>
       <ModalFooter>
