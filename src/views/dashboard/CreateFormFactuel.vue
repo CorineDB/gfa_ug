@@ -32,6 +32,7 @@ const indexAccordion = ref(0);
 const resetCurrentForm = ref(false);
 const modalForm = ref(false);
 const isLoadingForm = ref(false);
+const fetchListForms = ref(false);
 const previewFormFactuelData = ref([]);
 const globalFormFactuelData = ref([]);
 const previewTypesGouvernance = ref({});
@@ -71,8 +72,8 @@ const currentGlobalFactuelFormData = reactive({
 });
 
 // Fonction pour générer une clé unique pour chaque soumission
-const generateKey = (submission) => {
-  return `${submission.indicateur}`;
+const generateKey = (id) => {
+  return `${id}`;
 };
 
 const organiseGlobalFormFactuelData = (submissions) => {
@@ -165,6 +166,12 @@ const resetCurrentGlobalFactuelFormData = () => {
   // });
   currentGlobalFactuelFormData.indicateur = "";
 };
+const resetAllForm = () => {
+  resetCurrentGlobalFactuelFormData();
+  resetCurrentPreviewFactuelFormData();
+  globalFormFactuelData.value = [];
+  previewFormFactuelData.value = [];
+};
 
 const updateAllTypesGouvernance = () => {
   globalTypesGouvernance.value = organiseGlobalFormFactuelData(globalFormFactuelData.value);
@@ -203,7 +210,7 @@ const getQuestion = (question) => {
 };
 
 const addNewIndicator = () => {
-  const key = generateKey(currentGlobalFactuelFormData);
+  const key = generateKey(currentGlobalFactuelFormData.indicateur);
 
   // Ajouter la soumission si la clé est absente
   if (!uniqueKeys.has(key)) {
@@ -217,21 +224,21 @@ const addNewIndicator = () => {
     resetCurrentGlobalFactuelFormData();
     resetCurrentForm.value = !resetCurrentForm.value;
     toast.success("Indicateur ajouté.");
+  } else {
+    toast.error("Indicateur exisant.");
   }
 };
 const removeIndicator = (indicateur) => {
-  const key = generateKey(indicateur);
-  console.log("delete");
-
+  const key = generateKey(indicateur.id);
   // Trouver l'index de la soumission à supprimer
-  const index = globalFormFactuelData.value.findIndex((s) => s.type === indicateur.type.id && s.principe === indicateur.principe.id && s.critere === indicateur.critere.id && s.indicateur === indicateur.indicateur.id);
-
+  const index = globalFormFactuelData.value.findIndex((s) => s.indicateur === indicateur.id);
   // Supprimer la soumission et sa clé si elle est trouvée
   if (index !== -1) {
     globalFormFactuelData.value.splice(index, 1);
     previewFormFactuelData.value.splice(index, 1);
-    addNewIndicator.uniqueKeys.delete(key);
+    uniqueKeys.delete(key);
     updateAllTypesGouvernance();
+    toast.success("Indicateur supprimé.");
     // console.log("Nouvelle Global:", globalFormFactuelData.value);
     // console.log("Nouvelle preview:", previewFormFactuelData.value);
   }
@@ -249,7 +256,10 @@ const createForm = async () => {
   try {
     await FormulaireFactuel.create(payload);
     toast.success(`Formulaire créé avec succès.`);
+    fetchListForms.value = !fetchListForms.value;
     resetForm();
+    clearUniqueKeys();
+    // resetAllForm();
   } catch (e) {
     toast.error(getAllErrorMessages(e));
     console.log(e);
@@ -353,7 +363,7 @@ onBeforeUnmount(() => {
               <div class="space-y-2">
                 <p class="text-lg font-medium">Liste des indicateurs</p>
                 <div class="max-h-[40vh] h-[40vh] py-2 border-t overflow-y-auto">
-                  <ListAccordionIndicateur :indicateurs-array="previewFormFactuelData" />
+                  <ListAccordionIndicateur :indicateurs-array="previewFormFactuelData" @remove="removeIndicator" />
                 </div>
                 <div class="flex justify-start pt-4 pb-2">
                   <button :disabled="!showForm" @click="modalForm = true" class="px-5 text-base btn btn-primary"><CheckIcon class="mr-1 size-5" />Valider les indicateurs</button>
@@ -362,7 +372,7 @@ onBeforeUnmount(() => {
             </div>
           </TabPanel>
           <TabPanel class="">
-            <ListFormFactuel />
+            <ListFormFactuel :fetch-data="fetchListForms" />
           </TabPanel>
         </TabPanels>
       </TabGroup>
@@ -389,7 +399,7 @@ onBeforeUnmount(() => {
       </ModalBody>
       <ModalFooter>
         <div class="flex gap-2">
-          <button type="button" @click="resetForm" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
+          <button type="button" @click="modalForm = false" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
           <VButton :loading="isLoadingForm" label="Enregistrer" />
         </div>
       </ModalFooter>

@@ -10,6 +10,12 @@ const FormulaireFactuel = {
   get(slug = "factuel") {
     return ApiService.get(`gfa/formulaires-de-gouvernance?filters[type__eq]=${slug}`);
   },
+  getAll() {
+    return ApiService.get(`gfa/formulaires-de-gouvernance`);
+  },
+  getOne(id) {
+    return ApiService.get(`gfa/formulaires-de-gouvernance/${id}`);
+  },
 
   create(payload) {
     return ApiService.post(`gfa/formulaires-de-gouvernance`, payload);
@@ -19,8 +25,8 @@ const FormulaireFactuel = {
     return ApiService.update("gfa/formulaires-de-gouvernance", slug, params);
   },
 
-  destroy(slug) {
-    return ApiService.delete(`gfa/formulaires-de-gouvernance/${slug}`);
+  destroy(id) {
+    return ApiService.delete(`gfa/formulaires-de-gouvernance/${id}`);
   },
 };
 

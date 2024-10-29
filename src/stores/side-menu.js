@@ -98,11 +98,11 @@ export const useSideMenuStore = defineStore("sideMenu", {
         title: "Organisations",
       },
 
-      {
-        icon: "BarChart2Icon",
-        pageName: "indicateursDeGouvernance",
-        title: "Indicateurs de gouvernance",
-      },
+      // {
+      //   icon: "BarChart2Icon",
+      //   pageName: "indicateursDeGouvernance",
+      //   title: "Indicateurs de gouvernance",
+      // },
       {
         icon: "FolderIcon",
         pageName: "projets",
