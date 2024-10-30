@@ -32,7 +32,7 @@ const remove = (index) => {
       </AccordionGroup>
     </div>
     <div v-else class="flex justify-center py-3">
-      <p class="text-lg font-medium text-gray-600">Ajouter des Questions pour voir la liste ici.</p>
+      <p class="text-lg font-medium text-gray-600">Ajouter des questions pour voir la liste ici.</p>
     </div>
   </div>
 </template>

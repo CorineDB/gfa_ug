@@ -1,12 +1,11 @@
 <script setup>
-import { onBeforeUnmount, reactive, ref, computed, onMounted } from "vue";
+import { onBeforeUnmount, reactive, ref, computed } from "vue";
 import { toast } from "vue3-toastify";
 import OptionsResponse from "@/components/create-form/OptionsResponse.vue";
 import TypeGouvernance from "@/components/create-form/TypeGouvernance.vue";
 import PrincipeGouvernance from "@/components/create-form/PrincipeGouvernance.vue";
 import CritereGouvernance from "@/components/create-form/CritereGouvernance.vue";
 import IndicateurGouvernance from "@/components/create-form/IndicateurGouvernance.vue";
-import QuestionsOperationnel from "@/components/create-form/QuestionsOperationnel.vue";
 import FactuelStructure from "@/components/create-form/FactuelStructure.vue";
 import ListAccordionIndicateur from "@/components/create-form/ListAccordionIndicateur.vue";
 import VButton from "@/components/news/VButton.vue";
@@ -15,6 +14,7 @@ import FormulaireFactuel from "@/services/modules/formFactuel.service";
 import PreviewFactuelForm from "@/components/create-form/PreviewFactuelForm.vue";
 import { getAllErrorMessages } from "@/utils/gestion-error";
 import ListFormFactuel from "@/components/create-form/ListFormFactuel.vue";
+import ListOptionsResponse from "@/components/create-form/ListOptionsResponse.vue";
 
 const tabs = [
   {
@@ -38,6 +38,7 @@ const previewFormFactuelData = ref([]);
 const globalFormFactuelData = ref([]);
 const previewTypesGouvernance = ref({});
 const globalTypesGouvernance = ref({});
+const previewOptionResponses = ref({ options_de_reponse: [] });
 const globalOptionResponses = ref({ options_de_reponse: [] });
 const typesGouvernance = ref({ types_de_gouvernance: [] });
 const uniqueKeys = new Map();
@@ -211,10 +212,6 @@ const getIndicateur = (indicateur) => {
   currentGlobalFactuelFormData.indicateur = indicateur.id;
   currentPreviewFactuelFormData.indicateur = { id: indicateur.id, nom: indicateur.nom };
 };
-const getQuestion = (question) => {
-  currentGlobalFactuelFormData.question = question.id;
-  currentPreviewFactuelFormData.question = { id: question.id, nom: question.nom };
-};
 
 const addNewIndicator = () => {
   const key = generateKey(currentGlobalFactuelFormData.indicateur);
@@ -275,12 +272,19 @@ const createForm = async () => {
   }
 };
 
+const previewForm = () => {
+  if (globalOptionResponses.value.options_de_reponse.length >= 2) modalForm.value = true;
+  else {
+    toast.error("Ajouter au moins deux options de réponses.");
+  }
+};
+
 const isCurrentFormValid = computed(() => {
   return Object.values(currentPreviewFactuelFormData).every((value) => value.id.trim() !== "");
 });
 
 const showForm = computed(() => {
-  return globalFormFactuelData.value.length > 0 && globalOptionResponses.value.options_de_reponse.length >= 2;
+  return globalFormFactuelData.value.length > 0;
 });
 
 onBeforeUnmount(() => {
@@ -298,7 +302,7 @@ onBeforeUnmount(() => {
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <OptionsResponse :is-reset="resetOptions" v-model:globalOptionResponses="globalOptionResponses" />
+            <OptionsResponse :is-reset="resetOptions" v-model:previewOptionResponses="previewOptionResponses" v-model:globalOptionResponses="globalOptionResponses" />
           </AccordionPanel>
         </AccordionItem>
 
@@ -311,16 +315,6 @@ onBeforeUnmount(() => {
             <IndicateurGouvernance :to-reset="resetCurrentForm" :is-available="isAvailable.indicateur" @selected="getIndicateur" />
           </AccordionPanel>
         </AccordionItem>
-
-        <!-- <AccordionItem v-show="currentTab === 1" class="">
-          <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
-            <p>Questions opérationnelles</p>
-            <ChevronDownIcon />
-          </Accordion>
-          <AccordionPanel class="p-2">
-            <QuestionsOperationnel :to-reset="resetCurrentForm" :is-available="isAvailable.question" @selected="getIndicateur" />
-          </AccordionPanel>
-        </AccordionItem> -->
 
         <AccordionItem class="">
           <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
@@ -363,6 +357,10 @@ onBeforeUnmount(() => {
           <TabPanel class="leading-relaxed">
             <div class="flex flex-col gap-8">
               <div class="space-y-2">
+                <p class="text-lg font-medium">Liste des options de réponses</p>
+                <ListOptionsResponse :options="previewOptionResponses.options_de_reponse" />
+              </div>
+              <div class="space-y-2">
                 <p class="text-lg font-medium">Ajouter des indicateurs</p>
                 <FactuelStructure :type="currentPreviewFactuelFormData.type.nom" :principe="currentPreviewFactuelFormData.principe.nom" :critere="currentPreviewFactuelFormData.critere.nom" :indicateur="currentPreviewFactuelFormData.indicateur.nom" />
                 <button :disabled="!isCurrentFormValid" @click="addNewIndicator" class="my-4 text-sm btn btn-primary"><PlusIcon class="mr-1 size-4" />Ajouter</button>
@@ -373,7 +371,7 @@ onBeforeUnmount(() => {
                   <ListAccordionIndicateur :indicateurs-array="previewFormFactuelData" @remove="removeIndicator" />
                 </div>
                 <div class="flex justify-start pt-4 pb-2">
-                  <button :disabled="!showForm" @click="modalForm = true" class="px-5 text-base btn btn-primary"><CheckIcon class="mr-1 size-5" />Valider les indicateurs</button>
+                  <button :disabled="!showForm" @click="previewForm" class="px-5 text-base btn btn-primary"><CheckIcon class="mr-1 size-5" />Prévisualiser le formumlaire</button>
                 </div>
               </div>
             </div>
@@ -398,6 +396,10 @@ onBeforeUnmount(() => {
             <label for="annee" class="form-label">Année</label>
             <input id="annee" type="number" required v-model.number="payload.annee_exercice" class="form-control" placeholder="Année" />
           </div>
+        </div>
+        <div>
+          <p class="mb-3">Options de réponses</p>
+          <ListOptionsResponse :options="previewOptionResponses.options_de_reponse" />
         </div>
         <div class="max-h-[50vh] h-[50vh] overflow-y-auto">
           <p class="mb-3">Formulaire factuel</p>

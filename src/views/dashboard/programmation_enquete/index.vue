@@ -240,6 +240,7 @@ const mode = computed(() => (isCreate.value ? "Ajouter" : "Modifier"));
 onMounted(() => {
   getDatas();
   getFormsFactuel();
+  getFormsPerception();
 });
 </script>
 
@@ -283,7 +284,7 @@ onMounted(() => {
             </Dropdown>
           </div>
 
-          <div class="flex flex-col items-center w-full gap-2 mt-2 xl:flex-row">
+          <div class="flex flex-col items-start w-full gap-2 mt-2">
             <!-- Item details -->
             <div class="text-center lg:text-left lg:mt-0">
               <span class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary">

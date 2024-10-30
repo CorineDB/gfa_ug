@@ -1,12 +1,12 @@
 <script setup>
-import { ref, watch } from "vue";
-import { onMounted } from "vue";
+import { ref, watch, computed, onMounted } from "vue";
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
 import Tabulator from "tabulator-tables";
 import { toast } from "vue3-toastify";
 import FormulaireFactuel from "@/services/modules/formFactuel.service";
 import PreviewDetailPerceptionForm from "@/components/create-form/PreviewDetailPerceptionForm.vue";
 import DeleteButton from "@/components/news/DeleteButton.vue";
+import ListOptionsResponse from "@/components/create-form/ListOptionsResponse.vue";
 
 const prop = defineProps({
   fetchData: Boolean,
@@ -131,6 +131,15 @@ const cancelDelete = () => {
   showModalDelete.value = false;
 };
 
+const optionPreviewForm = computed(() => {
+  if (previewForm.value.options_de_reponse)
+    return previewForm.value.options_de_reponse.map((option) => ({
+      id: option.id,
+      point: option.pivot.point,
+      libelle: option.libelle,
+    }));
+});
+
 watch(
   () => prop.fetchData,
   () => {
@@ -150,21 +159,6 @@ onMounted(() => {
     <div v-show="!isLoading" class="overflow-x-auto scrollbar-hidden">
       <div id="tabulator" class="mt-5 table-report table-report--tabulator"></div>
     </div>
-    <!-- <div v-if="!isLoading" class="grid gap-3 mx-auto grid-cols-[repeat(auto-fill,_minmax(350px,_1fr))] mt-5" v-for="form in listForms" :key="form.id">
-      <div class="p-3 space-y-3 bg-white rounded shadow-md">
-        <p class="text-lg font-semibold">{{ form.libelle }}</p>
-        <div class="flex justify-between border-t border-gray-300">
-          <div class="flex items-center gap-1 space-x-3 transition-all">
-            <button class="p-1.5 text-white btn btn-primary">
-              <Edit3Icon class="size-5" />
-            </button>
-            <button class="p-1.5 text-white btn btn-danger">
-              <TrashIcon class="size-5" />
-            </button>
-          </div>
-        </div>
-      </div>
-    </div> -->
   </div>
 
   <!-- BEGIN: Modal Content -->
@@ -176,7 +170,12 @@ onMounted(() => {
       </ModalHeader>
 
       <ModalBody class="space-y-5">
+        <div>
+          <p class="mb-3">Options de réponses</p>
+          <ListOptionsResponse :options="optionPreviewForm" />
+        </div>
         <div class="max-h-[50vh] h-[50vh] overflow-y-auto">
+          <p class="mb-3">Formulaire</p>
           <PreviewDetailPerceptionForm :datas="previewForm.categories_de_gouvernance" />
         </div>
       </ModalBody>
