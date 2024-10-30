@@ -20,6 +20,7 @@ const payload = reactive({ nom: "", description: "", type: "perception" });
 const idSelect = ref("");
 const idChecked = ref("");
 const nameSelect = ref("");
+const search = ref("");
 const showModalCreate = ref(false);
 const deleteModalPreview = ref(false);
 const isLoading = ref(false);
@@ -112,6 +113,7 @@ const closeModal = () => (showModalCreate.value = false);
 const closeDeleteModal = () => (deleteModalPreview.value = false);
 
 const modeText = computed(() => (isCreate.value ? "Ajouter" : "Modifier"));
+const filterData = computed(() => datas.value.filter((data) => data.nom.toLowerCase().includes(search.value.toLowerCase())));
 
 watch(
   () => props.toReset,
@@ -127,26 +129,27 @@ onMounted(getDatas);
 <template>
   <div :class="[isAvailable ? '' : 'opacity-50 pointer-events-none']">
     <!-- Button to open modal -->
-    <div class="flex items-center justify-between mb-4">
-      <div class="form-check form-switch">
+    <div class="flex items-center justify-between gap-2 mb-4">
+      <!-- <div class="form-check form-switch">
         <input id="question" class="form-check-input" type="checkbox" v-model="isEditOrDelete" />
         <label class="form-check-label" for="question">Modifier/Supprimer</label>
-      </div>
+      </div> -->
+      <input type="text" class="form-control form-control-sm max-w-[300px]" placeholder="Rechercher..." v-model="search" />
       <button class="text-sm btn btn-primary" @click="openCreateModal"><PlusIcon class="mr-1 size-4" />Ajouter</button>
     </div>
 
     <!-- Data List -->
     <ul v-if="!isLoadingData" class="overflow-y-auto max-h-[40vh]">
-      <li v-for="(data, index) in datas" :key="data.id" class="flex items-center justify-between gap-2 px-1 py-1.5 text-base hover:bg-blue-100 list-data">
+      <li v-for="(data, index) in filterData" :key="data.id" class="flex items-center justify-between gap-2 px-1 py-1.5 text-base hover:bg-blue-100 list-data">
         <div class="p-2 form-check">
           <input :id="`${data.id}${index}`" @change="choiceOption(data)" class="form-check-input" type="radio" name="question" :value="data.id" v-model="idChecked" />
           <label class="form-check-label" :for="`${data.id}${index}`">{{ data.nom }}</label>
         </div>
-        <div v-if="data.id !== idChecked && isEditOrDelete" class="flex items-center gap-1 transition-all space-x-1 opacity-0 container-buttons">
-          <button class="p-1.5 text-white btn btn-primary" @click="handleEdit(data)">
+        <div v-if="data.id !== idChecked" class="flex items-center gap-1 transition-all space-x-1 opacity-0 container-buttons">
+          <button class="p-1.5 text-primary" @click="handleEdit(data)">
             <Edit3Icon class="size-5" />
           </button>
-          <button class="p-1.5 text-white btn btn-danger" @click="handleDelete(data)">
+          <button class="p-1.5 text-danger" @click="handleDelete(data)">
             <TrashIcon class="size-5" />
           </button>
         </div>

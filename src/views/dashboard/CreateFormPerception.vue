@@ -1,9 +1,8 @@
 <script setup>
-import { onBeforeUnmount, reactive, ref, computed, onMounted } from "vue";
+import { onBeforeUnmount, reactive, ref, computed } from "vue";
 import { toast } from "vue3-toastify";
 import OptionsResponse from "@/components/create-form/OptionsResponse.vue";
 import PrincipeGouvernance from "@/components/create-form/PrincipeGouvernance.vue";
-import CritereGouvernance from "@/components/create-form/CritereGouvernance.vue";
 import QuestionsOperationnel from "@/components/create-form/QuestionsOperationnel.vue";
 import PerceptionStructure from "@/components/create-form/PerceptionStructure.vue";
 import ListAccordionQuestion from "@/components/create-form/ListAccordionQuestion.vue";
@@ -13,6 +12,7 @@ import FormulaireFactuel from "@/services/modules/formFactuel.service";
 import PreviewPerceptionForm from "@/components/create-form/PreviewPerceptionForm.vue";
 import { getAllErrorMessages } from "@/utils/gestion-error";
 import ListFormPerception from "@/components/create-form/ListFormPerception.vue";
+import ListOptionsResponse from "@/components/create-form/ListOptionsResponse.vue";
 
 const tabs = [
   {
@@ -37,6 +37,7 @@ const globalFormPerceptionData = ref([]);
 const previewPrincipesGouvernance = ref({});
 const globalPrincipesGouvernance = ref({});
 const globalOptionResponses = ref({ options_de_reponse: [] });
+const previewOptionResponses = ref({ options_de_reponse: [] });
 const principesGouvernance = ref({ principes_de_gouvernance: [] });
 const uniqueKeys = new Map();
 
@@ -110,16 +111,16 @@ const organisePreviewFormPerceptionData = (submissions) => {
 };
 
 const resetCurrentPreviewFactuelFormData = () => {
-  // for (const key in currentPreviewFactuelFormData) {
-  //   currentPreviewFactuelFormData[key] = { id: "", nom: "" };
-  // }
-  currentPreviewPerceptionFormData.indicateur = { id: "", nom: "" };
+  for (const key in currentPreviewPerceptionFormData) {
+    currentPreviewPerceptionFormData[key] = { id: "", nom: "" };
+  }
+  // currentPreviewPerceptionFormData.indicateur = { id: "", nom: "" };
 };
 const resetCurrentGlobalFactuelFormData = () => {
-  // Object.keys(currentGlobalFactuelFormData).forEach((key) => {
-  //   currentGlobalFactuelFormData[key] = "";
-  // });
-  currentGlobalPerceptionFormData.indicateur = "";
+  Object.keys(currentGlobalPerceptionFormData).forEach((key) => {
+    currentGlobalPerceptionFormData[key] = "";
+  });
+  // currentGlobalPerceptionFormData.indicateur = "";
 };
 const resetAllForm = () => {
   resetCurrentGlobalFactuelFormData();
@@ -214,12 +215,19 @@ const createForm = async () => {
   }
 };
 
+const previewForm = () => {
+  if (globalOptionResponses.value.options_de_reponse.length >= 2) modalForm.value = true;
+  else {
+    toast.error("Ajouter au moins deux options de réponses.");
+  }
+};
+
 const isCurrentFormValid = computed(() => {
   return Object.values(currentPreviewPerceptionFormData).every((value) => value.id.trim() !== "");
 });
 
 const showForm = computed(() => {
-  return globalFormPerceptionData.value.length > 0 && globalOptionResponses.value.options_de_reponse.length >= 2;
+  return globalFormPerceptionData.value.length > 0;
 });
 
 onBeforeUnmount(() => {
@@ -237,7 +245,7 @@ onBeforeUnmount(() => {
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <OptionsResponse :reset-to="resetOptions" v-model:globalOptionResponses="globalOptionResponses" />
+            <OptionsResponse :reset-to="resetOptions" v-model:previewOptionResponses="previewOptionResponses" v-model:globalOptionResponses="globalOptionResponses" />
           </AccordionPanel>
         </AccordionItem>
 
@@ -272,6 +280,10 @@ onBeforeUnmount(() => {
           <TabPanel class="leading-relaxed">
             <div class="flex flex-col gap-8">
               <div class="space-y-2">
+                <p class="text-lg font-medium">Liste des options de réponses</p>
+                <ListOptionsResponse :options="previewOptionResponses.options_de_reponse" />
+              </div>
+              <div class="space-y-2">
                 <p class="text-lg font-medium">Ajouter des questions opérationnelles</p>
                 <PerceptionStructure :principe="currentPreviewPerceptionFormData.principe.nom" :indicateur="currentPreviewPerceptionFormData.indicateur.nom" />
                 <button :disabled="!isCurrentFormValid" @click="addNewIndicator" class="my-4 text-sm btn btn-primary"><PlusIcon class="mr-1 size-4" />Ajouter</button>
@@ -282,7 +294,7 @@ onBeforeUnmount(() => {
                   <ListAccordionQuestion :indicateurs-array="previewFormPerceptionData" @remove="removeIndicator" />
                 </div>
                 <div class="flex justify-start pt-4 pb-2">
-                  <button :disabled="!showForm" @click="modalForm = true" class="px-5 text-base btn btn-primary"><CheckIcon class="mr-1 size-5" />Valider les questions</button>
+                  <button :disabled="!showForm" @click="previewForm" class="px-5 text-base btn btn-primary"><CheckIcon class="mr-1 size-5" />Prévisualiser le formumlaire</button>
                 </div>
               </div>
             </div>
@@ -308,6 +320,10 @@ onBeforeUnmount(() => {
             <input id="annee" type="number" required v-model.number="payload.annee_exercice" class="form-control" placeholder="Année" />
           </div>
         </div>
+        <div>
+          <p class="mb-3">Options de réponses</p>
+          <ListOptionsResponse :options="previewOptionResponses.options_de_reponse" />
+        </div>
         <div class="max-h-[50vh] h-[50vh] overflow-y-auto">
           <p class="mb-3">Formulaire de perception</p>
           <PreviewPerceptionForm :principes="previewPrincipesGouvernance.principes_de_gouvernance" />
@@ -331,5 +347,9 @@ onBeforeUnmount(() => {
 
 .accordion .accordion-item:first-child {
   margin-top: 0 !important;
+}
+
+.Toastify__toast-container {
+  z-index: 200000 !important;
 }
 </style>

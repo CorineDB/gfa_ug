@@ -17,6 +17,7 @@ const payload = reactive({ libelle: "", description: "" });
 const idSelect = ref("");
 const idChecked = ref([]);
 const nameSelect = ref("");
+const search = ref("");
 const showModalCreate = ref(false);
 const deleteModalPreview = ref(false);
 const isLoading = ref(false);
@@ -24,7 +25,7 @@ const isLoadingData = ref(true);
 const isCreate = ref(true);
 const isEditOrDelete = ref(false);
 const globalOptionResponses = defineModel("globalOptionResponses");
-const previewOptionResponses = ref({ options_de_reponse: [] });
+const previewOptionResponsesModel = defineModel("previewOptionResponses");
 const datas = ref([]);
 
 // Fetch data
@@ -105,9 +106,10 @@ const cancelDelete = () => {
 };
 const closeModal = () => (showModalCreate.value = false);
 const closeDeleteModal = () => (deleteModalPreview.value = false);
-
-const modeText = computed(() => (isCreate.value ? "Ajouter" : "Modifier"));
-
+function getLibelleById(id) {
+  const option = datas.value.find((data) => data.id === id);
+  return option ? option.libelle : "";
+}
 function updateTemporyOption(id, point) {
   const index = globalOptionResponses.value.options_de_reponse.findIndex((option) => option.id === id);
   if (index !== -1) {
@@ -116,10 +118,24 @@ function updateTemporyOption(id, point) {
     globalOptionResponses.value.options_de_reponse.push({ id, point });
   }
 }
-
 function removeTemporyOption(id) {
   globalOptionResponses.value.options_de_reponse = globalOptionResponses.value.options_de_reponse.filter((option) => option.id !== id);
 }
+
+const modeText = computed(() => (isCreate.value ? "Ajouter" : "Modifier"));
+const filterData = computed(() => datas.value.filter((data) => data.libelle.toLowerCase().includes(search.value.toLowerCase())));
+
+watch(
+  () => globalOptionResponses.value.options_de_reponse,
+  (newOptions) => {
+    previewOptionResponsesModel.value.options_de_reponse = newOptions.map((option) => ({
+      id: option.id,
+      point: option.point,
+      libelle: getLibelleById(option.id),
+    }));
+  },
+  { deep: true }
+);
 
 watch(idChecked, (newChecked, oldChecked) => {
   oldChecked.forEach((id) => {
@@ -143,31 +159,32 @@ onMounted(getDatas);
 <template>
   <div>
     <!-- Button to open modal -->
-    <div class="flex items-center justify-between mb-4">
-      <div class="form-check form-switch">
+    <div class="flex items-center gap-2 justify-between mb-4">
+      <!-- <div class="form-check form-switch">
         <input id="response" class="form-check-input" type="checkbox" v-model="isEditOrDelete" />
         <label class="form-check-label" for="response">Modifier/Supprimer</label>
-      </div>
+      </div> -->
+      <input type="text" class="form-control form-control-sm max-w-[300px]" placeholder="Rechercher..." v-model="search" />
       <button class="text-sm btn btn-primary" @click="openCreateModal"><PlusIcon class="mr-1 size-4" />Ajouter</button>
     </div>
 
     <!-- Data List -->
     <ul v-if="!isLoadingData" class="overflow-y-auto listes max-h-[40vh]">
-      <li v-for="(data, index) in datas" :key="data.id" class="flex items-center justify-between gap-2 px-1 py-1.5 text-base hover:bg-blue-100 list-data">
+      <li v-for="(data, index) in filterData" :key="data.id" class="flex items-center justify-between gap-2 px-1 py-1.5 text-base hover:bg-blue-100 list-data">
         <div class="flex items-center gap-1">
           <div class="p-2 form-check">
             <input :id="data.id" class="form-check-input" type="checkbox" :value="data.id" v-model="idChecked" />
             <label class="form-check-label" :for="data.id">{{ data.libelle }}</label>
           </div>
           <div v-if="idChecked.includes(data.id)" class="flex items-center gap-1 transition-all">
-            <input type="number" min="0.1" max="1" step="0.1" name="point" :id="`${data.id}${index}`" :value="globalOptionResponses.options_de_reponse.find((option) => option.id === data.id)?.point || ''" @input="updateTemporyOption(data.id, $event.target.value)" class="w-[75px] form-control" />
+            <input type="number" min="0.05" max="1" step="0.05" name="point" :id="`${data.id}${index}`" :value="globalOptionResponses.options_de_reponse.find((option) => option.id === data.id)?.point || ''" @input="updateTemporyOption(data.id, $event.target.value)" class="w-[75px] form-control" />
           </div>
         </div>
-        <div v-if="!idChecked.includes(data.id) && isEditOrDelete" class="flex items-center gap-1 space-x-1 transition-all opacity-0 container-buttons">
-          <button class="p-1.5 text-white btn btn-primary" @click="handleEdit(data)">
+        <div v-if="!idChecked.includes(data.id)" class="flex items-center gap-1 space-x-1 transition-all opacity-0 container-buttons">
+          <button class="p-1.5 text-primary" @click="handleEdit(data)">
             <Edit3Icon class="size-5" />
           </button>
-          <button class="p-1.5 text-white btn btn-danger" @click="handleDelete(data)">
+          <button class="p-1.5 text-danger" @click="handleDelete(data)">
             <TrashIcon class="size-5" />
           </button>
         </div>
@@ -213,7 +230,7 @@ onMounted(getDatas);
   </div>
 </template>
 
-<style scoped>
+<style>
 .list-data:hover .container-buttons {
   opacity: 1;
 }
