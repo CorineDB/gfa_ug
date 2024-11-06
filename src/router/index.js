@@ -363,13 +363,16 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  if (!localStorage.getItem("authenticateUser") && to.path !== "/") {
+  // Permettre l'accès aux routes incluant "toolsPerception" dans leur chemin
+  if (to.path.includes("toolsPerception")) {
+    next();
+  }
+  // Rediriger vers "/" si non authentifié et que la route n'est pas la page d'accueil
+  else if (!localStorage.getItem("authenticateUser") && to.path !== "/") {
     next("/");
   } else {
     next();
   }
-
-  // next()
 });
 
 export default router;
