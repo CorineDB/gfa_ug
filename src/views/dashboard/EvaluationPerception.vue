@@ -25,12 +25,7 @@ const payload = reactive({
     sexe: "",
     age: "",
     commentaire: "Commentaire",
-    response_data: [
-      {
-        optionDeReponseId: "",
-        questionId: "",
-      },
-    ],
+    response_data: [],
   },
 });
 const responses = reactive({});
@@ -40,12 +35,15 @@ const formulairePerception = ref({});
 const isOrganisation = ref(false);
 const isLoading = ref(false);
 const showModalPreview = ref(false);
+const organisationSelected = ref(false);
 const isValidate = ref(false);
-const isLoadingDataFactuel = ref(true);
-const currentPage = ref(0);
-
+const isLoadingDataPerception = ref(true);
 const idEvaluation = ref("");
 const sources = ref([]);
+
+// Etat de la page et items par page
+const currentPage = ref(1);
+const itemsPerPage = 2;
 
 const getDataFormPerception = async () => {
   try {
@@ -56,7 +54,7 @@ const getDataFormPerception = async () => {
   } catch (e) {
     toast.error("Erreur lors de la récupération des données.");
   } finally {
-    isLoadingDataFactuel.value = false;
+    isLoadingDataPerception.value = false;
   }
 };
 
@@ -73,20 +71,29 @@ const getcurrentUserAndFetchOrganization = async () => {
       toast.error("Une erreur est survenue: Utilisateur connecté .");
     });
 };
+
+function removeObjectWithOptionResponseEmpty() {
+  payload.perception.response_data = payload.perception.response_data.filter((item) => item.optionDeReponseId !== "null");
+}
 const submitData = async () => {
   payload.perception.response_data = Object.values(responses);
+  removeObjectWithOptionResponseEmpty();
 
-  isLoading.value = true;
-  const action = true ? EvaluationService.validatePerceptionSumission(idEvaluation.value, payload) : EvaluationService.submitPerceptionSumission(idEvaluation.value, payload);
+  if (payload.perception.response_data.length > 0) {
+    isLoading.value = true;
+    const action = isValidate.value ? EvaluationService.validatePerceptionSumission(idEvaluation.value, payload) : EvaluationService.submitPerceptionSumission(idEvaluation.value, payload);
 
-  try {
-    const result = await action;
-    toast.success(`${result.data.message}`);
-  } catch (e) {
-    console.error(e);
-    toast.error(getAllErrorMessages(e));
-  } finally {
-    isLoading.value = false;
+    try {
+      const result = await action;
+      toast.success(`${result.data.message}`);
+    } catch (e) {
+      console.error(e);
+      toast.error(getAllErrorMessages(e));
+    } finally {
+      isLoading.value = false;
+    }
+  } else {
+    return;
   }
 };
 const initializeFormData = () => {
@@ -95,22 +102,25 @@ const initializeFormData = () => {
     principe.questions_de_gouvernance.forEach((question) => {
       responses[question.id] = {
         questionId: question.id,
-        optionDeReponseId: "default",
+        optionDeReponseId: "null",
       };
     });
   });
 };
 const changePage = (pageNumber) => {
   currentPage.value = pageNumber;
+  submitData();
 };
 const prevPage = () => {
   if (currentPage.value >= 1) {
     currentPage.value--;
+    submitData();
   }
 };
 const nextPage = () => {
   if (currentPage.value < totalPages.value - 1) {
     currentPage.value++;
+    submitData();
   }
 };
 const saveFormData = () => {
@@ -154,6 +164,9 @@ const openPreview = () => {
   isValidate.value = true;
 };
 
+const changeOrganisation = () => {
+  organisationSelected.value ? initializeFormData() : (organisationSelected.value = true);
+};
 const totalPages = computed(() => {
   if (formulairePerception.value.categories_de_gouvernance) {
     return formulairePerception.value.categories_de_gouvernance.length;
@@ -180,12 +193,12 @@ onMounted(async () => {
 });
 </script>
 <template>
-  <div v-if="!isLoadingDataFactuel" class="mx-auto mt-5 max-w-screen-2xl">
+  <div v-if="!isLoadingDataPerception" class="mx-auto mt-5 max-w-screen-2xl">
     <div v-if="formDataPerception.id" class="w-full p-4 font-bold text-center text-white uppercase rounded bg-primary">{{ formDataPerception.intitule }}</div>
     <div v-if="formDataPerception.organisations" class="flex items-center justify-end mt-5">
       <div class="min-w-[250px] flex items-center gap-3">
         <label class="form-label">Organisations</label>
-        <TomSelect v-model="payload.organisationId" :options="{ placeholder: 'Selectionez une organisation' }" class="w-full">
+        <TomSelect v-model="payload.organisationId" @change="changeOrganisation" :options="{ placeholder: 'Selectionez une organisation' }" class="w-full">
           <option value=""></option>
           <option v-for="(ong, index) in formDataPerception.organisations" :key="index" :value="ong.id">{{ ong.nom }}</option>
         </TomSelect>
@@ -209,7 +222,7 @@ onMounted(async () => {
                       <div class="flex flex-col items-center justify-center w-full gap-3">
                         <!-- v-for Option -->
                         <div class="inline-flex flex-wrap items-center gap-3">
-                          <input v-if="responses[question.id]?.optionDeReponseId" :id="`radio${question.id}`" class="form-check-input" type="hidden" :name="`${question.id}`" value="default" v-model="responses[question.id].optionDeReponseId" />
+                          <input v-if="responses[question.id]?.optionDeReponseId" :id="`radio${question.id}`" class="form-check-input" type="hidden" :name="`${question.id}`" value="null" v-model="responses[question.id].optionDeReponseId" />
                           <div v-for="(option, optionIndex) in formulairePerception.options_de_reponse" :key="optionIndex">
                             <input v-if="responses[question.id]?.optionDeReponseId" :id="`radio${question.id}${optionIndex}`" class="form-check-input" type="radio" :name="`${question.id}-${question.slug}`" :value="option.id" v-model="responses[question.id].optionDeReponseId" />
                             <label class="text-base form-check-label" :for="`radio${question.id}${optionIndex}`">
@@ -226,7 +239,7 @@ onMounted(async () => {
           </div>
         </div>
         <div class="flex justify-center w-full mt-5">
-          <VButton v-if="isPreview" label="Prévisualiser" class="px-8 py-3 w-max" @click="showModalPreview = true" />
+          <VButton v-if="isPreview" label="Prévisualiser" class="px-8 py-3 w-max" @click="openPreview" />
         </div>
         <div class="flex justify-center gap-3 my-8">
           <button @click="prevPage()" class="px-4 py-3 btn btn-outline-primary">Précedent</button>
@@ -239,7 +252,7 @@ onMounted(async () => {
   <LoaderSnipper v-else />
 
   <!-- BEGIN: Modal Content -->
-  <Modal backdrop="static" size="modal-xl" :show="showModalPreview" @hidden="showModalPreview = false">
+  <Modal backdrop="static" size="modal-xl" :show="showModalPreview" @hidden="resetValidation">
     <div class="mb-5">
       <ModalHeader>
         <h2 class="mr-auto text-base font-medium">Validation formulaire</h2>
@@ -313,7 +326,7 @@ onMounted(async () => {
     </div>
     <ModalFooter>
       <div class="flex gap-2">
-        <button type="button" @click="showModalPreview = false" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
+        <button type="button" @click="resetValidation" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
         <VButton label="Valider" class="w-full px-2 py-2 my-3" :loading="isLoading" @click="submitData()" />
       </div>
     </ModalFooter>

@@ -31,8 +31,9 @@ const isOrganisation = ref(false);
 const isLoading = ref(false);
 const showModal = ref(false);
 const showModalPreview = ref(false);
-const isValidate = ref(true);
+const isValidate = ref(false);
 const isLoadingDataFactuel = ref(true);
+const organisationSelected = ref(false);
 const currentPage = ref(0);
 const currentMember = ref({
   nom: "",
@@ -75,55 +76,7 @@ const getcurrentUserAndFetchOrganization = async () => {
       toast.error("Une erreur est survenue: Utilisateur connecté .");
     });
 };
-const submitData = async () => {
-  // Convertir `responses` en tableau et l'affecter à `payload.factuel.response_data`
-  payload.factuel.response_data = Object.values(responses);
-  removeNullSourceDeVerificationId();
-  const formData = new FormData();
 
-  // Fonction pour ajouter les données dans FormData de manière récursive
-  // En excluant les fichiers de `preuves` qui seront ajoutés manuellement
-  const appendFormData = (data, root = "") => {
-    if (Array.isArray(data)) {
-      data.forEach((item, index) => {
-        appendFormData(item, `${root}[${index}]`);
-      });
-    } else if (data instanceof Object && !(data instanceof File)) {
-      Object.keys(data).forEach((key) => {
-        // Ignore le champ `preuves` pour éviter la duplication
-        if (key !== "preuves") {
-          appendFormData(data[key], root ? `${root}[${key}]` : key);
-        }
-      });
-    } else {
-      formData.append(root, data);
-    }
-  };
-
-  // Ajouter toutes les données dans `payload` à `FormData`, en excluant les fichiers `preuves`
-  appendFormData(payload);
-
-  // Manuellement ajouter les fichiers `preuves` à `FormData`
-  payload.factuel.response_data.forEach((response, questionIndex) => {
-    if (response.preuves) {
-      response.preuves.forEach((file, fileIndex) => {
-        formData.append(`factuel[response_data][${questionIndex}][preuves][${fileIndex}]`, file);
-      });
-    }
-  });
-  isLoading.value = true;
-  const action = isValidate.value ? EvaluationService.validateSumission(idEvaluation.value, formData) : EvaluationService.submitSumission(idEvaluation.value, formData);
-
-  try {
-    const result = await action;
-    toast.success(`${result.data.message}`);
-  } catch (e) {
-    console.error(e);
-    toast.error(getAllErrorMessages(e));
-  } finally {
-    isLoading.value = false;
-  }
-};
 function removeNullSourceDeVerificationId() {
   payload.factuel.response_data.forEach((item) => {
     if (item.sourceDeVerificationId === "null") {
@@ -131,6 +84,65 @@ function removeNullSourceDeVerificationId() {
     }
   });
 }
+function removeObjectWithOptionResponseEmpty() {
+  payload.factuel.response_data = payload.factuel.response_data.filter((item) => item.optionDeReponseId !== "null");
+}
+const submitData = async () => {
+  // Convertir `responses` en tableau et l'affecter à `payload.factuel.response_data`
+  payload.factuel.response_data = Object.values(responses);
+  removeObjectWithOptionResponseEmpty();
+  if (payload.factuel.response_data.length > 0) {
+    removeNullSourceDeVerificationId();
+
+    const formData = new FormData();
+
+    // Fonction pour ajouter les données dans FormData de manière récursive
+    // En excluant les fichiers de `preuves` qui seront ajoutés manuellement
+    const appendFormData = (data, root = "") => {
+      if (Array.isArray(data)) {
+        data.forEach((item, index) => {
+          appendFormData(item, `${root}[${index}]`);
+        });
+      } else if (data instanceof Object && !(data instanceof File)) {
+        Object.keys(data).forEach((key) => {
+          // Ignore le champ `preuves` pour éviter la duplication
+          if (key !== "preuves") {
+            appendFormData(data[key], root ? `${root}[${key}]` : key);
+          }
+        });
+      } else {
+        formData.append(root, data);
+      }
+    };
+
+    // Ajouter toutes les données dans `payload` à `FormData`, en excluant les fichiers `preuves`
+    appendFormData(payload);
+
+    // Manuellement ajouter les fichiers `preuves` à `FormData`
+    payload.factuel.response_data.forEach((response, questionIndex) => {
+      if (response.preuves) {
+        response.preuves.forEach((file, fileIndex) => {
+          formData.append(`factuel[response_data][${questionIndex}][preuves][${fileIndex}]`, file);
+        });
+      }
+    });
+    isLoading.value = true;
+    const action = isValidate.value ? EvaluationService.validateSumission(idEvaluation.value, formData) : EvaluationService.submitSumission(idEvaluation.value, formData);
+
+    try {
+      const result = await action;
+      toast.success(`${result.data.message}`);
+    } catch (e) {
+      console.error(e);
+      toast.error(getAllErrorMessages(e));
+    } finally {
+      isLoading.value = false;
+    }
+  } else {
+    return;
+  }
+};
+
 const initializeFormData = () => {
   // Initialisation des réponses
   formulaireFactuel.value.categories_de_gouvernance.forEach((typeGouvernance) => {
@@ -139,7 +151,7 @@ const initializeFormData = () => {
         critere.questions_de_gouvernance.forEach((question) => {
           responses[question.id] = {
             questionId: question.id,
-            optionDeReponseId: "default",
+            optionDeReponseId: "null",
             sourceDeVerificationId: sources.value[0].id,
             sourceDeVerification: "",
             preuves: [],
@@ -154,16 +166,19 @@ const handleFileUpload = (event, questionIndex) => {
   responses[questionIndex].preuves = files; // Store files directly as an array of File objects
 };
 const changePage = (pageNumber) => {
+  submitData();
   currentPage.value = pageNumber;
 };
 const prevPage = () => {
   if (currentPage.value >= 1) {
     currentPage.value--;
+    submitData();
   }
 };
 const nextPage = () => {
   if (currentPage.value < totalPages.value - 1) {
     currentPage.value++;
+    submitData();
   }
 };
 const saveFormData = () => {
@@ -209,6 +224,10 @@ const findSource = (id) => {
   }
 
   return "";
+};
+
+const changeOrganisation = () => {
+  organisationSelected.value ? initializeFormData() : (organisationSelected.value = true);
 };
 
 const resetValidation = () => {
@@ -262,7 +281,7 @@ onMounted(async () => {
       </div>
       <div class="min-w-[250px] flex items-center gap-3">
         <label class="form-label">Organisations</label>
-        <TomSelect v-model="payload.organisationId" :options="{ placeholder: 'Selectionez une organisation' }" class="w-full">
+        <TomSelect v-model="payload.organisationId" @change="changeOrganisation" :options="{ placeholder: 'Selectionez une organisation' }" class="w-full">
           <option value=""></option>
           <option v-for="(ong, index) in formDataFactuel.organisations" :key="index" :value="ong.id">{{ ong.nom }}</option>
         </TomSelect>
@@ -270,7 +289,7 @@ onMounted(async () => {
     </div>
     <div>
       <div class="py-5 intro-x" v-if="formDataFactuel.id">
-        <div class="space-y-8">
+        <div class="space-y-0">
           <!-- v-for type_gouvernance -->
           <div v-show="currentPage === typeGouvernanceIndex" v-for="(typeGouvernance, typeGouvernanceIndex) in formulaireFactuel.categories_de_gouvernance" :key="typeGouvernanceIndex" class="transition-all">
             <h1 class="mb-5 text-2xl font-semibold text-gray-800">{{ typeGouvernance.nom }}</h1>
@@ -298,7 +317,7 @@ onMounted(async () => {
                               <div class="flex flex-col items-center justify-center w-full gap-3">
                                 <!-- v-for Option -->
                                 <div class="inline-flex flex-wrap items-center gap-3">
-                                  <input v-if="responses[question.id]?.optionDeReponseId" :id="`radio${question.id}`" class="form-check-input" type="hidden" :name="`${question.id}`" value="default" v-model="responses[question.id].optionDeReponseId" />
+                                  <input v-if="responses[question.id]?.optionDeReponseId" :id="`radio${question.id}`" class="form-check-input" type="hidden" :name="`${question.id}`" value="null" v-model="responses[question.id].optionDeReponseId" />
                                   <div v-for="(option, optionIndex) in formulaireFactuel.options_de_reponse" :key="optionIndex">
                                     <input v-if="responses[question.id]?.optionDeReponseId" :id="`radio${question.id}${optionIndex}`" class="form-check-input" type="radio" :name="`${question.id}-${question.slug}`" :value="option.id" v-model="responses[question.id].optionDeReponseId" />
                                     <label class="text-base form-check-label" :for="`radio${question.id}${optionIndex}`">
