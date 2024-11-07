@@ -184,6 +184,9 @@ const resetForm = () => {
   showModalCreate.value = false;
 };
 const openCreateModal = () => {
+  getFormsFactuel();
+  getFormsPerception();
+  getOrganisations();
   showModalCreate.value = isCreate.value = true;
 };
 
@@ -191,9 +194,9 @@ const mode = computed(() => (isCreate.value ? "Ajouter" : "Modifier"));
 
 onMounted(() => {
   getDatas();
-  getFormsFactuel();
-  getFormsPerception();
-  getOrganisations();
+  // getFormsFactuel();
+  // getFormsPerception();
+  // getOrganisations();
 });
 </script>
 
