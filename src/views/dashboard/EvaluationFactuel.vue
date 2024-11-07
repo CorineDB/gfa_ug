@@ -131,10 +131,10 @@ const submitData = async () => {
 
     try {
       const result = await action;
-      toast.success(`${result.data.message}`);
+      if (isValidate.value) toast.success(`${result.data.message}`);
     } catch (e) {
       console.error(e);
-      toast.error(getAllErrorMessages(e));
+      if (isValidate.value) toast.error(getAllErrorMessages(e));
     } finally {
       isLoading.value = false;
     }

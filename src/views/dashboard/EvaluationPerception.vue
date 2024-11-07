@@ -43,7 +43,7 @@ const sources = ref([]);
 
 // Etat de la page et items par page
 const currentPage = ref(1);
-const itemsPerPage = 2;
+const itemsPerPage = 1;
 
 const getDataFormPerception = async () => {
   try {
@@ -85,10 +85,10 @@ const submitData = async () => {
 
     try {
       const result = await action;
-      toast.success(`${result.data.message}`);
+      if (isValidate.value) toast.success(`${result.data.message}`);
     } catch (e) {
       console.error(e);
-      toast.error(getAllErrorMessages(e));
+      if (isValidate.value) toast.error(getAllErrorMessages(e));
     } finally {
       isLoading.value = false;
     }
@@ -111,18 +111,18 @@ const changePage = (pageNumber) => {
   currentPage.value = pageNumber;
   submitData();
 };
-const prevPage = () => {
-  if (currentPage.value >= 1) {
-    currentPage.value--;
-    submitData();
-  }
-};
-const nextPage = () => {
-  if (currentPage.value < totalPages.value - 1) {
-    currentPage.value++;
-    submitData();
-  }
-};
+// const prevPage = () => {
+//   if (currentPage.value >= 1) {
+//     currentPage.value--;
+//     submitData();
+//   }
+// };
+// const nextPage = () => {
+//   if (currentPage.value < totalPages.value - 1) {
+//     currentPage.value++;
+//     submitData();
+//   }
+// };
 const saveFormData = () => {
   localStorage.setItem("formData", JSON.stringify(formData));
 };
@@ -167,14 +167,52 @@ const openPreview = () => {
 const changeOrganisation = () => {
   organisationSelected.value ? initializeFormData() : (organisationSelected.value = true);
 };
-const totalPages = computed(() => {
-  if (formulairePerception.value.categories_de_gouvernance) {
-    return formulairePerception.value.categories_de_gouvernance.length;
-  } else {
-    return 0;
+// const totalPages = computed(() => {
+//   if (formulairePerception.value.categories_de_gouvernance) {
+//     return formulairePerception.value.categories_de_gouvernance.length;
+//   } else {
+//     return 0;
+//   }
+// });
+
+// Fonctions pour changer de page
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++;
+    submitData();
   }
-});
+};
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
+    submitData();
+  }
+};
+
+// Vérifie si un élément est sur la page actuelle
+const isOnCurrentPage = (index) => {
+  const start = (currentPage.value - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+  return index >= start && index < end;
+};
 const isPreview = computed(() => currentPage.value === totalPages.value - 1);
+
+// Calculer le nombre total de pages
+const totalPages = computed(() => Math.ceil(formulairePerception.value.categories_de_gouvernance ? formulairePerception.value.categories_de_gouvernance.length / itemsPerPage : 0));
+
+// Obtenir les éléments de la page actuelle
+const paginatedData = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+  if (formulairePerception.value.categories_de_gouvernance) return formulairePerception.value.categories_de_gouvernance.slice(start, end);
+});
+
+const goToPage = (page) => {
+  currentPage.value = page;
+  submitData();
+};
+
+const isLastPage = computed(() => currentPage.value === totalPages.value);
 
 // watch(
 //   formData,
@@ -209,7 +247,7 @@ onMounted(async () => {
         <div class="space-y-8">
           <div class="space-y-6">
             <AccordionGroup class="space-y-2">
-              <AccordionItem v-for="(principe, principeIndex) in formulairePerception.categories_de_gouvernance" :key="principeIndex" class="!px-0">
+              <AccordionItem v-for="(principe, principeIndex) in paginatedData" :key="principeIndex" class="!px-0">
                 <Accordion class="text-xl !p-4 font-semibold bg-primary/90 !text-white flex items-center justify-between">
                   <h2>{{ principe.nom }}</h2>
                   <ChevronDownIcon />
@@ -239,12 +277,15 @@ onMounted(async () => {
           </div>
         </div>
         <div class="flex justify-center w-full mt-5">
-          <VButton v-if="isPreview" label="Prévisualiser" class="px-8 py-3 w-max" @click="openPreview" />
+          <VButton v-if="isLastPage" label="Prévisualiser" class="px-8 py-3 w-max" @click="openPreview" />
         </div>
         <div class="flex justify-center gap-3 my-8">
-          <button @click="prevPage()" class="px-4 py-3 btn btn-outline-primary">Précedent</button>
+          <button @click="prevPage" :disabled="currentPage === 1" class="px-4 py-3 btn btn-outline-primary">Précedent</button>
+          <button v-for="page in totalPages" :key="page" @click="goToPage(page)" :class="page === currentPage ? 'btn-primary' : 'btn-outline-primary'" class="px-4 py-3 btn">{{ page }}</button>
+          <button @click="nextPage" :disabled="currentPage === totalPages" class="px-4 py-3 btn btn-outline-primary">Suivant</button>
+          <!-- <button @click="prevPage()" class="px-4 py-3 btn btn-outline-primary">Précedent</button>
           <button v-for="(item, index) in totalPages" @click="changePage(index)" :class="index === currentPage ? 'btn-primary' : 'btn-outline-primary'" class="px-4 py-3 btn" :key="index">{{ index + 1 }}</button>
-          <button @click="nextPage()" class="px-4 py-3 btn btn-outline-primary">Suivant</button>
+          <button @click="nextPage()" class="px-4 py-3 btn btn-outline-primary">Suivant</button> -->
         </div>
       </div>
     </div>

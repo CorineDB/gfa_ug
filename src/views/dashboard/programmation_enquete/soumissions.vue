@@ -191,7 +191,7 @@ onMounted(() => {
     </div>
   </div>
 
-  <div class="p-5 mt-5 intro-y">
+  <!-- <div class="p-5 mt-5 intro-y">
     <div class="" v-if="!isLoadingData">
       <section class="w-full">
         <AccordionGroup :selectedIndex="null" class="space-y-1">
@@ -208,7 +208,6 @@ onMounted(() => {
                     <ChevronDownIcon />
                   </Accordion>
                   <AccordionPanel class="p-2 space-y-2">
-                    <!-- {{ ong.soumissions }} -->
                     <div v-for="(soumission, index) in getFactuelSubmissions(ong.soumissions)" :key="index" class="flex items-center justify-between w-full gap-2 px-2 py-3 text-base font-medium text-black truncate transition-all bg-white border-l-2 border-yellow-200 rounded shadow">
                       <p>
                         Soumission n° {{ index + 1 }} ( {{ soumission.submitted_at }}) <span :class="[soumission.statut ? 'bg-green-500' : 'bg-yellow-500']" class="px-2 py-1 mr-1 text-xs text-white rounded-full">{{ soumission.statut ? "Terminé" : "En cours" }}</span>
@@ -228,7 +227,6 @@ onMounted(() => {
                     <ChevronDownIcon />
                   </Accordion>
                   <AccordionPanel class="p-2 space-y-2">
-                    <!-- {{ ong.soumissions }} -->
                     <div v-for="(soumission, index) in getPerceptionSubmissions(ong.soumissions)" :key="index" class="flex items-center justify-between w-full gap-2 px-2 py-3 text-base font-medium text-black truncate transition-all bg-white border-l-2 border-yellow-200 rounded shadow">
                       <p>
                         Soumission n° {{ index + 1 }} ({{ soumission.submitted_at }}) <span :class="[soumission.statut ? 'bg-green-500' : 'bg-yellow-500']" class="px-2 py-1 mr-1 text-xs text-white rounded-full">{{ soumission.statut ? "Terminé" : "En cours" }}</span>
@@ -249,7 +247,7 @@ onMounted(() => {
       </section>
     </div>
     <LoaderSnipper v-if="isLoadingData" />
-  </div>
+  </div> -->
 
   <!-- Modal Register & Update -->
   <Modal backdrop="static" :show="showModalCreate" @hidden="showModalCreate = false">
