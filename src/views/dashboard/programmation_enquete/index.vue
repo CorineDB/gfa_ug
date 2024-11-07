@@ -143,7 +143,7 @@ const getStatusText = (param) => {
 };
 
 function gotoSoumissions(enquete) {
-  router.push({ name: "SoumissionsEnqueteDeCollecte", params: { id: enquete.id } });
+  // router.push({ name: "SoumissionsEnqueteDeCollecte", params: { id: enquete.id } });
 }
 
 function gotoAppreciations(enquete) {
