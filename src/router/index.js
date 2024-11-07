@@ -62,6 +62,9 @@ import FicheResultat from "../views/dashboard/FicheResultat.vue";
 import Marqueur from "../views/dashboard/marqueur.vue";
 import CreateFormFactuel from "../views/dashboard/CreateFormFactuel.vue";
 import CreateFormPerception from "../views/dashboard/CreateFormPerception.vue";
+import EvaluationFactuel from "@/views/dashboard/EvaluationFactuel.vue";
+import EvaluationPerception from "@/views/dashboard/EvaluationPerception.vue";
+import SourceVerification from "../views/dashboard/SourceVerification.vue";
 
 const routes = [
   {
@@ -125,7 +128,7 @@ const routes = [
       {
         path: "toolsFactuel",
         name: "ToolsFactuel",
-        component: ToolsFactuel,
+        component: EvaluationFactuel,
       },
       {
         path: "audit",
@@ -153,7 +156,7 @@ const routes = [
       {
         path: "ToolsPerception",
         name: "ToolsPerception",
-        component: ToolsPerception,
+        component: EvaluationPerception,
       },
       {
         path: "create-factuel",
@@ -310,6 +313,11 @@ const routes = [
         name: "SuiviIndicateurs",
         component: SuiviIndicateurs,
       },
+      {
+        path: "sources-verification",
+        name: "sources_verification",
+        component: SourceVerification,
+      },
     ],
   },
 
@@ -355,13 +363,16 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  if (!localStorage.getItem("authenticateUser") && to.path !== "/") {
+  // Permettre l'accès aux routes incluant "toolsPerception" dans leur chemin
+  if (to.path.includes("toolsPerception")) {
+    next();
+  }
+  // Rediriger vers "/" si non authentifié et que la route n'est pas la page d'accueil
+  else if (!localStorage.getItem("authenticateUser") && to.path !== "/") {
     next("/");
   } else {
     next();
   }
-
-  // next()
 });
 
 export default router;
