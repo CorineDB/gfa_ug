@@ -290,10 +290,10 @@ onBeforeUnmount(() => {
               </div>
               <div class="space-y-2">
                 <p class="text-lg font-medium">Liste des questions opérationnelles</p>
-                <div class="max-h-[40vh] h-[40vh] py-2 border-t overflow-y-auto">
+                <div class="max-h-[25vh] h-[25vh] py-2 border-t overflow-y-auto">
                   <ListAccordionQuestion :indicateurs-array="previewFormPerceptionData" @remove="removeIndicator" />
                 </div>
-                <div class="flex justify-start pt-4 pb-2">
+                <div class="flex justify-start py-2">
                   <button :disabled="!showForm" @click="previewForm" class="px-5 text-base btn btn-primary"><CheckIcon class="mr-1 size-5" />Prévisualiser le formumlaire</button>
                 </div>
               </div>
