@@ -189,52 +189,52 @@ onMounted(() => {
         <button class="mr-2 shadow-md btn btn-primary" @click="openPerceptionModal">Remplir formulaire de perception</button>
       </div>
     </div>
-    <!-- BEGIN: General Report -->
-    <div class="col-span-12 mt-8">
-      <div class="flex items-center h-10 intro-y">
-        <h2 class="mr-5 text-lg font-medium truncate">Statistiques</h2>
-      </div>
-      <div class="grid grid-cols-12 gap-6 mt-5">
-        <div class="col-span-12 sm:col-span-6 xl:col-span-4 intro-y">
-          <div class="report-box zoom-in">
-            <div class="p-5 text-center box">
-              <div class="flex justify-center">
-                <GlobeIcon class="report-box__icon text-primary" />
-              </div>
-              <div class="mt-6 text-3xl font-medium leading-8">4.710</div>
-              <div class="mt-1 text-base text-slate-500">Nombre d'organisations</div>
-            </div>
-          </div>
-        </div>
-        <div class="col-span-12 sm:col-span-6 xl:col-span-4 intro-y">
-          <div class="report-box zoom-in">
-            <div class="p-5 text-center box">
-              <div class="flex justify-center">
-                <UsersIcon class="report-box__icon text-pending" />
-              </div>
-              <div class="mt-6 text-3xl font-medium leading-8">4.710</div>
-              <div class="mt-1 text-base text-slate-500">Nombre de membres</div>
-            </div>
-          </div>
-        </div>
-        <div class="col-span-12 sm:col-span-6 xl:col-span-4 intro-y">
-          <div class="report-box zoom-in">
-            <div class="p-5 text-center box">
-              <div class="flex justify-center">
-                <PercentIcon class="report-box__icon text-warning" />
-              </div>
-              <div class="mt-6 text-3xl font-medium leading-8">4.710</div>
-              <div class="mt-1 text-base text-slate-500">Pourcentage de soumissions</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- END: General Report -->
   </div>
 
   <div class="p-5 mt-5 intro-y">
     <div class="" v-if="!isLoadingData">
+      <!-- BEGIN: General Report -->
+      <div class="col-span-12 mt-8">
+        <div class="flex items-center h-10 intro-y">
+          <h2 class="mr-5 text-lg font-medium truncate">Statistiques</h2>
+        </div>
+        <div class="grid grid-cols-12 gap-6 mt-5">
+          <div class="col-span-12 sm:col-span-6 xl:col-span-4 intro-y">
+            <div class="report-box zoom-in">
+              <div class="p-5 text-center box">
+                <div class="flex justify-center">
+                  <GlobeIcon class="report-box__icon text-primary" />
+                </div>
+                <div class="mt-6 text-3xl font-medium leading-8">{{ datas.length }}</div>
+                <div class="mt-1 text-base text-slate-500">Nombre d'organisations</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-span-12 sm:col-span-6 xl:col-span-4 intro-y">
+            <div class="report-box zoom-in">
+              <div class="p-5 text-center box">
+                <div class="flex justify-center">
+                  <UsersIcon class="report-box__icon text-pending" />
+                </div>
+                <div class="mt-6 text-3xl font-medium leading-8">4.710</div>
+                <div class="mt-1 text-base text-slate-500">Nombre de membres</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-span-12 sm:col-span-6 xl:col-span-4 intro-y">
+            <div class="report-box zoom-in">
+              <div class="p-5 text-center box">
+                <div class="flex justify-center">
+                  <PercentIcon class="report-box__icon text-warning" />
+                </div>
+                <div class="mt-6 text-3xl font-medium leading-8">4.710</div>
+                <div class="mt-1 text-base text-slate-500">Pourcentage de soumissions</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- END: General Report -->
       <section class="w-full">
         <p class="pb-4 mt-10 text-lg font-medium intro-y">Liste des soumissions par organisations</p>
 
