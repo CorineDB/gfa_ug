@@ -16,6 +16,7 @@ import { generateUniqueId } from "../../utils/helpers";
 const TYPE_ORGANISATION = "organisation";
 
 const route = useRoute();
+const idEvaluation = route.params.id;
 
 const payload = reactive({
   programmeId: "",
@@ -40,7 +41,6 @@ const showModalPreview = ref(false);
 const organisationSelected = ref(false);
 const isValidate = ref(false);
 const isLoadingDataPerception = ref(true);
-const idEvaluation = ref("");
 const sources = ref([]);
 
 // Etat de la page et items par page
@@ -49,7 +49,7 @@ const itemsPerPage = 3;
 
 const getDataFormPerception = async () => {
   try {
-    const { data } = await EvaluationService.findEvaluation(idEvaluation.value);
+    const { data } = await EvaluationService.findEvaluation(idEvaluation);
     formDataPerception.value = data.data;
     payload.formulaireDeGouvernanceId = formDataPerception.value.formulaire_perception_de_gouvernance;
     payload.programmeId = formDataPerception.value.programmeId;
@@ -83,7 +83,7 @@ const submitData = async () => {
 
   if (payload.perception.response_data.length > 0) {
     isLoading.value = true;
-    const action = isValidate.value ? EvaluationService.validatePerceptionSumission(idEvaluation.value, payload) : EvaluationService.submitPerceptionSumission(idEvaluation.value, payload);
+    const action = isValidate.value ? EvaluationService.validatePerceptionSumission(idEvaluation, payload) : EvaluationService.submitPerceptionSumission(idEvaluation, payload);
 
     try {
       const result = await action;
@@ -225,7 +225,6 @@ const isLastPage = computed(() => currentPage.value === totalPages.value);
 // );
 
 onMounted(async () => {
-  idEvaluation.value = route.query.e;
   clientId.value = generateUniqueId();
   await getDataFormPerception();
   // await getcurrentUserAndFetchOrganization();

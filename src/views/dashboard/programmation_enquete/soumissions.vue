@@ -146,17 +146,17 @@ const resetForm = () => {
   showModalCreate.value = false;
 };
 const openFactuelModal = () => {
-  router.push({ name: "ToolsFactuel", query: { e: idEvaluation } });
+  router.push({ name: "ToolsFactuel", params: { id: idEvaluation } });
 };
 const goToPageSynthese = (Idsoumission) => {
-  router.push({ name: "FicheSynthese", query: { e: idEvaluation, s: Idsoumission } });
+  router.push({ name: "FicheSynthese", params: { e: idEvaluation, s: Idsoumission } });
 };
 const opendAddParticipant = () => {
   router.push({ name: "add_participant", query: { e: idEvaluation } });
 };
 
 const openPerceptionModal = () => {
-  router.push({ name: "ToolsPerception", query: { e: idEvaluation } });
+  router.push({ name: "ToolsPerception", params: { id: idEvaluation } });
 };
 
 const mode = computed(() => (isCreate.value ? "Ajouter" : "Modifier"));
@@ -191,6 +191,8 @@ onMounted(() => {
         <button class="mr-2 shadow-md btn btn-primary" @click="openPerceptionModal">Remplir formulaire de perception</button>
       </div>
       <div class="flex">
+        <!-- <button class="text-sm btn btn-primary" @click="goToPageSynthese(soumission.id)">Fiche Synthèse</button> -->
+
         <button class="mr-2 shadow-md btn btn-primary" @click="opendAddParticipant">Ajouter les participants</button>
       </div>
     </div>
@@ -204,7 +206,7 @@ onMounted(() => {
           <h2 class="mr-5 text-lg font-medium truncate">Statistiques</h2>
         </div>
         <div class="grid grid-cols-12 gap-6 mt-5">
-          <div class="col-span-12 sm:col-span-6 xl:col-span-4 intro-y">
+          <div class="col-span-12 sm:col-span-6 xl:col-span-3 intro-y">
             <div class="report-box zoom-in">
               <div class="p-5 text-center box">
                 <div class="flex justify-center">
@@ -215,7 +217,7 @@ onMounted(() => {
               </div>
             </div>
           </div>
-          <div class="col-span-12 sm:col-span-6 xl:col-span-4 intro-y">
+          <div class="col-span-12 sm:col-span-6 xl:col-span-3 intro-y">
             <div class="report-box zoom-in">
               <div class="p-5 text-center box">
                 <div class="flex justify-center">
@@ -226,7 +228,7 @@ onMounted(() => {
               </div>
             </div>
           </div>
-          <div class="col-span-12 sm:col-span-6 xl:col-span-4 intro-y">
+          <div class="col-span-12 sm:col-span-6 xl:col-span-3 intro-y">
             <div class="report-box zoom-in">
               <div class="p-5 text-center box">
                 <div class="flex justify-center">
@@ -237,7 +239,7 @@ onMounted(() => {
               </div>
             </div>
           </div>
-          <div class="col-span-12 sm:col-span-6 xl:col-span-4 intro-y">
+          <div class="col-span-12 sm:col-span-6 xl:col-span-3 intro-y">
             <div class="report-box zoom-in">
               <div class="p-5 text-center box">
                 <div class="flex justify-center">
@@ -273,7 +275,7 @@ onMounted(() => {
                         Soumission n° {{ index + 1 }} ( {{ soumission.submitted_at }}) <span :class="[soumission.statut ? 'bg-green-500' : 'bg-yellow-500']" class="px-2 py-1 mr-1 text-xs text-white rounded-full">{{ soumission.statut ? "Terminé" : "En cours" }}</span>
                       </p>
                       <div class="flex items-center gap-4">
-                        <div class="text-sm btn btn-primary" @click="goToPageSynthese(soumission.id)">Fiche Synthèse</div>
+                        <!-- <button class="text-sm btn btn-primary" @click="goToPageSynthese(soumission.id)">Fiche Synthèse</button> -->
                         <button v-if="!soumission.statut" class="p-2 text-danger" @click="handleDelete(soumission.id)">
                           <TrashIcon class="size-5" />
                         </button>
@@ -292,7 +294,7 @@ onMounted(() => {
                         Soumission n° {{ index + 1 }} ({{ soumission.submitted_at }}) <span :class="[soumission.statut ? 'bg-green-500' : 'bg-yellow-500']" class="px-2 py-1 mr-1 text-xs text-white rounded-full">{{ soumission.statut ? "Terminé" : "En cours" }}</span>
                       </p>
                       <div class="flex items-center gap-4">
-                        <div class="text-sm btn btn-primary" @click="goToPageSynthese(soumission.id)">Fiche Synthèse</div>
+                        <!-- <button class="text-sm btn btn-primary" @click="goToPageSynthese(soumission.id)">Fiche Synthèse</button> -->
                         <button v-if="!soumission.statut" class="p-2 text-danger" @click="handleDelete(soumission.id)">
                           <TrashIcon class="size-5" />
                         </button>

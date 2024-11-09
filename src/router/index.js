@@ -127,7 +127,7 @@ const routes = [
         component: SoumissionsEnqueteDeCollete,
       },
       {
-        path: "toolsFactuel",
+        path: "tools-factuel/:id",
         name: "ToolsFactuel",
         component: EvaluationFactuel,
       },
@@ -155,7 +155,7 @@ const routes = [
       },
 
       {
-        path: "ToolsPerception",
+        path: "tools-perception/:id",
         name: "ToolsPerception",
         component: EvaluationPerception,
       },
@@ -191,7 +191,7 @@ const routes = [
       },
 
       {
-        path: "/synthese",
+        path: "/synthese/:e/:s",
         name: "FicheSynthese",
         component: FicheSynthese,
       },

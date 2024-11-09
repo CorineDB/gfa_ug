@@ -4,7 +4,7 @@ import SyntheseService from "@/services/modules/synthese.service";
 import { toast } from "vue3-toastify";
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
 import { getColorForValue } from "../../utils/findColorIndicator";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import ChartSynthese from "../../components/news/ChartSynthese.vue";
 import ChartCircular from "../../components/news/ChartCircular.vue";
 import TableSyntheseFactuel from "../../components/news/TableSyntheseFactuel.vue";
@@ -15,7 +15,9 @@ import ChartProgressionByTime from "../../components/news/ChartProgressionByTime
 import ChartScorePerceptionByPrincipe from "../../components/news/ChartScorePerceptionByPrincipe.vue";
 
 const router = useRouter();
+const route = useRoute();
 // Il faudra faire les get des organisationId et enqueteDeCollecteId depuis l'url avec router
+const idEvaluation = route.params.e;
 const organizationId = ref("R5P1oK0OP6DmWGvB21RNoeb9Xpgdwr7PNQ4zy0LAM8KnVZEJa5xlOjYkeWBv8aJy");
 const enqueteDeCollecteId = ref("LrDVRGx0Gmqz79w1j3M2AlBbr6apLE5aKyK8XvDeOJYVZPo4dQgkRnx0mjpzOB7k");
 const selectStructureId = ref("");
