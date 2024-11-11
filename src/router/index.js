@@ -66,6 +66,7 @@ import EvaluationFactuel from "@/views/dashboard/EvaluationFactuel.vue";
 import EvaluationPerception from "@/views/dashboard/EvaluationPerception.vue";
 import SourceVerification from "../views/dashboard/SourceVerification.vue";
 import SendMailPerception from "../views/dashboard/SendMailPerception.vue";
+import Organisations from "../views/dashboard/organisations.vue";
 
 const routes = [
   {
@@ -81,7 +82,7 @@ const routes = [
       {
         path: "/organisation",
         name: "Ongs",
-        component: Ong,
+        component: Organisations,
       },
 
       {

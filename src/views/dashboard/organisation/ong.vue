@@ -813,7 +813,7 @@ export default {
     </div>
   </div>
   <!-- BEGIN: HTML Table Data -->
-  <div class="p-5 mt-5 intro-y box overflow-x-auto">
+  <div class="p-5 mt-5 overflow-x-auto intro-y box">
     <div class="flex flex-wrap flex-end _sm:items-end _xl:items-start">
       <div class="flex mt-5 sm:mt-0">
         <button id="tabulator-print" class="w-1/2 mr-2 btn btn-outline-secondary sm:w-auto" @click="onPrint"><PrinterIcon class="w-4 h-4 mr-2" /> PDF</button>
@@ -834,7 +834,7 @@ export default {
       </div>
     </div>
     <div class="overflow-x-auto _scrollbar-hidden">
-      <div id="tabulator" ref="tableRef" class="mt-5 _table-report _table-report--tabulator overflow-x-auto"></div>
+      <div id="tabulator" ref="tableRef" class="mt-5 overflow-x-auto _table-report _table-report--tabulator"></div>
     </div>
   </div>
 
