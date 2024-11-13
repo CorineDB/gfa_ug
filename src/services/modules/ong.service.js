@@ -1,31 +1,31 @@
-
-import ApiService from '@/services/configs/api.service'
+import ApiService from "@/services/configs/api.service";
 
 const OngService = {
+  query(type, params) {
+    return ApiService.query("gfa/organisations", {
+      params: params,
+    });
+  },
 
-    query(type, params) {
-      return ApiService.query("gfa/organisations", {
-        params: params,
-      });
-    },
+  get(slug) {
+    return ApiService.get("gfa/organisations", slug);
+  },
 
-    get(slug) {
-      return ApiService.get("gfa/organisations", slug);
-    },
+  find(id) {
+    return ApiService.get(`gfa/organisations/${id}`);
+  },
 
-    create(params) {
-      return ApiService.post("gfa/organisations", params);
-    },
+  create(params) {
+    return ApiService.post("gfa/organisations", params);
+  },
 
-    update(slug, params) {
-      return ApiService.update("gfa/organisations", slug, params);
-    },
+  update(slug, params) {
+    return ApiService.update("gfa/organisations", slug, params);
+  },
 
-    destroy(slug) {
-      return ApiService.delete(`gfa/organisations/${slug}`);
-    }
+  destroy(slug) {
+    return ApiService.delete(`gfa/organisations/${slug}`);
+  },
+};
 
-  };
-
-  export default OngService;
-  
+export default OngService;

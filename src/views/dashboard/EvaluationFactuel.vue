@@ -15,6 +15,8 @@ const TYPE_ORGANISATION = "organisation";
 
 const route = useRoute();
 
+const idEvaluation = route.params.id;
+
 const payload = reactive({
   organisationId: "",
   formulaireDeGouvernanceId: "",
@@ -40,12 +42,11 @@ const currentMember = ref({
   prenom: "",
   contact: null,
 });
-const idEvaluation = ref("");
 const sources = ref([]);
 
 const getDataFormFactuel = async () => {
   try {
-    const { data } = await EvaluationService.findEvaluation(idEvaluation.value);
+    const { data } = await EvaluationService.findEvaluation(idEvaluation);
     formDataFactuel.value = data.data;
     payload.formulaireDeGouvernanceId = formDataFactuel.value.formulaire_factuel_de_gouvernance;
   } catch (e) {
@@ -127,7 +128,7 @@ const submitData = async () => {
       }
     });
     isLoading.value = true;
-    const action = isValidate.value ? EvaluationService.validateSumission(idEvaluation.value, formData) : EvaluationService.submitSumission(idEvaluation.value, formData);
+    const action = isValidate.value ? EvaluationService.validateSumission(idEvaluation, formData) : EvaluationService.submitSumission(idEvaluation, formData);
 
     try {
       const result = await action;
@@ -258,7 +259,6 @@ const isPreview = computed(() => currentPage.value === totalPages.value - 1);
 // );
 
 onMounted(async () => {
-  idEvaluation.value = route.query.e;
   await getSource();
   await getDataFormFactuel();
   // await getcurrentUserAndFetchOrganization();
@@ -359,9 +359,9 @@ onMounted(async () => {
           <VButton v-if="isPreview" label="Prévisualiser" class="px-8 py-3 w-max" @click="openPreview" />
         </div>
         <div class="flex justify-center gap-3 my-8">
-          <button @click="prevPage()" class="px-4 py-3 btn btn-outline-primary">Précedent</button>
+          <button @click="prevPage()" :disabled="currentPage === 0" class="px-4 py-3 btn btn-outline-primary">Précedent</button>
           <button v-for="(item, index) in totalPages" @click="changePage(index)" :class="index === currentPage ? 'btn-primary' : 'btn-outline-primary'" class="px-4 py-3 btn" :key="index">{{ index + 1 }}</button>
-          <button @click="nextPage()" class="px-4 py-3 btn btn-outline-primary">Suivant</button>
+          <button @click="nextPage()" class="px-4 py-3 btn btn-outline-primary" :disabled="currentPage === totalPages - 1">Suivant</button>
         </div>
       </div>
     </div>

@@ -66,6 +66,8 @@ import EvaluationFactuel from "@/views/dashboard/EvaluationFactuel.vue";
 import EvaluationPerception from "@/views/dashboard/EvaluationPerception.vue";
 import SourceVerification from "../views/dashboard/SourceVerification.vue";
 import SendMailPerception from "../views/dashboard/SendMailPerception.vue";
+import Organisations from "../views/dashboard/organisations.vue";
+import FicheMarqueur from "../views/dashboard/FicheMarqueur.vue";
 
 const routes = [
   {
@@ -81,7 +83,7 @@ const routes = [
       {
         path: "/organisation",
         name: "Ongs",
-        component: Ong,
+        component: Organisations,
       },
 
       {
@@ -127,7 +129,7 @@ const routes = [
         component: SoumissionsEnqueteDeCollete,
       },
       {
-        path: "toolsFactuel",
+        path: "tools-factuel/:id",
         name: "ToolsFactuel",
         component: EvaluationFactuel,
       },
@@ -155,7 +157,7 @@ const routes = [
       },
 
       {
-        path: "ToolsPerception",
+        path: "tools-perception/:id",
         name: "ToolsPerception",
         component: EvaluationPerception,
       },
@@ -189,11 +191,15 @@ const routes = [
         name: "FichePerception",
         component: FichePerception,
       },
-
       {
-        path: "/synthese",
+        path: "/synthese/:e",
         name: "FicheSynthese",
         component: FicheSynthese,
+      },
+      {
+        path: "/marqueur/:e",
+        name: "FicheMarqueur",
+        component: FicheMarqueur,
       },
       {
         path: "/marqueur",
