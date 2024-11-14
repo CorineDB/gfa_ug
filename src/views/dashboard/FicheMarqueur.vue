@@ -9,6 +9,7 @@ import TabulatorMarqueurFactuel from "../../components/news/TabulatorMarqueurFac
 import { computed } from "vue";
 import ExportationMarqueurPerception from "../../components/news/ExportationMarqueurPerception.vue";
 import TabulatorMarqueurPerception from "../../components/news/TabulatorMarqueurPerception.vue";
+import ExportationMarqueurFactuel from "../../components/news/ExportationMarqueurFactuel.vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -50,7 +51,6 @@ const currentOrganisation = computed(() => dataForAllOrganisation.value.find((or
 
 const currentFactuel = computed(() => currentOrganisation.value?.factuel);
 const currentPerception = computed(() => currentOrganisation.value?.perception);
-const currentProfileGouvernance = computed(() => currentOrganisation.value?.profile_de_gouvernance);
 
 const changeStructure = () => {
   organizationId.value = idSelectStructure.value;
@@ -77,7 +77,7 @@ onMounted(async () => {
             <div class="w-full py-2 font-bold text-center text-white rounded bg-primary">FICHE SYNTHESE SCORE FACTUEL GOUVERNANCE</div>
             <div class="flex justify-end my-4 sm:flex-row sm:items-end xl:items-start">
               <div class="flex mt-5 sm:mt-0">
-                <!-- <ExportationSyntheseFactuel v-if="!isLoadingData" :datas="currentFactuel" /> -->
+                <ExportationMarqueurFactuel v-if="!isLoadingData && currentFactuel" :org="currentOrganisation?.nom" :pointfocal="`${currentOrganisation?.nom_point_focal}  ${currentOrganisation?.prenom_point_focal}`" :dateevaluation="currentFactuel?.evaluatedAt" :datas="currentFactuel" />
               </div>
             </div>
 
