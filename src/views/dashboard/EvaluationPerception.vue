@@ -17,6 +17,7 @@ const TYPE_ORGANISATION = "organisation";
 
 const route = useRoute();
 const idEvaluation = route.params.id;
+const token = route.params.id;
 
 const payload = reactive({
   identifier_of_participant: "",
@@ -50,7 +51,7 @@ const itemsPerPage = 3;
 
 const getDataFormPerception = async () => {
   try {
-    const { data } = await EvaluationService.findEvaluation(idEvaluation);
+    const { data } = await EvaluationService.findEvaluation(token);
     formDataPerception.value = data.data;
     payload.formulaireDeGouvernanceId = formDataPerception.value.formulaire_perception_de_gouvernance;
     payload.programmeId = formDataPerception.value.programmeId;
@@ -318,8 +319,8 @@ onMounted(async () => {
             <label class="form-label">Sexe</label>
             <div class="flex gap-2">
               <div v-for="(sexe, index) in sexes" :key="index" class="form-check">
-                <input v-model="payload.perception.sexe" :id="sexe.id" class="form-check-input" type="radio" name="sexe" :value="sexe.id" />
-                <label class="form-check-label" :for="sexe.id">{{ sexe.label }}</label>
+                <input v-model="payload.perception.sexe" :id="`sex-${sexe.id}${index}`" class="form-check-input" type="radio" name="sexe" :value="sexe.id" />
+                <label class="form-check-label" :for="`sex-${sexe.id}${index}`">{{ sexe.label }}</label>
               </div>
             </div>
           </div>
@@ -327,8 +328,8 @@ onMounted(async () => {
             <label class="form-label">Âge</label>
             <div class="flex gap-2">
               <div v-for="(age, index) in ages" :key="index" class="form-check">
-                <input v-model="payload.perception.age" :id="age.id" class="form-check-input" type="radio" name="age" :value="age.id" />
-                <label class="form-check-label" :for="age.id">{{ age.label }}</label>
+                <input v-model="payload.perception.age" :id="`age-${age.id}${index}`" class="form-check-input" type="radio" name="age" :value="age.id" />
+                <label class="form-check-label" :for="`age-${age.id}${index}`">{{ age.label }}</label>
               </div>
             </div>
           </div>
@@ -341,8 +342,8 @@ onMounted(async () => {
         </div>
         <div class="max-h-[40vh] h-[40vh] overflow-y-auto">
           <p class="mb-3">Formulaire</p>
-          <AccordionGroup class="space-y-2">
-            <AccordionItem v-for="(principe, principeIndex) in formulairePerception.categories_de_gouvernance" :key="principeIndex" class="!px-0">
+          <AccordionGroup :selectedIndex="null" class="space-y-2">
+            <AccordionItem v-for="(principe, principeIndex) in formulairePerception.categories_de_gouvernance" :key="`${principeIndex}-${principe.id}`" class="!px-0">
               <Accordion class="text-xl !p-4 font-semibold bg-primary/90 !text-white flex items-center justify-between">
                 <h2>{{ principe.nom }}</h2>
                 <ChevronDownIcon />

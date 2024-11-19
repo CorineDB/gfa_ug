@@ -30,7 +30,7 @@
             <div class="mt-2 text-center intro-x text-slate-400 xl:hidden">Responsabilité partagée, Qualité améliorée : Unis pour un meilleur service social.</div>
             <div class="mt-8 intro-x">
               <div>
-                <input type="text" v-model.trim="login" class="block px-4 py-3 intro-x login__input form-control" placeholder="Email" />
+                <input type="text" v-model.trim="login" autocomplete="" class="block px-4 py-3 intro-x login__input form-control" placeholder="Email" />
                 <!-- <div class="py-2 text-sm font-semibold text-red-500" v-if='!$v.login.required && soumettre'>
                   Ce champ est obligatoire
                       </div> -->
@@ -41,7 +41,7 @@
 
               <div class="">
                 <div class="relative">
-                  <input :type="statePassword" class="block px-4 py-3 mt-4 intro-x login__input form-control" v-model.trim="password" placeholder="Mots de passe" />
+                  <input :type="statePassword" autocomplete="" lass="block px-4 py-3 mt-4 intro-x login__input form-control" v-model.trim="password" placeholder="Mots de passe" />
 
                   <span @click="invisible" v-if="show" class="absolute z-10 text-blue-500 cursor-pointer right-4 top-2"
                     ><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024" height="1.8em" width="1.6em" xmlns="http://www.w3.org/2000/svg">

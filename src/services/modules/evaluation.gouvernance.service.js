@@ -11,6 +11,9 @@ const EvaluationService = {
   getFormEvaluation(idEvaluation) {
     return ApiService.get(`gfa/evaluations-de-gouvernance/${idEvaluation}/formulaires-de-gouvernance`);
   },
+  getFormEvaluationPerceptionWithToken(participant, token) {
+    return ApiService.get(`gfa/evaluations-de-gouvernance/${idEvaluation}/formulaires-de-gouvernance`);
+  },
   findEvaluation(id) {
     return ApiService.get(`gfa/evaluations-de-gouvernance/${id}`);
   },
@@ -19,6 +22,9 @@ const EvaluationService = {
   },
   getSoumissionsEvaluation(id) {
     return ApiService.get(`gfa/evaluations-de-gouvernance/${id}/soumissions`);
+  },
+  getOneSoumissionsEvaluation(idEvaluation, idSoumissions) {
+    return ApiService.get(`gfa/evaluations-de-gouvernance/${idEvaluation}/soumissions/${idSoumissions}`);
   },
   submitSumission(id, params) {
     return ApiService.post(`gfa/evaluations-de-gouvernance/${id}/soumissions`, params);
@@ -38,7 +44,7 @@ const EvaluationService = {
   },
 
   addParticipantPerception(evaluation, payload) {
-    return ApiService.post(`gfa/evaluations-de-gouvernance/${evaluation}`, payload);
+    return ApiService.post(`gfa/evaluations-de-gouvernance/${evaluation}/envoi-mail-au-participants`, payload);
   },
 
   update(slug, params) {
