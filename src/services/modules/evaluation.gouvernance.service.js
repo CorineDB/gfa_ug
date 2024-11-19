@@ -11,8 +11,11 @@ const EvaluationService = {
   getFormEvaluation(idEvaluation) {
     return ApiService.get(`gfa/evaluations-de-gouvernance/${idEvaluation}/formulaires-de-gouvernance`);
   },
-  getFormEvaluationPerceptionWithToken(participant, token) {
-    return ApiService.get(`gfa/evaluations-de-gouvernance/${idEvaluation}/formulaires-de-gouvernance`);
+  getFactuelFormEvaluation(token) {
+    return ApiService.get(`gfa/formulaire-factuel/${token}`);
+  },
+  getPerceptionFormEvaluation(participant_identifier, token) {
+    return ApiService.get(`gfa/formulaire-de-perception/${participant_identifier}/${token}`);
   },
   findEvaluation(id) {
     return ApiService.get(`gfa/evaluations-de-gouvernance/${id}`);

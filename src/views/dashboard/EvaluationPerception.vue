@@ -16,7 +16,6 @@ import { generateUniqueId } from "../../utils/helpers";
 const TYPE_ORGANISATION = "organisation";
 
 const route = useRoute();
-const idEvaluation = route.params.id;
 const token = route.params.id;
 
 const payload = reactive({
@@ -32,7 +31,7 @@ const payload = reactive({
     response_data: [],
   },
 });
-const clientId = ref();
+const idEvaluation = ref("");
 const responses = reactive({});
 const formData = reactive({});
 const formDataPerception = ref([]);
@@ -51,9 +50,11 @@ const itemsPerPage = 3;
 
 const getDataFormPerception = async () => {
   try {
-    const { data } = await EvaluationService.findEvaluation(token);
+    const { data } = await EvaluationService.getPerceptionFormEvaluation(payload.identifier_of_participant, token);
     formDataPerception.value = data.data;
-    payload.formulaireDeGouvernanceId = formDataPerception.value.formulaire_perception_de_gouvernance;
+    formulairePerception.value = formDataPerception.value.formulaire_de_gouvernance;
+    idEvaluation.value = formDataPerception.value.id;
+    payload.formulaireDeGouvernanceId = formDataPerception.value.id;
     payload.programmeId = formDataPerception.value.programmeId;
   } catch (e) {
     toast.error("Erreur lors de la récupération des données.");
@@ -230,7 +231,7 @@ onMounted(async () => {
   payload.identifier_of_participant = generateUniqueId();
   await getDataFormPerception();
   // await getcurrentUserAndFetchOrganization();
-  findFormulairePerception();
+  // findFormulairePerception();
   initializeFormData();
 });
 </script>
@@ -357,7 +358,7 @@ onMounted(async () => {
                       <!-- v-for Option -->
                       <div class="inline-flex flex-wrap items-center gap-3">
                         <p class="text-base font-medium">
-                          Réponse : <span class="text-primary"> {{ findResponse(responses[question.id].optionDeReponseId) }}</span>
+                          Réponse : <span class="text-primary"> {{ findResponse(responses[question.id]?.optionDeReponseId) }}</span>
                         </p>
                       </div>
                     </div>
