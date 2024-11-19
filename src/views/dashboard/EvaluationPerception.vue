@@ -86,7 +86,7 @@ const submitData = async () => {
 
   if (payload.perception.response_data.length > 0) {
     isLoading.value = true;
-    const action = isValidate.value ? EvaluationService.validatePerceptionSumission(idEvaluation, payload) : EvaluationService.submitPerceptionSumission(idEvaluation, payload);
+    const action = isValidate.value ? EvaluationService.validatePerceptionSumission(idEvaluation.value, payload) : EvaluationService.submitPerceptionSumission(idEvaluation.value, payload);
 
     try {
       const result = await action;
