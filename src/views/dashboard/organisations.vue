@@ -207,8 +207,8 @@ const handleEdit = (data) => {
   payload.nom = data.nom;
   payload.departement = data.departement;
   payload.commune = data.commune;
-  payload.arrondissement = data.arrondissement;
-  payload.arrondissement = data.quartier;
+  // payload.arrondissement = data.arrondissement;
+  // payload.quartier = data.quartier;
   payload.addresse = data.addresse ?? "";
   payload.latitude = data.latitude;
   payload.longitude = data.longitude;
@@ -262,6 +262,8 @@ const modeText = computed(() => (isCreate.value ? "Ajouter" : "Modifier"));
 
 // Propriétés calculées pour filtrer les options
 const filteredCommunes = computed(() => {
+  console.log("Departement change");
+
   if (!payload.departement > 0) return [];
   selectedDepartementData.value = departements.value.find((dep) => dep.lib_dep == payload.departement);
   return selectedDepartementData.value ? selectedDepartementData.value.communes : [];
@@ -381,7 +383,7 @@ onMounted(() => {
             <InputForm label="Secteur d'activité" v-model="payload.secteurActivite" />
           </div>
           <div class="grid grid-cols-2 gap-4">
-            <InputForm label="Adresse" v-model="payload.addresse" />
+            <InputForm label="Adresse" v-model="payload.addresse" :required="false" />
             <InputForm label="Pays" v-model="payload.pays" />
           </div>
           <div class="grid grid-cols-2 gap-4">

@@ -52,9 +52,10 @@ const getDataFormFactuel = async () => {
     formDataFactuel.value = data.data;
     formulaireFactuel.value = formDataFactuel.value.formulaire_de_gouvernance;
     payload.formulaireDeGouvernanceId = formDataFactuel.value.formulaire_factuel_de_gouvernance;
-    idEvaluation.value = formDataFactuel.value.id;
-    payload.formulaireDeGouvernanceId = formDataPerception.value.id;
+    idEvaluation.value = formDataFactuel.value.formulaire_de_gouvernance.id;
+    payload.formulaireDeGouvernanceId = formDataFactuel.value.id;
   } catch (e) {
+    console.log(e);
     toast.error("Erreur lors de la récupération des données.");
   } finally {
     isLoadingDataFactuel.value = false;
@@ -331,7 +332,7 @@ onMounted(async () => {
                                   </div>
                                 </div>
                                 <div class="flex items-center gap-3">
-                                  <div class="flex items-center gap-3" v-if="responses[question.id].sourceDeVerificationId === 'null'">
+                                  <div class="flex items-center gap-3" v-if="responses[question.id]?.sourceDeVerificationId === 'null'">
                                     <label class="">Autre source</label>
                                     <input type="text" required class="form-control" v-model="responses[question.id].sourceDeVerification" placeholder="Autre source" />
                                   </div>
@@ -444,18 +445,18 @@ onMounted(async () => {
                                 <!-- v-for Option -->
                                 <div class="inline-flex flex-wrap items-center gap-3">
                                   <p class="text-base font-medium">
-                                    Réponse : <span class="text-primary"> {{ findResponse(responses[question.id].optionDeReponseId) }}</span>
+                                    Réponse : <span class="text-primary"> {{ findResponse(responses[question.id]?.optionDeReponseId) }}</span>
                                   </p>
                                 </div>
                                 <div class="flex items-center gap-3">
-                                  <div class="flex items-center gap-3" v-if="responses[question.id].sourceDeVerificationId === 'others'">
+                                  <div class="flex items-center gap-3" v-if="responses[question.id]?.sourceDeVerificationId === 'others'">
                                     <p class="text-base font-medium">
                                       Autre source: <span class="text-primary">{{ responses[question.id].sourceDeVerification }}</span>
                                     </p>
                                   </div>
                                   <div v-else class="flex items-center gap-3">
                                     <p class="text-base font-medium">
-                                      Source : <span class="text-primary">{{ findSource(responses[question.id].sourceDeVerificationId) }}</span>
+                                      Source : <span class="text-primary">{{ findSource(responses[question.id]?.sourceDeVerificationId) }}</span>
                                     </p>
                                   </div>
                                 </div>
@@ -463,7 +464,7 @@ onMounted(async () => {
                               <div class="">
                                 <ul class="flex justify-center">
                                   Fichiers:
-                                  <li class="text-base font-medium text-primary" v-for="(file, index) in responses[question.id].preuves" :key="index">{{ file.name }}</li>
+                                  <li class="text-base font-medium text-primary" v-for="(file, index) in responses[question.id]?.preuves" :key="index">{{ file.name }}</li>
                                 </ul>
                               </div>
                             </div>

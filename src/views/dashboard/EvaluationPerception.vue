@@ -53,7 +53,7 @@ const getDataFormPerception = async () => {
     const { data } = await EvaluationService.getPerceptionFormEvaluation(payload.identifier_of_participant, token);
     formDataPerception.value = data.data;
     formulairePerception.value = formDataPerception.value.formulaire_de_gouvernance;
-    idEvaluation.value = formDataPerception.value.id;
+    idEvaluation.value = formDataPerception.value.formulaire_de_gouvernance.id;
     payload.formulaireDeGouvernanceId = formDataPerception.value.id;
     payload.programmeId = formDataPerception.value.programmeId;
   } catch (e) {
