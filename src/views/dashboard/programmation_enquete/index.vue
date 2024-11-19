@@ -160,8 +160,10 @@ const handleEdit = (params) => {
   payload.objectif_attendu = params.objectif_attendu;
   payload.debut = params.debut;
   payload.fin = params.fin;
-  // idFormFactuel.value = params.formulaire;
-  // idFormPerception.value = params.formulaire;
+  idFormFactuel.value = params.formulaire_factuel_de_gouvernance;
+  idFormPerception.value = params.formulaire_perception_de_gouvernance;
+  console.log(idFormFactuel.value, "---------", idFormPerception.value);
+
   showModalCreate.value = true;
 };
 const handleDelete = (params) => {
@@ -296,10 +298,10 @@ onMounted(() => {
         <div class="grid grid-cols-1 gap-4">
           <InputForm label="Nom" v-model="payload.intitule" />
           <InputForm label="Description" v-model="payload.description" :required="false" />
-          <div class="flex w-full gap-4">
+          <div class="flex items-center justify-between w-full gap-4">
             <div class="">
               <label for="objectif" class="form-label">Objectif</label>
-              <input id="objectif" type="number" min="0.05" step="0.05" max="1" required v-model.number="payload.objectif_attendu" class="form-control" placeholder="Objectif" />
+              <input id="objectif" type="number" min="0.05" step="0.05" max="1" required v-model.number="payload.objectif_attendu" class="form-control" placeholder="Objectif Principe" />
             </div>
             <div class="">
               <label for="annee" class="form-label">Année</label>

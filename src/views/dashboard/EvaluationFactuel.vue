@@ -15,7 +15,8 @@ const TYPE_ORGANISATION = "organisation";
 
 const route = useRoute();
 
-const idEvaluation = route.params.id;
+// const idEvaluation = route.params.id;
+const token = route.params.id;
 
 const payload = reactive({
   organisationId: "",
@@ -37,6 +38,7 @@ const isValidate = ref(false);
 const isLoadingDataFactuel = ref(true);
 const organisationSelected = ref(false);
 const currentPage = ref(0);
+const idEvaluation = ref("");
 const currentMember = ref({
   nom: "",
   prenom: "",
@@ -46,9 +48,12 @@ const sources = ref([]);
 
 const getDataFormFactuel = async () => {
   try {
-    const { data } = await EvaluationService.findEvaluation(idEvaluation);
+    const { data } = await EvaluationService.getFactuelFormEvaluation(token);
     formDataFactuel.value = data.data;
+    formulaireFactuel.value = formDataFactuel.value.formulaire_de_gouvernance;
     payload.formulaireDeGouvernanceId = formDataFactuel.value.formulaire_factuel_de_gouvernance;
+    idEvaluation.value = formDataFactuel.value.id;
+    payload.formulaireDeGouvernanceId = formDataPerception.value.id;
   } catch (e) {
     toast.error("Erreur lors de la récupération des données.");
   } finally {
@@ -128,7 +133,7 @@ const submitData = async () => {
       }
     });
     isLoading.value = true;
-    const action = isValidate.value ? EvaluationService.validateSumission(idEvaluation, formData) : EvaluationService.submitSumission(idEvaluation, formData);
+    const action = isValidate.value ? EvaluationService.validateSumission(idEvaluation.value, formData) : EvaluationService.submitSumission(idEvaluation.value, formData);
 
     try {
       const result = await action;
@@ -262,7 +267,7 @@ onMounted(async () => {
   await getSource();
   await getDataFormFactuel();
   // await getcurrentUserAndFetchOrganization();
-  findFormulaireFactuel();
+  // findFormulaireFactuel();
   initializeFormData();
 });
 </script>
