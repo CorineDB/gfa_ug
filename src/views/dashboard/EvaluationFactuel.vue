@@ -53,7 +53,7 @@ const getDataFormFactuel = async () => {
     formulaireFactuel.value = formDataFactuel.value.formulaire_de_gouvernance;
     payload.formulaireDeGouvernanceId = formDataFactuel.value.formulaire_factuel_de_gouvernance;
     idEvaluation.value = formDataFactuel.value.formulaire_de_gouvernance.id;
-    payload.formulaireDeGouvernanceId = formDataFactuel.value.id;
+    payload.formulaireDeGouvernanceId = formDataFactuel.value.formulaire_factuel_de_gouvernance.id;
   } catch (e) {
     console.log(e);
     toast.error("Erreur lors de la récupération des données.");
@@ -151,6 +151,25 @@ const submitData = async () => {
 };
 
 const initializeFormData = () => {
+  // Initialisation des réponses
+  formulaireFactuel.value.categories_de_gouvernance.forEach((typeGouvernance) => {
+    typeGouvernance.categories_de_gouvernance.forEach((principe) => {
+      principe.categories_de_gouvernance.forEach((critere) => {
+        critere.questions_de_gouvernance.forEach((question) => {
+          responses[question.id] = {
+            questionId: question.id,
+            optionDeReponseId: "null",
+            sourceDeVerificationId: sources.value[0].id,
+            sourceDeVerification: "",
+            preuves: [],
+          };
+        });
+      });
+    });
+  });
+};
+
+const initializeFormDataAfterSoumission = () => {
   // Initialisation des réponses
   formulaireFactuel.value.categories_de_gouvernance.forEach((typeGouvernance) => {
     typeGouvernance.categories_de_gouvernance.forEach((principe) => {
