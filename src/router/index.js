@@ -14,6 +14,7 @@ import Critere from "../views/dashboard/critere.vue";
 import Utilisateur from "../views/dashboard/utilisateur.vue";
 import Login from "../views/login/Main.vue";
 import ResetPassword from "../views/reset-password/Main.vue";
+import ResetPasswordConnect from "../views/reset_password/Main.vue";
 import NewPassword from "../views/reset-password/_mails/newPassword.vue";
 import ResetPasswordFromDashboard from "../views/dashboard/resetPasswordFromDashboard.vue";
 import Feedback from "../views/dashboard/feedback.vue";
@@ -68,6 +69,8 @@ import SourceVerification from "../views/dashboard/SourceVerification.vue";
 import SendMailPerception from "../views/dashboard/SendMailPerception.vue";
 import Organisations from "../views/dashboard/organisations.vue";
 import FicheMarqueur from "../views/dashboard/FicheMarqueur.vue";
+import DetailSoumission from "../views/dashboard/DetailSoumission.vue";
+import Activation from "../views/activation/Main.vue";
 
 const routes = [
   {
@@ -132,6 +135,11 @@ const routes = [
         path: "tools-factuel/:id",
         name: "ToolsFactuel",
         component: EvaluationFactuel,
+      },
+      {
+        path: "soumission/:e/:s",
+        name: "soumission",
+        component: DetailSoumission,
       },
       {
         path: "audit",
@@ -346,9 +354,20 @@ const routes = [
   },
 
   {
+    path: "/activation/:t",
+    name: "activation",
+    component: Activation,
+  },
+
+  {
     path: "/reset-password",
     name: "resetPassword",
     component: ResetPassword,
+  },
+  {
+    path: "/reset_password/:t",
+    name: "reset_Password",
+    component: ResetPasswordConnect,
   },
   {
     path: "/password_update",

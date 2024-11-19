@@ -86,7 +86,7 @@ const initTabulator = () => {
         hozAlign: "left",
         formatter(cell) {
           if (cell.getData().user.email !== null) {
-            return `<div> ${cell.getData().user.nom}</div>`;
+            return `<div> ${cell.getData().user.email}</div>`;
           } else {
             return `<div></div>`;
           }
@@ -350,8 +350,8 @@ onMounted(() => {
                 <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Export JSON </DropdownItem>
                 <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Export XLSX </DropdownItem>
                 <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Export HTML </DropdownItem>
-              </DropdownContent> </DropdownMenu
-            >secteurActivite
+              </DropdownContent>
+            </DropdownMenu>
           </Dropdown>
         </div>
       </div>

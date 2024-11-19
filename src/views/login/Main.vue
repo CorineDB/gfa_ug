@@ -24,13 +24,13 @@
         </div>
         <!-- END: Login Info -->
         <!-- BEGIN: Login Form -->
-        <form @submit.prevent="save" class="flex items-center h-screen py-5 m-10 _bg-white xl:h-auto xl:py-0 sm:mx-auto xl:my-0">
+        <form @submit.prevent="save" autocomplete="on" class="flex items-center h-screen py-5 m-10 _bg-white xl:h-auto xl:py-0 sm:mx-auto xl:my-0">
           <div class="w-full px-5 py-8 mx-auto my-auto bg-white rounded-md shadow-md dark:bg-darkmode-600 xl:bg-transparent sm:px-8 xl:p-0 xl:shadow-none sm:w-3/4 lg:w-2/4 xl:w-auto">
             <h2 class="text-2xl font-bold text-center intro-x xl:text-3xl xl:text-left">Se connecter</h2>
             <div class="mt-2 text-center intro-x text-slate-400 xl:hidden">Responsabilité partagée, Qualité améliorée : Unis pour un meilleur service social.</div>
             <div class="mt-8 intro-x">
               <div>
-                <input type="text" v-model.trim="login" class="block px-4 py-3 intro-x login__input form-control" placeholder="Email" />
+                <input type="text" autocomplete="on" v-model.trim="login" class="block px-4 py-3 intro-x login__input form-control" placeholder="Email" />
                 <!-- <div class="py-2 text-sm font-semibold text-red-500" v-if='!$v.login.required && soumettre'>
                   Ce champ est obligatoire
                       </div> -->
