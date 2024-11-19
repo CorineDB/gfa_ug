@@ -168,6 +168,10 @@ const openFactuelModal = () => {
 const goToPageSynthese = (Idsoumission) => {
   router.push({ name: "FicheSynthese", params: { e: idEvaluation } });
 };
+const goToPageSoumission = (Idsoumission) => {
+  showModalOrganisation.value = false;
+  router.push({ name: "soumission", params: { e: idEvaluation, s: Idsoumission } });
+};
 const goToPageMarqueur = (Idsoumission) => {
   router.push({ name: "FicheMarqueur", params: { e: idEvaluation } });
 };
@@ -385,7 +389,7 @@ onMounted(() => {
           <TabPanels class="mt-5">
             <TabPanel class="max-h-[80vh] overflow-y-auto">
               <div class="flex flex-col gap-2" v-if="currentOrganisation?.factuel">
-                <div v-for="(soumission, index) in currentOrganisation.factuel" :key="index" class="flex items-center justify-between w-full gap-2 px-2 py-3 text-base font-medium text-black truncate transition-all bg-white border border-l-4 rounded shadow-md border-primary">
+                <div @click="goToPageSoumission(soumission.id)" v-for="(soumission, index) in currentOrganisation.factuel" :key="index" class="flex items-center justify-between w-full gap-2 px-2 py-3 text-base font-medium text-black truncate transition-all bg-white border border-l-4 rounded shadow-md cursor-pointer border-primary">
                   <p>
                     Soumission n° {{ index + 1 }} ( {{ soumission.submitted_at }}) <span :class="[soumission.statut ? 'bg-green-500' : 'bg-yellow-500']" class="px-2 py-1 mr-1 text-xs text-white rounded-full">{{ soumission.statut ? "Terminé" : "En cours" }}</span>
                   </p>
@@ -403,7 +407,7 @@ onMounted(() => {
             </TabPanel>
             <TabPanel class="max-h-[80vh] overflow-y-auto">
               <div class="flex flex-col gap-2" v-if="currentOrganisation?.perception">
-                <div v-for="(soumission, index) in currentOrganisation.perception" :key="index" class="flex items-center justify-between w-full gap-2 px-2 py-3 text-base font-medium text-black truncate transition-all bg-white border border-l-4 rounded shadow-md border-primary">
+                <div @click="goToPageSoumission(soumission.id)" v-for="(soumission, index) in currentOrganisation.perception" :key="index" class="flex items-center justify-between w-full gap-2 px-2 py-3 text-base font-medium text-black truncate transition-all bg-white border border-l-4 rounded shadow-md cursor-pointer border-primary">
                   <p>
                     Soumission n° {{ index + 1 }} ( {{ soumission.submitted_at }}) <span :class="[soumission.statut ? 'bg-green-500' : 'bg-yellow-500']" class="px-2 py-1 mr-1 text-xs text-white rounded-full">{{ soumission.statut ? "Terminé" : "En cours" }}</span>
                   </p>

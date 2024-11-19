@@ -134,10 +134,10 @@ onMounted(async () => {
                 </tr>
               </tbody>
             </table>
-            <!-- <ChartScroreByPrincipe />
+            <ChartScroreByPrincipe />
             <ChartOptionResponseByCategorieAndMember />
             <ChartProgressionByTime />
-            <ChartScorePerceptionByPrincipe /> -->
+            <ChartScorePerceptionByPrincipe />
           </TabPanel>
           <!-- Factuel -->
           <TabPanel class="leading-relaxed">
@@ -228,7 +228,7 @@ onMounted(async () => {
               </tbody>
             </table>
             <!-- Tableau de synthese Perception -->
-            <TabulatorSynthesePerception :data="currentPerception?.synthese" :indicegouvernace="currentFactuel?.indice_de_gouvernance" v-if="!isLoadingData && currentPerception?.synthese" />
+            <TabulatorSynthesePerception :data="currentPerception?.synthese" :indicegouvernace="currentPerception?.indice_de_gouvernance" v-if="!isLoadingData && currentPerception?.synthese" />
           </TabPanel>
         </TabPanels>
         <LoaderSnipper v-if="isLoadingData" />

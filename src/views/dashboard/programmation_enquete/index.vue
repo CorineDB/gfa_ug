@@ -11,6 +11,7 @@ import FormulaireFactuel from "@/services/modules/formFactuel.service";
 import { useRouter } from "vue-router";
 import OngService from "@/services/modules/ong.service";
 import { getAllErrorMessages } from "@/utils/gestion-error";
+import ChartProgressionByTime from "../../../components/news/ChartProgressionByTime.vue";
 
 const router = useRouter();
 
@@ -201,7 +202,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <h2 class="mt-10 text-lg font-medium intro-y">Évaluation de gouvernace</h2>
+  <h2 class="text-lg font-medium mty-10 intro-y">Évaluation de gouvernace</h2>
   <div class="grid grid-cols-12 gap-6 mt-5">
     <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
       <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
@@ -215,7 +216,12 @@ onMounted(() => {
       </div>
     </div>
   </div>
-
+  <!-- <div class="">
+    <h2 class="mt-10 text-lg font-medium intro-y">Évaluation de gouvernace</h2>
+    <div class="flex w-full gap-6">
+      <ChartProgressionByTime />
+    </div>
+  </div> -->
   <div class="p-5 mt-5 intro-y">
     <!-- <div class="overflow-x-auto scrollbar-hidden" v-if="!isLoadingData">
       <div id="tabulator" class="mt-5 table-report table-report--tabulator"></div>

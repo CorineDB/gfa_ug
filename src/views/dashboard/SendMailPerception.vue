@@ -11,14 +11,18 @@ import { computed } from "vue";
 const route = useRoute();
 const router = useRouter();
 
-const payload = reactive({
-  emails: [],
-  phones: [],
-});
 const options = [
-  { label: "Adresse Email", id: "mail" },
-  { label: "Numéro de téléphone", id: "phone" },
+  { label: "Adresse Email", id: "email" },
+  { label: "Numéro de téléphone", id: "contact" },
 ];
+const payload = reactive({
+  organisationId: "",
+  participants: {
+    type_de_contact: options[0].id,
+    email: [],
+    phone: [],
+  },
+});
 const idEvaluation = route.query.e;
 const currentOption = ref(options[0].id);
 const currentEmail = ref("");
@@ -27,8 +31,8 @@ const isLoading = ref(false);
 
 const addEmail = () => {
   if (currentEmail.value) {
-    if (!payload.emails.includes(currentEmail.value)) {
-      payload.emails.unshift(currentEmail.value);
+    if (!payload.participants.email.includes(currentEmail.value)) {
+      payload.participants.email.unshift(currentEmail.value);
       currentEmail.value = "";
     } else {
       toast.info("Adresse email déja ajouté");
@@ -38,8 +42,8 @@ const addEmail = () => {
 
 const addPhone = () => {
   if (currentPhone.value) {
-    if (!payload.phones.includes(currentPhone.value)) {
-      payload.phones.unshift(currentPhone.value);
+    if (!payload.participants.phone.includes(currentPhone.value)) {
+      payload.participants.phone.unshift(currentPhone.value);
       currentPhone.value = "";
     } else {
       toast.info("Numéro de téléphone déja ajouté");
@@ -52,19 +56,31 @@ const goBack = () => {
 const resetForm = () => {};
 
 const submitData = async () => {
-  // isLoading.value = true;
-  // try {
-  //   await EvaluationService.addParticipantPerception(idEvaluation,payload) ;
-  //   toast.success(`Participants ajoutés.`);
-  //   resetForm();
-  // } catch (e) {
-  //   toast.error(getAllErrorMessages(e));
-  // } finally {
-  //   isLoading.value = false;
-  // }
+  isLoading.value = true;
+  try {
+    await EvaluationService.addParticipantPerception(idEvaluation, payload);
+    toast.success(`Participants ajoutés.`);
+    resetForm();
+  } catch (e) {
+    toast.error(getAllErrorMessages(e));
+  } finally {
+    isLoading.value = false;
+  }
 };
 
-const filterData = computed(() => (currentOption.value === options[0].id ? payload.emails : payload.phones));
+const deleteItem = (item) => {
+  if (payload.participants.type_de_contact == options[0].id) {
+    payload.participants.email.splice(item, 1);
+  } else {
+    payload.participants.phone.splice(item, 1);
+  }
+};
+
+const filterData = computed(() => (payload.participants.type_de_contact === options[0].id ? payload.participants.email : payload.participants.phone));
+
+onMounted(() => {
+  payload.organisationId = route.params.o;
+});
 </script>
 <template>
   <div>
@@ -85,18 +101,18 @@ const filterData = computed(() => (currentOption.value === options[0].id ? paylo
             <label class="form-label">Type de données</label>
             <div class="flex gap-2">
               <div v-for="(option, index) in options" :key="index" class="form-check">
-                <input v-model="currentOption" :id="option.id" class="form-check-input" type="radio" name="option" :value="option.id" />
+                <input v-model="payload.participants.type_de_contact" :id="option.id" class="form-check-input" type="radio" name="option" :value="option.id" />
                 <label class="form-check-label" :for="option.id">{{ option.label }}</label>
               </div>
             </div>
           </div>
-          <form v-show="currentOption === options[0].id" @submit.prevent="addEmail">
+          <form v-show="payload.participants.type_de_contact === options[0].id" @submit.prevent="addEmail">
             <div class="flex items-end gap-4">
               <InputForm class="" label="Adresse email" v-model="currentEmail" type="email" />
               <button class="btn btn-primary"><PlusIcon class="w-4 h-4 mr-3" />Ajouter</button>
             </div>
           </form>
-          <form v-show="currentOption === options[1].id" @submit.prevent="addPhone">
+          <form v-show="payload.participants.type_de_contact === options[1].id" @submit.prevent="addPhone">
             <div class="flex items-end gap-4">
               <InputForm class="" label="Numéro de téléphone" pattern="\d{1,8}" maxlength="8" v-model.number="currentPhone" type="number" />
               <!-- <div class="">
@@ -109,7 +125,8 @@ const filterData = computed(() => (currentOption.value === options[0].id ? paylo
 
           <div class="flex flex-wrap items-center w-full max-w-full gap-3">
             <div class="flex items-center justify-between gap-2 px-3 py-1 text-sm font-medium bg-white rounded-full shadow cursor-pointer text-primary" v-for="(mail, index) in filterData" :key="index">
-              <span>{{ mail }} </span><button class="p-2 transition-colors rounded-full hover:bg-red-100"><PlusIcon class="w-4 h-4 text-danger" /></button>
+              <span>{{ mail }} </span>
+              <button @click="deleteItem(index)" class="p-2 transition-colors rounded-full hover:bg-red-100"><PlusIcon class="w-4 h-4 text-danger" /></button>
             </div>
           </div>
         </div>
