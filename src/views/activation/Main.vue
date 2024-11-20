@@ -13,13 +13,32 @@
         <!-- END: Login Info -->
         <!-- BEGIN: Login Form -->
         <div v-if="!showActivate" class="flex flex-col items-center justify-center gap-4 bg-white">
-          <Alert v-if="errorMessage" class="flex items-center mb-2 alert-danger">
-            <AlertOctagonIcon class="w-6 h-6 mr-2" />
-            <p class="text-lg">
-              {{ errorMessage }}. <br />
-              Vérifier votre Mail et accéder au lien d'activation.
-            </p>
-          </Alert>
+          <div v-if="errorMessage" class="">
+            <Alert class="flex items-center mb-2 alert-danger">
+              <AlertOctagonIcon class="w-6 h-6 mr-2" />
+              <p class="text-lg">{{ errorMessage }}. <br /></p>
+            </Alert>
+            <form @submit.prevent="sendMailExp" class="flex items-center h-screen py-5 m-10 _bg-white xl:h-auto xl:py-0 sm:mx-auto xl:my-0">
+              <div class="w-full px-5 py-8 mx-auto my-auto bg-white rounded-md shadow-md dark:bg-darkmode-600 xl:bg-transparent sm:px-8 xl:p-0 xl:shadow-none sm:w-3/4 lg:w-2/4 xl:w-auto">
+                <Alert v-if="showFormErrorExp" class="flex items-center mb-2 alert-danger">
+                  <p>{{ errorMessageFormExp }}</p>
+                </Alert>
+                <Alert v-if="showFormSuccessExp" class="flex items-center mb-2 text-white alert-success"> <AlertCircleIcon class="w-6 h-6 mr-2" /> Consulter votre mail pour accéder au lien pour activer votre compte. </Alert>
+                <h2 v-if="!showFormSuccessExp" class="text-2xl font-bold text-center intro-x xl:text-3xl xl:text-left">Demande du lien d'activation</h2>
+                <div v-if="!showFormSuccessExp" class="mt-2 text-center intro-x text-slate-400 xl:hidden">Responsabilité partagée, Qualité améliorée : Unis pour un meilleur service social.</div>
+                <div v-if="!showFormSuccessExp" class="mt-8 intro-x">
+                  <div>
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" v-model.trim="emailExp" id="email" class="block px-4 py-3 intro-x login__input form-control" placeholder="Email pour activation" />
+                  </div>
+                </div>
+                <div class="mt-5 text-center intro-x xl:mt-8 xl:text-left">
+                  <VButton v-if="!showFormSuccessExp" :loading="chargement" label="Soumettre" class="py-3" />
+                </div>
+              </div>
+            </form>
+          </div>
+
           <LoaderSnipper v-if="isLoading" />
         </div>
 
@@ -62,11 +81,15 @@ const chargement = ref(false);
 const isLoading = ref(true);
 const showActivate = ref(false);
 const showFormError = ref(false);
+const showFormErrorExp = ref(false);
 const showFormSuccess = ref(false);
+const showFormSuccessExp = ref(false);
 const email = ref("");
+const emailExp = ref("");
 const errorMessage = ref("");
 const errorMessageForm = ref("");
-const token = route.params.t;
+const errorMessageFormExp = ref("");
+const token = route.query.t;
 
 const sendMail = () => {
   if (email.value) {
@@ -79,7 +102,7 @@ const sendMail = () => {
         showFormSuccess.value = true;
       } else {
         showFormError.value = true;
-        errorMessageForm.value = result.data?.message || "Une erreur est survenue.";
+        errorMessageForm.value = result.data.data?.message || "Une erreur est survenue.";
       }
     } catch (error) {
       chargement.value = false;
@@ -88,21 +111,49 @@ const sendMail = () => {
     }
   }
 };
+const sendMailExp = () => {
+  if (emailExp.value) {
+    chargement.value = true;
+    try {
+      const result = ActivationAccount.confirmationCompte(emailExp.value);
+      if (result.data.statut === "success") {
+        chargement.value = false;
+        showFormSuccessExp.value = true;
+      } else {
+        showFormErrorExp.value = true;
+
+        errorMessageFormExp.value = result.data?.message || "Une erreur est survenue.";
+      }
+    } catch (error) {
+      console.log("Response", error);
+      chargement.value = false;
+      showFormErrorExp.value = true;
+      errorMessageFormExp.value = error.response?.data?.message || "Une erreur est survenue.";
+    }
+  }
+};
 
 const activeAccount = async () => {
+  chargement.value = true;
+
   try {
     const result = await ActivationAccount.activerCompte(token);
     if (result.data.statut === "success") {
       isLoading.value = false;
       showActivate.value = true;
+      chargement.value = false;
 
       // toast.success(result.message || "Compte activé avec succès !");
     } else {
+      chargement.value = false;
+
       // toast.error(result.message || "Une erreur inattendue est survenue.");
     }
   } catch (error) {
     errorMessage.value = error.response?.data?.message || "Une erreur est survenue.";
     isLoading.value = false;
+    chargement.value = false;
+
     // toast.error(errorMessage.value);
   }
 };

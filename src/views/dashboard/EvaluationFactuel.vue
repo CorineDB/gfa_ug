@@ -52,8 +52,7 @@ const getDataFormFactuel = async () => {
     formDataFactuel.value = data.data;
     formulaireFactuel.value = formDataFactuel.value.formulaire_de_gouvernance;
     payload.formulaireDeGouvernanceId = formDataFactuel.value.formulaire_factuel_de_gouvernance;
-    idEvaluation.value = formDataFactuel.value.formulaire_de_gouvernance.id;
-    payload.formulaireDeGouvernanceId = formDataFactuel.value.formulaire_factuel_de_gouvernance.id;
+    idEvaluation.value = formDataFactuel.value.id;
   } catch (e) {
     console.log(e);
     toast.error("Erreur lors de la récupération des données.");
