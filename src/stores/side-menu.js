@@ -51,24 +51,29 @@ export const useSideMenuStore = defineStore("sideMenu", {
           },
           {
             icon: "BarChart2Icon",
-            pageName: "UniteDeMesure",
-            title: "Unité de Mesure",
+            pageName: "create_indicateur",
+            title: "Création Indicateurs",
           },
-          {
-            icon: "BarChart2Icon",
-            pageName: "KeyValue",
-            title: "Clé Valeur Indicateur",
-          },
-          {
-            icon: "BarChart2Icon",
-            pageName: "CategoriesIndicateurs",
-            title: "Catégories d'indicateurs",
-          },
-          {
-            icon: "BarChart2Icon",
-            pageName: "Sites",
-            title: "Sites",
-          },
+          // {
+          //   icon: "BarChart2Icon",
+          //   pageName: "UniteDeMesure",
+          //   title: "Unité de Mesure",
+          // },
+          // {
+          //   icon: "BarChart2Icon",
+          //   pageName: "KeyValue",
+          //   title: "Clé Valeur Indicateur",
+          // },
+          // {
+          //   icon: "BarChart2Icon",
+          //   pageName: "CategoriesIndicateurs",
+          //   title: "Catégories d'indicateurs",
+          // },
+          // {
+          //   icon: "BarChart2Icon",
+          //   pageName: "Sites",
+          //   title: "Sites",
+          // },
           {
             icon: "BarChart2Icon",
             pageName: "TypeResultat",

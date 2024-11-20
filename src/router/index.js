@@ -71,6 +71,7 @@ import Organisations from "../views/dashboard/organisations.vue";
 import FicheMarqueur from "../views/dashboard/FicheMarqueur.vue";
 import DetailSoumission from "../views/dashboard/DetailSoumission.vue";
 import Activation from "../views/activation/Main.vue";
+import CreateIndicateur from "../views/dashboard/indicateurs/CreateIndicateur.vue";
 
 const routes = [
   {
@@ -125,6 +126,11 @@ const routes = [
         path: "enquetes",
         name: "Programmation_enquete",
         component: Programmation_enquete,
+      },
+      {
+        path: "create-indicateur",
+        name: "create_indicateur",
+        component: CreateIndicateur,
       },
       {
         path: "enquetes/:id/soumissions",

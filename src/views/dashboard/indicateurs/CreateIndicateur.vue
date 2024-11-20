@@ -1,0 +1,409 @@
+<template>
+  <div class="flex w-full gap-2">
+    <section class="w-[30%] h-screen pr-1 overflow-y-auto border-r-2 pt-5">
+      <AccordionGroup :selectedIndex="null" class="space-y-1">
+        <AccordionItem class="">
+          <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
+            <p>Unité de Mesure</p>
+            <ChevronDownIcon />
+          </Accordion>
+          <AccordionPanel class="p-2">
+            <UniteMesure />
+          </AccordionPanel>
+        </AccordionItem>
+
+        <AccordionItem>
+          <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
+            <p>Clé valeur</p>
+            <ChevronDownIcon />
+          </Accordion>
+          <AccordionPanel class="p-2">
+            <CleValeur />
+          </AccordionPanel>
+        </AccordionItem>
+
+        <AccordionItem>
+          <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
+            <p>Catégorie</p>
+            <ChevronDownIcon />
+          </Accordion>
+          <AccordionPanel class="p-2">
+            <ManagmentCategorie />
+          </AccordionPanel>
+        </AccordionItem>
+        <AccordionItem>
+          <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
+            <p>Site</p>
+            <ChevronDownIcon />
+          </Accordion>
+          <AccordionPanel class="p-2">
+            <ManagmentSite />
+          </AccordionPanel>
+        </AccordionItem>
+      </AccordionGroup>
+    </section>
+
+    <section class="w-[70%] pt-5">
+      <h2 class="mt-10 text-lg font-medium intro-y">Indicateurs</h2>
+      <div>
+        <!-- Button to open modal -->
+        <div class="flex items-center justify-end gap-2 mb-4">
+          <button class="text-base btn btn-primary" @click="openCreateModal"><PlusIcon class="mr-1 size-4" />Ajouter</button>
+        </div>
+
+        <!-- Data List -->
+        <ul v-if="!isLoadingData" class="overflow-y-auto max-h-[40vh]">
+          <li v-for="data in filterData" :key="data.id" class="flex items-center justify-between gap-2 px-1 py-1.5 text-base hover:bg-blue-100 list-data">
+            <div class="p-2 form-check">
+              <span class="form-check-label">{{ data.nom }}</span>
+            </div>
+            <div class="flex items-center gap-1 space-x-1 transition-all opacity-0 container-buttons">
+              <button class="p-1.5 text-primary" @click="handleEdit(data)">
+                <Edit3Icon class="size-5" />
+              </button>
+              <button class="p-1.5 text-danger" @click="handleDelete(data)">
+                <TrashIcon class="size-5" />
+              </button>
+            </div>
+          </li>
+        </ul>
+        <LoaderSnipper v-else />
+
+        <!-- Modal for creating/updating -->
+        <Modal size="modal-xl" backdrop="static" :show="showModalCreate" @hidden="closeModal">
+          <ModalHeader>
+            <h2 class="mr-auto text-base font-medium">{{ modeText }} une catégorie</h2>
+          </ModalHeader>
+          <form @submit.prevent="submitData">
+            <ModalBody>
+              <!-- {{ valeurDeBase }} -->
+              <div class="grid grid-cols-1 gap-4">
+                <InputForm label="Nom" v-model="payload.nom" />
+                <div>
+                  <label class="form-label" for="description">Description</label>
+                  <div class="">
+                    <textarea name="description" class="form-control" id="description" v-model="payload.description" cols="30" rows="2"></textarea>
+                  </div>
+                </div>
+                <div class="flex-1 form-check">
+                  <input id="agreer" class="form-check-input" type="checkbox" v-model="payload.agreger" />
+                  <label class="form-check-label" for="agreer">Agréger</label>
+                </div>
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                  <InputForm class="flex-1" label="Indice" v-model="payload.indice" type="number" />
+                  <div class="flex-1">
+                    <label class="form-label">Clé valeur</label>
+                    <TomSelect v-model="array_value_keys" name="keys" multiple :options="{ placeholder: 'Selectionez les clés valeur' }" class="w-full">
+                      <option v-for="(key, index) in keys" :key="index" :value="key.id">{{ key.libelle }}</option>
+                    </TomSelect>
+                  </div>
+                </div>
+                <div v-if="array_value_keys.length > 0" class="">
+                  <label class="form-label">Valeur de base</label>
+                  <div class="grid gap-3 grid-cols-[repeat(auto-fill,_minmax(350px,_1fr))]">
+                    <div v-for="(base, index) in filterValueKeys" :key="index" class="input-group">
+                      <div class="flex items-center justify-center text-sm input-group-text">{{ base.libelle }}</div>
+                      <input type="number" v-model="valeur[base.id]" class="form-control" placeholder="valeur" aria-label="valeur" aria-describedby="input-group-valeur" />
+                    </div>
+                  </div>
+                </div>
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                  <div class="flex-1">
+                    <label class="form-label">Catégorie</label>
+                    <TomSelect v-model="payload.categorieId" name="category" :options="{ placeholder: 'Selectionez une catégorie' }" class="w-full">
+                      <option value=""></option>
+                      <option v-for="(categorie, index) in categories" :key="categorie.id" :value="categorie.id">{{ categorie.nom }}</option>
+                    </TomSelect>
+                  </div>
+                  <div class="flex-1">
+                    <label class="form-label">Source de données</label>
+                    <TomSelect v-model="payload.sources_de_donnee" name="source" :options="{ placeholder: 'Selectionez une source' }" class="w-full">
+                      <option value=""></option>
+                      <option v-for="(source, index) in sourcesDonnees" :key="index" :value="source">{{ source }}</option>
+                    </TomSelect>
+                  </div>
+                </div>
+
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                  <div class="flex-1">
+                    <label class="form-label">Méthode de la collecte des données</label>
+                    <TomSelect v-model="payload.methode_de_la_collecte" name="method" :options="{ placeholder: 'Selectionez une methode' }" class="w-full">
+                      <option value=""></option>
+                      <option v-for="(methode, index) in methodeCollecte" :key="index" :value="methode">{{ methode }}</option>
+                    </TomSelect>
+                  </div>
+                  <div class="flex-1">
+                    <label class="form-label">Fréquence de la collecte de données</label>
+                    <TomSelect v-model="payload.frequence_de_la_collecte" :options="{ placeholder: 'Selectionez une fréquence' }" class="w-full">
+                      <option value=""></option>
+                      <option v-for="(frequence, index) in frequenceCollecte" :key="index" :value="frequence">{{ frequence }}</option>
+                    </TomSelect>
+                  </div>
+                </div>
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                  <div class="flex-1">
+                    <label class="form-label">Responsables</label>
+                    <TomSelect v-model="payload.responsable" name="responsable" :options="{ placeholder: 'Selectionez un responsable' }" class="w-full">
+                      <option value=""></option>
+                      <option v-for="(responsable, index) in responsables" :key="index" :value="responsable.id">{{ responsable.nom }}</option>
+                    </TomSelect>
+                  </div>
+                  <div class="flex-1">
+                    <label class="form-label">Unité de mesure</label>
+                    <TomSelect v-model="payload.uniteeMesureId" name="unite" :options="{ placeholder: 'Selectionez une unité de mesure' }" class="w-full">
+                      <option value=""></option>
+                      <option v-for="(unite, index) in unites" :key="index" :value="unite.id">{{ unite.nom }}</option>
+                    </TomSelect>
+                  </div>
+                </div>
+                <div class="flex flex-wrap items-center justify-between w-full gap-3">
+                  <div class="flex-1">
+                    <label class="form-label">Sites</label>
+                    <TomSelect v-model="array_sites" multiple name="site" :options="{ placeholder: 'Selectionez les sites' }" class="w-full">
+                      <option value=""></option>
+                      <option v-for="(site, index) in sites" :key="index" :value="site.id">{{ site.nom }}</option>
+                    </TomSelect>
+                  </div>
+                  <InputForm class="flex-1" label="Année de base" v-model.number="payload.anneeDeBase" type="number" />
+                </div>
+              </div>
+            </ModalBody>
+            <ModalFooter>
+              <div class="flex gap-2">
+                <button type="button" @click="resetForm" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
+                <VButton :loading="isLoading" :label="modeText" />
+              </div>
+            </ModalFooter>
+          </form>
+        </Modal>
+
+        <!-- Modal for deleting -->
+        <Modal :show="deleteModalPreview" @hidden="closeDeleteModal">
+          <ModalBody class="p-0">
+            <div class="p-5 text-center">
+              <XCircleIcon class="w-16 h-16 mx-auto mt-3 text-danger" />
+              <div class="mt-5 text-lg">{{ nameSelect }}</div>
+              <div class="mt-2 text-slate-500">Supprimer cette catégorie?</div>
+            </div>
+            <div class="flex justify-center gap-3 py-4">
+              <button type="button" @click="cancelDelete" class="btn btn-outline-secondary">Annuler</button>
+              <DeleteButton :loading="isLoading" @click="deleteData" />
+            </div>
+          </ModalBody>
+        </Modal>
+      </div>
+    </section>
+  </div>
+</template>
+
+<script setup>
+import CleValeur from "../../../components/create-indicateur/CleValeur.vue";
+import ManagmentCategorie from "../../../components/create-indicateur/ManagmentCategorie.vue";
+import CategoriesService from "@/services/modules/categorie.service";
+import ManagmentSite from "../../../components/create-indicateur/ManagmentSite.vue";
+import UniteMesure from "../../../components/create-indicateur/UniteMesure.vue";
+import { computed, onMounted, reactive, ref, watch } from "vue";
+import VButton from "@/components/news/VButton.vue";
+import InputForm from "@/components/news/InputForm.vue";
+import IndicateursService from "@/services/modules/indicateur.service";
+import DeleteButton from "@/components/news/DeleteButton.vue";
+import { toast } from "vue3-toastify";
+import LoaderSnipper from "@/components/LoaderSnipper.vue";
+import { getAllErrorMessages } from "@/utils/gestion-error";
+import { frequenceCollecte, methodeCollecte, sourcesDonnees } from "../../../utils/constants";
+import OngService from "../../../services/modules/ong.service";
+import SiteService from "@/services/modules/site.service";
+import UniteeDeMesureService from "@/services/modules/unitee.mesure.service";
+import IndicateurValueKeys from "@/services/modules/key.value.service";
+
+const props = defineProps({});
+
+// Reactive data structure
+const idSelect = ref("");
+const nameSelect = ref("");
+const search = ref("");
+const showModalCreate = ref(false);
+const deleteModalPreview = ref(false);
+const isLoading = ref(false);
+const isLoadingData = ref(false);
+const isCreate = ref(true);
+const datas = ref([]);
+const categories = ref([]);
+const responsables = ref([]);
+const sites = ref([]);
+const unites = ref([]);
+const keys = ref([]);
+const array_value_keys = ref([]);
+const array_sites = ref([]);
+// Objet réactif pour stocker les valeurs des champs saisis
+const valeur = reactive({});
+const payload = reactive({
+  nom: "",
+  description: "",
+  indice: "",
+  sources_de_donnee: "",
+  methode_de_la_collecte: "",
+  frequence_de_la_collecte: "",
+  responsable: "",
+  anneeDeBase: "",
+  type_de_variable: "",
+  agreger: false,
+  //   valeurDeBase: "",
+  value_keys: array_value_keys,
+  valeurDeBase: [],
+  anneesCible: [],
+  categorieId: "",
+  uniteeMesureId: "",
+  sites: [],
+});
+// Fetch data
+const getDatas = async () => {
+  try {
+    isLoadingData.value = true;
+    const { data } = await IndicateursService.get();
+    datas.value = data.data;
+  } catch (e) {
+    toast.error("Erreur lors de la récupération des données.");
+  } finally {
+    isLoadingData.value = false;
+  }
+};
+
+// Fetch Categories
+const getCategories = async () => {
+  try {
+    const { data } = await CategoriesService.get();
+    categories.value = data.data;
+  } catch (e) {
+    toast.error("Erreur lors de la récupération des categories.");
+  }
+};
+const getResponsables = async () => {
+  try {
+    const { data } = await OngService.get();
+    responsables.value = data.data;
+  } catch (e) {
+    toast.error("Erreur lors de la récupération des organisations.");
+  }
+};
+const getSites = async () => {
+  try {
+    const { data } = await SiteService.get();
+    sites.value = data.data;
+  } catch (e) {
+    toast.error("Erreur lors de la récupération des sites.");
+  }
+};
+const getUnites = async () => {
+  try {
+    const { data } = await UniteeDeMesureService.get();
+    unites.value = data.data;
+  } catch (e) {
+    toast.error("Erreur lors de la récupération des sites.");
+  }
+};
+const getKeys = async () => {
+  try {
+    const { data } = await IndicateurValueKeys.get();
+    keys.value = data.data;
+  } catch (e) {
+    toast.error("Erreur lors de la récupération des clés.");
+  }
+};
+// Submit data (create or update)
+const submitData = async () => {
+  isLoading.value = true;
+  const action = isCreate.value ? IndicateursService.create(payload) : IndicateursService.update(idSelect.value, payload);
+  try {
+    await action;
+    toast.success(`Catégorie ${isCreate.value ? "créee" : "modifiée"} avec succès.`);
+    getDatas();
+    resetForm();
+  } catch (e) {
+    toast.error(getAllErrorMessages(e));
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+// Delete data
+const deleteData = async () => {
+  try {
+    isLoading.value = true;
+    await IndicateursService.destroy(idSelect.value);
+    toast.success("Catégorie supprimée avec succès.");
+    getDatas();
+  } catch (e) {
+    console.error(e);
+    toast.error(getAllErrorMessages(e));
+  } finally {
+    isLoading.value = false;
+    deleteModalPreview.value = false;
+  }
+};
+
+// Handle edit action
+const handleEdit = (data) => {
+  isCreate.value = false;
+  idSelect.value = data.id;
+  payload.nom = data.nom;
+  payload.categorieId = data.categorieId ?? "";
+  showModalCreate.value = true;
+};
+
+// Handle delete action
+const handleDelete = (data) => {
+  idSelect.value = data.id;
+  nameSelect.value = data.nom;
+  deleteModalPreview.value = true;
+};
+
+// UI related functions
+const resetForm = () => {
+  Object.keys(payload).forEach((key) => {
+    payload[key] = "";
+  });
+  showModalCreate.value = false;
+};
+
+const getAllSelectDatas = () => {
+  getCategories();
+  getResponsables();
+  getSites();
+  getUnites();
+  getKeys();
+};
+
+const openCreateModal = () => {
+  resetForm();
+  getAllSelectDatas();
+  isCreate.value = true;
+  showModalCreate.value = true;
+};
+const cancelDelete = () => {
+  idSelect.value = "";
+  deleteModalPreview.value = false;
+};
+const closeModal = () => (showModalCreate.value = false);
+const closeDeleteModal = () => (deleteModalPreview.value = false);
+
+const modeText = computed(() => (isCreate.value ? "Ajouter" : "Modifier"));
+const filterData = computed(() => datas.value.filter((data) => data.nom.toLowerCase().includes(search.value.toLowerCase())));
+
+const filterValueKeys = computed(() => {
+  return keys.value
+    .filter((key) => array_value_keys.value.includes(key.id)) // Garde les éléments correspondants
+    .map(({ id, libelle }) => ({ id, libelle })); // Ne garde que les champs id et libelle
+});
+
+// Résultat final : tableau des objets { keyId, value }
+// const valeurDeBase = computed(() => {
+//   return Object.entries(valeur)
+//     .filter(([keyId]) => array_value_keys.value.includes(keyId)) // Ne garde que les clés sélectionnées
+//     .map(([keyId, value]) => ({ keyId, value })); // Transforme en { keyId, value }
+// });
+// Fetch data on component mount
+onMounted(() => {});
+</script>
+
+<style scoped></style>
