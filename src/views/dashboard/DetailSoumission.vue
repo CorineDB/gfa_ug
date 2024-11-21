@@ -102,7 +102,7 @@ onMounted(() => getSoumission());
             <td :rowspan="principe.questions_de_gouvernance.length" class="p-2 font-semibold text-center border border-slate-600">{{ principe.nom }}</td>
             <td class="py-2 border border-slate-600">{{ principe.questions_de_gouvernance[0].nom }}</td>
             <td v-for="(option, index) in filterOptions" :key="index" class="py-2 text-center border border-slate-600">
-              <template v-if="principe.questions_de_gouvernance[0].reponse_de_la_collecte.optionDeReponseId == option.id">
+              <template v-if="principe.questions_de_gouvernance[0].reponse_de_la_collecte?.optionDeReponseId == option?.id">
                 <input class="pointer-events-none form-check-input" type="checkbox" value="" checked />
               </template>
             </td>
@@ -111,7 +111,7 @@ onMounted(() => getSoumission());
           <tr v-for="(question, qIndex) in principe.questions_de_gouvernance.slice(1)" :key="question.id">
             <td class="py-2 text-center border border-slate-600">{{ question.nom }}</td>
             <td v-for="(option, index) in filterOptions" :key="index" class="py-2 text-center border border-slate-600">
-              <template v-if="question.reponse_de_la_collecte.optionDeReponseId == option.id">
+              <template v-if="question.reponse_de_la_collecte?.optionDeReponseId == option.id">
                 <input :id="`n-${index}${option.id}`" class="pointer-events-none form-check-input" type="checkbox" value="" checked />
               </template>
             </td>
