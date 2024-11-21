@@ -77,9 +77,9 @@ onMounted(() => getSoumission());
                       {{ sousCategorie.nom }}
                     </td>
                     <td>{{ question.nom }}</td>
-                    <td class="text-center">{{ question.reponse_de_la_collecte.nom }}</td>
-                    <td class="text-right">{{ question.reponse_de_la_collecte.point }}</td>
-                    <td class="text-center">{{ question.reponse_de_la_collecte.sourceDeVerification }}</td>
+                    <td class="text-center">{{ question.reponse_de_la_collecte?.nom }}</td>
+                    <td class="text-right">{{ question.reponse_de_la_collecte?.point }}</td>
+                    <td class="text-center">{{ question.reponse_de_la_collecte?.sourceDeVerification }}</td>
                   </tr>
                 </template>
               </template>
