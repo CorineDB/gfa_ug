@@ -46,8 +46,8 @@ export const useSideMenuStore = defineStore("sideMenu", {
         subMenu: [
           {
             icon: "BarChart2Icon",
-            pageName: "Indicateurs",
-            title: "Indicateurs",
+            pageName: "cadre_mesure",
+            title: "Affichage Cadre Mesure",
           },
           {
             icon: "BarChart2Icon",

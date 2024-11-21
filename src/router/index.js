@@ -72,6 +72,7 @@ import FicheMarqueur from "../views/dashboard/FicheMarqueur.vue";
 import DetailSoumission from "../views/dashboard/DetailSoumission.vue";
 import Activation from "../views/activation/Main.vue";
 import CreateIndicateur from "../views/dashboard/indicateurs/CreateIndicateur.vue";
+import CadreMesure from "../views/dashboard/CadreMesure.vue";
 
 const routes = [
   {
@@ -131,6 +132,11 @@ const routes = [
         path: "create-indicateur",
         name: "create_indicateur",
         component: CreateIndicateur,
+      },
+      {
+        path: "cadre-mesure",
+        name: "cadre_mesure",
+        component: CadreMesure,
       },
       {
         path: "enquetes/:id/soumissions",

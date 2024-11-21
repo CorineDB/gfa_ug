@@ -52,16 +52,16 @@
         </div>
 
         <!-- Data List -->
-        <ul v-if="!isLoadingData" class="overflow-y-auto max-h-[40vh]">
-          <li v-for="data in filterData" :key="data.id" class="flex items-center justify-between gap-2 px-1 py-1.5 text-base hover:bg-blue-100 list-data">
+        <ul v-if="!isLoadingData" class="overflow-y-auto max-h-[80vh]">
+          <li v-for="data in filterData" :key="data.id" class="flex items-center justify-between gap-2 px-2 py-2 text-base rounded-md hover:bg-blue-100 list-data">
             <div class="p-2 form-check">
               <span class="form-check-label">{{ data.nom }}</span>
             </div>
-            <div class="flex items-center gap-1 space-x-1 transition-all opacity-0 container-buttons">
-              <button class="p-1.5 text-primary" @click="handleEdit(data)">
-                <Edit3Icon class="size-5" />
+            <div class="flex items-center gap-1 space-x-1 text-white transition-all opacity-0 container-buttons">
+              <button class="p-2 rounded-md bg-primary" @click="handleEdit(data)">
+                <Edit3Icon class="size-6" />
               </button>
-              <button class="p-1.5 text-danger" @click="handleDelete(data)">
+              <button class="p-2 rounded-md bg-danger" @click="handleDelete(data)">
                 <TrashIcon class="size-5" />
               </button>
             </div>
@@ -84,20 +84,39 @@
                     <textarea name="description" class="form-control" id="description" v-model="payload.description" cols="30" rows="2"></textarea>
                   </div>
                 </div>
-                <div class="flex-1 form-check">
-                  <input id="agreer" class="form-check-input" type="checkbox" v-model="payload.agreger" />
-                  <label class="form-check-label" for="agreer">Agréger</label>
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                  <div class="flex-1 form-check">
+                    <input id="agreer" class="form-check-input" type="checkbox" v-model="payload.agreger" />
+                    <label class="form-check-label" for="agreer">Agréger</label>
+                  </div>
+                  <div v-if="!payload.agreger">
+                    <p class="form-label">Année cible</p>
+                    <div class="flex gap-1 place-items-end">
+                      <input type="number" class="form-control" id="anne_cible" placeholder="Année" v-model="currentAnneeCibleNotAgreger.annee" />
+                      <input type="number" class="form-control" id="valeur_cible" placeholder="Valeur cible" v-model="currentAnneeCibleNotAgreger.valeurCible" />
+                      <button @click.prevent="addAnneeCibleNotAgreger" class="btn btn-primary h-9"><PlusIcon class="mr-1 size-3" /></button>
+                    </div>
+                  </div>
                 </div>
+                <div v-if="!payload.agreger && payloadNotAgreger.anneesCible.length > 0" class="flex flex-wrap items-center w-full gap-3">
+                  <p>Années cible:</p>
+                  <div class="flex items-center justify-between gap-2 px-2 py-0.5 text-sm font-medium bg-white rounded-full shadow cursor-pointer text-primary" v-for="(annee, index) in payloadNotAgreger.anneesCible" :key="index">
+                    <span>{{ annee.annee }} </span>
+                    <button @click.prevent="deleteAnneeCibleNotAgreger(index)" class="p-1.5 transition-colors rounded-full hover:bg-red-100"><XIcon class="size-4 text-danger" /></button>
+                  </div>
+                </div>
+
                 <div class="flex flex-wrap items-center justify-between gap-3">
                   <InputForm class="flex-1" label="Indice" v-model="payload.indice" type="number" />
-                  <div class="flex-1">
+                  <div v-if="payload.agreger" class="flex-1">
                     <label class="form-label">Clé valeur</label>
                     <TomSelect v-model="array_value_keys" name="keys" multiple :options="{ placeholder: 'Selectionez les clés valeur' }" class="w-full">
                       <option v-for="(key, index) in keys" :key="index" :value="key.id">{{ key.libelle }}</option>
                     </TomSelect>
                   </div>
+                  <InputForm v-else class="flex-1" label="Valeur de base" v-model="payloadNotAgreger.valeurDeBase" type="number" />
                 </div>
-                <div v-if="array_value_keys.length > 0" class="">
+                <div v-if="array_value_keys.length > 0 && payload.agreger" class="">
                   <label class="form-label">Valeur de base</label>
                   <div class="grid gap-3 grid-cols-[repeat(auto-fill,_minmax(350px,_1fr))]">
                     <div v-for="(base, index) in filterValueKeys" :key="index" class="input-group">
@@ -106,11 +125,15 @@
                     </div>
                   </div>
                 </div>
-                <div class="space-y-3">
-                  <div class="flex flex-wrap items-center w-full gap-3">
-                    <span class="px-2 py-1 bg-white shadow cursor-pointer rounded-xl" v-for="(annee, index) in anneesCible" :key="index">{{ annee.annee }}</span>
-                  </div>
+                <div v-if="payload.agreger" class="space-y-3">
                   <button v-show="array_value_keys.length > 0" class="text-sm btn btn-primary" @click.prevent="showModalAnnee = true"><PlusIcon class="mr-1 size-3" /> Ajouter une année cible</button>
+                </div>
+                <div v-if="payload.agreger && anneesCible.length > 0" class="flex flex-wrap items-center w-full gap-3">
+                  <p>Années cible:</p>
+                  <div class="flex items-center justify-between gap-2 px-2 py-0.5 text-sm font-medium bg-white rounded-full shadow cursor-pointer text-primary" v-for="(annee, index) in anneesCible" :key="index">
+                    <span>{{ annee.annee }} </span>
+                    <button @click.prevent="deleteAnneeCible(index)" class="p-1.5 transition-colors rounded-full hover:bg-red-100"><XIcon class="size-4 text-danger" /></button>
+                  </div>
                 </div>
                 <div class="flex flex-wrap items-center justify-between gap-3">
                   <div class="flex-1">
@@ -120,19 +143,13 @@
                       <option v-for="(categorie, index) in categories" :key="categorie.id" :value="categorie.id">{{ categorie.nom }}</option>
                     </TomSelect>
                   </div>
-                  <div class="flex-1">
-                    <label class="form-label">Source de données</label>
-                    <TomSelect v-model="payload.sources_de_donnee" name="source" :options="{ placeholder: 'Selectionez une source' }" class="w-full">
-                      <option value=""></option>
-                      <option v-for="(source, index) in sourcesDonnees" :key="index" :value="source">{{ source }}</option>
-                    </TomSelect>
-                  </div>
+                  <InputForm class="flex-1" label="Année de base" v-model.number="payload.anneeDeBase" type="number" />
                 </div>
                 <div class="">
                   <label class="form-label">Type de variables</label>
                   <TomSelect v-model="payload.type_de_variable" name="type_variable" :options="{ placeholder: 'Selectionez un type de variable' }" class="w-full">
                     <option value=""></option>
-                    <option v-for="(variable, index) in type_variablees" :key="index" :value="variable.id">{{ variable.label }}</option>
+                    <option v-for="(variable, index) in payload.agreger ? type_variablees : type_variablees_agreger" :key="index" :value="variable.id">{{ variable.label }}</option>
                   </TomSelect>
                 </div>
 
@@ -176,7 +193,13 @@
                       <option v-for="(site, index) in sites" :key="index" :value="site.id">{{ site.nom }}</option>
                     </TomSelect>
                   </div>
-                  <InputForm class="flex-1" label="Année de base" v-model.number="payload.anneeDeBase" type="number" />
+                  <div class="flex-1">
+                    <label class="form-label">Source de données</label>
+                    <TomSelect v-model="payload.sources_de_donnee" name="source" :options="{ placeholder: 'Selectionez une source' }" class="w-full">
+                      <option value=""></option>
+                      <option v-for="(source, index) in sourcesDonnees" :key="index" :value="source">{{ source }}</option>
+                    </TomSelect>
+                  </div>
                 </div>
               </div>
             </ModalBody>
@@ -254,7 +277,7 @@ import DeleteButton from "@/components/news/DeleteButton.vue";
 import { toast } from "vue3-toastify";
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
 import { getAllErrorMessages } from "@/utils/gestion-error";
-import { frequenceCollecte, methodeCollecte, sourcesDonnees, type_variablees } from "../../../utils/constants";
+import { frequenceCollecte, methodeCollecte, sourcesDonnees, type_variablees, type_variablees_agreger } from "../../../utils/constants";
 import OngService from "../../../services/modules/ong.service";
 import SiteService from "@/services/modules/site.service";
 import UniteeDeMesureService from "@/services/modules/unitee.mesure.service";
@@ -276,12 +299,11 @@ const isCreate = ref(true);
 const datas = ref([]);
 const categories = ref([]);
 const responsables = ref([]);
-const ongsForm = ref([]);
 const sites = ref([]);
 const unites = ref([]);
 const keys = ref([]);
 const array_value_keys = ref([]);
-const array_sites = ref([]);
+const responsablesForm = ref({ organisations: [], ug: "" });
 // Année cible en cours de création
 const currentAnneeCible = ref({
   annee: "",
@@ -290,7 +312,6 @@ const currentAnneeCible = ref({
 const anneesCible = ref([]);
 // Objet réactif pour stocker les valeurs des champs saisis
 const valeur = ref({});
-const responsablesForm = ref({ organisations: [], ug: "" });
 
 const payload = reactive({
   responsables: responsablesForm.value,
@@ -302,8 +323,7 @@ const payload = reactive({
   frequence_de_la_collecte: "",
   anneeDeBase: "",
   type_de_variable: "",
-  agreger: true,
-  //   valeurDeBase: "",
+  agreger: false,
   value_keys: [],
   valeurDeBase: [],
   anneesCible: [],
@@ -311,6 +331,43 @@ const payload = reactive({
   uniteeMesureId: "",
   sites: [],
 });
+
+const payloadNotAgreger = reactive({
+  valeurDeBase: "",
+  anneesCible: [],
+});
+
+const currentAnneeCibleNotAgreger = ref({
+  annee: "",
+  valeurCible: "",
+});
+
+const addAnneeCibleNotAgreger = () => {
+  if (!currentAnneeCibleNotAgreger.value.annee || !currentAnneeCibleNotAgreger.value.valeurCible) {
+    toast.info("Veuillez entrer une année et sa valeur !");
+    return;
+  }
+  if (payloadNotAgreger.anneesCible.includes(currentAnneeCibleNotAgreger.value.annee)) {
+    toast.info("Cette année cible est dejà ajoutée");
+  } else {
+    payloadNotAgreger.anneesCible.push(currentAnneeCibleNotAgreger.value);
+    currentAnneeCibleNotAgreger.value = { annee: "", valeurCible: "" };
+  }
+};
+
+const deleteAnneeCibleNotAgreger = (item) => {
+  payloadNotAgreger.anneesCible.splice(item, 1);
+};
+const deleteAnneeCible = (item) => {
+  anneesCible.value.splice(item, 1);
+};
+const resetForm = () => {
+  Object.keys(payload).forEach((key) => {
+    payload[key] = "";
+  });
+  showModalCreate.value = false;
+};
+
 // Fetch data
 const getDatas = async () => {
   try {
@@ -378,22 +435,24 @@ const getcurrentUser = async () => {
 
 // Submit data (create or update)
 const submitData = async () => {
-  payload.anneesCible = anneesCible.value;
-  payload.valeurDeBase = valeurDeBase.value;
-  payload.value_keys = array_value_keys.value.map((item) => {
-    return { id: item };
-  });
-  const payloadPrev = payload;
-  console.log(payloadPrev);
-
-  // payload.responsables.organisations = ongsForm.value;
+  if (payload.agreger) {
+    payload.anneesCible = anneesCible.value;
+    payload.valeurDeBase = valeurDeBase.value;
+    payload.value_keys = array_value_keys.value.map((item) => {
+      return { id: item };
+    });
+  } else {
+    payload.anneesCible = payloadNotAgreger.anneesCible;
+    payload.valeurDeBase = payloadNotAgreger.valeurDeBase;
+    delete payload.value_keys;
+  }
   isLoading.value = true;
   const action = isCreate.value ? IndicateursService.create(payload) : IndicateursService.update(idSelect.value, payload);
   try {
     await action;
-    resetForm();
     toast.success(`Indicateur ${isCreate.value ? "créee" : "modifiée"} avec succès.`);
     getDatas();
+    resetForm();
   } catch (e) {
     toast.error(getAllErrorMessages(e));
   } finally {
@@ -405,7 +464,7 @@ const deleteData = async () => {
   try {
     isLoading.value = true;
     await IndicateursService.destroy(idSelect.value);
-    toast.success("Catégorie supprimée avec succès.");
+    toast.success("Indicateur supprimée avec succès.");
     getDatas();
   } catch (e) {
     console.error(e);
@@ -430,12 +489,7 @@ const handleDelete = (data) => {
   deleteModalPreview.value = true;
 };
 // UI related functions
-const resetForm = () => {
-  Object.keys(payload).forEach((key) => {
-    payload[key] = "";
-  });
-  showModalCreate.value = false;
-};
+
 const getAllSelectDatas = () => {
   getCategories();
   getResponsables();
@@ -473,7 +527,7 @@ const resetFormAnnee = () => {
 // Fonction pour ajouter une année cible
 const addAnneeCible = () => {
   if (!currentAnneeCible.value.annee) {
-    alert("Veuillez entrer une année !");
+    toast.info("Veuillez entrer une année !");
     return;
   }
 
@@ -519,6 +573,7 @@ watch(
 );
 // Fetch data on component mount
 onMounted(() => {
+  getDatas();
   getcurrentUser();
 });
 </script>
