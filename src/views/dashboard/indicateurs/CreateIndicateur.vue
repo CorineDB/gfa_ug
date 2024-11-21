@@ -72,11 +72,10 @@
         <!-- Modal for creating/updating -->
         <Modal size="modal-xl" backdrop="static" :show="showModalCreate" @hidden="closeModal">
           <ModalHeader>
-            <h2 class="mr-auto text-base font-medium">{{ modeText }} une catégorie</h2>
+            <h2 class="mr-auto text-base font-medium">{{ modeText }} un indicateur</h2>
           </ModalHeader>
           <form @submit.prevent="submitData">
             <ModalBody>
-              <!-- {{ valeurDeBase }} -->
               <div class="grid grid-cols-1 gap-4">
                 <InputForm label="Nom" v-model="payload.nom" />
                 <div>
@@ -107,6 +106,12 @@
                     </div>
                   </div>
                 </div>
+                <div class="space-y-3">
+                  <div class="flex flex-wrap items-center w-full gap-3">
+                    <span class="px-2 py-1 bg-white shadow cursor-pointer rounded-xl" v-for="(annee, index) in anneesCible" :key="index">{{ annee.annee }}</span>
+                  </div>
+                  <button v-show="array_value_keys.length > 0" class="text-sm btn btn-primary" @click.prevent="showModalAnnee = true"><PlusIcon class="mr-1 size-3" /> Ajouter une année cible</button>
+                </div>
                 <div class="flex flex-wrap items-center justify-between gap-3">
                   <div class="flex-1">
                     <label class="form-label">Catégorie</label>
@@ -122,6 +127,13 @@
                       <option v-for="(source, index) in sourcesDonnees" :key="index" :value="source">{{ source }}</option>
                     </TomSelect>
                   </div>
+                </div>
+                <div class="">
+                  <label class="form-label">Type de variables</label>
+                  <TomSelect v-model="payload.type_de_variable" name="type_variable" :options="{ placeholder: 'Selectionez un type de variable' }" class="w-full">
+                    <option value=""></option>
+                    <option v-for="(variable, index) in type_variablees" :key="index" :value="variable.id">{{ variable.label }}</option>
+                  </TomSelect>
                 </div>
 
                 <div class="flex flex-wrap items-center justify-between gap-3">
@@ -143,7 +155,7 @@
                 <div class="flex flex-wrap items-center justify-between gap-3">
                   <div class="flex-1">
                     <label class="form-label">Responsables</label>
-                    <TomSelect v-model="payload.responsable" name="responsable" :options="{ placeholder: 'Selectionez un responsable' }" class="w-full">
+                    <TomSelect v-model="responsablesForm.organisations" name="responsable" multiple :options="{ placeholder: 'Selectionez un responsable' }" class="w-full">
                       <option value=""></option>
                       <option v-for="(responsable, index) in responsables" :key="index" :value="responsable.id">{{ responsable.nom }}</option>
                     </TomSelect>
@@ -159,7 +171,7 @@
                 <div class="flex flex-wrap items-center justify-between w-full gap-3">
                   <div class="flex-1">
                     <label class="form-label">Sites</label>
-                    <TomSelect v-model="array_sites" multiple name="site" :options="{ placeholder: 'Selectionez les sites' }" class="w-full">
+                    <TomSelect v-model="payload.sites" multiple name="site" :options="{ placeholder: 'Selectionez les sites' }" class="w-full">
                       <option value=""></option>
                       <option v-for="(site, index) in sites" :key="index" :value="site.id">{{ site.nom }}</option>
                     </TomSelect>
@@ -177,7 +189,39 @@
           </form>
         </Modal>
 
-        <!-- Modal for deleting -->
+        <!-- Modal for Annee -->
+        <Modal :show="showModalAnnee" @hidden="showModalAnnee = false">
+          <ModalHeader>
+            <h2 class="mr-auto text-base font-medium">Ajouter une année cible</h2>
+          </ModalHeader>
+          <form @submit.prevent="addAnneeCible">
+            <ModalBody>
+              <div class="grid grid-cols-1 gap-4">
+                <!-- Champ pour l'année -->
+                <InputForm label="Année" v-model="currentAnneeCible.annee" type="number" placeholder="Entrez l'année" />
+
+                <!-- Champs dynamiques pour les valeurs -->
+                <div v-if="array_value_keys.length > 0" class="">
+                  <div class="grid gap-3 grid-cols-[repeat(auto-fill,_minmax(350px,_1fr))]">
+                    <div v-for="(key, index) in filterValueKeys" :key="key.id" class="input-group">
+                      <div class="flex items-center justify-center text-sm input-group-text">
+                        {{ key.libelle }}
+                      </div>
+                      <input type="number" v-model="currentAnneeCible.valeurCible[index].value" class="form-control" placeholder="valeur" aria-label="valeur" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </ModalBody>
+            <ModalFooter>
+              <div class="flex gap-2">
+                <button type="button" @click="resetFormAnnee" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
+                <VButton label="Ajouter" />
+              </div>
+            </ModalFooter>
+          </form>
+        </Modal>
+
         <Modal :show="deleteModalPreview" @hidden="closeDeleteModal">
           <ModalBody class="p-0">
             <div class="p-5 text-center">
@@ -210,11 +254,12 @@ import DeleteButton from "@/components/news/DeleteButton.vue";
 import { toast } from "vue3-toastify";
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
 import { getAllErrorMessages } from "@/utils/gestion-error";
-import { frequenceCollecte, methodeCollecte, sourcesDonnees } from "../../../utils/constants";
+import { frequenceCollecte, methodeCollecte, sourcesDonnees, type_variablees } from "../../../utils/constants";
 import OngService from "../../../services/modules/ong.service";
 import SiteService from "@/services/modules/site.service";
 import UniteeDeMesureService from "@/services/modules/unitee.mesure.service";
 import IndicateurValueKeys from "@/services/modules/key.value.service";
+import AuthService from "@/services/modules/auth.service";
 
 const props = defineProps({});
 
@@ -223,6 +268,7 @@ const idSelect = ref("");
 const nameSelect = ref("");
 const search = ref("");
 const showModalCreate = ref(false);
+const showModalAnnee = ref(false);
 const deleteModalPreview = ref(false);
 const isLoading = ref(false);
 const isLoadingData = ref(false);
@@ -230,26 +276,35 @@ const isCreate = ref(true);
 const datas = ref([]);
 const categories = ref([]);
 const responsables = ref([]);
+const ongsForm = ref([]);
 const sites = ref([]);
 const unites = ref([]);
 const keys = ref([]);
 const array_value_keys = ref([]);
 const array_sites = ref([]);
+// Année cible en cours de création
+const currentAnneeCible = ref({
+  annee: "",
+  valeurCible: [],
+});
+const anneesCible = ref([]);
 // Objet réactif pour stocker les valeurs des champs saisis
-const valeur = reactive({});
+const valeur = ref({});
+const responsablesForm = ref({ organisations: [], ug: "" });
+
 const payload = reactive({
+  responsables: responsablesForm.value,
   nom: "",
   description: "",
   indice: "",
   sources_de_donnee: "",
   methode_de_la_collecte: "",
   frequence_de_la_collecte: "",
-  responsable: "",
   anneeDeBase: "",
   type_de_variable: "",
-  agreger: false,
+  agreger: true,
   //   valeurDeBase: "",
-  value_keys: array_value_keys,
+  value_keys: [],
   valeurDeBase: [],
   anneesCible: [],
   categorieId: "",
@@ -268,7 +323,6 @@ const getDatas = async () => {
     isLoadingData.value = false;
   }
 };
-
 // Fetch Categories
 const getCategories = async () => {
   try {
@@ -310,22 +364,42 @@ const getKeys = async () => {
     toast.error("Erreur lors de la récupération des clés.");
   }
 };
+
+const getcurrentUser = async () => {
+  await AuthService.getCurrentUser()
+    .then((result) => {
+      responsablesForm.value.ug = result.data.data.profil.id;
+    })
+    .catch((e) => {
+      console.error(e);
+      toast.error("Une erreur est survenue: Utilisateur connecté .");
+    });
+};
+
 // Submit data (create or update)
 const submitData = async () => {
+  payload.anneesCible = anneesCible.value;
+  payload.valeurDeBase = valeurDeBase.value;
+  payload.value_keys = array_value_keys.value.map((item) => {
+    return { id: item };
+  });
+  const payloadPrev = payload;
+  console.log(payloadPrev);
+
+  // payload.responsables.organisations = ongsForm.value;
   isLoading.value = true;
   const action = isCreate.value ? IndicateursService.create(payload) : IndicateursService.update(idSelect.value, payload);
   try {
     await action;
-    toast.success(`Catégorie ${isCreate.value ? "créee" : "modifiée"} avec succès.`);
-    getDatas();
     resetForm();
+    toast.success(`Indicateur ${isCreate.value ? "créee" : "modifiée"} avec succès.`);
+    getDatas();
   } catch (e) {
     toast.error(getAllErrorMessages(e));
   } finally {
     isLoading.value = false;
   }
 };
-
 // Delete data
 const deleteData = async () => {
   try {
@@ -341,7 +415,6 @@ const deleteData = async () => {
     deleteModalPreview.value = false;
   }
 };
-
 // Handle edit action
 const handleEdit = (data) => {
   isCreate.value = false;
@@ -350,14 +423,12 @@ const handleEdit = (data) => {
   payload.categorieId = data.categorieId ?? "";
   showModalCreate.value = true;
 };
-
 // Handle delete action
 const handleDelete = (data) => {
   idSelect.value = data.id;
   nameSelect.value = data.nom;
   deleteModalPreview.value = true;
 };
-
 // UI related functions
 const resetForm = () => {
   Object.keys(payload).forEach((key) => {
@@ -365,7 +436,6 @@ const resetForm = () => {
   });
   showModalCreate.value = false;
 };
-
 const getAllSelectDatas = () => {
   getCategories();
   getResponsables();
@@ -375,7 +445,7 @@ const getAllSelectDatas = () => {
 };
 
 const openCreateModal = () => {
-  resetForm();
+  // resetForm();
   getAllSelectDatas();
   isCreate.value = true;
   showModalCreate.value = true;
@@ -387,6 +457,35 @@ const cancelDelete = () => {
 const closeModal = () => (showModalCreate.value = false);
 const closeDeleteModal = () => (deleteModalPreview.value = false);
 
+// Réinitialisation du formulaire
+const resetFormAnnee = () => {
+  currentAnneeCible.value = {
+    annee: "",
+    valeurCible: array_value_keys.value.map((keyId) => ({
+      keyId,
+      value: "",
+    })),
+  };
+
+  showModalAnnee.value = false;
+};
+
+// Fonction pour ajouter une année cible
+const addAnneeCible = () => {
+  if (!currentAnneeCible.value.annee) {
+    alert("Veuillez entrer une année !");
+    return;
+  }
+
+  // Ajouter l'année cible au tableau principal
+  anneesCible.value.push({ ...currentAnneeCible.value });
+
+  // Réinitialiser le formulaire
+  resetFormAnnee();
+
+  // Fermer le modal
+  showModalAnnee.value = false;
+};
 const modeText = computed(() => (isCreate.value ? "Ajouter" : "Modifier"));
 const filterData = computed(() => datas.value.filter((data) => data.nom.toLowerCase().includes(search.value.toLowerCase())));
 
@@ -396,14 +495,32 @@ const filterValueKeys = computed(() => {
     .map(({ id, libelle }) => ({ id, libelle })); // Ne garde que les champs id et libelle
 });
 
-// Résultat final : tableau des objets { keyId, value }
-// const valeurDeBase = computed(() => {
-//   return Object.entries(valeur)
-//     .filter(([keyId]) => array_value_keys.value.includes(keyId)) // Ne garde que les clés sélectionnées
-//     .map(([keyId, value]) => ({ keyId, value })); // Transforme en { keyId, value }
-// });
+const valeurDeBase = computed(() => {
+  return Object.entries(valeur.value)
+    .filter(([keyId]) => array_value_keys.value.includes(keyId)) // Ne garde que les clés sélectionnées
+    .map(([keyId, value]) => ({ keyId, value })); // Transforme en { keyId, value }
+});
+
+watch(
+  array_value_keys,
+  (newKeys) => {
+    // Vérifiez que newKeys est bien un tableau
+    if (Array.isArray(newKeys)) {
+      currentAnneeCible.value.valeurCible = newKeys.map((keyId) => ({
+        keyId,
+        value: "",
+      }));
+    } else {
+      console.warn("array_value_keys n'est pas un tableau valide :", newKeys);
+      currentAnneeCible.value.valeurCible = [];
+    }
+  },
+  { immediate: true }
+);
 // Fetch data on component mount
-onMounted(() => {});
+onMounted(() => {
+  getcurrentUser();
+});
 </script>
 
 <style scoped></style>

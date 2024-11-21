@@ -14,6 +14,11 @@ export const sexes = [
   { label: "Masculin", id: "masculin" },
   { label: "Féminin", id: "feminin" },
 ];
+export const type_variablees = [
+  { label: "Quantitatif", id: "quantitatif" },
+  { label: "Qualitatif", id: "qualitatif" },
+  { label: "Dchotomique", id: "dichotomique" },
+];
 
 export const types = [
   { label: "Impact", id: "impact" },

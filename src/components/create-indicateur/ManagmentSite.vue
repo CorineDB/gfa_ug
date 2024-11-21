@@ -17,6 +17,7 @@ const payload = reactive({
   latitude: "",
   quartier: "",
   arrondissement: "",
+  pays: "",
   departement: "",
   commune: "",
 });
@@ -80,6 +81,10 @@ const handleEdit = (data) => {
   isCreate.value = false;
   idSelect.value = data.id;
   payload.nom = data.nom;
+  payload.pays = data.pays;
+  payload.departement = data.departement;
+  payload.arrondissement = data.arrondissement;
+  payload.quartier = data.quartier;
   payload.longitude = data.longitude;
   payload.latitude = data.latitude;
   showModalCreate.value = true;
@@ -145,7 +150,7 @@ onMounted(getDatas);
     <LoaderData v-else />
 
     <!-- Modal for creating/updating -->
-    <Modal backdrop="static" :show="showModalCreate" @hidden="closeModal">
+    <Modal size="modal-lg" backdrop="static" :show="showModalCreate" @hidden="closeModal">
       <ModalHeader>
         <h2 class="mr-auto text-base font-medium">{{ modeText }} un site</h2>
       </ModalHeader>
@@ -153,8 +158,15 @@ onMounted(getDatas);
         <ModalBody>
           <div class="grid grid-cols-1 gap-4">
             <InputForm label="Nom" v-model="payload.nom" />
-            <InputForm label="Longitude" v-model="payload.longitude" type="number" />
-            <InputForm label="Latitude" v-model="payload.latitude" type="number" />
+            <InputForm label="Pays" v-model="payload.pays" />
+            <InputForm label="Departement" v-model="payload.departement" />
+            <InputForm label="Commune" v-model="payload.commune" />
+            <InputForm label="Arrondissement" v-model="payload.arrondissement" />
+            <InputForm label="Quartier" v-model="payload.quartier" />
+            <div class="flex items-center justify-between gap-3">
+              <InputForm label="Longitude" class="flex-1" v-model="payload.longitude" type="number" />
+              <InputForm label="Latitude" class="flex-1" v-model="payload.latitude" type="number" />
+            </div>
           </div>
         </ModalBody>
         <ModalFooter>
