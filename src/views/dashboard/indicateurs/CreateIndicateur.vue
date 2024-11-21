@@ -362,9 +362,26 @@ const deleteAnneeCible = (item) => {
   anneesCible.value.splice(item, 1);
 };
 const resetForm = () => {
-  Object.keys(payload).forEach((key) => {
-    payload[key] = "";
-  });
+  payloadNotAgreger.anneesCible = [];
+  payloadNotAgreger.valeurDeBase = "";
+  array_value_keys.value = [];
+  responsablesForm.value.organisations = [];
+  // payload.responsables.organisations = [];
+  payload.agreger = false;
+  payload.nom = "";
+  payload.description = "";
+  payload.indice = "";
+  payload.sources_de_donnee = "";
+  payload.methode_de_la_collecte = "";
+  payload.frequence_de_la_collecte = "";
+  payload.type_de_variable = "";
+  payload.anneeDeBase = "";
+  payload.categorieId = "";
+  payload.uniteeMesureId = "";
+  payload.sites = [];
+  payload.value_keys = [];
+  payload.valeurDeBase = [];
+  payload.anneesCible = [];
   showModalCreate.value = false;
 };
 
@@ -499,7 +516,7 @@ const getAllSelectDatas = () => {
 };
 
 const openCreateModal = () => {
-  // resetForm();
+  resetForm();
   getAllSelectDatas();
   isCreate.value = true;
   showModalCreate.value = true;
