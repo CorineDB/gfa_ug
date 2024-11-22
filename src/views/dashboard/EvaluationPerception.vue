@@ -21,7 +21,7 @@ const token = route.params.id;
 const payload = reactive({
   identifier_of_participant: "",
   programmeId: "",
-  organisationId: "",
+  token,
   formulaireDeGouvernanceId: "",
   perception: {
     categorieDeParticipant: "",
@@ -54,7 +54,7 @@ const getDataFormPerception = async () => {
     formDataPerception.value = data.data;
     formulairePerception.value = formDataPerception.value.formulaire_de_gouvernance;
     idEvaluation.value = formDataPerception.value.id;
-    payload.formulaireDeGouvernanceId = formDataPerception.value.id;
+    payload.formulaireDeGouvernanceId = formDataPerception.value.formulaire_de_gouvernance.id;
     payload.programmeId = formDataPerception.value.programmeId;
   } catch (e) {
     toast.error("Erreur lors de la récupération des données.");
@@ -86,7 +86,7 @@ const submitData = async () => {
 
   if (payload.perception.response_data.length > 0) {
     isLoading.value = true;
-    const action = isValidate.value ? EvaluationService.validatePerceptionSumission(idEvaluation, payload) : EvaluationService.submitPerceptionSumission(idEvaluation, payload);
+    const action = isValidate.value ? EvaluationService.validatePerceptionSumission(idEvaluation.value, payload) : EvaluationService.submitPerceptionSumission(idEvaluation.value, payload);
 
     try {
       const result = await action;
@@ -102,6 +102,17 @@ const submitData = async () => {
   }
 };
 const initializeFormData = () => {
+  // Initialisation des réponses
+  formulairePerception.value.categories_de_gouvernance.forEach((principe) => {
+    principe.questions_de_gouvernance.forEach((question) => {
+      responses[question.id] = {
+        questionId: question.id,
+        optionDeReponseId: question.reponse_de_la_collecte?.optionDeReponseId ?? "null",
+      };
+    });
+  });
+};
+const initializeFormDataBeforeSoumission = () => {
   // Initialisation des réponses
   formulairePerception.value.categories_de_gouvernance.forEach((principe) => {
     principe.questions_de_gouvernance.forEach((question) => {
@@ -315,7 +326,7 @@ onMounted(async () => {
             <option v-for="(categorie, index) in categorieDeParticipant" :key="index" :value="categorie.id">{{ categorie.label }}</option>
           </TomSelect>
         </div>
-        <div class="flex items-center justify-around gap-2">
+        <div class="flex flex-wrap items-center justify-around gap-2">
           <div>
             <label class="form-label">Sexe</label>
             <div class="flex gap-2">

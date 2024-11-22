@@ -71,6 +71,8 @@ import Organisations from "../views/dashboard/organisations.vue";
 import FicheMarqueur from "../views/dashboard/FicheMarqueur.vue";
 import DetailSoumission from "../views/dashboard/DetailSoumission.vue";
 import Activation from "../views/activation/Main.vue";
+import CreateIndicateur from "../views/dashboard/indicateurs/CreateIndicateur.vue";
+import CadreMesure from "../views/dashboard/CadreMesure.vue";
 
 const routes = [
   {
@@ -125,6 +127,16 @@ const routes = [
         path: "enquetes",
         name: "Programmation_enquete",
         component: Programmation_enquete,
+      },
+      {
+        path: "create-indicateur",
+        name: "create_indicateur",
+        component: CreateIndicateur,
+      },
+      {
+        path: "cadre-mesure",
+        name: "cadre_mesure",
+        component: CadreMesure,
       },
       {
         path: "enquetes/:id/soumissions",
@@ -354,7 +366,7 @@ const routes = [
   },
 
   {
-    path: "/activation/:t",
+    path: "/activation",
     name: "activation",
     component: Activation,
   },
@@ -395,7 +407,7 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   // Permettre l'accès à la route "toolsPerception" quel que soit l'état d'authentification
-  if (to.name === "ToolsPerception") {
+  if (["ToolsPerception", "activation", "reset_Password"].includes(to.name)) {
     next();
   }
   // Rediriger vers "/" si non authentifié et que la route n'est pas la page d'accueil

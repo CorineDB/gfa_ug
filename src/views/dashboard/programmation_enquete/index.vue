@@ -43,7 +43,6 @@ const formulairesPerception = ref([]);
 
 const createData = async () => {
   isLoading.value = true;
-  payload.formulaires_de_gouvernance = [idFormFactuel.value, idFormPerception.value];
   await EnqueteDeColleteService.create(payload)
     .then(() => {
       isLoading.value = false;
@@ -100,6 +99,7 @@ const getOrganisations = async () => {
 
 const updateData = async () => {
   isLoading.value = true;
+  payload.formulaires_de_gouvernance = [idFormFactuel.value, idFormPerception.value];
   await EnqueteDeColleteService.update(idSelect.value, payload)
     .then(() => {
       getDatas();
@@ -135,7 +135,7 @@ const getStatusText = (param) => {
     case 1:
       return { label: "Terminé", class: "bg-success" };
     case 0:
-      return { label: "En cours", class: "bg-warning" };
+      return { label: "En cours", class: "bg-pending" };
     case -1:
       return { label: "Non demarré", class: "bg-primary" };
     default:
@@ -151,17 +151,25 @@ function gotoAppreciations(enquete) {
   router.push({ name: "EnqueteAppreciations", query: { enqueteId: enquete.id } });
 }
 
+function fetchOrganisationsAndFormulaires() {
+  getFormsFactuel();
+  getFormsPerception();
+  getOrganisations();
+}
+
 const handleEdit = (params) => {
+  fetchOrganisationsAndFormulaires();
   isCreate.value = false;
   idSelect.value = params.id;
   payload.intitule = params.intitule;
-  payload.description = params.description;
+  payload.description = params.description ?? "";
   payload.annee_exercice = params.annee_exercice;
   payload.objectif_attendu = params.objectif_attendu;
   payload.debut = params.debut;
   payload.fin = params.fin;
-  // idFormFactuel.value = params.formulaire;
-  // idFormPerception.value = params.formulaire;
+  idFormFactuel.value = params.formulaire_factuel_de_gouvernance;
+  idFormPerception.value = params.formulaire_perception_de_gouvernance;
+  payload.organisations = params.organisations.map((ong) => ong.id);
   showModalCreate.value = true;
 };
 const handleDelete = (params) => {
@@ -185,9 +193,7 @@ const resetForm = () => {
   showModalCreate.value = false;
 };
 const openCreateModal = () => {
-  getFormsFactuel();
-  getFormsPerception();
-  getOrganisations();
+  fetchOrganisationsAndFormulaires();
   showModalCreate.value = isCreate.value = true;
 };
 
@@ -227,7 +233,7 @@ onMounted(() => {
       <div id="tabulator" class="mt-5 table-report table-report--tabulator"></div>
     </div> -->
     <LoaderSnipper v-if="isLoadingData" />
-    <div class="grid grid-cols-12 gap-6 mt-5">
+    <div v-else class="grid grid-cols-12 gap-6 mt-5">
       <div v-for="(item, index) in datas" :key="index" class="col-span-12 p-4 md:col-span-12 lg:col-span-4">
         <div class="p-5 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-105 hover:bg-gray-50">
           <!-- En-tête avec sigle et titre -->
@@ -296,10 +302,10 @@ onMounted(() => {
         <div class="grid grid-cols-1 gap-4">
           <InputForm label="Nom" v-model="payload.intitule" />
           <InputForm label="Description" v-model="payload.description" :required="false" />
-          <div class="flex w-full gap-4">
+          <div class="flex items-center justify-between w-full gap-4">
             <div class="">
               <label for="objectif" class="form-label">Objectif</label>
-              <input id="objectif" type="number" min="0.05" step="0.05" max="1" required v-model.number="payload.objectif_attendu" class="form-control" placeholder="Objectif" />
+              <input id="objectif" type="number" min="0.05" step="0.05" max="1" required v-model.number="payload.objectif_attendu" class="form-control" placeholder="Objectif Principe" />
             </div>
             <div class="">
               <label for="annee" class="form-label">Année</label>

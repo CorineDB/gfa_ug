@@ -218,18 +218,18 @@ onMounted(() => {
           <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
         </div>
       </div> -->
-      <div class="flex">
+      <!-- <div class="flex">
         <button class="mr-2 shadow-md btn btn-primary" @click="openFactuelModal">Remplir formulaire Factuel</button>
         <button class="mr-2 shadow-md btn btn-primary" @click="openPerceptionModal">Remplir formulaire de perception</button>
-      </div>
+      </div> -->
       <div class="flex">
         <!-- <button class="text-sm btn btn-primary" @click="goToPageSynthese(soumission.id)">Fiche Synthèse</button> -->
-        <button class="mr-2 shadow-md btn btn-primary" @click="opendAddParticipant">Ajouter les participants</button>
+        <!-- <button class="mr-2 shadow-md btn btn-primary" @click="opendAddParticipant">Ajouter les participants</button> -->
       </div>
     </div>
   </div>
 
-  <div class="p-5 mt-5 intro-y">
+  <div class="p-5 mt-0 intro-y">
     <div class="" v-if="!isLoadingData">
       <!-- BEGIN: General Report -->
       <div v-if="!isLoadingStats" class="col-span-12 mt-8">

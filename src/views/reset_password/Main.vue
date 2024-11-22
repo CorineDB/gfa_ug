@@ -12,27 +12,18 @@
         </div>
         <!-- END: Login Info -->
         <!-- BEGIN: Login Form -->
-        <div v-if="!showActivate" class="flex flex-col items-center justify-center gap-4 bg-white">
-          <Alert v-if="errorMessage" class="flex items-center mb-2 alert-danger">
-            <AlertOctagonIcon class="w-6 h-6 mr-2" />
-            <p class="text-lg">
-              {{ errorMessage }}. <br />
-              Vérifier votre Mail et accéder au lien d'activation.
-            </p>
-          </Alert>
-          <LoaderSnipper v-if="isLoading" />
-        </div>
 
-        <form v-else @submit.prevent="sendMail" class="flex items-center h-screen py-5 m-10 _bg-white xl:h-auto xl:py-0 sm:mx-auto xl:my-0">
+        <form @submit.prevent="ressetPassword" class="flex items-center h-screen py-5 m-10 _bg-white xl:h-auto xl:py-0 sm:mx-auto xl:my-0">
           <div class="w-full px-5 py-8 mx-auto my-auto bg-white rounded-md shadow-md dark:bg-darkmode-600 xl:bg-transparent sm:px-8 xl:p-0 xl:shadow-none sm:w-3/4 lg:w-2/4 xl:w-auto">
             <Alert v-if="showFormError && errorMessageForm" class="flex items-center mb-2 alert-danger"> <AlertOctagonIcon class="w-6 h-6 mr-2" /> {{ errorMessageForm }} </Alert>
             <Alert v-if="showFormSuccess" class="flex items-center mb-2 alert-primary"> <AlertCircleIcon class="w-6 h-6 mr-2" /> Consulter votre mail pour accéder au lien pour definr votre mot de passe. </Alert>
-            <h2 class="text-2xl font-bold text-center intro-x xl:text-3xl xl:text-left">Demande du lien de réinitialisation</h2>
+            <h2 class="text-2xl font-bold text-center intro-x xl:text-3xl xl:text-left">Définir un nouveau mot de passe</h2>
             <div class="mt-2 text-center intro-x text-slate-400 xl:hidden">Responsabilité partagée, Qualité améliorée : Unis pour un meilleur service social.</div>
             <div class="mt-8 intro-x">
-              <div>
-                <label for="email" class="form-label">Email</label>
-                <input type="email" v-model.trim="email" id="email" class="block px-4 py-3 intro-x login__input form-control" placeholder="Email pour recevoir le lien" />
+              <div class="space-y-4">
+                <input type="hidden" v-model.trim="payload.email" id="email" class="block px-4 py-3 intro-x login__input form-control" placeholder="Email pour recevoir le lien" />
+                <input type="password" v-model.trim="payload.new_password" id="password" class="block px-4 py-3 intro-x login__input form-control" placeholder="Nouveau mot de passe" />
+                <input type="password" v-model.trim="payload.new_password_confirmation" id="confirm_password" class="block px-4 py-3 intro-x login__input form-control" placeholder="Confirmer le mot de passe" />
               </div>
             </div>
             <div class="mt-5 text-center intro-x xl:mt-8 xl:text-left">
@@ -59,8 +50,9 @@ import { reactive } from "vue";
 
 const route = useRoute();
 const router = useRouter();
+const token = route.params.t;
 const payload = reactive({
-  token: "",
+  token,
   email: "",
   new_password_confirmation: "",
   new_password: "",
@@ -73,10 +65,9 @@ const showFormSuccess = ref(false);
 const email = ref("");
 const errorMessage = ref("");
 const errorMessageForm = ref("");
-const token = route.params.t;
 
-const sendMail = () => {
-  if (email.value) {
+const ressetPassword = () => {
+  if (payload.new_password) {
     chargement.value = true;
     try {
       const result = resetPassword.create(payload);
@@ -92,6 +83,7 @@ const sendMail = () => {
       chargement.value = false;
       showFormError.value = true;
       errorMessageForm.value = error.response?.data?.message || "Une erreur est survenue.";
+      toast.error(getAllErrorMessages(error));
     }
   }
 };
@@ -115,7 +107,9 @@ const activeAccount = async () => {
 };
 
 onMounted(async () => {
-  payload.email = localStorage.getItem("newemail");
+  payload.email = localStorage.getItem("newmail");
+  console.log(payload.email);
+
   // activeAccount();
 });
 </script>
