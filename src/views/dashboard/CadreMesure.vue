@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2 class="mt-10 text-lg font-medium intro-y">Cadre de mesure</h2>
-    <LoaderSnipper v-if="isLoadingData" />
+    <LoaderSnipper v-if="isLoadingDataCadre" />
     <TabulatorCadreMesure v-else :data="cadreRendement" :years="annees" />
   </div>
 </template>
@@ -10,19 +10,19 @@
 import { ref } from "vue";
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
 import { onMounted } from "vue";
-import ResultatCadreRendementService from "../../services/modules/resultat.cadre.rendement.service";
+import ResultatCadreRendementService from "@/services/modules/resultat.cadre.rendement.service";
 import AuthService from "@/services/modules/auth.service";
 import { toast } from "vue3-toastify";
-import TabulatorCadreMesure from "../../components/TabulatorCadreMesure.vue";
+import TabulatorCadreMesure from "@/components/TabulatorCadreMesure.vue";
 import { computed } from "vue";
 
 const cadreRendement = ref([]);
-const isLoadingData = ref(false);
+const isLoadingDataCadre = ref(false);
 const idProgramme = ref("");
 const debutProgramme = ref("");
 const finProgramme = ref("");
 const getcurrentUser = async () => {
-  isLoadingData.value = true;
+  isLoadingDataCadre.value = true;
 
   await AuthService.getCurrentUser()
     .then((result) => {
@@ -37,14 +37,14 @@ const getcurrentUser = async () => {
 };
 
 // Fetch data
-const getDatas = async () => {
+const getDatasCadre = async () => {
   try {
     const { data } = await ResultatCadreRendementService.getCadreRendement(idProgramme.value);
     cadreRendement.value = data.data;
   } catch (e) {
     toast.error("Erreur lors de la récupération des données.");
   } finally {
-    isLoadingData.value = false;
+    isLoadingDataCadre.value = false;
   }
 };
 
@@ -60,7 +60,7 @@ const annees = computed(() => {
 
 onMounted(async () => {
   await getcurrentUser();
-  getDatas();
+  getDatasCadre();
 });
 </script>
 
