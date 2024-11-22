@@ -52,7 +52,7 @@
         </div>
 
         <!-- Data List -->
-        <ul v-if="!isLoadingData" class="overflow-y-auto max-h-[80vh]">
+        <!-- <ul v-if="!isLoadingData" class="overflow-y-auto max-h-[80vh]">
           <li v-for="data in filterData" :key="data.id" class="flex items-center justify-between gap-2 px-2 py-2 text-base rounded-md hover:bg-blue-100 list-data">
             <div class="p-2 form-check">
               <span class="form-check-label">{{ data.nom }}</span>
@@ -66,8 +66,10 @@
               </button>
             </div>
           </li>
-        </ul>
-        <LoaderSnipper v-else />
+        </ul> -->
+        <LoaderSnipper v-if="isLoadingDataCadre" />
+        <TabulatorCadreMesure v-else :data="cadreRendement" :years="annees" />
+        <!-- <LoaderSnipper v-else /> -->
 
         <!-- Modal for creating/updating -->
         <Modal size="modal-xl" backdrop="static" :show="showModalCreate" @hidden="closeModal">
@@ -283,10 +285,18 @@ import SiteService from "@/services/modules/site.service";
 import UniteeDeMesureService from "@/services/modules/unitee.mesure.service";
 import IndicateurValueKeys from "@/services/modules/key.value.service";
 import AuthService from "@/services/modules/auth.service";
+import ResultatCadreRendementService from "@/services/modules/resultat.cadre.rendement.service";
+import TabulatorCadreMesure from "@/components/TabulatorCadreMesure.vue";
 
 const props = defineProps({});
 
 // Reactive data structure
+const cadreRendement = ref([]);
+const isLoadingDataCadre = ref(false);
+const idProgramme = ref("");
+const debutProgramme = ref("");
+const finProgramme = ref("");
+
 const idSelect = ref("");
 const nameSelect = ref("");
 const search = ref("");
@@ -340,6 +350,29 @@ const payloadNotAgreger = reactive({
 const currentAnneeCibleNotAgreger = ref({
   annee: "",
   valeurCible: "",
+});
+
+// Fetch data
+const getDatasCadre = async () => {
+  isLoadingDataCadre.value = true;
+  try {
+    const { data } = await ResultatCadreRendementService.getCadreRendement(idProgramme.value);
+    cadreRendement.value = data.data;
+  } catch (e) {
+    toast.error("Erreur lors de la récupération des données.");
+  } finally {
+    isLoadingDataCadre.value = false;
+  }
+};
+
+const annees = computed(() => {
+  let anneeDebut = parseInt(debutProgramme.value.split("-")[0], 10);
+  let anneeFin = parseInt(finProgramme.value.split("-")[0], 10);
+  let annees = [];
+  for (let annee = anneeDebut; annee <= anneeFin; annee++) {
+    annees.push(annee);
+  }
+  return annees;
 });
 
 const addAnneeCibleNotAgreger = () => {
@@ -440,9 +473,13 @@ const getKeys = async () => {
 };
 
 const getcurrentUser = async () => {
+  isLoadingDataCadre.value = true;
   await AuthService.getCurrentUser()
     .then((result) => {
       responsablesForm.value.ug = result.data.data.profil.id;
+      idProgramme.value = result.data.data.programme.id;
+      debutProgramme.value = result.data.data.programme.debut;
+      finProgramme.value = result.data.data.programme.fin;
     })
     .catch((e) => {
       console.error(e);
@@ -469,6 +506,7 @@ const submitData = async () => {
     await action;
     toast.success(`Indicateur ${isCreate.value ? "créee" : "modifiée"} avec succès.`);
     getDatas();
+    getDatasCadre();
     resetForm();
   } catch (e) {
     toast.error(getAllErrorMessages(e));
@@ -589,9 +627,10 @@ watch(
   { immediate: true }
 );
 // Fetch data on component mount
-onMounted(() => {
+onMounted(async () => {
+  await getcurrentUser();
+  getDatasCadre();
   getDatas();
-  getcurrentUser();
 });
 </script>
 
