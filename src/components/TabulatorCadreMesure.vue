@@ -38,7 +38,10 @@
               <td>{{ indicateur.sources_de_donnee }}</td>
               <td>{{ indicateur.methode_de_la_collecte }}</td>
               <td>{{ indicateur.frequence_de_la_collecte }}</td>
-              <td v-html="`${formatResponsable(indicateur.ug_responsable ?? [])}${formatResponsable(indicateur.organisations_responsable ?? [])}`"></td>
+              <td>
+                {{ indicateur.ug_responsable?.nom ?? "" }} <br />
+                {{ formatResponsable(indicateur.organisations_responsable) }}
+              </td>
             </tr>
           </template>
         </template>
