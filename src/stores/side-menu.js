@@ -44,16 +44,21 @@ export const useSideMenuStore = defineStore("sideMenu", {
         icon: "FolderIcon",
         title: "Cadre Mesure Rendement",
         subMenu: [
-          {
-            icon: "BarChart2Icon",
-            pageName: "cadre_mesure",
-            title: "Affichage Cadre Mesure",
-          },
+          // {
+          //   icon: "BarChart2Icon",
+          //   pageName: "cadre_mesure",
+          //   title: "Affichage Cadre Mesure",
+          // },
           {
             icon: "BarChart2Icon",
             pageName: "create_indicateur",
-            title: "Création Indicateurs",
+            title: "Indicateurs",
           },
+          // {
+          //   icon: "BarChart2Icon",
+          //   pageName: "suivi_indicateur",
+          //   title: "Suivi Indicateurs",
+          // },
           // {
           //   icon: "BarChart2Icon",
           //   pageName: "UniteDeMesure",
@@ -74,11 +79,11 @@ export const useSideMenuStore = defineStore("sideMenu", {
           //   pageName: "Sites",
           //   title: "Sites",
           // },
-          {
-            icon: "BarChart2Icon",
-            pageName: "TypeResultat",
-            title: "Résultats Cadre de rendement",
-          },
+          // {
+          //   icon: "BarChart2Icon",
+          //   pageName: "TypeResultat",
+          //   title: "Résultats Cadre de rendement",
+          // },
         ],
       },
       {

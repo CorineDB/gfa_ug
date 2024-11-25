@@ -73,6 +73,8 @@ import DetailSoumission from "../views/dashboard/DetailSoumission.vue";
 import Activation from "../views/activation/Main.vue";
 import CreateIndicateur from "../views/dashboard/indicateurs/CreateIndicateur.vue";
 import CadreMesure from "../views/dashboard/CadreMesure.vue";
+import SuiviIndicateur from "../views/dashboard/indicateurs/SuiviIndicateur.vue";
+import DetailSuivi from "../views/dashboard/indicateurs/DetailSuivi.vue";
 
 const routes = [
   {
@@ -129,9 +131,19 @@ const routes = [
         component: Programmation_enquete,
       },
       {
-        path: "create-indicateur",
+        path: "indicateurs",
         name: "create_indicateur",
         component: CreateIndicateur,
+      },
+      {
+        path: "indicateur/:id",
+        name: "detail_indicateur",
+        component: DetailSuivi,
+      },
+      {
+        path: "suivi-indicateur",
+        name: "suivi_indicateur",
+        component: SuiviIndicateur,
       },
       {
         path: "cadre-mesure",

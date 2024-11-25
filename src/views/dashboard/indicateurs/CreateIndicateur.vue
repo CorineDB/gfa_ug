@@ -1,53 +1,59 @@
 <template>
   <div class="flex w-full gap-2">
-    <section class="w-[30%] h-screen pr-1 overflow-y-auto border-r-2 pt-5">
-      <AccordionGroup :selectedIndex="null" class="space-y-1">
-        <AccordionItem class="">
-          <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
-            <p>Unité de Mesure</p>
-            <ChevronDownIcon />
-          </Accordion>
-          <AccordionPanel class="p-2">
-            <UniteMesure />
-          </AccordionPanel>
-        </AccordionItem>
+    <Transition name="menu">
+      <section :class="[showMenu ? 'translate-x-0 w-[30%] border-r-2' : '-translate-x-full w-0']" class="h-screen pt-5 pr-1 overflow-y-auto transition-transform duration-300 transform menu-crud">
+        <div :class="['transition-all', showMenu ? '' : 'hidden']">
+          <AccordionGroup :selectedIndex="null" class="space-y-1">
+            <AccordionItem class="">
+              <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
+                <p>Unité de Mesure</p>
+                <ChevronDownIcon />
+              </Accordion>
+              <AccordionPanel class="p-2">
+                <UniteMesure />
+              </AccordionPanel>
+            </AccordionItem>
 
-        <AccordionItem>
-          <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
-            <p>Clé valeur</p>
-            <ChevronDownIcon />
-          </Accordion>
-          <AccordionPanel class="p-2">
-            <CleValeur />
-          </AccordionPanel>
-        </AccordionItem>
+            <AccordionItem>
+              <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
+                <p>Clé valeur</p>
+                <ChevronDownIcon />
+              </Accordion>
+              <AccordionPanel class="p-2">
+                <CleValeur />
+              </AccordionPanel>
+            </AccordionItem>
 
-        <AccordionItem>
-          <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
-            <p>Catégorie</p>
-            <ChevronDownIcon />
-          </Accordion>
-          <AccordionPanel class="p-2">
-            <ManagmentCategorie />
-          </AccordionPanel>
-        </AccordionItem>
-        <AccordionItem>
-          <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
-            <p>Site</p>
-            <ChevronDownIcon />
-          </Accordion>
-          <AccordionPanel class="p-2">
-            <ManagmentSite />
-          </AccordionPanel>
-        </AccordionItem>
-      </AccordionGroup>
-    </section>
+            <AccordionItem>
+              <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
+                <p>Catégorie</p>
+                <ChevronDownIcon />
+              </Accordion>
+              <AccordionPanel class="p-2">
+                <ManagmentCategorie />
+              </AccordionPanel>
+            </AccordionItem>
+            <AccordionItem>
+              <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
+                <p>Site</p>
+                <ChevronDownIcon />
+              </Accordion>
+              <AccordionPanel class="p-2">
+                <ManagmentSite />
+              </AccordionPanel>
+            </AccordionItem>
+          </AccordionGroup>
+        </div>
+      </section>
+    </Transition>
 
-    <section class="w-[70%] pt-5">
-      <h2 class="mt-10 text-lg font-medium intro-y">Indicateurs</h2>
+    <section :class="[showMenu ? 'w-[70%]' : 'w-[100%]']" class="pt-5">
+      <button class="text-sm btn" @click="displayMenu"><ChevronsLeftIcon class="mr-1 size-3" />{{ showMenu ? "Cacher le menu" : "Afficher le menu" }}</button>
+
+      <h2 class="mt-6 text-lg font-medium intro-y">Liste des indicateurs</h2>
       <div>
         <!-- Button to open modal -->
-        <div class="flex items-center justify-end gap-2 mb-4">
+        <div class="flex items-center justify-end gap-2 mb-2">
           <button class="text-base btn btn-primary" @click="openCreateModal"><PlusIcon class="mr-1 size-4" />Ajouter</button>
         </div>
 
@@ -79,19 +85,25 @@
           <form @submit.prevent="submitData">
             <ModalBody>
               <div class="grid grid-cols-1 gap-4">
-                <InputForm label="Nom" v-model="payload.nom" />
-                <div>
-                  <label class="form-label" for="description">Description</label>
-                  <div class="">
-                    <textarea name="description" class="form-control" id="description" v-model="payload.description" cols="30" rows="2"></textarea>
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                  <InputForm class="flex-1" label="Nom" v-model="payload.nom" />
+                  <div class="flex-1">
+                    <label class="form-label" for="description">Description</label>
+                    <div class="">
+                      <textarea name="description" class="form-control" id="description" v-model="payload.description" cols="30" rows="1"></textarea>
+                    </div>
                   </div>
                 </div>
                 <div class="flex flex-wrap items-center justify-between gap-3">
                   <div class="flex-1 form-check">
                     <input id="agreer" class="form-check-input" type="checkbox" v-model="payload.agreger" />
-                    <label class="form-check-label" for="agreer">Agréger</label>
+                    <label class="form-check-label" for="agreer">Indicateur Agréger</label>
                   </div>
-                  <div v-if="!payload.agreger">
+                  <InputForm class="flex-1" label="Année de base" v-model.number="payload.anneeDeBase" type="number" />
+                </div>
+
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                  <div class="w-full" v-if="!payload.agreger">
                     <p class="form-label">Année cible</p>
                     <div class="flex gap-1 place-items-end">
                       <input type="number" class="form-control" id="anne_cible" placeholder="Année" v-model="currentAnneeCibleNotAgreger.annee" />
@@ -142,18 +154,22 @@
                     <label class="form-label">Catégorie</label>
                     <TomSelect v-model="payload.categorieId" name="category" :options="{ placeholder: 'Selectionez une catégorie' }" class="w-full">
                       <option value=""></option>
-                      <option v-for="(categorie, index) in categories" :key="categorie.id" :value="categorie.id">{{ categorie.nom }}</option>
+                      <option v-for="(categorie, index) in categories" :key="categorie.id" :value="categorie.id">
+                        <span class="!font-bold">{{ categorie.type }} {{ categorie.indice }}:</span> {{ categorie.nom }}
+                      </option>
                     </TomSelect>
                   </div>
-                  <InputForm class="flex-1" label="Année de base" v-model.number="payload.anneeDeBase" type="number" />
+                  <div class="flex-1">
+                    <label class="form-label">Type de variables</label>
+                    <TomSelect v-model="payload.type_de_variable" name="type_variable" :options="{ placeholder: 'Selectionez un type de variable' }" class="w-full">
+                      <option value=""></option>
+                      <option v-for="(variable, index) in payload.agreger ? type_variablees : type_variablees_agreger" :key="index" :value="variable.id">{{ variable.label }}</option>
+                    </TomSelect>
+                  </div>
                 </div>
-                <div class="">
-                  <label class="form-label">Type de variables</label>
-                  <TomSelect v-model="payload.type_de_variable" name="type_variable" :options="{ placeholder: 'Selectionez un type de variable' }" class="w-full">
-                    <option value=""></option>
-                    <option v-for="(variable, index) in payload.agreger ? type_variablees : type_variablees_agreger" :key="index" :value="variable.id">{{ variable.label }}</option>
-                  </TomSelect>
-                </div>
+                <!-- <div class="flex flex-wrap items-center justify-between gap-3">
+
+                </div> -->
 
                 <div class="flex flex-wrap items-center justify-between gap-3">
                   <div class="flex-1">
@@ -170,6 +186,13 @@
                       <option v-for="(frequence, index) in frequenceCollecte" :key="index" :value="frequence">{{ frequence }}</option>
                     </TomSelect>
                   </div>
+                </div>
+                <div class="flex-1">
+                  <label class="form-label">UG</label>
+                  <TomSelect v-model="responsablesForm.ug" name="ug" :options="{ placeholder: 'Selectionez un UG' }" class="w-full">
+                    <option value=""></option>
+                    <option v-for="(ug, index) in ugs" :key="index" :value="ug.id">{{ ug.nom }}</option>
+                  </TomSelect>
                 </div>
                 <div class="flex flex-wrap items-center justify-between gap-3">
                   <div class="flex-1">
@@ -297,6 +320,7 @@ const idProgramme = ref("");
 const debutProgramme = ref("");
 const finProgramme = ref("");
 
+const showMenu = ref(false);
 const idSelect = ref("");
 const nameSelect = ref("");
 const search = ref("");
@@ -309,11 +333,16 @@ const isCreate = ref(true);
 const datas = ref([]);
 const categories = ref([]);
 const responsables = ref([]);
+const ugs = ref([]);
 const sites = ref([]);
 const unites = ref([]);
 const keys = ref([]);
 const array_value_keys = ref([]);
 const responsablesForm = ref({ organisations: [], ug: "" });
+
+const displayMenu = () => {
+  showMenu.value = !showMenu.value;
+};
 // Année cible en cours de création
 const currentAnneeCible = ref({
   annee: "",
@@ -476,7 +505,8 @@ const getcurrentUser = async () => {
   isLoadingDataCadre.value = true;
   await AuthService.getCurrentUser()
     .then((result) => {
-      responsablesForm.value.ug = result.data.data.profil.id;
+      // responsablesForm.value.ug = result.data.data.profil.id;
+      ugs.value.push({ id: result.data.data.profil.id, nom: result.data.data.profil.nom });
       idProgramme.value = result.data.data.programme.id;
       debutProgramme.value = result.data.data.programme.debut;
       finProgramme.value = result.data.data.programme.fin;
@@ -634,4 +664,16 @@ onMounted(async () => {
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+/* we will explain what these classes do next! */
+.menu-enter-active,
+.menu-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.menu-enter-from,
+.menu-leave-to {
+  opacity: 0;
+  transform: translateX(-30px);
+}
+</style>
