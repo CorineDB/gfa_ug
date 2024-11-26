@@ -1,12 +1,11 @@
 <template>
- 
   <div class="flex flex-col items-center mt-8 mb-4 intro-y sm:flex-row">
     <h2 class="mr-auto text-lg font-medium">Liste des projets</h2>
     <div class="flex w-full mt-4 sm:w-auto sm:mt-0">
       <button class="mr-2 shadow-md btn btn-primary" @click="addProjet()">Ajouter un projet</button>
     </div>
   </div>
-  
+
   <!-- <div style="height:600px; width:800px">
     <l-map ref="map" v-model:zoom="zoom" :center="[47.41322, -1.219482]">
       <l-tile-layer
@@ -28,10 +27,9 @@
 <l-polygon :lat-lngs="polygon.latlngs" :color="polygon.color"></l-polygon>
 </l-map> -->
   <div>
-    
-   <h3>An interactive leaflet map</h3>
-   <div id="map" style="height:40vh;"></div>
-</div>
+    <h3>An interactive leaflet map</h3>
+    <div id="map" style="height: 40vh"></div>
+  </div>
   <Modal backdrop="static" :show="showModal" @hidden="showModal = false">
     <ModalHeader>
       <h2 v-if="!isUpdate" class="mr-auto text-base font-medium">Ajouter un projet</h2>
@@ -43,8 +41,9 @@
       <InputForm v-model="formData.debut" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de début" label="Début du projet" />
       <InputForm v-model="formData.fin" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de fin" label="Fin du projet " />
       <InputForm v-model="formData.nombreEmploie" class="col-span-12" type="number" required="required" placeHolder="Ex : 10" label="Nombre d'employé" />
-      <InputForm v-model="formData.ville" class="col-span-12" type="text" required="required" placeHolder="Ex : Cotonou" label="Ville" />
+      <InputForm v-model="formData.pays" class="col-span-12" type="text" required="required" placeHolder="Ex : Bénin" label="Pays" />
       <InputForm v-model="formData.budgetNational" class="col-span-12" type="text" required="required" placeHolder="Ex : 100000" label="Budget " />
+      <InputForm v-model="formData.pret" class="col-span-12" type="text" required="required" placeHolder="Ex : 100000" label="Pret " />
 
       <div class="col-span-12" v-if="!isUpdate">
         <InputForm class="col-span-12" type="file" @change="handleFileChange" required="required" placeHolder="choisir une image" label="Images" accept="image/*" />
@@ -65,6 +64,21 @@
             class="w-full"
           >
             <option v-for="(org, index) in ongs" :key="index" :value="org.id">{{ org.nom }}</option>
+          </TomSelect>
+        </div>
+      </div>
+      <div class="col-span-12">
+        <label>Sites</label>
+        <div class="mt-2">
+          <TomSelect
+            v-model="formData.sites"
+            multiple
+            :options="{
+              placeholder: 'Veuillez associé des sites',
+            }"
+            class="w-full"
+          >
+            <option v-for="(site, index) in sites" :key="index" :value="site.id">{{ site.nom }}</option>
           </TomSelect>
         </div>
       </div>
@@ -96,72 +110,67 @@
     </ModalBody>
   </Modal>
   <div class="grid grid-cols-1 gap-6 mt-6 md:grid-cols-2 lg:grid-cols-3">
-  <div href="#" class="relative shadow-2xl box group _bg-white zoom-in border-l-4 border-primary hover:border-secondary transition-all duration-500" v-for="(item, index) in projets" :key="index">
-    <div class="relative m-5 bg-white">
-      <div class="text-[#171a1d] group-hover:text-[#007580] font-medium text-[14px] md:text-[16px] lg:text-[18px] leading-[30px] pt-[10px]">{{ item.nom }}</div>
-    </div>
+    <div href="#" class="relative transition-all duration-500 border-l-4 shadow-2xl box group _bg-white zoom-in border-primary hover:border-secondary" v-for="(item, index) in projets" :key="index">
+      <div class="relative m-5 bg-white">
+        <div class="text-[#171a1d] group-hover:text-[#007580] font-medium text-[14px] md:text-[16px] lg:text-[18px] leading-[30px] pt-[10px]">{{ item.nom }}</div>
+      </div>
 
-    <div class="relative mt-[12px] m-5 h-40 2xl:h-56 image-fit rounded-md overflow-hidden before:block before:absolute before:w-full before:h-full before:top-0 before:left-0 before:z-10 before:bg-gradient-to-t before:from-black before:to-black/10">
-      <div class="absolute top-0 left-0 w-1/2 h-0 group-hover:h-full bg-[#02008052] transition-all duration-[.5s]"></div>
-      <div class="absolute bottom-0 right-0 w-1/2 h-0 group-hover:h-full bg-[#02008052] transition-all duration-[.5s]"></div>
+      <div class="relative mt-[12px] m-5 h-40 2xl:h-56 image-fit rounded-md overflow-hidden before:block before:absolute before:w-full before:h-full before:top-0 before:left-0 before:z-10 before:bg-gradient-to-t before:from-black before:to-black/10">
+        <div class="absolute top-0 left-0 w-1/2 h-0 group-hover:h-full bg-[#02008052] transition-all duration-[.5s]"></div>
+        <div class="absolute bottom-0 right-0 w-1/2 h-0 group-hover:h-full bg-[#02008052] transition-all duration-[.5s]"></div>
 
-      <div class="relative h-64 overflow-hidden group/hw hway hway-active">
-        <img class="object-contain group-hover:opacity-30 transition-all duration-[.5s] h-auto" :src="projetsImg[index]" alt="" />
-        <!-- Description cachée avec effet de survol -->
-        <div class="absolute inset-0 flex items-start justify-center p-5 text-white transition-opacity duration-500 bg-black opacity-0 bg-opacity-80 group-hover:opacity-100">
-          <div>
-            <p class="text-base font-bold lg:text-lg">Description du projet</p>
-            <p class="px-2 text-sm lg:text-base line-clamp-7">{{ item.description }} {{ key }}</p>
+        <div class="relative h-64 overflow-hidden group/hw hway hway-active">
+          <img class="object-contain group-hover:opacity-30 transition-all duration-[.5s] h-auto" :src="projetsImg[index]" alt="" />
+          <!-- Description cachée avec effet de survol -->
+          <div class="absolute inset-0 flex items-start justify-center p-5 text-white transition-opacity duration-500 bg-black opacity-0 bg-opacity-80 group-hover:opacity-100">
+            <div>
+              <p class="text-base font-bold lg:text-lg">Description du projet</p>
+              <p class="px-2 text-sm lg:text-base line-clamp-7">{{ item.description }} {{ key }}</p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="m-5 text-slate-600 dark:text-slate-500">
-      <div class="flex items-center">
-        <LinkIcon class="w-4 h-4 mr-2" /> Budget: {{ $h.formatCurrency(item.budgetNational) }} 
-        <div class="italic font-bold ml-2">Fcfa</div>
+      <div class="m-5 text-slate-600 dark:text-slate-500">
+        <div class="flex items-center">
+          <LinkIcon class="w-4 h-4 mr-2" /> Budget: {{ $h.formatCurrency(item.budgetNational) }}
+          <div class="ml-2 italic font-bold">Fcfa</div>
+        </div>
+        <div v-if="item.owner !== null" class="flex items-center">
+          <GlobeIcon class="w-4 h-4 mr-2" /> Organisation:
+          <span class="p-1 pl-2 text-white bg-green-400 rounded-md shadow-md">{{ item.owner.user.nom }}</span>
+        </div>
+        <div class="flex items-center mt-2">
+          <ClockIcon class="w-4 h-4 mr-2" />
+          <div>
+            Date : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(item.debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(item.fin) }}</span>
+          </div>
+        </div>
+        <div class="flex items-center mt-2">
+          <CheckSquareIcon class="w-4 h-4 mr-2" /> Statut :
+          <span class="p-1 pl-2 text-white bg-black rounded-md shadow-md" v-if="item.statut == -2"> Non validé </span>
+          <span class="p-1 pl-2 text-white bg-green-500 rounded-md shadow-md" v-else-if="item.statut == -1"> Validé </span>
+          <span class="p-1 pl-1 text-white bg-yellow-500 rounded-md shadow-md" v-else-if="item.statut == 0"> En cours </span>
+          <span class="p-1 pl-1 text-white bg-red-500 rounded-md shadow-md" v-else-if="item.statut == 1"> En retard </span>
+          <span class="pl-2" v-else-if="item.statut == 2">Terminé</span>
+        </div>
       </div>
-      <div v-if="item.owner !== null" class="flex items-center">
-        <GlobeIcon class="w-4 h-4 mr-2" /> Organisation:  
-        <span class="pl-2 shadow-md p-1 rounded-md bg-green-400 text-white">{{ item.owner.user.nom }}</span>
-      </div>
-      <div class="flex items-center mt-2">
-        <ClockIcon class="w-4 h-4 mr-2" />
-        <div>Date : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(item.debut) }}</span> au  <span class="font-bold"> {{ $h.reformatDate(item.fin) }}</span></div>
-      </div>
-      <div class="flex items-center mt-2">
-        <CheckSquareIcon class="w-4 h-4 mr-2" /> Statut :
-        <span class="pl-2 shadow-md p-1 rounded-md bg-black text-white" v-if="item.statut == -2"> Non validé </span>
-        <span class="pl-2 shadow-md p-1 rounded-md bg-green-500 text-white" v-else-if="item.statut == -1"> Validé </span>
-        <span class="pl-1 shadow-md p-1 rounded-md bg-yellow-500 text-white" v-else-if="item.statut == 0"> En cours </span>
-        <span class="pl-1 shadow-md p-1 rounded-md bg-red-500 text-white" v-else-if="item.statut == 1"> En retard </span>
-        <span class="pl-2" v-else-if="item.statut == 2">Terminé</span>
-      </div>
-    </div>
 
-    <div class="flex items-center justify-center p-5 border-t lg:justify-end border-slate-200/60 dark:border-darkmode-400">
-      <a class="flex items-center mr-auto text-primary" href="javascript:;" @click="goToDetail(item)"> 
-        <EyeIcon class="w-4 h-4 mr-1" /> Détail 
-      </a>
-      <a class="flex items-center mr-3" href="javascript:;" @click="modifierProjet(item)"> 
-        <CheckSquareIcon class="w-4 h-4 mr-1" /> Modifier 
-      </a>
-      <a class="flex items-center text-danger" href="javascript:;" @click="supprimerProjet(item)"> 
-        <Trash2Icon class="w-4 h-4 mr-1" /> Supprimer 
-      </a>
-    </div>
+      <div class="flex items-center justify-center p-5 border-t lg:justify-end border-slate-200/60 dark:border-darkmode-400">
+        <a class="flex items-center mr-auto text-primary" href="javascript:;" @click="goToDetail(item)"> <EyeIcon class="w-4 h-4 mr-1" /> Détail </a>
+        <a class="flex items-center mr-3" href="javascript:;" @click="modifierProjet(item)"> <CheckSquareIcon class="w-4 h-4 mr-1" /> Modifier </a>
+        <a class="flex items-center text-danger" href="javascript:;" @click="supprimerProjet(item)"> <Trash2Icon class="w-4 h-4 mr-1" /> Supprimer </a>
+      </div>
 
-    <div class="absolute bottom-0 flex w-full">
-      <div class="w-1/3 p-1 bg-green-500"></div>
-      <div class="flex flex-col w-2/3">
-        <div class="p-0.5 bg-yellow-500"></div>
-        <div class="p-0.5 bg-red-500"></div>
+      <div class="absolute bottom-0 flex w-full">
+        <div class="w-1/3 p-1 bg-green-500"></div>
+        <div class="flex flex-col w-2/3">
+          <div class="p-0.5 bg-yellow-500"></div>
+          <div class="p-0.5 bg-red-500"></div>
+        </div>
       </div>
     </div>
   </div>
-  </div>
-
 
   <!-- <div class="grid grid-cols-1 gap-6 mt-6 md:grid-cols-2 lg:grid-cols-3">
     <div href="#" class="relative shadow-2xl box group _bg-white zoom-in" v-for="(item, index) in projets" :key="index">
@@ -192,9 +201,9 @@
       </div>
 
       <div class="m-5 text-slate-600 dark:text-slate-500">
-        <div class="flex items-center"><LinkIcon class="w-4 h-4 mr-2" /> Budget: {{ $h.formatCurrency(item.budgetNational) }} <div class="italic font-bold ml-2">Fcfa</div>
+        <div class="flex items-center"><LinkIcon class="w-4 h-4 mr-2" /> Budget: {{ $h.formatCurrency(item.budgetNational) }} <div class="ml-2 italic font-bold">Fcfa</div>
           </div>
-        <div v-if="item.owner !== null" class="flex items-center"><GlobeIcon class="w-4 h-4 mr-2" /> Organisation:  <span class="pl-2  shadow-md p-1 rounded-md bg-green-400 text-white" >{{ item.owner.user.nom }}</span></div>
+        <div v-if="item.owner !== null" class="flex items-center"><GlobeIcon class="w-4 h-4 mr-2" /> Organisation:  <span class="p-1 pl-2 text-white bg-green-400 rounded-md shadow-md" >{{ item.owner.user.nom }}</span></div>
         <div class="flex items-center mt-2">
           <ClockIcon class="w-4 h-4 mr-2" />
           <div>
@@ -203,10 +212,10 @@
         </div>
         <div class="flex items-center mt-2">
           <CheckSquareIcon class="w-4 h-4 mr-2 " /> Statut :
-          <span class="pl-2 shadow-md p-1 rounded-md bg-black text-white" v-if="item.statut == -2"> Non validé </span>
-          <span class="pl-2 shadow-md p-1 rounded-md bg-green-500 text-white" v-else-if="item.statut == -1"> Validé </span>
-          <span class="pl-1 shadow-md p-1 rounded-md bg-yellow-500 text-white" v-else-if="item.statut == 0"> En cours </span>
-          <span class="pl-1 shadow-md p-1 rounded-md bg-red-500 text-white" v-else-if="item.statut == 1"> En retard </span>
+          <span class="p-1 pl-2 text-white bg-black rounded-md shadow-md" v-if="item.statut == -2"> Non validé </span>
+          <span class="p-1 pl-2 text-white bg-green-500 rounded-md shadow-md" v-else-if="item.statut == -1"> Validé </span>
+          <span class="p-1 pl-1 text-white bg-yellow-500 rounded-md shadow-md" v-else-if="item.statut == 0"> En cours </span>
+          <span class="p-1 pl-1 text-white bg-red-500 rounded-md shadow-md" v-else-if="item.statut == 1"> En retard </span>
           <span class="pl-2" v-else-if="item.statut == 2">Terminé</span>
         </div>
       </div>
@@ -226,8 +235,6 @@
       </div>
     </div>
   </div> -->
-
-  
 </template>
 
 <script>
@@ -240,38 +247,57 @@ import { extractFormData } from "@/utils/index";
 import InputForm from "@/components/news/InputForm.vue";
 import VButton from "@/components/news/VButton.vue";
 import OngService from "@/services/modules/ong.service.js";
+import SiteService from "@/services/modules/site.service.js";
 import { helper as $h } from "@/utils/helper";
 import { toast } from "vue3-toastify";
-import "leaflet/dist/leaflet.css"
-import * as L from 'leaflet';
-import { LMap, LTileLayer, LMarker,LPolygon ,LPopup } from "@vue-leaflet/vue-leaflet";
+import "leaflet/dist/leaflet.css";
+import * as L from "leaflet";
+import { LMap, LTileLayer, LMarker, LPolygon, LPopup } from "@vue-leaflet/vue-leaflet";
 
- 
-import 'leaflet.markercluster/dist/MarkerCluster.css' ; 
-import  'leaflet.markercluster/dist/MarkerCluster.Default.css' ; 
-import  "leaflet.markercluster" ;
-import { addressPoints } from './markerDemo'
-import icon from './icon.png';
-import markerShadow from './marker-shadow.png';
+import "leaflet.markercluster/dist/MarkerCluster.css";
+import "leaflet.markercluster/dist/MarkerCluster.Default.css";
+import "leaflet.markercluster";
+import { addressPoints } from "./markerDemo";
+import icon from "./icon.png";
+import markerShadow from "./marker-shadow.png";
 
 export default {
-  components: { InputForm, VButton,   LMap,
-    LTileLayer,LMarker,LPolygon ,LPopup },
+  components: { InputForm, VButton, LMap, LTileLayer, LMarker, LPolygon, LPopup },
   data() {
     return {
-      url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-      attribution:
-        '&copy; <a target="_blank" href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+      url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      attribution: '&copy; <a target="_blank" href="http://osm.org/copyright">OpenStreetMap</a> contributors',
       zoom: 8,
-      center: [47.313220, -1.319482],
+      center: [47.31322, -1.319482],
       polygon: {
-        latlngs: [[47.2263299, -1.6222], [47.21024000000001, -1.6270065], [47.1969447, -1.6136169], [47.18527929999999, -1.6143036], [47.1794457, -1.6098404], [47.1775788, -1.5985107], [47.1676598, -1.5753365], [47.1593731, -1.5521622], [47.1593731, -1.5319061], [47.1722111, -1.5143967], [47.1960115, -1.4841843], [47.2095404, -1.4848709], [47.2291277, -1.4683914], [47.2533687, -1.5116501], [47.2577961, -1.5531921], [47.26828069, -1.5621185], [47.2657179, -1.589241], [47.2589612, -1.6204834], [47.237287, -1.6266632], [47.2263299, -1.6222]],
-        color: 'green'
+        latlngs: [
+          [47.2263299, -1.6222],
+          [47.21024000000001, -1.6270065],
+          [47.1969447, -1.6136169],
+          [47.18527929999999, -1.6143036],
+          [47.1794457, -1.6098404],
+          [47.1775788, -1.5985107],
+          [47.1676598, -1.5753365],
+          [47.1593731, -1.5521622],
+          [47.1593731, -1.5319061],
+          [47.1722111, -1.5143967],
+          [47.1960115, -1.4841843],
+          [47.2095404, -1.4848709],
+          [47.2291277, -1.4683914],
+          [47.2533687, -1.5116501],
+          [47.2577961, -1.5531921],
+          [47.26828069, -1.5621185],
+          [47.2657179, -1.589241],
+          [47.2589612, -1.6204834],
+          [47.237287, -1.6266632],
+          [47.2263299, -1.6222],
+        ],
+        color: "green",
       },
       zoom: 2,
       initialMap: null,
-      myIcon: null, 
-      markerLatLng: [47.313220, -1.319482] ,
+      myIcon: null,
+      markerLatLng: [47.31322, -1.319482],
 
       savedInput: [],
       base_url: API_BASE_URL,
@@ -323,19 +349,15 @@ export default {
       deleteData: {},
       deleteModal: false,
 
-      projetsImg: [
-        "https://images.unsplash.com/photo-1473649085228-583485e6e4d7?q=80&w=1332&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://images.unsplash.com/photo-1516047001178-6dcd2a01c694?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://media.istockphoto.com/id/474234518/photo/clean-fresh-water-scarcity-symbol-black-girl-drinking-from-tap.jpg?s=1024x1024&w=is&k=20&c=Ae42yqkuqfOxBV1bedpkGtC1w2ifQqBB77Sl46nNDNQ=",
-        "https://images.unsplash.com/flagged/photo-1555251255-e9a095d6eb9d?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://images.unsplash.com/photo-1728158609567-42dc418139f9?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8TkdPJTIwYmxhY2t8ZW58MHx8MHx8fDA%3D"
-      ],
+      projetsImg: ["https://images.unsplash.com/photo-1473649085228-583485e6e4d7?q=80&w=1332&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", "https://images.unsplash.com/photo-1516047001178-6dcd2a01c694?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", "https://media.istockphoto.com/id/474234518/photo/clean-fresh-water-scarcity-symbol-black-girl-drinking-from-tap.jpg?s=1024x1024&w=is&k=20&c=Ae42yqkuqfOxBV1bedpkGtC1w2ifQqBB77Sl46nNDNQ=", "https://images.unsplash.com/flagged/photo-1555251255-e9a095d6eb9d?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", "https://images.unsplash.com/photo-1728158609567-42dc418139f9?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8TkdPJTIwYmxhY2t8ZW58MHx8MHx8fDA%3D"],
       formData: {
         nom: "",
         couleur: "",
         debut: "",
         fin: "",
-        ville: "",
+        pays: "",
+        pret: "",
+        sites: [],
         organisationId: "",
         nombreEmploie: Number,
         budgetNational: Number,
@@ -344,6 +366,7 @@ export default {
       FormProjet: new FormData(),
       isLoading: false,
       ongs: [],
+      sites: [],
       selectedFile: null, // Pour stocker le fichier sélectionné
       imagePreview: null,
       update: false, // Pour afficher la prévisualisation de l'imag
@@ -409,6 +432,30 @@ export default {
         .then((data) => {
           const datas = data.data.data;
           this.ongs = datas;
+
+          // this.disabled();
+        })
+        .catch((error) => {
+          // this.disabled();
+          if (error.response) {
+            // Requête effectuée mais le serveur a répondu par une erreur.
+            const message = error.response.data.message;
+            // this.$toast.error(message);
+          } else if (error.request) {
+            // Demande effectuée mais aucune réponse n'est reçue du serveur.
+            //console.log(error.request);
+          } else {
+            // Une erreur s'est produite lors de la configuration de la demande
+          }
+        });
+    },
+    fetchSites() {
+      // this.active();
+
+      SiteService.get()
+        .then((data) => {
+          const datas = data.data.data;
+          this.sites = datas;
 
           // this.disabled();
         })
@@ -614,12 +661,14 @@ export default {
       this.formData.couleur = projet.couleur;
       this.formData.debut = projet.debut;
       this.formData.fin = projet.fin;
-      this.formData.ville = projet.commune;
+      this.formData.pays = projet.pays;
+      this.formData.pret = projet.pret;
+      this.formData.sites = projet.sites.map((site) => site.id);
       this.formData.organisationId = projet.organisationId;
       this.formData.nombreEmploie = projet.nombreEmploie;
       this.formData.budgetNational = projet.budgetNational;
 
-      console.log(this.formData)
+      console.log(this.formData);
 
       this.showCloseModal(true);
     },
@@ -723,6 +772,13 @@ export default {
           this.FormProjet.append("fichier[]", this.selectedFile);
         }
 
+        // Ajouter manuellement le tableau `sites` à FormData
+        if (this.formData.sites && Array.isArray(this.formData.sites)) {
+          this.formData.sites.forEach((site, index) => {
+            this.FormProjet.append(`sites[${index}]`, site);
+          });
+        }
+
         //projet.statut = -2;
         this.FormProjet.forEach((value, key) => {
           console.log(`${key}: ${value}`);
@@ -823,56 +879,51 @@ export default {
     },
   },
   mounted() {
+    // Initialiser la carte lorsque le composant est monté
+    // Configurer l'icône
+    this.myIcon = L.icon({
+      iconUrl: icon,
+      iconSize: [30, 30],
+      iconAnchor: [22, 94],
+      popupAnchor: [-3, -76],
+      shadowUrl: markerShadow,
+      shadowSize: [60, 30],
+      shadowAnchor: [22, 94],
+    });
 
-        // Initialiser la carte lorsque le composant est monté
-  // Configurer l'icône
-  this.myIcon = L.icon({
-            iconUrl: icon,
-            iconSize: [30, 30],
-            iconAnchor: [22, 94],
-            popupAnchor: [-3, -76],
-            shadowUrl: markerShadow,
-            shadowSize: [60, 30],
-            shadowAnchor: [22, 94]
-        });
+    // Initialiser la carte
+    this.initialMap = L.map("map", {
+      zoomControl: true,
+      zoom: 1,
+      zoomAnimation: false,
+      fadeAnimation: true,
+      markerZoomAnimation: true,
+    }).setView([6.8041, 2.4152], 6);
 
-        // Initialiser la carte
-        this.initialMap = L.map('map', {
-            zoomControl: true,
-            zoom: 1,
-            zoomAnimation: false,
-            fadeAnimation: true,
-            markerZoomAnimation: true
-        }).setView([6.8041, 2.4152], 6);
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(this.initialMap);
 
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        }).addTo(this.initialMap);
+    // Ajouter des marqueurs individuels
+    L.marker([6.3746, 2.6004], { icon: this.myIcon }).addTo(this.initialMap);
+    L.marker([6.3752, 2.8349], { icon: this.myIcon }).addTo(this.initialMap);
 
-        // Ajouter des marqueurs individuels
-        L.marker([6.3746, 2.6004], { icon: this.myIcon }).addTo(this.initialMap);
-        L.marker([6.3752, 2.8349], { icon: this.myIcon }).addTo(this.initialMap);
+    // Créer un groupe de marqueurs
+    const markers = L.markerClusterGroup();
 
-        // Créer un groupe de marqueurs
-        const markers = L.markerClusterGroup();
+    // Ajouter des marqueurs à partir de `addressPoints`
+    addressPoints.forEach((element, index) => {
+      const each_marker = new L.marker([element.latitude, element.longitude], { icon: this.myIcon }).bindPopup(`<strong> Hello Bangladesh! </strong> <br> I am a popup number ${index}`);
+      markers.addLayer(each_marker);
+    });
 
-        // Ajouter des marqueurs à partir de `addressPoints`
-        addressPoints.forEach((element, index) => {
-            const each_marker = new L.marker(
-                [element.latitude, element.longitude], { icon: this.myIcon })
-                .bindPopup(`<strong> Hello Bangladesh! </strong> <br> I am a popup number ${index}`);
-            markers.addLayer(each_marker);
-        });
-
-        this.initialMap.addLayer(markers);
-    
-
-
+    this.initialMap.addLayer(markers);
 
     // Initialiser Dropzone après le montage du composant
     //  this.initializeDropzone();
     this.fetchOngs();
+    this.fetchSites();
   },
 
   watch: {

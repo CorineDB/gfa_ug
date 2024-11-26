@@ -25,6 +25,7 @@ export default {
       formData: {
         nom: "",
         poids: "",
+        pret: "",
         composanteId: "",
         budgetNational: 0,
       },
@@ -100,6 +101,7 @@ export default {
       this.update = true;
       this.formData.nom = data.nom;
       this.formData.poids = data.poids;
+      this.formData.pret = data.pret;
       this.formData.composanteId = data.composanteId;
       this.formData.budgetNational = data.budgetNational;
       this.sousComposantId = data.id;
@@ -113,7 +115,7 @@ export default {
     sendForm() {
       if (this.update) {
         // this.formData.projetId = this.projetId
-         this.isLoading = true;
+        this.isLoading = true;
         ComposantesService.update(this.sousComposantId, this.formData)
           .then((response) => {
             if (response.status == 200 || response.status == 201) {
@@ -121,7 +123,7 @@ export default {
               this.isLoading = false;
               this.showModal = false;
               toast.success("Modification éffectuée");
-              this.composantsId = this.formData.composanteId
+              this.composantsId = this.formData.composanteId;
               this.clearObjectValues(this.formData);
               // delete this.formData.projetId;
               this.getListeProjet();
@@ -136,6 +138,7 @@ export default {
       } else {
         this.isLoading = true;
         this.formData.budgetNational = parseInt(this.formData.budgetNational);
+        this.formData.pret = parseInt(this.formData.pret);
         ComposantesService.create(this.formData)
           .then((response) => {
             if (response.status == 200 || response.status == 201) {
@@ -154,10 +157,10 @@ export default {
       }
     },
     getListeProjet() {
-      this.isLoadingData = true
+      this.isLoadingData = true;
       ProjetService.get()
         .then((data) => {
-          this.isLoadingData = false
+          this.isLoadingData = false;
           this.projets = data.data.data;
           if (this.projetId == "") {
             this.projetId = this.projets[0].id;
@@ -185,7 +188,7 @@ export default {
     getComposantById(data) {
       ComposantesService.detailComposant(data)
         .then((data) => {
-          this.sousComposants = data.data.data.souscomposantes
+          this.sousComposants = data.data.data.souscomposantes;
           console.log(this.sousComposants);
         })
         .catch((error) => {
@@ -257,7 +260,7 @@ export default {
 
   <div v-if="!isLoadingData" class="grid grid-cols-12 gap-6 mt-5">
     <!-- BEGIN: Users Layout -->
-     <!-- <pre>{{sousComposants}}</pre>   -->
+    <!-- <pre>{{sousComposants}}</pre>   -->
     <div v-for="(item, index) in sousComposants" :key="index" class="col-span-12 intro-y md:col-span-6 lg:col-span-4">
       <div class="p-5 box">
         <div class="flex items-start pt-5 _px-5">
@@ -324,6 +327,7 @@ export default {
     <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
       <InputForm v-model="formData.nom" class="col-span-12" type="text" required="required" placeHolder="Nom de l'organisation" label="Nom" />
       <InputForm v-model="formData.poids" class="col-span-12" type="number" required="required" placeHolder="Poids de l'activité " label="Poids" />
+      <InputForm v-model="formData.pret" class="col-span-12" type="number" required="required" placeHolder="Pret" label="Pret" />
       <div class="flex col-span-12">
         <v-select class="w-full" :reduce="(composant) => composant.id" v-model="formData.composanteId" label="nom" :options="composants">
           <template #search="{ attributes, events }">
