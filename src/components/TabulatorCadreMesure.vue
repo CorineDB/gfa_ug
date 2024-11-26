@@ -3,9 +3,9 @@
     <table class="w-full max-w-full my-2 border-collapse editor_listing_table border-slate-500" cellpadding="6" cellspacing="0">
       <thead class="text-black">
         <tr>
-          <th rowspan="2" class="py-3 border border-slate-900 min-w-[500px]">Résultats escomptés</th>
-          <th rowspan="2" class="py-3 border border-slate-900 min-w-[80px]">Indice</th>
-          <th rowspan="2" class="py-3 border border-slate-900 min-w-[500px]">Indicateurs</th>
+          <th rowspan="2" class="py-3 border border-slate-900 min-w-[500px] sticky-column">Résultats escomptés</th>
+          <th rowspan="2" class="py-3 border border-slate-900 min-w-[80px] sticky-column-second">Indice</th>
+          <th rowspan="2" class="py-3 border border-slate-900 min-w-[500px] sticky-column-third">Indicateurs</th>
           <th rowspan="2" class="py-3 border border-slate-900 min-w-[300px]">Description de l'indicateur</th>
           <th rowspan="2" class="py-3 border border-slate-900 min-w-[100px]">Situation de référence</th>
           <th :colspan="years.length + 1" class="py-3 border border-slate-900 min-w-[70px]">Cibles</th>
@@ -15,7 +15,7 @@
           <th rowspan="2" class="py-3 border border-slate-900 min-w-[150px]">Méthode de collecte des données</th>
           <th rowspan="2" class="py-3 border border-slate-900 min-w-[150px]">Fréquence de la collecte de données</th>
           <th rowspan="2" class="py-3 border border-slate-900 min-w-[150px]">Responsable</th>
-          <th rowspan="2" class="py-3 border border-slate-900 min-w-[250px]">Actions</th>
+          <th rowspan="2" class="py-3 border border-slate-900 min-w-[200px]">Actions</th>
         </tr>
         <tr>
           <th v-for="(year, index) in years" :key="index" class="py-3 border border-slate-900 min-w-[70px]">{{ year }}</th>
@@ -31,11 +31,20 @@
           </tr>
           <template v-for="(indicateur, j) in result.indicateurs" :key="indicateur.id">
             <tr>
-              <td class="font-semibold" v-if="j === 0" :rowspan="result.indicateurs.length">
+              <!-- Première colonne fixe -->
+              <td class="font-semibold sticky-column" v-if="j === 0" :rowspan="result.indicateurs.length" style="left: 0">
                 {{ result.nom }}
               </td>
-              <td class="font-semibold">Ind {{ indicateur.code }}</td>
-              <td>{{ indicateur.nom }}</td>
+
+              <!-- Deuxième colonne fixe -->
+              <td class="font-semibold sticky-column-second" style="left: 500px">Ind {{ indicateur.code }}</td>
+
+              <!-- Troisième colonne fixe -->
+              <td class="sticky-column-third" style="left: 580px">
+                {{ indicateur.nom }}
+              </td>
+
+              <!-- Colonnes restantes -->
               <td>{{ indicateur.description ?? "" }}</td>
               <td v-html="formatObject(indicateur.valeurDeBase)"></td>
               <td v-for="(year, index) in years" :key="index">
@@ -57,7 +66,6 @@
               <td class="space-x-3">
                 <button title="Suivre" @click="handleSuivi(indicateur)" class="btn text-primary"><CornerUpLeftIcon class="size-5" /></button>
                 <button title="Voir" @click="goToDetailSuivi(indicateur.id)" class="btn text-primary"><EyeIcon class="size-5" /></button>
-                <!-- <button title="Modifier" @click="handleEdit(result)" class="btn text-pending"><Edit3Icon class="size-5" /></button> -->
                 <button title="Supprimer" @click="handleDelete(result)" class="btn text-danger"><TrashIcon class="size-5" /></button>
               </td>
             </tr>
@@ -378,5 +386,32 @@ function formatObject(obj) {
 table td {
   border: 1px solid rgb(46, 46, 46);
   padding-block: 8px;
+}
+.sticky-column {
+  position: sticky;
+  left: 0;
+  background-color: white;
+  z-index: 3;
+}
+
+.sticky-column-second {
+  position: sticky;
+  left: 500px; /* Largeur de la première colonne */
+  background-color: white;
+  z-index: 2;
+}
+
+.sticky-column-third {
+  position: sticky;
+  left: 580px; /* Largeur cumulée des deux premières colonnes */
+  background-color: white;
+  z-index: 1;
+}
+
+/* Optionnel : Ajout d'une bordure pour les colonnes fixes */
+.sticky-column,
+.sticky-column-second,
+.sticky-column-third {
+  border-right: 1px solid #ccc;
 }
 </style>
