@@ -401,7 +401,7 @@ table td {
   z-index: 2;
 }
 
-.sticky-column-third {
+.stick-column-third {
   position: sticky;
   left: 580px; /* Largeur cumulée des deux premières colonnes */
   background-color: white;
@@ -411,7 +411,7 @@ table td {
 /* Optionnel : Ajout d'une bordure pour les colonnes fixes */
 .sticky-column,
 .sticky-column-second,
-.sticky-column-third {
+.stick-column-third {
   border-right: 1px solid #ccc;
 }
 </style>

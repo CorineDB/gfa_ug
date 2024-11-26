@@ -116,7 +116,7 @@ const sendMailExp = () => {
     chargement.value = true;
     try {
       const result = ActivationAccount.confirmationCompte(emailExp.value);
-      if (result.data.statut === "success") {
+      if (result.data.data.statut == "success") {
         chargement.value = false;
         showFormSuccessExp.value = true;
       } else {
@@ -138,7 +138,7 @@ const activeAccount = async () => {
 
   try {
     const result = await ActivationAccount.activerCompte(token);
-    if (result.data.statut === "success") {
+    if (result.data.statut == "success") {
       isLoading.value = false;
       showActivate.value = true;
       chargement.value = false;
