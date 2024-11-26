@@ -26,6 +26,7 @@ const payload = reactive({
   latitude: "",
   addresse: "",
   quartier: "",
+  type: "",
   arrondissement: "",
   commune: "",
   departement: "",
@@ -33,6 +34,10 @@ const payload = reactive({
   secteurActivite: "",
 });
 
+const types = [
+  { label: "OSC", id: "osc" },
+  { label: "OSC FOSIR", id: "osc_fosir" },
+];
 const tabulator = ref();
 const idSelect = ref("");
 const nameSelect = ref("");
@@ -402,6 +407,12 @@ onMounted(() => {
                 </option>
               </TomSelect>
             </div>
+          </div>
+          <div>
+            <label class="form-label">Types</label>
+            <TomSelect v-model="payload.type" :options="{ placeholder: 'Selectionez  un type' }" class="w-full">
+              <option v-for="(type, index) in types" :key="index" :value="type.id">{{ type.label }}</option>
+            </TomSelect>
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div :class="[!showArrondissement ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
