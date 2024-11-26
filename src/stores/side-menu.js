@@ -156,6 +156,11 @@ export const useSideMenuStore = defineStore("sideMenu", {
         pageName: "EnqueteIndividuel",
         title: "Enquête individuelle",
       },
+      {
+        icon: "BarChart2Icon",
+        pageName: "action_a_mener",
+        title: "Actions à mener",
+      },
 
       {
         icon: "UsersIcon",

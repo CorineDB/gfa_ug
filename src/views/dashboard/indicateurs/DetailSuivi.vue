@@ -5,10 +5,15 @@ import Tabulator from "tabulator-tables";
 import { toast } from "vue3-toastify";
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
 import { useRoute } from "vue-router";
+import VButton from "@/components/news/VButton.vue";
+import { getAllErrorMessages } from "@/utils/gestion-error";
 
 const route = useRoute();
 const tabulator = ref();
+const idSelect = ref("");
+const showModalValidate = ref(false);
 const isLoadingData = ref(true);
+const isLoading = ref(false);
 const datas = ref([]);
 
 const getDatas = async () => {
@@ -20,11 +25,15 @@ const getDatas = async () => {
     })
     .catch((e) => {
       console.error(e);
-
       isLoadingData.value = false;
       toast.error("Une erreur est survenue: Liste de sources.");
     });
   initTabulator();
+};
+
+const handleValidate = (params) => {
+  idSelect.value = params.id;
+  showModalValidate.value = true;
 };
 
 const initTabulator = () => {
@@ -84,6 +93,31 @@ const initTabulator = () => {
           return `${formatDateOnly(cell.getData().dateSuivie)}`;
         },
       },
+      {
+        title: "Actions",
+        field: "actions",
+        formatter: (cell) => {
+          const container = document.createElement("div");
+          container.className = "flex items-center justify-center gap-3";
+
+          const createButton = (label, className, onClick) => {
+            const button = document.createElement("button");
+            button.className = className;
+            button.innerText = label;
+            button.addEventListener("click", onClick);
+            return button;
+          };
+
+          const validateButton = createButton("Valider", "btn btn-primary", () => {
+            handleValidate(cell.getData());
+          });
+
+          if (!cell.getData().estValider) {
+            container.append(validateButton);
+          }
+          return container;
+        },
+      },
     ],
   });
 };
@@ -111,6 +145,22 @@ function formatDateOnly(dateTimeString) {
   return date;
 }
 
+const validateData = async () => {
+  isLoading.value = true;
+  await IndicateursService.validateSuivi(idSelect.value)
+    .then(() => {
+      isLoading.value = false;
+      getDatas();
+      showModalValidate.value = false;
+      toast.success("Suivi validée.");
+    })
+    .catch((e) => {
+      isLoading.value = false;
+      console.error(e);
+      toast.error("Pas la permission pour valider");
+    });
+};
+
 onMounted(() => {
   getDatas();
 });
@@ -134,4 +184,18 @@ onMounted(() => {
     </div>
     <LoaderSnipper v-if="isLoadingData" />
   </div>
+
+  <Modal :show="showModalValidate" @hidden="showModalValidate = false">
+    <ModalBody class="p-2">
+      <div class="p-5 text-center">
+        <AlertCircleIcon class="w-16 h-16 mx-auto mt-3 text-primary" />
+        <div class="mt-2 text-lg text-slate-500">Valider le suivi?</div>
+      </div>
+
+      <div class="flex gap-2">
+        <button type="button" @click="showModalValidate = false" class="w-full px-2 py-2 my-3 align-top btn btn-outline-secondary">Annuler</button>
+        <VButton :loading="isLoading" @click="validateData" label="Valider" />
+      </div>
+    </ModalBody>
+  </Modal>
 </template>

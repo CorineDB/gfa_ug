@@ -154,9 +154,7 @@
                     <label class="form-label">Catégorie</label>
                     <TomSelect v-model="payload.categorieId" name="category" :options="{ placeholder: 'Selectionez une catégorie' }" class="w-full">
                       <option value=""></option>
-                      <option v-for="(categorie, index) in categories" :key="categorie.id" :value="categorie.id">
-                        <span class="!font-bold">{{ categorie.type }} {{ categorie.indice }}:</span> {{ categorie.nom }}
-                      </option>
+                      <option v-for="(categorie, index) in categories" :key="categorie.id" :value="categorie.id">{{ categorie.type }} {{ categorie.indice }} {{ categorie.nom }}</option>
                     </TomSelect>
                   </div>
                   <div class="flex-1">

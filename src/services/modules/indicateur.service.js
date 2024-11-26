@@ -29,6 +29,9 @@ const IndicateursService = {
   detailSuivi(id) {
     return ApiService.get(`/gfa/indicateurs/${id}/suivis`);
   },
+  validateSuivi(id) {
+    return ApiService.post(`/gfa/suivi-indicateurs/${id}/valider`);
+  },
   filtre(params) {
     return ApiService.post("/gfa/indicateurs/filtres", params);
   },
