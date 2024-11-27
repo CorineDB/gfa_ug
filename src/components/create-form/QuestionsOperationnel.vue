@@ -135,6 +135,7 @@ onMounted(getDatas);
         <label class="form-check-label" for="question">Modifier/Supprimer</label>
       </div> -->
       <input type="text" class="form-control form-control-sm max-w-[300px]" placeholder="Rechercher..." v-model="search" />
+      <button class="text-sm btn btn-primary" @click="getDatas"><RotateCcwIcon class="mr-1 size-4" /></button>
       <button class="text-sm btn btn-primary" @click="openCreateModal"><PlusIcon class="mr-1 size-4" />Ajouter</button>
     </div>
 
@@ -145,7 +146,7 @@ onMounted(getDatas);
           <input :id="`${data.id}${index}`" @change="choiceOption(data)" class="form-check-input" type="radio" name="question" :value="data.id" v-model="idChecked" />
           <label class="form-check-label" :for="`${data.id}${index}`">{{ data.nom }}</label>
         </div>
-        <div v-if="data.id !== idChecked" class="flex items-center gap-1 transition-all space-x-1 opacity-0 container-buttons">
+        <div v-if="data.id !== idChecked" class="flex items-center gap-1 space-x-1 transition-all opacity-0 container-buttons">
           <button class="p-1.5 text-primary" @click="handleEdit(data)">
             <Edit3Icon class="size-5" />
           </button>

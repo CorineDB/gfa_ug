@@ -159,12 +159,13 @@ onMounted(getDatas);
 <template>
   <div>
     <!-- Button to open modal -->
-    <div class="flex items-center gap-2 justify-between mb-4">
+    <div class="flex items-center justify-between gap-2 mb-4">
       <!-- <div class="form-check form-switch">
         <input id="response" class="form-check-input" type="checkbox" v-model="isEditOrDelete" />
         <label class="form-check-label" for="response">Modifier/Supprimer</label>
       </div> -->
       <input type="text" class="form-control form-control-sm max-w-[300px]" placeholder="Rechercher..." v-model="search" />
+      <button class="text-sm btn btn-primary" @click="getDatas"><RotateCcwIcon class="mr-1 size-4" /></button>
       <button class="text-sm btn btn-primary" @click="openCreateModal"><PlusIcon class="mr-1 size-4" />Ajouter</button>
     </div>
 
