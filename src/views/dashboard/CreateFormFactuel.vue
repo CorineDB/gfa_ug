@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeUnmount, reactive, ref, computed } from "vue";
+import { onBeforeUnmount, reactive, ref, computed, onMounted } from "vue";
 import { toast } from "vue3-toastify";
 import OptionsResponse from "@/components/create-form/OptionsResponse.vue";
 import TypeGouvernance from "@/components/create-form/TypeGouvernance.vue";
@@ -15,6 +15,7 @@ import PreviewFactuelForm from "@/components/create-form/PreviewFactuelForm.vue"
 import { getAllErrorMessages } from "@/utils/gestion-error";
 import ListFormFactuel from "@/components/create-form/ListFormFactuel.vue";
 import ListOptionsResponse from "@/components/create-form/ListOptionsResponse.vue";
+import DeleteButton from "@/components/news/DeleteButton.vue";
 
 const tabs = [
   {
@@ -34,6 +35,7 @@ const modalForm = ref(false);
 const isLoadingForm = ref(false);
 const resetOptions = ref(false);
 const fetchListForms = ref(false);
+const showDeleteForm = ref(false);
 const previewFormFactuelData = ref([]);
 const globalFormFactuelData = ref([]);
 const previewTypesGouvernance = ref({});
@@ -42,6 +44,8 @@ const previewOptionResponses = ref({ options_de_reponse: [] });
 const globalOptionResponses = ref({ options_de_reponse: [] });
 const typesGouvernance = ref({ types_de_gouvernance: [] });
 const uniqueKeys = new Map();
+const globalData = localStorage.getItem("globalFormFactuelData");
+const previewData = localStorage.getItem("previewFormFactuelData");
 
 const isAvailable = reactive({
   option: true,
@@ -173,6 +177,7 @@ const resetAllForm = () => {
   // resetCurrentForm.value = !resetCurrentForm.value;
   // globalOptionResponses.value.options_de_reponse = [];
   // principesGouvernance.value.principes_de_gouvernance = [];
+  // previewOptionResponses.value.options_de_reponse = [];
   // globalTypesGouvernance.value.types_de_gouvernance = [];
   // previewTypesGouvernance.value.types_de_gouvernance = [];
   globalFormFactuelData.value = [];
@@ -219,6 +224,8 @@ const addNewIndicator = () => {
     globalFormFactuelData.value.unshift({ ...currentGlobalFactuelFormData });
     previewFormFactuelData.value.unshift(JSON.parse(JSON.stringify(currentPreviewFactuelFormData)));
     uniqueKeys.set(key, true);
+    localStorage.setItem("globalFormFactuelData", JSON.stringify(globalFormFactuelData.value));
+    localStorage.setItem("previewFormFactuelData", JSON.stringify(previewFormFactuelData.value));
     // console.log("global:", globalFormFactuelData.value);
     // console.log("preview:", previewFormFactuelData.value);
     updateAllTypesGouvernance();
@@ -240,6 +247,8 @@ const removeIndicator = (indicateur) => {
     previewFormFactuelData.value.splice(index, 1);
     uniqueKeys.delete(key);
     updateAllTypesGouvernance();
+    localStorage.setItem("globalFormFactuelData", JSON.stringify(globalFormFactuelData.value));
+    localStorage.setItem("previewFormFactuelData", JSON.stringify(previewFormFactuelData.value));
     toast.success("Indicateur supprimé.");
     // console.log("Nouvelle Global:", globalFormFactuelData.value);
     // console.log("Nouvelle preview:", previewFormFactuelData.value);
@@ -247,6 +256,16 @@ const removeIndicator = (indicateur) => {
 };
 const clearUniqueKeys = () => {
   uniqueKeys.clear(); // Supprime toutes les clés de uniqueKeys
+};
+const resetAllFormWithDataLocalStorage = () => {
+  resetAllForm();
+  clearUniqueKeys();
+  localStorage.removeItem("globalFormFactuelData");
+  localStorage.removeItem("previewFormFactuelData");
+  localStorage.removeItem("previewOptionResponsesModel");
+  localStorage.removeItem("globalOptionResponses");
+  showDeleteForm.value = false;
+  // toast.success("Formulaire supprimé.");
 };
 
 const resetForm = () => {
@@ -259,7 +278,8 @@ const createForm = async () => {
     await FormulaireFactuel.create(payload);
     toast.success(`Formulaire créé avec succès.`);
     fetchListForms.value = !fetchListForms.value;
-    resetForm();
+    // resetForm();
+    resetAllFormWithDataLocalStorage();
     clearUniqueKeys();
     // resetAllForm();
   } catch (e) {
@@ -287,6 +307,16 @@ const showForm = computed(() => {
 
 onBeforeUnmount(() => {
   clearUniqueKeys();
+});
+
+onMounted(() => {
+  if (globalData && previewData) {
+    globalFormFactuelData.value = JSON.parse(globalData);
+    previewFormFactuelData.value = JSON.parse(previewData);
+    // previewOptionResponsesModel.value = JSON.parse(localStorage.getItem("previewOptionResponsesModel"));
+    // globalOptionResponses.value = JSON.parse(localStorage.getItem("globalOptionResponses"));
+  }
+  updateAllTypesGouvernance();
 });
 </script>
 
@@ -353,6 +383,7 @@ onBeforeUnmount(() => {
         </TabList>
         <TabPanels class="mt-5">
           <TabPanel class="leading-relaxed">
+            <div class="flex items-end justify-end"><button @click="showDeleteForm = true" class="btn btn-outline-danger">Supprimer le formulaire</button></div>
             <div class="flex flex-col gap-8">
               <div class="space-y-2">
                 <p class="text-lg font-medium">Liste des options de réponses</p>
@@ -413,6 +444,19 @@ onBeforeUnmount(() => {
     </form>
   </Modal>
   <!-- END: Modal Content -->
+  <!-- Modal for deleting -->
+  <Modal :show="showDeleteForm" @hidden="showDeleteForm = false">
+    <ModalBody class="p-0">
+      <div class="p-5 text-center">
+        <XCircleIcon class="w-16 h-16 mx-auto mt-3 text-danger" />
+        <div class="mt-2 text-slate-500">Netoyer le formulaire?</div>
+      </div>
+      <div class="flex justify-center gap-3 py-4">
+        <button type="button" @click="showDeleteForm = false" class="btn btn-outline-secondary">Annuler</button>
+        <DeleteButton @click="resetAllFormWithDataLocalStorage" />
+      </div>
+    </ModalBody>
+  </Modal>
 </template>
 
 <style>

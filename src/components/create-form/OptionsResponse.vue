@@ -27,6 +27,8 @@ const isEditOrDelete = ref(false);
 const globalOptionResponses = defineModel("globalOptionResponses");
 const previewOptionResponsesModel = defineModel("previewOptionResponses");
 const datas = ref([]);
+const previewData = localStorage.getItem("previewOptionResponsesModel");
+const globalData = localStorage.getItem("globalOptionResponses");
 
 // Fetch data
 const getDatas = async () => {
@@ -117,14 +119,23 @@ function updateTemporyOption(id, point) {
   } else {
     globalOptionResponses.value.options_de_reponse.push({ id, point });
   }
+  localStorage.setItem("globalOptionResponses", JSON.stringify(globalOptionResponses.value));
 }
 function removeTemporyOption(id) {
   globalOptionResponses.value.options_de_reponse = globalOptionResponses.value.options_de_reponse.filter((option) => option.id !== id);
+  localStorage.setItem("globalOptionResponses", JSON.stringify(globalOptionResponses.value));
 }
 
 const modeText = computed(() => (isCreate.value ? "Ajouter" : "Modifier"));
 const filterData = computed(() => datas.value.filter((data) => data.libelle.toLowerCase().includes(search.value.toLowerCase())));
 
+const refresh = () => {
+  previewOptionResponsesModel.value.options_de_reponse = globalOptionResponses.value.options_de_reponse.map((option) => ({
+    id: option.id,
+    point: option.point,
+    libelle: getLibelleById(option.id),
+  }));
+};
 watch(
   () => globalOptionResponses.value.options_de_reponse,
   (newOptions) => {
@@ -133,6 +144,7 @@ watch(
       point: option.point,
       libelle: getLibelleById(option.id),
     }));
+    localStorage.setItem("previewOptionResponsesModel", JSON.stringify(previewOptionResponsesModel.value));
   },
   { deep: true }
 );
@@ -153,7 +165,18 @@ watch(
 );
 
 // Fetch data on component mount
-onMounted(getDatas);
+onMounted(async () => {
+  await getDatas();
+  if (previewData && globalData) {
+    setTimeout(() => {
+      globalOptionResponses.value = JSON.parse(globalData);
+      previewOptionResponsesModel.value = JSON.parse(previewData);
+      setTimeout(() => {
+        idChecked.value = globalOptionResponses.value.options_de_reponse.map((option) => option.id);
+      }, 100);
+    }, 100);
+  }
+});
 </script>
 
 <template>
