@@ -42,6 +42,7 @@ const formulairesFactuel = ref([]);
 const formulairesPerception = ref([]);
 
 const createData = async () => {
+  payload.formulaires_de_gouvernance = [idFormFactuel.value, idFormPerception.value];
   isLoading.value = true;
   await EnqueteDeColleteService.create(payload)
     .then(() => {
