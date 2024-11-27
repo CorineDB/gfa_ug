@@ -76,6 +76,8 @@ import CadreMesure from "../views/dashboard/CadreMesure.vue";
 import ActionsMener from "../views/dashboard/actionsMener.vue";
 import SuiviIndicateur from "../views/dashboard/indicateurs/SuiviIndicateur.vue";
 import DetailSuivi from "../views/dashboard/indicateurs/DetailSuivi.vue";
+import UpdateFormPerception from "../views/dashboard/UpdateFormPerception.vue";
+import UpdateFormFactuel from "../views/dashboard/UpdateFormFactuel.vue";
 
 const routes = [
   {
@@ -208,6 +210,16 @@ const routes = [
         path: "create-perception",
         name: "create_form_perception",
         component: CreateFormPerception,
+      },
+      {
+        path: "update-perception/:id",
+        name: "update_form_perception",
+        component: UpdateFormPerception,
+      },
+      {
+        path: "update-factuel/:id",
+        name: "update_form_factuel",
+        component: UpdateFormFactuel,
       },
       {
         path: "pta/:ongId",

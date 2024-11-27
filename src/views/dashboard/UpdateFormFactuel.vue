@@ -2,18 +2,21 @@
 import { onBeforeUnmount, reactive, ref, computed, onMounted } from "vue";
 import { toast } from "vue3-toastify";
 import OptionsResponse from "@/components/create-form/OptionsResponse.vue";
+import TypeGouvernance from "@/components/create-form/TypeGouvernance.vue";
 import PrincipeGouvernance from "@/components/create-form/PrincipeGouvernance.vue";
-import QuestionsOperationnel from "@/components/create-form/QuestionsOperationnel.vue";
-import PerceptionStructure from "@/components/create-form/PerceptionStructure.vue";
-import ListAccordionQuestion from "@/components/create-form/ListAccordionQuestion.vue";
+import CritereGouvernance from "@/components/create-form/CritereGouvernance.vue";
+import IndicateurGouvernance from "@/components/create-form/IndicateurGouvernance.vue";
+import FactuelStructure from "@/components/create-form/FactuelStructure.vue";
+import ListAccordionIndicateur from "@/components/create-form/ListAccordionIndicateur.vue";
 import VButton from "@/components/news/VButton.vue";
 import InputForm from "@/components/news/InputForm.vue";
 import FormulaireFactuel from "@/services/modules/formFactuel.service";
-import PreviewPerceptionForm from "@/components/create-form/PreviewPerceptionForm.vue";
+import PreviewFactuelForm from "@/components/create-form/PreviewFactuelForm.vue";
 import { getAllErrorMessages } from "@/utils/gestion-error";
-import ListFormPerception from "@/components/create-form/ListFormPerception.vue";
+import ListFormFactuel from "@/components/create-form/ListFormFactuel.vue";
 import ListOptionsResponse from "@/components/create-form/ListOptionsResponse.vue";
 import DeleteButton from "@/components/news/DeleteButton.vue";
+
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
 import { useRoute, useRouter } from "vue-router";
 
@@ -26,42 +29,49 @@ const indexAccordion = ref(0);
 const resetCurrentForm = ref(false);
 const modalForm = ref(false);
 const isLoadingForm = ref(false);
-const fetchListForms = ref(false);
 const resetOptions = ref(false);
+const fetchListForms = ref(false);
 const showDeleteForm = ref(false);
 const isLoadingOneForm = ref(false);
-const previewFormPerceptionData = ref([]);
-const globalFormPerceptionData = ref([]);
-const previewPrincipesGouvernance = ref({});
-const globalPrincipesGouvernance = ref({});
+const previewFormFactuelData = ref([]);
+const globalFormFactuelData = ref([]);
+const previewTypesGouvernance = ref({});
+const globalTypesGouvernance = ref({});
 const currentForm = ref({});
-const globalOptionResponses = ref({ options_de_reponse: [] });
 const previewOptionResponses = ref({ options_de_reponse: [] });
-const principesGouvernance = ref({ principes_de_gouvernance: [] });
+const globalOptionResponses = ref({ options_de_reponse: [] });
+const typesGouvernance = ref({ types_de_gouvernance: [] });
 const uniqueKeys = new Map();
-const globalData = localStorage.getItem("globalFormPerceptionData");
-const previewData = localStorage.getItem("previewFormPerceptionData");
+const globalData = localStorage.getItem("globalFormFactuelData");
+const previewData = localStorage.getItem("previewFormFactuelData");
 
 const isAvailable = reactive({
   option: true,
+  type: true,
   principe: true,
+  critere: true,
   indicateur: true,
+  question: true,
 });
 
 const payload = reactive({
   libelle: "",
   annee_exercice: new Date().getFullYear(),
-  type: "perception",
-  perception: { options_de_reponse: globalOptionResponses.value.options_de_reponse, principes_de_gouvernance: principesGouvernance.value.principes_de_gouvernance },
+  type: "factuel",
+  factuel: { options_de_reponse: globalOptionResponses.value.options_de_reponse, types_de_gouvernance: typesGouvernance.value.types_de_gouvernance },
 });
 
-const currentPreviewPerceptionFormData = reactive({
+const currentPreviewFactuelFormData = reactive({
+  type: { id: "", nom: "" },
   principe: { id: "", nom: "" },
+  critere: { id: "", nom: "" },
   indicateur: { id: "", nom: "" },
 });
 
-const currentGlobalPerceptionFormData = reactive({
+const currentGlobalFactuelFormData = reactive({
+  type: "",
   principe: "",
+  critere: "",
   indicateur: "",
 });
 
@@ -70,52 +80,12 @@ const generateKey = (id) => {
   return `${id}`;
 };
 
-const organiseGlobalFormPerceptionData = (submissions) => {
-  // const organisedData = { principes_de_gouvernance: [] };
-
-  submissions.forEach((submission) => {
-    // Trouver ou créer le principe de gouvernance
-    let principe = principesGouvernance.value.principes_de_gouvernance.find((p) => p.id === submission.principe);
-    if (!principe) {
-      principe = { id: submission.principe, questions_operationnelle: [] };
-      principesGouvernance.value.principes_de_gouvernance.push(principe);
-    }
-
-    // Ajouter l'indicateur de gouvernance s'il n'est pas déjà présent
-    if (!principe.questions_operationnelle.includes(submission.indicateur)) {
-      principe.questions_operationnelle.push(submission.indicateur);
-    }
-  });
-
-  return principesGouvernance.value;
-};
-const organisePreviewFormPerceptionData = (submissions) => {
-  const organisedData = { principes_de_gouvernance: [] };
-
-  submissions.forEach((submission) => {
-    // Trouver ou créer le principe de gouvernance
-    let principe = organisedData.principes_de_gouvernance.find((p) => p.id === submission.principe.id);
-    if (!principe) {
-      principe = { id: submission.principe.id, nom: submission.principe.nom, questions_operationnelle: [] };
-      organisedData.principes_de_gouvernance.push(principe);
-    }
-
-    // Trouver ou créer l'indicateur de gouvernance
-    let indicateur = principe.questions_operationnelle.find((i) => i.id === submission.indicateur.id);
-    if (!indicateur) {
-      indicateur = { id: submission.indicateur.id, nom: submission.indicateur.nom };
-      principe.questions_operationnelle.push(indicateur);
-    }
-  });
-
-  return organisedData;
-};
-function organiseUpdateFormGlobal(submissions) {
+const organiseGlobalFormFactuelData = (submissions) => {
   submissions.forEach((submission) => {
     // Trouver ou créer le type de gouvernance
     let type = typesGouvernance.value.types_de_gouvernance.find((t) => t.id === submission.type);
     if (!type) {
-      type = { id: submission.id, principes_de_gouvernance: [] };
+      type = { id: submission.type, principes_de_gouvernance: [] };
       typesGouvernance.value.types_de_gouvernance.push(type);
     }
 
@@ -140,14 +110,61 @@ function organiseUpdateFormGlobal(submissions) {
   });
 
   return typesGouvernance.value;
-}
-function setKeyForUpdate(principeCurrent) {
+};
+const organisePreviewFormFactuelData = (submissions) => {
+  const organisedData = { types_de_gouvernance: [] };
+
+  submissions.forEach((submission) => {
+    // Trouver ou créer le type de gouvernance
+    let type = organisedData.types_de_gouvernance.find((t) => t.id === submission.type.id);
+    if (!type) {
+      type = { id: submission.type.id, nom: submission.type.nom, principes_de_gouvernance: [] };
+      organisedData.types_de_gouvernance.push(type);
+    }
+
+    // Assurer que principes_de_gouvernance est un tableau
+    type.principes_de_gouvernance = type.principes_de_gouvernance || [];
+
+    // Trouver ou créer le principe de gouvernance
+    let principe = type.principes_de_gouvernance.find((p) => p.id === submission.principe.id);
+    if (!principe) {
+      principe = { id: submission.principe.id, nom: submission.principe.nom, criteres_de_gouvernance: [] };
+      type.principes_de_gouvernance.push(principe);
+    }
+
+    // Assurer que criteres_de_gouvernance est un tableau
+    principe.criteres_de_gouvernance = principe.criteres_de_gouvernance || [];
+
+    // Trouver ou créer le critère de gouvernance
+    let critere = principe.criteres_de_gouvernance.find((c) => c.id === submission.critere.id);
+    if (!critere) {
+      critere = { id: submission.critere.id, nom: submission.critere.nom, indicateurs_de_gouvernance: [] };
+      principe.criteres_de_gouvernance.push(critere);
+    }
+
+    // Assurer que indicateurs_de_gouvernance est un tableau
+    critere.indicateurs_de_gouvernance = critere.indicateurs_de_gouvernance || [];
+
+    // Trouver ou créer l'indicateur de gouvernance
+    let indicateur = critere.indicateurs_de_gouvernance.find((i) => i.id === submission.indicateur.id);
+    if (!indicateur) {
+      indicateur = { id: submission.indicateur.id, nom: submission.indicateur.nom };
+      critere.indicateurs_de_gouvernance.push(indicateur);
+    }
+  });
+
+  return organisedData;
+};
+
+function organiseUpdateFormGlobal(principeCurrent) {
   return principeCurrent.flatMap((principe) =>
-    principe.questions_de_gouvernance.forEach((question) => {
-      uniqueKeys.set(question.question_operationnelle.id, true);
-    })
+    principe.questions_de_gouvernance.map((question) => ({
+      principe: principe.id,
+      indicateur: question.question_operationnelle.id,
+    }))
   );
 }
+
 function organiseUpdateFormPreview(principeCurrent) {
   return principeCurrent.flatMap((principe) =>
     principe.questions_de_gouvernance.map((question) => ({
@@ -163,38 +180,49 @@ function organiseUpdateFormPreview(principeCurrent) {
   );
 }
 
+function setKeyForUpdate(principeCurrent) {
+  return principeCurrent.flatMap((principe) =>
+    principe.questions_de_gouvernance.forEach((question) => {
+      uniqueKeys.set(question.question_operationnelle.id, true);
+    })
+  );
+}
+
 function matchDataUpdateWithCurrentDatas(principeCurrent) {
-  globalFormPerceptionData.value = organiseUpdateFormGlobal(principeCurrent);
-  previewFormPerceptionData.value = organiseUpdateFormPreview(principeCurrent);
+  globalFormFactuelData.value = organiseUpdateFormGlobal(principeCurrent);
+  previewFormFactuelData.value = organiseUpdateFormPreview(principeCurrent);
   setKeyForUpdate(principeCurrent);
 }
+
 const resetCurrentPreviewFactuelFormData = () => {
-  for (const key in currentPreviewPerceptionFormData) {
-    currentPreviewPerceptionFormData[key] = { id: "", nom: "" };
-  }
-  // currentPreviewPerceptionFormData.indicateur = { id: "", nom: "" };
+  // for (const key in currentPreviewFactuelFormData) {
+  //   currentPreviewFactuelFormData[key] = { id: "", nom: "" };
+  // }
+  currentPreviewFactuelFormData.indicateur = { id: "", nom: "" };
 };
 const resetCurrentGlobalFactuelFormData = () => {
-  Object.keys(currentGlobalPerceptionFormData).forEach((key) => {
-    currentGlobalPerceptionFormData[key] = "";
-  });
-  // currentGlobalPerceptionFormData.indicateur = "";
+  // Object.keys(currentGlobalFactuelFormData).forEach((key) => {
+  //   currentGlobalFactuelFormData[key] = "";
+  // });
+  currentGlobalFactuelFormData.indicateur = "";
 };
 const resetAllForm = () => {
   resetCurrentGlobalFactuelFormData();
   resetCurrentPreviewFactuelFormData();
-  resetOptions.value = !resetOptions.value;
-  resetCurrentForm.value = !resetCurrentForm.value;
-  globalOptionResponses.value.options_de_reponse = [];
-  previewOptionResponses.value.options_de_reponse = [];
-  principesGouvernance.value.principes_de_gouvernance = [];
-  globalFormPerceptionData.value = [];
-  previewFormPerceptionData.value = [];
+  // resetOptions.value = !resetOptions.value;
+  // resetCurrentForm.value = !resetCurrentForm.value;
+  // globalOptionResponses.value.options_de_reponse = [];
+  // principesGouvernance.value.principes_de_gouvernance = [];
+  // previewOptionResponses.value.options_de_reponse = [];
+  // globalTypesGouvernance.value.types_de_gouvernance = [];
+  // previewTypesGouvernance.value.types_de_gouvernance = [];
+  globalFormFactuelData.value = [];
+  previewFormFactuelData.value = [];
 };
 
 const updateAllTypesGouvernance = () => {
-  globalPrincipesGouvernance.value = organiseGlobalFormPerceptionData(globalFormPerceptionData.value);
-  previewPrincipesGouvernance.value = organisePreviewFormPerceptionData(previewFormPerceptionData.value);
+  globalTypesGouvernance.value = organiseGlobalFormFactuelData(globalFormFactuelData.value);
+  previewTypesGouvernance.value = organisePreviewFormFactuelData(previewFormFactuelData.value);
   // console.log("GLOBAL", globalTypesGouvernance.value);
   // console.log("PREVIEW", previewTypesGouvernance.value);
 };
@@ -203,26 +231,37 @@ const changeIndexAccordion = (index) => {
   indexAccordion.value = index;
 };
 
-const getPrincipe = (principe) => {
+const getType = (type) => {
   changeIndexAccordion(1);
-  currentGlobalPerceptionFormData.principe = principe.id;
-  currentPreviewPerceptionFormData.principe = { id: principe.id, nom: principe.nom };
+  currentGlobalFactuelFormData.type = type.id;
+  currentPreviewFactuelFormData.type = { id: type.id, nom: type.nom };
 };
-
-const getQuestion = (question) => {
+const getPrincipe = (principe) => {
+  changeIndexAccordion(4);
+  currentGlobalFactuelFormData.principe = principe.id;
+  currentPreviewFactuelFormData.principe = { id: principe.id, nom: principe.nom };
+};
+const getCritere = (critere) => {
+  changeIndexAccordion(3);
+  currentGlobalFactuelFormData.critere = critere.id;
+  currentPreviewFactuelFormData.critere = { id: critere.id, nom: critere.nom };
+};
+const getIndicateur = (indicateur) => {
   changeIndexAccordion(2);
-  currentGlobalPerceptionFormData.indicateur = question.id;
-  currentPreviewPerceptionFormData.indicateur = { id: question.id, nom: question.nom };
+  currentGlobalFactuelFormData.indicateur = indicateur.id;
+  currentPreviewFactuelFormData.indicateur = { id: indicateur.id, nom: indicateur.nom };
 };
 
 const addNewIndicator = () => {
-  const key = generateKey(currentGlobalPerceptionFormData.indicateur);
+  const key = generateKey(currentGlobalFactuelFormData.indicateur);
 
   // Ajouter la soumission si la clé est absente
   if (!uniqueKeys.has(key)) {
-    globalFormPerceptionData.value.unshift({ ...currentGlobalPerceptionFormData });
-    previewFormPerceptionData.value.unshift(JSON.parse(JSON.stringify(currentPreviewPerceptionFormData)));
+    globalFormFactuelData.value.unshift({ ...currentGlobalFactuelFormData });
+    previewFormFactuelData.value.unshift(JSON.parse(JSON.stringify(currentPreviewFactuelFormData)));
     uniqueKeys.set(key, true);
+    localStorage.setItem("globalFormFactuelData", JSON.stringify(globalFormFactuelData.value));
+    localStorage.setItem("previewFormFactuelData", JSON.stringify(previewFormFactuelData.value));
     // console.log("global:", globalFormFactuelData.value);
     // console.log("preview:", previewFormFactuelData.value);
     updateAllTypesGouvernance();
@@ -237,14 +276,15 @@ const addNewIndicator = () => {
 const removeIndicator = (indicateur) => {
   const key = generateKey(indicateur.id);
   // Trouver l'index de la soumission à supprimer
-  const index = globalFormPerceptionData.value.findIndex((s) => s.indicateur === indicateur.id);
+  const index = globalFormFactuelData.value.findIndex((s) => s.indicateur === indicateur.id);
   // Supprimer la soumission et sa clé si elle est trouvée
   if (index !== -1) {
-    globalFormPerceptionData.value.splice(index, 1);
-    previewFormPerceptionData.value.splice(index, 1);
+    globalFormFactuelData.value.splice(index, 1);
+    previewFormFactuelData.value.splice(index, 1);
     uniqueKeys.delete(key);
     updateAllTypesGouvernance();
-
+    localStorage.setItem("globalFormFactuelData", JSON.stringify(globalFormFactuelData.value));
+    localStorage.setItem("previewFormFactuelData", JSON.stringify(previewFormFactuelData.value));
     toast.success("Indicateur supprimé.");
     // console.log("Nouvelle Global:", globalFormFactuelData.value);
     // console.log("Nouvelle preview:", previewFormFactuelData.value);
@@ -256,6 +296,10 @@ const clearUniqueKeys = () => {
 const resetAllFormWithDataLocalStorage = () => {
   resetAllForm();
   clearUniqueKeys();
+  localStorage.removeItem("globalFormFactuelData");
+  localStorage.removeItem("previewFormFactuelData");
+  localStorage.removeItem("previewOptionResponsesModel");
+  localStorage.removeItem("globalOptionResponses");
   showDeleteForm.value = false;
   // toast.success("Formulaire supprimé.");
 };
@@ -264,13 +308,12 @@ const resetForm = () => {
   payload.libelle = "";
   modalForm.value = false;
 };
-
 const getOneForm = async () => {
   isLoadingOneForm.value = true;
   try {
     const { data } = await FormulaireFactuel.getOne(idForm);
     currentForm.value = data.data;
-    matchDataUpdateWithCurrentDatas(currentForm.value.categories_de_gouvernance);
+    // matchDataUpdateWithCurrentDatas(currentForm.value.categories_de_gouvernance);
     payload.libelle = currentForm.value.libelle;
     payload.annee_exercice = currentForm.value.annee_exercice;
   } catch (e) {
@@ -284,12 +327,12 @@ const updateForm = async () => {
   isLoadingForm.value = true;
   try {
     await FormulaireFactuel.update(idForm, payload);
-    toast.success(`Formulaire Modifiée avec succès.`);
+    toast.success(`Formulaire modifiée avec succès.`);
     fetchListForms.value = !fetchListForms.value;
     clearUniqueKeys();
     resetAllForm();
     modalForm.value = false;
-    router.push({ name: "create_form_perception", query: { tab: 1 } });
+    router.push({ name: "create_form_factuel", query: { tab: 1 } });
   } catch (e) {
     toast.error(getAllErrorMessages(e));
     console.log(e);
@@ -306,11 +349,11 @@ const previewForm = () => {
 };
 
 const isCurrentFormValid = computed(() => {
-  return Object.values(currentPreviewPerceptionFormData).every((value) => value.id.trim() !== "");
+  return Object.values(currentPreviewFactuelFormData).every((value) => value.id.trim() !== "");
 });
 
 const showForm = computed(() => {
-  return globalFormPerceptionData.value.length > 0;
+  return globalFormFactuelData.value.length > 0;
 });
 
 onBeforeUnmount(() => {
@@ -333,27 +376,47 @@ onMounted(async () => {
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <OptionsResponse :reset-to="resetOptions" :is-update="true" :id-form="idForm" v-model:previewOptionResponses="previewOptionResponses" v-model:globalOptionResponses="globalOptionResponses" />
+            <OptionsResponse :is-reset="resetOptions" :is-update="true" :id-form="idForm" v-model:previewOptionResponses="previewOptionResponses" v-model:globalOptionResponses="globalOptionResponses" />
           </AccordionPanel>
         </AccordionItem>
 
         <AccordionItem>
           <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
-            <p>Questions opérationnelles</p>
+            <p>Indicateurs de gouvernance</p>
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <QuestionsOperationnel :to-reset="resetCurrentForm" :is-available="isAvailable.indicateur" @selected="getQuestion" />
+            <IndicateurGouvernance :to-reset="resetCurrentForm" :is-available="isAvailable.indicateur" @selected="getIndicateur" />
           </AccordionPanel>
         </AccordionItem>
 
-        <AccordionItem>
+        <AccordionItem class="">
+          <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
+            <p>Critères de gouvernance</p>
+            <ChevronDownIcon />
+          </Accordion>
+          <AccordionPanel class="p-2">
+            <CritereGouvernance :to-reset="false" :is-available="isAvailable.critere" @selected="getCritere" />
+          </AccordionPanel>
+        </AccordionItem>
+
+        <AccordionItem class="">
           <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
             <p>Principe de gouvernance</p>
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <PrincipeGouvernance :to-reset="resetCurrentForm" :is-available="isAvailable.principe" @selected="getPrincipe" />
+            <PrincipeGouvernance :to-reset="false" :is-available="isAvailable.principe" @selected="getPrincipe" />
+          </AccordionPanel>
+        </AccordionItem>
+
+        <AccordionItem class="">
+          <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
+            <p>Type de gouvernance</p>
+            <ChevronDownIcon />
+          </Accordion>
+          <AccordionPanel class="p-2">
+            <TypeGouvernance :to-reset="false" :is-available="isAvailable.type" @selected="getType" />
           </AccordionPanel>
         </AccordionItem>
       </AccordionGroup>
@@ -372,14 +435,14 @@ onMounted(async () => {
                 <ListOptionsResponse :options="previewOptionResponses.options_de_reponse" />
               </div>
               <div class="space-y-2">
-                <p class="text-lg font-medium">Ajouter des questions opérationnelles</p>
-                <PerceptionStructure :principe="currentPreviewPerceptionFormData.principe.nom" :indicateur="currentPreviewPerceptionFormData.indicateur.nom" />
+                <p class="text-lg font-medium">Ajouter des indicateurs</p>
+                <FactuelStructure :type="currentPreviewFactuelFormData.type.nom" :principe="currentPreviewFactuelFormData.principe.nom" :critere="currentPreviewFactuelFormData.critere.nom" :indicateur="currentPreviewFactuelFormData.indicateur.nom" />
                 <button :disabled="!isCurrentFormValid" @click="addNewIndicator" class="my-4 text-sm btn btn-primary"><PlusIcon class="mr-1 size-4" />Ajouter</button>
               </div>
               <div v-if="!isLoadingOneForm" class="space-y-2">
-                <p class="text-lg font-medium">Liste des questions opérationnelles</p>
+                <p class="text-lg font-medium">Liste des indicateurs</p>
                 <div class="max-h-[25vh] h-[25vh] py-2 border-t overflow-y-auto">
-                  <ListAccordionQuestion :indicateurs-array="previewFormPerceptionData" @remove="removeIndicator" />
+                  <ListAccordionIndicateur :indicateurs-array="previewFormFactuelData" @remove="removeIndicator" />
                 </div>
                 <div class="flex justify-start py-2">
                   <button :disabled="!showForm" @click="previewForm" class="px-5 text-base btn btn-primary"><CheckIcon class="mr-1 size-5" />Prévisualiser le formumlaire</button>
@@ -411,8 +474,8 @@ onMounted(async () => {
           <ListOptionsResponse :options="previewOptionResponses.options_de_reponse" />
         </div>
         <div class="max-h-[50vh] h-[50vh] overflow-y-auto">
-          <p class="mb-3">Formulaire de perception</p>
-          <PreviewPerceptionForm :principes="previewPrincipesGouvernance.principes_de_gouvernance" />
+          <p class="mb-3">Formulaire factuel</p>
+          <PreviewFactuelForm :types-gouvernance="previewTypesGouvernance.types_de_gouvernance" />
         </div>
       </ModalBody>
       <ModalFooter>
@@ -433,9 +496,5 @@ onMounted(async () => {
 
 .accordion .accordion-item:first-child {
   margin-top: 0 !important;
-}
-
-.Toastify__toast-container {
-  z-index: 200000 !important;
 }
 </style>

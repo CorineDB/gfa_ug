@@ -21,8 +21,8 @@ const FormulaireFactuel = {
     return ApiService.post(`gfa/formulaires-de-gouvernance`, payload);
   },
 
-  update(slug, params) {
-    return ApiService.update("gfa/formulaires-de-gouvernance", slug, params);
+  update(id, payload) {
+    return ApiService.update(`gfa/formulaires-de-gouvernance/${id}`, payload);
   },
 
   destroy(id) {

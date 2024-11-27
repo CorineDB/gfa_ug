@@ -14,7 +14,9 @@ import { getAllErrorMessages } from "@/utils/gestion-error";
 import ListFormPerception from "@/components/create-form/ListFormPerception.vue";
 import ListOptionsResponse from "@/components/create-form/ListOptionsResponse.vue";
 import DeleteButton from "@/components/news/DeleteButton.vue";
+import { useRoute } from "vue-router";
 
+const route = useRoute();
 const tabs = [
   {
     label: "FORMULAIRE DE PERCEPTION",
@@ -227,7 +229,7 @@ const createForm = async () => {
     // resetForm();
     resetAllFormWithDataLocalStorage();
     clearUniqueKeys();
-    resetAllForm();
+    modalForm.value = false;
   } catch (e) {
     toast.error(getAllErrorMessages(e));
     console.log(e);
@@ -256,6 +258,7 @@ onBeforeUnmount(() => {
 });
 
 onMounted(() => {
+  if (route.query.tab) currentTab.value = Number(route.query.tab);
   if (globalData && previewData) {
     globalFormPerceptionData.value = JSON.parse(globalData);
     previewFormPerceptionData.value = JSON.parse(previewData);

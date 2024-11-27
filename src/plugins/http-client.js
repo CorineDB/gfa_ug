@@ -116,10 +116,10 @@ httpClient.interceptors.response.use(
   (error) => {
     if (error.response && error.response.status === 401) {
       // Supprimez "authenticated" && access_token de localStorage
-      // localStorage.removeItem("authenticateUser");
-      // localStorage.removeItem("access_token");
+      localStorage.removeItem("authenticateUser");
+      localStorage.removeItem("access_token");
       // // Redirigez vers "/"
-      // window.location.href = "/";
+      window.location.href = "/";
     }
 
     return Promise.reject(error);

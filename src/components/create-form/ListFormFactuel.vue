@@ -7,11 +7,13 @@ import FormulaireFactuel from "@/services/modules/formFactuel.service";
 import PreviewDetailFactuelForm from "@/components/create-form/PreviewDetailFactuelForm.vue";
 import DeleteButton from "@/components/news/DeleteButton.vue";
 import ListOptionsResponse from "@/components/create-form/ListOptionsResponse.vue";
+import { useRouter } from "vue-router";
 
 const prop = defineProps({
   fetchData: Boolean,
 });
 
+const router = useRouter();
 const tabulator = ref();
 const isLoading = ref(false);
 const isLoadingOneForm = ref(false);
@@ -98,15 +100,19 @@ const initTabulator = () => {
             return button;
           };
 
-          const modifyButton = createButton("Voir", "btn btn-primary", () => {
+          const previewButton = createButton("Voir", "btn btn-primary", () => {
             handlepreview(cell.getData());
+          });
+
+          const modifyButton = createButton("Modifier", "btn btn-pending", () => {
+            handleModify(cell.getData());
           });
 
           const deleteButton = createButton("Supprimer", "btn btn-danger", () => {
             handleDelete(cell.getData());
           });
 
-          container.append(modifyButton, deleteButton);
+          container.append(previewButton, modifyButton, deleteButton);
 
           return container;
         },
@@ -124,6 +130,10 @@ const handleDelete = (params) => {
   idSelectedForm.value = params.id;
   nameSelect.value = params.libelle;
   showModalDelete.value = true;
+};
+
+const handleModify = (params) => {
+  router.push({ name: "update_form_factuel", params: { id: params.id } });
 };
 
 const cancelDelete = () => {

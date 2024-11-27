@@ -7,9 +7,18 @@ import DeleteButton from "@/components/news/DeleteButton.vue";
 import { toast } from "vue3-toastify";
 import LoaderData from "./LoaderData.vue";
 import { getAllErrorMessages } from "@/utils/gestion-error";
+import FormulaireFactuel from "@/services/modules/formFactuel.service";
 
 const props = defineProps({
   toReset: Boolean,
+  isUpdate: {
+    type: Boolean,
+    default: false,
+  },
+  idForm: {
+    type: String,
+    default: "",
+  },
 });
 
 // Reactive data structure
@@ -27,6 +36,7 @@ const isEditOrDelete = ref(false);
 const globalOptionResponses = defineModel("globalOptionResponses");
 const previewOptionResponsesModel = defineModel("previewOptionResponses");
 const datas = ref([]);
+const updateOptionsResponse = ref([]);
 const previewData = localStorage.getItem("previewOptionResponsesModel");
 const globalData = localStorage.getItem("globalOptionResponses");
 
@@ -119,13 +129,22 @@ function updateTemporyOption(id, point) {
   } else {
     globalOptionResponses.value.options_de_reponse.push({ id, point });
   }
-  localStorage.setItem("globalOptionResponses", JSON.stringify(globalOptionResponses.value));
+  if (!props.isUpdate) localStorage.setItem("globalOptionResponses", JSON.stringify(globalOptionResponses.value));
 }
 function removeTemporyOption(id) {
   globalOptionResponses.value.options_de_reponse = globalOptionResponses.value.options_de_reponse.filter((option) => option.id !== id);
-  localStorage.setItem("globalOptionResponses", JSON.stringify(globalOptionResponses.value));
+  if (!props.isUpdate) localStorage.setItem("globalOptionResponses", JSON.stringify(globalOptionResponses.value));
 }
-
+const getOneForm = async () => {
+  try {
+    const { data } = await FormulaireFactuel.getOne(props.idForm);
+    updateOptionsResponse.value = data.data.options_de_reponse;
+  } catch (e) {
+    toast.error("Erreur récupération du  formulaire.");
+    console.log(e);
+  } finally {
+  }
+};
 const modeText = computed(() => (isCreate.value ? "Ajouter" : "Modifier"));
 const filterData = computed(() => datas.value.filter((data) => data.libelle.toLowerCase().includes(search.value.toLowerCase())));
 
@@ -144,7 +163,7 @@ watch(
       point: option.point,
       libelle: getLibelleById(option.id),
     }));
-    localStorage.setItem("previewOptionResponsesModel", JSON.stringify(previewOptionResponsesModel.value));
+    if (!props.isUpdate) localStorage.setItem("previewOptionResponsesModel", JSON.stringify(previewOptionResponsesModel.value));
   },
   { deep: true }
 );
@@ -167,13 +186,37 @@ watch(
 // Fetch data on component mount
 onMounted(async () => {
   await getDatas();
-  if (previewData && globalData) {
+  if (previewData && globalData && !props.isUpdate) {
     setTimeout(() => {
       globalOptionResponses.value = JSON.parse(globalData);
       previewOptionResponsesModel.value = JSON.parse(previewData);
       setTimeout(() => {
         idChecked.value = globalOptionResponses.value.options_de_reponse.map((option) => option.id);
       }, 100);
+    }, 100);
+  }
+
+  if (props.isUpdate) {
+    await getOneForm();
+    setTimeout(() => {
+      if (updateOptionsResponse.value.length > 0) {
+        globalOptionResponses.value = {
+          options_de_reponse: updateOptionsResponse.value.map((option) => ({
+            id: option.id,
+            point: option.point,
+          })),
+        };
+
+        previewOptionResponsesModel.value = {
+          options_de_reponse: updateOptionsResponse.value.map((option) => ({
+            id: option.id,
+            point: option.point,
+            libelle: option.libelle,
+          })),
+        };
+
+        idChecked.value = updateOptionsResponse.value.map((option) => option.id);
+      }
     }, 100);
   }
 });
