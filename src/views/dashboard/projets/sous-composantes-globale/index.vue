@@ -327,7 +327,7 @@ export default {
     <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
       <InputForm v-model="formData.nom" class="col-span-12" type="text" required="required" placeHolder="Nom de l'organisation" label="Nom" />
       <InputForm v-model="formData.poids" class="col-span-12" type="number" required="required" placeHolder="Poids de l'activité " label="Poids" />
-      <InputForm v-model="formData.pret" class="col-span-12" type="number" required="required" placeHolder="Pret" label="Pret" />
+      <InputForm v-model="formData.pret" class="col-span-12" type="number" required="required" placeHolder="Fond propre" label="Fond propre" />
       <div class="flex col-span-12">
         <v-select class="w-full" :reduce="(composant) => composant.id" v-model="formData.composanteId" label="nom" :options="composants">
           <template #search="{ attributes, events }">

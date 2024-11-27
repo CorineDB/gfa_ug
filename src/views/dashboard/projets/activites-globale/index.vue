@@ -384,7 +384,7 @@ export default {
     <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
       <InputForm v-model="formData.nom" class="col-span-12" type="text" required="required" placeHolder="Nom de l'activité" label="Nom" />
       <InputForm v-model="formData.poids" class="col-span-12" type="number" required="required" placeHolder="Poids de l'activité " label="Poids" />
-      <InputForm v-model="formData.pret" class="col-span-12" type="number" required="required" placeHolder="Pret de l'activité " label="Pret" />
+      <InputForm v-model="formData.pret" class="col-span-12" type="number" required="required" placeHolder="Fond propre" label="Fond propre" />
       <InputForm v-model="formData.debut" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de début" label="Début de l'activité" />
       <InputForm v-model="formData.fin" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de fin" label="Fin de l'activité" />
 
