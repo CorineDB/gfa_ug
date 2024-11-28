@@ -91,31 +91,35 @@ const errorMessageForm = ref("");
 const errorMessageFormExp = ref("");
 const token = route.query.t;
 
-const sendMail = () => {
+const sendMail = async () => {
   if (email.value) {
     localStorage.setItem("newmail", JSON.stringify(email.value));
     chargement.value = true;
     try {
-      const result = resetPassword.get(email.value);
+      const result = await resetPassword.get(email.value);
+      console.log("result:", result.data);
       if (result.data.statut === "success") {
+        console.log("Success");
         chargement.value = false;
         showFormSuccess.value = true;
       } else {
+        console.log("No Success");
         showFormError.value = true;
         errorMessageForm.value = result.data.data?.message || "Une erreur est survenue.";
       }
     } catch (error) {
+      console.log("Error");
       chargement.value = false;
       showFormError.value = true;
       errorMessageForm.value = error.response?.data?.message || "Une erreur est survenue.";
     }
   }
 };
-const sendMailExp = () => {
+const sendMailExp = async () => {
   if (emailExp.value) {
     chargement.value = true;
     try {
-      const result = ActivationAccount.confirmationCompte(emailExp.value);
+      const result = await ActivationAccount.confirmationCompte(emailExp.value);
       if (result.data.data.statut == "success") {
         chargement.value = false;
         showFormSuccessExp.value = true;
