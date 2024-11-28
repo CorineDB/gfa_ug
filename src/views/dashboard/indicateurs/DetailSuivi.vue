@@ -56,6 +56,15 @@ const initTabulator = () => {
         },
       },
       {
+        title: "Auteur",
+        field: "auteur",
+        hozAlign: "center",
+        formatter(cell) {
+          return `<div>${cell.getData().auteur?.nom ?? ""}</div>`;
+        },
+      },
+
+      {
         title: "Cumul",
         field: "cumul",
         hozAlign: "center",
@@ -176,6 +185,7 @@ onMounted(() => {
     <p><span class="font-semibold uppercase">Catégorie : </span>{{ datas[0]?.valeurCible.indicateur.categorie.nom }}</p>
     <p v-if="datas[0]?.valeurCible.indicateur.description"><span class="font-semibold uppercase">Description : </span>{{ datas[0]?.valeurCible.indicateur.description }}</p>
     <p><span class="font-semibold uppercase">Unité de mesure : </span>{{ datas[0]?.valeurCible.indicateur.unitee_mesure.nom }}</p>
+    <p v-if="datas[0]?.valeurCible.indicateur.organisations_responsable.length > 0"><span class="font-semibold uppercase">Organisations : </span>{{ datas[0]?.valeurCible.indicateur.organisations_responsable.map((org) => org.nom).join(", ") }}</p>
     <!-- <p><span class="font-semibold">Valeur de base : </span>{{ formatValeurDeBase(datas[0]?.valeurCible.indicateur.valeurDeBase) }}</p> -->
   </div>
   <div class="p-5 mt-5 intro-y box">

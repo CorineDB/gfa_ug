@@ -254,8 +254,19 @@ onMounted(() => {
                 <div class="flex justify-center">
                   <UsersIcon class="report-box__icon text-pending" />
                 </div>
-                <div class="mt-6 text-3xl font-medium leading-8">{{ statistiques?.total_participants_evaluation_factuel + statistiques?.total_participants_evaluation_de_perception }}</div>
-                <div class="mt-1 text-base text-slate-500">Total Participants</div>
+                <div class="mt-6 text-3xl font-medium leading-8"></div>
+                <div class="mt-1 text-base text-primary">
+                  Total Participants Factuel:
+                  <span class="font-semibold">
+                    {{ statistiques?.total_participants_evaluation_factuel ?? 0 }}
+                  </span>
+                </div>
+                <div class="mt-1 text-base text-primary">
+                  Total Participants perception:
+                  <span class="font-semibold">
+                    {{ statistiques?.total_participants_evaluation_de_perception ?? 0 }}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -265,8 +276,15 @@ onMounted(() => {
                 <div class="flex justify-center">
                   <BarChart2Icon class="report-box__icon text-success" />
                 </div>
-                <div class="mt-6 text-3xl font-medium leading-8">{{ statistiques?.total_soumissions_de_perception_terminer + statistiques?.total_soumissions_factuel_terminer }}</div>
-                <div class="mt-1 text-base text-slate-500">Total soumissions terminé</div>
+                <div class="mt-6 text-3xl font-medium leading-8"></div>
+                <div class="mt-1 text-base text-primary">
+                  Soumissions factuelle terminées:
+                  <span class="font-semibold"> {{ statistiques?.total_soumissions_factuel_terminer }} </span>
+                </div>
+                <div class="mt-1 text-base text-primary">
+                  Soumissions perception terminées:
+                  <span class="font-semibold"> {{ statistiques?.total_soumissions_de_perception_terminer }} </span>
+                </div>
               </div>
             </div>
           </div>
@@ -274,10 +292,21 @@ onMounted(() => {
             <div class="report-box zoom-in">
               <div class="p-5 text-center box">
                 <div class="flex justify-center">
-                  <PercentIcon class="report-box__icon text-warning" />
+                  <span class="text-2xl text-warning">{{ Math.round(statistiques?.pourcentage_evolution) }}</span> <PercentIcon class="report-box__icon text-warning" />
                 </div>
-                <div class="mt-6 text-3xl font-medium leading-8">{{ Math.round(statistiques?.pourcentage_evolution) }}%</div>
-                <div class="mt-1 text-base text-slate-500">Pourcentage de soumissions</div>
+                <div class="mt-6 text-3xl font-medium leading-8"></div>
+                <!-- <div class="mt-1 text-base text-primary">
+                  Pourcentage évolution:
+                  <span class="font-semibold"> {{ Math.round(statistiques?.pourcentage_evolution) }}% </span>
+                </div> -->
+                <div class="mt-1 text-base text-primary">
+                  Pourcentage évolution factuel:
+                  <span class="font-semibold"> {{ Math.round(statistiques?.pourcentage_evolution_des_soumissions_factuel) }}% </span>
+                </div>
+                <div class="mt-1 text-base text-primary">
+                  Pourcentage évolution perception:
+                  <span class="font-semibold"> {{ Math.round(statistiques?.pourcentage_evolution_des_soumissions_de_perception) }}% </span>
+                </div>
               </div>
             </div>
           </div>
@@ -315,6 +344,12 @@ onMounted(() => {
               <div class="flex items-center">
                 <BarChart2Icon class="w-4 h-4 mr-2" /> Soumissions de Perception:
                 <div class="ml-2 font-bold">{{ ong?.perception ? ong.perception.length : 0 }}</div>
+              </div>
+              <div class="mt-4">
+                <p>Évolution soumissions</p>
+                <div class="h-4 mt-1 progress">
+                  <div class="w-[30%] rounded-full progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">30%</div>
+                </div>
               </div>
             </div>
 
@@ -391,7 +426,7 @@ onMounted(() => {
               <div class="flex flex-col gap-2" v-if="currentOrganisation?.factuel">
                 <div @click="goToPageSoumission(soumission.id)" v-for="(soumission, index) in currentOrganisation.factuel" :key="index" class="flex items-center justify-between w-full gap-2 px-2 py-3 text-base font-medium text-black truncate transition-all bg-white border border-l-4 rounded shadow-md cursor-pointer border-primary">
                   <p>
-                    Soumission n° {{ index + 1 }} ( {{ soumission.submitted_at }}) <span :class="[soumission.statut ? 'bg-green-500' : 'bg-yellow-500']" class="px-2 py-1 mr-1 text-xs text-white rounded-full">{{ soumission.statut ? "Terminé" : "En cours" }}</span>
+                    Soumission n° {{ index + 1 }} ( {{ soumission.created_at }}) <span :class="[soumission.statut ? 'bg-green-500' : 'bg-yellow-500']" class="px-2 py-1 mr-1 text-xs text-white rounded-full">{{ soumission.statut ? "Terminé" : "En cours" }}</span>
                   </p>
                   <div class="flex items-center gap-4">
                     <!-- <button class="text-sm btn btn-primary" @click="goToPageSynthese(soumission.id)">Fiche Synthèse</button> -->
@@ -409,7 +444,7 @@ onMounted(() => {
               <div class="flex flex-col gap-2" v-if="currentOrganisation?.perception">
                 <div @click="goToPageSoumission(soumission.id)" v-for="(soumission, index) in currentOrganisation.perception" :key="index" class="flex items-center justify-between w-full gap-2 px-2 py-3 text-base font-medium text-black truncate transition-all bg-white border border-l-4 rounded shadow-md cursor-pointer border-primary">
                   <p>
-                    Soumission n° {{ index + 1 }} ( {{ soumission.submitted_at }}) <span :class="[soumission.statut ? 'bg-green-500' : 'bg-yellow-500']" class="px-2 py-1 mr-1 text-xs text-white rounded-full">{{ soumission.statut ? "Terminé" : "En cours" }}</span>
+                    Soumission n° {{ index + 1 }} ( {{ soumission.created_at }}) <span :class="[soumission.statut ? 'bg-green-500' : 'bg-yellow-500']" class="px-2 py-1 mr-1 text-xs text-white rounded-full">{{ soumission.statut ? "Terminé" : "En cours" }}</span>
                   </p>
                   <div class="flex items-center gap-4">
                     <!-- <button class="text-sm btn btn-primary" @click="goToPageSynthese(soumission.id)">Fiche Synthèse</button> -->
