@@ -194,51 +194,6 @@ export default {
 </script>
 
 <template>
-  <h2 class="mt-10 text-lg font-medium intro-y">Outcomes</h2>
-
-  <!-- Filtre -->
-  <div class="container px-4 mx-auto">
-    <!-- Combined Filter Section -->
-    <div class="p-6 mt-3 bg-white rounded-lg shadow-md">
-      <h2 class="mb-4 text-base font-bold">Filtrer les Projets</h2>
-
-      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-        <div class="relative flex flex-col w-full">
-          <v-select class="w-full" :reduce="(projet) => projet.id" v-model="projetId" label="nom" :options="projets">
-            <template #search="{ attributes, events }">
-              <input class="vs__search form-input" :required="!projetId" v-bind="attributes" v-on="events" />
-            </template>
-          </v-select>
-          <label for="_input-wizard-10" class="absolute top-0 px-2 py-1 text-sm font-medium transform -translate-y-5 bg-white left-2 text-slate-600"> Projets </label>
-        </div>
-      </div>
-
-      <button class="bg-blue-500 text-white py-2 px-4 rounded-md mt-4 w-full sm:w-auto sm:mt-0 sm:absolute sm:-translate-x-1/2 sm:left-1/2 sm:bottom-[-15px] hover:bg-blue-600 transition-all duration-300 ease-in-out" @click="filter()">Filtrer</button>
-    </div>
-
-    <!-- Results Section -->
-    <div class="mt-8">
-      <!-- Placeholder for table or grid results -->
-      <p class="text-center text-slate-600">Aucun résultat trouvé</p>
-    </div>
-  </div>
-
-  <!-- Titre de la page et Actions -->
-  <div class="grid grid-cols-12 gap-6 mt-5">
-    <div class="items-center col-span-12 intro-y sm:flex sm:justify-between">
-      <!-- Recherche -->
-      <div class="relative w-full sm:w-56">
-        <input type="text" class="w-full pr-10 form-control box" placeholder="Recherche..." />
-        <SearchIcon class="absolute w-5 h-5 transform -translate-y-1/2 right-3 top-1/2 text-slate-500" />
-      </div>
-
-      <!-- Bouton Ajouter -->
-      <div class="flex mt-3 sm:mt-0">
-        <button class="flex items-center px-4 py-2 text-white transition-all duration-300 rounded-md shadow-md bg-primary hover:bg-primary-dark"><PlusIcon class="w-4 h-4 mr-2" /> Ajouter un Outcome</button>
-      </div>
-    </div>
-  </div>
-
   <h2 class="mt-10 text-lg font-medium intro-y">OutComes</h2>
 
   <!-- Filtre -->
