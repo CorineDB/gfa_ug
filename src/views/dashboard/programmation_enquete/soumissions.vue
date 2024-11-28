@@ -285,7 +285,7 @@ onMounted(() => {
       </div>
       <LoaderSnipper v-else />
 
-      <div class="col-span-12 mt-8">
+      <div v-if="statistiques.statut == 1" class="col-span-12 mt-8">
         <div class="flex items-center h-10 intro-y">
           <h2 class="mr-5 text-lg font-medium truncate">Fiches</h2>
         </div>
