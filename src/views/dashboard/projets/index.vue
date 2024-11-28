@@ -42,8 +42,8 @@
       <InputForm v-model="formData.fin" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de fin" label="Fin du projet " />
       <InputForm v-model="formData.nombreEmploie" class="col-span-12" type="number" required="required" placeHolder="Ex : 10" label="Nombre d'employé" />
       <InputForm v-model="formData.pays" class="col-span-12" type="text" required="required" placeHolder="Ex : Bénin" label="Pays" />
-      <InputForm v-model="formData.budgetNational" class="col-span-12" type="text" required="required" placeHolder="Ex : 100000" label="Budget " />
-      <InputForm v-model="formData.pret" class="col-span-12" type="text" required="required" placeHolder="Ex : 100000" label="Fond Propre" />
+      <InputForm v-model="formData.budgetNational" class="col-span-12" type="text" required="required" placeHolder="Ex : 100000" label="Fond Propre " />
+      <InputForm v-model="formData.pret" class="col-span-12" type="text" required="required" placeHolder="Ex : 100000" label="Montant financé" />
 
       <div class="col-span-12" v-if="!isUpdate">
         <InputForm class="col-span-12" type="file" @change="handleFileChange" required="required" placeHolder="choisir une image" label="Images" accept="image/*" />
