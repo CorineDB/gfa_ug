@@ -379,7 +379,7 @@ onMounted(async () => {
         <p class="pb-4 mt-10 text-lg font-medium intro-y">Évolution des options de réponse de perception</p>
         <ChartPerceptionOption class="py-4 mt-6" />
       </section>
-      <ActionsMener v-if="idEvaluation" :evaluation="idEvaluation" />
+      <ActionsMener v-if="idEvaluation && statistiques.statut == 1" :evaluation="idEvaluation" />
     </div>
     <LoaderSnipper v-if="isLoadingData" />
   </div>

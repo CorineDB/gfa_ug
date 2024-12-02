@@ -12,84 +12,21 @@ Chart.register(...registerables);
 
 export default {
   name: "GroupedBarChart",
-  setup() {
-    // const props = defineProps({
-    //   data: {
-    //     type: Array,
-    //     required: false,
-    //     default: [
-    //       {
-    //         id: 35,
-    //         nom: "Redevabilité",
-    //         indice_de_perception: 0.4017361111111111,
-    //         indice_factuel: 0,
-    //         indice_synthetique: 0.4017361111111111,
-    //       },
-    //       {
-    //         id: 32,
-    //         nom: "Transparence",
-    //         indice_de_perception: 0.4375,
-    //         indice_factuel: 0,
-    //         indice_synthetique: 0.4375,
-    //       },
-    //       {
-    //         id: 33,
-    //         nom: "Participation",
-    //         indice_de_perception: 0.3958333333333333,
-    //         indice_factuel: 0,
-    //         indice_synthetique: 0.3958333333333333,
-    //       },
-    //       {
-    //         id: 36,
-    //         nom: "Egalité et non- discrimination / inclusion",
-    //         indice_de_perception: 0.4416666666666666,
-    //         indice_factuel: 0,
-    //         indice_synthetique: 0.4416666666666666,
-    //       },
-    //     ],
-    //   },
-    // });
-
-    const data = [
-      {
-        id: 35,
-        nom: "Redevabilité",
-        indice_de_perception: 0.4017361111111111,
-        indice_factuel: 0,
-        indice_synthetique: 0.4017361111111111,
-      },
-      {
-        id: 32,
-        nom: "Transparence",
-        indice_de_perception: 0.4375,
-        indice_factuel: 0,
-        indice_synthetique: 0.4375,
-      },
-      {
-        id: 33,
-        nom: "Participation",
-        indice_de_perception: 0.3958333333333333,
-        indice_factuel: 0,
-        indice_synthetique: 0.3958333333333333,
-      },
-      {
-        id: 36,
-        nom: "Egalité et non- discrimination / inclusion",
-        indice_de_perception: 0.4416666666666666,
-        indice_factuel: 0,
-        indice_synthetique: 0.4416666666666666,
-      },
-    ];
-
+  props: {
+    datas: {
+      type: Array,
+      required: true,
+    },
+  },
+  setup(props) {
     const chartCanvas = ref(null);
 
     // Log de props.data pour vérifier si les données sont bien reçues
     onMounted(() => {
       // Vérification de la présence des données
-      if (data && Array.isArray(data) && data.length > 0) {
-        console.log("Données reçues : ", data);
+      if (props.datas && Array.isArray(props.datas) && props.datas.length > 0) {
       } else {
-        console.error("Aucune donnée reçue ou les données sont mal formées.");
+        console.error("Aucune donnée reçue ou les données sont mal formattées.");
       }
 
       nextTick(() => {
@@ -97,10 +34,10 @@ export default {
         const ctx = chartCanvas.value ? chartCanvas.value.getContext("2d") : null;
 
         if (ctx) {
-          const labels = data.map((item) => item.nom);
-          const factuel = data.map((item) => item.indice_factuel);
-          const perception = data.map((item) => item.indice_de_perception);
-          const synthese = data.map((item) => item.indice_synthetique);
+          const labels = props.datas.map((item) => item.nom);
+          const factuel = props.datas.map((item) => item.indice_factuel);
+          const perception = props.datas.map((item) => item.indice_de_perception);
+          const synthese = props.datas.map((item) => item.indice_synthetique);
 
           new Chart(ctx, {
             type: "bar",

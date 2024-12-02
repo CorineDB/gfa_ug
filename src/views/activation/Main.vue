@@ -89,7 +89,7 @@ const emailExp = ref("");
 const errorMessage = ref("");
 const errorMessageForm = ref("");
 const errorMessageFormExp = ref("");
-const token = route.query.t;
+const token = route.params.t;
 
 const sendMail = async () => {
   if (email.value) {
