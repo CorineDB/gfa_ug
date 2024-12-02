@@ -49,7 +49,7 @@ const createData = async () => {
       isLoading.value = false;
       getDatas();
       resetForm();
-      toast.success("Enquête créer.");
+      toast.success("évaluation créer.");
     })
     .catch((e) => {
       isLoading.value = false;
@@ -66,7 +66,7 @@ const getDatas = async () => {
     })
     .catch((e) => {
       isLoadingData.value = false;
-      toast.error("Une erreur est survenue: Liste des enquêtes.");
+      toast.error("Une erreur est survenue: Liste des évaluations.");
     });
   // initTabulator();
 };
@@ -105,7 +105,7 @@ const updateData = async () => {
     .then(() => {
       getDatas();
       resetForm();
-      toast.success("Enquête modifiée.");
+      toast.success("Évaluation modifiée.");
     })
     .catch((e) => {
       console.error(e);
@@ -122,7 +122,7 @@ const deleteData = async () => {
     .then(() => {
       deleteModalPreview.value = false;
       isLoading.value = false;
-      toast.success("Enquête de gouvernance supprimé");
+      toast.success("Évaluation  supprimée");
       getDatas();
     })
     .catch((e) => {

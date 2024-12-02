@@ -8,6 +8,9 @@ import LoaderSnipper from "@/components/LoaderSnipper.vue";
 import EnqueteDeColleteService from "@/services/modules/enqueteDeCollecte.service";
 import EvaluationService from "@/services/modules/evaluation.gouvernance.service";
 import { useRouter, useRoute } from "vue-router";
+import ActionsMener from "../../../components/news/ActionsMener.vue";
+import ProgressBar from "../../../components/news/ProgressBar.vue";
+import ChartPerceptionOption from "../../../components/news/ChartPerceptionOption.vue";
 
 const router = useRouter();
 
@@ -199,11 +202,18 @@ function changeCurrentDetailOrganisation(id) {
   idCurrentOng.value = id;
   showModalOrganisation.value = true;
 }
+function getPercentEvolutionOng(id) {
+  const ong = statistiques.value.organisations_ranking?.find((item) => item.id == id);
+  return ong?.pourcentage_evolution ?? 0;
+}
 
 const currentOrganisation = computed(() => datas.value.find((item) => item.id == idCurrentOng.value));
 
-onMounted(() => {
-  getDatas();
+onMounted(async () => {
+  await getDatas();
+  if (route.query.ong) {
+    changeCurrentDetailOrganisation(route.query.ong.toString());
+  }
   getEvaluation();
 });
 </script>
@@ -347,9 +357,7 @@ onMounted(() => {
               </div>
               <div class="mt-4">
                 <p>Évolution soumissions</p>
-                <div class="h-4 mt-1 progress">
-                  <div class="w-[30%] rounded-full progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">30%</div>
-                </div>
+                <ProgressBar :percent="getPercentEvolutionOng(ong.id)" />
               </div>
             </div>
 
@@ -367,6 +375,11 @@ onMounted(() => {
           </div>
         </div>
       </section>
+      <section>
+        <p class="pb-4 mt-10 text-lg font-medium intro-y">Évolution des options de réponse de perception</p>
+        <ChartPerceptionOption class="py-4 mt-6" />
+      </section>
+      <ActionsMener v-if="idEvaluation" :evaluation="idEvaluation" />
     </div>
     <LoaderSnipper v-if="isLoadingData" />
   </div>
@@ -428,12 +441,13 @@ onMounted(() => {
                   <p>
                     Soumission n° {{ index + 1 }} ( {{ soumission.created_at }}) <span :class="[soumission.statut ? 'bg-green-500' : 'bg-yellow-500']" class="px-2 py-1 mr-1 text-xs text-white rounded-full">{{ soumission.statut ? "Terminé" : "En cours" }}</span>
                   </p>
-                  <div class="flex items-center gap-4">
-                    <!-- <button class="text-sm btn btn-primary" @click="goToPageSynthese(soumission.id)">Fiche Synthèse</button> -->
+                  <ProgressBar :percent="soumission.pourcentage_evolution" class="max-w-[200px]" />
+                  <!-- <div class="flex items-center gap-4">
+                    <button class="text-sm btn btn-primary" @click="goToPageSynthese(soumission.id)">Fiche Synthèse</button>
                     <button v-if="!soumission.statut" class="p-2 text-danger" @click="handleDelete(soumission.id)">
                       <TrashIcon class="size-5" />
                     </button>
-                  </div>
+                  </div> -->
                 </div>
               </div>
               <div v-else class="text-lg text-center">
@@ -446,12 +460,14 @@ onMounted(() => {
                   <p>
                     Soumission n° {{ index + 1 }} ( {{ soumission.created_at }}) <span :class="[soumission.statut ? 'bg-green-500' : 'bg-yellow-500']" class="px-2 py-1 mr-1 text-xs text-white rounded-full">{{ soumission.statut ? "Terminé" : "En cours" }}</span>
                   </p>
-                  <div class="flex items-center gap-4">
-                    <!-- <button class="text-sm btn btn-primary" @click="goToPageSynthese(soumission.id)">Fiche Synthèse</button> -->
+                  <ProgressBar :percent="soumission.pourcentage_evolution" class="max-w-[200px]" />
+
+                  <!-- <div class="flex items-center gap-4">
+                    <button class="text-sm btn btn-primary" @click="goToPageSynthese(soumission.id)">Fiche Synthèse</button>
                     <button v-if="!soumission.statut" class="p-2 text-danger" @click="handleDelete(soumission.id)">
                       <TrashIcon class="size-5" />
                     </button>
-                  </div>
+                  </div> -->
                 </div>
               </div>
               <div v-else class="text-lg text-center">

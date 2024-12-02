@@ -133,8 +133,8 @@ onMounted(async () => {
               </tr>
             </tbody>
           </table>
-          <!-- <ChartScroreByPrincipe />
-            <ChartOptionResponseByCategorieAndMember />
+          <ChartScroreByPrincipe v-if="currentProfileGouvernance?.length > 0" />
+          <!-- <ChartOptionResponseByCategorieAndMember />
             <ChartProgressionByTime />
             <ChartScorePerceptionByPrincipe /> -->
         </TabPanel>

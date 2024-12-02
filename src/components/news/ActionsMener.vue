@@ -9,6 +9,10 @@ import DeleteButton from "@/components/news/DeleteButton.vue";
 import { toast } from "vue3-toastify";
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
 
+const prop = defineProps({
+  evaluation: String,
+});
+
 const payload = reactive({
   est_valider: false,
   commentaire: "",
@@ -38,7 +42,7 @@ const validateData = async () => {
 };
 const getDatas = async () => {
   isLoadingData.value = true;
-  await ActionMenerService.get()
+  await ActionMenerService.getForEvaluation(prop.evaluation)
     .then((result) => {
       datas.value = result.data.data;
       isLoadingData.value = false;
@@ -61,26 +65,26 @@ const initTabulator = () => {
         title: "Action à mener",
         field: "action",
       },
-      {
-        title: "Évaluation",
-        field: "evaluation",
-        formatter(cell) {
-          return `${cell.getData().actionable.intitule}`;
-        },
-      },
-      {
-        title: "Organisations",
-        field: "organisations",
-        hozAlign: "center",
-        vertAlign: "middle",
+      // {
+      //   title: "Évaluation",
+      //   field: "evaluation",
+      //   formatter(cell) {
+      //     return `${cell.getData().actionable.intitule}`;
+      //   },
+      // },
+      // {
+      //   title: "Organisations",
+      //   field: "organisations",
+      //   hozAlign: "center",
+      //   vertAlign: "middle",
 
-        formatter(cell) {
-          return `${cell
-            .getData()
-            .actionable.organisations.map((org) => org.sigle)
-            .join(", ")}`;
-        },
-      },
+      //   formatter(cell) {
+      //     return `${cell
+      //       .getData()
+      //       .actionable.organisations.map((org) => org.sigle)
+      //       .join(", ")}`;
+      //   },
+      // },
       {
         title: "Preuves",
         field: "preuves",
@@ -152,7 +156,7 @@ onMounted(() => {
 
 <template>
   <h2 class="mt-10 text-lg font-medium intro-y">Actions à mener</h2>
-  <div class="grid grid-cols-12 gap-6 mt-5">
+  <!-- <div class="grid grid-cols-12 gap-6 mt-5">
     <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
       <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
         <div class="relative w-56 text-slate-500">
@@ -161,30 +165,10 @@ onMounted(() => {
         </div>
       </div>
     </div>
-  </div>
+  </div> -->
 
   <div class="p-5 mt-5 intro-y box">
-    <div class="flex flex-col sm:flex-row sm:items-end xl:items-start">
-      <div></div>
-      <div class="flex mt-5 sm:mt-0">
-        <button id="tabulator-print" class="w-1/2 mr-2 btn btn-outline-secondary sm:w-auto"><PrinterIcon class="w-4 h-4 mr-2" /> Print</button>
-        <Dropdown class="w-1/2 sm:w-auto">
-          <DropdownToggle class="w-full btn btn-outline-secondary sm:w-auto">
-            <FileTextIcon class="w-4 h-4 mr-2" /> Export
-            <ChevronDownIcon class="w-4 h-4 ml-auto sm:ml-2" />
-          </DropdownToggle>
-          <DropdownMenu class="w-40">
-            <DropdownContent>
-              <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Export CSV </DropdownItem>
-              <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Export JSON </DropdownItem>
-              <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Export XLSX </DropdownItem>
-              <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Export HTML </DropdownItem>
-            </DropdownContent>
-          </DropdownMenu>
-        </Dropdown>
-      </div>
-    </div>
-    <div class="overflow-x-auto scrollbar-hidden" v-if="!isLoadingData">
+    <div class="overflow-auto intro-y lg:overflow-visible sm:mt-0 max-h-[5Ovh]" v-if="!isLoadingData">
       <div id="tabulator" class="mt-5 table-report table-report--tabulator"></div>
     </div>
     <LoaderSnipper v-if="isLoadingData" />

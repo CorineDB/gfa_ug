@@ -15,7 +15,7 @@
         </div>
       </div> -->
       <div v-show="!loading" class="iframe-container">
-        <iframe :src="iframeSrc" @load="onIframeLoad"></iframe>
+        <iframe src="https://surveyjs.io/create-free-survey" @load="onIframeLoad"></iframe>
       </div>
     </div>
   </div>
