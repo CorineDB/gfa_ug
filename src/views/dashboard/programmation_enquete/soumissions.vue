@@ -209,6 +209,7 @@ function getPercentEvolutionOng(id) {
 
 const currentOrganisation = computed(() => datas.value.find((item) => item.id == idCurrentOng.value));
 const statsOptions = computed(() => statistiques.value.options_de_reponse_stats);
+const organisations = computed(() => datas.value.map((item) => ({ nom: item.nom, id: item.id })));
 
 onMounted(async () => {
   await getDatas();
@@ -303,7 +304,7 @@ onMounted(async () => {
             <div class="report-box zoom-in">
               <div class="p-5 text-center box">
                 <div class="flex justify-center">
-                  <span class="text-2xl text-warning">{{ Math.round(statistiques?.pourcentage_evolution) }}</span> <PercentIcon class="report-box__icon text-warning" />
+                  <PercentIcon class="report-box__icon text-warning" />
                 </div>
                 <div class="mt-6 text-3xl font-medium leading-8"></div>
                 <!-- <div class="mt-1 text-base text-primary">
@@ -376,11 +377,19 @@ onMounted(async () => {
           </div>
         </div>
       </section>
-      <section>
+      <section v-if="statistiques?.options_de_reponse_stats">
         <p class="pb-4 mt-10 text-lg font-medium intro-y">Évolution des options de réponse de perception</p>
-        <ChartPerceptionOption v-if="statistiques?.options_de_reponse_stats && statistiques.statut == 1" :datasx="statistiques.options_de_reponse_stats" class="py-4 mt-6" />
+        <div class="py-4 mt-6 box">
+          <div class="!w-[250px] p-3">
+            <TomSelect name="organisations" :options="{ placeholder: 'Selectionez une organisation' }">
+              <option value=""></option>
+              <option v-for="organisation in organisations" :key="organisation.id" :value="organisation.id">{{ organisation.nom }}</option>
+            </TomSelect>
+          </div>
+          <ChartPerceptionOption :datasx="statistiques.options_de_reponse_stats" class="py-4 mt-6" />
+        </div>
       </section>
-      <ActionsMener v-if="idEvaluation && statistiques.statut == 1" :evaluation="idEvaluation" />
+      <ActionsMener v-if="idEvaluation" :evaluation="idEvaluation" />
     </div>
     <LoaderSnipper v-if="isLoadingData" />
   </div>

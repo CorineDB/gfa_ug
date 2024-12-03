@@ -134,7 +134,7 @@ onMounted(async () => {
               </tr>
             </tbody>
           </table>
-          <ChartScroreByPrincipe v-if="currentProfileGouvernance?.length > 0" :datas="currentProfileGouvernance" />
+          <!-- <ChartScroreByPrincipe v-if="currentProfileGouvernance?.length > 0" :datas="currentProfileGouvernance" /> -->
           <!-- <ChartOptionResponseByCategorieAndMember />
             <ChartProgressionByTime />
             <ChartScorePerceptionByPrincipe /> -->

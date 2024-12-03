@@ -8,6 +8,7 @@ import { toast } from "vue3-toastify";
 import LoaderData from "./LoaderData.vue";
 import { getAllErrorMessages } from "@/utils/gestion-error";
 import FormulaireFactuel from "@/services/modules/formFactuel.service";
+// import { getFieldErrors } from "../../utils/helpers";
 
 const props = defineProps({
   toReset: Boolean,
@@ -39,6 +40,7 @@ const datas = ref([]);
 const updateOptionsResponse = ref([]);
 const previewData = localStorage.getItem("previewOptionResponsesModel");
 const globalData = localStorage.getItem("globalOptionResponses");
+const errors = ref({});
 
 // Fetch data
 const getDatas = async () => {
@@ -63,7 +65,11 @@ const submitData = async () => {
     getDatas();
     resetForm();
   } catch (e) {
-    toast.error(getAllErrorMessages(e));
+    if (e.response && e.response.status === 422) {
+      errors.value = e.response.data.errors;
+    } else {
+      toast.error(getAllErrorMessages(e));
+    }
   } finally {
     isLoading.value = false;
   }
@@ -90,7 +96,7 @@ const handleEdit = (data) => {
   isCreate.value = false;
   idSelect.value = data.id;
   payload.libelle = data.libelle;
-  payload.description = data.description;
+  payload.description = data.description ?? "";
   showModalCreate.value = true;
 };
 
@@ -106,6 +112,7 @@ const resetForm = () => {
   payload.libelle = "";
   payload.description = "";
   showModalCreate.value = false;
+  errors.value = {};
 };
 const openCreateModal = () => {
   resetForm();
@@ -267,8 +274,8 @@ onMounted(async () => {
       <form @submit.prevent="submitData">
         <ModalBody>
           <div class="grid grid-cols-1 gap-4">
-            <InputForm label="Libellé" v-model="payload.libelle" />
-            <InputForm label="Description" v-model="payload.description" :required="false" />
+            <InputForm label="Libellé" v-model="payload.libelle" :control="getFieldErrors(errors.libelle)" />
+            <InputForm label="Description" v-model="payload.description" :required="false" :control="getFieldErrors(errors.description)" />
           </div>
         </ModalBody>
         <ModalFooter>

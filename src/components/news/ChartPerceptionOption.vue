@@ -8,7 +8,6 @@
 import { ref, onMounted } from "vue";
 import { Chart } from "chart.js";
 
-// Props
 const props = defineProps({
   datasx: {
     type: Array,
@@ -17,13 +16,10 @@ const props = defineProps({
   },
 });
 
-// Référence pour le canvas
 const chartCanvas = ref(null);
 
-// Labels pour les catégories (axe X)
 const labels = ref([]);
 
-// Configuration des réponses et couleurs
 const responsesConfig = [
   { label: "Ne peux répondre", backgroundColor: "blue" },
   { label: "Pas du tout", backgroundColor: "red" },
@@ -33,28 +29,24 @@ const responsesConfig = [
   { label: "Dans une grande mesure", backgroundColor: "cyan" },
 ];
 
-// Initialisation des datasets
 const datasets = responsesConfig.map((response) => ({
   label: response.label,
   backgroundColor: response.backgroundColor,
-  data: [], // Nous allons remplir ces données dynamiquement
+  data: [],
 }));
 
-// Remplir les données avec la nouvelle structure
 const fillData = () => {
-  // Clear previous datasets data
   datasets.forEach((dataset) => (dataset.data = []));
-  labels.value = []; // Clear previous labels
+  labels.value = [];
 
   props.datasx.forEach(({ categorieDeParticipant, options_de_reponse }) => {
-    labels.value.push(categorieDeParticipant); // Ajouter la catégorie au label
+    labels.value.push(categorieDeParticipant);
     options_de_reponse.forEach((option, index) => {
       datasets[index].data.push(option.count); // Ajouter le count correspondant à chaque option
     });
   });
 };
 
-// Initialisation du graphique après le montage
 onMounted(() => {
   fillData();
 
@@ -90,7 +82,3 @@ onMounted(() => {
   });
 });
 </script>
-
-<style>
-/* Ajoutez des styles personnalisés si nécessaire */
-</style>
