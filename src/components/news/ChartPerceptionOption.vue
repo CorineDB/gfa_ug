@@ -4,83 +4,91 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { ref, onMounted } from "vue";
 import { Chart } from "chart.js";
 
-export default {
-  setup() {
-    const chartCanvas = ref(null);
-
-    onMounted(() => {
-      new Chart(chartCanvas.value, {
-        type: "bar",
-        data: {
-          labels: ["Membre Administration", "Membre Association", "Employé Association"],
-          datasets: [
-            {
-              label: "Ne peux répondre",
-              backgroundColor: "blue",
-              data: [3, 2, 1], // Remplacez par vos données
-            },
-            {
-              label: "Pas du tout",
-              backgroundColor: "red",
-              data: [4, 5, 2],
-            },
-            {
-              label: "Faiblement",
-              backgroundColor: "orange",
-              data: [6, 8, 4],
-            },
-            {
-              label: "Moyennement",
-              backgroundColor: "green",
-              data: [5, 6, 3],
-            },
-            {
-              label: "Dans une grande mesure",
-              backgroundColor: "cyan",
-              data: [2, 3, 6],
-            },
-            {
-              label: "Totalement",
-              backgroundColor: "purple",
-              data: [1, 4, 5],
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: {
-              position: "top",
-            },
-          },
-          scales: {
-            x: {
-              title: {
-                display: true,
-                text: "Catégories des participants",
-              },
-            },
-            y: {
-              title: {
-                display: true,
-                text: "Nombre Options de Réponses",
-              },
-              beginAtZero: true,
-            },
-          },
-        },
-      });
-    });
-
-    return {
-      chartCanvas,
-    };
+// Props
+const props = defineProps({
+  datasx: {
+    type: Array,
+    required: true,
+    default: () => [],
   },
+});
+
+// Référence pour le canvas
+const chartCanvas = ref(null);
+
+// Labels pour les catégories (axe X)
+const labels = ref([]);
+
+// Configuration des réponses et couleurs
+const responsesConfig = [
+  { label: "Ne peux répondre", backgroundColor: "blue" },
+  { label: "Pas du tout", backgroundColor: "red" },
+  { label: "Faiblement", backgroundColor: "orange" },
+  { label: "Moyennement", backgroundColor: "green" },
+  { label: "Totalement", backgroundColor: "purple" },
+  { label: "Dans une grande mesure", backgroundColor: "cyan" },
+];
+
+// Initialisation des datasets
+const datasets = responsesConfig.map((response) => ({
+  label: response.label,
+  backgroundColor: response.backgroundColor,
+  data: [], // Nous allons remplir ces données dynamiquement
+}));
+
+// Remplir les données avec la nouvelle structure
+const fillData = () => {
+  // Clear previous datasets data
+  datasets.forEach((dataset) => (dataset.data = []));
+  labels.value = []; // Clear previous labels
+
+  props.datasx.forEach(({ categorieDeParticipant, options_de_reponse }) => {
+    labels.value.push(categorieDeParticipant); // Ajouter la catégorie au label
+    options_de_reponse.forEach((option, index) => {
+      datasets[index].data.push(option.count); // Ajouter le count correspondant à chaque option
+    });
+  });
 };
+
+// Initialisation du graphique après le montage
+onMounted(() => {
+  fillData();
+
+  new Chart(chartCanvas.value, {
+    type: "bar",
+    data: {
+      labels: labels.value,
+      datasets: datasets,
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: "top",
+        },
+      },
+      scales: {
+        x: {
+          title: {
+            display: true,
+            text: "Catégories des participants",
+          },
+        },
+        y: {
+          title: {
+            display: true,
+            text: "Nombre d'options de réponses",
+          },
+          beginAtZero: true,
+        },
+      },
+    },
+  });
+});
 </script>
 
 <style>

@@ -390,7 +390,7 @@ const routes = [
   },
 
   {
-    path: "/activation",
+    path: "/activation/:t",
     name: "activation",
     component: Activation,
   },

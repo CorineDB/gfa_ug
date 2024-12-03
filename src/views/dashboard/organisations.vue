@@ -12,6 +12,11 @@ import decoupage from "@/decoupage_territorial_benin.json";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
+
+const types = [
+  { label: "OSC", id: "osc" },
+  { label: "OSC FOSIR", id: "osc_fosir" },
+];
 // Reactive data structure
 const payload = reactive({
   nom: "",
@@ -26,7 +31,7 @@ const payload = reactive({
   latitude: "",
   addresse: "",
   quartier: "",
-  type: "",
+  type: types[0].id,
   arrondissement: "",
   commune: "",
   departement: "",
@@ -34,10 +39,6 @@ const payload = reactive({
   secteurActivite: "",
 });
 
-const types = [
-  { label: "OSC", id: "osc" },
-  { label: "OSC FOSIR", id: "osc_fosir" },
-];
 const tabulator = ref();
 const idSelect = ref("");
 const nameSelect = ref("");
@@ -411,6 +412,7 @@ onMounted(() => {
           <div>
             <label class="form-label">Types</label>
             <TomSelect v-model="payload.type" :options="{ placeholder: 'Selectionez  un type' }" class="w-full">
+              <option value=""></option>
               <option v-for="(type, index) in types" :key="index" :value="type.id">{{ type.label }}</option>
             </TomSelect>
           </div>

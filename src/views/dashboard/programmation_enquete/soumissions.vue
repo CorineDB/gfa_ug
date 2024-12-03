@@ -208,6 +208,7 @@ function getPercentEvolutionOng(id) {
 }
 
 const currentOrganisation = computed(() => datas.value.find((item) => item.id == idCurrentOng.value));
+const statsOptions = computed(() => statistiques.value.options_de_reponse_stats);
 
 onMounted(async () => {
   await getDatas();
@@ -377,7 +378,7 @@ onMounted(async () => {
       </section>
       <section>
         <p class="pb-4 mt-10 text-lg font-medium intro-y">Évolution des options de réponse de perception</p>
-        <ChartPerceptionOption class="py-4 mt-6" />
+        <ChartPerceptionOption v-if="statistiques?.options_de_reponse_stats && statistiques.statut == 1" :datasx="statistiques.options_de_reponse_stats" class="py-4 mt-6" />
       </section>
       <ActionsMener v-if="idEvaluation && statistiques.statut == 1" :evaluation="idEvaluation" />
     </div>
