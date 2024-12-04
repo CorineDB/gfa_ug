@@ -216,7 +216,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <h2 class="text-lg font-medium mty-10 intro-y">Évaluation de gouvernace</h2>
+  <h2 class="my-10 text-lg font-medium intro-y">Évaluation de gouvernace</h2>
   <div class="grid grid-cols-12 gap-6 mb-5">
     <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
       <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
