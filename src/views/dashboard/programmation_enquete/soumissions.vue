@@ -248,36 +248,25 @@ onMounted(async () => {
         <div class="flex items-center h-10 intro-y">
           <h2 class="mr-5 text-lg font-medium truncate">Statistiques</h2>
         </div>
+
         <div class="grid grid-cols-12 gap-6 mt-5">
           <div class="col-span-12 sm:col-span-6 xl:col-span-3 intro-y">
             <div class="report-box zoom-in">
               <div class="p-5 text-center box">
-                <div class="flex justify-center">
-                  <GlobeIcon class="report-box__icon text-primary" />
+                <div class="flex items-center justify-between">
+                  <GlobeIcon class="size-10 text-primary" />
+
+                  <div class="mt-2 text-lg font-medium leading-8">Organisations</div>
                 </div>
-                <div class="mt-6 text-3xl font-medium leading-8">{{ datas.length }}</div>
-                <div class="mt-1 text-base text-slate-500">Nombre d'organisations</div>
-              </div>
-            </div>
-          </div>
-          <div class="col-span-12 sm:col-span-6 xl:col-span-3 intro-y">
-            <div class="report-box zoom-in">
-              <div class="p-5 text-center box">
-                <div class="flex justify-center">
-                  <UsersIcon class="report-box__icon text-pending" />
-                </div>
-                <div class="mt-6 text-3xl font-medium leading-8"></div>
-                <div class="mt-1 text-base text-primary">
-                  Total Participants Factuel:
-                  <span class="font-semibold">
-                    {{ statistiques?.total_participants_evaluation_factuel ?? 0 }}
-                  </span>
-                </div>
-                <div class="mt-1 text-base text-primary">
-                  Total Participants perception:
-                  <span class="font-semibold">
-                    {{ statistiques?.total_participants_evaluation_de_perception ?? 0 }}
-                  </span>
+                <div class="flex items-center justify-around mt-4">
+                  <div class="flex gap-2 text-lg text-left">
+                    <div class="mt-1 text-primary">
+                      Total:
+                      <span class="font-semibold">
+                        {{ datas.length }}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -285,39 +274,79 @@ onMounted(async () => {
           <div class="col-span-12 sm:col-span-6 xl:col-span-3 intro-y">
             <div class="report-box zoom-in">
               <div class="p-5 text-center box">
-                <div class="flex justify-center">
-                  <BarChart2Icon class="report-box__icon text-success" />
+                <div class="flex items-center justify-between">
+                  <UsersIcon class="size-10 text-pending" />
+
+                  <div class="mt-2 text-lg font-medium leading-8">Participant</div>
                 </div>
-                <div class="mt-6 text-3xl font-medium leading-8"></div>
-                <div class="mt-1 text-base text-primary">
-                  Soumissions factuelle terminées:
-                  <span class="font-semibold"> {{ statistiques?.total_soumissions_factuel_terminer }} </span>
-                </div>
-                <div class="mt-1 text-base text-primary">
-                  Soumissions perception terminées:
-                  <span class="font-semibold"> {{ statistiques?.total_soumissions_de_perception_terminer }} </span>
+                <div class="flex items-center justify-around mt-4">
+                  <div class="flex gap-2 text-lg text-left">
+                    <div class="mt-1 text-primary">
+                      Factuel:
+                      <span class="font-semibold">
+                        {{ statistiques?.total_participants_evaluation_factuel ?? 0 }}
+                      </span>
+                    </div>
+                    <div class="w-px h-8 bg-slate-400"></div>
+                    <div class="mt-1 text-primary">
+                      Perception:
+                      <span class="font-semibold">
+                        {{ statistiques?.total_participants_evaluation_de_perception ?? 0 }}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+
           <div class="col-span-12 sm:col-span-6 xl:col-span-3 intro-y">
             <div class="report-box zoom-in">
               <div class="p-5 text-center box">
-                <div class="flex justify-center">
-                  <PercentIcon class="report-box__icon text-warning" />
+                <div class="flex items-center justify-between">
+                  <BarChart2Icon class="size-10 text-success" />
+                  <div class="mt-2 text-lg font-medium leading-8">Soumissions terminées</div>
                 </div>
-                <div class="mt-6 text-3xl font-medium leading-8"></div>
-                <!-- <div class="mt-1 text-base text-primary">
-                  Pourcentage évolution:
-                  <span class="font-semibold"> {{ Math.round(statistiques?.pourcentage_evolution) }}% </span>
-                </div> -->
-                <div class="mt-1 text-base text-primary">
-                  Pourcentage évolution factuel:
-                  <span class="font-semibold"> {{ Math.round(statistiques?.pourcentage_evolution_des_soumissions_factuel) }}% </span>
+                <div class="flex items-center justify-around mt-4">
+                  <div class="flex gap-2 text-lg text-left">
+                    <div class="mt-1 text-primary">
+                      Factuel:
+                      <span class="font-semibold">
+                        {{ statistiques?.total_soumissions_factuel_terminer }}
+                      </span>
+                    </div>
+                    <div class="w-px h-8 bg-slate-400"></div>
+                    <div class="mt-1 text-primary">
+                      Perception:
+                      <span class="font-semibold">
+                        {{ statistiques?.total_soumissions_de_perception_terminer }}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div class="mt-1 text-base text-primary">
-                  Pourcentage évolution perception:
-                  <span class="font-semibold"> {{ Math.round(statistiques?.pourcentage_evolution_des_soumissions_de_perception) }}% </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-span-12 sm:col-span-6 xl:col-span-3 intro-y">
+            <div class="report-box zoom-in">
+              <div class="p-5 text-center box">
+                <div class="flex items-center justify-between">
+                  <PercentIcon class="size-10 text-warning" />
+                  <div class="mt-2 text-lg font-medium leading-8">Pourcentage Évolution</div>
+                </div>
+                <div class="flex items-center justify-around mt-4">
+                  <div class="flex gap-2 text-lg text-left">
+                    <div class="mt-1 text-primary">
+                      Factuel:
+                      <span class="font-semibold"> {{ Math.round(statistiques?.pourcentage_evolution_des_soumissions_factuel) }}% </span>
+                    </div>
+                    <div class="w-px h-8 bg-slate-400"></div>
+                    <div class="mt-1 text-primary">
+                      Perception:
+                      <span class="font-semibold"> {{ Math.round(statistiques?.pourcentage_evolution_des_soumissions_de_perception) }}% </span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
