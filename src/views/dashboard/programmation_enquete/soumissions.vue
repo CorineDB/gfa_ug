@@ -11,6 +11,7 @@ import { useRouter, useRoute } from "vue-router";
 import ActionsMener from "../../../components/news/ActionsMener.vue";
 import ProgressBar from "../../../components/news/ProgressBar.vue";
 import ChartPerceptionOption from "../../../components/news/ChartPerceptionOption.vue";
+import { data } from "jquery";
 
 const router = useRouter();
 
@@ -30,9 +31,12 @@ const isLoadingStats = ref(false);
 const showModalOrganisation = ref(false);
 const isLoadingData = ref(true);
 const isCreate = ref(true);
+const loadingOption = ref(true);
 const datas = ref([]);
 const statistiques = ref({});
 const idCurrentOng = ref({});
+const currentOptionsPerception = ref({});
+const currentOrganisationsOptions = ref("");
 
 const createData = async () => {
   isLoading.value = true;
@@ -68,6 +72,8 @@ const getEvaluation = async () => {
   await EvaluationService.findEvaluation(idEvaluation)
     .then((result) => {
       statistiques.value = result.data.data;
+      currentOrganisationsOptions.value = statistiques.value.options_de_reponse_stats[0].id;
+      changeOrganisationOptions();
       isLoadingStats.value = false;
     })
     .catch((e) => {
@@ -168,8 +174,11 @@ const resetForm = () => {
 const openFactuelModal = () => {
   router.push({ name: "ToolsFactuel", params: { id: idEvaluation } });
 };
-const goToPageSynthese = (Idsoumission) => {
+const goToPageSynthese = () => {
   router.push({ name: "FicheSynthese", params: { e: idEvaluation } });
+};
+const goToPageSyntheseWithOng = (ong) => {
+  router.push({ name: "FicheSynthese", params: { e: idEvaluation }, query: { ong } });
 };
 const goToPageSoumission = (Idsoumission) => {
   showModalOrganisation.value = false;
@@ -207,9 +216,21 @@ function getPercentEvolutionOng(id) {
   return ong?.pourcentage_evolution ?? 0;
 }
 
+const changeOrganisationOptions = () => {
+  loadingOption.value = false;
+  setTimeout(() => {
+    currentOptionsPerception.value = statistiques.value.options_de_reponse_stats.find((item) => item.id == currentOrganisationsOptions.value);
+    loadingOption.value = true;
+  }, 100);
+};
+
 const currentOrganisation = computed(() => datas.value.find((item) => item.id == idCurrentOng.value));
 const statsOptions = computed(() => statistiques.value.options_de_reponse_stats);
 const organisations = computed(() => datas.value.map((item) => ({ nom: item.nom, id: item.id })));
+const organisationsOptions = computed(() => datas.value.options_de_reponse_stats.map((item) => ({ nom: item.nom, id: item.id })));
+// const currentOptionsPerception = computed(() => {
+//   return statistiques.value.options_de_reponse_stats.find((item) => item.id == currentOrganisationsOptions.value);
+// });
 
 onMounted(async () => {
   await getDatas();
@@ -367,7 +388,7 @@ onMounted(async () => {
 
       <section>
         <p class="pb-4 mt-10 text-lg font-medium intro-y">Liste des soumissions par organisations</p>
-        <div class="grid grid-cols-1 gap-6 mt-6 md:grid-cols-2 lg:grid-cols-3">
+        <div class="grid h-auto grid-cols-1 gap-6 mt-6 md:grid-cols-2 lg:grid-cols-3">
           <div v-for="(ong, index) in datas" :key="index" @click="changeCurrentDetailOrganisation(ong.id)" class="relative transition-all duration-500 border-l-4 shadow-2xl box group _bg-white zoom-in border-primary hover:border-secondary">
             <div class="relative m-5 bg-white">
               <div class="text-[#171a1d] group-hover:text-[#007580] font-medium text-[14px] md:text-[16px] lg:text-[18px] leading-[30px] pt-[10px]">{{ ong.nom }}</div>
@@ -392,7 +413,12 @@ onMounted(async () => {
               </div>
             </div>
 
-            <div class="flex items-center justify-center w-full border-t lg:justify-end border-slate-200/60 dark:border-darkmode-400">
+            <div class="flex flex-col items-end justify-end w-full border-t border-slate-200/60 dark:border-darkmode-400">
+              <div class="flex items-center justify-end w-full border-t border-slate-200/60 dark:border-darkmode-400">
+                <button v-if="(ong.factuel && ong.factuel[0].statut) || (ong.factuel && ong.factuel[0].pourcentage_evolution >= 100)" @click.self="goToPageSyntheseWithOng(ong.id)" class="flex items-center justify-center w-full gap-2 py-2.5 flex-1 text-base font-medium bg-outline-primary">Fiche de synthèse <ArrowRightIcon class="ml-2 size-5" /></button>
+                <button v-else class="w-full gap-2 py-[22px]"></button>
+                <!-- <button class="flex items-center justify-center w-full gap-2 py-2.5 text-base font-medium bg-outline-primary">Marqueur de gouvernance <ArrowRightIcon class="ml-2 size-5" /></button> -->
+              </div>
               <button class="flex items-center justify-center w-full gap-2 py-2.5 text-base font-medium text-white bg-primary">Afficher les soumissions <ExternalLinkIcon class="ml-2 size-5" /></button>
             </div>
 
@@ -410,15 +436,18 @@ onMounted(async () => {
         <p class="pb-4 mt-10 text-lg font-medium intro-y">Évolution des options de réponse de perception</p>
         <div class="py-4 mt-6 box">
           <div class="!w-[250px] p-3">
-            <TomSelect name="organisations" :options="{ placeholder: 'Selectionez une organisation' }">
+            <TomSelect name="organisations" v-model="currentOrganisationsOptions" @change="changeOrganisationOptions" :options="{ placeholder: 'Selectionez une organisation' }">
               <option value=""></option>
               <option v-for="organisation in organisations" :key="organisation.id" :value="organisation.id">{{ organisation.nom }}</option>
             </TomSelect>
           </div>
-          <ChartPerceptionOption :datasx="statistiques.options_de_reponse_stats" class="py-4 mt-6" />
+          <ChartPerceptionOption v-if="loadingOption" :datasx="currentOptionsPerception.categories" class="py-4 mt-6" />
+          <div v-else class="box h-[500px] flex justify-center items-center">
+            <LoaderSnipper />
+          </div>
         </div>
       </section>
-      <ActionsMener v-if="idEvaluation" :evaluation="idEvaluation" />
+      <ActionsMener v-if="idEvaluation && statistiques.statut == 1" :evaluation="idEvaluation" />
     </div>
     <LoaderSnipper v-if="isLoadingData" />
   </div>

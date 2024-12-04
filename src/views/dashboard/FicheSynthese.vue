@@ -22,6 +22,7 @@ import { data } from "jquery";
 const router = useRouter();
 const route = useRoute();
 const idEvaluation = route.params.e;
+const ong = route.query.ong.toString();
 const organizationId = ref("");
 const idSelectStructure = ref("");
 const dataForAllOrganisation = ref([]);
@@ -66,7 +67,7 @@ const changeStructure = () => {
 
 onMounted(async () => {
   await getDataCollection();
-  idSelectStructure.value = dataForAllOrganisation.value[0]?.id ?? "";
+  ong ? (idSelectStructure.value = ong) : (idSelectStructure.value = dataForAllOrganisation.value[0]?.id ?? "");
 });
 </script>
 

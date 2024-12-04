@@ -8,7 +8,7 @@ import { toast } from "vue3-toastify";
 import LoaderData from "./LoaderData.vue";
 import { getAllErrorMessages } from "@/utils/gestion-error";
 import FormulaireFactuel from "@/services/modules/formFactuel.service";
-// import { getFieldErrors } from "../../utils/helpers";
+import { getFieldErrors } from "../../utils/helpers";
 
 const props = defineProps({
   toReset: Boolean,
