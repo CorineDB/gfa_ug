@@ -10,6 +10,7 @@ import LoaderSnipper from "@/components/LoaderSnipper.vue";
 import { getAllErrorMessages } from "@/utils/gestion-error";
 import decoupage from "@/decoupage_territorial_benin.json";
 import { useRouter } from "vue-router";
+import { getFieldErrors } from "../../utils/helpers";
 
 const router = useRouter();
 
@@ -51,6 +52,7 @@ const addPointFocal = ref(false);
 const isCreate = ref(true);
 const datas = ref([]);
 const departements = ref([]);
+const errors = ref({});
 const selectedDepartementData = ref("");
 
 const initTabulator = () => {
@@ -184,7 +186,11 @@ const submitData = async () => {
     getDatas();
     resetForm();
   } catch (e) {
-    toast.error(getAllErrorMessages(e));
+    if (e.response && e.response.status === 422) {
+      errors.value = e.response.data.errors;
+    } else {
+      toast.error(getAllErrorMessages(e));
+    }
   } finally {
     isLoading.value = false;
   }
@@ -250,6 +256,7 @@ function resetPayload() {
 // UI related functions
 const resetForm = () => {
   resetPayload();
+  errors.value = {};
   showModalCreate.value = false;
 };
 const openCreateModal = () => {
@@ -377,20 +384,20 @@ onMounted(() => {
       <form @submit.prevent="submitData">
         <ModalBody class="space-y-3">
           <div class="grid grid-cols-2 gap-4">
-            <InputForm label="Nom" v-model="payload.nom" />
-            <InputForm label="Email" v-model="payload.email" type="email" />
+            <InputForm label="Nom" v-model="payload.nom" :control="getFieldErrors(errors.nom)" />
+            <InputForm label="Email" v-model="payload.email" type="email" :control="getFieldErrors(errors.email)" />
           </div>
           <div class="grid grid-cols-2 gap-4">
-            <InputForm label="Sigle" v-model="payload.sigle" />
-            <InputForm label="Contact" v-model.number="payload.contact" type="number" />
+            <InputForm label="Sigle" v-model="payload.sigle" :control="getFieldErrors(errors.sigle)" />
+            <InputForm label="Contact" v-model.number="payload.contact" type="number" :control="getFieldErrors(errors.contact)" />
           </div>
           <div class="grid grid-cols-2 gap-4">
-            <InputForm label="Code" v-model.number="payload.code" type="number" />
-            <InputForm label="Secteur d'activité" v-model="payload.secteurActivite" />
+            <InputForm label="Code" :control="getFieldErrors(errors.code)" v-model.number="payload.code" type="number" />
+            <InputForm label="Secteur d'activité" :control="getFieldErrors(errors.secteurActivite)" v-model="payload.secteurActivite" />
           </div>
           <div class="grid grid-cols-2 gap-4">
-            <InputForm label="Adresse" v-model="payload.addresse" :required="false" />
-            <InputForm label="Pays" v-model="payload.pays" />
+            <InputForm label="Adresse" :control="getFieldErrors(errors.addresse)" v-model="payload.addresse" :required="false" />
+            <InputForm label="Pays" :control="getFieldErrors(errors.pays)" v-model="payload.pays" />
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div>
@@ -399,6 +406,7 @@ onMounted(() => {
                 <option value=""></option>
                 <option v-for="(dep, index) in departements" :key="index" :value="dep.lib_dep">{{ dep.lib_dep }}</option>
               </TomSelect>
+              <div v-if="errors.departement" class="mt-2 text-danger">{{ getFieldErrors(errors.departement) }}</div>
             </div>
             <div :class="[!showCommune ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
               <label class="form-label">Communes</label>
@@ -407,6 +415,7 @@ onMounted(() => {
                   {{ commune.lib_com }}
                 </option>
               </TomSelect>
+              <div v-if="errors.commune" class="mt-2 text-danger">{{ getFieldErrors(errors.commune) }}</div>
             </div>
           </div>
           <div>
@@ -415,6 +424,7 @@ onMounted(() => {
               <option value=""></option>
               <option v-for="(type, index) in types" :key="index" :value="type.id">{{ type.label }}</option>
             </TomSelect>
+            <div v-if="errors.type" class="mt-2 text-danger">{{ getFieldErrors(errors.type) }}</div>
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div :class="[!showArrondissement ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
@@ -422,6 +432,7 @@ onMounted(() => {
               <TomSelect v-model="payload.arrondissement" @change="updateQuartiers" :options="{ placeholder: 'Selectionez  arrondissement' }" class="w-full">
                 <option v-for="(arrond, index) in filteredArrondissements" :key="index" :value="arrond.lib_arrond">{{ arrond.lib_arrond }}</option>
               </TomSelect>
+              <div v-if="errors.arrondissement" class="mt-2 text-danger">{{ getFieldErrors(errors.arrondissement) }}</div>
             </div>
             <div :class="[!showQuatier ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
               <label class="form-label">Quatier</label>
@@ -430,6 +441,7 @@ onMounted(() => {
                   {{ quart.lib_quart }}
                 </option>
               </TomSelect>
+              <div v-if="errors.quartier" class="mt-2 text-danger">{{ getFieldErrors(errors.quartier) }}</div>
             </div>
           </div>
           <!-- <div class="grid grid-cols-2 gap-4">
@@ -442,15 +454,15 @@ onMounted(() => {
             <InputForm label="Quatier" v-model="payload.quartier" />
           </div> -->
           <div class="grid grid-cols-2 gap-4">
-            <InputForm label="Longitude" v-model.number="payload.longitude" type="number" />
-            <InputForm label="Latitude" v-model.number="payload.latitude" type="number" />
+            <InputForm label="Longitude" :control="getFieldErrors(errors.longitude)" v-model.number="payload.longitude" type="number" />
+            <InputForm label="Latitude" :control="getFieldErrors(errors.latitude)" v-model.number="payload.latitude" type="number" />
           </div>
 
           <div class="grid grid-cols-2 gap-4">
-            <InputForm label="Nom point focal" v-model="payload.nom_point_focal" />
-            <InputForm label="Prénom point focal" v-model="payload.prenom_point_focal" />
+            <InputForm label="Nom point focal" :control="getFieldErrors(errors.nom_point_focal)" v-model="payload.nom_point_focal" />
+            <InputForm label="Prénom point focal" :control="getFieldErrors(errors.prenom_point_focal)" v-model="payload.prenom_point_focal" />
           </div>
-          <InputForm label="Contact point focal" v-model="payload.contact_point_focal" type="number" />
+          <InputForm label="Contact point focal" :control="getFieldErrors(errors.contact_point_focal)" v-model="payload.contact_point_focal" type="number" />
         </ModalBody>
         <ModalFooter>
           <div class="flex gap-2">

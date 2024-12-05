@@ -44,6 +44,7 @@ const organisationSelected = ref(false);
 const isValidate = ref(false);
 const isLoadingDataPerception = ref(true);
 const sources = ref([]);
+const errors = ref({});
 
 // Etat de la page et items par page
 const currentPage = ref(1);
@@ -97,10 +98,17 @@ const submitData = async () => {
         showModalPreview.value = false;
         showAlertValidate.value = true;
       }
+      errors.value = {};
       // await getDataFormPerception();
     } catch (e) {
       console.error(e);
-      if (isValidate.value) toast.error(getAllErrorMessages(e));
+      if (isValidate.value) {
+        if (e.response && e.response.status === 422) {
+          errors.value = e.response.data.errors;
+        } else {
+          toast.error(getAllErrorMessages(e));
+        }
+      }
     } finally {
       isLoading.value = false;
     }

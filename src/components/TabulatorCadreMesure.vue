@@ -108,10 +108,10 @@
               <option v-for="annee in years" :key="annee" :value="annee">{{ annee }}</option>
             </TomSelect>
           </div> -->
-          <InputForm label="Année de suivi" class="flex-1" v-model="payloadSuivi.annee" type="number" />
+          <InputForm label="Année de suivi" class="flex-1" v-model="payloadSuivi.annee" :control="getFieldErrors(errors.annee)" type="number" />
           <div v-if="!isAgregerCurrentIndicateur" class="flex flex-wrap items-center justify-between gap-3">
-            <InputForm label="Valeur cible" class="flex-1" v-model="payloadSuivi.valeurCible" type="number" />
-            <InputForm label="Valeur réalisée" class="flex-1" v-model="payloadSuivi.valeurRealise" type="number" />
+            <InputForm label="Valeur cible" class="flex-1" v-model="payloadSuivi.valeurCible" :control="getFieldErrors(errors.valeurCible)" type="number" />
+            <InputForm label="Valeur réalisée" class="flex-1" v-model="payloadSuivi.valeurRealise" :control="getFieldErrors(errors.valeurRealise)" type="number" />
           </div>
 
           <div v-if="valueKeysIndicateurSuivi.length > 0 && isAgregerCurrentIndicateur" class="">
@@ -122,6 +122,7 @@
                 <input type="number" class="form-control" v-model.number="valeurCible.find((item) => item.keyId === base.id).value" @input="updateValueCible(base.id, $event.target.value)" placeholder="valeur cible" aria-label="valeur" aria-describedby="input-group-valeur" />
               </div>
             </div>
+            <div v-if="errors.valeurCible" class="mt-2 text-danger">{{ getFieldErrors(errors.valeurCible) }}</div>
           </div>
           <div v-if="valueKeysIndicateurSuivi.length > 0 && isAgregerCurrentIndicateur" class="">
             <label class="form-label">Valeur Réalisée</label>
@@ -131,6 +132,7 @@
                 <input type="number" class="form-control" v-model.number="valeurRealise.find((item) => item.keyId === base.id).value" @input="updateValueRealiser(base.id, $event.target.value)" placeholder="valeur réalisée" aria-label="valeur" aria-describedby="input-group-valeur" />
               </div>
             </div>
+            <div v-if="errors.valeurRealise" class="mt-2 text-danger">{{ getFieldErrors(errors.valeurRealise) }}</div>
           </div>
 
           <div class="flex-1">
@@ -148,21 +150,24 @@
               <option value=""></option>
               <option v-for="trimestre in trimestres" :key="trimestre" :value="trimestre">Trimestre {{ trimestre }}</option>
             </TomSelect>
+            <div v-if="errors.trimestre" class="mt-2 text-danger">{{ getFieldErrors(errors.trimestre) }}</div>
           </div>
 
-          <InputForm v-else label="Date de suivi" class="flex-1" v-model="payloadSuivi.dateSuivie" type="date" />
+          <InputForm v-else label="Date de suivi" class="flex-1" v-model="payloadSuivi.dateSuivie" :control="getFieldErrors(errors.dateSuivie)" type="date" />
           <div class="flex-1">
             <label class="form-label">Source de données</label>
             <TomSelect v-model="payloadSuivi.sources_de_donnee" name="source" :options="{ placeholder: 'Selectionez une source' }" class="w-full">
               <option value=""></option>
               <option v-for="(source, index) in sourcesDonnees" :key="index" :value="source">{{ source }}</option>
             </TomSelect>
+            <div v-if="errors.sources_de_donnee" class="mt-2 text-danger">{{ getFieldErrors(errors.sources_de_donnee) }}</div>
           </div>
           <div class="flex-1">
             <label class="form-label" for="description">Commentaire</label>
             <div class="">
               <textarea name="description" class="form-control" id="description" v-model="payloadSuivi.commmentaire" cols="30" rows="2"></textarea>
             </div>
+            <div v-if="errors.commmentaire" class="mt-2 text-danger">{{ getFieldErrors(errors.commmentaire) }}</div>
           </div>
         </div>
       </ModalBody>
@@ -202,6 +207,7 @@ import { getAllErrorMessages } from "@/utils/gestion-error";
 import { findColorCadreMesure } from "../utils/findColorIndicator";
 import { sourcesDonnees } from "../utils/constants";
 import { useRouter } from "vue-router";
+import { getFieldErrors } from "../utils/helpers";
 
 const props = defineProps({
   data: Array,
@@ -223,6 +229,7 @@ const showModalSuivi = ref(false);
 const showModalEdit = ref(false);
 const deleteModalPreview = ref(false);
 const isLoading = ref(false);
+const errors = ref({});
 const payloadSuivi = reactive({
   annee: "",
   trimestre: "",
@@ -276,6 +283,7 @@ const resetFormSuivi = () => {
     payloadSuivi[key] = "";
   });
   showModalSuivi.value = false;
+  errors.value = {};
 };
 // Submit data (create or update)
 const submitData = async () => {
@@ -313,7 +321,11 @@ const submitSuivi = async () => {
     // getDatas();
     resetFormSuivi();
   } catch (e) {
-    toast.error(getAllErrorMessages(e));
+    if (e.response && e.response.status === 422) {
+      errors.value = e.response.data.errors;
+    } else {
+      toast.error(getAllErrorMessages(e));
+    }
   } finally {
     showModalSuivi.value = false;
     isLoading.value = false;

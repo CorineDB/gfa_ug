@@ -22,12 +22,6 @@ const router = useRouter();
 
 const idFormFactuel = ref("");
 const idFormPerception = ref("");
-const currentProfileGouvernance = [
-  { id: 35, nom: "Redevabilité", indice_de_perception: 0.4017361111111111, indice_factuel: 0, indice_synthetique: 0.4017361111111111 },
-  { id: 32, nom: "Transparence", indice_de_perception: 0.4375, indice_factuel: 0, indice_synthetique: 0.4375 },
-  { id: 33, nom: "Participation", indice_de_perception: 0.3958333333333333, indice_factuel: 0, indice_synthetique: 0.3958333333333333 },
-  { id: 36, nom: "Egalité et non- discrimination / inclusion", indice_de_perception: 0.4416666666666666, indice_factuel: 0, indice_synthetique: 0.4416666666666666 },
-];
 const payload = reactive({
   intitule: "",
   description: "",
@@ -349,8 +343,8 @@ onMounted(async () => {
       <TabPanel>
         <div class="">
           <div class="flex flex-col items-center w-full gap-8">
-            <div class="flex justify-center w-full p-3 bg-white">
-              <div class="w-full max-w-screen-lg">
+            <div class="flex justify-center w-full p-3">
+              <div class="w-full max-w-full box">
                 <p class="p-3 text-lg font-medium">Résultats synthetique par année</p>
                 <div class="!w-[250px] p-3">
                   <label for="ongs" class="form-label">Organisation</label>
@@ -368,8 +362,8 @@ onMounted(async () => {
                 </div>
               </div>
             </div>
-            <div class="flex justify-center w-full p-3 bg-white">
-              <div class="w-full max-w-screen-lg">
+            <div class="flex justify-center w-full p-3">
+              <div class="w-full max-w-full box">
                 <p class="p-3 text-lg font-medium">Score des indices par principe</p>
                 <div class="!w-[250px] p-3">
                   <label for="years" class="form-label">Année</label>

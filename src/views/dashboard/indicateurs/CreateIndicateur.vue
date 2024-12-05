@@ -86,12 +86,13 @@
             <ModalBody>
               <div class="grid grid-cols-1 gap-4">
                 <div class="flex flex-wrap items-center justify-between gap-3">
-                  <InputForm class="flex-1" label="Nom" v-model="payload.nom" />
+                  <InputForm class="flex-1" :control="getFieldErrors(errors.nom)" label="Nom" v-model="payload.nom" />
                   <div class="flex-1">
                     <label class="form-label" for="description">Description</label>
                     <div class="">
                       <textarea name="description" class="form-control" id="description" v-model="payload.description" cols="30" rows="1"></textarea>
                     </div>
+                    <div v-if="errors.description" class="mt-2 text-danger">{{ getFieldErrors(errors.description) }}</div>
                   </div>
                 </div>
                 <div class="flex flex-wrap items-center justify-between gap-3">
@@ -99,7 +100,7 @@
                     <input id="agreer" class="form-check-input" type="checkbox" v-model="payload.agreger" />
                     <label class="form-check-label" for="agreer">Indicateur Agréger</label>
                   </div>
-                  <InputForm class="flex-1" label="Année de base" v-model.number="payload.anneeDeBase" type="number" />
+                  <InputForm class="flex-1" label="Année de base" v-model.number="payload.anneeDeBase" :control="getFieldErrors(errors.anneeDeBase)" type="number" />
                 </div>
 
                 <div class="flex flex-wrap items-center justify-between gap-3">
@@ -110,6 +111,8 @@
                       <input type="number" class="form-control" id="valeur_cible" placeholder="Valeur cible" v-model="currentAnneeCibleNotAgreger.valeurCible" />
                       <button @click.prevent="addAnneeCibleNotAgreger" class="btn btn-primary h-9"><PlusIcon class="mr-1 size-3" /></button>
                     </div>
+                    <div v-if="errors.valeurDeBase" class="mt-2 text-danger">{{ getFieldErrors(errors.valeurDeBase) }}</div>
+                    <div v-if="errors.anneesCible" class="mt-2 text-danger">{{ getFieldErrors(errors.anneesCible) }}</div>
                   </div>
                 </div>
                 <div v-if="!payload.agreger && payloadNotAgreger.anneesCible.length > 0" class="flex flex-wrap items-center w-full gap-3">
@@ -118,17 +121,20 @@
                     <span>{{ annee.annee }} </span>
                     <button @click.prevent="deleteAnneeCibleNotAgreger(index)" class="p-1.5 transition-colors rounded-full hover:bg-red-100"><XIcon class="size-4 text-danger" /></button>
                   </div>
+                  <div v-if="errors.valeurDeBase" class="mt-2 text-danger">{{ getFieldErrors(errors.valeurDeBase) }}</div>
+                  <div v-if="errors.anneesCible" class="mt-2 text-danger">{{ getFieldErrors(errors.anneesCible) }}</div>
                 </div>
 
                 <div class="flex flex-wrap items-center justify-between gap-3">
-                  <InputForm class="flex-1" label="Indice" v-model="payload.indice" type="number" />
+                  <InputForm class="flex-1" label="Indice" v-model="payload.indice" :control="getFieldErrors(errors.indice)" type="number" />
                   <div v-if="payload.agreger" class="flex-1">
                     <label class="form-label">Clé valeur</label>
                     <TomSelect v-model="array_value_keys" name="keys" multiple :options="{ placeholder: 'Selectionez les clés valeur' }" class="w-full">
                       <option v-for="(key, index) in keys" :key="index" :value="key.id">{{ key.libelle }}</option>
                     </TomSelect>
+                    <div v-if="errors.value_keys" class="mt-2 text-danger">{{ getFieldErrors(errors.value_keys) }}</div>
                   </div>
-                  <InputForm v-else class="flex-1" label="Valeur de base" v-model="payloadNotAgreger.valeurDeBase" type="number" />
+                  <InputForm v-else class="flex-1" label="Valeur de base" :control="getFieldErrors(errors.valeurDeBase)" v-model="payloadNotAgreger.valeurDeBase" type="number" />
                 </div>
                 <div v-if="array_value_keys.length > 0 && payload.agreger" class="">
                   <label class="form-label">Valeur de base</label>
@@ -148,6 +154,7 @@
                     <span>{{ annee.annee }} </span>
                     <button @click.prevent="deleteAnneeCible(index)" class="p-1.5 transition-colors rounded-full hover:bg-red-100"><XIcon class="size-4 text-danger" /></button>
                   </div>
+                  <div v-if="errors.anneesCible" class="mt-2 text-danger">{{ getFieldErrors(errors.anneesCible) }}</div>
                 </div>
                 <div class="flex flex-wrap items-center justify-between gap-3">
                   <div class="flex-1">
@@ -156,6 +163,7 @@
                       <option value=""></option>
                       <option v-for="(categorie, index) in categories" :key="categorie.id" :value="categorie.id">{{ categorie.type }} {{ categorie.indice }} {{ categorie.nom }}</option>
                     </TomSelect>
+                    <div v-if="errors.categorieId" class="mt-2 text-danger">{{ getFieldErrors(errors.categorieId) }}</div>
                   </div>
                   <div class="flex-1">
                     <label class="form-label">Type de variables</label>
@@ -163,6 +171,7 @@
                       <option value=""></option>
                       <option v-for="(variable, index) in payload.agreger ? type_variablees : type_variablees_agreger" :key="index" :value="variable.id">{{ variable.label }}</option>
                     </TomSelect>
+                    <div v-if="errors.type_de_variable" class="mt-2 text-danger">{{ getFieldErrors(errors.type_de_variable) }}</div>
                   </div>
                 </div>
                 <!-- <div class="flex flex-wrap items-center justify-between gap-3">
@@ -176,6 +185,7 @@
                       <option value=""></option>
                       <option v-for="(methode, index) in methodeCollecte" :key="index" :value="methode">{{ methode }}</option>
                     </TomSelect>
+                    <div v-if="errors.methode_de_la_collecte" class="mt-2 text-danger">{{ getFieldErrors(errors.methode_de_la_collecte) }}</div>
                   </div>
                   <div class="flex-1">
                     <label class="form-label">Fréquence de la collecte de données</label>
@@ -183,6 +193,7 @@
                       <option value=""></option>
                       <option v-for="(frequence, index) in frequenceCollecte" :key="index" :value="frequence">{{ frequence }}</option>
                     </TomSelect>
+                    <div v-if="errors.frequence_de_la_collecte" class="mt-2 text-danger">{{ getFieldErrors(errors.frequence_de_la_collecte) }}</div>
                   </div>
                 </div>
                 <div class="flex-1">
@@ -191,6 +202,7 @@
                     <option value=""></option>
                     <option v-for="(ug, index) in ugs" :key="index" :value="ug.id">{{ ug.nom }}</option>
                   </TomSelect>
+                  <div v-if="errors.responsables" class="mt-2 text-danger">{{ getFieldErrors(errors.responsables) }}</div>
                 </div>
                 <div class="flex flex-wrap items-center justify-between gap-3">
                   <div class="flex-1">
@@ -199,6 +211,7 @@
                       <option value=""></option>
                       <option v-for="(responsable, index) in responsables" :key="index" :value="responsable.id">{{ responsable.nom }}</option>
                     </TomSelect>
+                    <div v-if="errors.responsables" class="mt-2 text-danger">{{ getFieldErrors(errors.responsables) }}</div>
                   </div>
                   <div class="flex-1">
                     <label class="form-label">Unité de mesure</label>
@@ -206,6 +219,7 @@
                       <option value=""></option>
                       <option v-for="(unite, index) in unites" :key="index" :value="unite.id">{{ unite.nom }}</option>
                     </TomSelect>
+                    <div v-if="errors.uniteeMesureId" class="mt-2 text-danger">{{ getFieldErrors(errors.uniteeMesureId) }}</div>
                   </div>
                 </div>
                 <div class="flex flex-wrap items-center justify-between w-full gap-3">
@@ -215,6 +229,7 @@
                       <option value=""></option>
                       <option v-for="(site, index) in sites" :key="index" :value="site.id">{{ site.nom }}</option>
                     </TomSelect>
+                    <div v-if="errors.sites" class="mt-2 text-danger">{{ getFieldErrors(errors.sites) }}</div>
                   </div>
                   <div class="flex-1">
                     <label class="form-label">Source de données</label>
@@ -222,6 +237,7 @@
                       <option value=""></option>
                       <option v-for="(source, index) in sourcesDonnees" :key="index" :value="source">{{ source }}</option>
                     </TomSelect>
+                    <div v-if="errors.sources_de_donnee" class="mt-2 text-danger">{{ getFieldErrors(errors.sources_de_donnee) }}</div>
                   </div>
                 </div>
               </div>
@@ -308,6 +324,7 @@ import IndicateurValueKeys from "@/services/modules/key.value.service";
 import AuthService from "@/services/modules/auth.service";
 import ResultatCadreRendementService from "@/services/modules/resultat.cadre.rendement.service";
 import TabulatorCadreMesure from "@/components/TabulatorCadreMesure.vue";
+import { getFieldErrors } from "../../../utils/helpers";
 
 const props = defineProps({});
 
@@ -335,6 +352,7 @@ const ugs = ref([]);
 const sites = ref([]);
 const unites = ref([]);
 const keys = ref([]);
+const errors = ref({});
 const array_value_keys = ref([]);
 const responsablesForm = ref({ organisations: [], ug: "" });
 
@@ -443,6 +461,7 @@ const resetForm = () => {
   payload.valeurDeBase = [];
   payload.anneesCible = [];
   showModalCreate.value = false;
+  errors.value = {};
 };
 
 // Fetch data
@@ -537,7 +556,11 @@ const submitData = async () => {
     getDatasCadre();
     resetForm();
   } catch (e) {
-    toast.error(getAllErrorMessages(e));
+    if (e.response && e.response.status === 422) {
+      errors.value = e.response.data.errors;
+    } else {
+      toast.error(getAllErrorMessages(e));
+    }
   } finally {
     isLoading.value = false;
   }
