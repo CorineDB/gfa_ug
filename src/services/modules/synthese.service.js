@@ -10,6 +10,9 @@ const SyntheseService = {
     return ApiService.get(`gfa/evaluations-de-gouvernance/${idEvaluation}/fiches-de-synthese
 `);
   },
+  getEvolutionByScrore(ong) {
+    return ApiService.get(`/gfa/programmes/evolution-des-scores-au-fil-du-temps/${ong}`);
+  },
 
   getOrganizations(slug) {
     return ApiService.get(`gfa/organisations`);

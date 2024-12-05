@@ -14,6 +14,9 @@ import { getAllErrorMessages } from "@/utils/gestion-error";
 import ChartProgressionByTime from "../../../components/news/ChartProgressionByTime.vue";
 import ProgressBar from "../../../components/news/ProgressBar.vue";
 import ChartScroreByPrincipe from "../../../components/news/ChartScroreByPrincipe.vue";
+import { getFieldErrors } from "../../../utils/helpers";
+import SyntheseService from "../../../services/modules/synthese.service";
+import { data } from "jquery";
 
 const router = useRouter();
 
@@ -42,11 +45,18 @@ const showModalCreate = ref(false);
 const deleteModalPreview = ref(false);
 const isLoading = ref(false);
 const isLoadingData = ref(true);
+const isLoadingDataScore = ref(false);
 const isCreate = ref(true);
 const datas = ref([]);
+const datasScore = ref([]);
 const organisations = ref([]);
 const formulairesFactuel = ref([]);
 const formulairesPerception = ref([]);
+const currentScore = ref({});
+const currentOrganisationScore = ref("");
+const ongSelectedScore = ref("");
+const yearSelectedOng = ref("");
+const errors = ref({});
 
 const createData = async () => {
   payload.formulaires_de_gouvernance = [idFormFactuel.value, idFormPerception.value];
@@ -60,8 +70,12 @@ const createData = async () => {
     })
     .catch((e) => {
       isLoading.value = false;
+      if (e.response && e.response.status === 422) {
+        errors.value = e.response.data.errors;
+      } else {
+        toast.error(getAllErrorMessages(e));
+      }
       console.error(e);
-      toast.error(getAllErrorMessages(e));
     });
 };
 const getDatas = async () => {
@@ -76,6 +90,20 @@ const getDatas = async () => {
       toast.error("Une erreur est survenue: Liste des évaluations.");
     });
   // initTabulator();
+};
+
+const getEvolutionByScore = async (id) => {
+  isLoadingDataScore.value = true;
+  await SyntheseService.getEvolutionByScrore(id)
+    .then((result) => {
+      datasScore.value = result.data.data;
+      currentScore.value = datasScore.value[0]?.scores;
+      isLoadingDataScore.value = false;
+    })
+    .catch((e) => {
+      isLoadingDataScore.value = false;
+      e.response?.data?.message ? toast.error(e.response?.data?.message) : toast.error("Une erreur est survenue: Score.");
+    });
 };
 const getFormsFactuel = async () => {
   await FormulaireFactuel.get()
@@ -115,8 +143,12 @@ const updateData = async () => {
       toast.success("Évaluation modifiée.");
     })
     .catch((e) => {
+      if (e.response && e.response.status === 422) {
+        errors.value = e.response.data.errors;
+      } else {
+        toast.error(getAllErrorMessages(e));
+      }
       console.error(e);
-      toast.error("Vérifier les informations et ressayer.");
     })
     .finally(() => {
       isLoading.value = false;
@@ -159,10 +191,15 @@ function gotoAppreciations(enquete) {
   router.push({ name: "EnqueteAppreciations", query: { enqueteId: enquete.id } });
 }
 
+async function changeOrganisationScore() {
+  await getEvolutionByScore(ongSelectedScore.value);
+  yearSelectedOng.value = yearsCurrentScore.value[0];
+}
+
 function fetchOrganisationsAndFormulaires() {
   getFormsFactuel();
   getFormsPerception();
-  getOrganisations();
+  // getOrganisations();
 }
 
 const handleEdit = (params) => {
@@ -195,10 +232,11 @@ const resetForm = () => {
   payload.debut = "";
   payload.description = "";
   payload.fin = "";
-  idFormFactuel.value = "";
-  idFormPerception.value = "";
+  idFormFactuel.value = formulairesFactuel.value[0].id;
+  idFormPerception.value = formulairesPerception.value[0].id;
   payload.organisations = [];
   showModalCreate.value = false;
+  errors.value = {};
 };
 const openCreateModal = () => {
   fetchOrganisationsAndFormulaires();
@@ -207,11 +245,15 @@ const openCreateModal = () => {
 
 const mode = computed(() => (isCreate.value ? "Ajouter" : "Modifier"));
 
-onMounted(() => {
-  getDatas();
+const yearsCurrentScore = computed(() => Object.keys(currentScore.value));
+
+onMounted(async () => {
+  await getDatas();
+  await getOrganisations();
+  // ongSelectedScore.value = organisations.value[0].id;
+  // changeOrganisationScore();
   // getFormsFactuel();
   // getFormsPerception();
-  // getOrganisations();
 });
 </script>
 
@@ -307,25 +349,40 @@ onMounted(() => {
       <TabPanel>
         <div class="">
           <div class="flex flex-col items-center w-full gap-8">
-            <div class="box">
-              <p class="p-3 text-lg font-medium">Progression des principes par année</p>
-              <div class="!w-[250px] p-3">
-                <TomSelect name="organisations" :options="{ placeholder: 'Selectionez une organisation' }">
-                  <option value=""></option>
-                  <option v-for="organisation in []" :key="organisation.id" :value="organisation.id">{{ organisation.nom }}</option>
-                </TomSelect>
+            <div class="flex justify-center w-full p-3 bg-white">
+              <div class="w-full max-w-screen-lg">
+                <p class="p-3 text-lg font-medium">Résultats synthetique par année</p>
+                <div class="!w-[250px] p-3">
+                  <label for="ongs" class="form-label">Organisation</label>
+                  <TomSelect name="organisations" v-model="ongSelectedScore" @change="changeOrganisationScore" :options="{ placeholder: 'Selectionez une organisation' }">
+                    <option value=""></option>
+                    <option v-for="organisation in organisations" :key="organisation.id" :value="organisation.id">{{ organisation.nom }}</option>
+                  </TomSelect>
+                </div>
+                <ChartProgressionByTime :chartData="currentScore" v-if="ongSelectedScore && !isLoadingDataScore" />
+                <div class="h-[600px] flex justify-center items-center" v-if="!ongSelectedScore && !isLoadingDataScore">
+                  <p class="text-xl font-medium text-slate-600">Veuillez choisir une organisation pour afficher le graphique</p>
+                </div>
+                <div class="h-[600px] flex justify-center items-center" v-if="isLoadingDataScore">
+                  <LoaderSnipper />
+                </div>
               </div>
-              <ChartProgressionByTime />
             </div>
-            <div class="box">
-              <p class="p-3 text-lg font-medium">Score par principe</p>
-              <div class="!w-[250px] p-3">
-                <TomSelect name="organisations" :options="{ placeholder: 'Selectionez une organisation' }">
-                  <option value=""></option>
-                  <option v-for="organisation in []" :key="organisation.id" :value="organisation.id">{{ organisation.nom }}</option>
-                </TomSelect>
+            <div class="flex justify-center w-full p-3 bg-white">
+              <div class="w-full max-w-screen-lg">
+                <p class="p-3 text-lg font-medium">Score des indices par principe</p>
+                <div class="!w-[250px] p-3">
+                  <label for="years" class="form-label">Année</label>
+                  <TomSelect name="years" v-model="yearSelectedOng" :options="{ placeholder: 'Selectionez une organisation' }">
+                    <option value=""></option>
+                    <option v-for="year in yearsCurrentScore" :key="year" :value="year">{{ year }}</option>
+                  </TomSelect>
+                </div>
+                <ChartScroreByPrincipe v-if="currentScore[yearSelectedOng]?.length > 0" :datas="currentScore[yearSelectedOng]" />
+                <div v-else class="h-[600px] flex justify-center items-center">
+                  <p class="text-xl font-medium text-slate-600">Aucune données disponible</p>
+                </div>
               </div>
-              <ChartScroreByPrincipe v-if="currentProfileGouvernance?.length > 0" :datas="currentProfileGouvernance" />
             </div>
           </div>
         </div>
@@ -341,39 +398,44 @@ onMounted(() => {
     <form @submit.prevent="submitData">
       <ModalBody>
         <div class="grid grid-cols-1 gap-4">
-          <InputForm label="Nom" v-model="payload.intitule" />
-          <InputForm label="Description" v-model="payload.description" :required="false" />
+          <InputForm label="Nom" v-model="payload.intitule" :control="getFieldErrors(errors.intitule)" />
+          <InputForm label="Description" :control="getFieldErrors(errors.description)" v-model="payload.description" :required="false" />
           <div class="flex items-center justify-between w-full gap-4">
             <div class="">
               <label for="objectif" class="form-label">Objectif</label>
-              <input id="objectif" type="number" min="0.05" step="0.05" max="1" required v-model.number="payload.objectif_attendu" class="form-control" placeholder="Objectif Principe" />
+              <input id="objectif" type="number" min="0.05" step="0.05" max="1" required v-model.number="payload.objectif_attendu" class="form-control" placeholder="Objectif" />
+              <div v-if="errors.objectif_attendu" class="mt-2 text-danger">{{ getFieldErrors(errors.objectif_attendu) }}</div>
             </div>
             <div class="">
               <label for="annee" class="form-label">Année</label>
               <input id="annee" type="number" required v-model.number="payload.annee_exercice" class="form-control" placeholder="Année exercice" />
+              <div v-if="errors.annee_exercice" class="mt-2 text-danger">{{ getFieldErrors(errors.annee_exercice) }}</div>
             </div>
           </div>
           <div class="flex w-full gap-4">
-            <InputForm label="Début de l'enquete " v-model="payload.debut" type="date" />
-            <InputForm label="Fin de l'enquete " v-model="payload.fin" type="date" />
+            <InputForm label="Début de l'enquete " v-model="payload.debut" type="date" :control="getFieldErrors(errors.debut)" />
+            <InputForm label="Fin de l'enquete " v-model="payload.fin" type="date" :control="getFieldErrors(errors.fin)" />
           </div>
           <div class="">
             <label class="form-label">Formulaires Factuel</label>
             <TomSelect v-model="idFormFactuel" :options="{ placeholder: 'Selectionez un formulaire' }" class="w-full">
               <option v-for="(form, index) in formulairesFactuel" :key="index" :value="form.id">{{ form.libelle }}</option>
             </TomSelect>
+            <div v-if="errors.formulaires_de_gouvernance" class="mt-2 text-danger">{{ getFieldErrors(errors.formulaires_de_gouvernance) }}</div>
           </div>
           <div class="">
             <label class="form-label">Formulaires de perception</label>
             <TomSelect v-model="idFormPerception" :options="{ placeholder: 'Selectionez un formulaire' }" class="w-full">
               <option v-for="(form, index) in formulairesPerception" :key="index" :value="form.id">{{ form.libelle }}</option>
             </TomSelect>
+            <div v-if="errors.formulaires_de_gouvernance" class="mt-2 text-danger">{{ getFieldErrors(errors.formulaires_de_gouvernance) }}</div>
           </div>
           <div class="">
             <label class="form-label">Organisations</label>
             <TomSelect v-model="payload.organisations" multiple :options="{ placeholder: 'Selectionez les organisations' }" class="w-full">
               <option v-for="(organisation, index) in organisations" :key="index" :value="organisation.id">{{ organisation.nom }}</option>
             </TomSelect>
+            <div v-if="errors.organisations" class="mt-2 text-danger">{{ getFieldErrors(errors.organisations) }}</div>
           </div>
         </div>
       </ModalBody>
