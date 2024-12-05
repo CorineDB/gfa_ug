@@ -28,6 +28,7 @@ const isLoadingData = ref(true);
 const isCreate = ref(true);
 const isEditOrDelete = ref(false);
 const datas = ref([]);
+const errors = ref({});
 
 function choiceOption(data) {
   emit("selected", data);
@@ -57,7 +58,11 @@ const submitData = async () => {
     getDatas();
     resetForm();
   } catch (e) {
-    toast.error(getAllErrorMessages(e));
+    if (e.response && e.response.status === 422) {
+      errors.value = e.response.data.errors;
+    } else {
+      toast.error(getAllErrorMessages(e));
+    }
   } finally {
     isLoading.value = false;
   }
@@ -100,6 +105,7 @@ const resetForm = () => {
   payload.nom = "";
   payload.description = "";
   showModalCreate.value = false;
+  errors.value = {};
 };
 const openCreateModal = () => {
   resetForm();

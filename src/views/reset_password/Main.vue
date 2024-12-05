@@ -66,24 +66,28 @@ const email = ref("");
 const errorMessage = ref("");
 const errorMessageForm = ref("");
 
-const ressetPassword = () => {
+const ressetPassword = async () => {
   if (payload.new_password) {
     chargement.value = true;
     try {
-      const result = resetPassword.create(payload);
-      if (result.data.statut === "success") {
+      const result = await resetPassword.create(payload);
+      if (result.data.statut == "success") {
+        console.log("Season 1");
+        router.push({ name: "login" });
         chargement.value = false;
         // showFormSuccess.value = true;
-        router.push({ name: Login });
       } else {
+        console.log("Season 2");
         showFormError.value = true;
-        errorMessageForm.value = result.data?.message || "Une erreur est survenue.";
+        chargement.value = false;
+        errorMessageForm.value = result.data.data?.message || "Une erreur est survenue.";
       }
     } catch (error) {
+      console.log("Season 3");
       chargement.value = false;
       showFormError.value = true;
       errorMessageForm.value = error.response?.data?.message || "Une erreur est survenue.";
-      toast.error(getAllErrorMessages(error));
+      toast.error("Une erreur est survenue");
     }
   }
 };

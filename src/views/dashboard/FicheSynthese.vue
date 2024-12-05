@@ -17,10 +17,12 @@ import { computed } from "vue";
 import ExportationSynthesePerception from "../../components/news/ExportationSynthesePerception.vue";
 import TabulatorSynthesePerception from "../../components/news/TabulatorSynthesePerception.vue";
 import ExportationResultatSynthese from "../../components/news/ExportationResultatSynthese.vue";
+import { data } from "jquery";
 
 const router = useRouter();
 const route = useRoute();
 const idEvaluation = route.params.e;
+const ong = route.query.ong.toString();
 const organizationId = ref("");
 const idSelectStructure = ref("");
 const dataForAllOrganisation = ref([]);
@@ -65,7 +67,7 @@ const changeStructure = () => {
 
 onMounted(async () => {
   await getDataCollection();
-  idSelectStructure.value = dataForAllOrganisation.value[0].id;
+  ong ? (idSelectStructure.value = ong) : (idSelectStructure.value = dataForAllOrganisation.value[0]?.id ?? "");
 });
 </script>
 
@@ -133,8 +135,8 @@ onMounted(async () => {
               </tr>
             </tbody>
           </table>
-          <!-- <ChartScroreByPrincipe />
-            <ChartOptionResponseByCategorieAndMember />
+          <!-- <ChartScroreByPrincipe v-if="currentProfileGouvernance?.length > 0" :datas="currentProfileGouvernance" /> -->
+          <!-- <ChartOptionResponseByCategorieAndMember />
             <ChartProgressionByTime />
             <ChartScorePerceptionByPrincipe /> -->
         </TabPanel>

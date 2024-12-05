@@ -63,7 +63,7 @@ const payload = reactive({
   libelle: "",
   annee_exercice: new Date().getFullYear(),
   type: "factuel",
-  factuel: { options_de_reponse: globalOptionResponses.value.options_de_reponse, types_de_gouvernance: typesGouvernance.value.types_de_gouvernance },
+  factuel: { options_de_reponse: [], types_de_gouvernance: typesGouvernance.value.types_de_gouvernance },
 });
 
 const currentPreviewFactuelFormData = reactive({
@@ -176,6 +176,7 @@ const resetCurrentGlobalFactuelFormData = () => {
 const resetAllForm = () => {
   resetCurrentGlobalFactuelFormData();
   resetCurrentPreviewFactuelFormData();
+  (previewOptionResponses.value.options_de_reponse = []), (globalOptionResponses.value.options_de_reponse = []);
   // resetOptions.value = !resetOptions.value;
   // resetCurrentForm.value = !resetCurrentForm.value;
   // globalOptionResponses.value.options_de_reponse = [];
@@ -277,6 +278,8 @@ const resetForm = () => {
 };
 const createForm = async () => {
   isLoadingForm.value = true;
+  payload.factuel.options_de_reponse = globalOptionResponses.value.options_de_reponse;
+
   try {
     await FormulaireFactuel.create(payload);
     toast.success(`Formulaire créé avec succès.`);

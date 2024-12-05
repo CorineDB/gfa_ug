@@ -308,13 +308,13 @@ onMounted(async () => {
           </ul>
         </div>
       </div>
-      <div class="min-w-[250px] flex items-center gap-3">
+      <!-- <div class="min-w-[250px] flex items-center gap-3">
         <label class="form-label">Organisations</label>
         <TomSelect v-model="payload.organisationId" @change="changeOrganisation" :options="{ placeholder: 'Selectionez une organisation' }" class="w-full">
           <option value=""></option>
           <option v-for="(ong, index) in formDataFactuel.organisations" :key="index" :value="ong.id">{{ ong.nom }}</option>
         </TomSelect>
-      </div>
+      </div> -->
     </div>
     <div>
       <div class="py-5 intro-x" v-if="formDataFactuel.id">

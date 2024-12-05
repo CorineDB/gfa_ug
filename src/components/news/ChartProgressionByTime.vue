@@ -1,108 +1,107 @@
 <template>
   <div>
-    <canvas ref="lineChartCanvas"></canvas>
+    <canvas ref="chartCanvas" style="height: 600px; width: 100%"></canvas>
   </div>
 </template>
 
 <script>
-import { onMounted, ref } from "vue";
+import { defineComponent, onMounted, ref } from "vue";
 import { Chart, registerables } from "chart.js";
 
-// Enregistrement des composants de Chart.js
 Chart.register(...registerables);
 
-export default {
+export default defineComponent({
   name: "LineChart",
   setup() {
-    const lineChartCanvas = ref(null);
+    const chartCanvas = ref(null);
+    const chartInstance = ref(null);
 
-    const createChart = () => {
-      const ctx = lineChartCanvas.value.getContext("2d");
-      new Chart(ctx, {
-        type: "line",
-        data: {
-          labels: ["2020", "2021", "2022"],
-          datasets: [
-            {
-              label: "Redevabilité",
-              data: [0.5, 0.6, 0.7],
-              borderColor: "orange",
-              fill: false,
-              tension: 0.1,
-              pointBackgroundColor: "orange",
-            },
-            {
-              label: "Participation",
-              data: [0.4, 0.5, 0.6],
-              borderColor: "red",
-              fill: false,
-              tension: 0.1,
-              pointBackgroundColor: "red",
-            },
-            {
-              label: "Transparence",
-              data: [0.6, 0.68, 0.8],
-              borderColor: "yellow",
-              fill: false,
-              tension: 0.1,
-              pointBackgroundColor: "yellow",
-            },
-            {
-              label: "Efficacité",
-              data: [0.7, 0.8, 0.85],
-              borderColor: "pink",
-              fill: false,
-              tension: 0.1,
-              pointBackgroundColor: "pink",
-            },
-            {
-              label: "Inclusion",
-              data: [0.65, 0.7, 0.9],
-              borderColor: "blue",
-              fill: false,
-              tension: 0.1,
-              pointBackgroundColor: "blue",
-            },
-          ],
+    const data = {
+      labels: ["2020", "2021", "2022"], // Années
+      datasets: [
+        {
+          label: "Redevabilité",
+          data: [0.5, 0.6, 0.7],
+          borderColor: "orange",
+          backgroundColor: "orange",
+          fill: false,
         },
-        options: {
-          responsive: true,
-          plugins: {
-            title: {
-              display: true,
-              text: "Progression des Scores au Fil du Temps",
-            },
-            legend: {
-              display: true,
-              position: "top",
-            },
-          },
-          scales: {
-            x: {
-              title: {
-                display: true,
-                text: "Année",
-              },
-            },
-            y: {
-              beginAtZero: true,
-              title: {
-                display: true,
-                text: "Score",
-              },
-            },
+        {
+          label: "Participation",
+          data: [0.6, 0.7, 0.8],
+          borderColor: "red",
+          backgroundColor: "red",
+          fill: false,
+        },
+        {
+          label: "Transparence",
+          data: [0.4, 0.5, 0.6],
+          borderColor: "pink",
+          backgroundColor: "pink",
+          fill: false,
+        },
+        {
+          label: "Efficacité",
+          data: [0.7, 0.8, 0.85],
+          borderColor: "magenta",
+          backgroundColor: "magenta",
+          fill: false,
+        },
+        {
+          label: "Inclusion",
+          data: [0.6, 0.7, 0.9],
+          borderColor: "blue",
+          backgroundColor: "blue",
+          fill: false,
+        },
+      ],
+    };
+
+    const options = {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: "top",
+        },
+      },
+      scales: {
+        x: {
+          title: {
+            display: true,
+            text: "Année",
           },
         },
-      });
+        y: {
+          title: {
+            display: true,
+            text: "Score",
+          },
+          min: 0.4,
+          max: 0.9,
+        },
+      },
     };
 
     onMounted(() => {
-      createChart();
+      if (chartCanvas.value) {
+        chartInstance.value = new Chart(chartCanvas.value, {
+          type: "line",
+          data,
+          options,
+        });
+      }
     });
 
     return {
-      lineChartCanvas,
+      chartCanvas,
     };
   },
-};
+});
 </script>
+
+<style scoped>
+canvas {
+  max-width: 100%;
+  height: auto;
+}
+</style>

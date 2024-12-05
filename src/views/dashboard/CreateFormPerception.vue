@@ -57,7 +57,7 @@ const payload = reactive({
   libelle: "",
   annee_exercice: new Date().getFullYear(),
   type: "perception",
-  perception: { options_de_reponse: globalOptionResponses.value.options_de_reponse, principes_de_gouvernance: principesGouvernance.value.principes_de_gouvernance },
+  perception: { options_de_reponse: [], principes_de_gouvernance: principesGouvernance.value.principes_de_gouvernance },
 });
 
 const currentPreviewPerceptionFormData = reactive({
@@ -222,6 +222,7 @@ const resetForm = () => {
 };
 const createForm = async () => {
   isLoadingForm.value = true;
+  payload.perception.options_de_reponse = globalOptionResponses.value.options_de_reponse;
   try {
     await FormulaireFactuel.create(payload);
     toast.success(`Formulaire créé avec succès.`);

@@ -314,8 +314,8 @@ const getOneForm = async () => {
     const { data } = await FormulaireFactuel.getOne(idForm);
     currentForm.value = data.data;
     // matchDataUpdateWithCurrentDatas(currentForm.value.categories_de_gouvernance);
-    payload.libelle = currentForm.value.libelle;
-    payload.annee_exercice = currentForm.value.annee_exercice;
+    // payload.libelle = currentForm.value.libelle;
+    // payload.annee_exercice = currentForm.value.annee_exercice;
   } catch (e) {
     toast.error("Erreur récupération du  formulaire.");
     console.log(e);

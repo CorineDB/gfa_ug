@@ -6,6 +6,9 @@ import { toast } from "vue3-toastify";
 import EvaluationService from "../../services/modules/evaluation.gouvernance.service";
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
 import { computed } from "vue";
+import ProgressBar from "../../components/news/ProgressBar.vue";
+import ExportationDetailSoumissionPerception from "../../components/news/ExportationDetailSoumissionPerception.vue";
+import ExportationDetailSoumissionFactuel from "../../components/news/ExportationDetailSoumissionFactuel.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -30,7 +33,8 @@ const getSoumission = async () => {
 };
 
 const goBack = () => {
-  router.back();
+  router.push({ name: "SoumissionsEnqueteDeCollecte", params: { id: idEvaluation }, query: { ong: soumission.value.organisationId } });
+  // router.back();
 };
 
 const filterOptions = computed(() => soumission.value?.formulaire_de_gouvernance?.options_de_reponse);
@@ -40,10 +44,18 @@ onMounted(() => getSoumission());
 <template>
   <div>
     <div v-if="!isLoading">
-      <h2 class="mt-10 text-lg font-medium intro-y">Détail Soumissions</h2>
-      <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
-        <div class="flex">
-          <button @click="goBack()" class="mr-2 shadow-md btn btn-primary"><ArrowLeftIcon class="w-4 h-4 mr-3" />Retour</button>
+      <h2 class="flex items-center justify-between gap-2 mt-10 text-lg font-medium intro-y">
+        <span>Détail Soumissions</span>
+        <div class="space-y-1" v-if="soumission?.pourcentage_evolution">
+          <p class="text-sm">Évolution soumissions</p>
+          <ProgressBar :percent="soumission.pourcentage_evolution" class="max-w-[300px]" />
+        </div>
+      </h2>
+      <div class="flex flex-wrap items-center justify-between col-span-12 mt-4 intro-y sm:flex-nowrap">
+        <div class="flex items-center justify-between w-full">
+          <button @click="goBack()" class="mr-2 shadow-md btn btn-outline-primary"><ArrowLeftIcon class="w-4 h-4 mr-3" />Retour</button>
+          <ExportationDetailSoumissionFactuel v-if="soumission?.type == 'factuel'" :filter-soumission="filterSoumission" />
+          <ExportationDetailSoumissionPerception v-else :filter-soumission="filterSoumission" :filter-options="filterOptions" />
         </div>
       </div>
       <table v-if="soumission?.type == 'factuel'" class="w-full my-10 border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
@@ -78,7 +90,7 @@ onMounted(() => getSoumission());
                     </td>
                     <td>{{ question.nom }}</td>
                     <td class="text-center">{{ question.reponse_de_la_collecte?.nom }}</td>
-                    <td class="text-right">{{ question.reponse_de_la_collecte?.point }}</td>
+                    <td class="text-center">{{ question.reponse_de_la_collecte?.point }}</td>
                     <td class="text-center">{{ question.reponse_de_la_collecte?.sourceDeVerification }}</td>
                   </tr>
                 </template>
@@ -109,18 +121,13 @@ onMounted(() => getSoumission());
           </tr>
           <!-- Lignes pour afficher chaque question de gouvernance du principe -->
           <tr v-for="(question, qIndex) in principe.questions_de_gouvernance.slice(1)" :key="question.id">
-            <td class="py-2 text-center border border-slate-600">{{ question.nom }}</td>
+            <td class="py-2 border border-slate-600">{{ question.nom }}</td>
             <td v-for="(option, index) in filterOptions" :key="index" class="py-2 text-center border border-slate-600">
               <template v-if="question.reponse_de_la_collecte?.optionDeReponseId == option.id">
-                <input :id="`n-${index}${option.id}`" class="pointer-events-none form-check-input" type="checkbox" value="" checked />
+                <input :id="`n-${qIndex}-${question.id}${index}${option.id}`" class="pointer-events-none form-check-input" type="checkbox" value="" checked />
               </template>
             </td>
           </tr>
-          <!-- Dernière ligne pour afficher l'indice de perception du principe -->
-          <!-- <tr class="font-semibold text-black">
-            <td class="py-2 text-right border border-slate-600">Indice de perception du principe</td>
-            <td class="py-2 text-left border border-slate-600">{{ principe.indice_de_perception }}</td>
-          </tr> -->
         </tbody>
       </table>
     </div>

@@ -11,6 +11,10 @@ const ActionMenerService = {
     return ApiService.get("/gfa/actions-a-mener", slug);
   },
 
+  getForEvaluation(idEvaluation) {
+    return ApiService.get(`/gfa/evaluations-de-gouvernance/${idEvaluation}/actions-a-mener`);
+  },
+
   create(params) {
     return ApiService.post("/gfa/actions-a-mener", params);
   },

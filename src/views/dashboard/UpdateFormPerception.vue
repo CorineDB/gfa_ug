@@ -110,37 +110,16 @@ const organisePreviewFormPerceptionData = (submissions) => {
 
   return organisedData;
 };
-function organiseUpdateFormGlobal(submissions) {
-  submissions.forEach((submission) => {
-    // Trouver ou créer le type de gouvernance
-    let type = typesGouvernance.value.types_de_gouvernance.find((t) => t.id === submission.type);
-    if (!type) {
-      type = { id: submission.id, principes_de_gouvernance: [] };
-      typesGouvernance.value.types_de_gouvernance.push(type);
-    }
 
-    // Trouver ou créer le principe de gouvernance
-    let principe = type.principes_de_gouvernance.find((p) => p.id === submission.principe);
-    if (!principe) {
-      principe = { id: submission.principe, criteres_de_gouvernance: [] };
-      type.principes_de_gouvernance.push(principe);
-    }
-
-    // Trouver ou créer le critère de gouvernance
-    let critere = principe.criteres_de_gouvernance.find((c) => c.id === submission.critere);
-    if (!critere) {
-      critere = { id: submission.critere, indicateurs_de_gouvernance: [] };
-      principe.criteres_de_gouvernance.push(critere);
-    }
-
-    // Ajouter l'indicateur de gouvernance s'il n'est pas déjà présent
-    if (!critere.indicateurs_de_gouvernance.includes(submission.indicateur)) {
-      critere.indicateurs_de_gouvernance.push(submission.indicateur);
-    }
-  });
-
-  return typesGouvernance.value;
+function organiseUpdateFormGlobal(principeCurrent) {
+  return principeCurrent.flatMap((principe) =>
+    principe.questions_de_gouvernance.map((question) => ({
+      principe: principe.id,
+      indicateur: question.question_operationnelle.id,
+    }))
+  );
 }
+
 function setKeyForUpdate(principeCurrent) {
   return principeCurrent.flatMap((principe) =>
     principe.questions_de_gouvernance.forEach((question) => {
@@ -231,7 +210,7 @@ const addNewIndicator = () => {
     resetCurrentForm.value = !resetCurrentForm.value;
     toast.success("Indicateur ajouté.");
   } else {
-    toast.info("Indicateur exisant.");
+    toast.info("Indicateur existant.");
   }
 };
 const removeIndicator = (indicateur) => {

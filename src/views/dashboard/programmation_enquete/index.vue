@@ -12,12 +12,19 @@ import { useRouter } from "vue-router";
 import OngService from "@/services/modules/ong.service";
 import { getAllErrorMessages } from "@/utils/gestion-error";
 import ChartProgressionByTime from "../../../components/news/ChartProgressionByTime.vue";
+import ProgressBar from "../../../components/news/ProgressBar.vue";
+import ChartScroreByPrincipe from "../../../components/news/ChartScroreByPrincipe.vue";
 
 const router = useRouter();
 
 const idFormFactuel = ref("");
 const idFormPerception = ref("");
-
+const currentProfileGouvernance = [
+  { id: 35, nom: "Redevabilité", indice_de_perception: 0.4017361111111111, indice_factuel: 0, indice_synthetique: 0.4017361111111111 },
+  { id: 32, nom: "Transparence", indice_de_perception: 0.4375, indice_factuel: 0, indice_synthetique: 0.4375 },
+  { id: 33, nom: "Participation", indice_de_perception: 0.3958333333333333, indice_factuel: 0, indice_synthetique: 0.3958333333333333 },
+  { id: 36, nom: "Egalité et non- discrimination / inclusion", indice_de_perception: 0.4416666666666666, indice_factuel: 0, indice_synthetique: 0.4416666666666666 },
+];
 const payload = reactive({
   intitule: "",
   description: "",
@@ -49,7 +56,7 @@ const createData = async () => {
       isLoading.value = false;
       getDatas();
       resetForm();
-      toast.success("Enquête créer.");
+      toast.success("évaluation créer.");
     })
     .catch((e) => {
       isLoading.value = false;
@@ -66,7 +73,7 @@ const getDatas = async () => {
     })
     .catch((e) => {
       isLoadingData.value = false;
-      toast.error("Une erreur est survenue: Liste des enquêtes.");
+      toast.error("Une erreur est survenue: Liste des évaluations.");
     });
   // initTabulator();
 };
@@ -105,7 +112,7 @@ const updateData = async () => {
     .then(() => {
       getDatas();
       resetForm();
-      toast.success("Enquête modifiée.");
+      toast.success("Évaluation modifiée.");
     })
     .catch((e) => {
       console.error(e);
@@ -122,7 +129,7 @@ const deleteData = async () => {
     .then(() => {
       deleteModalPreview.value = false;
       isLoading.value = false;
-      toast.success("Enquête de gouvernance supprimé");
+      toast.success("Évaluation  supprimée");
       getDatas();
     })
     .catch((e) => {
@@ -209,8 +216,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <h2 class="text-lg font-medium mty-10 intro-y">Évaluation de gouvernace</h2>
-  <div class="grid grid-cols-12 gap-6 mt-5">
+  <h2 class="my-10 text-lg font-medium intro-y">Évaluation de gouvernace</h2>
+  <div class="grid grid-cols-12 gap-6 mb-5">
     <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
       <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
         <div class="relative w-56 text-slate-500">
@@ -223,75 +230,108 @@ onMounted(() => {
       </div>
     </div>
   </div>
-  <!-- <div class="">
-    <h2 class="mt-10 text-lg font-medium intro-y">Évaluation de gouvernace</h2>
-    <div class="flex w-full gap-6">
-      <ChartProgressionByTime />
-    </div>
-  </div> -->
-  <div class="p-5 mt-5 intro-y">
-    <!-- <div class="overflow-x-auto scrollbar-hidden" v-if="!isLoadingData">
+  <TabGroup>
+    <TabList class="space-x-4 font-bold uppercase nav-boxed-tabs">
+      <Tab class="w-full py-2 bg-white" tag="button">LISTE DES ÉVALUATIONS</Tab>
+      <Tab class="w-full py-2 bg-white" tag="button">ANALYSES DES DONNÉES</Tab>
+    </TabList>
+    <TabPanels class="mt-5">
+      <TabPanel>
+        <div class="p-5 mt-5 intro-y">
+          <!-- <div class="overflow-x-auto scrollbar-hidden" v-if="!isLoadingData">
       <div id="tabulator" class="mt-5 table-report table-report--tabulator"></div>
     </div> -->
-    <LoaderSnipper v-if="isLoadingData" />
-    <div v-else class="grid grid-cols-12 gap-6 mt-5">
-      <div v-for="(item, index) in datas" :key="index" class="col-span-12 p-4 md:col-span-12 lg:col-span-4">
-        <div class="p-5 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-105 hover:bg-gray-50">
-          <!-- En-tête avec sigle et titre -->
-          <div class="relative flex items-start pt-2">
-            <!-- Dropdown for actions -->
-            <Dropdown class="absolute top-0 right-0 mt-2 mr-2">
-              <DropdownToggle tag="a" class="block w-5 h-5 cursor-pointer">
-                <MoreVerticalIcon class="w-5 h-5 text-gray-400 transition-colors hover:text-gray-600" />
-              </DropdownToggle>
-              <DropdownMenu class="w-40 bg-white rounded-md shadow-lg">
-                <DropdownContent>
-                  <DropdownItem @click="handleEdit(item)"> <Edit2Icon class="w-4 h-4 mr-2 text-gray-600" /> Modifier </DropdownItem>
-                  <DropdownItem @click="handleDelete(item)"> <TrashIcon class="w-4 h-4 mr-2 text-red-500" /> Supprimer </DropdownItem>
-                </DropdownContent>
-              </DropdownMenu>
-            </Dropdown>
-          </div>
+          <LoaderSnipper v-if="isLoadingData" />
+          <div v-else class="grid grid-cols-12 gap-6 mt-5">
+            <div v-for="(item, index) in datas" :key="index" class="col-span-12 p-4 md:col-span-12 lg:col-span-4">
+              <div class="p-5 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-105 hover:bg-gray-50">
+                <!-- En-tête avec sigle et titre -->
+                <div class="relative flex items-start pt-2">
+                  <!-- Dropdown for actions -->
+                  <Dropdown class="absolute top-0 right-0 mt-2 mr-2">
+                    <DropdownToggle tag="a" class="block w-5 h-5 cursor-pointer">
+                      <MoreVerticalIcon class="w-5 h-5 text-gray-400 transition-colors hover:text-gray-600" />
+                    </DropdownToggle>
+                    <DropdownMenu class="w-40 bg-white rounded-md shadow-lg">
+                      <DropdownContent>
+                        <DropdownItem @click="handleEdit(item)"> <Edit2Icon class="w-4 h-4 mr-2 text-gray-600" /> Modifier </DropdownItem>
+                        <DropdownItem @click="handleDelete(item)"> <TrashIcon class="w-4 h-4 mr-2 text-red-500" /> Supprimer </DropdownItem>
+                      </DropdownContent>
+                    </DropdownMenu>
+                  </Dropdown>
+                </div>
 
-          <div @click="gotoSoumissions(item)" class="flex flex-col items-start w-full gap-2 mt-2 cursor-pointer">
-            <!-- Item details -->
-            <div class="text-center lg:text-left lg:mt-0">
-              <span class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary">
-                {{ item.intitule }}
-              </span>
-            </div>
-          </div>
+                <div @click="gotoSoumissions(item)" class="flex flex-col items-start w-full gap-2 mt-2 cursor-pointer">
+                  <!-- Item details -->
+                  <div class="text-center lg:text-left lg:mt-0">
+                    <span class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary">
+                      {{ item.intitule }}
+                    </span>
+                  </div>
+                </div>
 
-          <!-- Description section with distinct styling -->
-          <div @click="gotoSoumissions(item)" class="w-full mt-5 text-center cursor-pointer lg:text-left">
-            <!-- <div class="" v-if="item.description">
+                <!-- Description section with distinct styling -->
+                <div @click="gotoSoumissions(item)" class="w-full mt-5 text-center cursor-pointer lg:text-left">
+                  <!-- <div class="" v-if="item.description">
               <p class="mb-3 text-base font-semibold text-primary">Description</p>
               <p class="p-3 text-gray-600 rounded-lg shadow-sm bg-gray-50">{{ item.description }}</p>
             </div> -->
 
-            <!-- Other details with iconized section headers -->
-            <div class="mt-5 space-y-4 text-gray-600">
-              <div class="flex items-center text-sm font-medium text-gray-700">
-                <CheckSquareIcon class="w-4 h-4 mr-2 text-primary" /> Statut: <span :class="getStatusText(item.statut).class" class="px-3 py-2 ml-3 text-xs text-white rounded-full">{{ getStatusText(item.statut).label }}</span>
-              </div>
-              <div class="flex items-center text-sm font-medium text-gray-700">
-                <CalendarIcon class="w-4 h-4 mr-2 text-primary" /> Période:
-                <span class="ml-2 font-semibold text-gray-900">{{ item.debut }} <span class="font-normal">au</span> {{ item.fin }}</span>
-              </div>
-              <div class="flex items-center text-sm font-medium text-gray-700">
-                <TargetIcon class="w-4 h-4 mr-2 text-primary" /> Objectif attendu:
-                <span class="ml-2 font-semibold text-gray-900">{{ item.objectif_attendu }}</span>
-              </div>
-              <div class="flex items-center text-sm font-medium text-gray-700">
-                <BarChart2Icon class="w-4 h-4 mr-2 text-primary" /> Total soumissions:
-                <span class="ml-2 font-semibold text-gray-900">{{ item.total_soumissions_de_perception + item.total_soumissions_factuel }}</span>
+                  <!-- Other details with iconized section headers -->
+                  <div class="mt-5 space-y-4 text-gray-600">
+                    <div class="flex items-center text-sm font-medium text-gray-700">
+                      <CheckSquareIcon class="w-4 h-4 mr-2 text-primary" /> Statut: <span :class="getStatusText(item.statut).class" class="px-3 py-2 ml-3 text-xs text-white rounded-full">{{ getStatusText(item.statut).label }}</span>
+                    </div>
+                    <div class="flex items-center text-sm font-medium text-gray-700">
+                      <CalendarIcon class="w-4 h-4 mr-2 text-primary" /> Période:
+                      <span class="ml-2 font-semibold text-gray-900">{{ item.debut }} <span class="font-normal">au</span> {{ item.fin }}</span>
+                    </div>
+                    <div class="flex items-center text-sm font-medium text-gray-700">
+                      <TargetIcon class="w-4 h-4 mr-2 text-primary" /> Objectif attendu:
+                      <span class="ml-2 font-semibold text-gray-900">{{ item.objectif_attendu }}</span>
+                    </div>
+                    <div class="flex items-center text-sm font-medium text-gray-700">
+                      <BarChart2Icon class="w-4 h-4 mr-2 text-primary" /> Total soumissions:
+                      <span class="ml-2 font-semibold text-gray-900">{{ item.total_soumissions_de_perception + item.total_soumissions_factuel }}</span>
+                    </div>
+                    <div class="flex items-center text-sm font-medium text-gray-700">
+                      <ProgressBar :percent="item.pourcentage_evolution" />
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
+      </TabPanel>
+      <TabPanel>
+        <div class="">
+          <div class="flex flex-col items-center w-full gap-8">
+            <div class="box">
+              <p class="p-3 text-lg font-medium">Progression des principes par année</p>
+              <div class="!w-[250px] p-3">
+                <TomSelect name="organisations" :options="{ placeholder: 'Selectionez une organisation' }">
+                  <option value=""></option>
+                  <option v-for="organisation in []" :key="organisation.id" :value="organisation.id">{{ organisation.nom }}</option>
+                </TomSelect>
+              </div>
+              <ChartProgressionByTime />
+            </div>
+            <div class="box">
+              <p class="p-3 text-lg font-medium">Score par principe</p>
+              <div class="!w-[250px] p-3">
+                <TomSelect name="organisations" :options="{ placeholder: 'Selectionez une organisation' }">
+                  <option value=""></option>
+                  <option v-for="organisation in []" :key="organisation.id" :value="organisation.id">{{ organisation.nom }}</option>
+                </TomSelect>
+              </div>
+              <ChartScroreByPrincipe v-if="currentProfileGouvernance?.length > 0" :datas="currentProfileGouvernance" />
+            </div>
+          </div>
+        </div>
+      </TabPanel>
+    </TabPanels>
+  </TabGroup>
 
   <!-- Modal Register & Update -->
   <Modal backdrop="static" :show="showModalCreate" @hidden="showModalCreate = false">
