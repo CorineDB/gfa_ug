@@ -1,86 +1,371 @@
 <template>
-  <div class="container p-6 mx-auto">
-  <!-- Titre et Sous-titre -->
-  <header class="mb-8 text-center">
-    <h1 class="mb-2 text-4xl font-bold">Nom du Projet</h1>
-    <p class="text-lg text-gray-600">Description courte du projet</p>
+  <div class="bg-gray-50 min-h-screen p-6">
+  <!-- Header -->
+  <header class="bg-white shadow-md rounded-md p-6 flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-800">Détail du Projet</h1>
+      <p class="text-gray-500">Organisation : <span class="font-medium">Nom de l'Organisation</span></p>
+    </div>
+    <div class="text-sm text-gray-600">
+      <p><strong>TEP :</strong> 12 mois</p>
+      <p><strong>TEF :</strong> 8 mois</p>
+    </div>
   </header>
 
-  <!-- Entreprise / Organisation -->
-  <section class="mb-8">
-    <h2 class="mb-4 text-2xl font-semibold">Entreprise ou Organisation</h2>
-    <p class="text-gray-700">Nom de l'entreprise responsable du projet...</p>
-  </section>
+  <!-- Main Content -->
+  <main class="mt-6">
+    <!-- Key Metrics Section -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+      <div class="bg-white shadow-md rounded-md p-6">
+        <h2 class="text-lg font-semibold text-gray-700">Budget</h2>
+        <div class="mt-4 space-y-2">
+          <p class="flex justify-between text-gray-600">
+            <span>Consommé :</span>
+            <span class="font-medium text-red-500">€45,000</span>
+          </p>
+          <p class="flex justify-between text-gray-600">
+            <span>Alloué :</span>
+            <span class="font-medium">€60,000</span>
+          </p>
+          <p class="flex justify-between text-gray-600">
+            <span>Fonds Propres :</span>
+            <span class="font-medium text-green-500">€15,000</span>
+          </p>
+        </div>
+      </div>
+      <div class="bg-white shadow-md rounded-md p-6">
+        <h2 class="text-lg font-semibold text-gray-700">Jours Restants</h2>
+        <p class="mt-4 text-2xl font-bold text-gray-800">120 jours</p>
+      </div>
+      <div class="bg-white shadow-md rounded-md p-6">
+        <h2 class="text-lg font-semibold text-gray-700">Statut Global</h2>
+        <div class="mt-4">
+          <div class="h-4 bg-gray-200 rounded-full overflow-hidden">
+            <div class="h-4 bg-green-500" style="width: 75%;"></div>
+          </div>
+          <p class="mt-2 text-sm text-gray-600">75% réalisé</p>
+        </div>
+      </div>
+    </section>
 
-  <!-- Budget -->
-  <section class="mb-8">
-    <h2 class="mb-4 text-2xl font-semibold">Budget</h2>
-    <p class="text-gray-700">Montant du budget alloué : <strong>$500,000</strong></p>
-  </section>
+    <!-- Activities Section -->
+    <section class="bg-white shadow-md rounded-md p-6 mb-6">
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-semibold text-gray-700">Liste des Activités</h2>
+        <select class="border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-600">
+          <option>Filtrer par Statut</option>
+          <option>En cours</option>
+          <option>Terminé</option>
+          <option>Non commencé</option>
+        </select>
+      </div>
+      <div class="mt-4 overflow-x-auto">
+        <table class="table-auto w-full text-left border-collapse">
+          <thead class="bg-gray-100 text-gray-700 uppercase text-sm">
+            <tr>
+              <th class="px-4 py-2">Activité</th>
+              <th class="px-4 py-2">Responsable</th>
+              <th class="px-4 py-2">Statut</th>
+              <th class="px-4 py-2">Début</th>
+              <th class="px-4 py-2">Fin prévue</th>
+            </tr>
+          </thead>
+          <tbody class="text-gray-600">
+            <tr>
+              <td class="border px-4 py-2">Conception</td>
+              <td class="border px-4 py-2">Jean Dupont</td>
+              <td class="border px-4 py-2">En cours</td>
+              <td class="border px-4 py-2">01/01/2024</td>
+              <td class="border px-4 py-2">31/01/2024</td>
+            </tr>
+            <tr>
+              <td class="border px-4 py-2">Développement</td>
+              <td class="border px-4 py-2">Marie Curie</td>
+              <td class="border px-4 py-2">Non commencé</td>
+              <td class="border px-4 py-2">01/02/2024</td>
+              <td class="border px-4 py-2">30/06/2024</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
-  <!-- Durée du projet -->
-  <section class="mb-8">
-    <h2 class="mb-4 text-2xl font-semibold">Durée du Projet</h2>
-    <p class="text-gray-700">Début : 01/01/2024 - Fin : 31/12/2024</p>
-  </section>
-
-  <!-- Description du projet -->
-  <section class="mb-8">
-    <h2 class="mb-4 text-2xl font-semibold">Description du Projet</h2>
-    <p class="text-gray-700">
-      Contexte, enjeux et objectifs globaux du projet...
-    </p>
-  </section>
-
-  <!-- Indicateurs -->
-  <section class="mb-8">
-    <h2 class="mb-4 text-2xl font-semibold">Indicateurs Clés</h2>
-    <ul class="space-y-2 text-gray-700 list-disc list-inside">
-      <li>Indicateur 1 : Augmentation de 20% des utilisateurs actifs</li>
-      <li>Indicateur 2 : Taux de satisfaction client supérieur à 90%</li>
-    </ul>
-  </section>
-
-  <!-- Activités -->
-  <section class="mb-8">
-    <h2 class="mb-4 text-2xl font-semibold">Activités du Projet</h2>
-    <ul class="space-y-2 text-gray-700 list-disc list-inside">
-      <li>Développement de la plateforme</li>
-      <li>Tests utilisateurs</li>
-      <li>Déploiement et maintenance</li>
-    </ul>
-  </section>
-
-  <!-- Objectifs -->
-  <section class="mb-8">
-    <h2 class="mb-4 text-2xl font-semibold">Objectifs du Projet</h2>
-    <p class="text-gray-700">
-      Objectifs spécifiques à atteindre, comme l'amélioration de la performance, etc.
-    </p>
-  </section>
-
-  <!-- Carte -->
-  <section class="mb-8">
-    <h2 class="mb-4 text-2xl font-semibold">Localisation</h2>
-    <div class="aspect-w-16 aspect-h-9">
-      <iframe 
-        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3151.8354345092345!2d144.9537353158079!3d-37.8162797427091!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6ad642af0f11fd81%3A0xf5776e59b2da110!2sMelbourne%20Victoria%2C%20Australie!5e0!3m2!1sfr!2sfr!4v1616912117925!5m2!1sfr!2sfr" 
-        width="100%" 
-        height="450" 
-        style="border:0;" 
-        allowfullscreen="" 
-        loading="lazy">
-      </iframe>
-    </div>
-  </section>
-
-  <!-- Lien vers le site -->
-  <section class="mb-8 text-center">
-    <a href="https://example.com" class="px-6 py-2 text-white bg-blue-500 rounded shadow hover:bg-blue-600">
-      Visiter le Site Web du Projet
-    </a>
-  </section>
+    <!-- Performance Metrics Section -->
+    <section class="bg-white shadow-md rounded-md p-6">
+      <h2 class="text-lg font-semibold text-gray-700">Cadre de Mesure de Rendement</h2>
+      <div class="mt-4 overflow-x-auto">
+        <table class="table-auto w-full text-left border-collapse">
+          <thead class="bg-gray-100 text-gray-700 uppercase text-sm">
+            <tr>
+              <th class="px-4 py-2">Indicateur</th>
+              <th class="px-4 py-2">Cible (année)</th>
+              <th class="px-4 py-2">Réalisé (année)</th>
+              <th class="px-4 py-2">Taux (%)</th>
+            </tr>
+          </thead>
+          <tbody class="text-gray-600">
+            <tr>
+              <td class="border px-4 py-2">Chiffre d'affaires</td>
+              <td class="border px-4 py-2">500,000 €</td>
+              <td class="border px-4 py-2">450,000 €</td>
+              <td class="border px-4 py-2">90%</td>
+            </tr>
+            <tr>
+              <td class="border px-4 py-2">Projets livrés</td>
+              <td class="border px-4 py-2">10</td>
+              <td class="border px-4 py-2">8</td>
+              <td class="border px-4 py-2">80%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
 </div>
+
+<!-- New sample -->
+<div class="bg-gray-50 min-h-screen p-6">
+  <!-- Header -->
+  <div class="flex justify-between items-center bg-white rounded-md shadow p-4 mb-6">
+    <div>
+      <h1 class="text-xl font-semibold text-gray-800">Nom Projet</h1>
+      <p class="text-gray-500">Organisation : <span class="font-medium">Nom de l'Organisation</span></p>
+    </div>
+    <div>
+      <p class="text-sm text-gray-600"><strong>TEP :</strong> 12 mois</p>
+      <p class="text-sm text-gray-600"><strong>TEF :</strong> 8 mois</p>
+      <p class="text-sm text-gray-600">Effectif de l'organisation: <span class="font-semibold text-gray-800">12987323</span></p>
+    </div>
+  </div>
+
+  <!-- Content Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <!-- Map and Data -->
+    <div class="col-span-2 bg-white rounded-md shadow p-6">
+      <h2 class="text-lg font-semibold text-gray-700 mb-4">Cartes géographiques</h2>
+      <div class="grid grid-cols-2 gap-4">
+        <!-- Map -->
+        <div>
+          <div class="bg-gray-200 rounded-md h-48 mb-4"></div>
+          <p class="text-sm text-gray-500">Total Number of Sessions within Date Range Users</p>
+        </div>
+        <!-- Data Table -->
+        <div>
+          <table class="w-full text-sm text-gray-600">
+            <thead>
+              <tr class="bg-gray-100 text-left">
+                <th class="py-2 px-4">Sites</th>
+                <th class="py-2 px-4">Longitudes</th>
+                <th class="py-2 px-4">Latitudes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="py-2 px-4">Montana</td>
+                <td class="py-2 px-4">120</td>
+                <td class="py-2 px-4 text-red-500">-3.2%</td>
+              </tr>
+              <tr>
+                <td class="py-2 px-4">Seoul</td>
+                <td class="py-2 px-4">454</td>
+                <td class="py-2 px-4 text-green-500">+5.64%</td>
+              </tr>
+              <!-- Add more rows as needed -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activity Stream -->
+    <div class="bg-white rounded-md shadow p-6">
+      <h2 class="text-lg font-semibold text-gray-700 mb-4">Listes des activités</h2>
+      <ul class="space-y-4">
+        <li class="flex items-center">
+          <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-500">
+            ✓
+          </div>
+          <div class="ml-4">
+            <p class="text-gray-800 font-semibold">Order Verification</p>
+            <p class="text-sm text-gray-500">Product ID: #9823</p>
+          </div>
+        </li>
+        <li class="flex items-center">
+          <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-500">
+            ✓
+          </div>
+          <div class="ml-4">
+            <p class="text-gray-800 font-semibold">Order Completed</p>
+            <p class="text-sm text-gray-500">Product ID: #9823</p>
+          </div>
+        </li>
+        <!-- Add more items as needed -->
+      </ul>
+    </div>
+
+    <!-- <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6"> -->
+      <div class="bg-white shadow-md rounded-md p-6">
+        <h2 class="text-lg font-semibold text-gray-700">Budget</h2>
+        <div class="mt-4 space-y-2">
+          <p class="flex justify-between text-gray-600">
+            <span>Consommé :</span>
+            <span class="font-medium text-red-500">€45,000</span>
+          </p>
+          <p class="flex justify-between text-gray-600">
+            <span>Alloué :</span>
+            <span class="font-medium">€60,000</span>
+          </p>
+          <p class="flex justify-between text-gray-600">
+            <span>Fonds Propres :</span>
+            <span class="font-medium text-green-500">€15,000</span>
+          </p>
+        </div>
+      </div>
+      <div class="bg-white shadow-md rounded-md p-6">
+        <h2 class="text-lg font-semibold text-gray-700">Jours Restants</h2>
+        <p class="mt-4 text-2xl font-bold text-gray-800">120 jours</p>
+      </div>
+      <div class="bg-white shadow-md rounded-md p-6">
+        <h2 class="text-lg font-semibold text-gray-700">Statut Global</h2>
+        <div class="mt-4">
+          <div class="h-4 bg-gray-200 rounded-full overflow-hidden">
+            <div class="h-4 bg-green-500" style="width: 75%;"></div>
+          </div>
+          <p class="mt-2 text-sm text-gray-600">75% réalisé</p>
+        </div>
+      </div>
+    <!-- </section> -->
+
+
+    <!-- Analytics Section -->
+    <!-- <div class="col-span-2 grid grid-cols-3 gap-6">
+      Acquisition
+      <div class="bg-white rounded-md shadow p-6">
+        <h2 class="text-lg font-semibold text-gray-700 mb-4">Acquisition</h2>
+        <div class="flex justify-between items-center">
+          <p class="text-sm text-gray-500">Bounce Rate</p>
+          <p class="text-lg font-semibold text-red-500">43.50%</p>
+        </div>
+        <div class="flex justify-between items-center mt-4">
+          <p class="text-sm text-gray-500">Sessions</p>
+          <p class="text-lg font-semibold text-gray-700">34,342</p>
+        </div>
+      </div>
+      Growth Rate
+      <div class="bg-white rounded-md shadow p-6">
+        <h2 class="text-lg font-semibold text-gray-700 mb-4">Growth Rate</h2>
+        <div class="flex justify-between items-center">
+          <p class="text-sm text-gray-500">New Sessions</p>
+          <p class="text-lg font-semibold text-green-500">34,442</p>
+        </div>
+        <div class="flex justify-between items-center mt-4">
+          <p class="text-sm text-gray-500">Page/Sess</p>
+          <p class="text-lg font-semibold text-gray-700">342</p>
+        </div>
+      </div>
+    </div> -->
+
+    <!-- Sales Analytics -->
+    <div class="bg-white rounded-md shadow p-6 col-span-2 mb-6">
+      <h2 class="text-lg font-semibold text-gray-700 mb-4">Sales Analytics</h2>
+      <div class="grid grid-cols-2 gap-4">
+        <!-- Chart Placeholder -->
+        <div class="bg-gray-200 rounded-md h-40"></div>
+        <!-- Data -->
+        <div>
+          <p class="text-gray-500">Audience Breakdown</p>
+          <div class="mt-4">
+            <p class="text-sm text-gray-700">Online Sales</p>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div class="bg-blue-500 h-2 rounded-full" style="width: 60%;"></div>
+            </div>
+          </div>
+          <div class="mt-4">
+            <p class="text-sm text-gray-700">Offline Sales</p>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div class="bg-orange-500 h-2 rounded-full" style="width: 40%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Activities Section -->
+  <section class="bg-white shadow-md rounded-md p-6 mb-6">
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-semibold text-gray-700">Liste des Activités</h2>
+        <select class="border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-600">
+          <option>Filtrer par Statut</option>
+          <option>En cours</option>
+          <option>Terminé</option>
+          <option>Non commencé</option>
+        </select>
+      </div>
+      <div class="mt-4 overflow-x-auto">
+        <table class="table-auto w-full text-left border-collapse">
+          <thead class="bg-gray-100 text-gray-700 uppercase text-sm">
+            <tr>
+              <th class="px-4 py-2">Activité</th>
+              <th class="px-4 py-2">Responsable</th>
+              <th class="px-4 py-2">Statut</th>
+              <th class="px-4 py-2">Début</th>
+              <th class="px-4 py-2">Fin prévue</th>
+            </tr>
+          </thead>
+          <tbody class="text-gray-600">
+            <tr>
+              <td class="border px-4 py-2">Conception</td>
+              <td class="border px-4 py-2">Jean Dupont</td>
+              <td class="border px-4 py-2">En cours</td>
+              <td class="border px-4 py-2">01/01/2024</td>
+              <td class="border px-4 py-2">31/01/2024</td>
+            </tr>
+            <tr>
+              <td class="border px-4 py-2">Développement</td>
+              <td class="border px-4 py-2">Marie Curie</td>
+              <td class="border px-4 py-2">Non commencé</td>
+              <td class="border px-4 py-2">01/02/2024</td>
+              <td class="border px-4 py-2">30/06/2024</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Performance Metrics Section -->
+    <section class="bg-white shadow-md rounded-md p-6">
+      <h2 class="text-lg font-semibold text-gray-700">Cadre de Mesure de Rendement</h2>
+      <div class="mt-4 overflow-x-auto">
+        <table class="table-auto w-full text-left border-collapse">
+          <thead class="bg-gray-100 text-gray-700 uppercase text-sm">
+            <tr>
+              <th class="px-4 py-2">Indicateur</th>
+              <th class="px-4 py-2">Cible (année)</th>
+              <th class="px-4 py-2">Réalisé (année)</th>
+              <th class="px-4 py-2">Taux (%)</th>
+            </tr>
+          </thead>
+          <tbody class="text-gray-600">
+            <tr>
+              <td class="border px-4 py-2">Chiffre d'affaires</td>
+              <td class="border px-4 py-2">500,000 €</td>
+              <td class="border px-4 py-2">450,000 €</td>
+              <td class="border px-4 py-2">90%</td>
+            </tr>
+            <tr>
+              <td class="border px-4 py-2">Projets livrés</td>
+              <td class="border px-4 py-2">10</td>
+              <td class="border px-4 py-2">8</td>
+              <td class="border px-4 py-2">80%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+</div>
+<!-- fin new sample -->
+
+
 
 </template>
 
