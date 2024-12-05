@@ -85,8 +85,8 @@ export default defineComponent({
         {
           label: "indice_synthetique",
           data: labels.map((year) => extendedData[year].reduce((sum, item) => sum + item.indice_synthetique, 0) / extendedData[year].length),
-          borderColor: "pink",
-          backgroundColor: "pink",
+          borderColor: "green",
+          backgroundColor: "green",
           fill: false,
         },
       ];
