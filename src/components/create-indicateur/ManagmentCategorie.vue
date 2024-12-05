@@ -8,6 +8,7 @@ import { toast } from "vue3-toastify";
 import LoaderData from "./LoaderData.vue";
 import { getAllErrorMessages } from "@/utils/gestion-error";
 import { types } from "../../utils/constants";
+import { getFieldErrors } from "../../utils/helpers";
 
 const props = defineProps({});
 
@@ -27,6 +28,7 @@ const isLoading = ref(false);
 const isLoadingData = ref(true);
 const isCreate = ref(true);
 const datas = ref([]);
+const errors = ref({});
 
 // Fetch data
 const getDatas = async () => {
@@ -51,7 +53,11 @@ const submitData = async () => {
     getDatas();
     resetForm();
   } catch (e) {
-    toast.error(getAllErrorMessages(e));
+    if (e.response && e.response.status === 422) {
+      errors.value = e.response.data.errors;
+    } else {
+      toast.error(getAllErrorMessages(e));
+    }
   } finally {
     isLoading.value = false;
   }
@@ -96,6 +102,7 @@ const resetForm = () => {
     payload[key] = "";
   });
   showModalCreate.value = false;
+  errors.value = {};
 };
 const openCreateModal = () => {
   resetForm();
@@ -150,14 +157,15 @@ onMounted(getDatas);
       <form @submit.prevent="submitData">
         <ModalBody>
           <div class="grid grid-cols-1 gap-4">
-            <InputForm label="Nom" v-model="payload.nom" />
-            <InputForm label="Indice" v-model="payload.indice" type="number" />
+            <InputForm label="Nom" v-model="payload.nom" :control="getFieldErrors(errors.nom)" />
+            <InputForm label="Indice" :control="getFieldErrors(errors.indice)" v-model="payload.indice" type="number" />
             <div>
               <label class="form-label">Type</label>
               <TomSelect v-model="payload.type" :options="{ placeholder: 'Selectionez un type' }" class="w-full">
                 <option value=""></option>
                 <option v-for="(type, index) in types" :key="index" :value="type.id">{{ type.label }}</option>
               </TomSelect>
+              <div v-if="errors.type" class="mt-2 text-danger">{{ getFieldErrors(errors.type) }}</div>
             </div>
             <div>
               <label class="form-label">Catégorie</label>
@@ -165,6 +173,7 @@ onMounted(getDatas);
                 <option value=""></option>
                 <option v-for="(categorie, index) in datas" :key="index" :value="categorie.id">{{ categorie.nom }}</option>
               </TomSelect>
+              <div v-if="errors.categorieId" class="mt-2 text-danger">{{ getFieldErrors(errors.categorieId) }}</div>
             </div>
           </div>
         </ModalBody>

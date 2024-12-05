@@ -7,6 +7,7 @@ import DeleteButton from "@/components/news/DeleteButton.vue";
 import { toast } from "vue3-toastify";
 import LoaderData from "./LoaderData.vue";
 import { getAllErrorMessages } from "@/utils/gestion-error";
+import { getFieldErrors } from "../../utils/helpers";
 
 const props = defineProps({
   isAvailable: Boolean,
@@ -28,6 +29,7 @@ const isLoadingData = ref(true);
 const isCreate = ref(true);
 const isEditOrDelete = ref(false);
 const datas = ref([]);
+const errors = ref({});
 
 function choiceOption(data) {
   emit("selected", data);
@@ -56,7 +58,11 @@ const submitData = async () => {
     getDatas();
     resetForm();
   } catch (e) {
-    toast.error(getAllErrorMessages(e));
+    if (e.response && e.response.status === 422) {
+      errors.value = e.response.data.errors;
+    } else {
+      toast.error(getAllErrorMessages(e));
+    }
   } finally {
     isLoading.value = false;
   }
@@ -99,6 +105,7 @@ const resetForm = () => {
   payload.nom = "";
   payload.description = "";
   showModalCreate.value = false;
+  errors.value = {};
 };
 const openCreateModal = () => {
   resetForm();
@@ -166,8 +173,8 @@ onMounted(getDatas);
       <form @submit.prevent="submitData">
         <ModalBody>
           <div class="grid grid-cols-1 gap-4">
-            <InputForm label="Nom" v-model="payload.nom" />
-            <InputForm label="Description" v-model="payload.description" :required="false" />
+            <InputForm label="Nom" v-model="payload.nom" :control="getFieldErrors(errors.nom)" />
+            <InputForm label="Description" v-model="payload.description" :control="getFieldErrors(errors.description)" :required="false" />
           </div>
         </ModalBody>
         <ModalFooter>
