@@ -1,6 +1,6 @@
 <template>
   <div>
-    <canvas ref="chartCanvas" style="height: 600px; width: 100%"></canvas>
+    <canvas ref="chartCanvas" style="height: 600px; max-height: 600px; width: 100%"></canvas>
   </div>
 </template>
 
@@ -65,7 +65,6 @@ export default defineComponent({
       };
 
       const extendedData = { [defaultYear]: [defaultValues], ...props.chartData };
-
       const labels = Object.keys(extendedData);
       const datasets = [
         {

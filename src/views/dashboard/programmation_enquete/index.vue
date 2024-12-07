@@ -44,6 +44,7 @@ const isCreate = ref(true);
 const datas = ref([]);
 const datasScore = ref([]);
 const organisations = ref([]);
+const ongsProgramme = ref([]);
 const formulairesFactuel = ref([]);
 const formulairesPerception = ref([]);
 const currentScore = ref({});
@@ -126,6 +127,15 @@ const getOrganisations = async () => {
       toast.error("Une erreur est survenue: Liste des organisations.");
     });
 };
+const getOrganisationsProgramme = async () => {
+  await OngService.programmeOng()
+    .then((result) => {
+      ongsProgramme.value = result.data.data;
+    })
+    .catch((e) => {
+      toast.error("Une erreur est survenue: Liste des organisations.");
+    });
+};
 
 const updateData = async () => {
   isLoading.value = true;
@@ -193,7 +203,7 @@ async function changeOrganisationScore() {
 function fetchOrganisationsAndFormulaires() {
   getFormsFactuel();
   getFormsPerception();
-  // getOrganisations();
+  getOrganisations();
 }
 
 const handleEdit = (params) => {
@@ -243,7 +253,7 @@ const yearsCurrentScore = computed(() => Object.keys(currentScore.value));
 
 onMounted(async () => {
   await getDatas();
-  await getOrganisations();
+  await getOrganisationsProgramme();
   // ongSelectedScore.value = organisations.value[0].id;
   // changeOrganisationScore();
   // getFormsFactuel();
@@ -347,10 +357,10 @@ onMounted(async () => {
               <div class="w-full max-w-full box">
                 <p class="p-3 text-lg font-medium">Résultats synthetique par année</p>
                 <div class="!w-[250px] p-3">
-                  <label for="ongs" class="form-label">Organisation</label>
+                  <label class="form-label">Organisation</label>
                   <TomSelect name="organisations" v-model="ongSelectedScore" @change="changeOrganisationScore" :options="{ placeholder: 'Selectionez une organisation' }">
                     <option value=""></option>
-                    <option v-for="organisation in organisations" :key="organisation.id" :value="organisation.id">{{ organisation.nom }}</option>
+                    <option v-for="organisation in ongsProgramme" :key="organisation.id" :value="organisation.id">{{ organisation.nom }}</option>
                   </TomSelect>
                 </div>
                 <ChartProgressionByTime :chartData="currentScore" v-if="ongSelectedScore && !isLoadingDataScore" />
@@ -366,7 +376,7 @@ onMounted(async () => {
               <div class="w-full max-w-full box">
                 <p class="p-3 text-lg font-medium">Score des indices par principe</p>
                 <div class="!w-[250px] p-3">
-                  <label for="years" class="form-label">Année</label>
+                  <label class="form-label">Année</label>
                   <TomSelect name="years" v-model="yearSelectedOng" :options="{ placeholder: 'Selectionez une organisation' }">
                     <option value=""></option>
                     <option v-for="year in yearsCurrentScore" :key="year" :value="year">{{ year }}</option>

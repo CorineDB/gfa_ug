@@ -10,6 +10,17 @@ const SyntheseService = {
     return ApiService.get(`gfa/evaluations-de-gouvernance/${idEvaluation}/fiches-de-synthese
 `);
   },
+
+  getForEvaluation(idEvaluation) {
+    return ApiService.get(`gfa/evaluations-de-gouvernance/${idEvaluation}/fiches-de-synthese
+`);
+  },
+
+  resustatSyntheseEvaluation(idEvaluation) {
+    return ApiService.get(`gfa/evaluations-de-gouvernance/${idEvaluation}/resultats-syntheses
+`);
+  },
+
   getEvolutionByScrore(ong) {
     return ApiService.get(`/gfa/programmes/evolution-des-scores-au-fil-du-temps/${ong}`);
   },

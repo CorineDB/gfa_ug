@@ -12,6 +12,9 @@ import ActionsMener from "../../../components/news/ActionsMener.vue";
 import ProgressBar from "../../../components/news/ProgressBar.vue";
 import ChartPerceptionOption from "../../../components/news/ChartPerceptionOption.vue";
 import { data } from "jquery";
+import SyntheseService from "../../../services/modules/synthese.service";
+import ChartProgressionByTime from "../../../components/news/ChartProgressionByTime.vue";
+import ChartScroreByPrincipe from "../../../components/news/ChartScroreByPrincipe.vue";
 
 const router = useRouter();
 
@@ -30,13 +33,17 @@ const isLoading = ref(false);
 const isLoadingStats = ref(false);
 const showModalOrganisation = ref(false);
 const isLoadingData = ref(true);
+const isLoadingResultat = ref(true);
 const isCreate = ref(true);
 const loadingOption = ref(true);
 const datas = ref([]);
 const statistiques = ref({});
+const resultatsSynthese = ref([]);
 const idCurrentOng = ref({});
 const currentOptionsPerception = ref({});
 const currentOrganisationsOptions = ref("");
+const yearSelectedOng = ref("");
+const ongSelectedScore = ref("");
 
 const createData = async () => {
   isLoading.value = true;
@@ -64,9 +71,26 @@ const getDatas = async () => {
     .catch((e) => {
       console.error(e);
       isLoadingData.value = false;
-      toast.error("Une erreur est survenue: Liste des enquêtes.");
+      toast.error("Une erreur est survenue: Liste des soumissions.");
     });
 };
+
+const resultatSynthese = async () => {
+  isLoadingResultat.value = true;
+  await SyntheseService.resustatSyntheseEvaluation(idEvaluation)
+    .then((result) => {
+      resultatsSynthese.value = result.data.data;
+      ongSelectedScore.value = resultatsSynthese.value[0].id;
+      changeOrganisationScore();
+      isLoadingResultat.value = false;
+    })
+    .catch((e) => {
+      console.error(e);
+      isLoadingResultat.value = false;
+      toast.error("Une erreur est survenue: Liste des resultats.");
+    });
+};
+
 const getEvaluation = async () => {
   isLoadingStats.value = true;
   await EvaluationService.findEvaluation(idEvaluation)
@@ -151,6 +175,7 @@ const viewResultats = (organisationId) => {
 const viewSynthese = (organisationId) => {
   router.push({ name: "FicheSynthese", query: { enqueteId: route.params.id, organisationId: organisationId } });
 };
+
 const viewMarqueur = (organisationId) => {
   router.push({ name: "marqueur", query: { enqueteId: route.params.id, organisationId } });
 };
@@ -224,6 +249,10 @@ const changeOrganisationOptions = () => {
   }, 100);
 };
 
+function changeOrganisationScore() {
+  yearSelectedOng.value = yearsCurrentScore.value[0];
+}
+
 const currentOrganisation = computed(() => datas.value.find((item) => item.id == idCurrentOng.value));
 const statsOptions = computed(() => statistiques.value.options_de_reponse_stats);
 const organisations = computed(() => datas.value.map((item) => ({ nom: item.nom, id: item.id })));
@@ -231,6 +260,8 @@ const organisationsOptions = computed(() => datas.value.options_de_reponse_stats
 // const currentOptionsPerception = computed(() => {
 //   return statistiques.value.options_de_reponse_stats.find((item) => item.id == currentOrganisationsOptions.value);
 // });
+const currentScore = computed(() => resultatsSynthese.value.find((item) => item.id == ongSelectedScore.value));
+const yearsCurrentScore = computed(() => (currentScore.value?.scores ? Object.keys(currentScore.value?.scores) : []));
 
 onMounted(async () => {
   await getDatas();
@@ -238,6 +269,7 @@ onMounted(async () => {
     changeCurrentDetailOrganisation(route.query.ong.toString());
   }
   getEvaluation();
+  resultatSynthese();
 });
 </script>
 
@@ -447,6 +479,45 @@ onMounted(async () => {
           </div>
         </div>
       </section>
+      <div class="">
+        <div class="flex flex-col items-center w-full gap-8">
+          <div class="flex justify-center w-full p-3">
+            <div class="w-full max-w-full box">
+              <p class="p-3 text-lg font-medium">Résultats synthetique par année</p>
+              <div class="!w-[250px] p-3">
+                <label class="form-label">Organisation</label>
+                <TomSelect name="organisations" v-model="ongSelectedScore" @change="changeOrganisationScore" :options="{ placeholder: 'Selectionez une organisation' }">
+                  <option value=""></option>
+                  <option v-for="organisation in organisations" :key="organisation.id" :value="organisation.id">{{ organisation.nom }}</option>
+                </TomSelect>
+              </div>
+              <ChartProgressionByTime :chartData="currentScore.scores" v-if="ongSelectedScore && !isLoadingResultat" />
+              <div class="h-[600px] flex justify-center items-center" v-if="!ongSelectedScore && !isLoadingResultat">
+                <p class="text-xl font-medium text-slate-600">Veuillez choisir une organisation pour afficher le graphique</p>
+              </div>
+              <div class="h-[600px] flex justify-center items-center" v-if="isLoadingResultat">
+                <LoaderSnipper />
+              </div>
+            </div>
+          </div>
+          <div class="flex justify-center w-full p-3">
+            <div class="w-full max-w-full box">
+              <p class="p-3 text-lg font-medium">Score des indices par principe</p>
+              <div class="!w-[250px] p-3">
+                <label class="form-label">Année</label>
+                <TomSelect name="years" v-model="yearSelectedOng" :options="{ placeholder: 'Selectionez une organisation' }">
+                  <option value=""></option>
+                  <option v-for="year in yearsCurrentScore" :key="year" :value="year">{{ year }}</option>
+                </TomSelect>
+              </div>
+              <ChartScroreByPrincipe v-if="currentScore?.scores[yearSelectedOng]?.length > 0" :datas="currentScore?.scores[yearSelectedOng]" />
+              <div v-else class="h-[600px] flex justify-center items-center">
+                <p class="text-xl font-medium text-slate-600">Aucune données disponible</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       <ActionsMener v-if="idEvaluation && statistiques.statut == 1" :evaluation="idEvaluation" />
     </div>
     <LoaderSnipper v-if="isLoadingData" />
