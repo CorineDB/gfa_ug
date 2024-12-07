@@ -60,13 +60,14 @@
               <td>{{ indicateur.methode_de_la_collecte }}</td>
               <td>{{ indicateur.frequence_de_la_collecte }}</td>
               <td>
-                {{ indicateur.ug_responsable?.nom ?? "" }} <br />
-                {{ formatResponsable(indicateur.organisations_responsable) }}
+                <span v-html="formatResponsable(indicateur.organisations_responsable)"></span><br />
+                {{ indicateur.ug_responsable?.nom ?? "" }}
+                {{}}
               </td>
               <td class="space-x-3">
                 <button title="Suivre" @click="handleSuivi(indicateur)" class="btn text-primary"><CornerUpLeftIcon class="size-5" /></button>
                 <button title="Voir" @click="goToDetailSuivi(indicateur.id)" class="btn text-primary"><EyeIcon class="size-5" /></button>
-                <button title="Supprimer" @click="handleDelete(result)" class="btn text-danger"><TrashIcon class="size-5" /></button>
+                <button title="Supprimer" @click="handleDelete(indicateur)" class="btn text-danger"><TrashIcon class="size-5" /></button>
               </td>
             </tr>
           </template>
