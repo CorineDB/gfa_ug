@@ -1,79 +1,81 @@
 <template>
-  <div class="overflow-x-auto">
-    <table class="w-full max-w-full my-2 border-collapse editor_listing_table border-slate-500" cellpadding="6" cellspacing="0">
-      <thead class="text-black">
-        <tr>
-          <th rowspan="2" class="py-3 border border-slate-900 min-w-[500px] sticky-column">Résultats escomptés</th>
-          <th rowspan="2" class="py-3 border border-slate-900 min-w-[80px] sticky-column-second">Indice</th>
-          <th rowspan="2" class="py-3 border border-slate-900 min-w-[500px] sticky-column-third">Indicateurs</th>
-          <th rowspan="2" class="py-3 border border-slate-900 min-w-[300px]">Description de l'indicateur</th>
-          <th rowspan="2" class="py-3 border border-slate-900 min-w-[100px]">Situation de référence</th>
-          <th :colspan="years.length + 1" class="py-3 border border-slate-900 min-w-[70px]">Cibles</th>
-          <th :colspan="years.length + 1" class="py-3 border border-slate-900 min-w-[70px]">Réalisation</th>
-          <th rowspan="2" class="py-3 border border-slate-900 min-w-[150px]">Taux de réalisation</th>
-          <th rowspan="2" class="py-3 border border-slate-900 min-w-[150px]">Sources de données</th>
-          <th rowspan="2" class="py-3 border border-slate-900 min-w-[150px]">Méthode de collecte des données</th>
-          <th rowspan="2" class="py-3 border border-slate-900 min-w-[150px]">Fréquence de la collecte de données</th>
-          <th rowspan="2" class="py-3 border border-slate-900 min-w-[150px]">Responsable</th>
-          <th rowspan="2" class="py-3 border border-slate-900 min-w-[200px]">Actions</th>
-        </tr>
-        <tr>
-          <th v-for="(year, index) in years" :key="index" class="py-3 border border-slate-900 min-w-[70px]">{{ year }}</th>
-          <th class="py-3 border border-slate-900 min-w-[100px]">Total</th>
-          <th v-for="(year, index) in years" :key="index" class="py-3 border border-slate-900 min-w-[70px]">{{ year }}</th>
-          <th class="py-3 border border-slate-900 min-w-[100px]">Total</th>
-        </tr>
-      </thead>
-      <tbody>
-        <template v-for="(result, i) in data" :key="result.id">
-          <tr class="uppercase" :class="[result.type == 'produit' ? 'text-black' : 'text-white']" :style="{ 'background-color': findColorCadreMesure(result.type) }">
-            <td :colspan="13 + years.length * 2" class="font-semibold">{{ result.type }} {{ result.indice }}</td>
+  <div class="table-container">
+    <div ref="tableWrapper" class="table-wrapper">
+      <table class="w-full max-w-full my-2 border-collapse editor_listing_table border-slate-500" cellpadding="6" cellspacing="0">
+        <thead class="text-black">
+          <tr>
+            <th rowspan="2" class="py-3 border border-slate-900 min-w-[500px] sticky-column">Résultats escomptés</th>
+            <th rowspan="2" class="py-3 border border-slate-900 min-w-[80px] sticky-column-second">Indice</th>
+            <th rowspan="2" class="py-3 border border-slate-900 min-w-[500px] sticky-column-third">Indicateurs</th>
+            <th rowspan="2" class="py-3 border border-slate-900 min-w-[300px]">Description de l'indicateur</th>
+            <th rowspan="2" class="py-3 border border-slate-900 min-w-[100px]">Situation de référence</th>
+            <th :colspan="years.length + 1" class="py-3 border border-slate-900 min-w-[70px]">Cibles</th>
+            <th :colspan="years.length + 1" class="py-3 border border-slate-900 min-w-[70px]">Réalisation</th>
+            <th rowspan="2" class="py-3 border border-slate-900 min-w-[150px]">Taux de réalisation</th>
+            <th rowspan="2" class="py-3 border border-slate-900 min-w-[150px]">Sources de données</th>
+            <th rowspan="2" class="py-3 border border-slate-900 min-w-[150px]">Méthode de collecte des données</th>
+            <th rowspan="2" class="py-3 border border-slate-900 min-w-[150px]">Fréquence de la collecte de données</th>
+            <th rowspan="2" class="py-3 border border-slate-900 min-w-[150px]">Responsable</th>
+            <th rowspan="2" class="py-3 border border-slate-900 min-w-[200px]">Actions</th>
           </tr>
-          <template v-for="(indicateur, j) in result.indicateurs" :key="indicateur.id">
-            <tr>
-              <!-- Première colonne fixe -->
-              <td class="font-semibold sticky-column" v-if="j === 0" :rowspan="result.indicateurs.length" style="left: 0">
-                {{ result.nom }}
-              </td>
-
-              <!-- Deuxième colonne fixe -->
-              <td class="font-semibold sticky-column-second" style="left: 500px">Ind {{ indicateur.code }}</td>
-
-              <!-- Troisième colonne fixe -->
-              <td class="sticky-column-third" style="left: 580px">
-                {{ indicateur.nom }}
-              </td>
-
-              <!-- Colonnes restantes -->
-              <td>{{ indicateur.description ?? "" }}</td>
-              <td v-html="formatObject(indicateur.valeurDeBase)"></td>
-              <td v-for="(year, index) in years" :key="index">
-                <span v-html="formatObject(indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeurCible)"></span>
-              </td>
-              <td></td>
-              <td v-for="(year, index) in years" :key="index">
-                <span v-html="formatObject(indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeur_realiser)"></span>
-              </td>
-              <td></td>
-              <td></td>
-              <td>{{ indicateur.sources_de_donnee }}</td>
-              <td>{{ indicateur.methode_de_la_collecte }}</td>
-              <td>{{ indicateur.frequence_de_la_collecte }}</td>
-              <td>
-                <span v-html="formatResponsable(indicateur.organisations_responsable)"></span><br />
-                {{ indicateur.ug_responsable?.nom ?? "" }}
-                {{}}
-              </td>
-              <td class="space-x-3">
-                <button title="Suivre" @click="handleSuivi(indicateur)" class="btn text-primary"><CornerUpLeftIcon class="size-5" /></button>
-                <button title="Voir" @click="goToDetailSuivi(indicateur.id)" class="btn text-primary"><EyeIcon class="size-5" /></button>
-                <button title="Supprimer" @click="handleDelete(indicateur)" class="btn text-danger"><TrashIcon class="size-5" /></button>
-              </td>
+          <tr>
+            <th v-for="(year, index) in years" :key="index" class="py-3 border border-slate-900 min-w-[70px]">{{ year }}</th>
+            <th class="py-3 border border-slate-900 min-w-[100px]">Total</th>
+            <th v-for="(year, index) in years" :key="index" class="py-3 border border-slate-900 min-w-[70px]">{{ year }}</th>
+            <th class="py-3 border border-slate-900 min-w-[100px]">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <template v-for="(result, i) in data" :key="result.id">
+            <tr class="uppercase" :class="[result.type == 'produit' ? 'text-black' : 'text-white']" :style="{ 'background-color': findColorCadreMesure(result.type) }">
+              <td :colspan="13 + years.length * 2" class="font-semibold">{{ result.type }} {{ result.indice }}</td>
             </tr>
+            <template v-for="(indicateur, j) in result.indicateurs" :key="indicateur.id">
+              <tr>
+                <!-- Première colonne fixe -->
+                <td class="font-semibold sticky-column" v-if="j === 0" :rowspan="result.indicateurs.length" style="left: 0">
+                  {{ result.nom }}
+                </td>
+
+                <!-- Deuxième colonne fixe -->
+                <td class="font-semibold sticky-column-second" style="left: 500px">Ind {{ indicateur.code }}</td>
+
+                <!-- Troisième colonne fixe -->
+                <td class="sticky-column-third" style="left: 580px">
+                  {{ indicateur.nom }}
+                </td>
+
+                <!-- Colonnes restantes -->
+                <td>{{ indicateur.description ?? "" }}</td>
+                <td v-html="formatObject(indicateur.valeurDeBase)"></td>
+                <td v-for="(year, index) in years" :key="index">
+                  <span v-html="formatObject(indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeurCible)"></span>
+                </td>
+                <td></td>
+                <td v-for="(year, index) in years" :key="index">
+                  <span v-html="formatObject(indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeur_realiser)"></span>
+                </td>
+                <td></td>
+                <td></td>
+                <td>{{ indicateur.sources_de_donnee }}</td>
+                <td>{{ indicateur.methode_de_la_collecte }}</td>
+                <td>{{ indicateur.frequence_de_la_collecte }}</td>
+                <td>
+                  <span v-html="formatResponsable(indicateur.organisations_responsable)"></span><br />
+                  {{ indicateur.ug_responsable?.nom ?? "" }}
+                  {{}}
+                </td>
+                <td class="space-x-3">
+                  <button title="Suivre" @click="handleSuivi(indicateur)" class="btn text-primary"><CornerUpLeftIcon class="size-5" /></button>
+                  <button title="Voir" @click="goToDetailSuivi(indicateur.id)" class="btn text-primary"><EyeIcon class="size-5" /></button>
+                  <button title="Supprimer" @click="handleDelete(indicateur)" class="btn text-danger"><TrashIcon class="size-5" /></button>
+                </td>
+              </tr>
+            </template>
           </template>
-        </template>
-      </tbody>
-    </table>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <!-- Modal for creating/updating -->
@@ -221,7 +223,9 @@ const optionsSuivi = [
   { label: "Par date", id: "date" },
   { label: "Par trimestre", id: "trimestre" },
 ];
-
+const tableWrapper = ref(null);
+const scrollWrapper = ref(null);
+const scrollBar = ref(null);
 const idSelect = ref("");
 const nameSelect = ref("");
 const valueKeysIndicateurSuivi = ref([]);
@@ -426,5 +430,17 @@ table td {
 .sticky-column-second,
 .stick-column-third {
   border-right: 1px solid #ccc;
+}
+
+.table-container {
+  position: relative;
+  max-height: 80vh; /* Ajustez selon vos besoins */
+  overflow: hidden;
+}
+
+.table-wrapper {
+  overflow-y: auto;
+  overflow-x: auto;
+  max-height: calc(80vh - 20px); /* Ajustez selon vos besoins */
 }
 </style>
