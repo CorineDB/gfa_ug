@@ -50,13 +50,14 @@
     <section :class="[showMenu ? 'w-[70%]' : 'w-[100%]']" class="pt-5">
       <button class="text-sm btn" @click="displayMenu"><ChevronsLeftIcon class="mr-1 size-3" />{{ showMenu ? "Cacher le menu" : "Afficher le menu" }}</button>
 
-      <h2 class="mt-6 text-lg font-medium intro-y">Liste des indicateurs</h2>
-      <div>
+      <div class="flex items-center justify-between gap-2 my-2">
+        <h2 class="text-lg font-medium intro-y">Liste des indicateurs</h2>
         <!-- Button to open modal -->
-        <div class="flex items-center justify-end gap-2 mb-2">
+        <div class="flex items-center justify-end gap-2">
           <button class="text-base btn btn-primary" @click="openCreateModal"><PlusIcon class="mr-1 size-4" />Ajouter</button>
         </div>
-
+      </div>
+      <div>
         <!-- Data List -->
         <!-- <ul v-if="!isLoadingData" class="overflow-y-auto max-h-[80vh]">
           <li v-for="data in filterData" :key="data.id" class="flex items-center justify-between gap-2 px-2 py-2 text-base rounded-md hover:bg-blue-100 list-data">
