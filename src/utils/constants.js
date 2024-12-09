@@ -43,3 +43,5 @@ export const sourcesDonnees = ["INSAE", "EDSB", "CENA", "DGEC", "OSC", "FeRCAB",
 export const methodeCollecte = ["Examen de rapport et analyse statistique", "Enquête", "Examen de rapport", "Décompte", "Examen de rapport et décomptes", "Analyse de rapport", "Décompte des rapports publiés", "Analyse rapport financier", "Analyse rapport d'activités"];
 
 export const frequenceCollecte = ["Une fois en 2024", "Annuelle", "Semestrielle"];
+
+export const secteursActivites = ["Secteur 1", "Secteur2", "Secteur3"];
