@@ -403,7 +403,14 @@ onMounted(async () => {
       <ModalBody>
         <div class="grid grid-cols-1 gap-4">
           <InputForm label="Nom" v-model="payload.intitule" :control="getFieldErrors(errors.intitule)" />
-          <InputForm label="Description" :control="getFieldErrors(errors.description)" v-model="payload.description" :required="false" />
+          <!-- <InputForm label="Description" :control="getFieldErrors(errors.description)" v-model="payload.description" :required="false" /> -->
+          <div class="flex-1">
+            <label class="form-label" for="description">Description</label>
+            <div class="">
+              <textarea name="description" class="form-control" id="description" v-model="payload.description" cols="30" rows="3"></textarea>
+              <div v-if="errors.description" class="mt-2 text-danger">{{ getFieldErrors(errors.description) }}</div>
+            </div>
+          </div>
           <div class="flex items-center justify-between w-full gap-4">
             <div class="">
               <label for="objectif" class="form-label">Objectif</label>
@@ -423,14 +430,14 @@ onMounted(async () => {
           <div class="">
             <label class="form-label">Formulaires Factuel</label>
             <TomSelect v-model="idFormFactuel" :options="{ placeholder: 'Selectionez un formulaire' }" class="w-full">
-              <option v-for="(form, index) in formulairesFactuel" :key="index" :value="form.id">{{ form.libelle }}</option>
+              <option v-for="(form, index) in formulairesFactuel" :key="index" :value="form.id">{{ form.libelle }} ({{ form.annee_exercice }})</option>
             </TomSelect>
             <div v-if="errors.formulaires_de_gouvernance" class="mt-2 text-danger">{{ getFieldErrors(errors.formulaires_de_gouvernance) }}</div>
           </div>
           <div class="">
             <label class="form-label">Formulaires de perception</label>
             <TomSelect v-model="idFormPerception" :options="{ placeholder: 'Selectionez un formulaire' }" class="w-full">
-              <option v-for="(form, index) in formulairesPerception" :key="index" :value="form.id">{{ form.libelle }}</option>
+              <option v-for="(form, index) in formulairesPerception" :key="index" :value="form.id">{{ form.libelle }} ({{ form.annee_exercice }})</option>
             </TomSelect>
             <div v-if="errors.formulaires_de_gouvernance" class="mt-2 text-danger">{{ getFieldErrors(errors.formulaires_de_gouvernance) }}</div>
           </div>

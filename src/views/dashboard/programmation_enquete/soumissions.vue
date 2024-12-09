@@ -358,7 +358,7 @@ onMounted(async () => {
               <div class="p-5 text-center box">
                 <div class="flex items-center justify-between">
                   <BarChart2Icon class="size-10 text-success" />
-                  <div class="mt-2 text-lg font-medium leading-8">Soumissions terminées</div>
+                  <div class="mt-2 text-lg font-medium leading-8">Soumission terminée</div>
                 </div>
                 <div class="flex items-center justify-around mt-4">
                   <div class="flex gap-2 text-lg text-left">
@@ -386,7 +386,7 @@ onMounted(async () => {
               <div class="p-5 text-center box">
                 <div class="flex items-center justify-between">
                   <PercentIcon class="size-10 text-warning" />
-                  <div class="mt-2 text-lg font-medium leading-8">Pourcentage Évolution</div>
+                  <div class="mt-2 text-lg font-medium leading-8">Évolution</div>
                 </div>
                 <div class="flex items-center justify-around mt-4">
                   <div class="flex gap-2 text-lg text-left">
