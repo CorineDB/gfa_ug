@@ -174,7 +174,13 @@ onMounted(getDatas);
         <ModalBody>
           <div class="grid grid-cols-1 gap-4">
             <InputForm label="Nom" v-model="payload.nom" :control="getFieldErrors(errors.nom)" />
-            <InputForm label="Description" v-model="payload.description" :control="getFieldErrors(errors.description)" :required="false" />
+            <div class="flex-1">
+              <label class="form-label" for="description">Description</label>
+              <div class="">
+                <textarea name="description" class="form-control" id="description" v-model="payload.description" cols="30" rows="3"></textarea>
+                <div v-if="errors.description" class="mt-2 text-danger">{{ getFieldErrors(errors.description) }}</div>
+              </div>
+            </div>
           </div>
         </ModalBody>
         <ModalFooter>

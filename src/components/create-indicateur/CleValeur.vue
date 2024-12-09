@@ -172,7 +172,13 @@ onMounted(getDatas);
           <div class="grid grid-cols-1 gap-4">
             <InputForm label="Nom" v-model="payload.libelle" :control="getFieldErrors(errors.libelle)" />
             <InputForm label="Clé" v-model="payload.key" :control="getFieldErrors(errors.key)" />
-            <InputForm label="Description " v-model="payload.description" :required="false" :control="getFieldErrors(errors.description)" />
+            <div class="flex-1">
+              <label class="form-label" for="description">Description</label>
+              <div class="">
+                <textarea name="description" class="form-control" id="description" v-model="payload.description" cols="30" rows="3"></textarea>
+                <div v-if="errors.description" class="mt-2 text-danger">{{ getFieldErrors(errors.description) }}</div>
+              </div>
+            </div>
             <div>
               <label class="form-label">Unité de mesure</label>
               <TomSelect v-model="payload.uniteeMesureId" :options="{ placeholder: 'Selectionez une unité' }" class="w-full">
