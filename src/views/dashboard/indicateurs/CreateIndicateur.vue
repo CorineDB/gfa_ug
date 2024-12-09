@@ -1,7 +1,7 @@
 <template>
   <div class="flex w-full gap-2">
     <Transition name="menu">
-      <section :class="[showMenu ? 'translate-x-0 w-[30%] border-r-2' : '-translate-x-full w-0']" class="h-screen pt-5 pr-1 overflow-y-auto transition-transform duration-300 transform menu-crud">
+      <section :class="[showMenu ? 'translate-x-0 w-[30%] border-r-2' : '-translate-x-full w-0']" class="h-screen pt-[130px] pr-1 overflow-y-auto transition-transform duration-300 transform menu-crud">
         <div :class="['transition-all', showMenu ? '' : 'hidden']">
           <AccordionGroup :selectedIndex="null" class="space-y-1">
             <AccordionItem class="">
