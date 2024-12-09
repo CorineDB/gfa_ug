@@ -1,5 +1,5 @@
 <template>
-  <Alert v-if="showAlert" class="flex items-center mb-2 !py-2 alert-danger" v-slot="{ dismiss }">
+  <Alert v-if="showAlert" class="flex items-center mb-2 !py-2 alert-danger-soft" v-slot="{ dismiss }">
     <ul class="font-medium !list-disc">
       <li v-for="(error, index) in errorsNom" :key="index">{{ error }}</li>
       <li v-for="(error, index) in errorsEmail" :key="index">{{ error }}</li>
