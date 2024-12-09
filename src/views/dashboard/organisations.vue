@@ -399,7 +399,7 @@ onMounted(() => {
             <InputForm label="Adresse" :control="getFieldErrors(errors.addresse)" v-model="payload.addresse" :required="false" />
             <InputForm label="Pays" :control="getFieldErrors(errors.pays)" v-model="payload.pays" />
           </div>
-          <div class="grid grid-cols-2 gap-4">
+          <!-- <div class="grid grid-cols-2 gap-4">
             <div>
               <label class="form-label">Départements</label>
               <TomSelect v-model="payload.departement" @change="updateCommunes" :options="{ placeholder: 'Selectionez un département' }" class="w-full">
@@ -417,16 +417,9 @@ onMounted(() => {
               </TomSelect>
               <div v-if="errors.commune" class="mt-2 text-danger">{{ getFieldErrors(errors.commune) }}</div>
             </div>
-          </div>
-          <div>
-            <label class="form-label">Types</label>
-            <TomSelect v-model="payload.type" :options="{ placeholder: 'Selectionez  un type' }" class="w-full">
-              <option value=""></option>
-              <option v-for="(type, index) in types" :key="index" :value="type.id">{{ type.label }}</option>
-            </TomSelect>
-            <div v-if="errors.type" class="mt-2 text-danger">{{ getFieldErrors(errors.type) }}</div>
-          </div>
-          <div class="grid grid-cols-2 gap-4">
+          </div> -->
+
+          <!-- <div class="grid grid-cols-2 gap-4">
             <div :class="[!showArrondissement ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
               <label class="form-label">Arrondissemnt</label>
               <TomSelect v-model="payload.arrondissement" @change="updateQuartiers" :options="{ placeholder: 'Selectionez  arrondissement' }" class="w-full">
@@ -443,16 +436,24 @@ onMounted(() => {
               </TomSelect>
               <div v-if="errors.quartier" class="mt-2 text-danger">{{ getFieldErrors(errors.quartier) }}</div>
             </div>
-          </div>
-          <!-- <div class="grid grid-cols-2 gap-4">
-            <InputForm label="Département" v-model="payload.departement" />
-            <InputForm label="Commune" v-model="payload.commune" />
+          </div> -->
+          <div class="grid grid-cols-2 gap-4">
+            <InputForm label="Département" v-model="payload.departement" :control="getFieldErrors(errors.departement)" />
+            <InputForm label="Commune" v-model="payload.commune" :control="getFieldErrors(errors.commune)" />
           </div>
 
           <div class="grid grid-cols-2 gap-4">
-            <InputForm label="Arrondissement" v-model="payload.arrondissement" />
-            <InputForm label="Quatier" v-model="payload.quartier" />
-          </div> -->
+            <InputForm label="Arrondissement" v-model="payload.arrondissement" :control="getFieldErrors(errors.arrondissement)" />
+            <InputForm label="Quatier" v-model="payload.quartier" :control="getFieldErrors(errors.quartier)" />
+          </div>
+          <div>
+            <label class="form-label">Types</label>
+            <TomSelect v-model="payload.type" :options="{ placeholder: 'Selectionez  un type' }" class="w-full">
+              <option value=""></option>
+              <option v-for="(type, index) in types" :key="index" :value="type.id">{{ type.label }}</option>
+            </TomSelect>
+            <div v-if="errors.type" class="mt-2 text-danger">{{ getFieldErrors(errors.type) }}</div>
+          </div>
           <div class="grid grid-cols-2 gap-4">
             <InputForm label="Longitude" :control="getFieldErrors(errors.longitude)" v-model.number="payload.longitude" type="number" />
             <InputForm label="Latitude" :control="getFieldErrors(errors.latitude)" v-model.number="payload.latitude" type="number" />
