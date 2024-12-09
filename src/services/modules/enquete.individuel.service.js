@@ -1,0 +1,30 @@
+import ApiService from "@/services/configs/api.service";
+
+const EnqueteIndividuelService = {
+  query(type, params) {
+    return ApiService.query("criteres", {
+      params: params,
+    });
+  },
+
+  get(slug) {
+    return ApiService.get(`principe/${slug}/criteres`);
+  },
+  getAll(slug) {
+    return ApiService.get(`criteres`);
+  },
+
+  create(params) {
+    return ApiService.post("criteres", params);
+  },
+
+  update(slug, params) {
+    return ApiService.update("criteres", slug, params);
+  },
+
+  destroy(slug) {
+    return ApiService.delete(`criteres/${slug}`);
+  },
+};
+
+export default EnqueteIndividuelService;
