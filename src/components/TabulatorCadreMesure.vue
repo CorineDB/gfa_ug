@@ -1,4 +1,7 @@
 <template>
+  <div class="flex justify-end my-1">
+    <ExportationIndicateur :data="data" :years="years" />
+  </div>
   <div class="table-container">
     <div ref="tableWrapper" class="table-wrapper">
       <table class="w-full max-w-full my-2 border-collapse editor_listing_table border-slate-500" cellpadding="6" cellspacing="0">
@@ -211,6 +214,7 @@ import { findColorCadreMesure } from "../utils/findColorIndicator";
 import { sourcesDonnees } from "../utils/constants";
 import { useRouter } from "vue-router";
 import { getFieldErrors } from "../utils/helpers";
+import ExportationIndicateur from "./news/ExportationIndicateur.vue";
 
 const props = defineProps({
   data: Array,

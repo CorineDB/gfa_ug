@@ -2,28 +2,28 @@ import ApiService from "@/services/configs/api.service";
 
 const EnqueteIndividuelService = {
   query(type, params) {
-    return ApiService.query("criteres", {
+    return ApiService.query("gfa/survey-forms", {
       params: params,
     });
   },
 
   get(slug) {
-    return ApiService.get(`principe/${slug}/criteres`);
+    return ApiService.get(`gfa/survey-forms`);
   },
-  getAll(slug) {
-    return ApiService.get(`criteres`);
+  getOne(id) {
+    return ApiService.get(`gfa/survey-forms/${id}`);
   },
 
   create(params) {
-    return ApiService.post("criteres", params);
+    return ApiService.post("gfa/survey-forms", params);
   },
 
   update(slug, params) {
-    return ApiService.update("criteres", slug, params);
+    return ApiService.update("gfa/survey-forms", slug, params);
   },
 
   destroy(slug) {
-    return ApiService.delete(`criteres/${slug}`);
+    return ApiService.delete(`gfa/survey-forms/${slug}`);
   },
 };
 
