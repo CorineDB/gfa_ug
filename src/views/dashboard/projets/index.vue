@@ -46,7 +46,7 @@
       <InputForm v-model="formData.pret" class="col-span-12" type="text" required="required" placeHolder="Ex : 100000" label="Montant financé" />
 
       <div class="col-span-12" v-if="!isUpdate">
-        <InputForm class="col-span-12" type="file" @change="handleFileChange" required="required" placeHolder="choisir une image" label="Images" accept="image/*" />
+        <InputForm class="col-span-12" type="file" @change="handleFileChange" required="required" placeHolder="choisir une image" label="Images de couverture" accept="image/*" />
         <div class="col-span-12" v-if="imagePreview">
           <h3>Prévisualisation de l'image :</h3>
           <img :src="imagePreview" alt="Prévisualisation" width="200" />
@@ -352,7 +352,7 @@ export default {
       projetsImg: ["https://images.unsplash.com/photo-1473649085228-583485e6e4d7?q=80&w=1332&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", "https://images.unsplash.com/photo-1516047001178-6dcd2a01c694?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", "https://media.istockphoto.com/id/474234518/photo/clean-fresh-water-scarcity-symbol-black-girl-drinking-from-tap.jpg?s=1024x1024&w=is&k=20&c=Ae42yqkuqfOxBV1bedpkGtC1w2ifQqBB77Sl46nNDNQ=", "https://images.unsplash.com/flagged/photo-1555251255-e9a095d6eb9d?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", "https://images.unsplash.com/photo-1728158609567-42dc418139f9?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8TkdPJTIwYmxhY2t8ZW58MHx8MHx8fDA%3D"],
       formData: {
         nom: "",
-        couleur: "",
+        couleur: "#000000",
         debut: "",
         fin: "",
         pays: "",
@@ -646,6 +646,7 @@ export default {
       // this.submitText = "Enregistrer";:
       this.isUpdate = false;
       this.showCloseModal(true);
+      alert("ok")
     },
 
     modifierProjet(projet) {

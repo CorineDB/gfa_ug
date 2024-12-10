@@ -17,7 +17,7 @@ export default {
   data() {
     return {
       projets: [],
-      projetId: "",
+      projetId: {},
       composants: [],
       sousComposants: [],
       activites: [],
@@ -33,9 +33,9 @@ export default {
         fin: "",
         activiteId: ""
       },
-      composantsId: "",
-      sousComposantId: "",
-      activitesId: "",
+      composantsId: {},
+      sousComposantId: {},
+      activitesId: {},
       labels: "Ajouter",
       showDeleteModal: false,
       deleteLoader: false,
@@ -51,22 +51,22 @@ export default {
       if (this.projets.length > 0) {
         console.log(newValue);
 
-        this.getProjetById(newValue);
+        this.getProjetById(newValue.id);
       }
     },
     composantsId(newValue, oldValue) {
       if (this.composants.length > 0) {
-        this.getComposantById(newValue);
+        this.getComposantById(newValue.id);
       }
     },
     sousComposantId(newValue, oldValue) {
       if (this.sousComposants.length > 0) {
-        this.getComposantById(newValue);
+        this.getComposantById(newValue.id);
       }
     },
     activitesId(newValue, oldValue) {
       if (this.activites.length > 0) {
-        this.getActiviteById(newValue);
+        this.getActiviteById(newValue.id);
       }
     },
   },
@@ -183,11 +183,11 @@ export default {
         .then((data) => {
           this.isLoadingData = false;
           this.projets = data.data.data;
-          if (this.projetId == "") {
-            this.projetId = this.projets[0].id;
+          if (Object.keys(this.projetId).length === 0  ) {
+            this.projetId = this.projets[0];
           }
 
-          this.getProjetById(this.projetId);
+          this.getProjetById(this.projetId.id);
         })
         .catch((error) => {
           console.log(error);
@@ -197,10 +197,10 @@ export default {
       ProjetService.getDetailProjet(data)
         .then((datas) => {
           this.composants = datas.data.data.composantes;
-          if (this.composantsId == "") {
-            this.composantsId = this.composants[0].id;
+          if (Object.keys(this.composantsId).length === 0) {
+            this.composantsId = this.composants[0];
           }
-          this.getComposantById(this.composantsId);
+          this.getComposantById(this.composantsId.id);
         })
         .catch((error) => {
           console.log(error);
@@ -217,8 +217,8 @@ export default {
             this.haveSousComposantes = true;
           }
 
-          this.activitesId = this.activites[0].id;
-          this.getActiviteById(this.activitesId);
+          this.activitesId = this.activites[0];
+          this.getActiviteById(this.activitesId.id);
         })
         .catch((error) => {
           console.log(error);
@@ -256,7 +256,8 @@ export default {
 
       <div class="grid grid-cols-2 gap-4">
         <div class="flex w-full">
-          <v-select class="w-full" :reduce="(projet) => projet.id" v-model="projetId" label="nom" :options="projets">
+          <!-- :reduce="(projet) => projet.id" -->
+          <v-select class="w-full"  v-model="projetId" label="nom" :options="projets">
             <template #search="{ attributes, events }">
               <input class="vs__search form-input" :required="!projetId" v-bind="attributes" v-on="events" />
             </template>
@@ -264,7 +265,8 @@ export default {
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Projets</label>
         </div>
         <div class="flex w-full">
-          <v-select class="w-full" :reduce="(composant) => composant.id" v-model="composantsId" label="nom" :options="composants">
+          <!-- :reduce="(composant) => composant.id" -->
+          <v-select class="w-full"  v-model="composantsId" label="nom" :options="composants">
             <template #search="{ attributes, events }">
               <input class="vs__search form-input" :required="!composantsId" v-bind="attributes" v-on="events" />
             </template>
@@ -296,7 +298,8 @@ export default {
         </div>
 
         <div class="flex w-full">
-          <v-select class="w-full" :reduce="(activite) => activite.id" v-model="activitesId" label="nom" :options="activites">
+          <!-- :reduce="(activite) => activite.id" -->
+          <v-select class="w-full"  v-model="activitesId" label="nom" :options="activites">
             <template #search="{ attributes, events }">
               <input class="vs__search form-input" :required="!activitesId" v-bind="attributes" v-on="events" />
             </template>
