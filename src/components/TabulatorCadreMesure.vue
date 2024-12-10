@@ -1,6 +1,6 @@
 <template>
   <div class="flex justify-end my-1">
-    <ExportationIndicateur :data="data" :years="years" />
+    <!-- <ExportationIndicateur :data="data" :years="years" /> -->
   </div>
   <div class="table-container">
     <div ref="tableWrapper" class="table-wrapper">
