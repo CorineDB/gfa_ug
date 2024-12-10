@@ -10,29 +10,29 @@ const SuiviFinanciersService = {
     },
 
     get(slug) {
-      return ApiService.get("/suiviFinanciers", slug);
+      return ApiService.get("gfa/suiviFinanciers", slug);
     },
 
     create(params) {
-      return ApiService.post("suiviFinanciers", params);
+      return ApiService.post("gfa/suiviFinanciers", params);
     },
     importCSV(params) {
-      return ApiService.post("suiviFinanciers/importation", params);
+      return ApiService.post("gfa/suiviFinanciers/importation", params);
     },
 
     update(slug, params) {
-      return ApiService.update("suiviFinanciers", slug, params);
+      return ApiService.update("gfa/suiviFinanciers", slug, params);
     },
 
     destroy(slug) {
-      return ApiService.delete(`suiviFinanciers/${slug}`);
+      return ApiService.delete(`gfa/suiviFinanciers/${slug}`);
     },
 
     byProgramme(slug) {
-      return ApiService.get(`programmes/${slug}/suiviFinanciers`);
+      return ApiService.get(`gfa/programmes/${slug}/suiviFinanciers`);
     },
     filtre(params) {
-      return ApiService.post("suiviFinanciers/filtres", params);
+      return ApiService.post("gfa/suiviFinanciers/filtres", params);
     },
 
   };

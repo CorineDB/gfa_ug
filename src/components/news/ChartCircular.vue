@@ -1,5 +1,8 @@
 <template>
-  <Chart type="pie" :width="width" :height="height" :data="data" :options="options" />
+  <!-- test de positionnement -->
+  <div class="h-auto mt-4">
+    <Chart type="pie" :width="width" :height="height" :data="data" :options="options" />
+  </div>
 </template>
 
 <script setup>

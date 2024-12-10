@@ -210,6 +210,17 @@
         </table>
       </div>
     </section>
+    <h2 class="my-2">Budget</h2>
+    <PieChart :height="400" />
+    <h2 class="my-2">Activités</h2>
+    <ReportBarChart :height="400"  class="py-4 mt-6" />
+    <h2 class="my-2">Rendements</h2>
+    <VerticalBarChart class="mt-4" :height="400" />
+    <div class="report-chart">
+      <h2 class="my-2">Statistiques financiers</h2>
+        <ReportLineChart :height="275" class="mt-6 -mb-6" />
+    </div>
+
 </div>
 <!-- fin new sample -->
 
@@ -217,38 +228,20 @@
 
 </template>
 
-<script>
-
-
-
+<script setup>
+import { ref } from "vue";
+import ChartCircular from "../../../../components/news/ChartCircular.vue";
+import ReportBarChart from "@/components/report-bar-chart/Main.vue";
 import { mapGetters, mapActions, mapMutations, mapState} from "vuex";
-
-
-
 import ProjetService from "@/services/modules/projet.service.js";
+import VerticalBarChart from "@/components/vertical-bar-chart/Main.vue";
+import ReportLineChart from "@/components/report-line-chart/Main.vue";
+import PieChart from "@/components/pie-chart/Main.vue";
 
-export default {
-  components: {
-   
-  },
-  data() {
-    return {
-      
-    }
-  },
 
-  computed:{
-    ...mapGetters('auths', {currentUser : 'GET_AUTHENTICATE_USER'})
-  },
+const loadingOption = ref(true);
+const graphiqueData = ref([])
 
-  methods: {
-   
-  },
-
-  created() {
-  
-  },
-};
 
 
 

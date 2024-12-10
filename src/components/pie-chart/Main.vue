@@ -1,5 +1,11 @@
 <template>
-  <Chart type="pie" :width="width" :height="height" :data="data" :options="options" />
+  <Chart
+    type="pie"
+    :width="width"
+    :height="height"
+    :data="data"
+    :options="options"
+  />
 </template>
 
 <script setup>
@@ -17,15 +23,16 @@ const props = defineProps({
     type: [Number, String],
     default: "auto",
   },
-  chartData: {
-    type: Array
-  }
+  myLabels: {
+    type: Array,
+    default: () => ["Consommés", "Fonds propres", "Prêts"], // Définit une valeur par défaut
+  },
 });
 
 const darkMode = computed(() => useDarkModeStore().darkMode);
 const colorScheme = computed(() => useColorSchemeStore().colorScheme);
 
-
+const chartData = [15, 10, 65];
 const chartColors = () => [
   colors.pending(0.9),
   colors.warning(0.9),
@@ -34,7 +41,7 @@ const chartColors = () => [
 
 const data = computed(() => {
   return {
-    labels: ["Html", "Vuejs", "Laravel"],
+    labels: props.myLabels,
     datasets: [
       {
         data: chartData,
@@ -44,8 +51,7 @@ const data = computed(() => {
         borderColor: darkMode.value ? colors.darkmode[700]() : colors.white,
       },
     ],
-  }
-
+  };
 });
 
 const options = computed(() => {
