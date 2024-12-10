@@ -57,6 +57,16 @@
           <button class="text-base btn btn-primary" @click="openCreateModal"><PlusIcon class="mr-1 size-4" />Ajouter</button>
         </div>
       </div>
+      <div class="grid grid-cols-12 gap-6 mt-5">
+        <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
+          <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
+            <div class="relative w-56 text-slate-500">
+              <input type="text" v-model="search" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
+              <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
+            </div>
+          </div>
+        </div>
+      </div>
       <div>
         <!-- Data List -->
         <!-- <ul v-if="!isLoadingData" class="overflow-y-auto max-h-[80vh]">
@@ -75,7 +85,14 @@
           </li>
         </ul> -->
         <LoaderSnipper v-if="isLoadingDataCadre" />
-        <TabulatorCadreMesure v-else :data="cadreRendement" :years="annees" />
+        <TabulatorCadreMesure v-else :data="dataAvailable" :years="annees" />
+        <div v-if="!isLoadingDataCadre" class="flex justify-center gap-3 my-8">
+          <button @click="prevPage" :disabled="currentPage === 1" class="px-4 py-3 btn btn-outline-primary"><ChevronsLeftIcon class="size-5" /></button>
+          <div class="max-w-[400px] overflow-x-auto flex items-center gap-3">
+            <button v-for="page in totalPages" :key="page" @click="goToPage(page)" :class="page === currentPage ? 'btn-primary' : 'btn-outline-primary'" class="px-4 py-3 btn">{{ page }}</button>
+          </div>
+          <button @click="nextPage" :disabled="currentPage === totalPages" class="px-4 py-3 btn btn-outline-primary"><ChevronsRightIcon class="size-5" /></button>
+        </div>
         <!-- <LoaderSnipper v-else /> -->
 
         <!-- Modal for creating/updating -->
@@ -357,6 +374,9 @@ const errors = ref({});
 const array_value_keys = ref([]);
 const responsablesForm = ref({ organisations: [], ug: "" });
 
+// Etat de la page et items par page
+const currentPage = ref(1);
+const itemsPerPage = 2;
 const displayMenu = () => {
   showMenu.value = !showMenu.value;
 };
@@ -631,6 +651,21 @@ const resetFormAnnee = () => {
   showModalAnnee.value = false;
 };
 
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++;
+  }
+};
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
+  }
+};
+
+const goToPage = (page) => {
+  currentPage.value = page;
+};
+
 // Fonction pour ajouter une année cible
 const addAnneeCible = () => {
   if (!currentAnneeCible.value.annee) {
@@ -660,6 +695,31 @@ const valeurDeBase = computed(() => {
   return Object.entries(valeur.value)
     .filter(([keyId]) => array_value_keys.value.includes(keyId)) // Ne garde que les clés sélectionnées
     .map(([keyId, value]) => ({ keyId, value })); // Transforme en { keyId, value }
+});
+
+// Calculer le nombre total de pages
+const totalPages = computed(() => Math.ceil(cadreRendement.value ? cadreRendement.value.length / itemsPerPage : 0));
+
+// Obtenir les éléments de la page actuelle
+const paginatedData = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+  if (cadreRendement.value) return cadreRendement.value.slice(start, end);
+});
+
+const datasSearch = computed(() => {
+  // Retourner les groupes filtrés
+  return cadreRendement.value
+    .map((group) => {
+      const filteredIndicateurs = group.indicateurs.filter((indicateur) => indicateur.nom.toLowerCase().includes(search.value.toLowerCase()));
+      return filteredIndicateurs.length > 0 ? { ...group, indicateurs: filteredIndicateurs } : null;
+    })
+    .filter((group) => group !== null);
+});
+
+const dataAvailable = computed(() => {
+  if (search.value.length > 0) return datasSearch.value;
+  else return paginatedData.value;
 });
 
 watch(

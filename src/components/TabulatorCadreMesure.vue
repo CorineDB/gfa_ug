@@ -4,24 +4,24 @@
       <table class="w-full max-w-full my-2 border-collapse editor_listing_table border-slate-500" cellpadding="6" cellspacing="0">
         <thead class="text-black">
           <tr>
-            <th rowspan="2" class="py-3 border border-slate-900 min-w-[500px] sticky-column">Résultats escomptés</th>
-            <th rowspan="2" class="py-3 border border-slate-900 min-w-[80px] sticky-column-second">Indice</th>
-            <th rowspan="2" class="py-3 border border-slate-900 min-w-[500px] sticky-column-third">Indicateurs</th>
-            <th rowspan="2" class="py-3 border border-slate-900 min-w-[300px]">Description de l'indicateur</th>
-            <th rowspan="2" class="py-3 border border-slate-900 min-w-[100px]">Situation de référence</th>
+            <th rowspan="2" class="py-3 sticky-header border border-slate-900 min-w-[500px] sticky-column">Résultats escomptés</th>
+            <th rowspan="2" class="py-3 sticky-header border border-slate-900 min-w-[80px] sticky-column-second">Indice</th>
+            <th rowspan="2" class="py-3 sticky-header border border-slate-900 min-w-[500px] sticky-column-third">Indicateurs</th>
+            <th rowspan="2" class="py-3 sticky-header border border-slate-900 min-w-[300px]">Description de l'indicateur</th>
+            <th rowspan="2" class="py-3 sticky-header border border-slate-900 min-w-[100px]">Situation de référence</th>
             <th :colspan="years.length + 1" class="py-3 border border-slate-900 min-w-[70px]">Cibles</th>
             <th :colspan="years.length + 1" class="py-3 border border-slate-900 min-w-[70px]">Réalisation</th>
-            <th rowspan="2" class="py-3 border border-slate-900 min-w-[150px]">Taux de réalisation</th>
-            <th rowspan="2" class="py-3 border border-slate-900 min-w-[150px]">Sources de données</th>
-            <th rowspan="2" class="py-3 border border-slate-900 min-w-[150px]">Méthode de collecte des données</th>
-            <th rowspan="2" class="py-3 border border-slate-900 min-w-[150px]">Fréquence de la collecte de données</th>
-            <th rowspan="2" class="py-3 border border-slate-900 min-w-[150px]">Responsable</th>
-            <th rowspan="2" class="py-3 border border-slate-900 min-w-[200px]">Actions</th>
+            <th rowspan="2" class="py-3 sticky-header border border-slate-900 min-w-[150px]">Taux de réalisation</th>
+            <th rowspan="2" class="py-3 sticky-header border border-slate-900 min-w-[150px]">Sources de données</th>
+            <th rowspan="2" class="py-3 sticky-header border border-slate-900 min-w-[150px]">Méthode de collecte des données</th>
+            <th rowspan="2" class="py-3 sticky-header border border-slate-900 min-w-[150px]">Fréquence de la collecte de données</th>
+            <th rowspan="2" class="py-3 sticky-header border border-slate-900 min-w-[150px]">Responsable</th>
+            <th rowspan="2" class="py-3 sticky-header border border-slate-900 min-w-[200px]">Actions</th>
           </tr>
           <tr>
-            <th v-for="(year, index) in years" :key="index" class="py-3 border border-slate-900 min-w-[70px]">{{ year }}</th>
+            <th v-for="(year, index) in years" :key="index" class="py-3 sticky-header border border-slate-900 min-w-[70px]">{{ year }}</th>
             <th class="py-3 border border-slate-900 min-w-[100px]">Total</th>
-            <th v-for="(year, index) in years" :key="index" class="py-3 border border-slate-900 min-w-[70px]">{{ year }}</th>
+            <th v-for="(year, index) in years" :key="index" class="py-3 sticky-header border border-slate-900 min-w-[70px]">{{ year }}</th>
             <th class="py-3 border border-slate-900 min-w-[100px]">Total</th>
           </tr>
         </thead>
@@ -442,5 +442,15 @@ table td {
   overflow-y: auto;
   overflow-x: auto;
   max-height: calc(80vh - 20px); /* Ajustez selon vos besoins */
+}
+
+.sticky-heade {
+  position: sticky;
+  top: 0;
+  background-color: #f8f9fa;
+  z-index: 1;
+  border-bottom: 2px solid #ddd;
+  padding: 10px;
+  text-align: left;
 }
 </style>
