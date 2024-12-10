@@ -1,78 +1,84 @@
 <template>
-  <div class="overflow-x-auto">
-    <table class="w-full max-w-full my-2 border-collapse editor_listing_table border-slate-500" cellpadding="6" cellspacing="0">
-      <thead class="text-black">
-        <tr>
-          <th rowspan="2" class="py-3 border border-slate-900 min-w-[500px] sticky-column">Résultats escomptés</th>
-          <th rowspan="2" class="py-3 border border-slate-900 min-w-[80px] sticky-column-second">Indice</th>
-          <th rowspan="2" class="py-3 border border-slate-900 min-w-[500px] sticky-column-third">Indicateurs</th>
-          <th rowspan="2" class="py-3 border border-slate-900 min-w-[300px]">Description de l'indicateur</th>
-          <th rowspan="2" class="py-3 border border-slate-900 min-w-[100px]">Situation de référence</th>
-          <th :colspan="years.length + 1" class="py-3 border border-slate-900 min-w-[70px]">Cibles</th>
-          <th :colspan="years.length + 1" class="py-3 border border-slate-900 min-w-[70px]">Réalisation</th>
-          <th rowspan="2" class="py-3 border border-slate-900 min-w-[150px]">Taux de réalisation</th>
-          <th rowspan="2" class="py-3 border border-slate-900 min-w-[150px]">Sources de données</th>
-          <th rowspan="2" class="py-3 border border-slate-900 min-w-[150px]">Méthode de collecte des données</th>
-          <th rowspan="2" class="py-3 border border-slate-900 min-w-[150px]">Fréquence de la collecte de données</th>
-          <th rowspan="2" class="py-3 border border-slate-900 min-w-[150px]">Responsable</th>
-          <th rowspan="2" class="py-3 border border-slate-900 min-w-[200px]">Actions</th>
-        </tr>
-        <tr>
-          <th v-for="(year, index) in years" :key="index" class="py-3 border border-slate-900 min-w-[70px]">{{ year }}</th>
-          <th class="py-3 border border-slate-900 min-w-[100px]">Total</th>
-          <th v-for="(year, index) in years" :key="index" class="py-3 border border-slate-900 min-w-[70px]">{{ year }}</th>
-          <th class="py-3 border border-slate-900 min-w-[100px]">Total</th>
-        </tr>
-      </thead>
-      <tbody>
-        <template v-for="(result, i) in data" :key="result.id">
-          <tr class="uppercase" :class="[result.type == 'produit' ? 'text-black' : 'text-white']" :style="{ 'background-color': findColorCadreMesure(result.type) }">
-            <td :colspan="13 + years.length * 2" class="font-semibold">{{ result.type }} {{ result.indice }}</td>
+  <div class="flex justify-end my-1">
+    <ExportationIndicateur :data="data" :years="years" />
+  </div>
+  <div class="table-container">
+    <div ref="tableWrapper" class="table-wrapper">
+      <table class="w-full max-w-full my-2 border-collapse editor_listing_table border-slate-500" cellpadding="6" cellspacing="0">
+        <thead class="text-black">
+          <tr>
+            <th rowspan="2" class="py-3 sticky-header border border-slate-900 min-w-[500px] sticky-column">Résultats escomptés</th>
+            <th rowspan="2" class="py-3 sticky-header border border-slate-900 min-w-[80px] sticky-column-second">Indice</th>
+            <th rowspan="2" class="py-3 sticky-header border border-slate-900 min-w-[500px] sticky-column-third">Indicateurs</th>
+            <th rowspan="2" class="py-3 sticky-header border border-slate-900 min-w-[300px]">Description de l'indicateur</th>
+            <th rowspan="2" class="py-3 sticky-header border border-slate-900 min-w-[100px]">Situation de référence</th>
+            <th :colspan="years.length + 1" class="py-3 border border-slate-900 min-w-[70px]">Cibles</th>
+            <th :colspan="years.length + 1" class="py-3 border border-slate-900 min-w-[70px]">Réalisation</th>
+            <th rowspan="2" class="py-3 sticky-header border border-slate-900 min-w-[150px]">Taux de réalisation</th>
+            <th rowspan="2" class="py-3 sticky-header border border-slate-900 min-w-[150px]">Sources de données</th>
+            <th rowspan="2" class="py-3 sticky-header border border-slate-900 min-w-[150px]">Méthode de collecte des données</th>
+            <th rowspan="2" class="py-3 sticky-header border border-slate-900 min-w-[150px]">Fréquence de la collecte de données</th>
+            <th rowspan="2" class="py-3 sticky-header border border-slate-900 min-w-[150px]">Responsable</th>
+            <th rowspan="2" class="py-3 sticky-header border border-slate-900 min-w-[200px]">Actions</th>
           </tr>
-          <template v-for="(indicateur, j) in result.indicateurs" :key="indicateur.id">
-            <tr>
-              <!-- Première colonne fixe -->
-              <td class="font-semibold sticky-column" v-if="j === 0" :rowspan="result.indicateurs.length" style="left: 0">
-                {{ result.nom }}
-              </td>
-
-              <!-- Deuxième colonne fixe -->
-              <td class="font-semibold sticky-column-second" style="left: 500px">Ind {{ indicateur.code }}</td>
-
-              <!-- Troisième colonne fixe -->
-              <td class="sticky-column-third" style="left: 580px">
-                {{ indicateur.nom }}
-              </td>
-
-              <!-- Colonnes restantes -->
-              <td>{{ indicateur.description ?? "" }}</td>
-              <td v-html="formatObject(indicateur.valeurDeBase)"></td>
-              <td v-for="(year, index) in years" :key="index">
-                <span v-html="formatObject(indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeurCible)"></span>
-              </td>
-              <td></td>
-              <td v-for="(year, index) in years" :key="index">
-                <span v-html="formatObject(indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeur_realiser)"></span>
-              </td>
-              <td></td>
-              <td></td>
-              <td>{{ indicateur.sources_de_donnee }}</td>
-              <td>{{ indicateur.methode_de_la_collecte }}</td>
-              <td>{{ indicateur.frequence_de_la_collecte }}</td>
-              <td>
-                {{ indicateur.ug_responsable?.nom ?? "" }} <br />
-                {{ formatResponsable(indicateur.organisations_responsable) }}
-              </td>
-              <td class="space-x-3">
-                <button title="Suivre" @click="handleSuivi(indicateur)" class="btn text-primary"><CornerUpLeftIcon class="size-5" /></button>
-                <button title="Voir" @click="goToDetailSuivi(indicateur.id)" class="btn text-primary"><EyeIcon class="size-5" /></button>
-                <button title="Supprimer" @click="handleDelete(result)" class="btn text-danger"><TrashIcon class="size-5" /></button>
-              </td>
+          <tr>
+            <th v-for="(year, index) in years" :key="index" class="py-3 sticky-header border border-slate-900 min-w-[70px]">{{ year }}</th>
+            <th class="py-3 border border-slate-900 min-w-[100px]">Total</th>
+            <th v-for="(year, index) in years" :key="index" class="py-3 sticky-header border border-slate-900 min-w-[70px]">{{ year }}</th>
+            <th class="py-3 border border-slate-900 min-w-[100px]">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <template v-for="(result, i) in data" :key="result.id">
+            <tr class="uppercase" :class="[result.type == 'produit' ? 'text-black' : 'text-white']" :style="{ 'background-color': findColorCadreMesure(result.type) }">
+              <td :colspan="13 + years.length * 2" class="font-semibold">{{ result.type }} {{ result.indice }}</td>
             </tr>
+            <template v-for="(indicateur, j) in result.indicateurs" :key="indicateur.id">
+              <tr>
+                <!-- Première colonne fixe -->
+                <td class="font-semibold sticky-column" v-if="j === 0" :rowspan="result.indicateurs.length" style="left: 0">
+                  {{ result.nom }}
+                </td>
+
+                <!-- Deuxième colonne fixe -->
+                <td class="font-semibold sticky-column-second" style="left: 500px">Ind {{ indicateur.code }}</td>
+
+                <!-- Troisième colonne fixe -->
+                <td class="sticky-column-third" style="left: 580px">
+                  {{ indicateur.nom }}
+                </td>
+
+                <!-- Colonnes restantes -->
+                <td>{{ indicateur.description ?? "" }}</td>
+                <td v-html="formatObject(indicateur.valeurDeBase)"></td>
+                <td v-for="(year, index) in years" :key="index">
+                  <span v-html="formatObject(indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeurCible)"></span>
+                </td>
+                <td></td>
+                <td v-for="(year, index) in years" :key="index">
+                  <span v-html="formatObject(indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeur_realiser)"></span>
+                </td>
+                <td></td>
+                <td></td>
+                <td>{{ indicateur.sources_de_donnee }}</td>
+                <td>{{ indicateur.methode_de_la_collecte }}</td>
+                <td>{{ indicateur.frequence_de_la_collecte }}</td>
+                <td>
+                  <span v-html="formatResponsable(indicateur.organisations_responsable)"></span><br />
+                  {{ indicateur.ug_responsable?.nom ?? "" }}
+                  {{}}
+                </td>
+                <td class="space-x-3">
+                  <button title="Suivre" @click="handleSuivi(indicateur)" class="btn text-primary"><CornerUpLeftIcon class="size-5" /></button>
+                  <button title="Voir" @click="goToDetailSuivi(indicateur.id)" class="btn text-primary"><EyeIcon class="size-5" /></button>
+                  <button title="Supprimer" @click="handleDelete(indicateur)" class="btn text-danger"><TrashIcon class="size-5" /></button>
+                </td>
+              </tr>
+            </template>
           </template>
-        </template>
-      </tbody>
-    </table>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <!-- Modal for creating/updating -->
@@ -108,10 +114,10 @@
               <option v-for="annee in years" :key="annee" :value="annee">{{ annee }}</option>
             </TomSelect>
           </div> -->
-          <InputForm label="Année de suivi" class="flex-1" v-model="payloadSuivi.annee" type="number" />
+          <InputForm label="Année de suivi" class="flex-1" v-model="payloadSuivi.annee" :control="getFieldErrors(errors.annee)" type="number" />
           <div v-if="!isAgregerCurrentIndicateur" class="flex flex-wrap items-center justify-between gap-3">
-            <InputForm label="Valeur cible" class="flex-1" v-model="payloadSuivi.valeurCible" type="number" />
-            <InputForm label="Valeur réalisée" class="flex-1" v-model="payloadSuivi.valeurRealise" type="number" />
+            <InputForm label="Valeur cible" class="flex-1" v-model="payloadSuivi.valeurCible" :control="getFieldErrors(errors.valeurCible)" type="number" />
+            <InputForm label="Valeur réalisée" class="flex-1" v-model="payloadSuivi.valeurRealise" :control="getFieldErrors(errors.valeurRealise)" type="number" />
           </div>
 
           <div v-if="valueKeysIndicateurSuivi.length > 0 && isAgregerCurrentIndicateur" class="">
@@ -122,6 +128,7 @@
                 <input type="number" class="form-control" v-model.number="valeurCible.find((item) => item.keyId === base.id).value" @input="updateValueCible(base.id, $event.target.value)" placeholder="valeur cible" aria-label="valeur" aria-describedby="input-group-valeur" />
               </div>
             </div>
+            <div v-if="errors.valeurCible" class="mt-2 text-danger">{{ getFieldErrors(errors.valeurCible) }}</div>
           </div>
           <div v-if="valueKeysIndicateurSuivi.length > 0 && isAgregerCurrentIndicateur" class="">
             <label class="form-label">Valeur Réalisée</label>
@@ -131,6 +138,7 @@
                 <input type="number" class="form-control" v-model.number="valeurRealise.find((item) => item.keyId === base.id).value" @input="updateValueRealiser(base.id, $event.target.value)" placeholder="valeur réalisée" aria-label="valeur" aria-describedby="input-group-valeur" />
               </div>
             </div>
+            <div v-if="errors.valeurRealise" class="mt-2 text-danger">{{ getFieldErrors(errors.valeurRealise) }}</div>
           </div>
 
           <div class="flex-1">
@@ -148,21 +156,24 @@
               <option value=""></option>
               <option v-for="trimestre in trimestres" :key="trimestre" :value="trimestre">Trimestre {{ trimestre }}</option>
             </TomSelect>
+            <div v-if="errors.trimestre" class="mt-2 text-danger">{{ getFieldErrors(errors.trimestre) }}</div>
           </div>
 
-          <InputForm v-else label="Date de suivi" class="flex-1" v-model="payloadSuivi.dateSuivie" type="date" />
+          <InputForm v-else label="Date de suivi" class="flex-1" v-model="payloadSuivi.dateSuivie" :control="getFieldErrors(errors.dateSuivie)" type="date" />
           <div class="flex-1">
             <label class="form-label">Source de données</label>
             <TomSelect v-model="payloadSuivi.sources_de_donnee" name="source" :options="{ placeholder: 'Selectionez une source' }" class="w-full">
               <option value=""></option>
               <option v-for="(source, index) in sourcesDonnees" :key="index" :value="source">{{ source }}</option>
             </TomSelect>
+            <div v-if="errors.sources_de_donnee" class="mt-2 text-danger">{{ getFieldErrors(errors.sources_de_donnee) }}</div>
           </div>
           <div class="flex-1">
             <label class="form-label" for="description">Commentaire</label>
             <div class="">
               <textarea name="description" class="form-control" id="description" v-model="payloadSuivi.commmentaire" cols="30" rows="2"></textarea>
             </div>
+            <div v-if="errors.commmentaire" class="mt-2 text-danger">{{ getFieldErrors(errors.commmentaire) }}</div>
           </div>
         </div>
       </ModalBody>
@@ -202,6 +213,8 @@ import { getAllErrorMessages } from "@/utils/gestion-error";
 import { findColorCadreMesure } from "../utils/findColorIndicator";
 import { sourcesDonnees } from "../utils/constants";
 import { useRouter } from "vue-router";
+import { getFieldErrors } from "../utils/helpers";
+import ExportationIndicateur from "./news/ExportationIndicateur.vue";
 
 const props = defineProps({
   data: Array,
@@ -214,7 +227,9 @@ const optionsSuivi = [
   { label: "Par date", id: "date" },
   { label: "Par trimestre", id: "trimestre" },
 ];
-
+const tableWrapper = ref(null);
+const scrollWrapper = ref(null);
+const scrollBar = ref(null);
 const idSelect = ref("");
 const nameSelect = ref("");
 const valueKeysIndicateurSuivi = ref([]);
@@ -223,6 +238,7 @@ const showModalSuivi = ref(false);
 const showModalEdit = ref(false);
 const deleteModalPreview = ref(false);
 const isLoading = ref(false);
+const errors = ref({});
 const payloadSuivi = reactive({
   annee: "",
   trimestre: "",
@@ -276,6 +292,7 @@ const resetFormSuivi = () => {
     payloadSuivi[key] = "";
   });
   showModalSuivi.value = false;
+  errors.value = {};
 };
 // Submit data (create or update)
 const submitData = async () => {
@@ -313,7 +330,11 @@ const submitSuivi = async () => {
     // getDatas();
     resetFormSuivi();
   } catch (e) {
-    toast.error(getAllErrorMessages(e));
+    if (e.response && e.response.status === 422) {
+      errors.value = e.response.data.errors;
+    } else {
+      toast.error(getAllErrorMessages(e));
+    }
   } finally {
     showModalSuivi.value = false;
     isLoading.value = false;
@@ -413,5 +434,27 @@ table td {
 .sticky-column-second,
 .stick-column-third {
   border-right: 1px solid #ccc;
+}
+
+.table-container {
+  position: relative;
+  max-height: 80vh; /* Ajustez selon vos besoins */
+  overflow: hidden;
+}
+
+.table-wrapper {
+  overflow-y: auto;
+  overflow-x: auto;
+  max-height: calc(80vh - 20px); /* Ajustez selon vos besoins */
+}
+
+.sticky-heade {
+  position: sticky;
+  top: 0;
+  background-color: #f8f9fa;
+  z-index: 1;
+  border-bottom: 2px solid #ddd;
+  padding: 10px;
+  text-align: left;
 }
 </style>

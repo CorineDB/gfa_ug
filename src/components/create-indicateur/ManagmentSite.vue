@@ -7,6 +7,7 @@ import DeleteButton from "@/components/news/DeleteButton.vue";
 import { toast } from "vue3-toastify";
 import LoaderData from "./LoaderData.vue";
 import { getAllErrorMessages } from "@/utils/gestion-error";
+import { getFieldErrors } from "../../utils/helpers";
 
 const props = defineProps({});
 
@@ -30,6 +31,7 @@ const isLoading = ref(false);
 const isLoadingData = ref(true);
 const isCreate = ref(true);
 const datas = ref([]);
+const errors = ref({});
 
 // Fetch data
 const getDatas = async () => {
@@ -54,7 +56,11 @@ const submitData = async () => {
     getDatas();
     resetForm();
   } catch (e) {
-    toast.error(getAllErrorMessages(e));
+    if (e.response && e.response.status === 422) {
+      errors.value = e.response.data.errors;
+    } else {
+      toast.error(getAllErrorMessages(e));
+    }
   } finally {
     isLoading.value = false;
   }
@@ -103,6 +109,7 @@ const resetForm = () => {
     payload[key] = "";
   });
   showModalCreate.value = false;
+  errors.value = {};
 };
 const openCreateModal = () => {
   resetForm();
@@ -157,15 +164,15 @@ onMounted(getDatas);
       <form @submit.prevent="submitData">
         <ModalBody>
           <div class="grid grid-cols-1 gap-4">
-            <InputForm label="Nom" v-model="payload.nom" />
-            <InputForm label="Pays" v-model="payload.pays" />
-            <InputForm label="Departement" v-model="payload.departement" />
-            <InputForm label="Commune" v-model="payload.commune" />
-            <InputForm label="Arrondissement" v-model="payload.arrondissement" />
-            <InputForm label="Quartier" v-model="payload.quartier" />
+            <InputForm label="Nom" v-model="payload.nom" :control="getFieldErrors(errors.nom)" />
+            <InputForm label="Pays" v-model="payload.pays" :control="getFieldErrors(errors.pays)" />
+            <InputForm label="Departement" v-model="payload.departement" :control="getFieldErrors(errors.departement)" />
+            <InputForm label="Commune" v-model="payload.commune" :control="getFieldErrors(errors.commune)" />
+            <InputForm label="Arrondissement" v-model="payload.arrondissement" :control="getFieldErrors(errors.arrondissement)" />
+            <InputForm label="Quartier" v-model="payload.quartier" :control="getFieldErrors(errors.quartier)" />
             <div class="flex items-center justify-between gap-3">
-              <InputForm label="Longitude" class="flex-1" v-model="payload.longitude" type="number" />
-              <InputForm label="Latitude" class="flex-1" v-model="payload.latitude" type="number" />
+              <InputForm label="Longitude" :control="getFieldErrors(errors.longitude)" class="flex-1" v-model="payload.longitude" type="number" />
+              <InputForm label="Latitude" :control="getFieldErrors(errors.latitude)" class="flex-1" v-model="payload.latitude" type="number" />
             </div>
           </div>
         </ModalBody>

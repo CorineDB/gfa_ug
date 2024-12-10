@@ -17,18 +17,17 @@ import { computed } from "vue";
 import ExportationSynthesePerception from "../../components/news/ExportationSynthesePerception.vue";
 import TabulatorSynthesePerception from "../../components/news/TabulatorSynthesePerception.vue";
 import ExportationResultatSynthese from "../../components/news/ExportationResultatSynthese.vue";
-import { data } from "jquery";
 
 const router = useRouter();
 const route = useRoute();
 const idEvaluation = route.params.e;
-const ong = route.query.ong.toString();
 const organizationId = ref("");
 const idSelectStructure = ref("");
 const dataForAllOrganisation = ref([]);
 const datasFactuel = ref([]);
 const datasPerception = ref([]);
 const isLoadingData = ref(false);
+const isForOneOng = ref(false);
 
 const getDataCollection = async () => {
   isLoadingData.value = true;
@@ -67,7 +66,12 @@ const changeStructure = () => {
 
 onMounted(async () => {
   await getDataCollection();
-  ong ? (idSelectStructure.value = ong) : (idSelectStructure.value = dataForAllOrganisation.value[0]?.id ?? "");
+  if (route.query.ong) {
+    isForOneOng.value = true;
+    idSelectStructure.value = route.query.ong.toString();
+  } else {
+    idSelectStructure.value = dataForAllOrganisation.value[0]?.id ?? "";
+  }
 });
 </script>
 
@@ -100,6 +104,7 @@ onMounted(async () => {
                       placeholder: 'Sélectionner la structure',
                     }"
                     class="w-full"
+                    :class="{ 'pointer-events-none': isForOneOng }"
                     @change="changeStructure"
                   >
                     <option v-for="(structure, index) in organisationsOfEvaluation" :key="index" :value="structure.id">{{ structure.nom }}</option>

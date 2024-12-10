@@ -112,7 +112,7 @@ const initTabulator = () => {
             handleDelete(cell.getData());
           });
 
-          container.append(previewButton, modifyButton, deleteButton);
+          container.append(previewButton, deleteButton);
 
           return container;
         },

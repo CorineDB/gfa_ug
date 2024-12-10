@@ -11,6 +11,10 @@ const OngService = {
     return ApiService.get("gfa/organisations", slug);
   },
 
+  programmeOng(slug) {
+    return ApiService.get("gfa/programmes/evaluations-organisations", slug);
+  },
+
   find(id) {
     return ApiService.get(`gfa/organisations/${id}`);
   },

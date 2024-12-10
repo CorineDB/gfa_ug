@@ -8,6 +8,7 @@ import UniteeDeMesureService from "@/services/modules/unitee.mesure.service";
 import { toast } from "vue3-toastify";
 import LoaderData from "./LoaderData.vue";
 import { getAllErrorMessages } from "@/utils/gestion-error";
+import { getFieldErrors } from "../../utils/helpers";
 
 const props = defineProps({});
 
@@ -28,6 +29,7 @@ const isLoadingData = ref(true);
 const isCreate = ref(true);
 const datas = ref([]);
 const unitesMesure = ref([]);
+const errors = ref({});
 
 const getUniteMesure = async () => {
   try {
@@ -61,7 +63,11 @@ const submitData = async () => {
     getDatas();
     resetForm();
   } catch (e) {
-    toast.error(getAllErrorMessages(e));
+    if (e.response && e.response.status === 422) {
+      errors.value = e.response.data.errors;
+    } else {
+      toast.error(getAllErrorMessages(e));
+    }
   } finally {
     isLoading.value = false;
   }
@@ -108,6 +114,7 @@ const resetForm = () => {
     payload[key] = "";
   });
   showModalCreate.value = false;
+  errors.value = {};
 };
 const openCreateModal = () => {
   resetForm();
@@ -163,15 +170,22 @@ onMounted(getDatas);
       <form @submit.prevent="submitData">
         <ModalBody>
           <div class="grid grid-cols-1 gap-4">
-            <InputForm label="Nom" v-model="payload.libelle" />
-            <InputForm label="Clé" v-model="payload.key" />
-            <InputForm label="Description " v-model="payload.description" :required="false" />
+            <InputForm label="Nom" v-model="payload.libelle" :control="getFieldErrors(errors.libelle)" />
+            <InputForm label="Clé" v-model="payload.key" :control="getFieldErrors(errors.key)" />
+            <div class="flex-1">
+              <label class="form-label" for="description">Description</label>
+              <div class="">
+                <textarea name="description" class="form-control" id="description" v-model="payload.description" cols="30" rows="3"></textarea>
+                <div v-if="errors.description" class="mt-2 text-danger">{{ getFieldErrors(errors.description) }}</div>
+              </div>
+            </div>
             <div>
               <label class="form-label">Unité de mesure</label>
               <TomSelect v-model="payload.uniteeMesureId" :options="{ placeholder: 'Selectionez une unité' }" class="w-full">
                 <option value=""></option>
                 <option v-for="(unite, index) in unitesMesure" :key="index" :value="unite.id">{{ unite.nom }}</option>
               </TomSelect>
+              <div v-if="errors.uniteeMesureId" class="mt-2 text-danger">{{ getFieldErrors(errors.uniteeMesureId) }}</div>
             </div>
           </div>
         </ModalBody>

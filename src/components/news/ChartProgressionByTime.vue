@@ -1,96 +1,111 @@
 <template>
   <div>
-    <canvas ref="chartCanvas" style="height: 600px; width: 100%"></canvas>
+    <canvas ref="chartCanvas" style="height: 600px; max-height: 600px; width: 100%"></canvas>
   </div>
 </template>
 
 <script>
-import { defineComponent, onMounted, ref } from "vue";
+import { defineComponent, onMounted, ref, watch } from "vue";
 import { Chart, registerables } from "chart.js";
 
 Chart.register(...registerables);
 
 export default defineComponent({
   name: "LineChart",
-  setup() {
+  props: {
+    chartData: {
+      type: Object,
+      required: true,
+    },
+  },
+  setup(props) {
     const chartCanvas = ref(null);
     const chartInstance = ref(null);
 
-    const data = {
-      labels: ["2020", "2021", "2022"], // Années
-      datasets: [
-        {
-          label: "Redevabilité",
-          data: [0.5, 0.6, 0.7],
-          borderColor: "orange",
-          backgroundColor: "orange",
-          fill: false,
+    const createChart = (processedData) => {
+      if (chartInstance.value) {
+        chartInstance.value.destroy();
+      }
+      chartInstance.value = new Chart(chartCanvas.value, {
+        type: "line",
+        data: processedData,
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: "top",
+            },
+          },
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: "Année",
+              },
+            },
+            y: {
+              title: {
+                display: true,
+                text: "Score",
+              },
+              min: 0,
+              max: 1,
+            },
+          },
         },
+      });
+    };
+
+    const processChartData = () => {
+      const defaultYear = "0";
+      const defaultValues = {
+        indice_factuel: 0,
+        indice_de_perception: 0,
+        indice_synthetique: 0,
+      };
+
+      const extendedData = { [defaultYear]: [defaultValues], ...props.chartData };
+      const labels = Object.keys(extendedData);
+      const datasets = [
         {
-          label: "Participation",
-          data: [0.6, 0.7, 0.8],
+          label: "indice_factuel",
+          data: labels.map((year) => extendedData[year].reduce((sum, item) => sum + item.indice_factuel, 0) / extendedData[year].length),
           borderColor: "red",
           backgroundColor: "red",
           fill: false,
         },
         {
-          label: "Transparence",
-          data: [0.4, 0.5, 0.6],
-          borderColor: "pink",
-          backgroundColor: "pink",
+          label: "indice_de_perception",
+          data: labels.map((year) => extendedData[year].reduce((sum, item) => sum + item.indice_de_perception, 0) / extendedData[year].length),
+          borderColor: "orange",
+          backgroundColor: "orange",
           fill: false,
         },
         {
-          label: "Efficacité",
-          data: [0.7, 0.8, 0.85],
-          borderColor: "magenta",
-          backgroundColor: "magenta",
+          label: "indice_synthetique",
+          data: labels.map((year) => extendedData[year].reduce((sum, item) => sum + item.indice_synthetique, 0) / extendedData[year].length),
+          borderColor: "green",
+          backgroundColor: "green",
           fill: false,
         },
-        {
-          label: "Inclusion",
-          data: [0.6, 0.7, 0.9],
-          borderColor: "blue",
-          backgroundColor: "blue",
-          fill: false,
-        },
-      ],
-    };
+      ];
 
-    const options = {
-      responsive: true,
-      plugins: {
-        legend: {
-          position: "top",
-        },
-      },
-      scales: {
-        x: {
-          title: {
-            display: true,
-            text: "Année",
-          },
-        },
-        y: {
-          title: {
-            display: true,
-            text: "Score",
-          },
-          min: 0.4,
-          max: 0.9,
-        },
-      },
+      return { labels, datasets };
     };
 
     onMounted(() => {
-      if (chartCanvas.value) {
-        chartInstance.value = new Chart(chartCanvas.value, {
-          type: "line",
-          data,
-          options,
-        });
-      }
+      const initialData = processChartData();
+      createChart(initialData);
     });
+
+    watch(
+      () => props.chartData,
+      () => {
+        const updatedData = processChartData();
+        createChart(updatedData);
+      },
+      { deep: true }
+    );
 
     return {
       chartCanvas,

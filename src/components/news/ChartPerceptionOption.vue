@@ -76,6 +76,14 @@ onMounted(() => {
             text: "Nombre d'options de réponses",
           },
           beginAtZero: true,
+          ticks: {
+            callback: function (value) {
+              if (Number.isInteger(value)) {
+                return value;
+              }
+              return null;
+            },
+          },
         },
       },
     },

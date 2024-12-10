@@ -1,4 +1,7 @@
 <template>
+  <div class="flex justify-end my-1">
+    <ExportationSuiviIndicateur :datas="data" :years="years" />
+  </div>
   <div class="overflow-x-auto">
     <table class="w-full max-w-full my-10 bg-white border-collapse editor_listing_table border-slate-500" cellpadding="6" cellspacing="0">
       <thead class="text-white border-white bg-primary">
@@ -109,6 +112,7 @@ import DeleteButton from "@/components/news/DeleteButton.vue";
 import { toast } from "vue3-toastify";
 import { getAllErrorMessages } from "@/utils/gestion-error";
 import { findColorCadreMesure } from "../utils/findColorIndicator";
+import ExportationSuiviIndicateur from "./news/ExportationSuiviIndicateur.vue";
 
 const props = defineProps({
   data: Array,

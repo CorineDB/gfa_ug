@@ -180,14 +180,29 @@ onMounted(() => {
   <div class="grid grid-cols-12 gap-6 mt-5">
     <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap"></div>
   </div>
-  <div v-if="datas.length > 0" class="p-4 space-y-3 text-base box">
-    <p><span class="font-semibold uppercase">Indicateur : </span>{{ datas[0]?.valeurCible.indicateur.nom }}</p>
-    <p><span class="font-semibold uppercase">Catégorie : </span>{{ datas[0]?.valeurCible.indicateur.categorie.nom }}</p>
-    <p v-if="datas[0]?.valeurCible.indicateur.description"><span class="font-semibold uppercase">Description : </span>{{ datas[0]?.valeurCible.indicateur.description }}</p>
-    <p><span class="font-semibold uppercase">Unité de mesure : </span>{{ datas[0]?.valeurCible.indicateur.unitee_mesure.nom }}</p>
-    <p v-if="datas[0]?.valeurCible.indicateur.organisations_responsable.length > 0"><span class="font-semibold uppercase">Organisations : </span>{{ datas[0]?.valeurCible.indicateur.organisations_responsable.map((org) => org.nom).join(", ") }}</p>
-    <!-- <p><span class="font-semibold">Valeur de base : </span>{{ formatValeurDeBase(datas[0]?.valeurCible.indicateur.valeurDeBase) }}</p> -->
+  <div v-if="datas.length > 0" class="grid grid-cols-12 gap-5 mt-5">
+    <div class="col-span-12 p-5 cursor-pointer sm:col-span-4 2xl:col-span-4 box bg-primary zoom-in">
+      <div class="text-base font-medium text-white">Indicateur</div>
+      <div class="text-white text-opacity-80">{{ datas[0]?.valeurCible.indicateur.nom }}</div>
+    </div>
+    <div class="col-span-12 p-5 cursor-pointer sm:col-span-4 2xl:col-span-4 bg-primary box zoom-in">
+      <div class="text-base font-medium text-white">Catégorie</div>
+      <div class="text-white dark:text-slate-500 text-opacity-80">{{ datas[0]?.valeurCible.indicateur.categorie.nom }}</div>
+    </div>
+    <div class="col-span-12 p-5 cursor-pointer bg-primary sm:col-span-4 2xl:col-span-4 box zoom-in">
+      <div class="text-base font-medium text-white">Unité de mesure</div>
+      <div class="text-white text-opacity-80">{{ datas[0]?.valeurCible.indicateur.unitee_mesure.nom }}</div>
+    </div>
+    <!-- <div v-if="datas[0]?.valeurCible.indicateur.organisations_responsable.length > 0" class="col-span-12 p-5 cursor-pointer sm:col-span-4 2xl:col-span-3 box zoom-in">
+      <div class="text-base font-medium">Organisations</div>
+      <div class="text-slate-500">{{ datas[0]?.valeurCible.indicateur.organisations_responsable.map((org) => org.nom).join(", ") }}</div>
+    </div>
+    <div v-if="datas[0]?.valeurCible.indicateur.description" class="col-span-12 p-5 cursor-pointer sm:col-span-4 2xl:col-span-3 box zoom-in">
+      <div class="text-base font-medium">Description</div>
+      <div class="text-slate-500">{{ datas[0]?.valeurCible.indicateur.description }}</div>
+    </div> -->
   </div>
+
   <div class="p-5 mt-5 intro-y box">
     <div class="overflow-x-auto scrollbar-hidden" v-if="!isLoadingData">
       <div id="tabulator" class="mt-5 table-report table-report--tabulator"></div>

@@ -17,6 +17,7 @@ import ListFormFactuel from "@/components/create-form/ListFormFactuel.vue";
 import ListOptionsResponse from "@/components/create-form/ListOptionsResponse.vue";
 import DeleteButton from "@/components/news/DeleteButton.vue";
 import { useRoute } from "vue-router";
+import { getFieldErrors } from "../../utils/helpers";
 
 const route = useRoute();
 
@@ -43,6 +44,7 @@ const previewFormFactuelData = ref([]);
 const globalFormFactuelData = ref([]);
 const previewTypesGouvernance = ref({});
 const globalTypesGouvernance = ref({});
+const errors = ref({});
 const previewOptionResponses = ref({ options_de_reponse: [] });
 const globalOptionResponses = ref({ options_de_reponse: [] });
 const typesGouvernance = ref({ types_de_gouvernance: [] });
@@ -79,6 +81,11 @@ const currentGlobalFactuelFormData = reactive({
   critere: "",
   indicateur: "",
 });
+
+const resetErrors = () => {
+  modalForm.value = false;
+  errors.value = {};
+};
 
 // Fonction pour générer une clé unique pour chaque soumission
 const generateKey = (id) => {
@@ -287,9 +294,14 @@ const createForm = async () => {
     // resetForm();
     resetAllFormWithDataLocalStorage();
     clearUniqueKeys();
+    errors.value = {};
     modalForm.value = false;
   } catch (e) {
-    toast.error(getAllErrorMessages(e));
+    if (e.response && e.response.status === 422) {
+      errors.value = e.response.data.errors;
+    } else {
+      toast.error(getAllErrorMessages(e));
+    }
     console.log(e);
   } finally {
     isLoadingForm.value = false;
@@ -428,10 +440,11 @@ onMounted(() => {
     <form @submit.prevent="createForm">
       <ModalBody class="space-y-5">
         <div class="flex gap-4">
-          <InputForm label="Libellé" class="w-full" v-model="payload.libelle" />
+          <InputForm label="Libellé" class="w-full" :control="getFieldErrors(errors.libelle)" v-model="payload.libelle" />
           <div class="w-full">
             <label for="annee" class="form-label">Année</label>
             <input id="annee" type="number" required v-model.number="payload.annee_exercice" class="form-control" placeholder="Année" />
+            <div v-if="errors.annee_exercice" class="mt-2 text-danger">{{ getFieldErrors(errors.annee_exercice) }}</div>
           </div>
         </div>
         <div>
@@ -445,7 +458,7 @@ onMounted(() => {
       </ModalBody>
       <ModalFooter>
         <div class="flex gap-2">
-          <button type="button" @click="modalForm = false" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
+          <button type="button" @click="resetErrors" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
           <VButton :loading="isLoadingForm" label="Enregistrer" />
         </div>
       </ModalFooter>

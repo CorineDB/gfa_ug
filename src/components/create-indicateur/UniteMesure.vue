@@ -7,6 +7,7 @@ import DeleteButton from "@/components/news/DeleteButton.vue";
 import { toast } from "vue3-toastify";
 import LoaderData from "./LoaderData.vue";
 import { getAllErrorMessages } from "@/utils/gestion-error";
+import { getFieldErrors } from "../../utils/helpers";
 
 const props = defineProps({});
 
@@ -21,6 +22,7 @@ const isLoading = ref(false);
 const isLoadingData = ref(true);
 const isCreate = ref(true);
 const datas = ref([]);
+const errors = ref({});
 
 // Fetch data
 const getDatas = async () => {
@@ -45,7 +47,11 @@ const submitData = async () => {
     getDatas();
     resetForm();
   } catch (e) {
-    toast.error(getAllErrorMessages(e));
+    if (e.response && e.response.status === 422) {
+      errors.value = e.response.data.errors;
+    } else {
+      toast.error(getAllErrorMessages(e));
+    }
   } finally {
     isLoading.value = false;
   }
@@ -86,6 +92,7 @@ const handleDelete = (data) => {
 const resetForm = () => {
   payload.nom = "";
   showModalCreate.value = false;
+  errors.value = {};
 };
 const openCreateModal = () => {
   resetForm();
@@ -140,7 +147,7 @@ onMounted(getDatas);
       <form @submit.prevent="submitData">
         <ModalBody>
           <div class="grid grid-cols-1 gap-4">
-            <InputForm label="Nom" v-model="payload.nom" />
+            <InputForm label="Nom" v-model="payload.nom" :control="getFieldErrors(errors.nom)" />
           </div>
         </ModalBody>
         <ModalFooter>

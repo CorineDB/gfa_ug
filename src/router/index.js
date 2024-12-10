@@ -77,6 +77,7 @@ import SuiviIndicateur from "../views/dashboard/indicateurs/SuiviIndicateur.vue"
 import DetailSuivi from "../views/dashboard/indicateurs/DetailSuivi.vue";
 import UpdateFormPerception from "../views/dashboard/UpdateFormPerception.vue";
 import UpdateFormFactuel from "../views/dashboard/UpdateFormFactuel.vue";
+import SurveyFormView from "../views/dashboard/SurveyFormView.vue";
 
 const routes = [
   {
@@ -146,6 +147,11 @@ const routes = [
         path: "suivi-indicateur",
         name: "suivi_indicateur",
         component: SuiviIndicateur,
+      },
+      {
+        path: "view-survey",
+        name: "view_survey",
+        component: SurveyFormView,
       },
       {
         path: "cadre-mesure",

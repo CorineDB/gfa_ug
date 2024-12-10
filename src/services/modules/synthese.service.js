@@ -11,6 +11,20 @@ const SyntheseService = {
 `);
   },
 
+  getForEvaluation(idEvaluation) {
+    return ApiService.get(`gfa/evaluations-de-gouvernance/${idEvaluation}/fiches-de-synthese
+`);
+  },
+
+  resustatSyntheseEvaluation(idEvaluation) {
+    return ApiService.get(`gfa/evaluations-de-gouvernance/${idEvaluation}/resultats-syntheses
+`);
+  },
+
+  getEvolutionByScrore(ong) {
+    return ApiService.get(`/gfa/programmes/evolution-des-scores-au-fil-du-temps/${ong}`);
+  },
+
   getOrganizations(slug) {
     return ApiService.get(`gfa/organisations`);
   },
