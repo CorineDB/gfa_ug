@@ -149,7 +149,7 @@ const routes = [
         component: SuiviIndicateur,
       },
       {
-        path: "view-survey",
+        path: "form-individuel/:id",
         name: "view_survey",
         component: SurveyFormView,
       },

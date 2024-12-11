@@ -7,7 +7,6 @@
 <script>
 import * as ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
-import { getColorForExcel } from "../../utils/findColorIndicator";
 
 export default {
   props: {
