@@ -5,7 +5,7 @@ import { getStringValueOfStatutCode } from "@/utils/index";
 import ProjetService from "@/services/modules/projet.service.js";
 import ComposantesService from "@/services/modules/composante.service";
 import ActiviteService from "@/services/modules/activite.service";
-import TachesService from '@/services/modules/tache.service';
+import TachesService from "@/services/modules/tache.service";
 import InputForm from "@/components/news/InputForm.vue";
 import VButton from "@/components/news/VButton.vue";
 import { toast } from "vue3-toastify";
@@ -31,7 +31,7 @@ export default {
         poids: "",
         debut: "",
         fin: "",
-        activiteId: ""
+        activiteId: "",
       },
       composantsId: {},
       sousComposantId: {},
@@ -40,7 +40,7 @@ export default {
       showDeleteModal: false,
       deleteLoader: false,
       taches: [],
-      tacheId: ''
+      tacheId: "",
     };
   },
   computed: {
@@ -128,7 +128,7 @@ export default {
     addTache() {
       this.showModal = true;
       this.isUpdate = false;
-      
+
       this.formData.activiteId = this.activitesId;
 
       this.labels = "Ajouter";
@@ -183,7 +183,7 @@ export default {
         .then((data) => {
           this.isLoadingData = false;
           this.projets = data.data.data;
-          if (Object.keys(this.projetId).length === 0  ) {
+          if (Object.keys(this.projetId).length === 0) {
             this.projetId = this.projets[0];
           }
 
@@ -197,9 +197,10 @@ export default {
       ProjetService.getDetailProjet(data)
         .then((datas) => {
           this.composants = datas.data.data.composantes;
-          if (Object.keys(this.composantsId).length === 0) {
-            this.composantsId = this.composants[0];
-          }
+          this.composantsId = this.composants[0];
+          // if (Object.keys(this.composantsId).length === 0) {
+            
+          // }
           this.getComposantById(this.composantsId.id);
         })
         .catch((error) => {
@@ -208,12 +209,12 @@ export default {
     },
     getComposantById(data) {
       ComposantesService.detailComposant(data)
-        .then((data) => {        
-         
+        .then((data) => {
           this.activites = data.data.data.activites;
 
           if (data.data.data.souscomposantes.length > 0) {
             this.sousComposants = data.data.data.souscomposantes;
+            this.sousComposantId = this.sousComposants[0]
             this.haveSousComposantes = true;
           }
 
@@ -257,7 +258,7 @@ export default {
       <div class="grid grid-cols-2 gap-4">
         <div class="flex w-full">
           <!-- :reduce="(projet) => projet.id" -->
-          <v-select class="w-full"  v-model="projetId" label="nom" :options="projets">
+          <v-select class="w-full" v-model="projetId" label="nom" :options="projets">
             <template #search="{ attributes, events }">
               <input class="vs__search form-input" :required="!projetId" v-bind="attributes" v-on="events" />
             </template>
@@ -266,23 +267,24 @@ export default {
         </div>
         <div class="flex w-full">
           <!-- :reduce="(composant) => composant.id" -->
-          <v-select class="w-full"  v-model="composantsId" label="nom" :options="composants">
+          <v-select class="w-full" v-model="composantsId" label="nom" :options="composants">
             <template #search="{ attributes, events }">
               <input class="vs__search form-input" :required="!composantsId" v-bind="attributes" v-on="events" />
             </template>
           </v-select>
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OUtComes</label>
         </div>
-        <!-- <div class="flex w-full" v-if="haveSousComposantes">
-          <v-select class="w-full" :reduce="(souscomposant) => souscomposant.id" v-model="sousComposantId" label="nom" :options="sousComposants">
+        <div class="flex w-full" v-if="haveSousComposantes">
+          <!-- :reduce="(souscomposant) => souscomposant.id" -->
+          <v-select class="w-full" v-model="sousComposantId" label="nom" :options="sousComposants">
             <template #search="{ attributes, events }">
               <input class="vs__search form-input" :required="!sousComposantId" v-bind="attributes" v-on="events" />
             </template>
           </v-select>
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OUtComes</label>
-        </div> -->
+        </div>
 
-        <div class="flex w-full" v-if="haveSousComposantes">
+        <!-- <div class="flex w-full" v-if="haveSousComposantes">
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OUtPut</label>
           <TomSelect
             v-model="sousComposantId"
@@ -295,18 +297,17 @@ export default {
           >
             <option v-for="(element, index) in sousComposants" :key="index" :value="element.id">{{ element.nom }}</option>
           </TomSelect>
-        </div>
+        </div> -->
 
         <div class="flex w-full">
           <!-- :reduce="(activite) => activite.id" -->
-          <v-select class="w-full"  v-model="activitesId" label="nom" :options="activites">
+          <v-select class="w-full" v-model="activitesId" label="nom" :options="activites">
             <template #search="{ attributes, events }">
               <input class="vs__search form-input" :required="!activitesId" v-bind="attributes" v-on="events" />
             </template>
           </v-select>
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Activites</label>
         </div>
-
       </div>
 
       <!-- <button class="absolute px-4 py-2 text-white transform -translate-x-1/2 bg-blue-500 rounded -bottom-3 left-1/2" @click="filter()">Filtrer</button> -->
@@ -405,7 +406,7 @@ export default {
       <InputForm v-model="formData.debut" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de début" label="Début du projet" />
       <InputForm v-model="formData.fin" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de fin" label="Fin du projet " />
 
-       <div class="flex col-span-12">
+      <div class="flex col-span-12">
         <v-select class="w-full" :reduce="(activite) => activite.id" v-model="formData.activiteId" label="nom" :options="activites">
           <template #search="{ attributes, events }">
             <input class="vs__search form-input" :required="!formData.activiteId" v-bind="attributes" v-on="events" />
@@ -413,7 +414,6 @@ export default {
         </v-select>
         <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-bold duration-100 ease-linear -translate-y-3 bg-white _font-medium form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Activites</label>
       </div>
-
     </ModalBody>
     <ModalFooter>
       <div class="flex items-center justify-center">

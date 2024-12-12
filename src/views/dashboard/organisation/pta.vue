@@ -161,7 +161,6 @@
 
               <!-- total budgetaire-->
 
-            
               <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700" v-else></td>
 
               <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
@@ -314,15 +313,14 @@
       </div>
     </div>
   </div>
-    <!-- Modal Register & Update -->
-    <Modal backdrop="static" :show="showModalFiltre" @hidden="showModalFiltre = false">
+  <!-- Modal Register & Update -->
+  <Modal backdrop="static" :show="showModalFiltre" @hidden="showModalFiltre = false">
     <ModalHeader>
       <h2 class="mr-auto text-base font-medium">Filtrer le pta</h2>
     </ModalHeader>
     <form @submit.prevent="filtreParAnnee(annees)">
       <ModalBody>
         <div class="grid grid-cols-1 gap-4">
-        
           <!-- <pre>{{years}}</pre> -->
           <div class="">
             <label class="form-label">Année</label>
@@ -330,15 +328,21 @@
               <option v-for="(year, index) in years" :key="index" :value="year.nom">{{ year.nom }}</option>
             </TomSelect>
           </div>
-          
-          
-          
         </div>
       </ModalBody>
       <ModalFooter>
         <div class="flex gap-2">
-          <button type="button" @click="showModalFiltre = false ; annees =''" class="w-full px-2 py-2 my-3 align-top btn btn-outline-secondary">Annuler</button>
-          <VButton :loading="isLoading" label="Filtrer"  />
+          <button
+            type="button"
+            @click="
+              showModalFiltre = false;
+              annees = '';
+            "
+            class="w-full px-2 py-2 my-3 align-top btn btn-outline-secondary"
+          >
+            Annuler
+          </button>
+          <VButton :loading="isLoading" label="Filtrer" />
         </div>
       </ModalFooter>
     </form>
@@ -356,18 +360,18 @@ import { toast } from "vue3-toastify";
 import { mapGetters, mapMutations, mapActions, mapState } from "vuex";
 export default {
   props: ["ppm"],
-  components: {VButton },
+  components: { VButton },
   data() {
     return {
-      years : [],
-      annees : "",
+      years: [],
+      annees: "",
       tabletoggle: [],
       etattoggle: true,
       graytoggle: true,
       redtoggle: false,
       translatetoggle: false,
       chargement: false,
-      showModalFiltre: false ,
+      showModalFiltre: false,
       greentoggle: true,
       ptab: [],
       items: ["Item 1", "Item 2", "Item 3"],
@@ -1356,20 +1360,16 @@ export default {
     },
   },
   methods: {
-    filtreParAnnee(datas){
-      
-         let data = {}
+    filtreParAnnee(datas) {
+      let data = {};
 
       data = {
-        annee : datas
-      }
+        organisationId: this.$route.params.ongId,
+        annee: datas,
+      };
       this.getPta(data);
-
     },
-    handleInput (event) {
-     
-       
-    },
+    handleInput(event) {},
     saveSuiviOld(id, data) {
       this.chargement = true;
       var form = {
@@ -1564,7 +1564,6 @@ export default {
       }
     },
     getPta(data) {
-      
       // if (this.annee == null) {
       //   const year = new Date().getFullYear();
       //   data = {
@@ -1697,7 +1696,7 @@ export default {
     this.getPermission();
 
     if (this.revisionVisible || this.ppmVisible || this.ptaVisible) {
-      console.log(this.$route.params.ongId)
+      console.log(this.$route.params.ongId);
       let data = {};
       data = {
         organisationId: this.$route.params.ongId,
@@ -1710,12 +1709,12 @@ export default {
     }
 
     var anneeActuelle = new Date().getFullYear() + 5;
-      let i = 0;
-      for (var annee = 2016; annee <= anneeActuelle; annee++) {
-        i++;
-        this.years.push({ nom: `${annee}` });
-      }
-      console.log(this.years)
+    let i = 0;
+    for (var annee = 2016; annee <= anneeActuelle; annee++) {
+      i++;
+      this.years.push({ nom: `${annee}` });
+    }
+    console.log(this.years);
   },
 };
 </script>

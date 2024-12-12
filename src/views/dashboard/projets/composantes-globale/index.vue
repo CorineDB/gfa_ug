@@ -97,15 +97,19 @@ export default {
         });
     },
     modifierComposante(data) {
+      console.log(data);
       this.labels = "Modifier";
       this.showModal = true;
+      console.log("showModal", this.showModal);
       this.update = true;
       this.formData.nom = data.nom;
       this.formData.poids = data.poids;
       this.formData.pret = data.pret ?? "";
       this.formData.projetId = data.projetId;
       this.formData.budgetNational = data.budgetNational;
+      console.log("formData", this.formData);
       this.composantsId = data.id;
+      console.log("composantsId", this.composantsId);
     },
     addComposants() {
       this.showModal = true;

@@ -7,6 +7,8 @@ import ComposantesService from "@/services/modules/composante.service";
 import ActiviteService from "@/services/modules/activite.service";
 import InputForm from "@/components/news/InputForm.vue";
 import VButton from "@/components/news/VButton.vue";
+import { helper as $h } from "@/utils/helper";
+
 import { toast } from "vue3-toastify";
 export default {
   components: {
@@ -56,11 +58,13 @@ export default {
     },
     composantsId(newValue, oldValue) {
       if (this.composants.length > 0) {
+        console.log("composantsId", newValue.id);
         this.getComposantById(newValue.id);
       }
     },
     sousComposantId(newValue, oldValue) {
       if (this.sousComposants.length > 0) {
+        console.log("composantsId", newValue.id);
         this.getComposantById(newValue.id);
       }
     },
@@ -97,7 +101,7 @@ export default {
     },
     supprimerComposant(data) {
       this.showDeleteModal = true;
-      this.sousComposantId = data.id;
+      this.activiteId = data.id;
     },
     deleteComposants() {
       this.deleteLoader = true;
@@ -105,8 +109,9 @@ export default {
         .then((data) => {
           this.deleteLoader = false;
           this.showDeleteModal = false;
+          this.getComposantById(this.composantsId.id);
           toast.success("Suppression  éffectuée avec succès");
-          this.getListeProjet();
+          //this.getListeProjet();
         })
         .catch((error) => {
           this.deleteLoader = false;
@@ -117,13 +122,14 @@ export default {
       this.labels = "Modifier";
       this.showModal = true;
       this.update = true;
+      console.log("data", data);
       this.formData.nom = data.nom;
       this.formData.pret = data.pret;
       this.formData.poids = data.poids;
-      this.formData.debut = data.debut;
-      this.formData.fin = data.fin;
+      this.formData.debut = data.durees[0].debut;
+      this.formData.fin = data.durees[0].fin;
       this.formData.type = "pta";
-      this.formData.composanteId = data.composanteId;
+      this.formData.composanteId = Object.keys(this.sousComposantId).length === 0 ? this.composantsId : this.sousComposantId;
       this.formData.budgetNational = data.budgetNational;
       this.activiteId = data.id;
     },
@@ -139,22 +145,35 @@ export default {
       this.labels = "Ajouter";
     },
     sendForm() {
+      let data = {
+        nom: this.formData.nom,
+        poids: this.formData.poids,
+        debut: this.formData.debut,
+        fin: this.formData.fin,
+        pret: this.formData.pret,
+        type: this.formData.type,
+        composanteId: this.formData.composanteId.id,
+        budgetNational: this.formData.budgetNational,
+      };
+      data.budgetNational = parseInt(data.budgetNational);
+      data.pret = parseInt(data.pret);
+
       if (this.update) {
-        this.formData.budgetNational = parseInt(this.formData.budgetNational);
-        this.formData.pret = parseInt(this.formData.pret);
         // this.formData.projetId = this.projetId
         this.isLoading = true;
-        ActiviteService.update(this.activiteId, this.formData)
+        ActiviteService.update(this.activiteId, data)
           .then((response) => {
             if (response.status == 200 || response.status == 201) {
               this.update = false;
               this.isLoading = false;
               this.showModal = false;
               toast.success("Modification éffectuée");
+
               this.composantsId = this.formData.composanteId;
-              this.clearObjectValues(this.formData);
+              $h.clearObjectValues(this.formData);
               // delete this.formData.projetId;
-              this.getListeProjet();
+              //this.getListeProjet();
+              this.getComposantById(this.composantsId.id);
               //this.sendRequest = false;
             }
           })
@@ -165,21 +184,24 @@ export default {
           });
       } else {
         this.isLoading = true;
-        this.formData.budgetNational = parseInt(this.formData.budgetNational);
-        this.formData.pret = parseInt(this.formData.pret);
-        console.log(this.formData);
-        ActiviteService.create(this.formData)
+        // this.formData.budgetNational = parseInt(this.formData.budgetNational);
+        // this.formData.pret = parseInt(this.formData.pret);
+        // console.log(this.formData);
+
+        ActiviteService.create(data)
           .then((response) => {
             if (response.status == 200 || response.status == 201) {
               this.isLoading = false;
               toast.success("Ajout éffectué");
               this.showModal = false;
-              this.clearObjectValues(this.formData);
+              this.getComposantById(this.composantsId.id);
+              // $h.clearObjectValues(this.formData);
 
               this.getListeProjet();
             }
           })
           .catch((error) => {
+            console.log("error", error);
             this.isLoading = false;
             toast.error("Erreur lors de la modification");
           });
@@ -191,7 +213,7 @@ export default {
         .then((data) => {
           this.isLoadingData = false;
           this.projets = data.data.data;
-          if (Object.keys(this.projetId).length === 0 ) {
+          if (Object.keys(this.projetId).length === 0) {
             this.projetId = this.projets[0];
           }
 
@@ -205,9 +227,10 @@ export default {
       ProjetService.getDetailProjet(data)
         .then((datas) => {
           this.composants = datas.data.data.composantes;
-          if (Object.keys(this.composantsId).length === 0) {
-            this.composantsId = this.composants[0];
-          }
+          this.composantsId = this.composants[0];
+          // if (Object.keys(this.composantsId).length === 0) {
+
+          // }
           this.getComposantById(this.composantsId.id);
         })
         .catch((error) => {
@@ -221,6 +244,7 @@ export default {
 
           if (data.data.data.souscomposantes.length > 0) {
             this.sousComposants = data.data.data.souscomposantes;
+            // this.sousComposantId = this.sousComposants[0];
             this.haveSousComposantes = true;
           }
         })
@@ -251,7 +275,7 @@ export default {
       <div class="grid grid-cols-2 gap-4">
         <div class="flex w-full">
           <!-- :reduce="(projet) => projet.id" -->
-          <v-select class="w-full"  v-model="projetId" label="nom" :options="projets">
+          <v-select class="w-full" v-model="projetId" label="nom" :options="projets">
             <template #search="{ attributes, events }">
               <input class="vs__search form-input" :required="!projetId" v-bind="attributes" v-on="events" />
             </template>
@@ -260,23 +284,24 @@ export default {
         </div>
         <div class="flex w-full">
           <!-- :reduce="(composant) => composant.id" -->
-          <v-select class="w-full"  v-model="composantsId" label="nom" :options="composants">
+          <v-select class="w-full" v-model="composantsId" label="nom" :options="composants">
             <template #search="{ attributes, events }">
               <input class="vs__search form-input" :required="!composantsId" v-bind="attributes" v-on="events" />
             </template>
           </v-select>
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OUtComes</label>
         </div>
-        <!-- <div class="flex w-full" v-if="haveSousComposantes">
-          <v-select class="w-full" :reduce="(souscomposant) => souscomposant.id" v-model="sousComposantId" label="nom" :options="sousComposants">
+        <div class="flex w-full" v-if="haveSousComposantes">
+          <!-- :reduce="(souscomposant) => souscomposant.id" -->
+          <v-select class="w-full" v-model="sousComposantId" label="nom" :options="sousComposants">
             <template #search="{ attributes, events }">
               <input class="vs__search form-input" :required="!sousComposantId" v-bind="attributes" v-on="events" />
             </template>
           </v-select>
-          <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OUtComes</label>
-        </div> -->
+          <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OUtPut</label>
+        </div>
 
-        <div class="flex w-full" v-if="haveSousComposantes">
+        <!-- <div class="flex w-full" v-if="haveSousComposantes">
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OUtPut</label>
           <TomSelect
             v-model="sousComposantId"
@@ -289,7 +314,7 @@ export default {
           >
             <option v-for="(element, index) in sousComposants" :key="index" :value="element.id">{{ element.nom }}</option>
           </TomSelect>
-        </div>
+        </div> -->
       </div>
 
       <!-- <button class="absolute px-4 py-2 text-white transform -translate-x-1/2 bg-blue-500 rounded -bottom-3 left-1/2" @click="filter()">Filtrer</button> -->
@@ -320,22 +345,22 @@ export default {
     <!-- BEGIN: Users Layout -->
     <!-- <pre>{{sousComposants}}</pre>   -->
 
-    <div v-for="(item, index) in activites" :key="index" class="col-span-12 intro-y md:col-span-6 lg:col-span-4">
-      <div class="p-5 box">
-        <div class="flex items-start pt-5 _px-5">
+    <div v-for="(item, index) in activites" :key="index" class="col-span-12 p-4 md:col-span-6 lg:col-span-4">
+      <div class="p-5 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-105 hover:bg-gray-50">
+        <div class="relative flex items-start pt-5">
           <div class="flex flex-col items-center w-full lg:flex-row">
-            <div class="flex items-center justify-center w-16 h-16 text-white rounded-full image-fit bg-primary">
+            <div class="flex items-center justify-center w-16 h-16 text-white rounded-full shadow-md bg-primary">
               {{ item.type }}
               <!-- <img alt="Midone Tailwind HTML Admin Template" class="rounded-full" :src="faker.photos[0]" /> -->
             </div>
             <div class="mt-3 text-center lg:ml-4 lg:text-left lg:mt-0">
-              <a href="" class="font-medium">{{ item.nom }}</a>
-              <div class="mt-2 text-xs text-slate-500">
-                <span class="px-2 py-1 m-5 text-xs text-white rounded bg-primary/80" v-if="item.statut == -2"> Non validé </span>
-                <span class="px-2 py-1 m-5 text-xs text-white rounded bg-success/80" v-else-if="item.statut == -1"> Validé </span>
-                <span class="px-2 py-1 m-5 text-xs text-white rounded bg-pending/80" v-else-if="item.statut == 0"> En cours </span>
-                <span class="px-2 py-1 m-5 text-xs text-white rounded bg-danger/80" v-else-if="item.statut == 1"> En retard </span>
-                <span class="pl-2" v-else-if="item.statut == 2">Terminé</span>
+              <a href="" class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary">{{ item.nom }}</a>
+              <div class="mt-2 text-xs text-gray-500">
+                <span v-if="item.statut == -2" class="px-2 py-1 text-xs font-medium text-white rounded-md bg-primary"> Non validé </span>
+                <span v-else-if="item.statut == -1" class="px-2 py-1 text-xs font-medium text-white bg-green-500 rounded-md"> Validé </span>
+                <span v-else-if="item.statut == 0" class="px-2 py-1 text-xs font-medium text-white bg-yellow-500 rounded-md"> En cours </span>
+                <span v-else-if="item.statut == 1" class="px-2 py-1 text-xs font-medium text-white bg-red-500 rounded-md"> En retard </span>
+                <span v-else-if="item.statut == 2" class="pl-2 font-medium">Terminé</span>
               </div>
             </div>
           </div>
@@ -351,25 +376,35 @@ export default {
             </DropdownMenu>
           </Dropdown>
         </div>
-        <div class="text-center lg:text-left">
-          <div class="my-5 text-left">
-            <p class="mx-auto font-semibold text-center">Description</p>
 
-            {{ item.description }}
-          </div>
-          <div class="m-5 text-slate-600 dark:text-slate-500">
-            <div class="flex items-center"><LinkIcon class="w-4 h-4 mr-2" /> Budget: {{ item.budgetNational }}</div>
-            <div class="flex items-center"><GlobeIcon class="w-4 h-4 mr-2" /> Taux d'exécution physique: {{ item.tep }}</div>
+        <div class="mt-5 text-center lg:text-left">
+          <p class="mb-3 text-lg font-semibold text-primary">Description</p>
+          <p class="p-3 text-gray-600 rounded-lg shadow-sm bg-gray-50">{{ item.description }}</p>
 
-            <div class="flex items-center mt-2">
-              <CheckSquareIcon class="w-4 h-4 mr-2" /> Statut :
-              <span class="pl-2" v-if="item.statut == -2"> Non validé </span>
-              <span class="pl-2" v-else-if="item.statut == -1"> Validé </span>
-              <span class="pl-2" v-else-if="item.statut == 0"> En cours </span>
-              <span class="pl-2" v-else-if="item.statut == 1"> En retard </span>
-              <span class="pl-2" v-else-if="item.statut == 2">Terminé</span>
+          <div class="mt-5 space-y-3 text-gray-600">
+            <div class="flex items-center text-sm font-medium text-gray-700">
+              <LinkIcon class="w-4 h-4 mr-2 text-primary" /> Budget:
+              <span class="ml-2 font-semibold text-gray-900">{{ item.budgetNational }}</span>
             </div>
-            <div class="flex items-center mt-2"><CheckSquareIcon class="w-4 h-4 mr-2" /> Poids : {{ item.poids }}</div>
+
+            <div class="flex items-center text-sm font-medium text-gray-700">
+              <GlobeIcon class="w-4 h-4 mr-2 text-primary" /> Taux d'exécution physique:
+              <span class="ml-2 font-semibold text-gray-900">{{ item.tep }}</span>
+            </div>
+
+            <div class="flex items-center text-sm font-medium text-gray-700">
+              <CheckSquareIcon class="w-4 h-4 mr-2 text-primary" /> Statut:
+              <span v-if="item.statut == -2" class="ml-2 text-gray-900">Non validé</span>
+              <span v-else-if="item.statut == -1" class="ml-2 text-gray-900">Validé</span>
+              <span v-else-if="item.statut == 0" class="ml-2 text-gray-900">En cours</span>
+              <span v-else-if="item.statut == 1" class="ml-2 text-gray-900">En retard</span>
+              <span v-else-if="item.statut == 2" class="ml-2 text-gray-900">Terminé</span>
+            </div>
+
+            <div class="flex items-center text-sm font-medium text-gray-700">
+              <CheckSquareIcon class="w-4 h-4 mr-2 text-primary" /> Poids:
+              <span class="ml-2 font-semibold text-gray-900">{{ item.poids }}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -390,23 +425,17 @@ export default {
       <InputForm v-model="formData.debut" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de début" label="Début de l'activité" />
       <InputForm v-model="formData.fin" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de fin" label="Fin de l'activité" />
 
-      <!--<div class="col-span-12">
-        <label for="modal-form-6" class="form-label">Type d'activité</label>
-        <div class="mt-2">
-          <TomSelect
-            v-model="formData.type"
-            :options="{
-              placeholder: 'Choisir un type d\'activité',
-            }"
-            class="w-full"
-          >
-            <option>Choisir un type d'activité</option>
-            <option value="pta">PTA</option>
-            <option value="ppm">PPM</option>
-          </TomSelect>
-        </div>
-      </div>-->
-      <div class="flex col-span-12" v-if="haveSousComposantes">
+      <div class="flex col-span-12">
+        <!-- :reduce="(composant) => composant.id" -->
+        <v-select class="w-full" v-model="formData.composanteId" label="nom" :options="composants">
+          <template #search="{ attributes, events }">
+            <input class="vs__search form-input" :required="!formData.composanteId" v-bind="attributes" v-on="events" />
+          </template>
+        </v-select>
+        <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-bold duration-100 ease-linear -translate-y-3 bg-white _font-medium form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OutComes</label>
+      </div>
+
+      <!-- <div class="flex col-span-12" v-if="haveSousComposantes">
         <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OUtPut</label>
         <TomSelect
           v-model="formData.composanteId"
@@ -419,8 +448,18 @@ export default {
         >
           <option v-for="(element, index) in sousComposants" :key="index" :value="element.id">{{ element.nom }}</option>
         </TomSelect>
+      </div> -->
+      <div class="flex col-span-12" v-if="haveSousComposantes">
+        <!-- :reduce="(composant) => composant.id" -->
+        <v-select class="w-full" v-model="formData.composanteId" label="nom" :options="sousComposants">
+          <template #search="{ attributes, events }">
+            <input class="vs__search form-input" :required="!formData.composanteId" v-bind="attributes" v-on="events" />
+          </template>
+        </v-select>
+        <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-bold duration-100 ease-linear -translate-y-3 bg-white _font-medium form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OutPut</label>
       </div>
-      <div class="flex col-span-12">
+
+      <!-- <div class="flex col-span-12">
         <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OutComes</label>
         <TomSelect
           v-model="formData.composanteId"
@@ -433,7 +472,7 @@ export default {
         >
           <option v-for="(element, index) in composants" :key="index" :value="element.id">{{ element.nom }}</option>
         </TomSelect>
-      </div>
+      </div> -->
       <!--<div class="flex col-span-12">
         <v-select class="w-full" :reduce="(composant) => composant.id" v-model="formData.composanteId" label="nom" :options="composants">
           <template #search="{ attributes, events }">

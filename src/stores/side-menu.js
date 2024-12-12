@@ -59,11 +59,7 @@ export const useSideMenuStore = defineStore("sideMenu", {
             pageName: "suivi_indicateur",
             title: "Suivi Indicateurs",
           },
-          // {
-          //   icon: "BarChart2Icon",
-          //   pageName: "UniteDeMesure",
-          //   title: "Unité de Mesure",
-          // },
+
           // {
           //   icon: "BarChart2Icon",
           //   pageName: "KeyValue",
@@ -172,6 +168,16 @@ export const useSideMenuStore = defineStore("sideMenu", {
             pageName: "sources_verification",
             title: "Sources de vérification",
           },
+          {
+            icon: "BarChart2Icon",
+            pageName: "TypeResultat",
+            title: "Résultats Cadre de rendement",
+          },
+          {
+            icon: "BarChart2Icon",
+            pageName: "Roles",
+            title: "Rôles et permissions",
+          },
           // {
           //   icon: "BarChart2Icon",
           //   pageName: "UniteDeMesure",
@@ -192,11 +198,6 @@ export const useSideMenuStore = defineStore("sideMenu", {
           //   pageName: "Sites",
           //   title: "Sites",
           // },
-          {
-            icon: "BarChart2Icon",
-            pageName: "TypeResultat",
-            title: "Résultats Cadre de rendement",
-          },
         ],
       },
     ],

@@ -26,7 +26,7 @@ const helpers = {
           obj[key] = [];
         } else if (typeof value === "object" && value !== null) {
           obj[key] = {}; // ou appliquer récursion pour vider les objets imbriqués
-          clearObjectValues(obj[key]); // récursion pour les objets imbriqués
+          this.clearObjectValues(obj[key]); // récursion pour les objets imbriqués
         } else {
           obj[key] = null; // pour les autres types (null, undefined, etc.)
         }
