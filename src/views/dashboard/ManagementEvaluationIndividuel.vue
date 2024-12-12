@@ -129,6 +129,7 @@ import Tabulator from "tabulator-tables";
 import DeleteButton from "@/components/news/DeleteButton.vue";
 import EnqueteIndividuelService from "../../services/modules/enquete.individuel.service";
 import { reactive } from "vue";
+import { useRouter } from "vue-router";
 
 const props = defineProps({
   formulaires: {
@@ -138,6 +139,7 @@ const props = defineProps({
   },
 });
 
+const router = useRouter();
 const payload = reactive({ intitule: "", description: "", debut: "", fin: "", surveyFormId: "", nbreParticipants: 0, prive: false });
 const isLoading = ref(false);
 const showModalCreate = ref(false);
@@ -265,7 +267,9 @@ const getStatusText = (param) => {
   }
 };
 
-function gotoSoumissions(enquete) {}
+function gotoSoumissions(evaluation) {
+  router.push({ name: "detail_evaluation_individuel", params: { id: evaluation.id } });
+}
 
 function formatDateOnly(dateTimeString) {
   // Vérifie si la chaîne est valide

@@ -3,7 +3,6 @@
     <ul class="font-medium !list-disc">
       <li v-for="(error, index) in errorsNom" :key="index">{{ error }}</li>
       <li v-for="(error, index) in errorsEmail" :key="index">{{ error }}</li>
-      <li v-for="(error, index) in errorsPhone" :key="index">{{ error }}</li>
       <li v-for="(error, index) in errorsSigle" :key="index">{{ error }}</li>
       <li v-for="(error, index) in errorsNomPF" :key="index">{{ error }}</li>
       <li v-for="(error, index) in errorsPrenomPF" :key="index">{{ error }}</li>

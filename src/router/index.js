@@ -78,6 +78,7 @@ import DetailSuivi from "../views/dashboard/indicateurs/DetailSuivi.vue";
 import UpdateFormPerception from "../views/dashboard/UpdateFormPerception.vue";
 import UpdateFormFactuel from "../views/dashboard/UpdateFormFactuel.vue";
 import SurveyFormView from "../views/dashboard/SurveyFormView.vue";
+import DetailEvaluationIndividuel from "../views/dashboard/DetailEvaluationIndividuel.vue";
 
 const routes = [
   {
@@ -152,6 +153,11 @@ const routes = [
         path: "form-individuel/:id",
         name: "view_survey",
         component: SurveyFormView,
+      },
+      {
+        path: "evaluation-individuel/:id",
+        name: "detail_evaluation_individuel",
+        component: DetailEvaluationIndividuel,
       },
       {
         path: "cadre-mesure",
@@ -437,7 +443,7 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   // Permettre l'accès à la route "toolsPerception" quel que soit l'état d'authentification
-  if (["ToolsPerception", "activation", "reset_Password"].includes(to.name)) {
+  if (["ToolsPerception", "activation", "reset_Password", "view_survey"].includes(to.name)) {
     next();
   }
   // Rediriger vers "/" si non authentifié et que la route n'est pas la page d'accueil

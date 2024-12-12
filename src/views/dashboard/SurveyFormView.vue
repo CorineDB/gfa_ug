@@ -1,9 +1,9 @@
 <template>
   <div v-if="!isLoadingData && !isFinished">
-    <h2 class="mt-10 text-lg font-medium intro-y">Remplissez le formulaire</h2>
+    <h2 class="my-8 text-lg font-medium intro-y">Remplissez le formulaire</h2>
     <SurveyComponent :model="survey" />
   </div>
-  <LoaderSnipper v-if="isLoadingData" />
+  <LoaderSnipper v-if="isLoadingData && !isFinished" />
   <div v-if="isFinished" class="flex w-full justify-center items-center h-[40vh]">
     <Alert class="w-full max-w-screen-md mb-2 alert-primary">
       <div class="flex items-center">
@@ -34,13 +34,13 @@ const isLoadingData = ref(true);
 const isLoading = ref(false);
 const isFinished = ref(false);
 
-const survey = ref(new Model({}));
+const survey = ref(new Model(form.value.form_data));
 
 const send = async (results) => {
   try {
     await EnqueteIndividuelService.sendResponse(results);
     toast.success("Soumissions envoyées");
-    generatevalidateKey("formIndividuel");
+    // generatevalidateKey("formIndividuel");
     isFinished.value = true;
   } catch (error) {
     console.error("Erreur lors de l'envoi des résultats :", error);
@@ -68,7 +68,27 @@ const getDataForm = async () => {
   await EnqueteIndividuelService.getFormEvaluation(token, participantId.value)
     .then((result) => {
       form.value = result.data.data;
-      survey.value = new Model(form.value.form_data);
+      if (form.value.survey_response) {
+        isFinished.value = true;
+        return;
+      }
+      survey.value = new Model(form.value.survey_form.form_data);
+
+      // Ajouter onComplete au nouveau modèle
+      survey.value.onComplete.add((sender) => {
+        const results = sender.data;
+        console.log("Résultats capturés :", results);
+
+        const finalData = {
+          idParticipant: participantId.value,
+          response_data: results,
+          surveyId: form.value.id,
+          commentaire: "",
+        };
+
+        send(finalData);
+      });
+
       isLoadingData.value = false;
     })
     .catch((e) => {
@@ -78,11 +98,13 @@ const getDataForm = async () => {
 };
 
 onMounted(async () => {
-  if (getvalidateKey("formIndividuel")) {
-    isFinished.value = true;
-  } else {
-    participantId.value = generateUniqueIdSurvey();
-    await getDataForm();
-  }
+  participantId.value = generateUniqueIdSurvey();
+  await getDataForm();
+  // if (getvalidateKey("formIndividuel")) {
+  //   isFinished.value = true;
+  // } else {
+  //   participantId.value = generateUniqueIdSurvey();
+  //   await getDataForm();
+  // }
 });
 </script>
