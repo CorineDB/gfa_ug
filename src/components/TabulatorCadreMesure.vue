@@ -1,6 +1,6 @@
 <template>
   <div class="flex justify-end my-1">
-    <!-- <ExportationIndicateur :data="data" :years="years" /> -->
+    <ExportationIndicateur :data="data" :years="years" />
   </div>
   <div class="table-container">
     <div ref="tableWrapper" class="table-wrapper">
@@ -438,14 +438,14 @@ table td {
 
 .table-container {
   position: relative;
-  max-height: 80vh; /* Ajustez selon vos besoins */
+  max-height: 75vh; /* Ajustez selon vos besoins */
   overflow: hidden;
 }
 
 .table-wrapper {
   overflow-y: auto;
   overflow-x: auto;
-  max-height: calc(80vh - 20px); /* Ajustez selon vos besoins */
+  max-height: calc(75vh - 20px); /* Ajustez selon vos besoins */
 }
 
 .sticky-heade {
