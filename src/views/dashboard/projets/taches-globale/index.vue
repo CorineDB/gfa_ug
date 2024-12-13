@@ -88,7 +88,7 @@ export default {
             obj[key] = [];
           } else if (typeof value === "object" && value !== null) {
             obj[key] = {}; // ou appliquer récursion pour vider les objets imbriqués
-            clearObjectValues(obj[key]); // récursion pour les objets imbriqués
+            this.clearObjectValues(obj[key]); // récursion pour les objets imbriqués
           } else {
             obj[key] = null; // pour les autres types (null, undefined, etc.)
           }
@@ -106,7 +106,8 @@ export default {
           this.deleteLoader = false;
           this.showDeleteModal = false;
           toast.success("Suppression  éffectuée avec succès");
-          this.getListeProjet();
+          // this.getListeProjet();
+          this.getActiviteById(this.activitesId.id);
         })
         .catch((error) => {
           this.deleteLoader = false;
@@ -121,11 +122,12 @@ export default {
       this.formData.poids = data.poids;
       this.formData.debut = data.debut;
       this.formData.fin = data.fin;
-      this.formData.activiteId = data.activiteId;
+      this.formData.activiteId = this.activitesId;
       //this.formData.budgetNational = data.budgetNational;
       this.tacheId = data.id;
     },
     addTache() {
+      this.clearObjectValues(this.formData);
       this.showModal = true;
       this.isUpdate = false;
 
@@ -134,11 +136,18 @@ export default {
       this.labels = "Ajouter";
     },
     sendForm() {
+      let data = {
+        nom: this.formData.nom,
+        poids: this.formData.poids,
+        debut: this.formData.debut,
+        fin: this.formData.fin,
+        activiteId: this.formData.activiteId.id,
+      };
       if (this.update) {
         //this.formData.budgetNational = parseInt(this.formData.budgetNational);
         // this.formData.projetId = this.projetId
         this.isLoading = true;
-        TachesService.update(this.tacheId, this.formData)
+        TachesService.update(this.tacheId, data)
           .then((response) => {
             if (response.status == 200 || response.status == 201) {
               this.update = false;
@@ -148,11 +157,13 @@ export default {
               this.activitesId = this.formData.activiteId;
               this.clearObjectValues(this.formData);
               // delete this.formData.projetId;
-              this.getListeProjet();
+              this.getActiviteById(this.activitesId.id);
+              // this.getListeProjet();
               //this.sendRequest = false;
             }
           })
           .catch((error) => {
+            console.log(error);
             // delete this.formData.projetId;
             this.isLoading = false;
             toast.error(error.message);
@@ -160,18 +171,19 @@ export default {
       } else {
         this.isLoading = true;
         //this.formData.budgetNational = parseInt(this.formData.budgetNational);
-        TachesService.create(this.formData)
+        TachesService.create(data)
           .then((response) => {
             if (response.status == 200 || response.status == 201) {
               this.isLoading = false;
               toast.success("Ajout éffectué");
               this.showModal = false;
-              this.clearObjectValues(this.formData);
+              this.getActiviteById(this.activitesId.id);
 
-              this.getListeProjet();
+              // this.getListeProjet();
             }
           })
           .catch((error) => {
+            console.log("error", error);
             this.isLoading = false;
             toast.error("Erreur lors de la modification");
           });
@@ -199,7 +211,7 @@ export default {
           this.composants = datas.data.data.composantes;
           this.composantsId = this.composants[0];
           // if (Object.keys(this.composantsId).length === 0) {
-            
+
           // }
           this.getComposantById(this.composantsId.id);
         })
@@ -214,7 +226,7 @@ export default {
 
           if (data.data.data.souscomposantes.length > 0) {
             this.sousComposants = data.data.data.souscomposantes;
-            this.sousComposantId = this.sousComposants[0]
+            this.sousComposantId = this.sousComposants[0];
             this.haveSousComposantes = true;
           }
 
@@ -407,7 +419,8 @@ export default {
       <InputForm v-model="formData.fin" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de fin" label="Fin du projet " />
 
       <div class="flex col-span-12">
-        <v-select class="w-full" :reduce="(activite) => activite.id" v-model="formData.activiteId" label="nom" :options="activites">
+        <!-- :reduce="(activite) => activite.id" -->
+        <v-select class="w-full" v-model="formData.activiteId" label="nom" :options="activites">
           <template #search="{ attributes, events }">
             <input class="vs__search form-input" :required="!formData.activiteId" v-bind="attributes" v-on="events" />
           </template>
@@ -432,7 +445,7 @@ export default {
       </div>
       <div class="flex gap-2 px-5 pb-8 text-center">
         <button type="button" @click="showDeleteModal = false" class="w-full my-3 mr-1 btn btn-outline-secondary">Annuler</button>
-        <VButton :loading="isLoading" label="Supprimer" @click="deleteTache" />
+        <VButton :loading="deleteLoader" label="Supprimer" @click="deleteTache" />
       </div>
     </ModalBody>
   </Modal>
