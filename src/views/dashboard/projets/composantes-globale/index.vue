@@ -352,7 +352,7 @@ export default {
       </div>
       <div class="flex gap-2 px-5 pb-8 text-center">
         <button type="button" @click="showDeleteModal = false" class="w-full my-3 mr-1 btn btn-outline-secondary">Annuler</button>
-        <VButton :loading="isLoading" label="Supprimer" @click="deleteComposants" />
+        <VButton :loading="deleteLoader" label="Supprimer" @click="deleteComposants" />
       </div>
     </ModalBody>
   </Modal>

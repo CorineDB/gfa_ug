@@ -1,4 +1,7 @@
 clearObjectValues $h modifierActivite Object.keys(this.projetId).length getListeProjet
+getActiviteById getComposantById getProjetById  addTache modifierTache supprimerTache 
+sendForm deleteTache
+
 
 {
     "id": "BaGpzRqdQqvrla2BxyWZ0b8XNkPVpoMeP74E1OwA5JYG6zgeLDR9djnKyXVYJO05",
