@@ -1,5 +1,5 @@
 <template>
-  <h2 class="mt-10 text-lg font-medium intro-y">Plan d'Action</h2>
+  <h2 class="mt-10 text-lg font-medium intro-y">Plan de décaissement générale</h2>
   <div class="grid grid-cols-12 gap-6 my-5">
     <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
       <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
@@ -14,7 +14,7 @@
     </div>
   </div>
   <div v-if="currentPage && ptaVisible" class="current">
-    <div style="height: 80vh" class="relative flex overflow-y-auto">
+    <div style="height: 90vh" class="relative flex overflow-y-auto">
       <div style="width: 23.33%; position: sticky; left: 0; background: transparent; z-index: 1; margin-right: 1%">
         <table class="top-0 left-0 block w-full text-sm text-left table-fixed border-collaspe table1">
           <thead class="sticky top-0 z-20 text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">

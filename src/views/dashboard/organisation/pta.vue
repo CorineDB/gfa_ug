@@ -41,7 +41,7 @@
                 <span v-if="pta.isTache" class="text-sm text-red-600"> {{ pta.code }}</span>
               </td>
               <td>
-                <select v-if="pta.isTache" class="form-select form-select-sm mt-2 w-5/6" aria-label=".form-select-sm example" @change="togglesuivie(pta)">
+                <select v-if="pta.isTache" class="form-select form-select-sm mt-2 w-5/6" aria-label=".form-select-sm example" @change="togglesuivie(pta)" v-model="poidsActuel">
                   <option value="0">0%</option>
                   <option value="50">50%</option>
                   <option value="100">100%</option>
@@ -368,6 +368,7 @@ export default {
   components: { VButton },
   data() {
     return {
+      poidsActuel: "",
       years: [],
       annees: "",
       tabletoggle: [],
@@ -1416,66 +1417,90 @@ export default {
       }
     },
     togglesuivie(pta) {
+      console.log("pta", pta);
       //this.dataNew;
 
-      this.redtoggle = false;
-      this.graytoggle = false;
-      //this.greentoggle=true;
-      this.translatetoggle = false;
+      // this.redtoggle = false;
+      // this.graytoggle = false;
+      // //this.greentoggle=true;
+      // this.translatetoggle = false;
 
       //console.log(this.tabletoggle[id]);
 
-      this.chargement = true;
+      // this.chargement = true;
       var form = {
+        poidsActuel: this.poidsActuel,
         tacheId: pta.id,
       };
-      //  console.log(id)
-      if (pta.poidsActuel > 0) {
-        this.tabletoggle[pta.id] = 0;
-        TacheService.deleteSuivis(pta.id)
-          .then((data) => {
-            // this.doSuiviOld = false
-            // this.dataNew;
-            this.$toast.success("suivie supprimé avec succès");
-            // window.location.reload();
-          })
-          .catch((error) => {
-            if (error.response) {
-              // Requête effectuée mais le serveur a répondu par une erreur.
-              const message = error.response.data.message;
-              this.$toast.error(message);
-            } else if (error.request) {
-              // Demande effectuée mais aucune réponse n'est reçue du serveur.
-              //console.log(error.request);
-            } else {
-              // Une erreur s'est produite lors de la configuration de la demande
-              //console.log('dernier message', error.message);
-            }
-          });
-      } else {
-        this.tabletoggle[pta.id] = 1;
 
-        TacheService.suiviTache(form)
-          .then((data) => {
-            // this.doSuiviOld = false
-            // this.dataNew;
-            this.$toast.success("suivie éffectué avec succès");
-            // window.location.reload();
-          })
-          .catch((error) => {
-            if (error.response) {
-              // Requête effectuée mais le serveur a répondu par une erreur.
-              const message = error.response.data.message;
-              this.$toast.error(message);
-            } else if (error.request) {
-              // Demande effectuée mais aucune réponse n'est reçue du serveur.
-              //console.log(error.request);
-            } else {
-              // Une erreur s'est produite lors de la configuration de la demande
-              //console.log('dernier message', error.message);
-            }
-          });
-      }
+      TacheService.suiviTache(form)
+        .then((data) => {
+          // this.doSuiviOld = false
+          // this.dataNew;
+          toast.success("suivie éffectué avec succès");
+          // window.location.reload();
+        })
+        .catch((error) => {
+          if (error.response) {
+            // Requête effectuée mais le serveur a répondu par une erreur.
+            const message = error.response.data.message;
+            toast.error(message);
+          } else if (error.request) {
+            // Demande effectuée mais aucune réponse n'est reçue du serveur.
+            //console.log(error.request);
+          } else {
+            // Une erreur s'est produite lors de la configuration de la demande
+            //console.log('dernier message', error.message);
+          }
+        });
+
+      //  console.log(id)
+      // if (pta.poidsActuel > 0) {
+      //   this.tabletoggle[pta.id] = 0;
+      //   TacheService.deleteSuivis(pta.id)
+      //     .then((data) => {
+      //       // this.doSuiviOld = false
+      //       // this.dataNew;
+      //       this.$toast.success("suivie supprimé avec succès");
+      //       // window.location.reload();
+      //     })
+      //     .catch((error) => {
+      //       if (error.response) {
+      //         // Requête effectuée mais le serveur a répondu par une erreur.
+      //         const message = error.response.data.message;
+      //         this.$toast.error(message);
+      //       } else if (error.request) {
+      //         // Demande effectuée mais aucune réponse n'est reçue du serveur.
+      //         //console.log(error.request);
+      //       } else {
+      //         // Une erreur s'est produite lors de la configuration de la demande
+      //         //console.log('dernier message', error.message);
+      //       }
+      //     });
+      // } else {
+      //   this.tabletoggle[pta.id] = 1;
+
+      //   TacheService.suiviTache(form)
+      //     .then((data) => {
+      //       // this.doSuiviOld = false
+      //       // this.dataNew;
+      //       this.$toast.success("suivie éffectué avec succès");
+      //       // window.location.reload();
+      //     })
+      //     .catch((error) => {
+      //       if (error.response) {
+      //         // Requête effectuée mais le serveur a répondu par une erreur.
+      //         const message = error.response.data.message;
+      //         this.$toast.error(message);
+      //       } else if (error.request) {
+      //         // Demande effectuée mais aucune réponse n'est reçue du serveur.
+      //         //console.log(error.request);
+      //       } else {
+      //         // Une erreur s'est produite lors de la configuration de la demande
+      //         //console.log('dernier message', error.message);
+      //       }
+      //     });
+      // }
       this.chargement = false;
     },
     // exportToExcel() {
