@@ -51,6 +51,7 @@ const helpers = {
     });
   },
   ajouterObjetDansFormData(objet, formData) {
+    console.log('formdata' , formData)
     for (let key in objet) {
       if (objet.hasOwnProperty(key)) {
         formData.append(key, objet[key]);

@@ -17,6 +17,7 @@ export default {
   },
   data() {
     return {
+      messageErreur: {},
       projets: [],
       projetId: {},
       composants: [],
@@ -119,6 +120,7 @@ export default {
         });
     },
     modifierActivite(data) {
+      this.messageErreur = {};
       this.labels = "Modifier";
       this.showModal = true;
       this.update = true;
@@ -133,7 +135,8 @@ export default {
       this.formData.budgetNational = data.budgetNational;
       this.activiteId = data.id;
     },
-    addSousComposants() {
+    addActivite() {
+      this.messageErreur = {};
       this.showModal = true;
       this.isUpdate = false;
       if (this.haveSousComposantes) {
@@ -180,7 +183,12 @@ export default {
           .catch((error) => {
             // delete this.formData.projetId;
             this.isLoading = false;
-            toast.error(error.message);
+            if (error.response && error.response.data && error.response.data.errors) {
+              this.messageErreur = error.response.data.errors;
+            } else {
+              toast.error("Une erreur inconnue s'est produite");
+            }
+            toast.error("Erreur lors de la modification");
           });
       } else {
         this.isLoading = true;
@@ -203,7 +211,12 @@ export default {
           .catch((error) => {
             console.log("error", error);
             this.isLoading = false;
-            toast.error("Erreur lors de la modification");
+            if (error.response && error.response.data && error.response.data.errors) {
+              this.messageErreur = error.response.data.errors;
+            } else {
+              toast.error("Une erreur inconnue s'est produite");
+            }
+            toast.error("Erreur lors de l'ajout");
           });
       }
     },
@@ -336,7 +349,7 @@ export default {
         </div>
       </div>
       <div class="flex">
-        <button class="mr-2 shadow-md btn btn-primary" @click="addSousComposants()"><PlusIcon class="w-4 h-4 mr-3" />Ajouter une Activité</button>
+        <button class="mr-2 shadow-md btn btn-primary" @click="addActivite()"><PlusIcon class="w-4 h-4 mr-3" />Ajouter une Activité</button>
       </div>
     </div>
   </div>
@@ -420,10 +433,19 @@ export default {
     </ModalHeader>
     <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
       <InputForm v-model="formData.nom" class="col-span-12" type="text" required="required" placeHolder="Nom de l'activité" label="Nom" />
+      <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
+
       <InputForm v-model="formData.poids" class="col-span-12" type="number" required="required" placeHolder="Poids de l'activité " label="Poids" />
+      <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.poids">{{ messageErreur.poids }}</p>
+
       <InputForm v-model="formData.pret" class="col-span-12" type="number" required="required" placeHolder="Montant financé" label="Montant financé" />
+      <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pret">{{ messageErreur.pret }}</p>
+
       <InputForm v-model="formData.debut" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de début" label="Début de l'activité" />
+      <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.debut">{{ messageErreur.debut }}</p>
+
       <InputForm v-model="formData.fin" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de fin" label="Fin de l'activité" />
+      <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.fin">{{ messageErreur.fin }}</p>
 
       <div class="flex col-span-12">
         <!-- :reduce="(composant) => composant.id" -->
@@ -432,6 +454,8 @@ export default {
             <input class="vs__search form-input" :required="!formData.composanteId" v-bind="attributes" v-on="events" />
           </template>
         </v-select>
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.composanteId">{{ messageErreur.composanteId }}</p>
+
         <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-bold duration-100 ease-linear -translate-y-3 bg-white _font-medium form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OutComes</label>
       </div>
 

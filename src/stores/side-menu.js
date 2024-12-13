@@ -44,11 +44,6 @@ export const useSideMenuStore = defineStore("sideMenu", {
         icon: "FolderIcon",
         title: "Cadre Mesure Rendement",
         subMenu: [
-          // {
-          //   icon: "BarChart2Icon",
-          //   pageName: "cadre_mesure",
-          //   title: "Affichage Cadre Mesure",
-          // },
           {
             icon: "BarChart2Icon",
             pageName: "create_indicateur",
@@ -59,27 +54,6 @@ export const useSideMenuStore = defineStore("sideMenu", {
             pageName: "suivi_indicateur",
             title: "Suivi Indicateurs",
           },
-
-          // {
-          //   icon: "BarChart2Icon",
-          //   pageName: "KeyValue",
-          //   title: "Clé Valeur Indicateur",
-          // },
-          // {
-          //   icon: "BarChart2Icon",
-          //   pageName: "CategoriesIndicateurs",
-          //   title: "Catégories d'indicateurs",
-          // },
-          // {
-          //   icon: "BarChart2Icon",
-          //   pageName: "Sites",
-          //   title: "Sites",
-          // },
-          // {
-          //   icon: "BarChart2Icon",
-          //   pageName: "TypeResultat",
-          //   title: "Résultats Cadre de rendement",
-          // },
         ],
       },
       {
@@ -97,38 +71,27 @@ export const useSideMenuStore = defineStore("sideMenu", {
         pageName: "finances_suivi",
         title: "Suivi Financier",
       },
+      {
+        icon: "DollarSignIcon",
+        pageName: "Plan_Decaissement",
+        title: "Plan de Décaissement",
+      },
+      {
+        icon: "WatchIcon",
+        pageName: "ptaGlobal",
+        title: "Plan d'action Global",
+      },
 
       {
         icon: "CpuIcon",
         pageName: "Ongs",
         title: "Organisations",
       },
-
-      // {
-      //   icon: "BarChart2Icon",
-      //   pageName: "indicateursDeGouvernance",
-      //   title: "Indicateurs de gouvernance",
-      // },
       {
         icon: "FolderIcon",
         pageName: "projets",
         title: "Outils de collecte",
         subMenu: [
-          // {
-          //   icon: "FolderKanbanIcon",
-          //   pageName: "typeGouvernance",
-          //   title: "Type de Gouvernance",
-          // },
-          // {
-          //   icon: "GlobeIcon",
-          //   pageName: "PrincipeGouvernance",
-          //   title: "Principes de Gouvernance",
-          // },
-          // {
-          //   icon: "GlobeIcon",
-          //   pageName: "critereGouvernance",
-          //   title: "Criteres de Gouvernance",
-          // },
           {
             icon: "SettingsIcon",
             pageName: "create_form_factuel",
@@ -178,26 +141,6 @@ export const useSideMenuStore = defineStore("sideMenu", {
             pageName: "Roles",
             title: "Rôles et permissions",
           },
-          // {
-          //   icon: "BarChart2Icon",
-          //   pageName: "UniteDeMesure",
-          //   title: "Unité de Mesure",
-          // },
-          // {
-          //   icon: "BarChart2Icon",
-          //   pageName: "KeyValue",
-          //   title: "Clé Valeur Indicateur",
-          // },
-          // {
-          //   icon: "BarChart2Icon",
-          //   pageName: "CategoriesIndicateurs",
-          //   title: "Catégories d'indicateurs",
-          // },
-          // {
-          //   icon: "BarChart2Icon",
-          //   pageName: "Sites",
-          //   title: "Sites",
-          // },
         ],
       },
     ],

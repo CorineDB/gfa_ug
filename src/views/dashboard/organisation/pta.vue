@@ -41,7 +41,12 @@
                 <span v-if="pta.isTache" class="text-sm text-red-600"> {{ pta.code }}</span>
               </td>
               <td>
-                <button
+                <select v-if="pta.isTache" class="form-select form-select-sm mt-2 w-5/6" aria-label=".form-select-sm example" @change="togglesuivie(pta)">
+                  <option value="0">0%</option>
+                  <option value="50">50%</option>
+                  <option value="100">100%</option>
+                </select>
+                <!-- <button
                   v-if="pta.isTache"
                   @click="togglesuivie(pta)"
                   class="flex items-center justify-between px-1 text-white transition-all rounded-full shadow w-14 h-7"
@@ -57,7 +62,7 @@
                       'translate-x-full': pta.poidsActuel > 0 || translatetoggle || tabletoggle[pta.id] == 1,
                     }"
                   ></div>
-                </button>
+                </button> -->
               </td>
             </tr>
           </tbody>
@@ -1364,7 +1369,7 @@ export default {
       let data = {};
 
       data = {
-        organisationId: this.$route.params.ongId,
+        //organisationId: this.$route.params.ongId,
         annee: datas,
       };
       this.getPta(data);

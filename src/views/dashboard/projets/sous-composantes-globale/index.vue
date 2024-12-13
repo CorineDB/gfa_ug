@@ -14,6 +14,7 @@ export default {
   },
   data() {
     return {
+      messageErreur: {},
       projets: [],
       projetId: {},
       composants: [],
@@ -94,22 +95,21 @@ export default {
         });
     },
     modifierSousComposante(data) {
-      console.log('data' ,data)
+      this.messageErreur = {};
       this.labels = "Modifier";
       this.showModal = true;
       this.update = true;
-      
+
       this.formData.nom = data.nom;
       this.formData.poids = data.poids;
       this.formData.pret = data.pret;
       this.formData.composanteId = data.composanteId;
       this.formData.budgetNational = data.budgetNational;
-      console.log('formData' ,this.formData)
+
       this.sousComposantId.id = data.id;
-      console.log('sousComposantId.id' , this.formData)
-    
     },
     addSousComposants() {
+      this.messageErreur = {};
       this.showModal = true;
       this.isUpdate = false;
       this.formData.composanteId = this.composantsId.id;
@@ -134,6 +134,11 @@ export default {
           })
           .catch((error) => {
             this.isLoading = false;
+            if (error.response && error.response.data && error.response.data.errors) {
+              this.messageErreur = error.response.data.errors;
+            } else {
+              toast.error("Une erreur inconnue s'est produite");
+            }
             toast.error(error.message);
           });
       } else {
@@ -153,6 +158,11 @@ export default {
           })
           .catch((error) => {
             this.isLoading = false;
+            if (error.response && error.response.data && error.response.data.errors) {
+              this.messageErreur = error.response.data.errors;
+            } else {
+              toast.error("Une erreur inconnue s'est produite");
+            }
             toast.error("Erreur lors de la modification");
           });
       }
@@ -180,7 +190,7 @@ export default {
 
           this.composantsId.id = this.composants[0].id;
           this.composantsId.nom = this.composants[0].nom;
-          
+
           // if (Object.keys(this.composantsId).length === 0) {
           //
           //   alert("ok");
@@ -351,14 +361,22 @@ export default {
     </ModalHeader>
     <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
       <InputForm v-model="formData.nom" class="col-span-12" type="text" required="required" placeHolder="Nom de l'organisation" label="Nom" />
+      <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
+
       <InputForm v-model="formData.poids" class="col-span-12" type="number" required="required" placeHolder="Poids de l'activité " label="Poids" />
-      <InputForm v-model="formData.pret" class="col-span-12" type="number" required="required" placeHolder="Fond propre" label="Fond propre" />
+      <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.poids">{{ messageErreur.poids }}</p>
+
+      <InputForm v-model="formData.pret" class="col-span-12" type="number" required="required" placeHolder="Fond propre" label="Montant financé" />
+      <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pret">{{ messageErreur.pret }}</p>
+
       <div class="flex col-span-12">
         <v-select class="w-full" :reduce="(composant) => composant.id" v-model="formData.composanteId" label="nom" :options="composants">
           <template #search="{ attributes, events }">
             <input class="vs__search form-input" :required="!formData.composanteId" v-bind="attributes" v-on="events" />
           </template>
         </v-select>
+        <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.composanteId">{{ messageErreur.composanteId }}</p>
+
         <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-bold duration-100 ease-linear -translate-y-3 bg-white _font-medium form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OutComes</label>
       </div>
 

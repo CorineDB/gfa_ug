@@ -1,45 +1,34 @@
-clearObjectValues $h modifierActivite Object.keys(this.projetId).length getListeProjet
-getActiviteById getComposantById getProjetById  addTache modifierTache supprimerTache 
-sendForm deleteTache
-
+addProjet sendForm modifierProjet isUpdate showCloseModal resetForm showModal messageNom PtaGlobal
 
 {
-    "id": "BaGpzRqdQqvrla2BxyWZ0b8XNkPVpoMeP74E1OwA5JYG6zgeLDR9djnKyXVYJO05",
-    "nom": "terd",
-    "codePta": "2.5.1.12.0.0",
-    "poids": 122,
-    "poidsActuel": 0,
-    "type": "pta",
-    "pret": 222,
-    "position": 0,
-    "budgetNational": 12,
-    "depenses": 0,
-    "description": null,
-    "statut": -2,
-    "tep": 0,
-    "tef": 0,
-    "durees": [
-        {
-            "id": "KR8rOaqQ4DmNv8PzQyrXK0Z7Agq9wxBwl4EeJaVlRMOp1dGjW6Ynb3Lk24wlGJ6p",
-            "debut": "2024-12-05",
-            "fin": "2024-12-07",
-            "dureeable_type": "App\\Models\\Activite",
-            "dureeable_id": 33,
-            "created_at": "2024-12-11T17:44:21.000000Z",
-            "updated_at": "2024-12-11T17:44:21.000000Z",
-            "deleted_at": null
-        }
+    "nom": [
+      "Le nom du projet est obligatoire."
     ],
-    "composanteId": "YL2V1ZEB7nqlp804rmOKoAPbRzEjJwxeDaGDgyvkM1Le936BYW2QVZdNv4m6bQGn",
-    "projet_owner": {
-        "id": 36,
-        "sigle": "BATAME",
-        "code": 12,
-        "nom": "BATAME"
-    },
-    "bailleur": null,
-    "debut": "2024-12-05",
-    "fin": "2024-12-07",
-    "taches": [],
-    "created_at": "2024-12-11 05:44:21"
-}
+    "couleur": [
+      "La couleur du projet est obligatoire."
+    ],
+    "debut": [
+      "La date de début du programme est obligatoire."
+    ],
+    "fin": [
+      "La date de fin du programme est obligatoire."
+    ],
+    "pays": [
+      "The pays field is required."
+    ],
+    "organisationId": [
+      "The organisation id field is required."
+    ],
+    "nombreEmploie": [
+      "The nombre emploie must be an integer."
+    ],
+    "budgetNational": [
+      "The budget national must be an integer."
+    ],
+    "pret": [
+      "Le pret effectué du projet est obligatoire."
+    ],
+    "sites": [
+      "The sites field is required."
+    ]
+  }

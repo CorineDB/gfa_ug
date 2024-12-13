@@ -14,6 +14,7 @@ export default {
   },
   data() {
     return {
+      messageErreur: {},
       projets: [],
       projetId: "",
       composants: [],
@@ -97,6 +98,7 @@ export default {
         });
     },
     modifierComposante(data) {
+      this.messageErreur = {};
       console.log(data);
       this.labels = "Modifier";
       this.showModal = true;
@@ -138,6 +140,11 @@ export default {
           .catch((error) => {
             console.log(error);
             this.isLoading = false;
+            if (error.response && error.response.data && error.response.data.errors) {
+              this.messageErreur = error.response.data.errors;
+            } else {
+              toast.error("Une erreur inconnue s'est produite");
+            }
             toast.error(error.message);
           });
       } else {
@@ -158,6 +165,11 @@ export default {
           .catch((error) => {
             this.isLoading = false;
             toast.error("Erreur lors de la modification");
+            if (error.response && error.response.data && error.response.data.errors) {
+              this.messageErreur = error.response.data.errors;
+            } else {
+              toast.error("Une erreur inconnue s'est produite");
+            }
           });
       }
     },
@@ -322,7 +334,11 @@ export default {
     </ModalHeader>
     <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
       <InputForm v-model="formData.nom" class="col-span-12" type="text" required="required" placeHolder="Nom de l'organisation" label="Nom" />
+      <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
+
       <InputForm v-model="formData.poids" class="col-span-12" type="number" required="required" placeHolder="Poids de l'activité " label="Poids" />
+      <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.poids">{{ messageErreur.poids }}</p>
+
       <InputForm v-model="formData.pret" class="col-span-12 mb-2" type="number" label="Montant financé" />
       <div class="flex col-span-12">
         <v-select class="w-full" :reduce="(projet) => projet.id" v-model="formData.projetId" label="nom" :options="projets">
