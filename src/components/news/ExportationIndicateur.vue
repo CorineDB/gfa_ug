@@ -50,6 +50,7 @@ export default {
         .join(",");
     },
     async generateExcelTable() {
+      console.log(this.data);
       const workbook = new ExcelJS.Workbook();
       const sheet = workbook.addWorksheet("Rapport");
 
@@ -121,7 +122,7 @@ export default {
 
       // Ajouter les données dynamiques
       this.data.forEach((result, rowIndex) => {
-        const row = [result.nom, `Ind ${result.indice}`, result.indicateur.nom, result.indicateur.description || "", result.indicateur.situation_reference || "", ...this.years.map((year) => result.indicateur.valeursCible.find((v) => v.annee === year)?.valeurCible || ""), result.indicateur.totalCibles || "", ...this.years.map((year) => result.indicateur.valeursCible.find((v) => v.annee === year)?.valeur_realiser || ""), result.indicateur.totalRealisations || "", result.indicateur.taux_realisation || "", result.indicateur.sources_de_donnee || "", result.indicateur.methode_de_la_collecte || "", result.indicateur.frequence_de_la_collecte || "", result.indicateur.responsable || "", "Actions"];
+        const row = [result.nom, `Ind ${result.indice}`, result.indicateurs[0].nom, result.indicateurs[0].description || "", result.indicateurs[0].situation_reference || "", ...this.years.map((year) => result.indicateurs[0].valeursCible.find((v) => v.annee === year)?.valeurCible || ""), result.indicateurs[0].totalCibles || "", ...this.years.map((year) => result.indicateurs[0].valeursCible.find((v) => v.annee === year)?.valeur_realiser || ""), result.indicateurs[0].totalRealisations || "", result.indicateurs[0].taux_realisation || "", result.indicateurs[0].sources_de_donnee || "", result.indicateurs[0].methode_de_la_collecte || "", result.indicateurs[0].frequence_de_la_collecte || "", result.indicateurs[0].responsable || "", "Actions"];
         sheet.addRow(row).eachCell((cell) => Object.assign(cell, defaultStyle));
       });
 

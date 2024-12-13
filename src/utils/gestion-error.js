@@ -7,7 +7,7 @@ export const messageError = (error) => {
 };
 
 export function getAllErrorMessages(errorResponse) {
-  if (errorResponse.status == 500 || errorResponse.status == 404) {
+  if (errorResponse.status == 500 || errorResponse.status == 404 || errorResponse.status == 403) {
     if (errorResponse.response.data.message) {
       return errorResponse.response.data.message;
     } else {

@@ -447,7 +447,7 @@ onMounted(async () => {
 
             <div class="flex flex-col items-end justify-end w-full border-t border-slate-200/60 dark:border-darkmode-400">
               <div class="flex items-center justify-end w-full border-t border-slate-200/60 dark:border-darkmode-400">
-                <button v-if="(ong.factuel && ong.factuel[0].statut) || (ong.factuel && ong.factuel[0].pourcentage_evolution >= 100)" @click.self="goToPageSyntheseWithOng(ong.id)" class="flex items-center justify-center w-full gap-2 py-2.5 flex-1 text-base font-medium bg-outline-primary">Fiche de synthèse <ArrowRightIcon class="ml-2 size-5" /></button>
+                <button v-if="ong.factuel && ong.factuel[0].statut && ong.factuel && ong.factuel[0].pourcentage_evolution >= 100" @click.self="goToPageSyntheseWithOng(ong.id)" class="flex items-center justify-center w-full gap-2 py-2.5 flex-1 text-base font-medium bg-outline-primary">Fiche de synthèse <ArrowRightIcon class="ml-2 size-5" /></button>
                 <button v-else class="w-full gap-2 py-[22px]"></button>
                 <!-- <button class="flex items-center justify-center w-full gap-2 py-2.5 text-base font-medium bg-outline-primary">Marqueur de gouvernance <ArrowRightIcon class="ml-2 size-5" /></button> -->
               </div>
