@@ -82,12 +82,11 @@ export default {
         { width: 20 }, // Méthode de collecte
         { width: 20 }, // Fréquence
         { width: 20 }, // Responsable
-        { width: 20 }, // Actions
       ];
       sheet.columns = columnWidths;
 
       // Ajouter les en-têtes
-      const headerRow1 = ["Résultats escomptés", "Indice", "Indicateurs", "Description de l'indicateur", "Situation de référence", ...Array(this.years.length).fill("Cibles"), "Total", ...Array(this.years.length).fill("Réalisation"), "Total", "Taux de réalisation", "Sources de données", "Méthode de collecte", "Fréquence", "Responsable", "Actions"];
+      const headerRow1 = ["Résultats escomptés", "Indice", "Indicateurs", "Description de l'indicateur", "Situation de référence", ...Array(this.years.length).fill("Cibles"), "Total", ...Array(this.years.length).fill("Réalisation"), "Total", "Taux de réalisation", "Sources de données", "Méthode de collecte", "Fréquence", "Responsable"];
       const headerRow2 = [null, null, null, null, null, ...this.years, null, ...this.years, null, null, null, null, null, null];
 
       // Fusionner les cellules pour les en-têtes complexes
@@ -122,8 +121,31 @@ export default {
 
       // Ajouter les données dynamiques
       this.data.forEach((result, rowIndex) => {
-        const row = [result.nom, `Ind ${result.indice}`, result.indicateurs[0].nom, result.indicateurs[0].description || "", result.indicateurs[0].situation_reference || "", ...this.years.map((year) => result.indicateurs[0].valeursCible.find((v) => v.annee === year)?.valeurCible || ""), result.indicateurs[0].totalCibles || "", ...this.years.map((year) => result.indicateurs[0].valeursCible.find((v) => v.annee === year)?.valeur_realiser || ""), result.indicateurs[0].totalRealisations || "", result.indicateurs[0].taux_realisation || "", result.indicateurs[0].sources_de_donnee || "", result.indicateurs[0].methode_de_la_collecte || "", result.indicateurs[0].frequence_de_la_collecte || "", result.indicateurs[0].responsable || "", "Actions"];
-        sheet.addRow(row).eachCell((cell) => Object.assign(cell, defaultStyle));
+        result.indicateurs.forEach((indicateur) => {
+          const row = [
+            result.nom,
+            `Ind ${indicateur.indice || ""}`,
+            indicateur.nom || "",
+            indicateur.description || "",
+            indicateur.situation_reference || "",
+            ...this.years.map((year) => {
+              const cible = indicateur.valeursCible.find((v) => v.annee === year)?.valeurCible || "";
+              return cible;
+            }),
+            indicateur.totalCibles || "",
+            ...this.years.map((year) => {
+              const realisation = indicateur.valeursCible.find((v) => v.annee === year)?.valeur_realiser || "";
+              return realisation;
+            }),
+            indicateur.totalRealisations || "",
+            indicateur.taux_realisation || "",
+            indicateur.sources_de_donnee || "",
+            indicateur.methode_de_la_collecte || "",
+            indicateur.frequence_de_la_collecte || "",
+            indicateur.responsable || "",
+          ];
+          sheet.addRow(row).eachCell((cell) => Object.assign(cell, defaultStyle));
+        });
       });
 
       // Sauvegarder le fichier Excel
