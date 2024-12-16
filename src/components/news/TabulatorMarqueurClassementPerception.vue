@@ -20,9 +20,6 @@
         <tr v-for="(question, qIndex) in principe.questions_de_gouvernance" :key="question.id">
           <!-- <td class="py-2 font-semibold bg-slate-200">QOP{{}}</td> -->
           <td class="py-2 bg-slate-200">{{ question.nom }}</td>
-          <!-- <td class="py-2" :style="{ 'background-color': getColorForValue(0) }">{{ question.score_ranges["0-0.25"]?.organisations.map((ong) => ong.nom).join(", ") }}</td>
-          <td class="py-2" :style="{ 'background-color': getColorForValue(0.3) }">{{ question.score_ranges["0.25-0.5"]?.organisations.map((ong) => ong.nom).join(", ") }}</td>
-          <td class="py-2" :style="{ 'background-color': getColorForValue(0.6) }">{{ question.score_ranges["0.5-0.75"]?.organisations.map((ong) => ong.nom).join(", ") }}</td> -->
           <td class="py-2" :style="{ 'background-color': getColorForValue(0) }">
             <div class="text-center">
               <Tippy
