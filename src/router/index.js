@@ -79,6 +79,7 @@ import UpdateFormPerception from "../views/dashboard/UpdateFormPerception.vue";
 import UpdateFormFactuel from "../views/dashboard/UpdateFormFactuel.vue";
 import SurveyFormView from "../views/dashboard/SurveyFormView.vue";
 import DetailEvaluationIndividuel from "../views/dashboard/DetailEvaluationIndividuel.vue";
+import FicheMarqueurClassement from "../views/dashboard/FicheMarqueurClassement.vue";
 
 const routes = [
   {
@@ -256,6 +257,11 @@ const routes = [
         path: "/marqueur/:e",
         name: "FicheMarqueur",
         component: FicheMarqueur,
+      },
+      {
+        path: "/marqueur-classemnt/:e",
+        name: "FicheMarqueurClassement",
+        component: FicheMarqueurClassement,
       },
       {
         path: "/marqueur",

@@ -1,31 +1,25 @@
 <template>
-  <table class="w-full max-w-screen-xl my-10 border-collapse table-auto border-slate-500" cellpadding="4" cellspacing="0">
-    <thead>
-      <tr :style="{ 'background-color': getColorForValue(indicegouvernace) }">
-        <th colspan="2" class="py-3 font-semibold text-center">INDICE FACTUEL DE GOUVERNANCE</th>
-      </tr>
-    </thead>
-    <thead>
+  <table class="w-full my-10 border-collapse table-auto border-slate-500" cellpadding="4" cellspacing="0">
+    <thead></thead>
+    <!-- <thead>
       <tr class="bg-white">
         <th class="py-3 font-semibold text-center">Code</th>
-        <th class="py-3 font-semibold text-right">
-          <span class="px-4 py-3" :style="{ 'background-color': getColorForValue(0) }"> Non oberservé [0-0,25] </span>
-          <span class="px-4 py-3" :style="{ 'background-color': getColorForValue(0.3) }"> Partiellement observé [0,25-0,50] </span>
-          <span class="px-4 py-3" :style="{ 'background-color': getColorForValue(0.6) }">Moyennement observé [0,50-0,75] </span>
-          <span class="px-4 py-3" :style="{ 'background-color': getColorForValue(1) }">Observé [0,75-1] </span>
-        </th>
       </tr>
-    </thead>
+    </thead> -->
     <thead class="text-white bg-blue-900">
       <tr>
         <th class="py-3 border border-slate-900">Principes</th>
         <th class="py-3 border border-slate-900">Critères</th>
+        <th class="px-4 py-3 text-black" :style="{ 'background-color': getColorForValue(0) }">Non oberservé [0-0,25]</th>
+        <th class="px-4 py-3 text-black" :style="{ 'background-color': getColorForValue(0.3) }">Partiellement observé [0,25-0,50]</th>
+        <th class="px-4 py-3 text-black" :style="{ 'background-color': getColorForValue(0.6) }">Moyennement observé [0,50-0,75]</th>
+        <th class="px-4 py-3 text-black" :style="{ 'background-color': getColorForValue(1) }">Observé [0,75-1]</th>
       </tr>
     </thead>
     <tbody>
       <template v-for="gouvernance in data" :key="gouvernance.id">
-        <tr :style="{ 'background-color': getColorForValue(gouvernance.indice_factuel) }">
-          <td colspan="2" class="font-semibold">{{ gouvernance.nom }}</td>
+        <tr>
+          <td colspan="6" class="font-semibold">{{ gouvernance.nom }}</td>
         </tr>
         <template v-for="categorie in gouvernance.categories_de_gouvernance" :key="categorie.id">
           <template v-for="(sousCategorie, scIndex) in categorie.categories_de_gouvernance" :key="sousCategorie.id">
@@ -39,6 +33,14 @@
                 <td class="" v-if="qIndex === 0" :rowspan="sousCategorie.questions_de_gouvernance.length">
                   {{ sousCategorie.nom }}
                 </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <!-- <td class="py-2" :style="{ 'background-color': getColorForValue(0) }">{{ sousCategorie?.score_ranges["0-0.25"]?.organisations.map((ong) => ong.nom).join(", ") }}</td>
+                <td class="py-2" :style="{ 'background-color': getColorForValue(0.3) }">{{ sousCategorie?.score_ranges["0.25-0.5"]?.organisations.map((ong) => ong.nom).join(", ") }}</td>
+                <td class="py-2" :style="{ 'background-color': getColorForValue(0.6) }">{{ sousCategorie?.score_ranges["0.5-0.75"]?.organisations.map((ong) => ong.nom).join(", ") }}</td>
+                <td class="py-2" :style="{ 'background-color': getColorForValue(1) }">{{ sousCategorie?.score_ranges["0.75-1"]?.organisations.map((ong) => ong.nom).join(", ") }}</td> -->
               </tr>
             </template>
           </template>
@@ -53,7 +55,6 @@ import { ref } from "vue";
 import { getColorForValue } from "../../utils/findColorIndicator";
 const props = defineProps({
   data: Array,
-  indicegouvernace: [Number, String],
 });
 </script>
 

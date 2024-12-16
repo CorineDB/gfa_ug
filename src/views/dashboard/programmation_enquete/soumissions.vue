@@ -36,6 +36,7 @@ const isLoadingData = ref(true);
 const isLoadingResultat = ref(true);
 const isCreate = ref(true);
 const loadingOption = ref(true);
+const loadingClassement = ref(true);
 const datas = ref([]);
 const statistiques = ref({});
 const resultatsSynthese = ref([]);
@@ -44,6 +45,7 @@ const currentOptionsPerception = ref({});
 const currentOrganisationsOptions = ref("");
 const yearSelectedOng = ref("");
 const ongSelectedScore = ref("");
+const ongClassements = ref([]);
 
 const createData = async () => {
   isLoading.value = true;
@@ -211,6 +213,9 @@ const goToPageSoumission = (Idsoumission) => {
 };
 const goToPageMarqueur = (Idsoumission) => {
   router.push({ name: "FicheMarqueur", params: { e: idEvaluation } });
+};
+const goToPageMarqueurClassement = () => {
+  router.push({ name: "FicheMarqueurClassement", params: { e: idEvaluation } });
 };
 const opendAddParticipant = () => {
   router.push({ name: "add_participant", query: { e: idEvaluation } });
@@ -408,13 +413,14 @@ onMounted(async () => {
       </div>
       <LoaderSnipper v-else />
 
-      <div v-if="statistiques.statut == 1" class="col-span-12 mt-8">
+      <div class="col-span-12 mt-8">
         <div class="flex items-center h-10 intro-y">
           <h2 class="mr-5 text-lg font-medium truncate">Fiches</h2>
         </div>
         <div class="grid grid-cols-12 gap-6 mt-5 text-lg font-medium">
           <div @click="goToPageSynthese" class="flex items-center justify-center col-span-12 gap-1 px-2 transition-all border-l-4 cursor-pointer border-l-primary box hover:shadow-md sm:col-span-4 intro-y"><button class="px-4 py-8">Fiches de Synthèse</button> <ArrowRightIcon class="size-5" /></div>
           <div @click="goToPageMarqueur" class="flex items-center justify-center col-span-12 gap-1 px-2 transition-all border-l-4 cursor-pointer border-l-primary box hover:shadow-md sm:col-span-4 intro-y"><button class="px-4 py-8">Marqueur de gouvernance</button> <ArrowRightIcon class="size-5" /></div>
+          <div @click="goToPageMarqueurClassement" class="flex items-center justify-center col-span-12 gap-1 px-2 transition-all border-l-4 cursor-pointer border-l-primary box hover:shadow-md sm:col-span-4 intro-y"><button class="px-4 py-8">Classement des organisations par indicateurs</button> <ArrowRightIcon class="size-5" /></div>
         </div>
       </div>
 
