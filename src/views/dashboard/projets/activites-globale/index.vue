@@ -8,6 +8,7 @@ import ActiviteService from "@/services/modules/activite.service";
 import InputForm from "@/components/news/InputForm.vue";
 import VButton from "@/components/news/VButton.vue";
 import ActivitiesComponent from "./activities.vue";
+import PlanDecaissementComponent from "./plan-decaissement.vue";
 import { helper as $h } from "@/utils/helper";
 
 import { toast } from "vue3-toastify";
@@ -16,6 +17,7 @@ export default {
     InputForm,
     VButton,
     ActivitiesComponent,
+    PlanDecaissementComponent
   },
   data() {
     return {
@@ -41,6 +43,7 @@ export default {
         budgetNational: 0,
       },
       composantsId: {},
+      composantId: "",
       sousComposantId: {},
       activiteId: {},
       labels: "Ajouter",
@@ -57,26 +60,29 @@ export default {
   },
   watch: {
     projetId(newValue, oldValue) {
-      if (this.projets.length > 0) {
-        console.log(newValue);
-
+      if (this.projets.length > 0 && (newValue != null && newValue != undefined)) {
         this.getProjetById(newValue.id);
       }
     },
     composantsId(newValue, oldValue) {
-      if (this.composants.length > 0) {
-        console.log("composantsId : ", newValue.id);
-        this.getComposantById(newValue.id);
-      }
-    },
-    sousComposantId(newValue, oldValue) {
-      if (this.sousComposants.length > 0) {
-        console.log("composantsId : ", newValue.id);
-        this.getComposantById(newValue.id);
+      if (newValue != null && newValue != undefined) {
+        this.composantId = newValue.id;
       }
     },
     composantId(newValue, oldValue) {
-      if (this.sousComposants.length > 0) {
+      if (this.composants.length > 0 && (newValue != null && newValue != undefined)) {
+        //this.getComposantById(newValue);
+      }
+    },
+    
+    sousComposantId(newValue, oldValue) {
+      if (this.sousComposants.length > 0 && (newValue != null && newValue != undefined)) {
+        console.log("composantsId : ", newValue.id);
+        //this.getComposantById(newValue.id);
+      }
+    },
+    composantId(newValue, oldValue) {
+      if (this.sousComposants.length > 0 || newValue) {
         this.getComposantById(newValue.id);
       }
     },
@@ -259,13 +265,19 @@ export default {
     getComposantById(data) {
       ComposantesService.detailComposant(data)
         .then((data) => {
-          this.activites = data.data.data.activites;
 
           if (data.data.data.souscomposantes.length > 0) {
             this.sousComposants = data.data.data.souscomposantes;
-            // this.sousComposantId = this.sousComposants[0];
             this.haveSousComposantes = true;
+            this.sousComposantsId = this.sousComposants[0].id;
+
+            /* if ((this.sousComposantsId == "") && (this.sousComposants.length > 0) ) {
+              this.sousComposantsId = this.sousComposants[0].id;
+            } */
+
           }
+
+          //this.activites = data.data.data.activites;
         })
         .catch((error) => {
           console.log(error);
@@ -277,7 +289,7 @@ export default {
       this.seePlan = false;
       this.seeActivite = true;
       this.seeStatistique = false;
-      this.fetchActivites(this.composanteId)
+      //this.fetchActivites(this.composanteId)
     },
 
     seeStats() {
@@ -398,7 +410,8 @@ export default {
     </div>
   </div>
 
-  <ActivitiesComponent v-if="seeActivite" :projetsId="projetId" :composantId="composantsId" :sousComposantsId="sousComposantsId" @getProjetById="getProjetById"/>
+  <ActivitiesComponent v-if="seeActivite" :projetsId="projetId" :composantId="composantId" :sousComposantsId="sousComposantsId" @getProjetById="getProjetById"/>
+  <PlanDecaissementComponent v-if="seePlan" :projetsId="projetId.id" :composantId="composantId" :sousComposantsId="sousComposantsId"  @getProjetById="getProjetById"/>
 
   <div v-if="false == true">
   <!-- Titre de la page -->

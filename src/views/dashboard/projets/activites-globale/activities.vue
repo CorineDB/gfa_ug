@@ -16,8 +16,9 @@ export default {
     VButton,
     NoRecordsMessage
   },
-  props: {
 
+  emits: ['getProjetById'], // Declare the custom event
+  props: {
     sousComposantsId: {
       type: String,
       required: true,
@@ -77,26 +78,32 @@ export default {
       //}
     },
     composantId(newValue, oldValue) {
-      this.composantsId = newValue;
+      if (newValue != null && newValue != undefined) {
+        this.composantsId = newValue;
+      }
     },
     projetsId(newValue, oldValue) {
-      this.projetId = newValue;
+      if (newValue != null && newValue != undefined) {
+        this.projetId = newValue.id;
+      }
     },
     composantsId(newValue, oldValue) {
-      //if (this.composants.length > 0) {
+      if (newValue != null && newValue != undefined) {
         this.getComposantById(newValue);
-      //}
+      }
     },
     sousComposantId(newValue, oldValue) {
       //if (this.sousComposants.length > 0) {
-      if (newValue!=null) {
+      if (newValue!=null && newValue != undefined) {
         this.getComposantById(newValue);
         //this.getComposantById(newValue);
       }
       //}
     },
     sousComposantsId(newValue, oldValue) {
-      this.sousComposantId = newValue;
+      if (newValue != null && newValue != undefined) {
+        this.sousComposantId = newValue;
+      }
     }
   },
 
@@ -221,7 +228,7 @@ export default {
     triggerGetProjetDetailsById(data = null) {
       // Emit the event with the projetId as payload
       console.log("Emit");
-      this.$emit('getProjetById', data ?? this.projetsId);
+      this.$emit('getProjetById', data ?? this.projetId);
     },
     getComposantById(data) {
       ComposantesService.detailComposant(data)
