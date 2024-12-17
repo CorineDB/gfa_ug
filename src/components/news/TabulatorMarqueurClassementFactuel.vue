@@ -33,14 +33,54 @@
                 <td class="" v-if="qIndex === 0" :rowspan="sousCategorie.questions_de_gouvernance.length">
                   {{ sousCategorie.nom }}
                 </td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <!-- <td class="py-2" :style="{ 'background-color': getColorForValue(0) }">{{ sousCategorie?.score_ranges["0-0.25"]?.organisations.map((ong) => ong.nom).join(", ") }}</td>
-                <td class="py-2" :style="{ 'background-color': getColorForValue(0.3) }">{{ sousCategorie?.score_ranges["0.25-0.5"]?.organisations.map((ong) => ong.nom).join(", ") }}</td>
-                <td class="py-2" :style="{ 'background-color': getColorForValue(0.6) }">{{ sousCategorie?.score_ranges["0.5-0.75"]?.organisations.map((ong) => ong.nom).join(", ") }}</td>
-                <td class="py-2" :style="{ 'background-color': getColorForValue(1) }">{{ sousCategorie?.score_ranges["0.75-1"]?.organisations.map((ong) => ong.nom).join(", ") }}</td> -->
+                <td class="py-2" :style="{ 'background-color': getColorForValue(0) }">
+                  <div class="text-center">
+                    <Tippy
+                      class="tooltip"
+                      :content="organisationsTooltipContent(sousCategorie.score_ranges['0-0.25']?.organisations)"
+                      :options="{
+                        theme: 'light',
+                      }"
+                      >{{ sousCategorie.score_ranges["0-0.25"]?.organisations.map((ong) => ong.nom).join(", ") }}</Tippy
+                    >
+                  </div>
+                </td>
+                <td class="py-2" :style="{ 'background-color': getColorForValue(0.3) }">
+                  <div class="text-center">
+                    <Tippy
+                      class="tooltip"
+                      :content="organisationsTooltipContent(sousCategorie.score_ranges['0.25-0.5']?.organisations)"
+                      :options="{
+                        theme: 'light',
+                      }"
+                      >{{ sousCategorie.score_ranges["0.25-0.5"]?.organisations.map((ong) => ong.nom).join(", ") }}</Tippy
+                    >
+                  </div>
+                </td>
+                <td class="py-2" :style="{ 'background-color': getColorForValue(0.6) }">
+                  <div class="text-center">
+                    <Tippy
+                      class="tooltip"
+                      :content="organisationsTooltipContent(sousCategorie.score_ranges['0.5-0.75']?.organisations)"
+                      :options="{
+                        theme: 'light',
+                      }"
+                      >{{ sousCategorie.score_ranges["0.5-0.75"]?.organisations.map((ong) => ong.nom).join(", ") }}</Tippy
+                    >
+                  </div>
+                </td>
+                <td class="py-2" :style="{ 'background-color': getColorForValue(1) }">
+                  <div class="text-center">
+                    <Tippy
+                      class="tooltip"
+                      :content="organisationsTooltipContent(sousCategorie.score_ranges['0.75-1']?.organisations)"
+                      :options="{
+                        theme: 'light',
+                      }"
+                      >{{ sousCategorie.score_ranges["0.75-1"]?.organisations.map((ong) => ong.nom).join(", ") }}</Tippy
+                    >
+                  </div>
+                </td>
               </tr>
             </template>
           </template>
@@ -56,6 +96,11 @@ import { getColorForValue } from "../../utils/findColorIndicator";
 const props = defineProps({
   data: Array,
 });
+
+function organisationsTooltipContent(ong) {
+  if (!ong) return "";
+  return ong.map((org) => `${org.nom} : ${org.moyenne_ponderee}`).join(",");
+}
 </script>
 
 <style scoped>

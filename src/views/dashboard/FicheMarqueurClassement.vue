@@ -21,22 +21,6 @@ const ongClassements = ref({});
 const isLoadingData = ref(false);
 const loadingClassement = ref(false);
 
-const getDataCollection = async () => {
-  isLoadingData.value = true;
-  await SyntheseService.getForEvaluation(idEvaluation)
-    .then((result) => {
-      dataForAllOrganisation.value = result.data.data;
-      datasFactuel.value = dataForAllOrganisation.value.analyse_factuel;
-      datasPerception.value = dataForAllOrganisation.value.analyse_perception;
-      isLoadingData.value = false;
-    })
-    .catch((e) => {
-      isLoadingData.value = false;
-      console.error(e);
-      toast.error("Une erreur est survenue: Resultats des synthese .");
-    });
-};
-
 const getOngClassement = async () => {
   loadingClassement.value = true;
   await SyntheseService.getOngClassement(idEvaluation)
@@ -51,28 +35,9 @@ const getOngClassement = async () => {
     });
 };
 
-const organisationsOfEvaluation = computed(() =>
-  dataForAllOrganisation.value.map((org) => ({
-    id: org.id,
-    nom: org.nom,
-    nom_point_focal: org.nom_point_focal,
-    prenom_point_focal: org.prenom_point_focal,
-  }))
-);
-
 const currentOrganisation = computed(() => dataForAllOrganisation.value.find((org) => org.id == idSelectStructure.value));
-
-const currentFactuel = computed(() => currentOrganisation.value?.factuel);
-const currentPerception = computed(() => currentOrganisation.value?.perception);
-
-const changeStructure = () => {
-  organizationId.value = idSelectStructure.value;
-};
-
 onMounted(async () => {
-  await getDataCollection();
   getOngClassement();
-  idSelectStructure.value = dataForAllOrganisation.value[0].id;
 });
 </script>
 
