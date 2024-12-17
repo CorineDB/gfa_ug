@@ -7,6 +7,7 @@ import ComposantesService from "@/services/modules/composante.service";
 import ActiviteService from "@/services/modules/activite.service";
 import InputForm from "@/components/news/InputForm.vue";
 import VButton from "@/components/news/VButton.vue";
+import ActivitiesComponent from "./activities.vue";
 import { helper as $h } from "@/utils/helper";
 
 import { toast } from "vue3-toastify";
@@ -14,6 +15,7 @@ export default {
   components: {
     InputForm,
     VButton,
+    ActivitiesComponent,
   },
   data() {
     return {
@@ -44,6 +46,10 @@ export default {
       labels: "Ajouter",
       showDeleteModal: false,
       deleteLoader: false,
+
+      seeStatistique: false,
+      seePlan: false,
+      seeActivite: true,
     };
   },
   computed: {
@@ -59,13 +65,13 @@ export default {
     },
     composantsId(newValue, oldValue) {
       if (this.composants.length > 0) {
-        console.log("composantsId", newValue.id);
+        console.log("composantsId : ", newValue.id);
         this.getComposantById(newValue.id);
       }
     },
     sousComposantId(newValue, oldValue) {
       if (this.sousComposants.length > 0) {
-        console.log("composantsId", newValue.id);
+        console.log("composantsId : ", newValue.id);
         this.getComposantById(newValue.id);
       }
     },
@@ -267,6 +273,24 @@ export default {
     },
 
     filter() {},
+    seeActivities() {
+      this.seePlan = false;
+      this.seeActivite = true;
+      this.seeStatistique = false;
+      this.fetchActivites(this.composanteId)
+    },
+
+    seeStats() {
+      this.seePlan = false;
+      this.seeActivite = false;
+      this.seeStatistique = true;
+    },
+
+    seePlanDecaissement() {
+      this.seePlan = true;
+      this.seeActivite = false;
+      this.seeStatistique = false;
+    },
   },
 
   created() {},
@@ -277,6 +301,41 @@ export default {
 </script>
 
 <template>
+
+  <div class="flex items-center justify-between my-2 flex-wrap sm:flex-nowrap">
+    <div class="flex space-x-2  md:space-x-4 w-full sm:w-4/5  ">
+      <span :class="{ 'border-primary border-b-8 font-bold': seeActivite }" @click="seeActivities()"
+        class="inline-block cursor-pointer text-xs sm:text-sm  md:text-base uppercase border-primary py-2 mb-2">Activités</span>
+      <span :class="{ 'border-primary border-b-8 font-bold': seePlan }" @click="seePlanDecaissement()"
+        class="inline-block cursor-pointer text-xs sm:text-sm  md:text-base uppercase py-2 mb-2">Plan de décaissement
+      </span>
+
+      <span :class="{ 'border-primary border-b-8 font-bold': seeStatistique }" @click="seeStats()"
+        class="inline-block cursor-pointer text-xs sm:text-sm  md:text-base uppercase py-2 mb-2">Statistiques
+      </span>
+    </div>
+    <div>
+      <button v-if="seeActivite && activiteAdd" @click="addActivite" title="ajouter une activite"
+        class="px-4 py-2 flex overflow-hidden items-center text-xs font-semibold text-white uppercase bg-primary focus:outline-none focus:shadow-outline">
+        <span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+            style="fill: rgba(255, 255, 255, 1); transform: ; msfilter: ">
+            <path d="M19 11h-6V5h-2v6H5v2h6v6h2v-6h6z"></path>
+          </svg></span>
+        <span class="mx-2 text-xs font-semibold">ajouter </span>
+      </button>
+
+      <button v-if="seePlan && planDeDecaissement" @click="addPlan" title="ajouter"
+        class="p-2 overflow-hidden flex space-x-2 items-center text-xs font-semibold text-white uppercase  bg-primary focus:outline-none focus:shadow-outline">
+        <span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+            style="fill: rgba(255, 255, 255, 1); transform: ; msfilter: ">
+            <path d="M19 11h-6V5h-2v6H5v2h6v6h2v-6h6z"></path>
+          </svg></span>
+        <span class="mx-2 text-xs  md:text-sm font-semibold">ajouter</span>
+      </button>
+    </div>
+  </div>
   <h2 class="mt-10 text-lg font-medium intro-y">Activités</h2>
 
   <!-- Filtre -->
@@ -339,6 +398,9 @@ export default {
     </div>
   </div>
 
+  <ActivitiesComponent v-if="seeActivite" :projetsId="projetId" :composantId="composantsId" :sousComposantsId="sousComposantsId" @getProjetById="getProjetById"/>
+
+  <div v-if="false == true">
   <!-- Titre de la page -->
   <div class="grid grid-cols-12 gap-6 mt-5">
     <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
@@ -529,6 +591,7 @@ export default {
       </div>
     </ModalBody>
   </Modal>
+</div>
 </template>
 
 <style></style>
