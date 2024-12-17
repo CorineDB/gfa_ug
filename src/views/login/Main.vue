@@ -105,6 +105,7 @@ import { mapState, mapActions, mapMutations, mapGetters } from "vuex";
 import axios from "axios";
 import VButton from "@/components/news/VButton.vue";
 import { API_BASE_URL } from "@/services/configs/environment.js";
+import { toast } from "vue3-toastify";
 
 export default {
   name: "IndexPage",
@@ -143,7 +144,7 @@ export default {
     ...mapActions({
       authentification: "auths/LOGIN",
     }),
-
+    toast,
     gotoValidate() {
       this.showSend = true;
     },
@@ -178,6 +179,11 @@ export default {
             })
             .catch((error) => {
               console.log(error);
+              if (error.response.status == 422) {
+                toast.error("Email ou mot de passe incorrect  reesayer !!!");
+              } else {
+                toast.error("Une erreur s'est produite   reesayer !!!");
+              }
               this.chargement = false;
             });
         } else {
