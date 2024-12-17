@@ -274,8 +274,8 @@ onMounted(async () => {
 </script>
 
 <template>
-  <h2 class="mt-10 text-lg font-medium intro-y">Soumissions par organisations</h2>
-  <div class="grid grid-cols-12 gap-6 mt-5">
+  <h2 class="mt-4 text-lg font-medium intro-y">Soumissions par organisations</h2>
+  <div class="grid grid-cols-12 gap-6 mt-1">
     <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
       <!-- <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
         <div class="relative w-56 text-slate-500">
@@ -447,7 +447,7 @@ onMounted(async () => {
 
             <div class="flex flex-col items-end justify-end w-full border-t border-slate-200/60 dark:border-darkmode-400">
               <div class="flex items-center justify-end w-full border-t border-slate-200/60 dark:border-darkmode-400">
-                <button v-if="(ong.factuel && ong.factuel[0].statut) || (ong.factuel && ong.factuel[0].pourcentage_evolution >= 100)" @click.self="goToPageSyntheseWithOng(ong.id)" class="flex items-center justify-center w-full gap-2 py-2.5 flex-1 text-base font-medium bg-outline-primary">Fiche de synthèse <ArrowRightIcon class="ml-2 size-5" /></button>
+                <button v-if="ong.factuel && ong.factuel[0].statut && ong.factuel && ong.factuel[0].pourcentage_evolution >= 100" @click.self="goToPageSyntheseWithOng(ong.id)" class="flex items-center justify-center w-full gap-2 py-2.5 flex-1 text-base font-medium bg-outline-primary">Fiche de synthèse <ArrowRightIcon class="ml-2 size-5" /></button>
                 <button v-else class="w-full gap-2 py-[22px]"></button>
                 <!-- <button class="flex items-center justify-center w-full gap-2 py-2.5 text-base font-medium bg-outline-primary">Marqueur de gouvernance <ArrowRightIcon class="ml-2 size-5" /></button> -->
               </div>

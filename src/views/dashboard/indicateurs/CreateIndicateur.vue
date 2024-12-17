@@ -179,7 +179,7 @@
                     <label class="form-label">Catégorie</label>
                     <TomSelect v-model="payload.categorieId" name="category" :options="{ placeholder: 'Selectionez une catégorie' }" class="w-full">
                       <option value=""></option>
-                      <option v-for="(categorie, index) in categories" :key="categorie.id" :value="categorie.id">{{ categorie.type }} {{ categorie.indice }} {{ categorie.nom }}</option>
+                      <option v-for="(categorie, index) in categories" :key="categorie.id" :value="categorie.id">{{ truncateText(categorie.type + " " + categorie.indice + " " + categorie.nom) }}</option>
                     </TomSelect>
                     <div v-if="errors.categorieId" class="mt-2 text-danger">{{ getFieldErrors(errors.categorieId) }}</div>
                   </div>
@@ -722,6 +722,13 @@ const dataAvailable = computed(() => {
   else return paginatedData.value;
 });
 
+const truncateText = (text, maxLength = 100) => {
+  if (text.length > maxLength) {
+    return text.slice(0, maxLength) + "...";
+  }
+  return text;
+};
+
 watch(
   array_value_keys,
   (newKeys) => {
@@ -757,5 +764,13 @@ onMounted(async () => {
 .menu-leave-to {
   opacity: 0;
   transform: translateX(-30px);
+}
+
+.truncate-option {
+  display: inline-block;
+  max-width: 150px; /* Ajustez la largeur selon vos besoins */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>

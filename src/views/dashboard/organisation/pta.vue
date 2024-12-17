@@ -41,7 +41,12 @@
                 <span v-if="pta.isTache" class="text-sm text-red-600"> {{ pta.code }}</span>
               </td>
               <td>
-                <button
+                <select v-if="pta.isTache" class="form-select form-select-sm mt-2 w-5/6" aria-label=".form-select-sm example" @change="togglesuivie(pta)" v-model="poidsActuel">
+                  <option value="0">0%</option>
+                  <option value="50">50%</option>
+                  <option value="100">100%</option>
+                </select>
+                <!-- <button
                   v-if="pta.isTache"
                   @click="togglesuivie(pta)"
                   class="flex items-center justify-between px-1 text-white transition-all rounded-full shadow w-14 h-7"
@@ -57,7 +62,7 @@
                       'translate-x-full': pta.poidsActuel > 0 || translatetoggle || tabletoggle[pta.id] == 1,
                     }"
                   ></div>
-                </button>
+                </button> -->
               </td>
             </tr>
           </tbody>
@@ -161,7 +166,6 @@
 
               <!-- total budgetaire-->
 
-            
               <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700" v-else></td>
 
               <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
@@ -314,15 +318,14 @@
       </div>
     </div>
   </div>
-    <!-- Modal Register & Update -->
-    <Modal backdrop="static" :show="showModalFiltre" @hidden="showModalFiltre = false">
+  <!-- Modal Register & Update -->
+  <Modal backdrop="static" :show="showModalFiltre" @hidden="showModalFiltre = false">
     <ModalHeader>
       <h2 class="mr-auto text-base font-medium">Filtrer le pta</h2>
     </ModalHeader>
     <form @submit.prevent="filtreParAnnee(annees)">
       <ModalBody>
         <div class="grid grid-cols-1 gap-4">
-        
           <!-- <pre>{{years}}</pre> -->
           <div class="">
             <label class="form-label">Année</label>
@@ -330,15 +333,21 @@
               <option v-for="(year, index) in years" :key="index" :value="year.nom">{{ year.nom }}</option>
             </TomSelect>
           </div>
-          
-          
-          
         </div>
       </ModalBody>
       <ModalFooter>
         <div class="flex gap-2">
-          <button type="button" @click="showModalFiltre = false ; annees =''" class="w-full px-2 py-2 my-3 align-top btn btn-outline-secondary">Annuler</button>
-          <VButton :loading="isLoading" label="Filtrer"  />
+          <button
+            type="button"
+            @click="
+              showModalFiltre = false;
+              annees = '';
+            "
+            class="w-full px-2 py-2 my-3 align-top btn btn-outline-secondary"
+          >
+            Annuler
+          </button>
+          <VButton :loading="isLoading" label="Filtrer" />
         </div>
       </ModalFooter>
     </form>
@@ -356,18 +365,19 @@ import { toast } from "vue3-toastify";
 import { mapGetters, mapMutations, mapActions, mapState } from "vuex";
 export default {
   props: ["ppm"],
-  components: {VButton },
+  components: { VButton },
   data() {
     return {
-      years : [],
-      annees : "",
+      poidsActuel: "",
+      years: [],
+      annees: "",
       tabletoggle: [],
       etattoggle: true,
       graytoggle: true,
       redtoggle: false,
       translatetoggle: false,
       chargement: false,
-      showModalFiltre: false ,
+      showModalFiltre: false,
       greentoggle: true,
       ptab: [],
       items: ["Item 1", "Item 2", "Item 3"],
@@ -1356,20 +1366,16 @@ export default {
     },
   },
   methods: {
-    filtreParAnnee(datas){
-      
-         let data = {}
+    filtreParAnnee(datas) {
+      let data = {};
 
       data = {
-        annee : datas
-      }
+        //organisationId: this.$route.params.ongId,
+        annee: datas,
+      };
       this.getPta(data);
-
     },
-    handleInput (event) {
-     
-       
-    },
+    handleInput(event) {},
     saveSuiviOld(id, data) {
       this.chargement = true;
       var form = {
@@ -1411,66 +1417,90 @@ export default {
       }
     },
     togglesuivie(pta) {
+      console.log("pta", pta);
       //this.dataNew;
 
-      this.redtoggle = false;
-      this.graytoggle = false;
-      //this.greentoggle=true;
-      this.translatetoggle = false;
+      // this.redtoggle = false;
+      // this.graytoggle = false;
+      // //this.greentoggle=true;
+      // this.translatetoggle = false;
 
       //console.log(this.tabletoggle[id]);
 
-      this.chargement = true;
+      // this.chargement = true;
       var form = {
+        poidsActuel: this.poidsActuel,
         tacheId: pta.id,
       };
-      //  console.log(id)
-      if (pta.poidsActuel > 0) {
-        this.tabletoggle[pta.id] = 0;
-        TacheService.deleteSuivis(pta.id)
-          .then((data) => {
-            // this.doSuiviOld = false
-            // this.dataNew;
-            this.$toast.success("suivie supprimé avec succès");
-            // window.location.reload();
-          })
-          .catch((error) => {
-            if (error.response) {
-              // Requête effectuée mais le serveur a répondu par une erreur.
-              const message = error.response.data.message;
-              this.$toast.error(message);
-            } else if (error.request) {
-              // Demande effectuée mais aucune réponse n'est reçue du serveur.
-              //console.log(error.request);
-            } else {
-              // Une erreur s'est produite lors de la configuration de la demande
-              //console.log('dernier message', error.message);
-            }
-          });
-      } else {
-        this.tabletoggle[pta.id] = 1;
 
-        TacheService.suiviTache(form)
-          .then((data) => {
-            // this.doSuiviOld = false
-            // this.dataNew;
-            this.$toast.success("suivie éffectué avec succès");
-            // window.location.reload();
-          })
-          .catch((error) => {
-            if (error.response) {
-              // Requête effectuée mais le serveur a répondu par une erreur.
-              const message = error.response.data.message;
-              this.$toast.error(message);
-            } else if (error.request) {
-              // Demande effectuée mais aucune réponse n'est reçue du serveur.
-              //console.log(error.request);
-            } else {
-              // Une erreur s'est produite lors de la configuration de la demande
-              //console.log('dernier message', error.message);
-            }
-          });
-      }
+      TacheService.suiviTache(form)
+        .then((data) => {
+          // this.doSuiviOld = false
+          // this.dataNew;
+          toast.success("suivie éffectué avec succès");
+          // window.location.reload();
+        })
+        .catch((error) => {
+          if (error.response) {
+            // Requête effectuée mais le serveur a répondu par une erreur.
+            const message = error.response.data.message;
+            toast.error(message);
+          } else if (error.request) {
+            // Demande effectuée mais aucune réponse n'est reçue du serveur.
+            //console.log(error.request);
+          } else {
+            // Une erreur s'est produite lors de la configuration de la demande
+            //console.log('dernier message', error.message);
+          }
+        });
+
+      //  console.log(id)
+      // if (pta.poidsActuel > 0) {
+      //   this.tabletoggle[pta.id] = 0;
+      //   TacheService.deleteSuivis(pta.id)
+      //     .then((data) => {
+      //       // this.doSuiviOld = false
+      //       // this.dataNew;
+      //       this.$toast.success("suivie supprimé avec succès");
+      //       // window.location.reload();
+      //     })
+      //     .catch((error) => {
+      //       if (error.response) {
+      //         // Requête effectuée mais le serveur a répondu par une erreur.
+      //         const message = error.response.data.message;
+      //         this.$toast.error(message);
+      //       } else if (error.request) {
+      //         // Demande effectuée mais aucune réponse n'est reçue du serveur.
+      //         //console.log(error.request);
+      //       } else {
+      //         // Une erreur s'est produite lors de la configuration de la demande
+      //         //console.log('dernier message', error.message);
+      //       }
+      //     });
+      // } else {
+      //   this.tabletoggle[pta.id] = 1;
+
+      //   TacheService.suiviTache(form)
+      //     .then((data) => {
+      //       // this.doSuiviOld = false
+      //       // this.dataNew;
+      //       this.$toast.success("suivie éffectué avec succès");
+      //       // window.location.reload();
+      //     })
+      //     .catch((error) => {
+      //       if (error.response) {
+      //         // Requête effectuée mais le serveur a répondu par une erreur.
+      //         const message = error.response.data.message;
+      //         this.$toast.error(message);
+      //       } else if (error.request) {
+      //         // Demande effectuée mais aucune réponse n'est reçue du serveur.
+      //         //console.log(error.request);
+      //       } else {
+      //         // Une erreur s'est produite lors de la configuration de la demande
+      //         //console.log('dernier message', error.message);
+      //       }
+      //     });
+      // }
       this.chargement = false;
     },
     // exportToExcel() {
@@ -1564,7 +1594,6 @@ export default {
       }
     },
     getPta(data) {
-      
       // if (this.annee == null) {
       //   const year = new Date().getFullYear();
       //   data = {
@@ -1697,7 +1726,7 @@ export default {
     this.getPermission();
 
     if (this.revisionVisible || this.ppmVisible || this.ptaVisible) {
-      console.log(this.$route.params.ongId)
+      console.log(this.$route.params.ongId);
       let data = {};
       data = {
         organisationId: this.$route.params.ongId,
@@ -1710,12 +1739,12 @@ export default {
     }
 
     var anneeActuelle = new Date().getFullYear() + 5;
-      let i = 0;
-      for (var annee = 2016; annee <= anneeActuelle; annee++) {
-        i++;
-        this.years.push({ nom: `${annee}` });
-      }
-      console.log(this.years)
+    let i = 0;
+    for (var annee = 2016; annee <= anneeActuelle; annee++) {
+      i++;
+      this.years.push({ nom: `${annee}` });
+    }
+    console.log(this.years);
   },
 };
 </script>

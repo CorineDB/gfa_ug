@@ -8,14 +8,41 @@
         <div class="overlay"></div>
       </div>
     </div>
-    <div v-if="!isLoadingData" class="!z-0 p-5 mt-8">
-      <p class="mt-10 text-lg font-medium intro-y">Liste des formulaires</p>
+    <ManagementEvaluationIndividuel :formulaires="datas" />
+    <div v-show="!isLoadingData" class="!z-0 p-5 mt-4 box">
+      <p class="mt-2 text-lg font-medium intro-y">Liste des formulaires</p>
+      <!-- <div class="grid grid-cols-12 gap-2 mt-5">
+        <div v-for="(item, index) in datas" :key="index" class="col-span-12 p-4 md:col-span-12 lg:col-span-4">
+          <div class="p-3 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-105 hover:bg-gray-50">
+            <div @click="gotoSoumissions(item)" class="flex flex-col items-start w-full gap-2 mt-2 cursor-pointer">
+              <div class="text-center lg:text-left lg:mt-0">
+                <span class="text-base font-semibold text-gray-800 transition-colors hover:text-primary">
+                  {{ item.libelle ?? "Libelle" }}
+                </span>
+              </div>
+            </div>
+            <div @click="gotoSoumissions(item)" class="w-full mt-5 text-center cursor-pointer lg:text-left">
+              <div class="mt-5 space-y-3 text-gray-600">
+                <div class="flex items-center text-sm font-medium text-gray-700">
+                  <UserIcon class="w-4 h-4 mr-2 text-primary" /> Participant:
+                  <span class="ml-2 font-semibold text-gray-900">{{ item.nbreParticipants ?? "vide" }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="flex flex-wrap items-center justify-center gap-1 pt-2 mt-2 border-t lg:justify-end border-slate-200/60">
+              <button class="flex items-center mr-auto text-xs btn btn-outline-primary" @click="handlePreview(item)"><EyeIcon class="mr-1 size-4" /> Voir</button>
+              <button class="flex items-center mr-3 text-xs btn btn-outline-pending" @click="handleEdit(item)"><CheckSquareIcon class="mr-1 size-4" /> Modifier</button>
+              <button class="flex items-center text-xs btn btn-outline-danger" @click="handleDelete(item)"><Trash2Icon class="mr-1 size-4" /> Supprimer</button>
+            </div>
+          </div>
+        </div>
+      </div> -->
 
       <div class="overflow-x-auto scrollbar-hidden">
         <div id="tabulator" ref="tabulator" class="mt-5 table-report table-report--tabulator"></div>
       </div>
     </div>
-    <LoaderSnipper v-else />
+    <LoaderSnipper v-if="isLoadingData" />
   </div>
 
   <button class="fixed !z-30 bottom-2 btn btn-primary right-5" @click="openCreateModal"><PlusIcon class="mr-3 size-5" /> Créer un formulaire</button>
@@ -28,7 +55,7 @@
     <form @submit.prevent="submitData">
       <ModalBody>
         <div class="grid grid-cols-1 gap-4">
-          <InputForm label="Libellé" v-model="payload.libelle" :control="getFieldErrors(errors.libelle)" />
+          <InputForm label="Libelle" v-model="payload.libelle" :control="getFieldErrors(errors.libelle)" />
           <div class="flex-1">
             <label class="form-label" for="description">Description</label>
             <div class="">
@@ -68,6 +95,22 @@
       </div>
     </ModalBody>
   </Modal>
+
+  <Modal backdrop="static" size="modal-xl " :show="showModalPreview" @hidden="showModalPreview = false">
+    <ModalHeader>
+      <h2 class="mr-auto text-base font-medium">{{ currentForm.libelle }}</h2>
+    </ModalHeader>
+    <ModalBody>
+      <div class="max-h-[65vh] h-[65vh] overflow-y-auto">
+        <SurveyComponent :model="survey" />
+      </div>
+    </ModalBody>
+    <ModalFooter>
+      <div class="flex gap-2">
+        <button type="button" @click="showModalPreview = false" class="flex-1 w-full px-2 py-2 my-3 btn btn-outline-secondary">Retour</button>
+      </div>
+    </ModalFooter>
+  </Modal>
 </template>
 
 <script setup>
@@ -82,20 +125,30 @@ import { toast } from "vue3-toastify";
 import Tabulator from "tabulator-tables";
 import DeleteButton from "@/components/news/DeleteButton.vue";
 import EnqueteIndividuelService from "../../services/modules/enquete.individuel.service";
+import ManagementEvaluationIndividuel from "./ManagementEvaluationIndividuel.vue";
+import "survey-core/defaultV2.min.css";
+import { SurveyComponent } from "survey-vue3-ui";
+import { Model } from "survey-core";
+import { reactive } from "vue";
 
 const iframeSrc = "https://surveyjs.io/create-free-survey";
-const payload = { libelle: "", description: "", form_data: "" };
+
+const payload = reactive({ libelle: "", description: "", form_data: "" });
 const loading = ref(true);
 const isLoading = ref(false);
 const showModalCreate = ref(false);
+const showModalPreview = ref(false);
 const isLoadingData = ref(false);
 const isCreate = ref(true);
 const datas = ref([]);
 const errors = ref({});
+const currentForm = ref({});
+const currentSurvey = ref({});
 const idSelect = ref("");
 const nameSelect = ref("");
 const deleteModalPreview = ref(false);
 const tabulator = ref();
+const survey = ref(new Model({}));
 
 function onIframeLoad() {
   loading.value = false;
@@ -121,6 +174,8 @@ const initTabulator = () => {
       {
         title: "Actions",
         field: "actions",
+        vertAlign: "middle",
+        hozAlign: "center",
         formatter: (cell) => {
           const container = document.createElement("div");
           container.className = "flex items-center justify-center gap-3";
@@ -153,7 +208,6 @@ const initTabulator = () => {
 };
 // Fetch data
 const getDatas = async () => {
-  initTabulator();
   isLoadingData.value = true;
   try {
     const { data } = await EnqueteIndividuelService.get();
@@ -163,6 +217,7 @@ const getDatas = async () => {
   } finally {
     isLoadingData.value = false;
   }
+  initTabulator();
 };
 
 // Submit data (create or update)
@@ -174,8 +229,10 @@ const submitData = async () => {
     await action;
     toast.success(`Formulaire ${isCreate.value ? "crée" : "modifié"} avec succès.`);
     getDatas();
+    payload.form_data = JSON.stringify(payload.form_data);
     resetForm();
   } catch (e) {
+    payload.form_data = JSON.stringify(payload.form_data);
     if (e.response && e.response.status === 422) {
       errors.value = e.response.data.errors;
     } else {
@@ -207,12 +264,17 @@ const handleEdit = (data) => {
   isCreate.value = false;
   idSelect.value = data.id;
   payload.libelle = data.libelle;
-  payload.form_data = data.form_data;
+  payload.form_data = JSON.stringify(data.form_data);
   payload.description = data.description ?? "";
   showModalCreate.value = true;
 };
 
-const handlePreview = (data) => {};
+const handlePreview = (data) => {
+  currentForm.value = data;
+  currentSurvey.value = data.form_data;
+  survey.value = new Model(currentSurvey.value);
+  showModalPreview.value = true;
+};
 
 // Handle delete action
 const handleDelete = (data) => {
@@ -226,11 +288,11 @@ const resetForm = () => {
   Object.keys(payload).forEach((key) => {
     payload[key] = "";
   });
-  showModalCreate.value = false;
   errors.value = {};
+  showModalCreate.value = false;
 };
 const openCreateModal = () => {
-  resetForm();
+  // resetForm();
   isCreate.value = true;
   showModalCreate.value = true;
 };
@@ -276,7 +338,6 @@ iframe {
   max-width: 82vw !important;
   height: 95px; /* Hauteur du header à masquer */
   background-color: white; /* Ou utilisez une autre couleur selon le contexte */
-  z-index: 2;
-  pointer-events: none !important; /* Permet de cliquer sur le contenu en dessous */
+  z-index: 10;
 }
 </style>

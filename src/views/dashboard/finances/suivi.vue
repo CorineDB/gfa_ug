@@ -14,11 +14,11 @@ const payload = reactive({
   consommer: "",
   type: "",
   annee: "",
-  activiteId:"",
-  trimestre:"",
+  activiteId: "",
+  trimestre: "",
 });
 
-const years = ref([])
+const years = ref([]);
 const tabulator = ref();
 const idSelect = ref("");
 const showModalCreate = ref(false);
@@ -39,8 +39,8 @@ const createData = async () => {
       toast.success("Suivi Financier créer.");
     })
     .catch((e) => {
+      console.log(e);
       isLoading.value = false;
-      console.error(e);
       toast.error("Vérifier les informations et ressayer.");
     });
 };
@@ -49,6 +49,7 @@ const getDatas = async () => {
   await SuiviFinancierService.get()
     .then((result) => {
       datas.value = result.data.data;
+      console.log(datas.value);
       isLoadingData.value = false;
     })
     .catch((e) => {
@@ -56,7 +57,7 @@ const getDatas = async () => {
       isLoadingData.value = false;
       toast.error("Une erreur est survenue: Liste des type des options.");
     });
- // initTabulator();
+  // initTabulator();
 };
 const updateData = async () => {
   isLoading.value = true;
@@ -90,13 +91,13 @@ const deleteData = async () => {
     });
 };
 
-const handleInput = function (event) {
-      console.log('Nouvelle valeur :', event.target.value);
-      getactivites(event.target.value)
-  }
+const handleInput = function (data) {
+  console.log(data);
+  getactivites(data);
+};
 
 const getactivites = (year) => {
-  ProgrammeService.filtreActivites({annee : year})
+  ProgrammeService.filtreActivites({ annee: year })
     .then((result) => {
       activites.value = result.data.data;
     })
@@ -163,14 +164,16 @@ const initTabulator = () => {
   });
 };
 const handleEdit = (params) => {
-  isCreate.value = false;
-  idSelect.value = params.id;
-  payload.libelle = params.libelle;
-  payload.description = params.description;
-  payload.key = params.key;
-  payload.uniteeMesureId = params.uniteeMesureId;
-  // payload.programmeId = params.programmeId;
+  console.log(params);
   showModalCreate.value = true;
+  // isCreate.value = false;
+  // idSelect.value = params.id;
+
+  // payload.libelle = params.libelle;
+  // payload.description = params.description;
+  // payload.key = params.key;
+  // payload.uniteeMesureId = params.uniteeMesureId;
+  // payload.programmeId = params.programmeId;
 };
 const handleDelete = (params) => {
   idSelect.value = params.id;
@@ -197,11 +200,11 @@ const mode = computed(() => (isCreate.value ? "Ajouter" : "Modifier"));
 
 onMounted(() => {
   var anneeActuelle = new Date().getFullYear() + 5;
-      let i = 0;
-      for (var annee = 2016; annee <= anneeActuelle; annee++) {
-        i++;
-        years.value.push({ nom: `${annee}` });
-      }
+  let i = 0;
+  for (var annee = 2016; annee <= anneeActuelle; annee++) {
+    i++;
+    years.value.push({ nom: `${annee}` });
+  }
 
   getDatas();
   getactivites(new Date().getFullYear());
@@ -249,195 +252,95 @@ onMounted(() => {
       <div id="tabulator" class="mt-5 table-report table-report--tabulator"></div>
     </div> -->
     <div>
-    <div class="border my-4 rounded-lg border-gray-300 shadow-md"  v-if="!isLoadingData">
-      <!-- suivi budgetaire  current -->
-      <div  class="current">
-        <div class="overflow-x-auto relative shadow-md sm:rounded-lg">
-          <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-
-            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-
-              <tr class="">
-                <th scope="col" rowspan="2"
-                  class="py-3 px-6 border dark:bg-gray-800 dark:border-gray-700  whitespace-nowrap">
-                  Bailleurs
-                </th>
-                <th scope="col" rowspan="2"
-                  class="py-3 px-6 border dark:bg-gray-800 dark:border-gray-700  whitespace-nowrap">
-                  Activités
-                </th>
-
-                <th scope="col" rowspan="2"
-                  class="py-3 px-6 border dark:bg-gray-800 dark:border-gray-700  whitespace-nowrap">
-                  Année
-                </th>
-
-                <th scope="col" rowspan="2"
-                  class="py-3 px-6 border dark:bg-gray-800 dark:border-gray-700  whitespace-nowrap">
-                  Trimestre
-                </th>
-               
-                <th scope="col" colspan="4"
-                  class="py-3 px-6 border dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">
-                  Periode
-                </th>
-                <th scope="col" colspan="4"
-                  class="py-3 px-6 text-center border dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">
-                  Exercice
-                </th>
-                <th scope="col" colspan="4"
-                  class="py-3 px-6 text-center border dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">
-                 Cumul
-                </th>
-               
-
-
-              </tr>
-
-              <tr class="">
-
-                <th scope="col"
-                  class="py-3 px-6 border dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">
-                 Budget
-                </th>
-                <th scope="col"
-                  class="py-3 px-6 border dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">
-                 Consommé
-                </th>
-                <th scope="col"
-                  class="py-3 px-6 border dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">
-                Disponible
-                </th>
-                <th scope="col"
-                  class="py-3 px-6 border dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">
-                 TEF
-                </th>
-                <th scope="col"
-                  class="py-3 px-6 border dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">
-                 Budget
-                </th>
-                <th scope="col"
-                  class="py-3 px-6 border dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">
-                 Consommé
-                </th>
-                <th scope="col"
-                  class="py-3 px-6 border dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">
-                Disponible
-                </th>
-                <th scope="col"
-                  class="py-3 px-6 border dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">
-                 TEF
-                </th>
-                <th scope="col"
-                  class="py-3 px-6 border dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">
-                 Budget
-                </th>
-                <th scope="col"
-                  class="py-3 px-6 border dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">
-                 Consommé
-                </th>
-                <th scope="col"
-                  class="py-3 px-6 border dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">
-                Disponible
-                </th>
-                <th scope="col"
-                  class="py-3 px-6 border dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">
-                 TEF
-                </th>
-              </tr>
-
-            </thead>
-            <tbody>
-              <tr v-for="(suivi,index) in datas" :key="index" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                <th scope="row" class="p-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                  {{ suivi.bailleur }}
-                </th>
-                
-                <td class="p-2 whitespace-nowrap border dark:bg-gray-800 dark:border-gray-700">
-                  <span  class="font-bold">{{suivi?.activite?.codePta}}-{{suivi?.activite?.nom}} </span>
-                  <!--  <span v-else class="font-bold" >0 FCFA</span> -->
-                </td>
-                <td class="p-2 whitespace-nowrap border dark:bg-gray-800 dark:border-gray-700">
-                  <span  class="font-bold"> {{suivi.annee}} </span>
-                  <!--  <span v-else class="font-bold" >0 FCFA</span> -->
-                </td>
-                <td class="p-2 whitespace-nowrap border dark:bg-gray-800 dark:border-gray-700">
-                  <span  class="font-bold"> {{suivi.trimestre}} </span>
-                  <!--  <span v-else class="font-bold" >0 FCFA</span> -->
-                </td>
-                <td class="p-2 whitespace-nowrap border dark:bg-gray-800 dark:border-gray-700">
-                  <span  class="font-bold"> {{suivi.periode.budjet | formatNumber}} </span>
-                  <!--  <span v-else class="font-bold" >0 FCFA </span> -->
-                </td>
-                <td class="p-2 whitespace-nowrap border dark:bg-gray-800 dark:border-gray-700">
-                  <span  class="font-bold"> {{suivi.periode.consommer | formatNumber}}
-                  </span>
-                  <!--  <span v-else class="font-bold" >0 FCFA </span> -->
-                </td>
-                <td class="p-2 whitespace-nowrap border dark:bg-gray-800 dark:border-gray-700">
-                  <span  class="font-bold"> {{suivi.periode.disponible | formatNumber}}
-                  </span>
-                  <!--  <span v-else class="font-bold" >0 FCFA </span> -->
-                </td>
-                <td class="p-2 whitespace-nowrap border dark:bg-gray-800 dark:border-gray-700">
-                  <span  class="font-bold"> {{suivi.periode.pourcentage}}
-                  </span>
-                  <!--  <span v-else class="font-bold" >0 FCFA </span> -->
-                </td>
-
-                <!-- periode-->
-
-
-
-                <td class="p-2 whitespace-nowrap border dark:bg-gray-800 dark:border-gray-700">
-                  <span  class="font-bold"> {{suivi.exercice.budjet | formatNumber}} </span>
-                  <!--  <span v-else class="font-bold" >0 FCFA </span> -->
-                </td>
-                <td class="p-2 whitespace-nowrap border dark:bg-gray-800 dark:border-gray-700">
-                  <span  class="font-bold"> {{suivi.exercice.consommer | formatNumber}}
-                  </span>
-                  <!--  <span v-else class="font-bold" >0 FCFA </span> -->
-                </td>
-                <td class="p-2 whitespace-nowrap border dark:bg-gray-800 dark:border-gray-700">
-                  <span  class="font-bold"> {{suivi.exercice.disponible | formatNumber}}
-                  </span>
-                  <!--  <span v-else class="font-bold" >0 FCFA </span> -->
-                </td>
-                <td class="p-2 whitespace-nowrap border dark:bg-gray-800 dark:border-gray-700">
-                  <span  class="font-bold"> {{suivi.exercice.pourcentage}}
-                  </span>
-                  <!--  <span v-else class="font-bold" >0 FCFA </span> -->
-                </td>
-                <!-- exercice-->
-
-                <td class="p-2 whitespace-nowrap border dark:bg-gray-800 dark:border-gray-700">
-                  <span  class="font-bold"> {{suivi.cumul.budjet | formatNumber}} </span>
-                  <!--  <span v-else class="font-bold" >0 FCFA </span> -->
-                </td>
-                <td class="p-2 whitespace-nowrap border dark:bg-gray-800 dark:border-gray-700">
-                  <span  class="font-bold"> {{suivi.cumul.consommer | formatNumber}}
-                  </span>
-                  <!--  <span v-else class="font-bold" >0 FCFA </span> -->
-                </td>
-                <td class="p-2 whitespace-nowrap border dark:bg-gray-800 dark:border-gray-700">
-                  <span  class="font-bold"> {{suivi.cumul.disponible | formatNumber}}
-                  </span>
-                  <!--  <span v-else class="font-bold" >0 FCFA </span> -->
-                </td>
-                <td class="p-2 whitespace-nowrap border dark:bg-gray-800 dark:border-gray-700">
-                  <span  class="font-bold"> {{suivi.cumul.pourcentage}}
-                  </span>
-                  <!--  <span v-else class="font-bold" >0 FCFA </span> -->
-                </td>
-               
-              </tr>
-
-            </tbody>
-          </table>
+      <div class="border my-4 rounded-lg border-gray-300 shadow-md" v-if="!isLoadingData">
+        <!-- suivi budgetaire  current -->
+        <div class="current">
+          <div class="overflow-x-auto relative shadow-md sm:rounded-lg">
+            <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+              <thead class="text-xs text-gray-700 uppercase bg-blue-100 dark:bg-gray-700 dark:text-gray-400">
+                <tr>
+                  <th scope="col" rowspan="2" class="py-3 px-6 border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">Activités</th>
+                  <th scope="col" rowspan="2" class="py-3 px-6 border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">Année</th>
+                  <th scope="col" rowspan="2" class="py-3 px-6 border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">Trimestre</th>
+                  <th scope="col" colspan="4" class="py-3 px-6 border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Période</th>
+                  <th scope="col" colspan="4" class="py-3 px-6 text-center border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">Exercice</th>
+                  <th scope="col" colspan="4" class="py-3 px-6 text-center border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">Cumul</th>
+                  <th scope="col" rowspan="2" class="py-3 px-6 border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap text-center">Actions</th>
+                </tr>
+                <tr>
+                  <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Budget</th>
+                  <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Consommé</th>
+                  <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Disponible</th>
+                  <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">TEF</th>
+                  <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Budget</th>
+                  <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Consommé</th>
+                  <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Disponible</th>
+                  <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">TEF</th>
+                  <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Budget</th>
+                  <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Consommé</th>
+                  <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Disponible</th>
+                  <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">TEF</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(suivi, index) in datas.suiviFinanciers" :key="index" class="bg-white border-b hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+                  <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
+                    <span class="font-bold">{{ suivi?.activite?.codePta }}-{{ suivi?.activite?.nom }}</span>
+                  </td>
+                  <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
+                    <span class="font-bold">{{ suivi.annee }}</span>
+                  </td>
+                  <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
+                    <span class="font-bold">{{ suivi.trimestre }}</span>
+                  </td>
+                  <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
+                    <span class="font-bold">{{ suivi.periode.budjet | formatNumber }}</span>
+                  </td>
+                  <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
+                    <span class="font-bold">{{ suivi.periode.consommer | formatNumber }}</span>
+                  </td>
+                  <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
+                    <span class="font-bold">{{ suivi.periode.disponible | formatNumber }}</span>
+                  </td>
+                  <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
+                    <span class="font-bold">{{ suivi.periode.pourcentage }}</span>
+                  </td>
+                  <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
+                    <span class="font-bold">{{ suivi.exercice.budjet | formatNumber }}</span>
+                  </td>
+                  <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
+                    <span class="font-bold">{{ suivi.exercice.consommer | formatNumber }}</span>
+                  </td>
+                  <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
+                    <span class="font-bold">{{ suivi.exercice.disponible | formatNumber }}</span>
+                  </td>
+                  <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
+                    <span class="font-bold">{{ suivi.exercice.pourcentage }}</span>
+                  </td>
+                  <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
+                    <span class="font-bold">{{ suivi.cumul.budjet | formatNumber }}</span>
+                  </td>
+                  <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
+                    <span class="font-bold">{{ suivi.cumul.consommer | formatNumber }}</span>
+                  </td>
+                  <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
+                    <span class="font-bold">{{ suivi.cumul.disponible | formatNumber }}</span>
+                  </td>
+                  <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
+                    <span class="font-bold">{{ suivi.cumul.pourcentage }}</span>
+                  </td>
+                  <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700 text-center">
+                    <button @click="handleEdit(suivi)" class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-xs px-4 py-2 mr-2">Modifier</button>
+                    <button @click="handleDelete(suivi)" class="text-white bg-red-500 hover:bg-red-600 font-medium rounded-lg text-xs px-4 py-2">Supprimer</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+
     <LoaderSnipper v-if="isLoadingData" />
   </div>
 
@@ -453,18 +356,18 @@ onMounted(() => {
           <div class="">
             <label class="form-label">Sources</label>
             <TomSelect v-model="payload.type" :options="{ placeholder: 'Selectionez une source' }" class="w-full">
-              <option  value="0">Pret</option>
-              <option  value="1">Budget National</option>
+              <option value="0">Pret</option>
+              <option value="1">Budget National</option>
             </TomSelect>
           </div>
           <!-- <pre>{{years}}</pre> -->
           <div class="">
             <label class="form-label">Année</label>
-            <TomSelect v-model="payload.annee" @change="handleInput()" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+            <TomSelect v-model="payload.annee" @change="handleInput(payload.annee)" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
               <option v-for="(year, index) in years" :key="index" :value="year.nom">{{ year.nom }}</option>
             </TomSelect>
           </div>
-          
+
           <div class="">
             <label class="form-label">Activités</label>
             <TomSelect v-model="payload.activiteId" :options="{ placeholder: 'Selectionez une unité de mesure' }" class="w-full">
@@ -474,10 +377,10 @@ onMounted(() => {
           <div class="">
             <label class="form-label">Trimestre</label>
             <TomSelect v-model="payload.trimestre" :options="{ placeholder: 'Selectionez une source' }" class="w-full">
-              <option  value="0">Trimestre 1</option>
-              <option  value="1">Trimestre 2</option>
-              <option  value="1">Trimestre 3</option>
-              <option  value="1">Trimestre 4</option>
+              <option value="1">Trimestre 1</option>
+              <option value="2">Trimestre 2</option>
+              <option value="3">Trimestre 3</option>
+              <option value="4">Trimestre 4</option>
             </TomSelect>
           </div>
         </div>

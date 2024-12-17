@@ -37,13 +37,28 @@
     </ModalHeader>
     <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
       <InputForm v-model="formData.nom" class="col-span-12" type="text" required="required" placeHolder="Nom du projet" label="Nom" />
+      <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
+
       <InputForm v-model="formData.couleur" class="col-span-12" type="color" required="required" placeHolder="Couleur" label="Couleur" />
+      <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.couleur">{{ messageErreur.couleur }}</p>
+
       <InputForm v-model="formData.debut" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de début" label="Début du projet" />
+      <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.debut">{{ messageErreur.debut }}</p>
+
       <InputForm v-model="formData.fin" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de fin" label="Fin du projet " />
+      <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.fin">{{ messageErreur.fin }}</p>
+
       <InputForm v-model="formData.nombreEmploie" class="col-span-12" type="number" required="required" placeHolder="Ex : 10" label="Nombre d'employé" />
+      <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nombreEmploie">{{ messageErreur.nombreEmploie }}</p>
+
       <InputForm v-model="formData.pays" class="col-span-12" type="text" required="required" placeHolder="Ex : Bénin" label="Pays" />
+      <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pays">{{ messageErreur.pays }}</p>
+
       <InputForm v-model="formData.budgetNational" class="col-span-12" type="text" required="required" placeHolder="Ex : 100000" label="Fond Propre " />
+      <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.budgetNational">{{ messageErreur.budgetNational }}</p>
+
       <InputForm v-model="formData.pret" class="col-span-12" type="text" required="required" placeHolder="Ex : 100000" label="Montant financé" />
+      <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pret">{{ messageErreur.pret }}</p>
 
       <div class="col-span-12" v-if="!isUpdate">
         <InputForm class="col-span-12" type="file" @change="handleFileChange" required="required" placeHolder="choisir une image" label="Images de couverture" accept="image/*" />
@@ -65,6 +80,7 @@
           >
             <option v-for="(org, index) in ongs" :key="index" :value="org.id">{{ org.nom }}</option>
           </TomSelect>
+          <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.organisationId">{{ messageErreur.organisationId }}</p>
         </div>
       </div>
       <div class="col-span-12">
@@ -80,6 +96,7 @@
           >
             <option v-for="(site, index) in sites" :key="index" :value="site.id">{{ site.nom }}</option>
           </TomSelect>
+          <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.sites">{{ messageErreur.sites }}</p>
         </div>
       </div>
       <!-- Choix de fichier -->
@@ -265,6 +282,18 @@ export default {
   components: { InputForm, VButton, LMap, LTileLayer, LMarker, LPolygon, LPopup },
   data() {
     return {
+      messageErreur: {},
+      messageNom: "",
+      messageCouleur: "",
+      messageDebut: "",
+      messageFin: "",
+      messageNbreEmploye: "",
+      messagePays: "",
+      messageFondPropre: "",
+      messageMontantFinance: "",
+      messageImage: "",
+      messageOrganisation: "",
+      messageSite: "",
       url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
       attribution: '&copy; <a target="_blank" href="http://osm.org/copyright">OpenStreetMap</a> contributors',
       zoom: 8,
@@ -640,16 +669,18 @@ export default {
     },
 
     addProjet() {
+      this.messageErreur = {};
       $h.clearObjectValues(this.formData);
       this.formData.organisationId = "";
       this.title = "Ajouter";
       // this.submitText = "Enregistrer";:
       this.isUpdate = false;
       this.showCloseModal(true);
-      alert("ok")
+      //alert("ok");
     },
 
     modifierProjet(projet) {
+      this.messageErreur = {};
       console.log(projet);
       this.isUpdate = true;
       this.title = "Modifier";
@@ -760,6 +791,11 @@ export default {
           .catch((errors) => {
             console.log(errors);
             toast.error("Erreur lors de la modification");
+            if (error.response && error.response.data && error.response.data.errors) {
+              this.messageErreur = error.response.data.errors;
+            } else {
+              toast.error("Une erreur inconnue s'est produite");
+            }
             this.isLoading = false;
           });
       } else {
@@ -780,11 +816,6 @@ export default {
           });
         }
 
-        //projet.statut = -2;
-        this.FormProjet.forEach((value, key) => {
-          console.log(`${key}: ${value}`);
-        });
-
         this.isLoading = true;
         this.saveProjet(this.FormProjet)
           .then((response) => {
@@ -795,10 +826,7 @@ export default {
               this.resetFileInput();
               $h.clearFormData(this.FormProjet);
               $h.clearObjectValues(this.formData);
-
-              this.FormProjet.forEach((value, key) => {
-                console.log(`${key}: ${value}`);
-              });
+              this.messageErreur = {};
 
               toast.success("Ajout éffectuée avec succès");
 
@@ -807,12 +835,14 @@ export default {
             }
           })
           .catch((error) => {
-            console.log(error);
-            this.isLoading = false;
-            //  $h.supprimerFichier(this.FormProjet, "fichier[]", this.dropzoneMultipleRef);
             $h.clearFormData(this.FormProjet);
             toast.error(error.response.data.errors.message);
-            // this.sendRequest = false;
+            // Mettre à jour les messages d'erreurs dynamiquement
+            if (error.response && error.response.data && error.response.data.errors) {
+              this.messageErreur = error.response.data.errors;
+            } else {
+              toast.error("Une erreur inconnue s'est produite");
+            }
           });
       }
     },

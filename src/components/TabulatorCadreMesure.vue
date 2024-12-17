@@ -310,6 +310,7 @@ const submitData = async () => {
   }
 };
 const submitSuivi = async () => {
+  isLoading.value = true;
   payloadSuivi.trimestre = Number(payloadSuivi.trimestre);
   if (optionsSuivi[0].id == suiviOption.value) {
     delete payloadSuivi.trimestre;
@@ -322,13 +323,13 @@ const submitSuivi = async () => {
     payloadSuivi.valeurRealise = valeurRealise.value;
   }
 
-  isLoading.value = true;
   const action = IndicateursService.createSuivi(payloadSuivi);
   try {
     await action;
     toast.success(`Suivi Ajouté avec succès.`);
     // getDatas();
     resetFormSuivi();
+    showModalSuivi.value = false;
   } catch (e) {
     if (e.response && e.response.status === 422) {
       errors.value = e.response.data.errors;
@@ -336,7 +337,6 @@ const submitSuivi = async () => {
       toast.error(getAllErrorMessages(e));
     }
   } finally {
-    showModalSuivi.value = false;
     isLoading.value = false;
   }
 };
@@ -438,14 +438,14 @@ table td {
 
 .table-container {
   position: relative;
-  max-height: 80vh; /* Ajustez selon vos besoins */
+  max-height: 75vh; /* Ajustez selon vos besoins */
   overflow: hidden;
 }
 
 .table-wrapper {
   overflow-y: auto;
   overflow-x: auto;
-  max-height: calc(80vh - 20px); /* Ajustez selon vos besoins */
+  max-height: calc(75vh - 20px); /* Ajustez selon vos besoins */
 }
 
 .sticky-heade {

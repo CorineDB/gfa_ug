@@ -1,86 +1,81 @@
 <template>
-   
-<!-- New sample -->
-<div class="bg-gray-50 min-h-screen p-6">
-  <!-- Header -->
-  <div class="flex justify-between items-center bg-white rounded-md shadow p-4 mb-6">
-    <div>
-      <h1 class="text-xl font-semibold text-gray-800">Nom Projet</h1>
-      <p class="text-gray-500">Organisation : <span class="font-medium">Nom de l'Organisation</span></p>
-    </div>
-    <div>
-      <p class="text-sm text-gray-600"><strong>TEP :</strong> 12 mois</p>
-      <p class="text-sm text-gray-600"><strong>TEF :</strong> 8 mois</p>
-      <p class="text-sm text-gray-600">Effectif de l'organisation: <span class="font-semibold text-gray-800">12987323</span></p>
-    </div>
-  </div>
-
-  <!-- Content Grid -->
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    <!-- Map and Data -->
-    <div class="col-span-2 bg-white rounded-md shadow p-6">
-      <h2 class="text-lg font-semibold text-gray-700 mb-4">Cartes géographiques</h2>
-      <div class="grid grid-cols-2 gap-4">
-        <!-- Map -->
-        <div>
-          <div class="bg-gray-200 rounded-md h-48 mb-4"></div>
-          <p class="text-sm text-gray-500">Total Number of Sessions within Date Range Users</p>
-        </div>
-        <!-- Data Table -->
-        <div>
-          <table class="w-full text-sm text-gray-600">
-            <thead>
-              <tr class="bg-gray-100 text-left">
-                <th class="py-2 px-4">Sites</th>
-                <th class="py-2 px-4">Longitudes</th>
-                <th class="py-2 px-4">Latitudes</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td class="py-2 px-4">Montana</td>
-                <td class="py-2 px-4">120</td>
-                <td class="py-2 px-4 text-red-500">-3.2%</td>
-              </tr>
-              <tr>
-                <td class="py-2 px-4">Seoul</td>
-                <td class="py-2 px-4">454</td>
-                <td class="py-2 px-4 text-green-500">+5.64%</td>
-              </tr>
-              <!-- Add more rows as needed -->
-            </tbody>
-          </table>
-        </div>
+  <!-- New sample -->
+  <div class="bg-gray-50 min-h-screen p-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center bg-white rounded-md shadow p-4 mb-6">
+      <div>
+        <h1 class="text-xl font-semibold text-gray-800">Nom Projet</h1>
+        <p class="text-gray-500">Organisation : <span class="font-medium">Nom de l'Organisation</span></p>
+      </div>
+      <div>
+        <p class="text-sm text-gray-600"><strong>TEP :</strong> 12 mois</p>
+        <p class="text-sm text-gray-600"><strong>TEF :</strong> 8 mois</p>
+        <p class="text-sm text-gray-600">Effectif de l'organisation: <span class="font-semibold text-gray-800">12987323</span></p>
       </div>
     </div>
 
-    <!-- Activity Stream -->
-    <div class="bg-white rounded-md shadow p-6">
-      <h2 class="text-lg font-semibold text-gray-700 mb-4">Listes des activités</h2>
-      <ul class="space-y-4">
-        <li class="flex items-center">
-          <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-500">
-            ✓
+    <!-- Content Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Map and Data -->
+      <div class="col-span-2 bg-white rounded-md shadow p-6">
+        <h2 class="text-lg font-semibold text-gray-700 mb-4">Cartes géographiques</h2>
+        <div class="grid grid-cols-2 gap-4">
+          <!-- Map -->
+          <div>
+            <div class="bg-gray-200 rounded-md h-48 mb-4"></div>
+            <p class="text-sm text-gray-500">Total Number of Sessions within Date Range Users</p>
           </div>
-          <div class="ml-4">
-            <p class="text-gray-800 font-semibold">Order Verification</p>
-            <p class="text-sm text-gray-500">Product ID: #9823</p>
+          <!-- Data Table -->
+          <div>
+            <table class="w-full text-sm text-gray-600">
+              <thead>
+                <tr class="bg-gray-100 text-left">
+                  <th class="py-2 px-4">Sites</th>
+                  <th class="py-2 px-4">Longitudes</th>
+                  <th class="py-2 px-4">Latitudes</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="py-2 px-4">Montana</td>
+                  <td class="py-2 px-4">120</td>
+                  <td class="py-2 px-4 text-red-500">-3.2%</td>
+                </tr>
+                <tr>
+                  <td class="py-2 px-4">Seoul</td>
+                  <td class="py-2 px-4">454</td>
+                  <td class="py-2 px-4 text-green-500">+5.64%</td>
+                </tr>
+                <!-- Add more rows as needed -->
+              </tbody>
+            </table>
           </div>
-        </li>
-        <li class="flex items-center">
-          <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-500">
-            ✓
-          </div>
-          <div class="ml-4">
-            <p class="text-gray-800 font-semibold">Order Completed</p>
-            <p class="text-sm text-gray-500">Product ID: #9823</p>
-          </div>
-        </li>
-        <!-- Add more items as needed -->
-      </ul>
-    </div>
+        </div>
+      </div>
 
-    <!-- <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6"> -->
+      <!-- Activity Stream -->
+      <div class="bg-white rounded-md shadow p-6">
+        <h2 class="text-lg font-semibold text-gray-700 mb-4">Listes des activités</h2>
+        <ul class="space-y-4">
+          <li class="flex items-center">
+            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-500">✓</div>
+            <div class="ml-4">
+              <p class="text-gray-800 font-semibold">Order Verification</p>
+              <p class="text-sm text-gray-500">Product ID: #9823</p>
+            </div>
+          </li>
+          <li class="flex items-center">
+            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-500">✓</div>
+            <div class="ml-4">
+              <p class="text-gray-800 font-semibold">Order Completed</p>
+              <p class="text-sm text-gray-500">Product ID: #9823</p>
+            </div>
+          </li>
+          <!-- Add more items as needed -->
+        </ul>
+      </div>
+
+      <!-- <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6"> -->
       <div class="bg-white shadow-md rounded-md p-6">
         <h2 class="text-lg font-semibold text-gray-700">Budget</h2>
         <div class="mt-4 space-y-2">
@@ -106,40 +101,40 @@
         <h2 class="text-lg font-semibold text-gray-700">Statut Global</h2>
         <div class="mt-4">
           <div class="h-4 bg-gray-200 rounded-full overflow-hidden">
-            <div class="h-4 bg-green-500" style="width: 75%;"></div>
+            <div class="h-4 bg-green-500" style="width: 75%"></div>
           </div>
           <p class="mt-2 text-sm text-gray-600">75% réalisé</p>
         </div>
       </div>
-    <!-- </section> -->
+      <!-- </section> -->
 
-    <!-- Sales Analytics -->
-    <div class="bg-white rounded-md shadow p-6 col-span-2 mb-6">
-      <h2 class="text-lg font-semibold text-gray-700 mb-4">Sales Analytics</h2>
-      <div class="grid grid-cols-2 gap-4">
-        <!-- Chart Placeholder -->
-        <div class="bg-gray-200 rounded-md h-40"></div>
-        <!-- Data -->
-        <div>
-          <p class="text-gray-500">Audience Breakdown</p>
-          <div class="mt-4">
-            <p class="text-sm text-gray-700">Online Sales</p>
-            <div class="w-full bg-gray-200 rounded-full h-2">
-              <div class="bg-blue-500 h-2 rounded-full" style="width: 60%;"></div>
+      <!-- Sales Analytics -->
+      <div class="bg-white rounded-md shadow p-6 col-span-2 mb-6">
+        <h2 class="text-lg font-semibold text-gray-700 mb-4">Sales Analytics</h2>
+        <div class="grid grid-cols-2 gap-4">
+          <!-- Chart Placeholder -->
+          <div class="bg-gray-200 rounded-md h-40"></div>
+          <!-- Data -->
+          <div>
+            <p class="text-gray-500">Audience Breakdown</p>
+            <div class="mt-4">
+              <p class="text-sm text-gray-700">Online Sales</p>
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-blue-500 h-2 rounded-full" style="width: 60%"></div>
+              </div>
             </div>
-          </div>
-          <div class="mt-4">
-            <p class="text-sm text-gray-700">Offline Sales</p>
-            <div class="w-full bg-gray-200 rounded-full h-2">
-              <div class="bg-orange-500 h-2 rounded-full" style="width: 40%;"></div>
+            <div class="mt-4">
+              <p class="text-sm text-gray-700">Offline Sales</p>
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-orange-500 h-2 rounded-full" style="width: 40%"></div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-  <!-- Activities Section -->
-  <section class="bg-white shadow-md rounded-md p-6 mb-6">
+    <!-- Activities Section -->
+    <section class="bg-white shadow-md rounded-md p-6 mb-6">
       <div class="flex items-center justify-between">
         <h2 class="text-lg font-semibold text-gray-700">Liste des Activités</h2>
         <select class="border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-600">
@@ -213,39 +208,48 @@
     <h2 class="my-2">Budget</h2>
     <PieChart :height="400" />
     <h2 class="my-2">Activités</h2>
-    <ReportBarChart :height="400"  class="py-4 mt-6" />
+    <ReportBarChart :height="400" class="py-4 mt-6" />
     <h2 class="my-2">Rendements</h2>
     <VerticalBarChart class="mt-4" :height="400" />
     <div class="report-chart">
       <h2 class="my-2">Statistiques financiers</h2>
-        <ReportLineChart :height="275" class="mt-6 -mb-6" />
+      <ReportLineChart :height="275" class="mt-6 -mb-6" />
     </div>
-
-</div>
-<!-- fin new sample -->
-
-
-
+  </div>
+  <!-- fin new sample -->
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import ChartCircular from "../../../../components/news/ChartCircular.vue";
 import ReportBarChart from "@/components/report-bar-chart/Main.vue";
-import { mapGetters, mapActions, mapMutations, mapState} from "vuex";
+import { mapGetters, mapActions, mapMutations, mapState } from "vuex";
 import ProjetService from "@/services/modules/projet.service.js";
 import VerticalBarChart from "@/components/vertical-bar-chart/Main.vue";
 import ReportLineChart from "@/components/report-line-chart/Main.vue";
 import PieChart from "@/components/pie-chart/Main.vue";
+import { useRouter, useRoute } from "vue-router";
 
+const router = useRouter();
+const route = useRoute();
+
+console.log("projetId", route.params.id);
 
 const loadingOption = ref(true);
-const graphiqueData = ref([])
+const graphiqueData = ref([]);
+const getStat = function () {
+  ProjetService.statistiques(route.params.id)
+    .then((data) => {
+      console.log(data);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+};
 
-
-
-
+onMounted(() => {
+  console.log("projetId", route.params.id);
+  getStat();
+});
 </script>
-<style scoped>
-
-</style>
+<style scoped></style>

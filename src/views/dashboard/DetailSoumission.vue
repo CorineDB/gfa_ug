@@ -43,8 +43,15 @@ onMounted(() => getSoumission());
 </script>
 <template>
   <div>
+    <nav aria-label="breadcrumb" class="h-full mt-4 mr-auto -intro-x">
+      <ol class="breadcrumb breadcrumb-dark">
+        <li class="cursor-pointer breadcrumb-item"><span @click="$router.go(-2)">Évaluations</span></li>
+        <li class="cursor-pointer breadcrumb-item"><span @click="$router.back()">Soumissions</span></li>
+        <li class="breadcrumb-item active" aria-current="page">Détail Soumissions</li>
+      </ol>
+    </nav>
     <div v-if="!isLoading">
-      <h2 class="flex items-center justify-between gap-2 mt-10 text-lg font-medium intro-y">
+      <h2 class="flex items-center justify-between gap-2 mt-5 text-lg font-medium intro-y">
         <span>Détail Soumissions</span>
         <div class="space-y-1" v-if="soumission?.pourcentage_evolution">
           <p class="text-sm">Évolution soumissions</p>

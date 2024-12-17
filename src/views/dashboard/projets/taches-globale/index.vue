@@ -5,7 +5,7 @@ import { getStringValueOfStatutCode } from "@/utils/index";
 import ProjetService from "@/services/modules/projet.service.js";
 import ComposantesService from "@/services/modules/composante.service";
 import ActiviteService from "@/services/modules/activite.service";
-import TachesService from '@/services/modules/tache.service';
+import TachesService from "@/services/modules/tache.service";
 import InputForm from "@/components/news/InputForm.vue";
 import VButton from "@/components/news/VButton.vue";
 import { toast } from "vue3-toastify";
@@ -16,6 +16,7 @@ export default {
   },
   data() {
     return {
+      messageErreur: {},
       projets: [],
       projetId: {},
       composants: [],
@@ -31,7 +32,7 @@ export default {
         poids: "",
         debut: "",
         fin: "",
-        activiteId: ""
+        activiteId: "",
       },
       composantsId: {},
       sousComposantId: {},
@@ -40,7 +41,7 @@ export default {
       showDeleteModal: false,
       deleteLoader: false,
       taches: [],
-      tacheId: ''
+      tacheId: "",
     };
   },
   computed: {
@@ -88,7 +89,7 @@ export default {
             obj[key] = [];
           } else if (typeof value === "object" && value !== null) {
             obj[key] = {}; // ou appliquer récursion pour vider les objets imbriqués
-            clearObjectValues(obj[key]); // récursion pour les objets imbriqués
+            this.clearObjectValues(obj[key]); // récursion pour les objets imbriqués
           } else {
             obj[key] = null; // pour les autres types (null, undefined, etc.)
           }
@@ -106,7 +107,8 @@ export default {
           this.deleteLoader = false;
           this.showDeleteModal = false;
           toast.success("Suppression  éffectuée avec succès");
-          this.getListeProjet();
+          // this.getListeProjet();
+          this.getActiviteById(this.activitesId.id);
         })
         .catch((error) => {
           this.deleteLoader = false;
@@ -114,6 +116,7 @@ export default {
         });
     },
     modifierTache(data) {
+      this.messageErreur = {};
       this.labels = "Modifier";
       this.showModal = true;
       this.update = true;
@@ -121,24 +124,33 @@ export default {
       this.formData.poids = data.poids;
       this.formData.debut = data.debut;
       this.formData.fin = data.fin;
-      this.formData.activiteId = data.activiteId;
+      this.formData.activiteId = this.activitesId;
       //this.formData.budgetNational = data.budgetNational;
       this.tacheId = data.id;
     },
     addTache() {
+      this.messageErreur = {};
+      this.clearObjectValues(this.formData);
       this.showModal = true;
       this.isUpdate = false;
-      
+
       this.formData.activiteId = this.activitesId;
 
       this.labels = "Ajouter";
     },
     sendForm() {
+      let data = {
+        nom: this.formData.nom,
+        poids: this.formData.poids,
+        debut: this.formData.debut,
+        fin: this.formData.fin,
+        activiteId: this.formData.activiteId.id,
+      };
       if (this.update) {
         //this.formData.budgetNational = parseInt(this.formData.budgetNational);
         // this.formData.projetId = this.projetId
         this.isLoading = true;
-        TachesService.update(this.tacheId, this.formData)
+        TachesService.update(this.tacheId, data)
           .then((response) => {
             if (response.status == 200 || response.status == 201) {
               this.update = false;
@@ -148,32 +160,40 @@ export default {
               this.activitesId = this.formData.activiteId;
               this.clearObjectValues(this.formData);
               // delete this.formData.projetId;
-              this.getListeProjet();
+              this.getActiviteById(this.activitesId.id);
+              // this.getListeProjet();
               //this.sendRequest = false;
             }
           })
           .catch((error) => {
+            console.log(error);
             // delete this.formData.projetId;
+            if (error.response && error.response.data && error.response.data.errors) {
+              this.messageErreur = error.response.data.errors;
+            } else {
+              toast.error("Une erreur inconnue s'est produite");
+            }
             this.isLoading = false;
-            toast.error(error.message);
+            toast.error("Erreur lors de la modification");
           });
       } else {
         this.isLoading = true;
         //this.formData.budgetNational = parseInt(this.formData.budgetNational);
-        TachesService.create(this.formData)
+        TachesService.create(data)
           .then((response) => {
             if (response.status == 200 || response.status == 201) {
               this.isLoading = false;
               toast.success("Ajout éffectué");
               this.showModal = false;
-              this.clearObjectValues(this.formData);
+              this.getActiviteById(this.activitesId.id);
 
-              this.getListeProjet();
+              // this.getListeProjet();
             }
           })
           .catch((error) => {
+            console.log("error", error);
             this.isLoading = false;
-            toast.error("Erreur lors de la modification");
+            toast.error("Erreur lors de l' ajout");
           });
       }
     },
@@ -183,7 +203,7 @@ export default {
         .then((data) => {
           this.isLoadingData = false;
           this.projets = data.data.data;
-          if (Object.keys(this.projetId).length === 0  ) {
+          if (Object.keys(this.projetId).length === 0) {
             this.projetId = this.projets[0];
           }
 
@@ -197,9 +217,10 @@ export default {
       ProjetService.getDetailProjet(data)
         .then((datas) => {
           this.composants = datas.data.data.composantes;
-          if (Object.keys(this.composantsId).length === 0) {
-            this.composantsId = this.composants[0];
-          }
+          this.composantsId = this.composants[0];
+          // if (Object.keys(this.composantsId).length === 0) {
+
+          // }
           this.getComposantById(this.composantsId.id);
         })
         .catch((error) => {
@@ -208,12 +229,12 @@ export default {
     },
     getComposantById(data) {
       ComposantesService.detailComposant(data)
-        .then((data) => {        
-         
+        .then((data) => {
           this.activites = data.data.data.activites;
 
           if (data.data.data.souscomposantes.length > 0) {
             this.sousComposants = data.data.data.souscomposantes;
+            this.sousComposantId = this.sousComposants[0];
             this.haveSousComposantes = true;
           }
 
@@ -257,7 +278,7 @@ export default {
       <div class="grid grid-cols-2 gap-4">
         <div class="flex w-full">
           <!-- :reduce="(projet) => projet.id" -->
-          <v-select class="w-full"  v-model="projetId" label="nom" :options="projets">
+          <v-select class="w-full" v-model="projetId" label="nom" :options="projets">
             <template #search="{ attributes, events }">
               <input class="vs__search form-input" :required="!projetId" v-bind="attributes" v-on="events" />
             </template>
@@ -266,23 +287,24 @@ export default {
         </div>
         <div class="flex w-full">
           <!-- :reduce="(composant) => composant.id" -->
-          <v-select class="w-full"  v-model="composantsId" label="nom" :options="composants">
+          <v-select class="w-full" v-model="composantsId" label="nom" :options="composants">
             <template #search="{ attributes, events }">
               <input class="vs__search form-input" :required="!composantsId" v-bind="attributes" v-on="events" />
             </template>
           </v-select>
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OUtComes</label>
         </div>
-        <!-- <div class="flex w-full" v-if="haveSousComposantes">
-          <v-select class="w-full" :reduce="(souscomposant) => souscomposant.id" v-model="sousComposantId" label="nom" :options="sousComposants">
+        <div class="flex w-full" v-if="haveSousComposantes">
+          <!-- :reduce="(souscomposant) => souscomposant.id" -->
+          <v-select class="w-full" v-model="sousComposantId" label="nom" :options="sousComposants">
             <template #search="{ attributes, events }">
               <input class="vs__search form-input" :required="!sousComposantId" v-bind="attributes" v-on="events" />
             </template>
           </v-select>
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OUtComes</label>
-        </div> -->
+        </div>
 
-        <div class="flex w-full" v-if="haveSousComposantes">
+        <!-- <div class="flex w-full" v-if="haveSousComposantes">
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OUtPut</label>
           <TomSelect
             v-model="sousComposantId"
@@ -295,18 +317,17 @@ export default {
           >
             <option v-for="(element, index) in sousComposants" :key="index" :value="element.id">{{ element.nom }}</option>
           </TomSelect>
-        </div>
+        </div> -->
 
         <div class="flex w-full">
           <!-- :reduce="(activite) => activite.id" -->
-          <v-select class="w-full"  v-model="activitesId" label="nom" :options="activites">
+          <v-select class="w-full" v-model="activitesId" label="nom" :options="activites">
             <template #search="{ attributes, events }">
               <input class="vs__search form-input" :required="!activitesId" v-bind="attributes" v-on="events" />
             </template>
           </v-select>
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Activites</label>
         </div>
-
       </div>
 
       <!-- <button class="absolute px-4 py-2 text-white transform -translate-x-1/2 bg-blue-500 rounded -bottom-3 left-1/2" @click="filter()">Filtrer</button> -->
@@ -401,19 +422,28 @@ export default {
     </ModalHeader>
     <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
       <InputForm v-model="formData.nom" class="col-span-12" type="text" required="required" placeHolder="Nom de la tache" label="Nom" />
-      <InputForm v-model="formData.poids" class="col-span-12" type="number" required="required" placeHolder="Poids de l'activité " label="Poids" />
-      <InputForm v-model="formData.debut" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de début" label="Début du projet" />
-      <InputForm v-model="formData.fin" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de fin" label="Fin du projet " />
+      <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
 
-       <div class="flex col-span-12">
-        <v-select class="w-full" :reduce="(activite) => activite.id" v-model="formData.activiteId" label="nom" :options="activites">
+      <InputForm v-model="formData.poids" class="col-span-12" type="number" required="required" placeHolder="Poids de l'activité " label="Poids" />
+      <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.poids">{{ messageErreur.poids }}</p>
+
+      <InputForm v-model="formData.debut" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de début" label="Début du projet" />
+      <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.debut">{{ messageErreur.debut }}</p>
+
+      <InputForm v-model="formData.fin" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de fin" label="Fin du projet " />
+      <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.fin">{{ messageErreur.fin }}</p>
+
+      <div class="flex col-span-12">
+        <!-- :reduce="(activite) => activite.id" -->
+        <v-select class="w-full" v-model="formData.activiteId" label="nom" :options="activites">
           <template #search="{ attributes, events }">
             <input class="vs__search form-input" :required="!formData.activiteId" v-bind="attributes" v-on="events" />
           </template>
         </v-select>
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.activiteId">{{ messageErreur.activiteId }}</p>
+
         <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-bold duration-100 ease-linear -translate-y-3 bg-white _font-medium form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Activites</label>
       </div>
-
     </ModalBody>
     <ModalFooter>
       <div class="flex items-center justify-center">
@@ -432,7 +462,7 @@ export default {
       </div>
       <div class="flex gap-2 px-5 pb-8 text-center">
         <button type="button" @click="showDeleteModal = false" class="w-full my-3 mr-1 btn btn-outline-secondary">Annuler</button>
-        <VButton :loading="isLoading" label="Supprimer" @click="deleteTache" />
+        <VButton :loading="deleteLoader" label="Supprimer" @click="deleteTache" />
       </div>
     </ModalBody>
   </Modal>

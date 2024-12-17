@@ -82,7 +82,7 @@ const getDatas = async () => {
     })
     .catch((e) => {
       isLoadingData.value = false;
-      toast.error("Une erreur est survenue: Liste des évaluations.");
+      toast.error(getAllErrorMessages(e));
     });
   // initTabulator();
 };
@@ -133,7 +133,7 @@ const getOrganisationsProgramme = async () => {
       ongsProgramme.value = result.data.data;
     })
     .catch((e) => {
-      toast.error("Une erreur est survenue: Liste des organisations.");
+      toast.error(getAllErrorMessages(e));
     });
 };
 
