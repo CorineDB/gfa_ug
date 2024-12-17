@@ -15,6 +15,7 @@ import { getFieldErrors } from "../../utils/helpers";
 import { secteursActivites } from "../../utils/constants";
 import AlertErrorOng from "../../components/news/AlertErrorOng.vue";
 import verifyPermission from "../../utils/verifyPermission";
+import FondsService from "@/services/modules/fond.service";
 
 const router = useRouter();
 
@@ -34,6 +35,7 @@ const payload = reactive({
   nom: "",
   email: "",
   contact: "",
+  fondId: "",
   nom_point_focal: "",
   prenom_point_focal: "",
   contact_point_focal: "",
@@ -66,6 +68,7 @@ const datas = ref([]);
 const departements = ref([]);
 const errors = ref({});
 const pays = ref([]);
+const fonds = ref([]);
 const indexBenin = ref(1);
 const currentStep = ref(1);
 const selectedDepartementData = ref("");
@@ -179,6 +182,17 @@ const getDatas = async () => {
   }
 };
 
+const getFonds = async () => {
+  await FondsService.get()
+    .then((result) => {
+      fonds.value = result.data.data;
+    })
+    .catch((e) => {
+      console.error(e);
+      toast.error("Une erreur est survenue: Liste des type des options.");
+    });
+};
+
 const getOne = async (id) => {
   try {
     // isLoadingData.value = true;
@@ -248,6 +262,7 @@ const handleEdit = (data) => {
   payload.contact_point_focal = Number(data.contact_point_focal);
   payload.nom_point_focal = data.nom_point_focal;
   payload.prenom_point_focal = data.prenom_point_focal;
+  payload.fondId = data.fondId ?? "";
   showModalCreate.value = true;
 };
 
@@ -374,6 +389,7 @@ onBeforeMount(() => {
 // Fetch data on component mount
 onMounted(() => {
   getDatas();
+  getFonds();
 });
 </script>
 
@@ -458,16 +474,26 @@ onMounted(() => {
                     <option value=""></option>
                     <option v-for="(secteur, index) in secteursActivites" :key="index" :value="secteur">{{ secteur }}</option>
                   </TomSelect>
-                  <div v-if="errors.type" class="mt-2 text-danger">{{ getFieldErrors(errors.secteurActivite) }}</div>
+                  <div v-if="errors.secteurActivite" class="mt-2 text-danger">{{ getFieldErrors(errors.secteurActivite) }}</div>
                 </div>
               </div>
-              <div>
-                <label class="form-label">Types</label>
-                <TomSelect v-model="payload.type" :options="{ placeholder: 'Selectionez  un type' }" class="w-full">
-                  <option value=""></option>
-                  <option v-for="(type, index) in types" :key="index" :value="type.id">{{ type.label }}</option>
-                </TomSelect>
-                <div v-if="errors.type" class="mt-2 text-danger">{{ getFieldErrors(errors.type) }}</div>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="form-label">Types</label>
+                  <TomSelect v-model="payload.type" :options="{ placeholder: 'Selectionez  un type' }" class="w-full">
+                    <option value=""></option>
+                    <option v-for="(type, index) in types" :key="index" :value="type.id">{{ type.label }}</option>
+                  </TomSelect>
+                  <div v-if="errors.type" class="mt-2 text-danger">{{ getFieldErrors(errors.type) }}</div>
+                </div>
+                <div>
+                  <label class="form-label">Fonds</label>
+                  <TomSelect v-model="payload.fondId" :options="{ placeholder: 'Selectionez  un fond' }" class="w-full">
+                    <option value=""></option>
+                    <option v-for="(fond, index) in fonds" :key="index" :value="fond.id">{{ fond.nom_du_fond }} ({{ fond.fondDisponible }})</option>
+                  </TomSelect>
+                  <div v-if="errors.fondId" class="mt-2 text-danger">{{ getFieldErrors(errors.fondId) }}</div>
+                </div>
               </div>
             </div>
           </div>
