@@ -1,8 +1,8 @@
 <template>
-  <div class="flex justify-end my-1">
+  <div v-if="verifyPermission('voir-un-indicateur')" class="flex justify-end my-1">
     <ExportationIndicateur :data="data" :years="years" />
   </div>
-  <div class="table-container">
+  <div v-if="verifyPermission('voir-un-indicateur')" class="table-container">
     <div ref="tableWrapper" class="table-wrapper">
       <table class="w-full max-w-full my-2 border-collapse editor_listing_table border-slate-500" cellpadding="6" cellspacing="0">
         <thead class="text-black">
@@ -69,9 +69,9 @@
                   {{}}
                 </td>
                 <td class="space-x-3">
-                  <button title="Suivre" @click="handleSuivi(indicateur)" class="btn text-primary"><CornerUpLeftIcon class="size-5" /></button>
-                  <button title="Voir" @click="goToDetailSuivi(indicateur.id)" class="btn text-primary"><EyeIcon class="size-5" /></button>
-                  <button title="Supprimer" @click="handleDelete(indicateur)" class="btn text-danger"><TrashIcon class="size-5" /></button>
+                  <button v-if="verifyPermission('creer-un-suivi-indicateur')" title="Suivre" @click="handleSuivi(indicateur)" class="btn text-primary"><CornerUpLeftIcon class="size-5" /></button>
+                  <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Voir" @click="goToDetailSuivi(indicateur.id)" class="btn text-primary"><EyeIcon class="size-5" /></button>
+                  <button v-if="verifyPermission('supprimer-un-suivi-indicateur')" title="Supprimer" @click="handleDelete(indicateur)" class="btn text-danger"><TrashIcon class="size-5" /></button>
                 </td>
               </tr>
             </template>
@@ -215,6 +215,7 @@ import { sourcesDonnees } from "../utils/constants";
 import { useRouter } from "vue-router";
 import { getFieldErrors } from "../utils/helpers";
 import ExportationIndicateur from "./news/ExportationIndicateur.vue";
+import verifyPermission from "@/utils/verifyPermission";
 
 const props = defineProps({
   data: Array,

@@ -5,6 +5,7 @@ import { getStringValueOfStatutCode } from "@/utils/index";
 import ProjetService from "@/services/modules/projet.service.js";
 import ComposantesService from "@/services/modules/composante.service";
 import InputForm from "@/components/news/InputForm.vue";
+import verifyPermission from "@/utils/verifyPermission";
 import VButton from "@/components/news/VButton.vue";
 import { toast } from "vue3-toastify";
 export default {
@@ -78,6 +79,7 @@ export default {
         }
       }
     },
+    verifyPermission,
     supprimerComposant(data) {
       this.showDeleteModal = true;
       this.composantsId = data.id;
@@ -231,7 +233,7 @@ export default {
           <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
         </div>
       </div>
-      <div class="flex">
+      <div v-if="verifyPermission('creer-un-outcome')" class="flex">
         <button class="mr-2 shadow-md btn btn-primary" @click="addComposants()"><PlusIcon class="w-4 h-4 mr-3" />Ajouter un OutCome</button>
       </div>
     </div>
@@ -239,7 +241,7 @@ export default {
 
   <div v-if="!isLoadingData" class="grid grid-cols-12 gap-6 mt-5">
     <div v-for="(item, index) in composants" :key="index" class="col-span-12 p-4 md:col-span-6 lg:col-span-4">
-      <div class="p-5 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-105 hover:bg-gray-50">
+      <div v-if="verifyPermission('voir-un-outcome')" class="p-5 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-105 hover:bg-gray-50">
         <!-- En-tête avec sigle et titre -->
         <div class="relative flex items-start pt-5">
           <div class="flex flex-col items-center w-full lg:flex-row">
@@ -269,8 +271,8 @@ export default {
             </DropdownToggle>
             <DropdownMenu class="w-40 bg-white rounded-md shadow-lg">
               <DropdownContent>
-                <DropdownItem @click="modifierComposante(item)"> <Edit2Icon class="w-4 h-4 mr-2 text-gray-600" /> Modifier </DropdownItem>
-                <DropdownItem @click="supprimerComposant(item)"> <TrashIcon class="w-4 h-4 mr-2 text-red-500" /> Supprimer </DropdownItem>
+                <DropdownItem v-if="verifyPermission('modifier-un-outcome')" @click="modifierComposante(item)"> <Edit2Icon class="w-4 h-4 mr-2 text-gray-600" /> Modifier </DropdownItem>
+                <DropdownItem v-if="verifyPermission('supprimer-un-outcome')" @click="supprimerComposant(item)"> <TrashIcon class="w-4 h-4 mr-2 text-red-500" /> Supprimer </DropdownItem>
               </DropdownContent>
             </DropdownMenu>
           </Dropdown>

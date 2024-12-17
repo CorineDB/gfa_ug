@@ -14,6 +14,7 @@ import { useRouter } from "vue-router";
 import { getFieldErrors } from "../../utils/helpers";
 import { secteursActivites } from "../../utils/constants";
 import AlertErrorOng from "../../components/news/AlertErrorOng.vue";
+import verifyPermission from "../../utils/verifyPermission";
 
 const router = useRouter();
 

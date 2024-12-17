@@ -5,7 +5,8 @@ import { getStringValueOfStatutCode } from "@/utils/index";
 import ProjetService from "@/services/modules/projet.service.js";
 import ComposantesService from "@/services/modules/composante.service";
 import ActiviteService from "@/services/modules/activite.service";
-import TachesService from '@/services/modules/tache.service';
+import TachesService from "@/services/modules/tache.service";
+import verifyPermission from "@/utils/verifyPermission";
 import InputForm from "@/components/news/InputForm.vue";
 import VButton from "@/components/news/VButton.vue";
 import { toast } from "vue3-toastify";
@@ -31,7 +32,7 @@ export default {
         poids: "",
         debut: "",
         fin: "",
-        activiteId: ""
+        activiteId: "",
       },
       composantsId: "",
       sousComposantId: "",
@@ -40,7 +41,7 @@ export default {
       showDeleteModal: false,
       deleteLoader: false,
       taches: [],
-      tacheId: ''
+      tacheId: "",
     };
   },
   computed: {
@@ -73,6 +74,7 @@ export default {
 
   methods: {
     text() {},
+    verifyPermission,
     clearObjectValues(obj) {
       for (let key in obj) {
         if (obj.hasOwnProperty(key)) {
@@ -128,7 +130,7 @@ export default {
     addTache() {
       this.showModal = true;
       this.isUpdate = false;
-      
+
       this.formData.activiteId = this.activitesId;
 
       this.labels = "Ajouter";
@@ -208,8 +210,7 @@ export default {
     },
     getComposantById(data) {
       ComposantesService.detailComposant(data)
-        .then((data) => {        
-         
+        .then((data) => {
           this.activites = data.data.data.activites;
 
           if (data.data.data.souscomposantes.length > 0) {
@@ -303,7 +304,6 @@ export default {
           </v-select>
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Activites</label>
         </div>
-
       </div>
 
       <!-- <button class="absolute px-4 py-2 text-white transform -translate-x-1/2 bg-blue-500 rounded -bottom-3 left-1/2" @click="filter()">Filtrer</button> -->
@@ -324,7 +324,7 @@ export default {
           <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
         </div>
       </div>
-      <div class="flex">
+      <div v-if="verifyPermission('creer-une-tache')" class="flex">
         <button class="mr-2 shadow-md btn btn-primary" @click="addTache()"><PlusIcon class="w-4 h-4 mr-3" />Ajouter une Tache</button>
       </div>
     </div>
@@ -335,7 +335,7 @@ export default {
     <!-- <pre>{{sousComposants}}</pre>   -->
 
     <div v-for="(item, index) in taches" :key="index" class="col-span-12 intro-y md:col-span-6 lg:col-span-4">
-      <div class="p-5 box">
+      <div v-if="verifyPermission('voir-une-tache')" class="p-5 box">
         <div class="flex items-start pt-5 _px-5">
           <div class="flex flex-col items-center w-full lg:flex-row">
             <div class="flex items-center justify-center w-16 h-16 text-white rounded-full image-fit bg-primary">
@@ -359,8 +359,8 @@ export default {
             </DropdownToggle>
             <DropdownMenu class="w-40">
               <DropdownContent>
-                <DropdownItem @click="modifierTache(item)"> <Edit2Icon class="w-4 h-4 mr-2" /> Modifier </DropdownItem>
-                <DropdownItem @click="supprimerTache(item)"> <TrashIcon class="w-4 h-4 mr-2" /> Supprimer </DropdownItem>
+                <DropdownItem v-if="verifyPermission('modifier-une-tache')" @click="modifierTache(item)"> <Edit2Icon class="w-4 h-4 mr-2" /> Modifier </DropdownItem>
+                <DropdownItem v-if="verifyPermission('supprimer-une-tache')" @click="supprimerTache(item)"> <TrashIcon class="w-4 h-4 mr-2" /> Supprimer </DropdownItem>
               </DropdownContent>
             </DropdownMenu>
           </Dropdown>
@@ -402,7 +402,7 @@ export default {
       <InputForm v-model="formData.debut" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de début" label="Début du projet" />
       <InputForm v-model="formData.fin" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de fin" label="Fin du projet " />
 
-       <div class="flex col-span-12">
+      <div class="flex col-span-12">
         <v-select class="w-full" :reduce="(activite) => activite.id" v-model="formData.activiteId" label="nom" :options="activites">
           <template #search="{ attributes, events }">
             <input class="vs__search form-input" :required="!formData.activiteId" v-bind="attributes" v-on="events" />
@@ -410,7 +410,6 @@ export default {
         </v-select>
         <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-bold duration-100 ease-linear -translate-y-3 bg-white _font-medium form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Activites</label>
       </div>
-
     </ModalBody>
     <ModalFooter>
       <div class="flex items-center justify-center">

@@ -53,7 +53,7 @@
       <div class="flex items-center justify-between gap-2 my-2">
         <h2 class="text-lg font-medium intro-y">Liste des indicateurs</h2>
         <!-- Button to open modal -->
-        <div class="flex items-center justify-end gap-2">
+        <div v-if="verifyPermission('voir-un-indicateur')" class="flex items-center justify-end gap-2">
           <button class="text-base btn btn-primary" @click="openCreateModal"><PlusIcon class="mr-1 size-4" />Ajouter</button>
         </div>
       </div>
@@ -86,7 +86,7 @@
         </ul> -->
         <LoaderSnipper v-if="isLoadingDataCadre" />
         <TabulatorCadreMesure v-else :data="dataAvailable" :years="annees" />
-        <div v-if="!isLoadingDataCadre" class="flex justify-center gap-3 my-8">
+        <div v-if="!isLoadingDataCadre && verifyPermission('voir-un-indicateur')" class="flex justify-center gap-3 my-8">
           <button @click="prevPage" :disabled="currentPage === 1" class="px-4 py-3 btn btn-outline-primary"><ChevronsLeftIcon class="size-5" /></button>
           <div class="max-w-[400px] overflow-x-auto flex items-center gap-3">
             <button v-for="page in totalPages" :key="page" @click="goToPage(page)" :class="page === currentPage ? 'btn-primary' : 'btn-outline-primary'" class="px-4 py-3 btn">{{ page }}</button>
@@ -343,6 +343,7 @@ import AuthService from "@/services/modules/auth.service";
 import ResultatCadreRendementService from "@/services/modules/resultat.cadre.rendement.service";
 import TabulatorCadreMesure from "@/components/TabulatorCadreMesure.vue";
 import { getFieldErrors } from "../../../utils/helpers";
+import verifyPermission from "@/utils/verifyPermission";
 
 const props = defineProps({});
 
