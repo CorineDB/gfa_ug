@@ -31,17 +31,17 @@
                 </td>
                 <!-- Première cellule de sous-catégorie avec rowspan -->
                 <td class="" v-if="qIndex === 0" :rowspan="sousCategorie.questions_de_gouvernance.length">
-                  {{ sousCategorie.nom }}
+                  {{ question.nom }}
                 </td>
                 <td class="py-2" :style="{ 'background-color': getColorForValue(0) }">
                   <div class="text-center">
                     <Tippy
                       class="tooltip"
-                      :content="organisationsTooltipContent(sousCategorie.score_ranges['0-0.25']?.organisations)"
+                      :content="organisationsTooltipContent(question.score_ranges['0-0.25']?.organisations)"
                       :options="{
                         theme: 'light',
                       }"
-                      >{{ sousCategorie.score_ranges["0-0.25"]?.organisations.map((ong) => ong.nom).join(", ") }}</Tippy
+                      >{{ question.score_ranges["0-0.25"]?.organisations.map((ong) => ong.nom).join(", ") }}</Tippy
                     >
                   </div>
                 </td>
@@ -49,11 +49,11 @@
                   <div class="text-center">
                     <Tippy
                       class="tooltip"
-                      :content="organisationsTooltipContent(sousCategorie.score_ranges['0.25-0.5']?.organisations)"
+                      :content="organisationsTooltipContent(question.score_ranges['0.25-0.5']?.organisations)"
                       :options="{
                         theme: 'light',
                       }"
-                      >{{ sousCategorie.score_ranges["0.25-0.5"]?.organisations.map((ong) => ong.nom).join(", ") }}</Tippy
+                      >{{ question.score_ranges["0.25-0.5"]?.organisations.map((ong) => ong.nom).join(", ") }}</Tippy
                     >
                   </div>
                 </td>
@@ -61,11 +61,11 @@
                   <div class="text-center">
                     <Tippy
                       class="tooltip"
-                      :content="organisationsTooltipContent(sousCategorie.score_ranges['0.5-0.75']?.organisations)"
+                      :content="organisationsTooltipContent(question.score_ranges['0.5-0.75']?.organisations)"
                       :options="{
                         theme: 'light',
                       }"
-                      >{{ sousCategorie.score_ranges["0.5-0.75"]?.organisations.map((ong) => ong.nom).join(", ") }}</Tippy
+                      >{{ question.score_ranges["0.5-0.75"]?.organisations.map((ong) => ong.nom).join(", ") }}</Tippy
                     >
                   </div>
                 </td>
@@ -73,11 +73,11 @@
                   <div class="text-center">
                     <Tippy
                       class="tooltip"
-                      :content="organisationsTooltipContent(sousCategorie.score_ranges['0.75-1']?.organisations)"
+                      :content="organisationsTooltipContent(question.score_ranges['0.75-1']?.organisations)"
                       :options="{
                         theme: 'light',
                       }"
-                      >{{ sousCategorie.score_ranges["0.75-1"]?.organisations.map((ong) => ong.nom).join(", ") }}</Tippy
+                      >{{ question.score_ranges["0.75-1"]?.organisations.map((ong) => ong.nom).join(", ") }}</Tippy
                     >
                   </div>
                 </td>
@@ -99,7 +99,7 @@ const props = defineProps({
 
 function organisationsTooltipContent(ong) {
   if (!ong) return "";
-  return ong.map((org) => `${org.nom} : ${org.moyenne_ponderee}`).join(",");
+  return ong.map((org) => `${org.nom} : ${org.point}`).join(",");
 }
 </script>
 
