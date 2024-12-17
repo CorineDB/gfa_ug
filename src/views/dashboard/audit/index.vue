@@ -1,6 +1,328 @@
+<script setup>
+import { computed, onMounted, reactive, ref } from "vue";
+import VButton from "@/components/news/VButton.vue";
+import InputForm from "@/components/news/InputForm.vue";
+import Tabulator from "tabulator-tables";
+import DeleteButton from "@/components/news/DeleteButton.vue";
+import { toast } from "vue3-toastify";
+import ProgrammeService from "@/services/modules/programme.service";
+import ProjetService from "@/services/modules/projet.service";
+import LoaderSnipper from "@/components/LoaderSnipper.vue";
+import AuditService from "@/services/modules/audit.service";
+import FormulaireFactuel from "@/services/modules/formFactuel.service";
+import { useRouter } from "vue-router";
+import OngService from "@/services/modules/ong.service";
+import { getAllErrorMessages } from "@/utils/gestion-error";
+import ChartProgressionByTime from "../../../components/news/ChartProgressionByTime.vue";
+import ProgressBar from "../../../components/news/ProgressBar.vue";
+import ChartScroreByPrincipe from "../../../components/news/ChartScroreByPrincipe.vue";
+import { getFieldErrors } from "../../../utils/helpers";
+import SyntheseService from "../../../services/modules/synthese.service";
+import { data } from "jquery";
+
+const router = useRouter();
+
+const idFormFactuel = ref("");
+const idFormPerception = ref("");
+const payload = reactive({
+  annee: "",
+  entreprise: "",
+  entrepriseContact: "",
+  dateDeTransmission: "",
+  etat: "",
+  statut: "",
+  projetId: "",
+  categorie: "",
+});
+
+const selectedFile = ref(null);
+
+const imagePreview = ref(null);
+
+const FormAjout = new FormData();
+
+const handleFileChange = function (event) {
+  const file = event.target.files[0];
+  if (file) {
+    selectedFile.value = file;
+
+    // Créer une prévisualisation de l'image
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      this.imagePreview = e.target.result;
+    };
+    reader.readAsDataURL(file); // Lire le fichier en tant qu'URL de données
+  }
+};
+
+const programmeId = JSON.parse(localStorage.getItem("authenticateUser")).programme.id;
+const users = ref([]);
+const projets = ref([]);
+
+const getProjet = function () {
+  ProjetService.get(programmeId)
+    .then((data) => {
+      projets.value = data.data.data;
+      // console.log(users.value);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+};
+
+const getUserListe = function () {
+  console.log("id du programme", programmeId);
+  ProgrammeService.getUsers(programmeId)
+    .then((data) => {
+      users.value = data.data.data;
+      console.log(users.value);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+};
+
+const tabulator = ref();
+const idSelect = ref("");
+const showModalCreate = ref(false);
+const deleteModalPreview = ref(false);
+const isLoading = ref(false);
+const isLoadingData = ref(true);
+const isLoadingDataScore = ref(false);
+const isCreate = ref(true);
+const datas = ref([]);
+const datasScore = ref([]);
+const organisations = ref([]);
+const ongsProgramme = ref([]);
+const formulairesFactuel = ref([]);
+const formulairesPerception = ref([]);
+const currentScore = ref({});
+const currentOrganisationScore = ref("");
+const ongSelectedScore = ref("");
+const yearSelectedOng = ref("");
+const errors = ref({});
+
+const createData = async () => {
+  for (const key of Array.from(FormProjet.value.keys())) {
+    FormProjet.value.delete(key);
+  }
+  $h.ajouterObjetDansFormData(payload, FormProjet.value);
+
+  if (this.selectedFile) {
+    FormProjet.value.append("fichier[]", this.selectedFile);
+  }
+
+  // payload.formulaires_de_gouvernance = [idFormFactuel.value, idFormPerception.value];
+  isLoading.value = true;
+  await AuditService.create(payload)
+    .then(() => {
+      isLoading.value = false;
+      getDatas();
+      resetForm();
+      toast.success("évaluation créer.");
+    })
+    .catch((e) => {
+      isLoading.value = false;
+      if (e.response && e.response.status === 422) {
+        errors.value = e.response.data.errors;
+      } else {
+        toast.error(getAllErrorMessages(e));
+      }
+      console.error(e);
+    });
+};
+const getDatas = async () => {
+  isLoadingData.value = true;
+  await AuditService.get()
+    .then((result) => {
+      datas.value = result.data.data;
+      isLoadingData.value = false;
+    })
+    .catch((e) => {
+      isLoadingData.value = false;
+      toast.error(getAllErrorMessages(e));
+    });
+  // initTabulator();
+};
+
+const getEvolutionByScore = async (id) => {
+  isLoadingDataScore.value = true;
+  await SyntheseService.getEvolutionByScrore(id)
+    .then((result) => {
+      datasScore.value = result.data.data;
+      currentScore.value = datasScore.value[0]?.scores;
+      isLoadingDataScore.value = false;
+    })
+    .catch((e) => {
+      isLoadingDataScore.value = false;
+      e.response?.data?.message ? toast.error(e.response?.data?.message) : toast.error("Une erreur est survenue: Score.");
+    });
+};
+const getFormsFactuel = async () => {
+  await FormulaireFactuel.get()
+    .then((result) => {
+      formulairesFactuel.value = result.data.data;
+    })
+    .catch((e) => {
+      toast.error("Une erreur est survenue: Liste des formulaires factuel.");
+    });
+};
+const getFormsPerception = async () => {
+  await FormulaireFactuel.get("perception")
+    .then((result) => {
+      formulairesPerception.value = result.data.data;
+    })
+    .catch((e) => {
+      toast.error("Une erreur est survenue: Liste des formulaires de perception.");
+    });
+};
+const getOrganisations = async () => {
+  await OngService.get()
+    .then((result) => {
+      organisations.value = result.data.data;
+    })
+    .catch((e) => {
+      toast.error("Une erreur est survenue: Liste des organisations.");
+    });
+};
+const getOrganisationsProgramme = async () => {
+  await OngService.programmeOng()
+    .then((result) => {
+      ongsProgramme.value = result.data.data;
+    })
+    .catch((e) => {
+      toast.error(getAllErrorMessages(e));
+    });
+};
+
+const updateData = async () => {
+  isLoading.value = true;
+  payload.formulaires_de_gouvernance = [idFormFactuel.value, idFormPerception.value];
+  await AuditService.update(idSelect.value, payload)
+    .then(() => {
+      getDatas();
+      resetForm();
+      toast.success("Évaluation modifiée.");
+    })
+    .catch((e) => {
+      if (e.response && e.response.status === 422) {
+        errors.value = e.response.data.errors;
+      } else {
+        toast.error(getAllErrorMessages(e));
+      }
+      console.error(e);
+    })
+    .finally(() => {
+      isLoading.value = false;
+    });
+};
+const submitData = () => (isCreate.value ? createData() : updateData());
+const deleteData = async () => {
+  isLoading.value = true;
+  await AuditService.destroy(idSelect.value)
+    .then(() => {
+      deleteModalPreview.value = false;
+      isLoading.value = false;
+      toast.success("Évaluation  supprimée");
+      getDatas();
+    })
+    .catch((e) => {
+      isLoading.value = false;
+      console.error(e);
+      toast.error("Une erreur est survenue, ressayer");
+    });
+};
+const getStatusText = (param) => {
+  switch (param) {
+    case 1:
+      return { label: "Terminé", class: "bg-success" };
+    case 0:
+      return { label: "En cours", class: "bg-pending" };
+    case -1:
+      return { label: "Non demarré", class: "bg-primary" };
+    default:
+      return { label: "A déterminer", class: "bg-primary" };
+  }
+};
+
+function gotoSoumissions(enquete) {
+  router.push({ name: "SoumissionsEnqueteDeCollecte", params: { id: enquete.id } });
+}
+
+function gotoAppreciations(enquete) {
+  router.push({ name: "EnqueteAppreciations", query: { enqueteId: enquete.id } });
+}
+
+async function changeOrganisationScore() {
+  await getEvolutionByScore(ongSelectedScore.value);
+  yearSelectedOng.value = yearsCurrentScore.value[0];
+}
+
+function fetchOrganisationsAndFormulaires() {
+  getFormsFactuel();
+  getFormsPerception();
+  getOrganisations();
+}
+
+const handleEdit = (params) => {
+  fetchOrganisationsAndFormulaires();
+  isCreate.value = false;
+  idSelect.value = params.id;
+  payload.intitule = params.intitule;
+  payload.description = params.description ?? "";
+  payload.annee_exercice = params.annee_exercice;
+  payload.objectif_attendu = params.objectif_attendu;
+  payload.debut = params.debut;
+  payload.fin = params.fin;
+  idFormFactuel.value = params.formulaire_factuel_de_gouvernance;
+  idFormPerception.value = params.formulaire_perception_de_gouvernance;
+  payload.organisations = params.organisations.map((ong) => ong.id);
+  showModalCreate.value = true;
+};
+const handleDelete = (params) => {
+  idSelect.value = params.id;
+  deleteModalPreview.value = true;
+};
+const cancelSelect = () => {
+  deleteModalPreview.value = false;
+  idSelect.value = "";
+};
+const resetForm = () => {
+  payload.intitule = "";
+  payload.annee_exercice = new Date().getFullYear();
+  payload.objectif_attendu = 0;
+  payload.debut = "";
+  payload.description = "";
+  payload.fin = "";
+  idFormFactuel.value = formulairesFactuel.value[0].id;
+  idFormPerception.value = formulairesPerception.value[0].id;
+  payload.organisations = [];
+  showModalCreate.value = false;
+  errors.value = {};
+};
+const openCreateModal = () => {
+  fetchOrganisationsAndFormulaires();
+  showModalCreate.value = isCreate.value = true;
+};
+
+const mode = computed(() => (isCreate.value ? "Ajouter" : "Modifier"));
+
+const yearsCurrentScore = computed(() => Object.keys(currentScore.value));
+
+onMounted(async () => {
+  getUserListe();
+  await getDatas();
+  await getOrganisationsProgramme();
+  // ongSelectedScore.value = organisations.value[0].id;
+  // changeOrganisationScore();
+  // getFormsFactuel();
+  // getFormsPerception();
+});
+</script>
+
 <template>
-  <h2 class="mt-10 text-lg font-medium intro-y">Audit</h2>
-  <div class="grid grid-cols-12 gap-6 mt-5">
+  <h2 class="my-10 text-lg font-medium intro-y">Audit</h2>
+  <div class="grid grid-cols-12 gap-6 mb-5">
     <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
       <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
         <div class="relative w-56 text-slate-500">
@@ -8,12 +330,199 @@
           <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
         </div>
       </div>
+      <div class="flex">
+        <button class="mr-2 shadow-md btn btn-primary" @click="openCreateModal"><PlusIcon class="w-4 h-4 mr-3" />Ajouter un audit</button>
+      </div>
     </div>
   </div>
+  <div class="p-5 mt-5 intro-y">
+    <!-- <div class="overflow-x-auto scrollbar-hidden" v-if="!isLoadingData">
+      <div id="tabulator" class="mt-5 table-report table-report--tabulator"></div>
+    </div> -->
+    <LoaderSnipper v-if="isLoadingData" />
+    <div v-else class="overflow-x-auto mt-5">
+      <table class="table mt-5">
+        <thead class="table-light">
+          <tr>
+            <th class="whitespace-nowrap">#</th>
+            <th class="whitespace-nowrap">Projets</th>
+            <th class="whitespace-nowrap">Prestataire</th>
+            <th class="whitespace-nowrap">Contact</th>
+            <th class="whitespace-nowrap">Exercice audité</th>
+            <th class="whitespace-nowrap">Etat d'avancement</th>
+            <th class="whitespace-nowrap">Catégorie de l'audit</th>
+            <th class="whitespace-nowrap">Date creation</th>
+            <th class="whitespace-nowrap">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(data, index) in datas
+          " :key="index">
+            <td>{{ index + 1 }}</td>
+            <td>{{ data.nom }}</td>
+            <td>{{ data.prenom }}</td>
+
+            <td>{{ data.email }}</td>
+            <td>{{ data.contact }}</td>
+            <td :class="data.poste ? 'text-black' : 'text-red-500'" :style="{ color: data.poste ? '#000000' : '#a9aaad', fontStyle: data.poste ? 'normal' : 'italic' }">{{ data.poste ?? "Non défini" }}</td>
+            <td>
+              <div class="flex flex-wrap gap-1">
+                <span v-for="(role, index) in data.roles" class="bg-primary text-white rounded-md px-2 py-1 text-xs">
+                  {{ role.nom }}
+                </span>
+              </div>
+            </td>
+
+            <td>{{ data.created_at }}</td>
+            <td v-if="$h.getPermission('write.utilisateur')" class="flex space-x-2 items-center">
+              <Tippy tag="a" href="javascript:;" class="tooltip" content="cliquez pour modifier">
+                <span @click="modifier(index, data)" class="text-blue-500 cursor-pointer">
+                  <EditIcon />
+                </span>
+              </Tippy>
+
+              <Tippy tag="a" href="javascript:;" class="tooltip" content="cliquez pour modifier">
+                <span @click="supprimer(index, data)" class="text-red-500 cursor-pointer">
+                  <Trash2Icon />
+                </span>
+              </Tippy>
+            </td>
+            <td>
+              <div class="flex justify-evenly">
+                <EditIcon @click="openUpdateModal(data)" class="w-4 h-4 mr-3" />
+                <TrashIcon class="w-4 h-4 mr-3" />
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal Register & Update -->
+  <Modal backdrop="static" :show="showModalCreate" @hidden="showModalCreate = false">
+    <ModalHeader>
+      <h2 class="mr-auto text-base font-medium">{{ mode }} une évaluation</h2>
+    </ModalHeader>
+    <form @submit.prevent="submitData">
+      <ModalBody>
+        <div class="grid grid-cols-1 gap-4">
+          <InputForm class="col-span-12" label="Prestataire" v-model="payload.entreprise" :control="getFieldErrors(errors.entreprise)" />
+          <InputForm class="col-span-12" label="Contact" type="number" v-model="payload.entrepriseContact" :control="getFieldErrors(errors.entrepriseContact)" />
+          <InputForm class="col-span-12" label="Excercice audité" type="number" v-model="payload.annee" :control="getFieldErrors(errors.annee)" />
+          <InputForm class="col-span-12" label="Date de transmission" v-model="payload.dateDeTransmission" type="date" :control="getFieldErrors(errors.dateDeTransmission)" />
+          <InputForm class="col-span-12" label="Etat avancement" v-model="payload.etat" :control="getFieldErrors(errors.etat)" />
+
+          <InputForm class="col-span-12" type="file" @change="handleFileChange" required="required" placeHolder="choisir un fichier" label="Rapport" />
+
+          <div class="col-span-12">
+            <label class="form-label">Partager à</label>
+            <TomSelect :options="{ placeholder: 'Selectionez un utilisateur' }" class="w-full">
+              <option v-for="(form, index) in users" :key="index" :value="form.id">{{ form.nom }}</option>
+            </TomSelect>
+            <!-- <div v-if="errors.formulaires_de_gouvernance" class="mt-2 text-danger">{{ getFieldErrors(errors.formulaires_de_gouvernance) }}</div> -->
+          </div>
+
+          <div class="col-span-12">
+            <label class="form-label">Catérogies</label>
+            <TomSelect v-model="payload.categorie" :options="{ placeholder: 'Selectionez une catégorie' }" class="w-full">
+              <option value="0">Audit comptable et financier</option>
+              <option value="1">Audit de conformité environnementale et social</option>
+              <option value="2">Audit des acquisitions</option>
+              <option value="3">Audit techniques</option>
+            </TomSelect>
+            <!-- <div v-if="errors.formulaires_de_gouvernance" class="mt-2 text-danger">{{ getFieldErrors(errors.formulaires_de_gouvernance) }}</div> -->
+          </div>
+          <div class="col-span-12">
+            <label class="form-label">Statut</label>
+            <TomSelect v-model="payload.categorie" :options="{ placeholder: 'Selectionez un statut' }" class="w-full">
+              <option value="1">Terminer</option>
+              <option value="0">En cours</option>
+              <option value="-1">En attente</option>
+            </TomSelect>
+            <!-- <div v-if="errors.formulaires_de_gouvernance" class="mt-2 text-danger">{{ getFieldErrors(errors.formulaires_de_gouvernance) }}</div> -->
+          </div>
+
+          <div class="col-span-12">
+            <label class="form-label">Projet</label>
+            <TomSelect v-model="payload.projetId" :options="{ placeholder: 'Selectionez un projet' }" class="w-full">
+              <option v-for="(form, index) in projets" :key="index" :value="form.id">{{ form.nom }}</option>
+            </TomSelect>
+            <!-- <div v-if="errors.formulaires_de_gouvernance" class="mt-2 text-danger">{{ getFieldErrors(errors.formulaires_de_gouvernance) }}</div> -->
+          </div>
+
+          <!-- old -->
+
+          <!-- <InputForm label="Description" :control="getFieldErrors(errors.description)" v-model="payload.description" :required="false" /> -->
+          <!-- <div class="flex-1">
+            <label class="form-label" for="description">Description</label>
+            <div class="">
+              <textarea name="description" class="form-control" id="description" v-model="payload.description" cols="30" rows="3"></textarea>
+              <div v-if="errors.description" class="mt-2 text-danger">{{ getFieldErrors(errors.description) }}</div>
+            </div>
+          </div>
+          <div class="flex items-center justify-between w-full gap-4">
+            <div class="">
+              <label for="objectif" class="form-label">Objectif</label>
+              <input id="objectif" type="number" min="0.05" step="0.05" max="1" required v-model.number="payload.objectif_attendu" class="form-control" placeholder="Objectif" />
+              <div v-if="errors.objectif_attendu" class="mt-2 text-danger">{{ getFieldErrors(errors.objectif_attendu) }}</div>
+            </div>
+            <div class="">
+              <label for="annee" class="form-label">Année</label>
+              <input id="annee" type="number" required v-model.number="payload.annee_exercice" class="form-control" placeholder="Année exercice" />
+              <div v-if="errors.annee_exercice" class="mt-2 text-danger">{{ getFieldErrors(errors.annee_exercice) }}</div>
+            </div>
+          </div>
+          <div class="flex w-full gap-4">
+            <InputForm label="Début de l'enquete " v-model="payload.debut" type="date" :control="getFieldErrors(errors.debut)" />
+            <InputForm label="Fin de l'enquete " v-model="payload.fin" type="date" :control="getFieldErrors(errors.fin)" />
+          </div>
+          <div class="">
+            <label class="form-label">Formulaires Factuel</label>
+            <TomSelect v-model="idFormFactuel" :options="{ placeholder: 'Selectionez un formulaire' }" class="w-full">
+              <option v-for="(form, index) in formulairesFactuel" :key="index" :value="form.id">{{ form.libelle }} ({{ form.annee_exercice }})</option>
+            </TomSelect>
+            <div v-if="errors.formulaires_de_gouvernance" class="mt-2 text-danger">{{ getFieldErrors(errors.formulaires_de_gouvernance) }}</div>
+          </div>
+          <div class="">
+            <label class="form-label">Formulaires de perception</label>
+            <TomSelect v-model="idFormPerception" :options="{ placeholder: 'Selectionez un formulaire' }" class="w-full">
+              <option v-for="(form, index) in formulairesPerception" :key="index" :value="form.id">{{ form.libelle }} ({{ form.annee_exercice }})</option>
+            </TomSelect>
+            <div v-if="errors.formulaires_de_gouvernance" class="mt-2 text-danger">{{ getFieldErrors(errors.formulaires_de_gouvernance) }}</div>
+          </div>
+          <div class="">
+            <label class="form-label">Organisations</label>
+            <TomSelect v-model="payload.organisations" multiple :options="{ placeholder: 'Selectionez les organisations' }" class="w-full">
+              <option v-for="(organisation, index) in organisations" :key="index" :value="organisation.id">{{ organisation.nom }}</option>
+            </TomSelect>
+            <div v-if="errors.organisations" class="mt-2 text-danger">{{ getFieldErrors(errors.organisations) }}</div>
+          </div> -->
+        </div>
+      </ModalBody>
+      <ModalFooter>
+        <div class="flex gap-2">
+          <button type="button" @click="resetForm" class="w-full px-2 py-2 my-3 align-top btn btn-outline-secondary">Annuler</button>
+          <VButton :loading="isLoading" :label="mode" />
+        </div>
+      </ModalFooter>
+    </form>
+  </Modal>
+  <!-- End Modal -->
+
+  <!-- Modal Delete -->
+  <Modal :show="deleteModalPreview" @hidden="deleteModalPreview = false">
+    <ModalBody class="p-0">
+      <div class="p-5 text-center">
+        <XCircleIcon class="w-16 h-16 mx-auto mt-3 text-danger" />
+        <div class="mt-5 text-3xl">Suppression</div>
+        <div class="mt-2 text-slate-500">Supprimer une évaluation?</div>
+      </div>
+      <div class="flex justify-center w-full gap-3 py-4 text-center">
+        <button type="button" @click="cancelSelect" class="mr-1 btn btn-outline-secondary">Annuler</button>
+        <DeleteButton :loading="isLoading" @click="deleteData" />
+      </div>
+    </ModalBody>
+  </Modal>
+  <!-- End Modal -->
 </template>
-
-<script>
-
-</script>
-
-<style></style>

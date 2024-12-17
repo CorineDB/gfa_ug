@@ -10,6 +10,9 @@ const ProgrammeService = {
     get(slug) {
         return ApiService.get("programmes", slug);
     },
+    getUsers(slug) {
+        return ApiService.get(`programmes/${slug}/users`);
+    },
 
     create(params) {
         return ApiService.post("programmes", params);
