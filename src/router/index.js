@@ -29,7 +29,6 @@ import FicheFactuel from "../views/dashboard/FicheFactuel.vue";
 import pta from "../views/dashboard/organisation/pta.vue";
 import PtaGlobal from "../views/dashboard/pta/index.vue";
 
-
 import Ong from "../views/dashboard/organisation/ong.vue";
 import audit from "../views/dashboard/audit/index.vue";
 
@@ -83,6 +82,7 @@ import UpdateFormPerception from "../views/dashboard/UpdateFormPerception.vue";
 import UpdateFormFactuel from "../views/dashboard/UpdateFormFactuel.vue";
 import SurveyFormView from "../views/dashboard/SurveyFormView.vue";
 import DetailEvaluationIndividuel from "../views/dashboard/DetailEvaluationIndividuel.vue";
+import FicheMarqueurClassement from "../views/dashboard/FicheMarqueurClassement.vue";
 
 const routes = [
   {
@@ -121,6 +121,11 @@ const routes = [
         path: "/dashboard/projets/sous-composantes-globale",
         component: dashboard_projets_sous_composantes_globale,
         name: "dashboard_projets_sous_composantes_globale",
+      },
+      {
+        path: "/marqueur-classemnt/:e",
+        name: "FicheMarqueurClassement",
+        component: FicheMarqueurClassement,
       },
       {
         path: "projets/activites-globale",
