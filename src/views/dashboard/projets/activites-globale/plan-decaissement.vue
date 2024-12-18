@@ -71,7 +71,6 @@ export default {
     
     projetId(newValue, oldValue) {
       //if (this.composants.length > 0) {
-        console.log("result if projetId:" + newValue);
         this.triggerGetProjetDetailsById(newValue);
       //}
     },
@@ -82,9 +81,7 @@ export default {
     },
     projetsId(newValue, oldValue) {
 
-      console.log("result:" + newValue);
       if (newValue != null && newValue != undefined) {
-        console.log("result if:" + newValue);
         this.projetId = newValue;
       }
     },
@@ -274,7 +271,6 @@ export default {
         .then((data) => {        
          
           this.activites = data.data.data.activites;
-          console.log("result:" + data.data.data.activites);
 
           if (data.data.data.souscomposantes.length > 0) {
             this.sousComposants = data.data.data.souscomposantes;/* 
