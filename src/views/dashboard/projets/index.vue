@@ -2,7 +2,7 @@
   <div class="flex flex-col items-center mt-8 mb-4 intro-y sm:flex-row">
     <h2 class="mr-auto text-lg font-medium">Liste des projets</h2>
     <div class="flex w-full mt-4 sm:w-auto sm:mt-0">
-      <button class="mr-2 shadow-md btn btn-primary" @click="addProjet()">Ajouter un projet</button>
+      <button v-if="verifyPermission('modifier-un-projet')" class="mr-2 shadow-md btn btn-primary" @click="addProjet()">Ajouter un projet</button>
     </div>
   </div>
 
@@ -126,7 +126,7 @@
       </div>
     </ModalBody>
   </Modal>
-  <div class="grid grid-cols-1 gap-6 mt-6 md:grid-cols-2 lg:grid-cols-3">
+  <div v-if="verifyPermission('voir-un-projet')" class="grid grid-cols-1 gap-6 mt-6 md:grid-cols-2 lg:grid-cols-3">
     <div href="#" class="relative transition-all duration-500 border-l-4 shadow-2xl box group _bg-white zoom-in border-primary hover:border-secondary" v-for="(item, index) in projets" :key="index">
       <div class="relative m-5 bg-white">
         <div class="text-[#171a1d] group-hover:text-[#007580] font-medium text-[14px] md:text-[16px] lg:text-[18px] leading-[30px] pt-[10px]">{{ item.nom }}</div>
@@ -174,9 +174,9 @@
       </div>
 
       <div class="flex items-center justify-center p-5 border-t lg:justify-end border-slate-200/60 dark:border-darkmode-400">
-        <a class="flex items-center mr-auto text-primary" href="javascript:;" @click="goToDetail(item)"> <EyeIcon class="w-4 h-4 mr-1" /> Détail </a>
-        <a class="flex items-center mr-3" href="javascript:;" @click="modifierProjet(item)"> <CheckSquareIcon class="w-4 h-4 mr-1" /> Modifier </a>
-        <a class="flex items-center text-danger" href="javascript:;" @click="supprimerProjet(item)"> <Trash2Icon class="w-4 h-4 mr-1" /> Supprimer </a>
+        <a v-if="verifyPermission('voir-details-projet')" class="flex items-center mr-auto text-primary" href="javascript:;" @click="goToDetail(item)"> <EyeIcon class="w-4 h-4 mr-1" /> Détail </a>
+        <a v-if="verifyPermission('modifier-un-projet')" class="flex items-center mr-3" href="javascript:;" @click="modifierProjet(item)"> <CheckSquareIcon class="w-4 h-4 mr-1" /> Modifier </a>
+        <a v-if="verifyPermission('modifier-un-projet')" class="flex items-center text-danger" href="javascript:;" @click="supprimerProjet(item)"> <Trash2Icon class="w-4 h-4 mr-1" /> Supprimer </a>
       </div>
 
       <div class="absolute bottom-0 flex w-full">
@@ -267,6 +267,7 @@ import OngService from "@/services/modules/ong.service.js";
 import SiteService from "@/services/modules/site.service.js";
 import { helper as $h } from "@/utils/helper";
 import { toast } from "vue3-toastify";
+import verifyPermission from "@/utils/verifyPermission";
 import "leaflet/dist/leaflet.css";
 import * as L from "leaflet";
 import { LMap, LTileLayer, LMarker, LPolygon, LPopup } from "@vue-leaflet/vue-leaflet";
@@ -429,6 +430,7 @@ export default {
       console.log(projet);
       this.$router.push({ name: "projets_id_details", params: { id: projet.id, projet: projet } });
     },
+    verifyPermission,
     resetFileInput() {
       // Réinitialiser le champ de fichier
       this.selectedFile = null; // Réinitialiser la variable selectedFile

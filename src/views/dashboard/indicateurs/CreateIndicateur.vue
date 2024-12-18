@@ -53,7 +53,7 @@
       <div class="flex items-center justify-between gap-2 my-2">
         <h2 class="text-lg font-medium intro-y">Liste des indicateurs</h2>
         <!-- Button to open modal -->
-        <div class="flex items-center justify-end gap-2">
+        <div v-if="verifyPermission('voir-un-indicateur')" class="flex items-center justify-end gap-2">
           <button class="text-base btn btn-primary" @click="openCreateModal"><PlusIcon class="mr-1 size-4" />Ajouter</button>
         </div>
       </div>
@@ -86,7 +86,7 @@
         </ul> -->
         <LoaderSnipper v-if="isLoadingDataCadre" />
         <TabulatorCadreMesure v-else :data="dataAvailable" :years="annees" />
-        <div v-if="!isLoadingDataCadre" class="flex justify-center gap-3 my-8">
+        <div v-if="!isLoadingDataCadre && verifyPermission('voir-un-indicateur')" class="flex justify-center gap-3 my-8">
           <button @click="prevPage" :disabled="currentPage === 1" class="px-4 py-3 btn btn-outline-primary"><ChevronsLeftIcon class="size-5" /></button>
           <div class="max-w-[400px] overflow-x-auto flex items-center gap-3">
             <button v-for="page in totalPages" :key="page" @click="goToPage(page)" :class="page === currentPage ? 'btn-primary' : 'btn-outline-primary'" class="px-4 py-3 btn">{{ page }}</button>
@@ -118,16 +118,34 @@
                     <input id="agreer" class="form-check-input" type="checkbox" v-model="payload.agreger" />
                     <label class="form-check-label" for="agreer">Indicateur Agréger</label>
                   </div>
-                  <InputForm class="flex-1" label="Année de base" v-model.number="payload.anneeDeBase" :control="getFieldErrors(errors.anneeDeBase)" type="number" />
+
+                  <!-- <InputForm class="flex-1" label="Année de base" v-model.number="payload.anneeDeBase" :control="getFieldErrors(errors.anneeDeBase)" type="number" /> -->
+                  <div class="flex-1">
+                    <label class="form-label">Année de base</label>
+                    <TomSelect v-model="payload.anneeDeBase" name="annee_suivi" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+                      <option value=""></option>
+                      <option v-for="annee in annees" :key="annee" :value="annee">{{ annee }}</option>
+                    </TomSelect>
+                    <div v-if="errors.anneeDeBase" class="mt-2 text-danger">{{ getFieldErrors(errors.anneeDeBase) }}</div>
+                  </div>
                 </div>
 
                 <div class="flex flex-wrap items-center justify-between gap-3">
                   <div class="w-full" v-if="!payload.agreger">
-                    <p class="form-label">Année cible</p>
+                    <!-- <p class="form-label">Année cible</p> -->
                     <div class="flex gap-1 place-items-end">
-                      <input type="number" class="form-control" id="anne_cible" placeholder="Année" v-model="currentAnneeCibleNotAgreger.annee" />
-                      <input type="number" class="form-control" id="valeur_cible" placeholder="Valeur cible" v-model="currentAnneeCibleNotAgreger.valeurCible" />
-                      <button @click.prevent="addAnneeCibleNotAgreger" class="btn btn-primary h-9"><PlusIcon class="mr-1 size-3" /></button>
+                      <!-- <input type="number" class="form-control" id="anne_cible" placeholder="Année" v-model="currentAnneeCibleNotAgreger.annee" /> -->
+                      <div class="flex-1">
+                        <label class="form-label">Année cible</label>
+                        <TomSelect v-model="currentAnneeCibleNotAgreger.annee" name="annee_aggrer" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+                          <option value=""></option>
+                          <option v-for="annee in annees" :key="annee" :value="annee">{{ annee }}</option>
+                        </TomSelect>
+                      </div>
+                      <div class="flex flex-1 gap-1">
+                        <input type="number" class="form-control" id="valeur_cible" placeholder="Valeur cible" v-model="currentAnneeCibleNotAgreger.valeurCible" />
+                        <button @click.prevent="addAnneeCibleNotAgreger" class="btn btn-primary h-9"><PlusIcon class="mr-1 size-3" /></button>
+                      </div>
                     </div>
                     <div v-if="errors.valeurDeBase" class="mt-2 text-danger">{{ getFieldErrors(errors.valeurDeBase) }}</div>
                     <div v-if="errors.anneesCible" class="mt-2 text-danger">{{ getFieldErrors(errors.anneesCible) }}</div>
@@ -278,8 +296,14 @@
             <ModalBody>
               <div class="grid grid-cols-1 gap-4">
                 <!-- Champ pour l'année -->
-                <InputForm label="Année" v-model="currentAnneeCible.annee" type="number" placeholder="Entrez l'année" />
-
+                <!-- <InputForm label="Année" v-model="currentAnneeCible.annee" type="number" placeholder="Entrez l'année" /> -->
+                <div class="flex-1">
+                  <label class="form-label">Année</label>
+                  <TomSelect v-model="currentAnneeCible.annee" name="annee_aggrer" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+                    <option value=""></option>
+                    <option v-for="annee in annees" :key="annee" :value="annee">{{ annee }}</option>
+                  </TomSelect>
+                </div>
                 <!-- Champs dynamiques pour les valeurs -->
                 <div v-if="array_value_keys.length > 0" class="">
                   <div class="grid gap-3 grid-cols-[repeat(auto-fill,_minmax(350px,_1fr))]">
@@ -343,6 +367,7 @@ import AuthService from "@/services/modules/auth.service";
 import ResultatCadreRendementService from "@/services/modules/resultat.cadre.rendement.service";
 import TabulatorCadreMesure from "@/components/TabulatorCadreMesure.vue";
 import { getFieldErrors } from "../../../utils/helpers";
+import verifyPermission from "@/utils/verifyPermission";
 
 const props = defineProps({});
 

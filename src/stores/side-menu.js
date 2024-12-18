@@ -3,11 +3,11 @@ import { defineStore } from "pinia";
 export const useSideMenuStore = defineStore("sideMenu", {
   state: () => ({
     menu: [
-      {
-        icon: "GridIcon",
-        pageName: "DashboardGfa",
-        title: "Dashboard GFA",
-      },
+      // {
+      //   icon: "GridIcon",
+      //   pageName: "DashboardGfa",
+      //   title: "Dashboard GFA",
+      // },
       {
         icon: "FolderIcon",
         pageName: "projets",
@@ -133,9 +133,14 @@ export const useSideMenuStore = defineStore("sideMenu", {
           },
           {
             icon: "BarChart2Icon",
-            pageName: "TypeResultat",
-            title: "Résultats Cadre de rendement",
+            pageName: "fonds",
+            title: "Fonds",
           },
+          // {
+          //   icon: "BarChart2Icon",
+          //   pageName: "TypeResultat",
+          //   title: "Résultats Cadre de rendement",
+          // },
           {
             icon: "BarChart2Icon",
             pageName: "Roles",

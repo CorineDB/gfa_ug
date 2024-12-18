@@ -16,6 +16,7 @@ import Login from "../views/login/Main.vue";
 import ResetPassword from "../views/reset-password/Main.vue";
 import ResetPasswordConnect from "../views/reset_password/Main.vue";
 import NewPassword from "../views/reset-password/_mails/newPassword.vue";
+import RequestPassword from "../views/request-password/Main.vue";
 import ResetPasswordFromDashboard from "../views/dashboard/resetPasswordFromDashboard.vue";
 import Feedback from "../views/dashboard/feedback.vue";
 import ErrorPage from "../views/error-page/Main.vue";
@@ -83,6 +84,7 @@ import UpdateFormFactuel from "../views/dashboard/UpdateFormFactuel.vue";
 import SurveyFormView from "../views/dashboard/SurveyFormView.vue";
 import DetailEvaluationIndividuel from "../views/dashboard/DetailEvaluationIndividuel.vue";
 import FicheMarqueurClassement from "../views/dashboard/FicheMarqueurClassement.vue";
+import FondView from "../views/dashboard/FondView.vue";
 
 const routes = [
   {
@@ -281,6 +283,11 @@ const routes = [
         component: Marqueur,
       },
       {
+        path: "fonds",
+        name: "fonds",
+        component: FondView,
+      },
+      {
         path: "profil",
         name: "Profil",
         component: Profil,
@@ -436,6 +443,11 @@ const routes = [
     component: ResetPasswordConnect,
   },
   {
+    path: "/request-password",
+    name: "request_password",
+    component: RequestPassword,
+  },
+  {
     path: "/password_update",
     name: "NewPassword",
     component: NewPassword,
@@ -461,7 +473,7 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   // Permettre l'accès à la route "toolsPerception" quel que soit l'état d'authentification
-  if (["ToolsPerception", "activation", "reset_Password", "view_survey"].includes(to.name)) {
+  if (["ToolsPerception", "activation", "reset_Password", "view_survey", "request_password"].includes(to.name)) {
     next();
   }
   // Rediriger vers "/" si non authentifié et que la route n'est pas la page d'accueil

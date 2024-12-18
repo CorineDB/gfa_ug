@@ -72,7 +72,7 @@
                 <input id="remember-me" type="checkbox" class="mr-2 border form-check-input" />
                 <label class="mr-3 cursor-pointer select-none" for="remember-me">Se souvenir de moi</label>
               </div>
-              <router-link to="/change-password">Mots de passe oublié?</router-link>
+              <span class="cursor-pointer" @click="goPageRequest()">Mots de passe oublié?</span>
             </div>
             <div class="mt-5 text-center intro-x xl:mt-8 xl:text-left">
               <!-- <button class="w-full px-4 py-3 align-top btn btn-primary bg-primary xl:mr-3">
@@ -147,6 +147,9 @@ export default {
     toast,
     gotoValidate() {
       this.showSend = true;
+    },
+    goPageRequest() {
+      this.$router.push({ name: "request_password" });
     },
     resentLink() {
       this.soumettre = true;

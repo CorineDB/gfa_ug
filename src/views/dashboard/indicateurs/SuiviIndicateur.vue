@@ -107,7 +107,10 @@ const paginatedData = computed(() => {
 });
 
 const datasSearch = computed(() => {
-  return suivis.value.filter((suivi) => suivi.indicateur.nom.toLowerCase().includes(search.value.toLowerCase()));
+  return suivis.value.filter((suivi) => {
+    const searchTerm = search.value.toLowerCase();
+    return suivi.indicateur.nom.toLowerCase().includes(searchTerm) || suivi.auteur.nom.toLowerCase().includes(searchTerm);
+  });
 });
 
 const dataAvailable = computed(() => {

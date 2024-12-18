@@ -6,6 +6,7 @@ import ProjetService from "@/services/modules/projet.service.js";
 import ComposantesService from "@/services/modules/composante.service";
 import ActiviteService from "@/services/modules/activite.service";
 import TachesService from "@/services/modules/tache.service";
+import verifyPermission from "@/utils/verifyPermission";
 import InputForm from "@/components/news/InputForm.vue";
 import VButton from "@/components/news/VButton.vue";
 import { toast } from "vue3-toastify";
@@ -74,6 +75,7 @@ export default {
 
   methods: {
     text() {},
+    verifyPermission,
     clearObjectValues(obj) {
       for (let key in obj) {
         if (obj.hasOwnProperty(key)) {
@@ -348,7 +350,7 @@ export default {
           <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
         </div>
       </div>
-      <div class="flex">
+      <div v-if="verifyPermission('creer-une-tache')" class="flex">
         <button class="mr-2 shadow-md btn btn-primary" @click="addTache()"><PlusIcon class="w-4 h-4 mr-3" />Ajouter une Tache</button>
       </div>
     </div>
@@ -359,7 +361,7 @@ export default {
     <!-- <pre>{{sousComposants}}</pre>   -->
 
     <div v-for="(item, index) in taches" :key="index" class="col-span-12 intro-y md:col-span-6 lg:col-span-4">
-      <div class="p-5 box">
+      <div v-if="verifyPermission('voir-une-tache')" class="p-5 box">
         <div class="flex items-start pt-5 _px-5">
           <div class="flex flex-col items-center w-full lg:flex-row">
             <div class="flex items-center justify-center w-16 h-16 text-white rounded-full image-fit bg-primary">
@@ -383,8 +385,8 @@ export default {
             </DropdownToggle>
             <DropdownMenu class="w-40">
               <DropdownContent>
-                <DropdownItem @click="modifierTache(item)"> <Edit2Icon class="w-4 h-4 mr-2" /> Modifier </DropdownItem>
-                <DropdownItem @click="supprimerTache(item)"> <TrashIcon class="w-4 h-4 mr-2" /> Supprimer </DropdownItem>
+                <DropdownItem v-if="verifyPermission('modifier-une-tache')" @click="modifierTache(item)"> <Edit2Icon class="w-4 h-4 mr-2" /> Modifier </DropdownItem>
+                <DropdownItem v-if="verifyPermission('supprimer-une-tache')" @click="supprimerTache(item)"> <TrashIcon class="w-4 h-4 mr-2" /> Supprimer </DropdownItem>
               </DropdownContent>
             </DropdownMenu>
           </Dropdown>

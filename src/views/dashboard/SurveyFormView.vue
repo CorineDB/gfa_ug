@@ -24,6 +24,7 @@ import { onMounted, ref } from "vue";
 import EnqueteIndividuelService from "../../services/modules/enquete.individuel.service";
 import { generateUniqueIdSurvey, generatevalidateKey, getvalidateKey } from "../../utils/helpers";
 import { toast } from "vue3-toastify";
+import { localization } from "survey-core";
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
 
 const route = useRoute();
@@ -35,7 +36,7 @@ const isLoading = ref(false);
 const isFinished = ref(false);
 
 const survey = ref(new Model(form.value.form_data));
-
+// survey.value.locale = "fr";
 const send = async (results) => {
   try {
     await EnqueteIndividuelService.sendResponse(results);
@@ -50,7 +51,7 @@ const send = async (results) => {
 
 survey.value.onComplete.add((sender) => {
   const results = sender.data; // Données soumises par l'utilisateur
-  console.log("Résultats capturés :", results);
+  // console.log("Résultats capturés :", results);
 
   // Ajout de métadonnées ou transformation des données si nécessaire
   const finalData = {

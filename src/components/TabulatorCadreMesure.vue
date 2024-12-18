@@ -1,31 +1,31 @@
 <template>
-  <div class="flex justify-end my-1">
+  <div v-if="verifyPermission('voir-un-indicateur')" class="flex justify-end my-1">
     <ExportationIndicateur :data="data" :years="years" />
   </div>
-  <div class="table-container">
+  <div v-if="verifyPermission('voir-un-indicateur')" class="table-container">
     <div ref="tableWrapper" class="table-wrapper">
       <table class="w-full max-w-full my-2 border-collapse editor_listing_table border-slate-500" cellpadding="6" cellspacing="0">
         <thead class="text-black">
           <tr>
-            <th rowspan="2" class="py-3 sticky-header border border-slate-900 min-w-[500px] sticky-column">Résultats escomptés</th>
-            <th rowspan="2" class="py-3 sticky-header border border-slate-900 min-w-[80px] sticky-column-second">Indice</th>
-            <th rowspan="2" class="py-3 sticky-header border border-slate-900 min-w-[500px] sticky-column-third">Indicateurs</th>
-            <th rowspan="2" class="py-3 sticky-header border border-slate-900 min-w-[300px]">Description de l'indicateur</th>
-            <th rowspan="2" class="py-3 sticky-header border border-slate-900 min-w-[100px]">Situation de référence</th>
-            <th :colspan="years.length + 1" class="py-3 border border-slate-900 min-w-[70px]">Cibles</th>
-            <th :colspan="years.length + 1" class="py-3 border border-slate-900 min-w-[70px]">Réalisation</th>
-            <th rowspan="2" class="py-3 sticky-header border border-slate-900 min-w-[150px]">Taux de réalisation</th>
-            <th rowspan="2" class="py-3 sticky-header border border-slate-900 min-w-[150px]">Sources de données</th>
-            <th rowspan="2" class="py-3 sticky-header border border-slate-900 min-w-[150px]">Méthode de collecte des données</th>
-            <th rowspan="2" class="py-3 sticky-header border border-slate-900 min-w-[150px]">Fréquence de la collecte de données</th>
-            <th rowspan="2" class="py-3 sticky-header border border-slate-900 min-w-[150px]">Responsable</th>
-            <th rowspan="2" class="py-3 sticky-header border border-slate-900 min-w-[200px]">Actions</th>
+            <th rowspan="2" class="py-3 sticky-header border !border-slate-800 min-w-[500px] sticky-column">Résultats escomptés</th>
+            <th rowspan="2" class="py-3 sticky-header border !border-slate-800 min-w-[80px] sticky-column-second">Indice</th>
+            <th rowspan="2" class="py-3 !z-[1] sticky-header border !border-slate-800 min-w-[500px]">Indicateurs</th>
+            <th rowspan="2" class="py-3 !z-[1] sticky-header border !border-slate-800 min-w-[300px]">Description de l'indicateur</th>
+            <th rowspan="2" class="py-3 !z-[1] sticky-header border !border-slate-800 min-w-[100px]">Situation de référence</th>
+            <th :colspan="years.length + 1" class="py-3 !z-[1] sticky-header border !border-slate-800 min-w-[70px]">Cibles</th>
+            <th :colspan="years.length + 1" class="py-3 !z-[1] sticky-header border !border-slate-800 min-w-[70px]">Réalisation</th>
+            <th rowspan="2" class="py-3 sticky-header !z-[1] border !border-slate-800 min-w-[150px]">Taux de réalisation</th>
+            <th rowspan="2" class="py-3 sticky-header !z-[1] border !border-slate-800 min-w-[150px]">Sources de données</th>
+            <th rowspan="2" class="py-3 sticky-header !z-[1] border !border-slate-800 min-w-[150px]">Méthode de collecte des données</th>
+            <th rowspan="2" class="py-3 sticky-header !z-[1] border !border-slate-800 min-w-[150px]">Fréquence de la collecte de données</th>
+            <th rowspan="2" class="py-3 sticky-header !z-[1] border !border-slate-800 min-w-[150px]">Responsable</th>
+            <th rowspan="2" class="py-3 sticky-header !z-[1] border !border-slate-800 min-w-[200px]">Actions</th>
           </tr>
           <tr>
-            <th v-for="(year, index) in years" :key="index" class="py-3 sticky-header border border-slate-900 min-w-[70px]">{{ year }}</th>
-            <th class="py-3 border border-slate-900 min-w-[100px]">Total</th>
-            <th v-for="(year, index) in years" :key="index" class="py-3 sticky-header border border-slate-900 min-w-[70px]">{{ year }}</th>
-            <th class="py-3 border border-slate-900 min-w-[100px]">Total</th>
+            <th v-for="(year, index) in years" :key="index" class="py-3 !z-[1] sticky top-0 sticky-header border !border-slate-800 min-w-[70px]">{{ year }}</th>
+            <th class="py-3 border !border-slate-800 min-w-[100px] sticky-header !z-[1] sticky top-0">Total</th>
+            <th v-for="(year, index) in years" :key="index" class="py-3 !z-[1] sticky-header border !border-slate-800 min-w-[70px] sticky top-0">{{ year }}</th>
+            <th class="py-3 border !border-slate-800 min-w-[100px] sticky-header !z-[1] sticky top-0">Total</th>
           </tr>
         </thead>
         <tbody>
@@ -44,7 +44,7 @@
                 <td class="font-semibold sticky-column-second" style="left: 500px">Ind {{ indicateur.code }}</td>
 
                 <!-- Troisième colonne fixe -->
-                <td class="sticky-column-third" style="left: 580px">
+                <td class="">
                   {{ indicateur.nom }}
                 </td>
 
@@ -69,9 +69,9 @@
                   {{}}
                 </td>
                 <td class="space-x-3">
-                  <button title="Suivre" @click="handleSuivi(indicateur)" class="btn text-primary"><CornerUpLeftIcon class="size-5" /></button>
-                  <button title="Voir" @click="goToDetailSuivi(indicateur.id)" class="btn text-primary"><EyeIcon class="size-5" /></button>
-                  <button title="Supprimer" @click="handleDelete(indicateur)" class="btn text-danger"><TrashIcon class="size-5" /></button>
+                  <button v-if="verifyPermission('creer-un-suivi-indicateur')" title="Suivre" @click="handleSuivi(indicateur)" class="btn text-primary"><CornerUpLeftIcon class="size-5" /></button>
+                  <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Voir" @click="goToDetailSuivi(indicateur.id)" class="btn text-primary"><EyeIcon class="size-5" /></button>
+                  <button v-if="verifyPermission('supprimer-un-suivi-indicateur')" title="Supprimer" @click="handleDelete(indicateur)" class="btn text-danger"><TrashIcon class="size-5" /></button>
                 </td>
               </tr>
             </template>
@@ -107,14 +107,15 @@
     <form @submit.prevent="submitSuivi">
       <ModalBody>
         <div class="grid grid-cols-1 gap-5">
-          <!-- <div class="flex-1">
+          <div class="flex-1">
             <label class="form-label">Année de suivi</label>
-            <TomSelect v-model.number="payloadSuivi.annee" name="annee_suivi" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+            <TomSelect v-model="payloadSuivi.annee" name="annee_suivi" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
               <option value=""></option>
               <option v-for="annee in years" :key="annee" :value="annee">{{ annee }}</option>
             </TomSelect>
-          </div> -->
-          <InputForm label="Année de suivi" class="flex-1" v-model="payloadSuivi.annee" :control="getFieldErrors(errors.annee)" type="number" />
+            <div v-if="errors.annee" class="mt-2 text-danger">{{ getFieldErrors(errors.annee) }}</div>
+          </div>
+          <!-- <InputForm label="Année de suivi" class="flex-1" v-model="payloadSuivi.annee" :control="getFieldErrors(errors.annee)" type="number" /> -->
           <div v-if="!isAgregerCurrentIndicateur" class="flex flex-wrap items-center justify-between gap-3">
             <InputForm label="Valeur cible" class="flex-1" v-model="payloadSuivi.valeurCible" :control="getFieldErrors(errors.valeurCible)" type="number" />
             <InputForm label="Valeur réalisée" class="flex-1" v-model="payloadSuivi.valeurRealise" :control="getFieldErrors(errors.valeurRealise)" type="number" />
@@ -215,6 +216,7 @@ import { sourcesDonnees } from "../utils/constants";
 import { useRouter } from "vue-router";
 import { getFieldErrors } from "../utils/helpers";
 import ExportationIndicateur from "./news/ExportationIndicateur.vue";
+import verifyPermission from "@/utils/verifyPermission";
 
 const props = defineProps({
   data: Array,
@@ -405,35 +407,15 @@ function formatObject(obj) {
 
 <style scoped>
 table td {
-  border: 1px solid rgb(46, 46, 46);
+  border: 1px solid white;
   padding-block: 8px;
-}
-.sticky-column {
-  position: sticky;
-  left: 0;
-  background-color: white;
-  z-index: 3;
-}
-
-.sticky-column-second {
-  position: sticky;
-  left: 500px; /* Largeur de la première colonne */
-  background-color: white;
-  z-index: 2;
-}
-
-.stick-column-third {
-  position: sticky;
-  left: 580px; /* Largeur cumulée des deux premières colonnes */
-  background-color: white;
-  z-index: 1;
 }
 
 /* Optionnel : Ajout d'une bordure pour les colonnes fixes */
 .sticky-column,
 .sticky-column-second,
 .stick-column-third {
-  border-right: 1px solid #ccc;
+  border-right: 1px solid #f3f3f3;
 }
 
 .table-container {
@@ -447,7 +429,9 @@ table td {
   overflow-x: auto;
   max-height: calc(75vh - 20px); /* Ajustez selon vos besoins */
 }
-
+.sticky-header {
+  background-color: #ddd !important;
+}
 .sticky-heade {
   position: sticky;
   top: 0;
@@ -456,5 +440,45 @@ table td {
   border-bottom: 2px solid #ddd;
   padding: 10px;
   text-align: left;
+}
+
+/* Fixe l'en-tête du tableau */
+.editor_listing_table thead th {
+  position: sticky; /* Garde l'en-tête en haut */
+  top: 0; /* Positionnement par rapport au haut */
+  background-color: #ffffff; /* Assure un fond blanc pour l'en-tête */
+  z-index: 10; /* Évite que les lignes passent par-dessus */
+  box-shadow: 0 2px 2px -1px rgba(0, 0, 0); /* Optionnel : effet d'ombre pour séparation visuelle */
+}
+
+/* Style des colonnes collantes */
+.sticky-column {
+  position: sticky;
+  left: 0;
+  background-color: #ffffff;
+  z-index: 5;
+  border-right: 1px solid #ccc;
+}
+
+.sticky-column-second {
+  position: sticky;
+  left: 500px; /* Ajuster selon vos besoins */
+  background-color: #ffffff;
+  z-index: 5;
+  border-right: 1px solid #ccc;
+}
+
+.sticky-column-third {
+  position: sticky;
+  left: 580px; /* Ajuster selon vos besoins */
+  background-color: #ffffff;
+  z-index: 5;
+  border-right: 1px solid #ccc;
+}
+
+/* Ajout de bordures pour les lignes */
+.editor_listing_table td,
+.editor_listing_table th {
+  border: 1px solid #ddd; /* Bordures légères */
 }
 </style>
