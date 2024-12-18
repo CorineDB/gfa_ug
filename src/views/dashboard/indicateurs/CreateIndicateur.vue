@@ -118,16 +118,34 @@
                     <input id="agreer" class="form-check-input" type="checkbox" v-model="payload.agreger" />
                     <label class="form-check-label" for="agreer">Indicateur Agréger</label>
                   </div>
-                  <InputForm class="flex-1" label="Année de base" v-model.number="payload.anneeDeBase" :control="getFieldErrors(errors.anneeDeBase)" type="number" />
+
+                  <!-- <InputForm class="flex-1" label="Année de base" v-model.number="payload.anneeDeBase" :control="getFieldErrors(errors.anneeDeBase)" type="number" /> -->
+                  <div class="flex-1">
+                    <label class="form-label">Année de base</label>
+                    <TomSelect v-model="payload.anneeDeBase" name="annee_suivi" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+                      <option value=""></option>
+                      <option v-for="annee in annees" :key="annee" :value="annee">{{ annee }}</option>
+                    </TomSelect>
+                    <div v-if="errors.anneeDeBase" class="mt-2 text-danger">{{ getFieldErrors(errors.anneeDeBase) }}</div>
+                  </div>
                 </div>
 
                 <div class="flex flex-wrap items-center justify-between gap-3">
                   <div class="w-full" v-if="!payload.agreger">
-                    <p class="form-label">Année cible</p>
+                    <!-- <p class="form-label">Année cible</p> -->
                     <div class="flex gap-1 place-items-end">
-                      <input type="number" class="form-control" id="anne_cible" placeholder="Année" v-model="currentAnneeCibleNotAgreger.annee" />
-                      <input type="number" class="form-control" id="valeur_cible" placeholder="Valeur cible" v-model="currentAnneeCibleNotAgreger.valeurCible" />
-                      <button @click.prevent="addAnneeCibleNotAgreger" class="btn btn-primary h-9"><PlusIcon class="mr-1 size-3" /></button>
+                      <!-- <input type="number" class="form-control" id="anne_cible" placeholder="Année" v-model="currentAnneeCibleNotAgreger.annee" /> -->
+                      <div class="flex-1">
+                        <label class="form-label">Année cible</label>
+                        <TomSelect v-model="currentAnneeCibleNotAgreger.annee" name="annee_aggrer" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+                          <option value=""></option>
+                          <option v-for="annee in annees" :key="annee" :value="annee">{{ annee }}</option>
+                        </TomSelect>
+                      </div>
+                      <div class="flex flex-1 gap-1">
+                        <input type="number" class="form-control" id="valeur_cible" placeholder="Valeur cible" v-model="currentAnneeCibleNotAgreger.valeurCible" />
+                        <button @click.prevent="addAnneeCibleNotAgreger" class="btn btn-primary h-9"><PlusIcon class="mr-1 size-3" /></button>
+                      </div>
                     </div>
                     <div v-if="errors.valeurDeBase" class="mt-2 text-danger">{{ getFieldErrors(errors.valeurDeBase) }}</div>
                     <div v-if="errors.anneesCible" class="mt-2 text-danger">{{ getFieldErrors(errors.anneesCible) }}</div>
@@ -278,8 +296,14 @@
             <ModalBody>
               <div class="grid grid-cols-1 gap-4">
                 <!-- Champ pour l'année -->
-                <InputForm label="Année" v-model="currentAnneeCible.annee" type="number" placeholder="Entrez l'année" />
-
+                <!-- <InputForm label="Année" v-model="currentAnneeCible.annee" type="number" placeholder="Entrez l'année" /> -->
+                <div class="flex-1">
+                  <label class="form-label">Année</label>
+                  <TomSelect v-model="currentAnneeCible.annee" name="annee_aggrer" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+                    <option value=""></option>
+                    <option v-for="annee in annees" :key="annee" :value="annee">{{ annee }}</option>
+                  </TomSelect>
+                </div>
                 <!-- Champs dynamiques pour les valeurs -->
                 <div v-if="array_value_keys.length > 0" class="">
                   <div class="grid gap-3 grid-cols-[repeat(auto-fill,_minmax(350px,_1fr))]">

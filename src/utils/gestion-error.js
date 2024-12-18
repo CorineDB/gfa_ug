@@ -14,7 +14,7 @@ export function getAllErrorMessages(errorResponse) {
       return "Une erreur est survenue.";
     }
   }
-  if (errorResponse.response.data) {
+  if (errorResponse.response?.data) {
     const message = Object.values(errorResponse.response.data.errors)
       .flatMap((error) => error)
       .join(", ");

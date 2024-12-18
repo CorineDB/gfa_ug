@@ -292,11 +292,6 @@ const routes = [
         component: ResetPasswordFromDashboard,
       },
       {
-        path: "request-password",
-        name: "request_password",
-        component: RequestPassword,
-      },
-      {
         path: "feedback",
         name: "Feedback",
         component: Feedback,
@@ -434,6 +429,11 @@ const routes = [
     path: "/reset_password/:t",
     name: "reset_Password",
     component: ResetPasswordConnect,
+  },
+  {
+    path: "/request-password",
+    name: "request_password",
+    component: RequestPassword,
   },
   {
     path: "/password_update",

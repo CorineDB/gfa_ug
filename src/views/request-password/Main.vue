@@ -16,15 +16,15 @@
         <form @submit.prevent="requestLink" class="flex items-center h-screen py-5 m-10 _bg-white xl:h-auto xl:py-0 sm:mx-auto xl:my-0">
           <div class="w-full px-5 py-8 mx-auto my-auto bg-white rounded-md shadow-md dark:bg-darkmode-600 xl:bg-transparent sm:px-8 xl:p-0 xl:shadow-none sm:w-3/4 lg:w-2/4 xl:w-auto">
             <Alert v-if="showFormError && errorMessageForm" class="flex items-center mb-2 alert-danger"> <AlertOctagonIcon class="w-6 h-6 mr-2" /> {{ errorMessageForm }} </Alert>
-            <Alert v-if="showFormSuccess" class="flex items-center mb-2 alert-primary"> <AlertCircleIcon class="w-6 h-6 mr-2" /> Consulter votre mail pour accéder au lien pour definr votre mot de passe. </Alert>
-            <h2 class="text-2xl font-bold text-center intro-x xl:text-3xl xl:text-left">Demander un lien de reinitialisation</h2>
+            <Alert v-if="showFormSuccess" class="flex items-center mb-2 text-lg alert-primary"> <AlertCircleIcon class="w-6 h-6 mr-2" /> Consulter votre mail pour accéder au lien pour definr votre mot de passe. </Alert>
+            <h2 v-if="!showFormSuccess" class="text-2xl font-bold text-center intro-x xl:text-3xl xl:text-left">Demander un lien de reinitialisation</h2>
             <div class="mt-2 text-center intro-x text-slate-400 xl:hidden">Responsabilité partagée, Qualité améliorée : Unis pour un meilleur service social.</div>
-            <div class="mt-8 intro-x">
+            <div class="mt-8 intro-x" v-if="!showFormSuccess">
               <div class="space-y-4">
-                <input type="hidden" v-model.trim="payload.email" required id="email" class="block px-4 py-3 intro-x login__input form-control" placeholder="Email pour recevoir le lien" />
+                <input v-model.trim="payload.email" required id="email" class="block px-4 py-3 intro-x login__input form-control" placeholder="Email pour recevoir le lien" />
               </div>
             </div>
-            <div class="mt-5 text-center intro-x xl:mt-8 xl:text-left">
+            <div v-if="!showFormSuccess" class="mt-5 text-center intro-x xl:mt-8 xl:text-left">
               <VButton :loading="chargement" label="Envoyer" class="py-3" />
             </div>
           </div>
@@ -57,28 +57,30 @@ const chargement = ref(false);
 const showFormError = ref(false);
 const showFormSuccess = ref(false);
 const errorMessageForm = ref("");
+const errors = {};
 
 const requestLink = async () => {
   if (payload.email) {
     chargement.value = true;
     try {
-      const result = await resetPassword.create(payload);
+      const result = await resetPassword.get(payload.email);
       if (result.data.statut == "success") {
         console.log("Season 1");
+        localStorage.setItem("newmail", JSON.stringify(payload.email));
         chargement.value = false;
-        // showFormSuccess.value = true;
-      } else {
-        console.log("Season 2");
-        showFormError.value = true;
-        chargement.value = false;
-        errorMessageForm.value = result.data.data?.message || "Une erreur est survenue.";
+        showFormSuccess.value = true;
+        // errorMessageForm.value = result.data.message;
       }
     } catch (error) {
-      console.log("Season 3");
       chargement.value = false;
       showFormError.value = true;
+      if (error.response && error.response.status === 422) {
+        errors.value = error.response.data.errors;
+      } else {
+        toast.error(getAllErrorMessages(error));
+      }
       errorMessageForm.value = error.response?.data?.message || "Une erreur est survenue.";
-      toast.error(getAllErrorMessages(error));
+      // toast.error(getAllErrorMessages(error));
     }
   }
 };

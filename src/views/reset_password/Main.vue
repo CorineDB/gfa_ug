@@ -15,6 +15,22 @@
 
         <form @submit.prevent="ressetPassword" class="flex items-center h-screen py-5 m-10 _bg-white xl:h-auto xl:py-0 sm:mx-auto xl:my-0">
           <div class="w-full px-5 py-8 mx-auto my-auto bg-white rounded-md shadow-md dark:bg-darkmode-600 xl:bg-transparent sm:px-8 xl:p-0 xl:shadow-none sm:w-3/4 lg:w-2/4 xl:w-auto">
+            <div class="px-4">
+              <Alert v-if="showAlert && (errors.token || errors.email)" class="flex items-center mb-2 !py-2 alert-danger-soft" v-slot="{ dismiss }">
+                <ul class="font-medium !list-disc">
+                  <li v-if="errors.token">
+                    {{ getFieldErrors(errors.token) }} <br />
+                    <span @click="goPageRequest" class="text-blue-500 underline cursor-pointer">Demander un lien</span>
+                  </li>
+                  <li v-if="errors.email">{{ getFieldErrors(errors.email) }}</li>
+                  <!-- <li v-if="errors.new_password_confirmation">{{ getFieldErrors(errors.new_password_confirmation) }}</li> -->
+                  <!-- <li v-if="errors.new_password">{{ getFieldErrors(errors.new_password) }}</li> -->
+                </ul>
+                <button type="button" class="text-white btn-close" aria-label="Close" @click="dismiss">
+                  <XIcon class="w-4 h-4" />
+                </button>
+              </Alert>
+            </div>
             <Alert v-if="showFormError && errorMessageForm" class="flex items-center mb-2 alert-danger"> <AlertOctagonIcon class="w-6 h-6 mr-2" /> {{ errorMessageForm }} </Alert>
             <Alert v-if="showFormSuccess" class="flex items-center mb-2 alert-primary"> <AlertCircleIcon class="w-6 h-6 mr-2" /> Consulter votre mail pour accéder au lien pour definr votre mot de passe. </Alert>
             <h2 class="text-2xl font-bold text-center intro-x xl:text-3xl xl:text-left">Définir un nouveau mot de passe</h2>
@@ -22,8 +38,14 @@
             <div class="mt-8 intro-x">
               <div class="space-y-4">
                 <input type="hidden" v-model.trim="payload.email" id="email" class="block px-4 py-3 intro-x login__input form-control" placeholder="Email pour recevoir le lien" />
-                <input type="password" v-model.trim="payload.new_password" id="password" class="block px-4 py-3 intro-x login__input form-control" placeholder="Nouveau mot de passe" />
-                <input type="password" v-model.trim="payload.new_password_confirmation" id="confirm_password" class="block px-4 py-3 intro-x login__input form-control" placeholder="Confirmer le mot de passe" />
+                <div class="">
+                  <input type="password" required minlength="8" v-model.trim="payload.new_password" id="password" class="block px-4 py-3 intro-x login__input form-control" placeholder="Nouveau mot de passe" />
+                  <div v-if="errors.new_password" class="mt-2 text-danger">{{ getFieldErrors(errors.new_password) }}</div>
+                </div>
+                <div class="">
+                  <input type="password" required minlength="8" v-model.trim="payload.new_password_confirmation" id="confirm_password" class="block px-4 py-3 intro-x login__input form-control" placeholder="Confirmer le mot de passe" />
+                  <div v-if="errors.new_password_confirmation" class="mt-2 text-danger">{{ getFieldErrors(errors.new_password_confirmation) }}</div>
+                </div>
               </div>
             </div>
             <div class="mt-5 text-center intro-x xl:mt-8 xl:text-left">
@@ -41,12 +63,12 @@
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
 import VButton from "@/components/news/VButton.vue";
 import { useRoute, useRouter } from "vue-router";
-import ActivationAccount from "../../services/modules/accountActivation.service";
 import { onMounted, ref } from "vue";
 import { toast } from "vue3-toastify";
 import { getAllErrorMessages } from "@/utils/gestion-error";
 import resetPassword from "../../services/modules/reinitialisationPassword.service";
 import { reactive } from "vue";
+import { getFieldErrors } from "@/utils/helpers";
 
 const route = useRoute();
 const router = useRouter();
@@ -58,16 +80,14 @@ const payload = reactive({
   new_password: "",
 });
 const chargement = ref(false);
-const isLoading = ref(true);
-const showActivate = ref(false);
+const showAlert = ref(false);
 const showFormError = ref(false);
 const showFormSuccess = ref(false);
-const email = ref("");
-const errorMessage = ref("");
 const errorMessageForm = ref("");
+const errors = ref({});
 
 const ressetPassword = async () => {
-  if (payload.new_password) {
+  if (payload.new_password == payload.new_password_confirmation) {
     chargement.value = true;
     try {
       const result = await resetPassword.create(payload);
@@ -75,45 +95,40 @@ const ressetPassword = async () => {
         console.log("Season 1");
         router.push({ name: "login" });
         chargement.value = false;
-        // showFormSuccess.value = true;
-      } else {
-        console.log("Season 2");
-        showFormError.value = true;
-        chargement.value = false;
-        errorMessageForm.value = result.data.data?.message || "Une erreur est survenue.";
+        toast.success("Mot de passe modifier veuillez vous connecter");
       }
+      // showFormSuccess.value = true;
+      // } else {
+      //   console.log("Season 2");
+      //   showFormError.value = true;
+      //   chargement.value = false;
+      //   errorMessageForm.value = result.data.data?.message || "Une erreur est survenue.";
+      // }
     } catch (error) {
       console.log("Season 3");
       chargement.value = false;
       showFormError.value = true;
-      errorMessageForm.value = error.response?.data?.message || "Une erreur est survenue.";
-      toast.error("Une erreur est survenue");
+      if (error.response && error.response.status === 422) {
+        errors.value = error.response.data.errors;
+        showAlert.value = true;
+      } else {
+        toast.error(getAllErrorMessages(error));
+      }
+      // errorMessageForm.value = error.response?.data?.message || "Une erreur est survenue.";
+      // toast.error("Une erreur est survenue");
     }
+  } else {
+    toast.error("Les mots de passe ne sont pas identiques");
   }
 };
 
-const activeAccount = async () => {
-  try {
-    const result = await ActivationAccount.activerCompte(token);
-    if (result.data.statut === "success") {
-      isLoading.value = false;
-      showActivate.value = true;
-
-      // toast.success(result.message || "Compte activé avec succès !");
-    } else {
-      // toast.error(result.message || "Une erreur inattendue est survenue.");
-    }
-  } catch (error) {
-    errorMessage.value = error.response?.data?.message || "Une erreur est survenue.";
-    isLoading.value = false;
-    // toast.error(errorMessage.value);
-  }
-};
+function goPageRequest() {
+  router.push({ name: "request_password" });
+}
 
 onMounted(async () => {
   payload.email = localStorage.getItem("newmail");
   console.log(payload.email);
-
   // activeAccount();
 });
 </script>
