@@ -18,6 +18,7 @@ import ProgressBar from "../../../components/news/ProgressBar.vue";
 import ChartScroreByPrincipe from "../../../components/news/ChartScroreByPrincipe.vue";
 import { getFieldErrors } from "../../../utils/helpers";
 import SyntheseService from "../../../services/modules/synthese.service";
+import { helper as $h } from "@/utils/helper";
 import { data } from "jquery";
 
 const router = useRouter();
@@ -35,6 +36,8 @@ const payload = reactive({
   categorie: "",
 });
 
+const usersId = ref([]);
+
 const selectedFile = ref(null);
 
 const imagePreview = ref(null);
@@ -49,7 +52,7 @@ const handleFileChange = function (event) {
     // Créer une prévisualisation de l'image
     const reader = new FileReader();
     reader.onload = (e) => {
-      this.imagePreview = e.target.result;
+      imagePreview.value = e.target.result;
     };
     reader.readAsDataURL(file); // Lire le fichier en tant qu'URL de données
   }
@@ -91,25 +94,30 @@ const isLoadingData = ref(true);
 const isLoadingDataScore = ref(false);
 const isCreate = ref(true);
 const datas = ref([]);
-const datasScore = ref([]);
-const organisations = ref([]);
-const ongsProgramme = ref([]);
-const formulairesFactuel = ref([]);
-const formulairesPerception = ref([]);
-const currentScore = ref({});
-const currentOrganisationScore = ref("");
-const ongSelectedScore = ref("");
-const yearSelectedOng = ref("");
+
 const errors = ref({});
 
 const createData = async () => {
-  for (const key of Array.from(FormProjet.value.keys())) {
-    FormProjet.value.delete(key);
-  }
-  $h.ajouterObjetDansFormData(payload, FormProjet.value);
+  const hasData = Array.from(FormAjout.entries()).length > 0;
 
-  if (this.selectedFile) {
-    FormProjet.value.append("fichier[]", this.selectedFile);
+  if (hasData) {
+    for (const key of Array.from(FormAjout.keys())) {
+      FormAjout.delete(key);
+    }
+  }
+
+  $h.ajouterObjetDansFormData(payload, FormAjout);
+
+  if (selectedFile.value) {
+    FormAjout.append("fichier[]", selectedFile.value);
+  }
+
+  // Ajouter manuellement le tableau `sites` à FormData
+  console.log("userId", usersId.value);
+  if (usersId.value.length > 0) {
+    usersId.value.forEach((item) => {
+      FormAjout.append(`sharedId[]`, item);
+    });
   }
 
   // payload.formulaires_de_gouvernance = [idFormFactuel.value, idFormPerception.value];
@@ -117,18 +125,24 @@ const createData = async () => {
   await AuditService.create(payload)
     .then(() => {
       isLoading.value = false;
+      const hasData = Array.from(FormAjout.entries()).length > 0;
+
+      if (hasData) {
+        $h.clearFormData(FormAjout);
+      }
+      // $h.clearObjectValues(this.formData);
       getDatas();
       resetForm();
-      toast.success("évaluation créer.");
+      toast.success("audit créer.");
     })
     .catch((e) => {
+      console.log(e);
       isLoading.value = false;
       if (e.response && e.response.status === 422) {
         errors.value = e.response.data.errors;
       } else {
         toast.error(getAllErrorMessages(e));
       }
-      console.error(e);
     });
 };
 const getDatas = async () => {
@@ -145,56 +159,6 @@ const getDatas = async () => {
   // initTabulator();
 };
 
-const getEvolutionByScore = async (id) => {
-  isLoadingDataScore.value = true;
-  await SyntheseService.getEvolutionByScrore(id)
-    .then((result) => {
-      datasScore.value = result.data.data;
-      currentScore.value = datasScore.value[0]?.scores;
-      isLoadingDataScore.value = false;
-    })
-    .catch((e) => {
-      isLoadingDataScore.value = false;
-      e.response?.data?.message ? toast.error(e.response?.data?.message) : toast.error("Une erreur est survenue: Score.");
-    });
-};
-const getFormsFactuel = async () => {
-  await FormulaireFactuel.get()
-    .then((result) => {
-      formulairesFactuel.value = result.data.data;
-    })
-    .catch((e) => {
-      toast.error("Une erreur est survenue: Liste des formulaires factuel.");
-    });
-};
-const getFormsPerception = async () => {
-  await FormulaireFactuel.get("perception")
-    .then((result) => {
-      formulairesPerception.value = result.data.data;
-    })
-    .catch((e) => {
-      toast.error("Une erreur est survenue: Liste des formulaires de perception.");
-    });
-};
-const getOrganisations = async () => {
-  await OngService.get()
-    .then((result) => {
-      organisations.value = result.data.data;
-    })
-    .catch((e) => {
-      toast.error("Une erreur est survenue: Liste des organisations.");
-    });
-};
-const getOrganisationsProgramme = async () => {
-  await OngService.programmeOng()
-    .then((result) => {
-      ongsProgramme.value = result.data.data;
-    })
-    .catch((e) => {
-      toast.error(getAllErrorMessages(e));
-    });
-};
-
 const updateData = async () => {
   isLoading.value = true;
   payload.formulaires_de_gouvernance = [idFormFactuel.value, idFormPerception.value];
@@ -202,7 +166,7 @@ const updateData = async () => {
     .then(() => {
       getDatas();
       resetForm();
-      toast.success("Évaluation modifiée.");
+      toast.success("Audit modifiée.");
     })
     .catch((e) => {
       if (e.response && e.response.status === 422) {
@@ -223,7 +187,7 @@ const deleteData = async () => {
     .then(() => {
       deleteModalPreview.value = false;
       isLoading.value = false;
-      toast.success("Évaluation  supprimée");
+      toast.success("Audit  supprimée");
       getDatas();
     })
     .catch((e) => {
@@ -232,51 +196,33 @@ const deleteData = async () => {
       toast.error("Une erreur est survenue, ressayer");
     });
 };
-const getStatusText = (param) => {
-  switch (param) {
-    case 1:
-      return { label: "Terminé", class: "bg-success" };
-    case 0:
-      return { label: "En cours", class: "bg-pending" };
-    case -1:
-      return { label: "Non demarré", class: "bg-primary" };
-    default:
-      return { label: "A déterminer", class: "bg-primary" };
-  }
-};
-
-function gotoSoumissions(enquete) {
-  router.push({ name: "SoumissionsEnqueteDeCollecte", params: { id: enquete.id } });
-}
-
-function gotoAppreciations(enquete) {
-  router.push({ name: "EnqueteAppreciations", query: { enqueteId: enquete.id } });
-}
-
-async function changeOrganisationScore() {
-  await getEvolutionByScore(ongSelectedScore.value);
-  yearSelectedOng.value = yearsCurrentScore.value[0];
-}
-
-function fetchOrganisationsAndFormulaires() {
-  getFormsFactuel();
-  getFormsPerception();
-  getOrganisations();
-}
 
 const handleEdit = (params) => {
-  fetchOrganisationsAndFormulaires();
+  //fetchOrganisationsAndFormulaires();
   isCreate.value = false;
   idSelect.value = params.id;
-  payload.intitule = params.intitule;
-  payload.description = params.description ?? "";
-  payload.annee_exercice = params.annee_exercice;
-  payload.objectif_attendu = params.objectif_attendu;
-  payload.debut = params.debut;
-  payload.fin = params.fin;
-  idFormFactuel.value = params.formulaire_factuel_de_gouvernance;
-  idFormPerception.value = params.formulaire_perception_de_gouvernance;
-  payload.organisations = params.organisations.map((ong) => ong.id);
+
+  if (params.categorie === "Audit comptable et financier") {
+    payload.categorie = "0";
+  } else if (params.categorie === "Audit de conformité environnementale et social") {
+    payload.categorie = "1";
+  } else if (params.categorie === "Audit des acquisitions") {
+    payload.categorie = "2";
+  } else {
+    payload.categorie = "3";
+  }
+
+  payload.annee = params.annee;
+  payload.entreprise = params.entreprise;
+  payload.entrepriseContact = params.entrepriseContact;
+  payload.dateDeTransmission = params.dateDeTransmission;
+  payload.etat = params.etat;
+  payload.statut = String(params.statut);
+  payload.projetId = params.projet.id;
+  // payload.categorie = params.categorie;
+
+  console.log(payload);
+
   showModalCreate.value = true;
 };
 const handleDelete = (params) => {
@@ -288,15 +234,18 @@ const cancelSelect = () => {
   idSelect.value = "";
 };
 const resetForm = () => {
-  payload.intitule = "";
-  payload.annee_exercice = new Date().getFullYear();
-  payload.objectif_attendu = 0;
-  payload.debut = "";
-  payload.description = "";
+  payload.annee = "";
+  payload.entreprise = "";
+  payload.entrepriseContact = "";
+  payload.dateDeTransmission = "";
+  payload.etat = "";
+  payload.statut = "";
   payload.fin = "";
-  idFormFactuel.value = formulairesFactuel.value[0].id;
-  idFormPerception.value = formulairesPerception.value[0].id;
-  payload.organisations = [];
+  payload.projetId = "";
+  payload.categorie = "";
+  // idFormFactuel.value = formulairesFactuel.value[0].id;
+  // idFormPerception.value = formulairesPerception.value[0].id;
+  // payload.organisations = [];
   showModalCreate.value = false;
   errors.value = {};
 };
@@ -311,12 +260,8 @@ const yearsCurrentScore = computed(() => Object.keys(currentScore.value));
 
 onMounted(async () => {
   getUserListe();
+  getProjet();
   await getDatas();
-  await getOrganisationsProgramme();
-  // ongSelectedScore.value = organisations.value[0].id;
-  // changeOrganisationScore();
-  // getFormsFactuel();
-  // getFormsPerception();
 });
 </script>
 
@@ -336,9 +281,6 @@ onMounted(async () => {
     </div>
   </div>
   <div class="p-5 mt-5 intro-y">
-    <!-- <div class="overflow-x-auto scrollbar-hidden" v-if="!isLoadingData">
-      <div id="tabulator" class="mt-5 table-report table-report--tabulator"></div>
-    </div> -->
     <LoaderSnipper v-if="isLoadingData" />
     <div v-else class="overflow-x-auto mt-5">
       <table class="table mt-5">
@@ -349,50 +291,48 @@ onMounted(async () => {
             <th class="whitespace-nowrap">Prestataire</th>
             <th class="whitespace-nowrap">Contact</th>
             <th class="whitespace-nowrap">Exercice audité</th>
+            <th class="whitespace-nowrap">Date de transmission</th>
             <th class="whitespace-nowrap">Etat d'avancement</th>
-            <th class="whitespace-nowrap">Catégorie de l'audit</th>
+            <th class="whitespace-nowrap">Catégorie</th>
+            <th class="whitespace-nowrap">Statut du projet</th>
             <th class="whitespace-nowrap">Date creation</th>
             <th class="whitespace-nowrap">Actions</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(data, index) in datas
-          " :key="index">
+          <tr v-for="(data, index) in datas" :key="index">
             <td>{{ index + 1 }}</td>
-            <td>{{ data.nom }}</td>
-            <td>{{ data.prenom }}</td>
+            <td>{{ data.projet.nom }}</td>
+            <td>{{ data.entreprise }}</td>
 
-            <td>{{ data.email }}</td>
-            <td>{{ data.contact }}</td>
-            <td :class="data.poste ? 'text-black' : 'text-red-500'" :style="{ color: data.poste ? '#000000' : '#a9aaad', fontStyle: data.poste ? 'normal' : 'italic' }">{{ data.poste ?? "Non défini" }}</td>
+            <td>{{ data.entrepriseContact }}</td>
+            <td>{{ data.annee }}</td>
+            <td>{{ data.etat }}</td>
+            <td>{{ data.categorie }}</td>
+            <td>{{ data.dateDeTransmission }}</td>
+
             <td>
-              <div class="flex flex-wrap gap-1">
-                <span v-for="(role, index) in data.roles" class="bg-primary text-white rounded-md px-2 py-1 text-xs">
-                  {{ role.nom }}
-                </span>
-              </div>
+              <span v-if="data.statut == 1">Terminer</span>
+              <span v-if="data.statut == 0">En cours</span>
+              <span v-if="data.statut == -1">En attente</span>
             </td>
 
             <td>{{ data.created_at }}</td>
-            <td v-if="$h.getPermission('write.utilisateur')" class="flex space-x-2 items-center">
-              <Tippy tag="a" href="javascript:;" class="tooltip" content="cliquez pour modifier">
-                <span @click="modifier(index, data)" class="text-blue-500 cursor-pointer">
-                  <EditIcon />
-                </span>
-              </Tippy>
+            <td class="_flex space-x-2 ">
+              <span @click="handleEdit(data)" class="text-blue-500 cursor-pointer">
+                <EditIcon />
+              </span>
 
-              <Tippy tag="a" href="javascript:;" class="tooltip" content="cliquez pour modifier">
-                <span @click="supprimer(index, data)" class="text-red-500 cursor-pointer">
-                  <Trash2Icon />
-                </span>
-              </Tippy>
+              <span @click="handleDelete(data)" class="text-red-500 cursor-pointer">
+                <Trash2Icon />
+              </span>
             </td>
-            <td>
+            <!-- <td>
               <div class="flex justify-evenly">
                 <EditIcon @click="openUpdateModal(data)" class="w-4 h-4 mr-3" />
                 <TrashIcon class="w-4 h-4 mr-3" />
               </div>
-            </td>
+            </td> -->
           </tr>
         </tbody>
       </table>
@@ -402,22 +342,23 @@ onMounted(async () => {
   <!-- Modal Register & Update -->
   <Modal backdrop="static" :show="showModalCreate" @hidden="showModalCreate = false">
     <ModalHeader>
-      <h2 class="mr-auto text-base font-medium">{{ mode }} une évaluation</h2>
+      <h2 class="mr-auto text-base font-medium">{{ mode }} un audit</h2>
     </ModalHeader>
     <form @submit.prevent="submitData">
       <ModalBody>
         <div class="grid grid-cols-1 gap-4">
           <InputForm class="col-span-12" label="Prestataire" v-model="payload.entreprise" :control="getFieldErrors(errors.entreprise)" />
           <InputForm class="col-span-12" label="Contact" type="number" v-model="payload.entrepriseContact" :control="getFieldErrors(errors.entrepriseContact)" />
-          <InputForm class="col-span-12" label="Excercice audité" type="number" v-model="payload.annee" :control="getFieldErrors(errors.annee)" />
-          <InputForm class="col-span-12" label="Date de transmission" v-model="payload.dateDeTransmission" type="date" :control="getFieldErrors(errors.dateDeTransmission)" />
+          <InputForm class="col-span-12" label="Excercice audité" type="text" v-model="payload.annee" :control="getFieldErrors(errors.annee)" />
+          <InputForm class="col-span-12" label="Date de transmission" type="date" v-model="payload.dateDeTransmission" :control="getFieldErrors(errors.dateDeTransmission)" />
           <InputForm class="col-span-12" label="Etat avancement" v-model="payload.etat" :control="getFieldErrors(errors.etat)" />
 
-          <InputForm class="col-span-12" type="file" @change="handleFileChange" required="required" placeHolder="choisir un fichier" label="Rapport" />
+          <InputForm v-if="isCreate" class="col-span-12" type="file" @change="handleFileChange" required="required" placeHolder="choisir un fichier" label="Rapport" />
 
-          <div class="col-span-12">
+          <div v-if="isCreate" class="col-span-12">
+            <!-- <pre>{{ usersId }}</pre> -->
             <label class="form-label">Partager à</label>
-            <TomSelect :options="{ placeholder: 'Selectionez un utilisateur' }" class="w-full">
+            <TomSelect v-model="usersId" multiple :options="{ placeholder: 'Selectionez un utilisateur' }" class="w-full">
               <option v-for="(form, index) in users" :key="index" :value="form.id">{{ form.nom }}</option>
             </TomSelect>
             <!-- <div v-if="errors.formulaires_de_gouvernance" class="mt-2 text-danger">{{ getFieldErrors(errors.formulaires_de_gouvernance) }}</div> -->
@@ -426,6 +367,7 @@ onMounted(async () => {
           <div class="col-span-12">
             <label class="form-label">Catérogies</label>
             <TomSelect v-model="payload.categorie" :options="{ placeholder: 'Selectionez une catégorie' }" class="w-full">
+              <option value="">Choisir une catégorie</option>
               <option value="0">Audit comptable et financier</option>
               <option value="1">Audit de conformité environnementale et social</option>
               <option value="2">Audit des acquisitions</option>
@@ -435,7 +377,8 @@ onMounted(async () => {
           </div>
           <div class="col-span-12">
             <label class="form-label">Statut</label>
-            <TomSelect v-model="payload.categorie" :options="{ placeholder: 'Selectionez un statut' }" class="w-full">
+            <TomSelect v-model="payload.statut" :options="{ placeholder: 'Selectionez un statut' }" class="w-full">
+              <option value="">Choisir un statut</option>
               <option value="1">Terminer</option>
               <option value="0">En cours</option>
               <option value="-1">En attente</option>
@@ -516,7 +459,7 @@ onMounted(async () => {
       <div class="p-5 text-center">
         <XCircleIcon class="w-16 h-16 mx-auto mt-3 text-danger" />
         <div class="mt-5 text-3xl">Suppression</div>
-        <div class="mt-2 text-slate-500">Supprimer une évaluation?</div>
+        <div class="mt-2 text-slate-500">Supprimer un audit</div>
       </div>
       <div class="flex justify-center w-full gap-3 py-4 text-center">
         <button type="button" @click="cancelSelect" class="mr-1 btn btn-outline-secondary">Annuler</button>
