@@ -8,8 +8,8 @@
         <p class="text-gray-500">Organisation : <span class="font-medium">Nom de l'Organisation</span></p>
       </div>
       <div>
-        <p class="text-sm text-gray-600"><strong>TEP :</strong> {{ graphiqueData?.tep }}</p>
-        <p class="text-sm text-gray-600"><strong>TEF :</strong> {{ graphiqueData?.tef }}</p>
+        <p class="text-sm text-gray-600"><strong>TEP :</strong> {{ graphiqueData?.tep }} %</p>
+        <p class="text-sm text-gray-600"><strong>TEF :</strong> {{ graphiqueData?.tef }} %</p>
         <p class="text-sm text-gray-600">
           Effectif de l'organisation: <span class="font-semibold text-gray-800"> {{ graphiqueData?.nombreEmploie }}</span>
         </p>
@@ -219,7 +219,7 @@
         </table> -->
       </div>
     </section>
-    <h2 class="my-2">Budget</h2>
+    <!-- <h2 class="my-2">Budget</h2>
     <PieChart :height="400" />
     <h2 class="my-2">Activités</h2>
     <ReportBarChart :height="400" class="py-4 mt-6" />
@@ -228,7 +228,7 @@
     <div class="report-chart">
       <h2 class="my-2">Statistiques financiers</h2>
       <ReportLineChart :height="275" class="mt-6 -mb-6" />
-    </div>
+    </div> -->
   </div>
   <!-- fin new sample -->
 </template>
