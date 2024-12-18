@@ -26,6 +26,7 @@
         <!-- BEGIN: Login Form -->
         <form @submit.prevent="save" autocomplete="on" class="flex items-center h-screen py-5 m-10 _bg-white xl:h-auto xl:py-0 sm:mx-auto xl:my-0">
           <div class="w-full px-5 py-8 mx-auto my-auto bg-white rounded-md shadow-md dark:bg-darkmode-600 xl:bg-transparent sm:px-8 xl:p-0 xl:shadow-none sm:w-3/4 lg:w-2/4 xl:w-auto">
+            <Alert v-if="showAlert" class="flex items-center mb-2 alert-danger"> <AlertCircleIcon class="w-6 h-6 mr-2" /> Email ou mot de passe incorrect.</Alert>
             <h2 class="text-2xl font-bold text-center intro-x xl:text-3xl xl:text-left">Se connecter</h2>
             <div class="mt-2 text-center intro-x text-slate-400 xl:hidden">Responsabilité partagée, Qualité améliorée : Unis pour un meilleur service social.</div>
             <div class="mt-8 intro-x">
@@ -115,6 +116,7 @@ export default {
       base_url: API_BASE_URL,
       statePassword: "password",
       show: false,
+      showAlert: false,
       state: {
         email: "",
         password: "",
@@ -183,9 +185,10 @@ export default {
             .catch((error) => {
               console.log(error);
               if (error.response.status == 422) {
-                toast.error("Email ou mot de passe incorrect  reesayer !!!");
+                this.showAlert = true;
+                toast.error("Email ou mot de passe incorrect reesayer !!!");
               } else {
-                toast.error("Une erreur s'est produite   reesayer !!!");
+                toast.error("Une erreur s'est produite reesayer !!!");
               }
               this.chargement = false;
             });
