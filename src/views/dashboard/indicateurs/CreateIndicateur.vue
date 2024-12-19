@@ -347,7 +347,7 @@
                       <div class="flex items-center justify-center text-sm input-group-text">
                         {{ key.libelle }}
                       </div>
-                      <input type="number" v-model="currentAnneeCible.valeurCible[index].value" class="form-control" placeholder="valeur" aria-label="valeur" />
+                      <input type="text" v-model="currentAnneeCible.valeurCible[index].value" class="form-control" placeholder="valeur" aria-label="valeur" />
                     </div>
                   </div>
                 </div>
