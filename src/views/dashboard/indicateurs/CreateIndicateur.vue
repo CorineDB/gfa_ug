@@ -85,7 +85,7 @@
           </li>
         </ul> -->
         <LoaderSnipper v-if="isLoadingDataCadre" />
-        <TabulatorCadreMesure v-else :data="dataAvailable" :years="annees" />
+        <TabulatorCadreMesure v-else :data="dataAvailable" :years="annees" :ongs="responsables" :ugs="ugs" :prop-sites="sites" />
         <div v-if="!isLoadingDataCadre && verifyPermission('voir-un-indicateur')" class="flex justify-center gap-3 my-8">
           <button @click="prevPage" :disabled="currentPage === 1" class="px-4 py-3 btn btn-outline-primary"><ChevronsLeftIcon class="size-5" /></button>
           <div class="max-w-[400px] overflow-x-auto flex items-center gap-3">
@@ -102,186 +102,219 @@
           </ModalHeader>
           <form @submit.prevent="submitData">
             <ModalBody>
-              <div class="grid grid-cols-1 gap-4">
-                <div class="flex flex-wrap items-center justify-between gap-3">
-                  <InputForm class="flex-1" :control="getFieldErrors(errors.nom)" label="Nom" v-model="payload.nom" />
-                  <div class="flex-1">
-                    <label class="form-label" for="description">Description</label>
-                    <div class="">
-                      <textarea name="description" class="form-control" id="description" v-model="payload.description" cols="30" rows="1"></textarea>
+              <ol class="items-center justify-center w-full mb-3 space-y-4 sm:flex sm:space-x-8 sm:space-y-0 rtl:space-x-reverse">
+                <li v-for="step in steps" @click="goToStep(step.id)" :key="step.id" :class="[currentStep == step.id ? 'text-blue-800' : 'text-gray-500']" class="flex cursor-pointer items-center space-x-2.5 rtl:space-x-reverse">
+                  <span :class="[currentStep == step.id ? 'border-blue-800 ' : 'border-gray-500']" class="flex items-center justify-center w-8 h-8 border rounded-full shrink-0"> {{ step.id }} </span>
+                  <span>
+                    <h3 class="font-medium leading-tight">Étape {{ step.id }}</h3>
+                    <p class="text-sm">{{ step.label }}</p>
+                  </span>
+                </li>
+              </ol>
+              <AlertErrorIndicateur :errors="errors" />
+              <!-- Information 1 -->
+              <div v-show="currentStep == 1" class="">
+                <p class="mb-3 text-lg text-semibold">Informations 1</p>
+
+                <div class="grid grid-cols-1 gap-4">
+                  <div class="flex flex-wrap items-center justify-between gap-3">
+                    <InputForm class="flex-1" :required="false" :control="getFieldErrors(errors.nom)" label="Nom" v-model="payload.nom" />
+                    <div class="flex-1">
+                      <label class="form-label" for="description">Description</label>
+                      <div class="">
+                        <textarea name="description" class="form-control" id="description" v-model="payload.description" cols="30" rows="1"></textarea>
+                      </div>
+                      <div v-if="errors.description" class="mt-2 text-danger">{{ getFieldErrors(errors.description) }}</div>
                     </div>
-                    <div v-if="errors.description" class="mt-2 text-danger">{{ getFieldErrors(errors.description) }}</div>
                   </div>
-                </div>
-                <div class="flex flex-wrap items-center justify-between gap-3">
-                  <div class="flex-1 form-check">
-                    <input id="agreer" class="form-check-input" type="checkbox" v-model="payload.agreger" />
-                    <label class="form-check-label" for="agreer">Indicateur Agréger</label>
+                  <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex-1 form-check">
+                      <input id="agreer" class="form-check-input" type="checkbox" v-model="payload.agreger" />
+                      <label class="form-check-label" for="agreer">Indicateur Agréger</label>
+                    </div>
+                    <InputForm class="flex-1" label="Indice" v-model="payload.indice" :required="false" :control="getFieldErrors(errors.indice)" type="number" />
+                  </div>
+                  <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex-1">
+                      <label class="form-label">Année de base</label>
+                      <TomSelect v-model="payload.anneeDeBase" name="annee_suivi" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+                        <option value=""></option>
+                        <option v-for="annee in annees" :key="annee" :value="annee">{{ annee }}</option>
+                      </TomSelect>
+                      <div v-if="errors.anneeDeBase" class="mt-2 text-danger">{{ getFieldErrors(errors.anneeDeBase) }}</div>
+                    </div>
+
+                    <InputForm v-if="!payload.agreger" class="flex-1" label="Valeur de base" :required="false" :control="getFieldErrors(errors.valeurDeBase)" v-model="payloadNotAgreger.valeurDeBase" type="number" />
                   </div>
 
-                  <!-- <InputForm class="flex-1" label="Année de base" v-model.number="payload.anneeDeBase" :control="getFieldErrors(errors.anneeDeBase)" type="number" /> -->
-                  <div class="flex-1">
-                    <label class="form-label">Année de base</label>
-                    <TomSelect v-model="payload.anneeDeBase" name="annee_suivi" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
-                      <option value=""></option>
-                      <option v-for="annee in annees" :key="annee" :value="annee">{{ annee }}</option>
-                    </TomSelect>
-                    <div v-if="errors.anneeDeBase" class="mt-2 text-danger">{{ getFieldErrors(errors.anneeDeBase) }}</div>
-                  </div>
-                </div>
+                  <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div class="w-full" v-if="!payload.agreger">
+                      <!-- <p class="form-label">Année cible</p> -->
+                      <div class="flex gap-1 place-items-end">
+                        <div class="flex-1">
+                          <label class="form-label">Année cible</label>
+                          <TomSelect v-model="currentAnneeCibleNotAgreger.annee" name="annee_aggrer" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+                            <option value=""></option>
+                            <option v-for="annee in annees" :key="annee" :value="annee">{{ annee }}</option>
+                          </TomSelect>
+                        </div>
 
-                <div class="flex flex-wrap items-center justify-between gap-3">
-                  <div class="w-full" v-if="!payload.agreger">
-                    <!-- <p class="form-label">Année cible</p> -->
-                    <div class="flex gap-1 place-items-end">
-                      <!-- <input type="number" class="form-control" id="anne_cible" placeholder="Année" v-model="currentAnneeCibleNotAgreger.annee" /> -->
-                      <div class="flex-1">
-                        <label class="form-label">Année cible</label>
-                        <TomSelect v-model="currentAnneeCibleNotAgreger.annee" name="annee_aggrer" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
-                          <option value=""></option>
-                          <option v-for="annee in annees" :key="annee" :value="annee">{{ annee }}</option>
-                        </TomSelect>
+                        <div class="flex flex-1 gap-1">
+                          <input type="number" class="form-control" id="valeur_cible" placeholder="Valeur cible" v-model="currentAnneeCibleNotAgreger.valeurCible" />
+                          <button @click.prevent="addAnneeCibleNotAgreger" class="btn btn-primary h-9"><PlusIcon class="mr-1 size-3" /></button>
+                        </div>
                       </div>
-                      <div class="flex flex-1 gap-1">
-                        <input type="number" class="form-control" id="valeur_cible" placeholder="Valeur cible" v-model="currentAnneeCibleNotAgreger.valeurCible" />
-                        <button @click.prevent="addAnneeCibleNotAgreger" class="btn btn-primary h-9"><PlusIcon class="mr-1 size-3" /></button>
-                      </div>
+                      <div v-if="errors.valeurDeBase" class="mt-2 text-danger">{{ getFieldErrors(errors.valeurDeBase) }}</div>
+                      <div v-if="errors.anneesCible" class="mt-2 text-danger">{{ getFieldErrors(errors.anneesCible) }}</div>
+                    </div>
+                  </div>
+                  <div v-if="!payload.agreger && payloadNotAgreger.anneesCible.length > 0" class="flex flex-wrap items-center w-full gap-3">
+                    <p>Années cible:</p>
+                    <div :title="annee.valeurCible" class="flex items-center justify-between gap-1 px-2 py-0.5 text-sm font-normal bg-white rounded-full shadow cursor-pointer text-primary" v-for="(annee, index) in payloadNotAgreger.anneesCible" :key="index">
+                      <span class="font-medium"
+                        >{{ annee.annee }} : <span class="font-normal text-slate-600">{{ annee.valeurCible }} </span></span
+                      >
+                      <button @click.prevent="deleteAnneeCibleNotAgreger(index)" class="p-1.5 transition-colors rounded-full hover:bg-red-100"><XIcon class="size-4 text-danger" /></button>
                     </div>
                     <div v-if="errors.valeurDeBase" class="mt-2 text-danger">{{ getFieldErrors(errors.valeurDeBase) }}</div>
                     <div v-if="errors.anneesCible" class="mt-2 text-danger">{{ getFieldErrors(errors.anneesCible) }}</div>
                   </div>
-                </div>
-                <div v-if="!payload.agreger && payloadNotAgreger.anneesCible.length > 0" class="flex flex-wrap items-center w-full gap-3">
-                  <p>Années cible:</p>
-                  <div class="flex items-center justify-between gap-2 px-2 py-0.5 text-sm font-medium bg-white rounded-full shadow cursor-pointer text-primary" v-for="(annee, index) in payloadNotAgreger.anneesCible" :key="index">
-                    <span>{{ annee.annee }} </span>
-                    <button @click.prevent="deleteAnneeCibleNotAgreger(index)" class="p-1.5 transition-colors rounded-full hover:bg-red-100"><XIcon class="size-4 text-danger" /></button>
-                  </div>
-                  <div v-if="errors.valeurDeBase" class="mt-2 text-danger">{{ getFieldErrors(errors.valeurDeBase) }}</div>
-                  <div v-if="errors.anneesCible" class="mt-2 text-danger">{{ getFieldErrors(errors.anneesCible) }}</div>
-                </div>
 
-                <div class="flex flex-wrap items-center justify-between gap-3">
-                  <InputForm class="flex-1" label="Indice" v-model="payload.indice" :control="getFieldErrors(errors.indice)" type="number" />
-                  <div v-if="payload.agreger" class="flex-1">
-                    <label class="form-label">Clé valeur</label>
-                    <TomSelect v-model="array_value_keys" name="keys" multiple :options="{ placeholder: 'Selectionez les clés valeur' }" class="w-full">
-                      <option v-for="(key, index) in keys" :key="index" :value="key.id">{{ key.libelle }}</option>
-                    </TomSelect>
-                    <div v-if="errors.value_keys" class="mt-2 text-danger">{{ getFieldErrors(errors.value_keys) }}</div>
+                  <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div v-if="payload.agreger" class="flex-1">
+                      <label class="form-label">Clé valeur</label>
+                      <TomSelect v-model="array_value_keys" name="keys" multiple :options="{ placeholder: 'Selectionez les clés valeur' }" class="w-full">
+                        <option v-for="(key, index) in keys" :key="index" :value="key.id">{{ key.libelle }}</option>
+                      </TomSelect>
+                      <div v-if="errors.value_keys" class="mt-2 text-danger">{{ getFieldErrors(errors.value_keys) }}</div>
+                    </div>
                   </div>
-                  <InputForm v-else class="flex-1" label="Valeur de base" :control="getFieldErrors(errors.valeurDeBase)" v-model="payloadNotAgreger.valeurDeBase" type="number" />
+                  <div v-if="array_value_keys.length > 0 && payload.agreger" class="">
+                    <label class="form-label">Valeur de base</label>
+                    <div class="grid gap-3 grid-cols-[repeat(auto-fill,_minmax(350px,_1fr))]">
+                      <div v-for="(base, index) in filterValueKeys" :key="index" class="input-group">
+                        <div class="flex items-center justify-center text-sm input-group-text">{{ base.libelle }}</div>
+                        <input type="text" v-model="valeur[base.id]" class="form-control" placeholder="valeur" aria-label="valeur" aria-describedby="input-group-valeur" />
+                      </div>
+                    </div>
+                  </div>
+                  <div v-if="payload.agreger" class="space-y-3">
+                    <button v-show="array_value_keys.length > 0" class="text-sm btn btn-primary" @click.prevent="showModalAnnee = true"><PlusIcon class="mr-1 size-3" /> Ajouter une année cible</button>
+                  </div>
+                  <div v-if="payload.agreger && anneesCible.length > 0" class="flex flex-wrap items-center w-full gap-3">
+                    <p>Années cible:</p>
+                    <div :title="annee.valeurCible.map((item) => item.value).join(',')" class="flex items-center justify-between gap-2 px-2 py-0.5 text-sm font-medium bg-white rounded-full shadow cursor-pointer text-primary" v-for="(annee, index) in anneesCible" :key="index">
+                      <span>{{ annee.annee }} </span>
+                      <button @click.prevent="deleteAnneeCible(index)" class="p-1.5 transition-colors rounded-full hover:bg-red-100"><XIcon class="size-4 text-danger" /></button>
+                    </div>
+                    <div v-if="errors.anneesCible" class="mt-2 text-danger">{{ getFieldErrors(errors.anneesCible) }}</div>
+                  </div>
                 </div>
-                <div v-if="array_value_keys.length > 0 && payload.agreger" class="">
-                  <label class="form-label">Valeur de base</label>
-                  <div class="grid gap-3 grid-cols-[repeat(auto-fill,_minmax(350px,_1fr))]">
-                    <div v-for="(base, index) in filterValueKeys" :key="index" class="input-group">
-                      <div class="flex items-center justify-center text-sm input-group-text">{{ base.libelle }}</div>
-                      <input type="number" v-model="valeur[base.id]" class="form-control" placeholder="valeur" aria-label="valeur" aria-describedby="input-group-valeur" />
+              </div>
+              <!-- END -->
+
+              <!-- Information 1 -->
+              <div v-show="currentStep == 2" class="">
+                <p class="mb-3 text-lg text-semibold">Informations 2</p>
+                <div class="grid grid-cols-1 gap-4">
+                  <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex-1">
+                      <label class="form-label">Catégorie</label>
+                      <TomSelect v-model="payload.categorieId" name="category" :options="{ placeholder: 'Selectionez une catégorie' }" class="w-full">
+                        <option value=""></option>
+                        <option v-for="(categorie, index) in categories" :key="categorie.id" :value="categorie.id">{{ truncateText(categorie.type + " " + categorie.indice + " " + categorie.nom) }}</option>
+                      </TomSelect>
+                      <div v-if="errors.categorieId" class="mt-2 text-danger">{{ getFieldErrors(errors.categorieId) }}</div>
+                    </div>
+                    <div class="flex-1">
+                      <label class="form-label">Type de variables</label>
+                      <TomSelect v-model="payload.type_de_variable" name="type_variable" :options="{ placeholder: 'Selectionez un type de variable' }" class="w-full">
+                        <option value=""></option>
+                        <option v-for="(variable, index) in payload.agreger ? type_variablees : type_variablees_agreger" :key="index" :value="variable.id">{{ variable.label }}</option>
+                      </TomSelect>
+                      <div v-if="errors.type_de_variable" class="mt-2 text-danger">{{ getFieldErrors(errors.type_de_variable) }}</div>
+                    </div>
+                  </div>
+                  <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex-1">
+                      <label class="form-label">Méthode de la collecte des données</label>
+                      <TomSelect v-model="payload.methode_de_la_collecte" name="method" :options="{ placeholder: 'Selectionez une methode' }" class="w-full">
+                        <option value=""></option>
+                        <option v-for="(methode, index) in methodeCollecte" :key="index" :value="methode">{{ methode }}</option>
+                      </TomSelect>
+                      <div v-if="errors.methode_de_la_collecte" class="mt-2 text-danger">{{ getFieldErrors(errors.methode_de_la_collecte) }}</div>
+                    </div>
+                    <div class="flex-1">
+                      <label class="form-label">Fréquence de la collecte de données</label>
+                      <TomSelect v-model="payload.frequence_de_la_collecte" :options="{ placeholder: 'Selectionez une fréquence' }" class="w-full">
+                        <option value=""></option>
+                        <option v-for="(frequence, index) in frequenceCollecte" :key="index" :value="frequence">{{ frequence }}</option>
+                      </TomSelect>
+                      <div v-if="errors.frequence_de_la_collecte" class="mt-2 text-danger">{{ getFieldErrors(errors.frequence_de_la_collecte) }}</div>
+                    </div>
+                  </div>
+                  <div class="flex-1">
+                    <label class="form-label">UG</label>
+                    <TomSelect v-model="responsablesForm.ug" name="ug" :options="{ placeholder: 'Selectionez un UG' }" class="w-full">
+                      <option value=""></option>
+                      <option v-for="(ug, index) in ugs" :key="index" :value="ug.id">{{ ug.nom }}</option>
+                    </TomSelect>
+                    <div v-if="errors['responsables.ug']" class="mt-2 text-danger">{{ getFieldErrors(errors["responsables.ug"]) }}</div>
+                  </div>
+                  <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex-1">
+                      <label class="form-label">Responsables</label>
+                      <TomSelect v-model="responsablesForm.organisations" name="responsable" multiple :options="{ placeholder: 'Selectionez un responsable' }" class="w-full">
+                        <option value=""></option>
+                        <option v-for="(responsable, index) in responsables" :key="index" :value="responsable.id">{{ responsable.nom }}</option>
+                      </TomSelect>
+                      <div v-if="errors['responsables.organisations']" class="mt-2 text-danger">{{ getFieldErrors(errors["responsables.organisations"]) }}</div>
+                    </div>
+                    <div class="flex-1">
+                      <label class="form-label">Unité de mesure</label>
+                      <TomSelect v-model="payload.uniteeMesureId" name="unite" :options="{ placeholder: 'Selectionez une unité de mesure' }" class="w-full">
+                        <option value=""></option>
+                        <option v-for="(unite, index) in unites" :key="index" :value="unite.id">{{ unite.nom }}</option>
+                      </TomSelect>
+                      <div v-if="errors.uniteeMesureId" class="mt-2 text-danger">{{ getFieldErrors(errors.uniteeMesureId) }}</div>
+                    </div>
+                  </div>
+                  <div class="flex flex-wrap items-center justify-between w-full gap-3">
+                    <div class="flex-1">
+                      <label class="form-label">Sites</label>
+                      <TomSelect v-model="payload.sites" multiple name="site" :options="{ placeholder: 'Selectionez les sites' }" class="w-full">
+                        <option value=""></option>
+                        <option v-for="(site, index) in sites" :key="index" :value="site.id">{{ site.nom }}</option>
+                      </TomSelect>
+                      <div v-if="errors.sites" class="mt-2 text-danger">{{ getFieldErrors(errors.sites) }}</div>
+                    </div>
+                    <div class="flex-1">
+                      <label class="form-label">Source de données</label>
+                      <TomSelect v-model="payload.sources_de_donnee" name="source" :options="{ placeholder: 'Selectionez une source' }" class="w-full">
+                        <option value=""></option>
+                        <option v-for="(source, index) in sourcesDonnees" :key="index" :value="source">{{ source }}</option>
+                      </TomSelect>
+                      <div v-if="errors.sources_de_donnee" class="mt-2 text-danger">{{ getFieldErrors(errors.sources_de_donnee) }}</div>
                     </div>
                   </div>
                 </div>
-                <div v-if="payload.agreger" class="space-y-3">
-                  <button v-show="array_value_keys.length > 0" class="text-sm btn btn-primary" @click.prevent="showModalAnnee = true"><PlusIcon class="mr-1 size-3" /> Ajouter une année cible</button>
-                </div>
-                <div v-if="payload.agreger && anneesCible.length > 0" class="flex flex-wrap items-center w-full gap-3">
-                  <p>Années cible:</p>
-                  <div class="flex items-center justify-between gap-2 px-2 py-0.5 text-sm font-medium bg-white rounded-full shadow cursor-pointer text-primary" v-for="(annee, index) in anneesCible" :key="index">
-                    <span>{{ annee.annee }} </span>
-                    <button @click.prevent="deleteAnneeCible(index)" class="p-1.5 transition-colors rounded-full hover:bg-red-100"><XIcon class="size-4 text-danger" /></button>
-                  </div>
-                  <div v-if="errors.anneesCible" class="mt-2 text-danger">{{ getFieldErrors(errors.anneesCible) }}</div>
-                </div>
-                <div class="flex flex-wrap items-center justify-between gap-3">
-                  <div class="flex-1">
-                    <label class="form-label">Catégorie</label>
-                    <TomSelect v-model="payload.categorieId" name="category" :options="{ placeholder: 'Selectionez une catégorie' }" class="w-full">
-                      <option value=""></option>
-                      <option v-for="(categorie, index) in categories" :key="categorie.id" :value="categorie.id">{{ truncateText(categorie.type + " " + categorie.indice + " " + categorie.nom) }}</option>
-                    </TomSelect>
-                    <div v-if="errors.categorieId" class="mt-2 text-danger">{{ getFieldErrors(errors.categorieId) }}</div>
-                  </div>
-                  <div class="flex-1">
-                    <label class="form-label">Type de variables</label>
-                    <TomSelect v-model="payload.type_de_variable" name="type_variable" :options="{ placeholder: 'Selectionez un type de variable' }" class="w-full">
-                      <option value=""></option>
-                      <option v-for="(variable, index) in payload.agreger ? type_variablees : type_variablees_agreger" :key="index" :value="variable.id">{{ variable.label }}</option>
-                    </TomSelect>
-                    <div v-if="errors.type_de_variable" class="mt-2 text-danger">{{ getFieldErrors(errors.type_de_variable) }}</div>
-                  </div>
-                </div>
-                <!-- <div class="flex flex-wrap items-center justify-between gap-3">
-
-                </div> -->
-
-                <div class="flex flex-wrap items-center justify-between gap-3">
-                  <div class="flex-1">
-                    <label class="form-label">Méthode de la collecte des données</label>
-                    <TomSelect v-model="payload.methode_de_la_collecte" name="method" :options="{ placeholder: 'Selectionez une methode' }" class="w-full">
-                      <option value=""></option>
-                      <option v-for="(methode, index) in methodeCollecte" :key="index" :value="methode">{{ methode }}</option>
-                    </TomSelect>
-                    <div v-if="errors.methode_de_la_collecte" class="mt-2 text-danger">{{ getFieldErrors(errors.methode_de_la_collecte) }}</div>
-                  </div>
-                  <div class="flex-1">
-                    <label class="form-label">Fréquence de la collecte de données</label>
-                    <TomSelect v-model="payload.frequence_de_la_collecte" :options="{ placeholder: 'Selectionez une fréquence' }" class="w-full">
-                      <option value=""></option>
-                      <option v-for="(frequence, index) in frequenceCollecte" :key="index" :value="frequence">{{ frequence }}</option>
-                    </TomSelect>
-                    <div v-if="errors.frequence_de_la_collecte" class="mt-2 text-danger">{{ getFieldErrors(errors.frequence_de_la_collecte) }}</div>
-                  </div>
-                </div>
-                <div class="flex-1">
-                  <label class="form-label">UG</label>
-                  <TomSelect v-model="responsablesForm.ug" name="ug" :options="{ placeholder: 'Selectionez un UG' }" class="w-full">
-                    <option value=""></option>
-                    <option v-for="(ug, index) in ugs" :key="index" :value="ug.id">{{ ug.nom }}</option>
-                  </TomSelect>
-                  <div v-if="errors.responsables" class="mt-2 text-danger">{{ getFieldErrors(errors.responsables) }}</div>
-                </div>
-                <div class="flex flex-wrap items-center justify-between gap-3">
-                  <div class="flex-1">
-                    <label class="form-label">Responsables</label>
-                    <TomSelect v-model="responsablesForm.organisations" name="responsable" multiple :options="{ placeholder: 'Selectionez un responsable' }" class="w-full">
-                      <option value=""></option>
-                      <option v-for="(responsable, index) in responsables" :key="index" :value="responsable.id">{{ responsable.nom }}</option>
-                    </TomSelect>
-                    <div v-if="errors.responsables" class="mt-2 text-danger">{{ getFieldErrors(errors.responsables) }}</div>
-                  </div>
-                  <div class="flex-1">
-                    <label class="form-label">Unité de mesure</label>
-                    <TomSelect v-model="payload.uniteeMesureId" name="unite" :options="{ placeholder: 'Selectionez une unité de mesure' }" class="w-full">
-                      <option value=""></option>
-                      <option v-for="(unite, index) in unites" :key="index" :value="unite.id">{{ unite.nom }}</option>
-                    </TomSelect>
-                    <div v-if="errors.uniteeMesureId" class="mt-2 text-danger">{{ getFieldErrors(errors.uniteeMesureId) }}</div>
-                  </div>
-                </div>
-                <div class="flex flex-wrap items-center justify-between w-full gap-3">
-                  <div class="flex-1">
-                    <label class="form-label">Sites</label>
-                    <TomSelect v-model="payload.sites" multiple name="site" :options="{ placeholder: 'Selectionez les sites' }" class="w-full">
-                      <option value=""></option>
-                      <option v-for="(site, index) in sites" :key="index" :value="site.id">{{ site.nom }}</option>
-                    </TomSelect>
-                    <div v-if="errors.sites" class="mt-2 text-danger">{{ getFieldErrors(errors.sites) }}</div>
-                  </div>
-                  <div class="flex-1">
-                    <label class="form-label">Source de données</label>
-                    <TomSelect v-model="payload.sources_de_donnee" name="source" :options="{ placeholder: 'Selectionez une source' }" class="w-full">
-                      <option value=""></option>
-                      <option v-for="(source, index) in sourcesDonnees" :key="index" :value="source">{{ source }}</option>
-                    </TomSelect>
-                    <div v-if="errors.sources_de_donnee" class="mt-2 text-danger">{{ getFieldErrors(errors.sources_de_donnee) }}</div>
-                  </div>
-                </div>
+              </div>
+              <!-- END -->
+              <div class="flex justify-end gap-3 py-4 mt-5">
+                <button @click.prevent="prevStep" :class="[currentStep == 1 ? ' opacity-50 cursor-not-allowed pointer-events-none' : '']" class="flex items-center justify-center mr-1 btn btn-outline-primary">
+                  <ChevronsLeftIcon class="size-4" />
+                </button>
+                <button v-for="step in steps" :key="step.id" :class="[step.id == currentStep ? 'btn-primary' : 'btn-outline-primary']" @click.prevent="goToStep(step.id)" class="flex items-center justify-center rounded-full btn size-8">{{ step.id }}</button>
+                <button @click.prevent="nextStep" :class="[currentStep == steps.length ? ' opacity-50 cursor-not-allowed pointer-events-none' : '']" class="flex items-center justify-center ml-1 text-black btn btn-outline-primary">
+                  <ChevronsRightIcon class="text-black size-4" />
+                </button>
               </div>
             </ModalBody>
             <ModalFooter>
               <div class="flex gap-2">
                 <button type="button" @click="resetForm" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
-                <VButton :loading="isLoading" :label="modeText" />
+                <VButton v-if="currentStep == steps.length" :loading="isLoading" :label="modeText" />
+                <VButton v-else :loading="isLoading" @click.prevent="nextStep" :class="[currentStep == steps.length ? ' opacity-50 cursor-not-allowed pointer-events-none' : '']" label="Suivant" />
               </div>
             </ModalFooter>
           </form>
@@ -368,9 +401,13 @@ import ResultatCadreRendementService from "@/services/modules/resultat.cadre.ren
 import TabulatorCadreMesure from "@/components/TabulatorCadreMesure.vue";
 import { getFieldErrors } from "../../../utils/helpers";
 import verifyPermission from "@/utils/verifyPermission";
+import AlertErrorIndicateur from "../../../components/news/AlertErrorIndicateur.vue";
 
 const props = defineProps({});
-
+const steps = [
+  { label: "Informations 1", id: 1 },
+  { label: "Informations 2", id: 2 },
+];
 // Reactive data structure
 const cadreRendement = ref([]);
 const isLoadingDataCadre = ref(false);
@@ -398,6 +435,7 @@ const keys = ref([]);
 const errors = ref({});
 const array_value_keys = ref([]);
 const responsablesForm = ref({ organisations: [], ug: "" });
+const currentStep = ref(1);
 
 // Etat de la page et items par page
 const currentPage = ref(1);
@@ -644,8 +682,8 @@ const handleDelete = (data) => {
 
 const getAllSelectDatas = () => {
   getCategories();
-  getResponsables();
-  getSites();
+  // getResponsables();
+  // getSites();
   getUnites();
   getKeys();
 };
@@ -689,6 +727,20 @@ const prevPage = () => {
 
 const goToPage = (page) => {
   currentPage.value = page;
+};
+
+const goToStep = (index) => {
+  currentStep.value = index;
+};
+
+const prevStep = () => {
+  if (currentStep.value > 1) currentStep.value--;
+  else currentStep.value = 1;
+};
+
+const nextStep = () => {
+  if (currentStep.value < 3) currentStep.value++;
+  else currentStep.value = 3;
 };
 
 // Fonction pour ajouter une année cible
@@ -775,6 +827,8 @@ onMounted(async () => {
   await getcurrentUser();
   getDatasCadre();
   getDatas();
+  getResponsables();
+  getSites();
 });
 </script>
 
