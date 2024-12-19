@@ -16,7 +16,6 @@ import ProgressBar from "../../../components/news/ProgressBar.vue";
 import ChartScroreByPrincipe from "../../../components/news/ChartScroreByPrincipe.vue";
 import { getFieldErrors } from "../../../utils/helpers";
 import SyntheseService from "../../../services/modules/synthese.service";
-import { data } from "jquery";
 import AddObjectifEvaluation from "../../../components/news/AddObjectifEvaluation.vue";
 
 const router = useRouter();
@@ -64,7 +63,7 @@ const createData = async () => {
       isLoading.value = false;
       getDatas();
       resetForm();
-      toast.success("évaluation créer.");
+      toast.success("Évaluation créer.");
     })
     .catch((e) => {
       isLoading.value = false;
@@ -191,7 +190,12 @@ const getStatusText = (param) => {
 };
 
 function gotoSoumissions(enquete) {
-  router.push({ name: "SoumissionsEnqueteDeCollecte", params: { id: enquete.id } });
+  if (!enquete.objectif_attendu.length) {
+    handleObjectif(enquete);
+    toast.info("Veuillez ajouter des objectifs avant de poursuivre");
+  } else {
+    router.push({ name: "SoumissionsEnqueteDeCollecte", params: { id: enquete.id } });
+  }
 }
 
 function gotoAppreciations(enquete) {
