@@ -10,7 +10,7 @@
                 <ChevronDownIcon />
               </Accordion>
               <AccordionPanel class="p-2">
-                <UniteMesure />
+                <UniteMesure @update-datas="updateUnites" />
               </AccordionPanel>
             </AccordionItem>
 
@@ -20,7 +20,7 @@
                 <ChevronDownIcon />
               </Accordion>
               <AccordionPanel class="p-2">
-                <CleValeur />
+                <CleValeur @update-datas="updateKeys" />
               </AccordionPanel>
             </AccordionItem>
 
@@ -30,7 +30,7 @@
                 <ChevronDownIcon />
               </Accordion>
               <AccordionPanel class="p-2">
-                <ManagmentCategorie />
+                <ManagmentCategorie @update-datas="updateCategories" />
               </AccordionPanel>
             </AccordionItem>
             <AccordionItem>
@@ -39,7 +39,7 @@
                 <ChevronDownIcon />
               </Accordion>
               <AccordionPanel class="p-2">
-                <ManagmentSite />
+                <ManagmentSite @update-datas="updateSites" />
               </AccordionPanel>
             </AccordionItem>
           </AccordionGroup>
@@ -84,11 +84,8 @@
             </div>
           </li>
         </ul> -->
-        <div class="flex items-center justify-end mt-5">
-          <button class="text-sm btn btn-primary" @click="getDatasCadre"><RotateCcwIcon class="mr-1 size-4" /></button>
-        </div>
         <LoaderSnipper v-if="isLoadingDataCadre" />
-        <TabulatorCadreMesure v-else :data="dataAvailable" :years="annees" :ongs="responsables" :ugs="ugs" :prop-sites="sites" />
+        <TabulatorCadreMesure v-else :data="dataAvailable" :unites="unites" :categories="categories" :years="annees" :ongs="responsables" :ugs="ugs" :prop-sites="sites" @update-datas="getDatasCadre" />
         <div v-if="!isLoadingDataCadre && verifyPermission('voir-un-indicateur')" class="flex justify-center gap-3 my-8">
           <button @click="prevPage" :disabled="currentPage === 1" class="px-4 py-3 btn btn-outline-primary"><ChevronsLeftIcon class="size-5" /></button>
           <div class="max-w-[400px] overflow-x-auto flex items-center gap-3">
@@ -588,13 +585,17 @@ const getSites = async () => {
     toast.error("Erreur lors de la récupération des sites.");
   }
 };
-const getUnites = async () => {
-  try {
-    const { data } = await UniteeDeMesureService.get();
-    unites.value = data.data;
-  } catch (e) {
-    toast.error("Erreur lors de la récupération des sites.");
-  }
+const updateSites = (datas) => {
+  sites.value = datas; // Stocke les données reçues
+};
+const updateUnites = (datas) => {
+  unites.value = datas; // Stocke les données reçues
+};
+const updateKeys = (datas) => {
+  keys.value = datas; // Stocke les données reçues
+};
+const updateCategories = (datas) => {
+  categories.value = datas; // Stocke les données reçues
 };
 const getKeys = async () => {
   try {
@@ -681,19 +682,9 @@ const handleDelete = (data) => {
   nameSelect.value = data.nom;
   deleteModalPreview.value = true;
 };
-// UI related functions
-
-const getAllSelectDatas = () => {
-  // getCategories();
-  // getUnites();
-  // getKeys();
-  // getResponsables();
-  // getSites();
-};
 
 const openCreateModal = () => {
   resetForm();
-  getAllSelectDatas();
   isCreate.value = true;
   showModalCreate.value = true;
 };
@@ -831,10 +822,6 @@ onMounted(async () => {
   getDatasCadre();
   getDatas();
   getResponsables();
-  getSites();
-  getCategories();
-  getUnites();
-  getKeys();
 });
 </script>
 

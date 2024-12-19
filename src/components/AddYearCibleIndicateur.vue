@@ -1,10 +1,5 @@
 <template>
   <div class="flex w-full gap-2">
-    <!-- Button to open modal -->
-    <div v-if="verifyPermission('voir-un-indicateur')" class="flex items-center justify-end gap-2">
-      <button class="text-base btn btn-primary" @click="openCreateModal"><PlusIcon class="mr-1 size-4" />Ajouter</button>
-    </div>
-
     <!-- Modal for creating/updating -->
     <Modal size="modal-xl" backdrop="static" :show="showModalCreate" @hidden="closeModal">
       <ModalHeader>

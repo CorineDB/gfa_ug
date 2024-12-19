@@ -8,7 +8,12 @@
         <ModalBody>
           <div v-if="!isLoadingPrincipes" class="grid grid-cols-1 gap-4 max-h-[75vh] overflow-y-auto">
             <div v-for="(principe, index) in principes" :key="index" class="">
-              <InputForm :label="principe.nom" class="flex-1" min="0" max="1" step="0.1" v-model="responses[principe.id].objectif_attendu" :control="getFieldErrors(errors[`objectifsAttendu.${index}.objectif_attendu`])" type="number" />
+              <!-- <InputForm :label="principe.nom" class="flex-1" min="0" max="1" step="0.1" v-model="responses[principe.id].objectif_attendu" :control="getFieldErrors(errors[`objectifsAttendu.${index}.objectif_attendu`])" type="number" /> -->
+              <div>
+                <label :for="principe.id" class="form-label">{{ principe.nom }}</label>
+                <input :id="principe.id" type="number" required class="form-control" min="0" max="1" step="0.1" v-model="responses[principe.id].objectif_attendu" :placeholder="principe.nom" />
+                <div v-if="errors[`objectifsAttendu.${index}.objectif_attendu`]" class="mt-2 text-danger">{{ getFieldErrors(errors[`objectifsAttendu.${index}.objectif_attendu`]) }}</div>
+              </div>
             </div>
           </div>
           <LoaderSnipper v-else />
@@ -41,6 +46,8 @@ const prop = defineProps({
     required: true,
   },
 });
+const emit = defineEmits(["update-datas"]);
+
 const isLoading = ref(false);
 const isLoadingPrincipes = ref(true);
 const showModal = defineModel("show");
@@ -56,6 +63,7 @@ const resetForm = () => {
   isLoadingPrincipes.value = true;
   errors.value = {};
   showModal.value = false;
+  emit("update-datas");
 };
 
 const submitObjectifs = async () => {

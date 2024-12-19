@@ -11,6 +11,7 @@ import { types } from "../../utils/constants";
 import { getFieldErrors } from "../../utils/helpers";
 
 const props = defineProps({});
+const emit = defineEmits(["update-datas"]);
 
 // Reactive data structure
 const payload = reactive({
@@ -36,6 +37,7 @@ const getDatas = async () => {
     isLoadingData.value = true;
     const { data } = await CategoriesService.get();
     datas.value = data.data;
+    emit("update-datas", datas.value);
   } catch (e) {
     toast.error("Erreur lors de la récupération des données.");
   } finally {

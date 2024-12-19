@@ -487,5 +487,5 @@ onMounted(async () => {
     </ModalBody>
   </Modal>
   <!-- End Modal -->
-  <AddObjectifEvaluation v-show="showModalObjectif" :evaluation="evaluationSelected" v-model:show="showModalObjectif" />
+  <AddObjectifEvaluation v-show="showModalObjectif" :evaluation="evaluationSelected" v-model:show="showModalObjectif" @update-datas="getDatas" />
 </template>

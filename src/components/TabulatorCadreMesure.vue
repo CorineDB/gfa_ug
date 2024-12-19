@@ -30,7 +30,7 @@
         </thead>
         <tbody>
           <template v-for="(result, i) in data" :key="result.id">
-            <tr class="uppercase" :class="[result.type == 'produit' ? 'text-black' : 'text-white']" :style="{ 'background-color': findColorCadreMesure(result.type) }">
+            <tr class="uppercase" v-if="result.indicateurs && result.indicateurs.length > 0" :class="[result.type == 'produit' ? 'text-black' : 'text-white']" :style="{ 'background-color': findColorCadreMesure(result.type) }">
               <td :colspan="13 + years.length * 2" class="font-semibold">{{ result.type }} {{ result.indice }}</td>
             </tr>
             <template v-for="(indicateur, j) in result.indicateurs" :key="indicateur.id">
@@ -79,7 +79,7 @@
               </tr>
             </template>
             <template v-for="(result, i) in result.categories" :key="result.id">
-              <tr class="uppercase" :class="[result.type == 'produit' ? 'text-black' : 'text-white']" :style="{ 'background-color': findColorCadreMesure(result.type) }">
+              <tr class="uppercase" v-if="result.indicateurs && result.indicateurs.length > 0" :class="[result.type == 'produit' ? 'text-black' : 'text-white']" :style="{ 'background-color': findColorCadreMesure(result.type) }">
                 <td :colspan="13 + years.length * 2" class="font-semibold">{{ result.type }} {{ result.indice }}</td>
               </tr>
               <template v-for="(indicateur, j) in result.indicateurs" :key="indicateur.id">
@@ -127,6 +127,56 @@
                   </td>
                 </tr>
               </template>
+              <template v-for="(result, i) in result.categories" :key="result.id">
+                <tr class="uppercase" v-if="result.indicateurs && result.indicateurs.length > 0" :class="[result.type == 'produit' ? 'text-black' : 'text-white']" :style="{ 'background-color': findColorCadreMesure(result.type) }">
+                  <td :colspan="13 + years.length * 2" class="font-semibold">{{ result.type }} {{ result.indice }}</td>
+                </tr>
+                <template v-for="(indicateur, j) in result.indicateurs" :key="indicateur.id">
+                  <tr>
+                    <!-- Première colonne fixe -->
+                    <td class="font-semibold sticky-column" v-if="j === 0" :rowspan="result.indicateurs.length" style="left: 0">
+                      {{ result.nom }}
+                    </td>
+
+                    <!-- Deuxième colonne fixe -->
+                    <td class="font-semibold sticky-column-second" style="left: 500px">Ind {{ indicateur.code }}</td>
+
+                    <!-- Troisième colonne fixe -->
+                    <td class="">
+                      {{ indicateur.nom }}
+                    </td>
+
+                    <!-- Colonnes restantes -->
+                    <td>{{ indicateur.description ?? "" }}</td>
+                    <td v-html="formatObject(indicateur.valeurDeBase)"></td>
+                    <td v-for="(year, index) in years" :key="index">
+                      <span v-html="formatObject(indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeurCible)"></span>
+                    </td>
+                    <td></td>
+                    <td v-for="(year, index) in years" :key="index">
+                      <span v-html="formatObject(indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeur_realiser)"></span>
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td>{{ indicateur.sources_de_donnee }}</td>
+                    <td>{{ indicateur.methode_de_la_collecte }}</td>
+                    <td>{{ indicateur.frequence_de_la_collecte }}</td>
+                    <td>
+                      <span v-html="formatResponsable(indicateur.organisations_responsable)"></span><br />
+                      {{ indicateur.ug_responsable?.nom ?? "" }}
+                      {{}}
+                    </td>
+                    <td class="space-x-1">
+                      <button v-if="verifyPermission('creer-un-suivi-indicateur')" title="Suivre" @click="handleSuivi(indicateur)" class="btn text-primary"><CornerUpLeftIcon class="size-5" /></button>
+                      <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Voir" @click="goToDetailSuivi(indicateur.id)" class="btn text-primary"><EyeIcon class="size-5" /></button>
+                      <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Ajouter Structure" @click="handleStructure(indicateur.id)" class="btn text-primary"><PlusIcon class="size-5" />structure</button>
+                      <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Ajouter Structure" @click="handleYearCible(indicateur)" class="btn text-primary"><PlusIcon class="size-5" />année cible</button>
+                      <button v-if="verifyPermission('supprimer-un-suivi-indicateur')" title="Modifier" @click="handleEdit(indicateur)" class="btn text-pending"><Edit3Icon class="size-5" /></button>
+                      <button v-if="verifyPermission('supprimer-un-suivi-indicateur')" title="Supprimer" @click="handleDelete(indicateur)" class="btn text-danger"><TrashIcon class="size-5" /></button>
+                    </td>
+                  </tr>
+                </template>
+              </template>
             </template>
           </template>
         </tbody>
@@ -153,6 +203,46 @@
             </div>
           </div>
 
+          <!-- <div class="flex-1">
+            <label class="form-label">Type de variables</label>
+            <TomSelect v-model="payloadUpdate.type_de_variable" name="type_variable" :options="{ placeholder: 'Selectionez un type de variable' }" class="w-full">
+              <option value=""></option>
+              <option v-for="(variable, index) in isAgregerCurrentIndicateur ? type_variablees : type_variablees_agreger" :key="index" :value="variable.id">{{ variable.label }}</option>
+            </TomSelect>
+            <div v-if="errors.type_de_variable" class="mt-2 text-danger">{{ getFieldErrors(errors.type_de_variable) }}</div>
+          </div> -->
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <InputForm class="flex-1" label="Indice" v-model="payloadUpdate.indice" :required="false" :control="getFieldErrors(errors.indice)" type="number" />
+            <div class="flex-1">
+              <label class="form-label">Année de base</label>
+              <TomSelect v-model="payloadUpdate.anneeDeBase" name="annee_suivi" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+                <option value=""></option>
+                <option v-for="annee in years" :key="annee" :value="annee">{{ annee }}</option>
+              </TomSelect>
+              <div v-if="errors.anneeDeBase" class="mt-2 text-danger">{{ getFieldErrors(errors.anneeDeBase) }}</div>
+            </div>
+
+            <!-- <InputForm v-if="!isAgregerCurrentIndicateur" class="flex-1" label="Valeur de base" :required="false" :control="getFieldErrors(errors.valeurDeBase)" v-model="payloadNotAgreger.valeurDeBase" type="number" /> -->
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex-1">
+              <label class="form-label">Unité de mesure</label>
+              <TomSelect v-model="payloadUpdate.uniteeMesureId" name="unite" :options="{ placeholder: 'Selectionez une unité de mesure' }" class="w-full">
+                <option value=""></option>
+                <option v-for="(unite, index) in unites" :key="index" :value="unite.id">{{ unite.nom }}</option>
+              </TomSelect>
+              <div v-if="errors.uniteeMesureId" class="mt-2 text-danger">{{ getFieldErrors(errors.uniteeMesureId) }}</div>
+            </div>
+            <div class="flex-1">
+              <label class="form-label">Catégorie</label>
+              <TomSelect v-model="payloadUpdate.categorieId" name="category" :options="{ placeholder: 'Selectionez une catégorie' }" class="w-full">
+                <option value=""></option>
+                <option v-for="(categorie, index) in categories" :key="categorie.id" :value="categorie.id">{{ truncateText(categorie.type + " " + categorie.indice + " " + categorie.nom) }}</option>
+              </TomSelect>
+              <div v-if="errors.categorieId" class="mt-2 text-danger">{{ getFieldErrors(errors.categorieId) }}</div>
+            </div>
+          </div>
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div class="flex-1">
               <label class="form-label">Méthode de la collecte des données</label>
@@ -378,7 +468,7 @@ import DeleteButton from "@/components/news/DeleteButton.vue";
 import { toast } from "vue3-toastify";
 import { getAllErrorMessages } from "@/utils/gestion-error";
 import { findColorCadreMesure } from "../utils/findColorIndicator";
-import { sourcesDonnees, frequenceCollecte, methodeCollecte } from "../utils/constants";
+import { sourcesDonnees, frequenceCollecte, methodeCollecte, type_variablees, type_variablees_agreger } from "../utils/constants";
 import { useRouter } from "vue-router";
 import { getFieldErrors } from "../utils/helpers";
 import ExportationIndicateur from "./news/ExportationIndicateur.vue";
@@ -398,12 +488,23 @@ const props = defineProps({
     required: false,
     default: [],
   },
+  unites: {
+    type: Array,
+    required: false,
+    default: [],
+  },
+  categories: {
+    type: Array,
+    required: false,
+    default: [],
+  },
   propSites: {
     type: Array,
     required: false,
     default: [],
   },
 });
+const emit = defineEmits(["update-datas"]);
 
 const router = useRouter();
 const trimestres = [1, 2, 3, 4];
@@ -430,14 +531,23 @@ const errors = ref({});
 const responsablesForm = ref({ organisations: [], ug: "" });
 const payloadStructure = reactive({ responsables: responsablesForm.value });
 const payloadYearCible = reactive({});
+const updateIsAgreer = ref(false);
+const payloadNotAgreger = reactive({
+  valeurDeBase: "",
+  anneesCible: [],
+});
 const payloadUpdate = reactive({
   nom: "",
   description: "",
   sources_de_donnee: "",
   methode_de_la_collecte: "",
   frequence_de_la_collecte: "",
-  // responsables: { organisations: [], ug: "" },
-  // sites: [],
+  anneeDeBase: "",
+  // type_de_variable: "",
+  categorieId: "",
+  uniteeMesureId: "",
+  indice: "",
+  // valeurDeBase: [],
 });
 const payloadSuivi = reactive({
   annee: "",
@@ -535,6 +645,9 @@ const submitUpdate = async () => {
     // getDatas();
     resetFormUpdate();
     toast.success(`Indicateur modifié avec succès.`);
+    setTimeout(() => {
+      emit("update-datas");
+    }, 500);
   } catch (e) {
     if (e.response && e.response.status === 422) {
       errors.value = e.response.data.errors;
@@ -554,6 +667,9 @@ const submitStructure = async () => {
     toast.success(`Structure ajouté avec succès.`);
     // getDatas();
     resetFormAddStructure();
+    setTimeout(() => {
+      emit("update-datas");
+    }, 500);
     showModalStructure.value = false;
   } catch (e) {
     if (e.response && e.response.status === 422) {
@@ -573,7 +689,10 @@ const submitYearCible = async () => {
     toast.success(`Années cibles  ajouté avec succès.`);
     // getDatas();
     resetFormAddYearCible();
-    showModalStructure.value = false;
+    showModalYearCible.value = false;
+    setTimeout(() => {
+      emit("update-datas");
+    }, 500);
   } catch (e) {
     if (e.response && e.response.status === 422) {
       errors.value = e.response.data.errors;
@@ -623,6 +742,9 @@ const deleteData = async () => {
     await IndicateursService.destroy(idSelect.value);
     toast.success("Indicateur supprimé avec succès.");
     // getDatas();
+    setTimeout(() => {
+      emit("update-datas");
+    }, 500);
   } catch (e) {
     console.error(e);
     toast.error(getAllErrorMessages(e));
@@ -634,16 +756,19 @@ const deleteData = async () => {
 
 // Handle edit action
 const handleEdit = (data) => {
+  isAgregerCurrentIndicateur.value = data.agreger;
   idSelect.value = data.id;
   payloadUpdate.nom = data.nom;
+  payloadUpdate.indice = data.indice.toString();
   payloadUpdate.description = data.description ?? "";
   payloadUpdate.frequence_de_la_collecte = data.frequence_de_la_collecte;
   payloadUpdate.methode_de_la_collecte = data.methode_de_la_collecte;
   payloadUpdate.sources_de_donnee = data.sources_de_donnee;
-  // payloadUpdate.responsables.ug = data.ug_responsable.id;
-  // payloadUpdate.responsables.organisations = data.organisations_responsable.map((org) => org.id);
+  // payloadUpdate.type_de_variable = data.type_de_variable;
+  payloadUpdate.uniteeMesureId = data.unitee_mesure.id;
+  payloadUpdate.anneeDeBase = data.anneeDeBase.toString();
+  payloadUpdate.categorieId = data.categorieId;
   // payloadUpdate.sites = data.sites;
-
   showModalEdit.value = true;
 };
 const handleSuivi = (data) => {
@@ -673,6 +798,12 @@ const handleStructure = (id) => {
 const cancelDelete = () => {
   idSelect.value = "";
   deleteModalPreview.value = false;
+};
+const truncateText = (text, maxLength = 100) => {
+  if (text.length > maxLength) {
+    return text.slice(0, maxLength) + "...";
+  }
+  return text;
 };
 const closeModal = () => (showModalEdit.value = false);
 const closeDeleteModal = () => (deleteModalPreview.value = false);

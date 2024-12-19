@@ -168,7 +168,7 @@ onMounted(() => {
   </div> -->
 
   <div class="p-5 mt-5 intro-y box">
-    <div class="overflow-auto intro-y lg:overflow-visible sm:mt-0 max-h-[5Ovh]" v-if="!isLoadingData">
+    <div class="overflow-auto intro-y lg:overflow-visible sm:mt-0 max-h-[5Ovh]" v-show="!isLoadingData">
       <div id="tabulator" class="mt-5 table-report table-report--tabulator"></div>
     </div>
     <LoaderSnipper v-if="isLoadingData" />
