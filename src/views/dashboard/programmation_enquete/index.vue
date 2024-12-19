@@ -17,6 +17,7 @@ import ChartScroreByPrincipe from "../../../components/news/ChartScroreByPrincip
 import { getFieldErrors } from "../../../utils/helpers";
 import SyntheseService from "../../../services/modules/synthese.service";
 import { data } from "jquery";
+import AddObjectifEvaluation from "../../../components/news/AddObjectifEvaluation.vue";
 
 const router = useRouter();
 
@@ -52,6 +53,8 @@ const currentOrganisationScore = ref("");
 const ongSelectedScore = ref("");
 const yearSelectedOng = ref("");
 const errors = ref({});
+const evaluationSelected = ref({});
+const showModalObjectif = ref(false);
 
 const createData = async () => {
   payload.formulaires_de_gouvernance = [idFormFactuel.value, idFormPerception.value];
@@ -225,6 +228,10 @@ const handleDelete = (params) => {
   idSelect.value = params.id;
   deleteModalPreview.value = true;
 };
+const handleObjectif = (params) => {
+  evaluationSelected.value = params;
+  showModalObjectif.value = true;
+};
 const cancelSelect = () => {
   deleteModalPreview.value = false;
   idSelect.value = "";
@@ -300,6 +307,7 @@ onMounted(async () => {
                     </DropdownToggle>
                     <DropdownMenu class="w-40 bg-white rounded-md shadow-lg">
                       <DropdownContent>
+                        <DropdownItem @click="handleObjectif(item)"> <PlusIcon class="w-4 h-4 mr-2 text-gray-600" /> Ajouter Objectifs </DropdownItem>
                         <DropdownItem @click="handleEdit(item)"> <Edit2Icon class="w-4 h-4 mr-2 text-gray-600" /> Modifier </DropdownItem>
                         <DropdownItem @click="handleDelete(item)"> <TrashIcon class="w-4 h-4 mr-2 text-red-500" /> Supprimer </DropdownItem>
                       </DropdownContent>
@@ -475,4 +483,5 @@ onMounted(async () => {
     </ModalBody>
   </Modal>
   <!-- End Modal -->
+  <AddObjectifEvaluation v-show="showModalObjectif" :evaluation="evaluationSelected" v-model:show="showModalObjectif" />
 </template>
