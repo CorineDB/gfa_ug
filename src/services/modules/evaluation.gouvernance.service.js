@@ -29,6 +29,9 @@ const EvaluationService = {
   getOneSoumissionsEvaluation(idEvaluation, idSoumissions) {
     return ApiService.get(`gfa/evaluations-de-gouvernance/${idEvaluation}/soumissions/${idSoumissions}`);
   },
+  getPrincipesObjectif(idEvaluation) {
+    return ApiService.get(`gfa/evaluations-de-gouvernance/${idEvaluation}/principes-de-gouvernance`);
+  },
   submitSumission(id, params) {
     return ApiService.post(`gfa/evaluations-de-gouvernance/${id}/soumissions`, params);
   },
@@ -48,6 +51,9 @@ const EvaluationService = {
 
   addParticipantPerception(evaluation, payload) {
     return ApiService.post(`gfa/evaluations-de-gouvernance/${evaluation}/envoi-mail-au-participants`, payload);
+  },
+  addObjectifPrincipe(evaluation, payload) {
+    return ApiService.post(`gfa/evaluations-de-gouvernance/${evaluation}/ajouterObjectifAttenduParPrincipe`, payload);
   },
 
   update(slug, params) {

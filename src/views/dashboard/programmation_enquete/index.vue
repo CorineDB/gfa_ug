@@ -16,7 +16,7 @@ import ProgressBar from "../../../components/news/ProgressBar.vue";
 import ChartScroreByPrincipe from "../../../components/news/ChartScroreByPrincipe.vue";
 import { getFieldErrors } from "../../../utils/helpers";
 import SyntheseService from "../../../services/modules/synthese.service";
-import { data } from "jquery";
+import AddObjectifEvaluation from "../../../components/news/AddObjectifEvaluation.vue";
 
 const router = useRouter();
 
@@ -25,7 +25,7 @@ const idFormPerception = ref("");
 const payload = reactive({
   intitule: "",
   description: "",
-  objectif_attendu: 0,
+  // objectif_attendu: 0,
   annee_exercice: new Date().getFullYear(),
   debut: "",
   fin: "",
@@ -52,6 +52,8 @@ const currentOrganisationScore = ref("");
 const ongSelectedScore = ref("");
 const yearSelectedOng = ref("");
 const errors = ref({});
+const evaluationSelected = ref({});
+const showModalObjectif = ref(false);
 
 const createData = async () => {
   payload.formulaires_de_gouvernance = [idFormFactuel.value, idFormPerception.value];
@@ -61,7 +63,7 @@ const createData = async () => {
       isLoading.value = false;
       getDatas();
       resetForm();
-      toast.success("évaluation créer.");
+      toast.success("Évaluation créer.");
     })
     .catch((e) => {
       isLoading.value = false;
@@ -188,7 +190,12 @@ const getStatusText = (param) => {
 };
 
 function gotoSoumissions(enquete) {
-  router.push({ name: "SoumissionsEnqueteDeCollecte", params: { id: enquete.id } });
+  if (!enquete.objectif_attendu.length) {
+    handleObjectif(enquete);
+    toast.info("Veuillez ajouter des objectifs avant de poursuivre");
+  } else {
+    router.push({ name: "SoumissionsEnqueteDeCollecte", params: { id: enquete.id } });
+  }
 }
 
 function gotoAppreciations(enquete) {
@@ -213,7 +220,7 @@ const handleEdit = (params) => {
   payload.intitule = params.intitule;
   payload.description = params.description ?? "";
   payload.annee_exercice = params.annee_exercice;
-  payload.objectif_attendu = params.objectif_attendu;
+  // payload.objectif_attendu = params.objectif_attendu;
   payload.debut = params.debut;
   payload.fin = params.fin;
   idFormFactuel.value = params.formulaire_factuel_de_gouvernance;
@@ -225,6 +232,10 @@ const handleDelete = (params) => {
   idSelect.value = params.id;
   deleteModalPreview.value = true;
 };
+const handleObjectif = (params) => {
+  evaluationSelected.value = params;
+  showModalObjectif.value = true;
+};
 const cancelSelect = () => {
   deleteModalPreview.value = false;
   idSelect.value = "";
@@ -232,7 +243,7 @@ const cancelSelect = () => {
 const resetForm = () => {
   payload.intitule = "";
   payload.annee_exercice = new Date().getFullYear();
-  payload.objectif_attendu = 0;
+  // payload.objectif_attendu = 0;
   payload.debut = "";
   payload.description = "";
   payload.fin = "";
@@ -300,6 +311,7 @@ onMounted(async () => {
                     </DropdownToggle>
                     <DropdownMenu class="w-40 bg-white rounded-md shadow-lg">
                       <DropdownContent>
+                        <DropdownItem @click="handleObjectif(item)"> <PlusIcon class="w-4 h-4 mr-2 text-gray-600" /> Ajouter Objectifs </DropdownItem>
                         <DropdownItem @click="handleEdit(item)"> <Edit2Icon class="w-4 h-4 mr-2 text-gray-600" /> Modifier </DropdownItem>
                         <DropdownItem @click="handleDelete(item)"> <TrashIcon class="w-4 h-4 mr-2 text-red-500" /> Supprimer </DropdownItem>
                       </DropdownContent>
@@ -412,11 +424,11 @@ onMounted(async () => {
             </div>
           </div>
           <div class="flex items-center justify-between w-full gap-4">
-            <div class="">
+            <!-- <div class="">
               <label for="objectif" class="form-label">Objectif</label>
               <input id="objectif" type="number" min="0.05" step="0.05" max="1" required v-model.number="payload.objectif_attendu" class="form-control" placeholder="Objectif" />
               <div v-if="errors.objectif_attendu" class="mt-2 text-danger">{{ getFieldErrors(errors.objectif_attendu) }}</div>
-            </div>
+            </div> -->
             <div class="">
               <label for="annee" class="form-label">Année</label>
               <input id="annee" type="number" required v-model.number="payload.annee_exercice" class="form-control" placeholder="Année exercice" />
@@ -475,4 +487,5 @@ onMounted(async () => {
     </ModalBody>
   </Modal>
   <!-- End Modal -->
+  <AddObjectifEvaluation v-show="showModalObjectif" :evaluation="evaluationSelected" v-model:show="showModalObjectif" />
 </template>
