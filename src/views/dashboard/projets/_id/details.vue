@@ -84,28 +84,34 @@
           </div>
         </div>
       </div>
-
-      <!-- Activity Stream -->
-      <div class="bg-white rounded-md shadow p-6">
-        <h2 class="text-lg font-semibold text-gray-700 mb-4">Listes des activités</h2>
-        <ul class="space-y-4">
-          <li class="flex items-center">
-            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-500">✓</div>
-            <div class="ml-4">
-              <p class="text-gray-800 font-semibold">Order Verification</p>
-              <p class="text-sm text-gray-500">Product ID: #9823</p>
-            </div>
-          </li>
-          <li class="flex items-center">
-            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-500">✓</div>
-            <div class="ml-4">
-              <p class="text-gray-800 font-semibold">Order Completed</p>
-              <p class="text-sm text-gray-500">Product ID: #9823</p>
-            </div>
-          </li>
-          <!-- Add more items as needed -->
-        </ul>
+      <!-- </section> -->
+      <div class="bg-white rounded-md shadow p-6 mb-3">
+        <div class="relative mt-8">
+          <ReportDonutChart2 :height="215" />
+          <div class="flex flex-col justify-center items-center absolute w-full h-full top-0 left-0">
+            <div class="text-xl 2xl:text-2xl font-medium">2.501</div>
+            <div class="text-slate-500 mt-0.5">Total Activité</div>
+          </div>
+        </div>
+        <div class="mx-auto w-10/12 2xl:w-2/3 mt-8">
+          <div class="flex items-center">
+            <div class="w-2 h-2 bg-primary rounded-full mr-3"></div>
+            <span class="truncate">17 - 30 Years old</span>
+            <span class="font-medium xl:ml-auto">62%</span>
+          </div>
+          <div class="flex items-center mt-4">
+            <div class="w-2 h-2 bg-pending rounded-full mr-3"></div>
+            <span class="truncate">31 - 50 Years old</span>
+            <span class="font-medium xl:ml-auto">33%</span>
+          </div>
+          <div class="flex items-center mt-4">
+            <div class="w-2 h-2 bg-warning rounded-full mr-3"></div>
+            <span class="truncate">>= 50 Years old</span>
+            <span class="font-medium xl:ml-auto">10%</span>
+          </div>
+        </div>
       </div>
+
       <!-- Budget Total -->
       <!-- <div class="flex justify-center items-center my-6">
         <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-6 rounded-lg shadow-md w-full max-w-md">
@@ -132,6 +138,27 @@
           </p>
         </div>
       </div> -->
+      <!-- Activity Stream -->
+      <div class="bg-white rounded-md shadow p-6">
+        <h2 class="text-lg font-semibold text-gray-700 mb-4">Listes des activités</h2>
+        <ul class="space-y-4">
+          <li class="flex items-center">
+            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-500">✓</div>
+            <div class="ml-4">
+              <p class="text-gray-800 font-semibold">Order Verification</p>
+              <p class="text-sm text-gray-500">Product ID: #9823</p>
+            </div>
+          </li>
+          <li class="flex items-center">
+            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-500">✓</div>
+            <div class="ml-4">
+              <p class="text-gray-800 font-semibold">Order Completed</p>
+              <p class="text-sm text-gray-500">Product ID: #9823</p>
+            </div>
+          </li>
+          <!-- Add more items as needed -->
+        </ul>
+      </div>
       <div class="bg-white shadow-md rounded-md p-6">
         <h2 class="text-lg font-semibold text-gray-700">Jours Restants</h2>
         <p class="mt-4 text-2xl font-bold text-gray-800">{{ convertDaysToYearsMonthsDays(graphiqueData?.nbrJourRestant) }}</p>
@@ -145,7 +172,6 @@
           <p class="mt-2 text-sm text-gray-600">75% réalisé</p>
         </div>
       </div>
-      <!-- </section> -->
 
       <!-- Sales Analytics -->
       <div class="bg-white rounded-md shadow p-6 col-span-2 mb-6">
@@ -172,6 +198,7 @@
         </div>
       </div>
     </div>
+
     <!-- Activities Section -->
     <section class="bg-white shadow-md rounded-md p-6 mb-6">
       <div class="flex items-center justify-between">
@@ -226,9 +253,10 @@
 
     <!-- Performance Metrics Section -->
     <section class="bg-white shadow-md rounded-md p-6">
-      <h2 class="text-lg font-semibold text-gray-700">Cadre de Mesure de Rendement</h2>
+      <h2 class="text-lg font-semibold text-gray-700">Suivi Indicateurs</h2>
       <div class="mt-4 overflow-x-auto">
-        <TabulatorCadreMesureDetail :data="cadreRendement" :years="annees" />
+        <TabulatorSuiviIndicateurDetail v-if="suivis.length > 0" :data="suivis" :years="annees" />
+        <p v-else>Pas de suivi disponible pour l'instant</p>
         <!-- <table class="table-auto w-full text-left border-collapse">
           <thead class="bg-gray-100 text-gray-700 uppercase text-sm">
             <tr>
@@ -278,9 +306,10 @@ import ProjetService from "@/services/modules/projet.service.js";
 import VerticalBarChart from "@/components/vertical-bar-chart/Main.vue";
 import ReportLineChart from "@/components/report-line-chart/Main.vue";
 import PieChart from "@/components/pie-chart/Main.vue";
+import ReportDonutChart2 from "@/components/report-donut-chart-2/Main.vue";
 import "leaflet/dist/leaflet.css";
 import * as L from "leaflet";
-import TabulatorCadreMesureDetail from "@/components/TabulatorCadreMesureDetail.vue";
+import TabulatorSuiviIndicateurDetail from "@/components/TabulatorSuiviIndicateurDetail.vue";
 import { LMap, LTileLayer, LMarker, LPolygon, LPopup } from "@vue-leaflet/vue-leaflet";
 
 import "leaflet.markercluster/dist/MarkerCluster.css";
@@ -290,7 +319,7 @@ import { addressPoints } from "../markerDemo";
 import icon from "../icon.png";
 import markerShadow from "../marker-shadow.png";
 import { useRouter, useRoute } from "vue-router";
-import ResultatCadreRendementService from "@/services/modules/resultat.cadre.rendement.service";
+import IndicateursService from "@/services/modules/indicateur.service";
 import AuthService from "@/services/modules/auth.service";
 
 const getStringValueOfStatutCode = (statut) => {
@@ -384,7 +413,7 @@ const formatterUSD = new Intl.NumberFormat("fr-FR", {
 
 console.log(formatterUSD.format(1234567.89)); // "$1,234,567.89"
 
-const cadreRendement = ref([]);
+const suivis = ref([]);
 const idProgramme = ref("");
 const debutProgramme = ref("");
 const finProgramme = ref("");
@@ -393,12 +422,12 @@ const finProgramme = ref("");
 const getDatasCadre = async () => {
   //isLoadingDataCadre.value = true;
   try {
-    const { data } = await ResultatCadreRendementService.getCadreRendement(idProgramme.value);
-    cadreRendement.value = data.data;
+    const { data } = await IndicateursService.getCadreRendement(idProgramme.value);
+    suivis.value = data.data;
   } catch (e) {
     toast.error("Erreur lors de la récupération des données.");
   } finally {
-    isLoadingDataCadre.value = false;
+    // isLoadingDataCadre.value = false;
   }
 };
 
