@@ -7,12 +7,41 @@
         <h1 class="text-xl font-semibold text-gray-800">{{ graphiqueData?.nom }}</h1>
         <p class="text-gray-500">Organisation : <span class="font-medium">Nom de l'Organisation</span></p>
       </div>
+
       <div>
         <p class="text-sm text-gray-600"><strong>TEP :</strong> {{ graphiqueData?.tep }} %</p>
         <p class="text-sm text-gray-600"><strong>TEF :</strong> {{ graphiqueData?.tef }} %</p>
         <p class="text-sm text-gray-600">
           Effectif de l'organisation: <span class="font-semibold text-gray-800"> {{ graphiqueData?.nombreEmploie }}</span>
         </p>
+      </div>
+    </div>
+    <div class="bg-white shadow-md rounded-md p-6 my-6">
+      <h2 class="text-lg font-semibold text-gray-700 mb-4">Résumé du Budget</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+        <!-- Budget Total -->
+        <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 rounded-lg">
+          <h3 class="text-lg font-semibold">Budget Total</h3>
+          <!-- {{ formatterUSD.format(graphiqueData?.budgetTotal) }} -->
+          <p class="text-2xl font-bold">Non disponible pour l'instant</p>
+        </div>
+
+        <!-- Détails du Budget -->
+        <div class="space-y-2">
+          <p class="flex justify-between items-center text-gray-600">
+            <span>Fond Fosir :</span>
+            <!-- {{ formatterUSD.format(graphiqueData?.consommer) }} -->
+            <span class="font-medium text-red-500"> Non disponible pour l'instant</span>
+          </p>
+          <p class="flex justify-between items-center text-gray-600">
+            <span>Prêt :</span>
+            <span class="font-medium">{{ formatterUSD.format(graphiqueData?.pret) }}</span>
+          </p>
+          <p class="flex justify-between items-center text-gray-600">
+            <span>Fonds Propres :</span>
+            <span class="font-medium text-green-500">{{ formatterUSD.format(graphiqueData?.budgetNational || 0) }}</span>
+          </p>
+        </div>
       </div>
     </div>
 
@@ -77,28 +106,35 @@
           <!-- Add more items as needed -->
         </ul>
       </div>
+      <!-- Budget Total -->
+      <!-- <div class="flex justify-center items-center my-6">
+        <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-6 rounded-lg shadow-md w-full max-w-md">
+          <h2 class="text-xl font-bold">Budget Total du Projet</h2>
+          <p class="text-2xl font-semibold">1 000 000 FCFA</p>
+        </div>
+      </div> -->
 
       <!-- <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6"> -->
-      <div class="bg-white shadow-md rounded-md p-6">
+      <!-- <div class="bg-white shadow-md rounded-md p-6">
         <h2 class="text-lg font-semibold text-gray-700">Budget</h2>
         <div class="mt-4 space-y-2">
           <p class="flex justify-between text-gray-600">
             <span>Consommé :</span>
-            <span class="font-medium text-red-500">XOF 45,000</span>
+            <span class="font-medium text-red-500">{{ formatterUSD.format(graphiqueData?.consommer) }} </span>
           </p>
           <p class="flex justify-between text-gray-600">
             <span>Alloué :</span>
-            <span class="font-medium">XOF {{ graphiqueData?.pret }} </span>
+            <span class="font-medium"> {{ formatterUSD.format(graphiqueData?.pret) }} </span>
           </p>
           <p class="flex justify-between text-gray-600">
             <span>Fonds Propres :</span>
-            <span class="font-medium text-green-500">XOF {{ graphiqueData?.budgetNational }}</span>
+            <span class="font-medium text-green-500"> {{ formatterUSD.format(graphiqueData?.budgetNational) }}</span>
           </p>
         </div>
-      </div>
+      </div> -->
       <div class="bg-white shadow-md rounded-md p-6">
         <h2 class="text-lg font-semibold text-gray-700">Jours Restants</h2>
-        <p class="mt-4 text-2xl font-bold text-gray-800">{{ graphiqueData?.nbrJourRestant }} jours</p>
+        <p class="mt-4 text-2xl font-bold text-gray-800">{{ convertDaysToYearsMonthsDays(graphiqueData?.nbrJourRestant) }}</p>
       </div>
       <div class="bg-white shadow-md rounded-md p-6">
         <h2 class="text-lg font-semibold text-gray-700">Total réalisation</h2>
@@ -322,6 +358,31 @@ const annees = computed(() => {
   }
   return annees;
 });
+
+function convertDaysToYearsMonthsDays(totalDays) {
+  const daysInYear = 365;
+  const daysInMonth = 30; // approximation pour simplifier
+
+  const years = Math.floor(totalDays / daysInYear);
+  const remainingDaysAfterYears = totalDays % daysInYear;
+
+  const months = Math.floor(remainingDaysAfterYears / daysInMonth);
+  const days = remainingDaysAfterYears % daysInMonth;
+
+  const result = [];
+  if (years > 0) result.push(`${years} ${years > 1 ? "années" : "année"}`);
+  if (months > 0) result.push(`${months} ${months > 1 ? "mois" : "mois"}`);
+  if (days > 0) result.push(`${days} ${days > 1 ? "jours" : "jour"}`);
+
+  return result.join(", ");
+}
+
+const formatterUSD = new Intl.NumberFormat("fr-FR", {
+  style: "currency",
+  currency: "XOF",
+});
+
+console.log(formatterUSD.format(1234567.89)); // "$1,234,567.89"
 
 const cadreRendement = ref([]);
 const idProgramme = ref("");

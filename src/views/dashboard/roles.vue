@@ -235,7 +235,7 @@ onMounted(() => {
   </div>
 
   <div class="p-5 mt-5 intro-y box">
-    <div class="flex flex-col sm:flex-row sm:items-end xl:items-start">
+    <!-- <div class="flex flex-col sm:flex-row sm:items-end xl:items-start">
       <div></div>
       <div class="flex mt-5 sm:mt-0">
         <button id="tabulator-print" class="w-1/2 mr-2 btn btn-outline-secondary sm:w-auto"><PrinterIcon class="w-4 h-4 mr-2" /> Print</button>
@@ -254,7 +254,7 @@ onMounted(() => {
           </DropdownMenu>
         </Dropdown>
       </div>
-    </div>
+    </div> -->
     <div class="overflow-x-auto scrollbar-hidden" v-if="!isLoadingData">
       <!-- <div id="tabulator" class="mt-5 table-report table-report--tabulator"></div> -->
       <table class="table mt-5">

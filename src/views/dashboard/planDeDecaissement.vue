@@ -127,8 +127,8 @@
             <tr v-for="pta in dataNew" :key="pta.id" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
               <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
                 <span v-if="pta.isProjet" class="text-lg font-bold">projet: {{ pta.nom }}</span>
-                <span v-if="pta.isComposante" class="text-sm text-blue-500">Composante: {{ pta.nom }}</span>
-                <span v-if="pta.isSC" class="text-sm text-yellow-600"> <span class="text-sm text-yellow-600" v-if="pta.code != 0">Sous composante:</span> {{ pta.nom }}</span>
+                <span v-if="pta.isComposante" class="text-sm text-blue-500">OutComes: {{ pta.nom }}</span>
+                <span v-if="pta.isSC" class="text-sm text-yellow-600"> <span class="text-sm text-yellow-600" v-if="pta.code != 0">OutPut:</span> {{ pta.nom }}</span>
                 <span v-if="pta.isActivite" class="text-sm text-green-600 shadow bg-gradient-to-br from-yellow-400 to-yellow-600">Activite: {{ pta.nom }}</span>
                 <span v-if="pta.isTache" class="text-sm text-red-600"> {{ pta.nom }}</span>
               </td>
@@ -305,7 +305,7 @@
 
               <td v-if="pta.t4Pret != '' || pta.t4Bn != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
                 <span v-if="pta.t4Pret != undefined && pta.t4Bn != undefined" class="font-bold"> {{ (pta.t4Pret + pta.t4Bn) | formatNumber }} </span>
-                 <span v-else class="font-bold" >0 FCFA </span>
+                <span v-else class="font-bold">0 FCFA </span>
               </td>
               <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700" v-else></td>
             </tr>
