@@ -135,7 +135,7 @@
   </div>
 
   <!-- Modal for creating/updating -->
-  <Modal size="modal-lg" backdrop="static" :show="showModalEdit" @hidden="closeModal">
+  <Modal size="modal-lg" backdrop="static" :show="showModalEdit" @hidden="showModalEdit = false">
     <ModalHeader>
       <h2 class="mr-auto text-base font-medium">Modifier un indicateur</h2>
     </ModalHeader>
@@ -431,7 +431,7 @@ const payloadUpdate = reactive({
   sources_de_donnee: "",
   methode_de_la_collecte: "",
   frequence_de_la_collecte: "",
-  responsables: { organisations: [], ug: "" },
+  // responsables: { organisations: [], ug: "" },
   // sites: [],
 });
 const payloadSuivi = reactive({
@@ -487,9 +487,10 @@ const resetFormAddStructure = () => {
 };
 const resetFormUpdate = () => {
   Object.keys(payloadUpdate).forEach((key) => {
-    payload[key] = "";
+    payloadUpdate[key] = "";
   });
-  (payloadUpdate.responsables = { organisations: [], ug: "" }), (showModalEdit.value = false);
+  showModalEdit.value = false;
+  // (payloadUpdate.responsables = { organisations: [], ug: "" }), (showModalEdit.value = false);
   errors.value = {};
 };
 const resetFormAddYearCible = () => {
@@ -526,9 +527,9 @@ const submitUpdate = async () => {
   const action = IndicateursService.update(idSelect.value, payloadUpdate);
   try {
     await action;
-    toast.success(`Indicateur modifié avec succès.`);
     // getDatas();
     resetFormUpdate();
+    toast.success(`Indicateur modifié avec succès.`);
   } catch (e) {
     if (e.response && e.response.status === 422) {
       errors.value = e.response.data.errors;
@@ -634,8 +635,8 @@ const handleEdit = (data) => {
   payloadUpdate.frequence_de_la_collecte = data.frequence_de_la_collecte;
   payloadUpdate.methode_de_la_collecte = data.methode_de_la_collecte;
   payloadUpdate.sources_de_donnee = data.sources_de_donnee;
-  payloadUpdate.responsables.ug = data.ug_responsable.id;
-  payloadUpdate.responsables.organisations = data.organisations_responsable.map((org) => org.id);
+  // payloadUpdate.responsables.ug = data.ug_responsable.id;
+  // payloadUpdate.responsables.organisations = data.organisations_responsable.map((org) => org.id);
   // payloadUpdate.sites = data.sites;
 
   showModalEdit.value = true;
