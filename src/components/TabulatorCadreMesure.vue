@@ -5,7 +5,7 @@
   <div v-if="verifyPermission('voir-un-indicateur')" class="table-container">
     <div ref="tableWrapper" class="table-wrapper">
       <table class="w-full max-w-full my-2 border-collapse editor_listing_table border-slate-500" cellpadding="6" cellspacing="0">
-        <thead class="text-black">
+        <thead class="text-white bg-primary">
           <tr>
             <th rowspan="2" class="py-3 sticky-header border !border-slate-800 min-w-[500px] sticky-column">Résultats escomptés</th>
             <th rowspan="2" class="py-3 sticky-header border !border-slate-800 min-w-[80px] sticky-column-second">Indice</th>
@@ -707,7 +707,7 @@ table td {
   max-height: calc(75vh - 20px); /* Ajustez selon vos besoins */
 }
 .sticky-header {
-  background-color: #ddd !important;
+  background-color: rgb(15 52 96) !important;
 }
 .sticky-heade {
   position: sticky;
