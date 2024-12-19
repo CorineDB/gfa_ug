@@ -459,15 +459,15 @@ onMounted(() => {
             <p class="mb-3 text-lg text-semibold">Informations générales</p>
             <div class="space-y-3">
               <div class="grid grid-cols-2 gap-4">
-                <InputForm label="Nom" v-model="payload.nom" :control="getFieldErrors(errors.nom)" />
-                <InputForm label="Email" v-model="payload.email" type="email" :control="getFieldErrors(errors.email)" />
+                <InputForm :required="false" label="Nom" v-model="payload.nom" :control="getFieldErrors(errors.nom)" />
+                <InputForm :required="false" label="Email" v-model="payload.email" type="email" :control="getFieldErrors(errors.email)" />
               </div>
               <div class="grid grid-cols-2 gap-4">
-                <InputForm label="Sigle" v-model="payload.sigle" :control="getFieldErrors(errors.sigle)" />
-                <InputForm label="Contact" v-model.number="payload.contact" type="number" :control="getFieldErrors(errors.contact)" />
+                <InputForm :required="false" label="Sigle" v-model="payload.sigle" :control="getFieldErrors(errors.sigle)" />
+                <InputForm :required="false" label="Contact" v-model.number="payload.contact" type="number" :control="getFieldErrors(errors.contact)" />
               </div>
               <div class="grid grid-cols-2 gap-4">
-                <InputForm label="Code" :control="getFieldErrors(errors.code)" v-model.number="payload.code" type="number" />
+                <InputForm :required="false" label="Code" :control="getFieldErrors(errors.code)" v-model.number="payload.code" type="number" />
                 <div>
                   <label class="form-label">Secteur d'activité</label>
                   <TomSelect v-model="payload.secteurActivite" :options="{ placeholder: 'Selectionez  un secteur' }" class="w-full">
@@ -552,17 +552,17 @@ onMounted(() => {
                 </div>
               </div>
               <div v-if="!isBenin" class="grid grid-cols-2 gap-4">
-                <InputForm label="Département" v-model="payload.departement" :control="getFieldErrors(errors.departement)" />
-                <InputForm label="Commune" v-model="payload.commune" :control="getFieldErrors(errors.commune)" />
+                <InputForm :required="false" label="Département" v-model="payload.departement" :control="getFieldErrors(errors.departement)" />
+                <InputForm :required="false" label="Commune" v-model="payload.commune" :control="getFieldErrors(errors.commune)" />
               </div>
 
               <div v-if="!isBenin" class="grid grid-cols-2 gap-4">
-                <InputForm label="Arrondissement" v-model="payload.arrondissement" :control="getFieldErrors(errors.arrondissement)" />
-                <InputForm label="Quatier" v-model="payload.quartier" :control="getFieldErrors(errors.quartier)" />
+                <InputForm :required="false" label="Arrondissement" v-model="payload.arrondissement" :control="getFieldErrors(errors.arrondissement)" />
+                <InputForm :required="false" label="Quatier" v-model="payload.quartier" :control="getFieldErrors(errors.quartier)" />
               </div>
               <div class="grid grid-cols-2 gap-4">
-                <InputForm label="Longitude" :control="getFieldErrors(errors.longitude)" v-model.number="payload.longitude" type="number" />
-                <InputForm label="Latitude" :control="getFieldErrors(errors.latitude)" v-model.number="payload.latitude" type="number" />
+                <InputForm :required="false" label="Longitude" :control="getFieldErrors(errors.longitude)" v-model.number="payload.longitude" type="number" />
+                <InputForm :required="false" label="Latitude" :control="getFieldErrors(errors.latitude)" v-model.number="payload.latitude" type="number" />
               </div>
             </div>
           </div>
@@ -578,12 +578,12 @@ onMounted(() => {
               <InputForm label="Contact point focal" :control="getFieldErrors(errors.contact_point_focal)" v-model="payload.contact_point_focal" type="number" />
             </div>
           </div>
-          <div class="flex justify-center gap-3 py-4">
-            <button @click.prevent="prevStep" :class="[currentStep == 1 ? ' opacity-50 cursor-not-allowed pointer-events-none' : '']" class="flex items-center justify-center mr-3 rounded-full btn btn-outline-primary size-10">
-              <ChevronsLeftIcon class="size-5" />
+          <div class="flex justify-end gap-3 py-4">
+            <button @click.prevent="prevStep" :class="[currentStep == 1 ? ' opacity-50 cursor-not-allowed pointer-events-none' : '']" class="flex items-center justify-center mr-1 btn btn-outline-primary">
+              <ChevronsLeftIcon class="size-4" />
             </button>
-            <button v-for="step in steps" :key="step.id" :class="[step.id == currentStep ? 'btn-primary' : 'btn-outline-primary']" @click.prevent="goToStep(step.id)" class="flex items-center justify-center rounded-full btn size-10">{{ step.id }}</button>
-            <button @click.prevent="nextStep" :class="[currentStep == steps.length ? ' opacity-50 cursor-not-allowed pointer-events-none' : '']" class="flex items-center justify-center ml-3 text-black rounded-full btn btn-outline-primary size-10">
+            <button v-for="step in steps" :key="step.id" :class="[step.id == currentStep ? 'btn-primary' : 'btn-outline-primary']" @click.prevent="goToStep(step.id)" class="flex items-center justify-center rounded-full btn size-8">{{ step.id }}</button>
+            <button @click.prevent="nextStep" :class="[currentStep == steps.length ? ' opacity-50 cursor-not-allowed pointer-events-none' : '']" class="flex items-center justify-center ml-1 text-black btn btn-outline-primary">
               <ChevronsRightIcon class="text-black size-4" />
             </button>
           </div>
@@ -591,7 +591,8 @@ onMounted(() => {
         <ModalFooter>
           <div class="flex gap-2">
             <button type="button" @click="resetForm" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
-            <VButton :loading="isLoading" :label="modeText" />
+            <VButton v-if="currentStep == steps.length" :loading="isLoading" :label="modeText" />
+            <VButton v-else :loading="isLoading" @click.prevent="nextStep" :class="[currentStep == steps.length ? ' opacity-50 cursor-not-allowed pointer-events-none' : '']" label="Suivant" />
           </div>
         </ModalFooter>
       </form>

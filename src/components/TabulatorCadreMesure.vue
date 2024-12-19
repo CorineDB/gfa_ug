@@ -5,7 +5,7 @@
   <div v-if="verifyPermission('voir-un-indicateur')" class="table-container">
     <div ref="tableWrapper" class="table-wrapper">
       <table class="w-full max-w-full my-2 border-collapse editor_listing_table border-slate-500" cellpadding="6" cellspacing="0">
-        <thead class="text-black">
+        <thead class="text-white bg-primary">
           <tr>
             <th rowspan="2" class="py-3 sticky-header border !border-slate-800 min-w-[500px] sticky-column">Résultats escomptés</th>
             <th rowspan="2" class="py-3 sticky-header border !border-slate-800 min-w-[80px] sticky-column-second">Indice</th>
@@ -19,7 +19,7 @@
             <th rowspan="2" class="py-3 sticky-header !z-[1] border !border-slate-800 min-w-[150px]">Méthode de collecte des données</th>
             <th rowspan="2" class="py-3 sticky-header !z-[1] border !border-slate-800 min-w-[150px]">Fréquence de la collecte de données</th>
             <th rowspan="2" class="py-3 sticky-header !z-[1] border !border-slate-800 min-w-[150px]">Responsable</th>
-            <th rowspan="2" class="py-3 sticky-header !z-[1] border !border-slate-800 min-w-[200px]">Actions</th>
+            <th rowspan="2" class="py-3 sticky-header !z-[1] border !border-slate-800 min-w-[350px]">Actions</th>
           </tr>
           <tr>
             <th v-for="(year, index) in years" :key="index" class="py-3 !z-[1] sticky top-0 sticky-header border !border-slate-800 min-w-[70px]">{{ year }}</th>
@@ -68,12 +68,65 @@
                   {{ indicateur.ug_responsable?.nom ?? "" }}
                   {{}}
                 </td>
-                <td class="space-x-3">
+                <td class="space-x-1">
                   <button v-if="verifyPermission('creer-un-suivi-indicateur')" title="Suivre" @click="handleSuivi(indicateur)" class="btn text-primary"><CornerUpLeftIcon class="size-5" /></button>
                   <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Voir" @click="goToDetailSuivi(indicateur.id)" class="btn text-primary"><EyeIcon class="size-5" /></button>
+                  <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Ajouter Structure" @click="handleStructure(indicateur.id)" class="btn text-primary"><PlusIcon class="size-5" />structure</button>
+                  <!-- <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Ajouter Structure" @click="handleYearCible(indicateur.id)" class="btn text-primary"><PlusIcon class="size-5" />année cible</button> -->
+                  <button v-if="verifyPermission('supprimer-un-suivi-indicateur')" title="Modifier" @click="handleEdit(indicateur)" class="btn text-pending"><Edit3Icon class="size-5" /></button>
                   <button v-if="verifyPermission('supprimer-un-suivi-indicateur')" title="Supprimer" @click="handleDelete(indicateur)" class="btn text-danger"><TrashIcon class="size-5" /></button>
                 </td>
               </tr>
+            </template>
+            <template v-for="(result, i) in result.categories" :key="result.id">
+              <tr class="uppercase" :class="[result.type == 'produit' ? 'text-black' : 'text-white']" :style="{ 'background-color': findColorCadreMesure(result.type) }">
+                <td :colspan="13 + years.length * 2" class="font-semibold">{{ result.type }} {{ result.indice }}</td>
+              </tr>
+              <template v-for="(indicateur, j) in result.indicateurs" :key="indicateur.id">
+                <tr>
+                  <!-- Première colonne fixe -->
+                  <td class="font-semibold sticky-column" v-if="j === 0" :rowspan="result.indicateurs.length" style="left: 0">
+                    {{ result.nom }}
+                  </td>
+
+                  <!-- Deuxième colonne fixe -->
+                  <td class="font-semibold sticky-column-second" style="left: 500px">Ind {{ indicateur.code }}</td>
+
+                  <!-- Troisième colonne fixe -->
+                  <td class="">
+                    {{ indicateur.nom }}
+                  </td>
+
+                  <!-- Colonnes restantes -->
+                  <td>{{ indicateur.description ?? "" }}</td>
+                  <td v-html="formatObject(indicateur.valeurDeBase)"></td>
+                  <td v-for="(year, index) in years" :key="index">
+                    <span v-html="formatObject(indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeurCible)"></span>
+                  </td>
+                  <td></td>
+                  <td v-for="(year, index) in years" :key="index">
+                    <span v-html="formatObject(indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeur_realiser)"></span>
+                  </td>
+                  <td></td>
+                  <td></td>
+                  <td>{{ indicateur.sources_de_donnee }}</td>
+                  <td>{{ indicateur.methode_de_la_collecte }}</td>
+                  <td>{{ indicateur.frequence_de_la_collecte }}</td>
+                  <td>
+                    <span v-html="formatResponsable(indicateur.organisations_responsable)"></span><br />
+                    {{ indicateur.ug_responsable?.nom ?? "" }}
+                    {{}}
+                  </td>
+                  <td class="space-x-1">
+                    <button v-if="verifyPermission('creer-un-suivi-indicateur')" title="Suivre" @click="handleSuivi(indicateur)" class="btn text-primary"><CornerUpLeftIcon class="size-5" /></button>
+                    <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Voir" @click="goToDetailSuivi(indicateur.id)" class="btn text-primary"><EyeIcon class="size-5" /></button>
+                    <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Ajouter Structure" @click="handleStructure(indicateur.id)" class="btn text-primary"><PlusIcon class="size-5" />structure</button>
+                    <!-- <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Ajouter Structure" @click="handleYearCible(indicateur.id)" class="btn text-primary"><PlusIcon class="size-5" />année cible</button> -->
+                    <button v-if="verifyPermission('supprimer-un-suivi-indicateur')" title="Modifier" @click="handleEdit(indicateur)" class="btn text-pending"><Edit3Icon class="size-5" /></button>
+                    <button v-if="verifyPermission('supprimer-un-suivi-indicateur')" title="Supprimer" @click="handleDelete(indicateur)" class="btn text-danger"><TrashIcon class="size-5" /></button>
+                  </td>
+                </tr>
+              </template>
             </template>
           </template>
         </tbody>
@@ -84,15 +137,126 @@
   <!-- Modal for creating/updating -->
   <Modal size="modal-lg" backdrop="static" :show="showModalEdit" @hidden="closeModal">
     <ModalHeader>
-      <h2 class="mr-auto text-base font-medium">Modifier un site</h2>
+      <h2 class="mr-auto text-base font-medium">Modifier un indicateur</h2>
     </ModalHeader>
-    <form @submit.prevent="submitData">
+    <form @submit.prevent="submitUpdate">
       <ModalBody>
-        <div class="grid grid-cols-1 gap-4"></div>
+        <div class="grid grid-cols-1 gap-4">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <InputForm class="flex-1" :control="getFieldErrors(errors.nom)" label="Nom" v-model="payloadUpdate.nom" />
+            <div class="flex-1">
+              <label class="form-label" for="description">Description</label>
+              <div class="">
+                <textarea name="description" class="form-control" id="description" v-model="payloadUpdate.description" cols="30" rows="1"></textarea>
+              </div>
+              <div v-if="errors.description" class="mt-2 text-danger">{{ getFieldErrors(errors.description) }}</div>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex-1">
+              <label class="form-label">Méthode de la collecte des données</label>
+              <TomSelect v-model="payloadUpdate.methode_de_la_collecte" name="method" :options="{ placeholder: 'Selectionez une methode' }" class="w-full">
+                <option value=""></option>
+                <option v-for="(methode, index) in methodeCollecte" :key="index" :value="methode">{{ methode }}</option>
+              </TomSelect>
+              <div v-if="errors.methode_de_la_collecte" class="mt-2 text-danger">{{ getFieldErrors(errors.methode_de_la_collecte) }}</div>
+            </div>
+            <div class="flex-1">
+              <label class="form-label">Fréquence de la collecte de données</label>
+              <TomSelect v-model="payloadUpdate.frequence_de_la_collecte" :options="{ placeholder: 'Selectionez une fréquence' }" class="w-full">
+                <option value=""></option>
+                <option v-for="(frequence, index) in frequenceCollecte" :key="index" :value="frequence">{{ frequence }}</option>
+              </TomSelect>
+              <div v-if="errors.frequence_de_la_collecte" class="mt-2 text-danger">{{ getFieldErrors(errors.frequence_de_la_collecte) }}</div>
+            </div>
+          </div>
+          <div class="flex flex-wrap items-center justify-between w-full gap-3">
+            <div class="flex-1">
+              <label class="form-label">Source de données</label>
+              <TomSelect v-model="payloadUpdate.sources_de_donnee" name="source" :options="{ placeholder: 'Selectionez une source' }" class="w-full">
+                <option value=""></option>
+                <option v-for="(source, index) in sourcesDonnees" :key="index" :value="source">{{ source }}</option>
+              </TomSelect>
+              <div v-if="errors.sources_de_donnee" class="mt-2 text-danger">{{ getFieldErrors(errors.sources_de_donnee) }}</div>
+            </div>
+          </div>
+        </div>
       </ModalBody>
       <ModalFooter>
         <div class="flex gap-2">
           <button type="button" @click="showModalEdit = false" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
+          <VButton :loading="isLoading" label="Modifier" />
+        </div>
+      </ModalFooter>
+    </form>
+  </Modal>
+
+  <!-- Modal for Structure -->
+  <Modal size="modal-lg" backdrop="static" :show="showModalStructure" @hidden="showModalStructure = false">
+    <ModalHeader>
+      <h2 class="mr-auto text-base font-medium">Ajouter une structure</h2>
+    </ModalHeader>
+    <form @submit.prevent="submitStructure">
+      <ModalBody>
+        <div class="grid grid-cols-1 gap-4">
+          <div v-if="errors[0]" class="mt-2 text-danger">{{ getFieldErrors(errors[0]) }}</div>
+          <div v-if="errors[1]" class="mt-2 text-danger">{{ getFieldErrors(errors[1]) }}</div>
+          <div v-if="errors[2]" class="mt-2 text-danger">{{ getFieldErrors(errors[2]) }}</div>
+
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex-1">
+              <label class="form-label">UG</label>
+              <TomSelect v-model="responsablesForm.ug" name="ug" :options="{ placeholder: 'Selectionez un UG' }" class="w-full">
+                <option value=""></option>
+                <option v-for="(ug, index) in ugs" :key="index" :value="ug.id">{{ ug.nom }}</option>
+              </TomSelect>
+              <div v-if="errors.responsables" class="mt-2 text-danger">{{ getFieldErrors(errors.responsables) }}</div>
+            </div>
+            <div class="flex-1">
+              <label class="form-label">Responsables</label>
+              <TomSelect v-model="responsablesForm.organisations" name="responsable" multiple :options="{ placeholder: 'Selectionez un responsable' }" class="w-full">
+                <option value=""></option>
+                <option v-for="(responsable, index) in ongs" :key="index" :value="responsable.id">{{ responsable.nom }}</option>
+              </TomSelect>
+              <div v-if="errors.responsables" class="mt-2 text-danger">{{ getFieldErrors(errors.responsables) }}</div>
+            </div>
+          </div>
+        </div>
+      </ModalBody>
+      <ModalFooter>
+        <div class="flex gap-2">
+          <button type="button" @click="resetFormAddStructure" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
+          <VButton :loading="isLoading" label="Modifier" />
+        </div>
+      </ModalFooter>
+    </form>
+  </Modal>
+
+  <!-- Modal for YearCible -->
+  <Modal size="modal-lg" backdrop="static" :show="showModalYearCible" @hidden="showModalYearCible = false">
+    <ModalHeader>
+      <h2 class="mr-auto text-base font-medium">Ajouter années cibles</h2>
+    </ModalHeader>
+    <form @submit.prevent="submitYearCible">
+      <ModalBody>
+        <div class="grid grid-cols-1 gap-4">
+          <!-- <div v-if="payload.agreger" class="space-y-3">
+            <button v-show="array_value_keys.length > 0" class="text-sm btn btn-primary" @click.prevent="showModalAnnee = true"><PlusIcon class="mr-1 size-3" /> Ajouter une année cible</button>
+          </div>
+          <div v-if="payload.agreger && anneesCible.length > 0" class="flex flex-wrap items-center w-full gap-3">
+            <p>Années cible:</p>
+            <div class="flex items-center justify-between gap-2 px-2 py-0.5 text-sm font-medium bg-white rounded-full shadow cursor-pointer text-primary" v-for="(annee, index) in anneesCible" :key="index">
+              <span>{{ annee.annee }} </span>
+              <button @click.prevent="deleteAnneeCible(index)" class="p-1.5 transition-colors rounded-full hover:bg-red-100"><XIcon class="size-4 text-danger" /></button>
+            </div>
+            <div v-if="errors.anneesCible" class="mt-2 text-danger">{{ getFieldErrors(errors.anneesCible) }}</div>
+          </div> -->
+        </div>
+      </ModalBody>
+      <ModalFooter>
+        <div class="flex gap-2">
+          <button type="button" @click="resetFormAddYearCible" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
           <VButton :loading="isLoading" label="Modifier" />
         </div>
       </ModalFooter>
@@ -212,7 +376,7 @@ import DeleteButton from "@/components/news/DeleteButton.vue";
 import { toast } from "vue3-toastify";
 import { getAllErrorMessages } from "@/utils/gestion-error";
 import { findColorCadreMesure } from "../utils/findColorIndicator";
-import { sourcesDonnees } from "../utils/constants";
+import { sourcesDonnees, frequenceCollecte, methodeCollecte } from "../utils/constants";
 import { useRouter } from "vue-router";
 import { getFieldErrors } from "../utils/helpers";
 import ExportationIndicateur from "./news/ExportationIndicateur.vue";
@@ -221,6 +385,21 @@ import verifyPermission from "@/utils/verifyPermission";
 const props = defineProps({
   data: Array,
   years: Array,
+  ongs: {
+    type: Array,
+    required: false,
+    default: [],
+  },
+  ugs: {
+    type: Array,
+    required: false,
+    default: [],
+  },
+  propSites: {
+    type: Array,
+    required: false,
+    default: [],
+  },
 });
 
 const router = useRouter();
@@ -238,9 +417,23 @@ const valueKeysIndicateurSuivi = ref([]);
 const isAgregerCurrentIndicateur = ref(false);
 const showModalSuivi = ref(false);
 const showModalEdit = ref(false);
+const showModalStructure = ref(false);
+const showModalYearCible = ref(false);
 const deleteModalPreview = ref(false);
 const isLoading = ref(false);
 const errors = ref({});
+const responsablesForm = ref({ organisations: [], ug: "" });
+const payloadStructure = reactive({ responsables: responsablesForm.value });
+const payloadYearCible = reactive({});
+const payloadUpdate = reactive({
+  nom: "",
+  description: "",
+  sources_de_donnee: "",
+  methode_de_la_collecte: "",
+  frequence_de_la_collecte: "",
+  responsables: { organisations: [], ug: "" },
+  // sites: [],
+});
 const payloadSuivi = reactive({
   annee: "",
   trimestre: "",
@@ -286,6 +479,23 @@ const resetValues = () => {
   }));
 };
 
+const resetFormAddStructure = () => {
+  responsablesForm.value.organisations = [];
+  responsablesForm.value.ug = "";
+  showModalStructure.value = false;
+  errors.value = {};
+};
+const resetFormUpdate = () => {
+  Object.keys(payloadUpdate).forEach((key) => {
+    payload[key] = "";
+  });
+  (payloadUpdate.responsables = { organisations: [], ug: "" }), (showModalEdit.value = false);
+  errors.value = {};
+};
+const resetFormAddYearCible = () => {
+  showModalYearCible.value = false;
+  errors.value = {};
+};
 const resetFormSuivi = () => {
   if (isAgregerCurrentIndicateur.value) {
     resetValues();
@@ -307,6 +517,63 @@ const submitData = async () => {
     resetFormSuivi();
   } catch (e) {
     toast.error(getAllErrorMessages(e));
+  } finally {
+    isLoading.value = false;
+  }
+};
+const submitUpdate = async () => {
+  isLoading.value = true;
+  const action = IndicateursService.update(idSelect.value, payloadUpdate);
+  try {
+    await action;
+    toast.success(`Indicateur modifié avec succès.`);
+    // getDatas();
+    resetFormUpdate();
+  } catch (e) {
+    if (e.response && e.response.status === 422) {
+      errors.value = e.response.data.errors;
+    } else {
+      toast.error(getAllErrorMessages(e));
+    }
+  } finally {
+    isLoading.value = false;
+  }
+};
+const submitStructure = async () => {
+  if (!payloadStructure.responsables.organisations.length || !payloadStructure.responsables.ug.length) return toast.error("Veuillez choisir au moins une structure");
+  isLoading.value = true;
+  const action = IndicateursService.addStructure(idSelect.value, payloadStructure);
+  try {
+    await action;
+    toast.success(`Structure ajouté avec succès.`);
+    // getDatas();
+    resetFormAddStructure();
+    showModalStructure.value = false;
+  } catch (e) {
+    if (e.response && e.response.status === 422) {
+      errors.value = e.response.data.errors;
+    } else {
+      toast.error(getAllErrorMessages(e));
+    }
+  } finally {
+    isLoading.value = false;
+  }
+};
+const submitYearCible = async () => {
+  isLoading.value = true;
+  const action = IndicateursService.addYearsCible(idSelect.value, payloadYearCible);
+  try {
+    await action;
+    toast.success(`Années cibles  ajouté avec succès.`);
+    // getDatas();
+    resetFormAddYearCible();
+    showModalStructure.value = false;
+  } catch (e) {
+    if (e.response && e.response.status === 422) {
+      errors.value = e.response.data.errors;
+    } else {
+      toast.error(getAllErrorMessages(e));
+    }
   } finally {
     isLoading.value = false;
   }
@@ -361,14 +628,16 @@ const deleteData = async () => {
 
 // Handle edit action
 const handleEdit = (data) => {
-  // idSelect.value = data.id;
-  // payload.nom = data.nom;
-  // payload.pays = data.pays;
-  // payload.departement = data.departement;
-  // payload.arrondissement = data.arrondissement;
-  // payload.quartier = data.quartier;
-  // payload.longitude = data.longitude;
-  // payload.latitude = data.latitude;
+  idSelect.value = data.id;
+  payloadUpdate.nom = data.nom;
+  payloadUpdate.description = data.description ?? "";
+  payloadUpdate.frequence_de_la_collecte = data.frequence_de_la_collecte;
+  payloadUpdate.methode_de_la_collecte = data.methode_de_la_collecte;
+  payloadUpdate.sources_de_donnee = data.sources_de_donnee;
+  payloadUpdate.responsables.ug = data.ug_responsable.id;
+  payloadUpdate.responsables.organisations = data.organisations_responsable.map((org) => org.id);
+  // payloadUpdate.sites = data.sites;
+
   showModalEdit.value = true;
 };
 const handleSuivi = (data) => {
@@ -384,6 +653,14 @@ const handleDelete = (data) => {
   idSelect.value = data.id;
   nameSelect.value = data.nom;
   deleteModalPreview.value = true;
+};
+const handleYearCible = (id) => {
+  idSelect.value = id;
+  showModalYearCible.value = true;
+};
+const handleStructure = (id) => {
+  idSelect.value = id;
+  showModalStructure.value = true;
 };
 
 const cancelDelete = () => {
@@ -430,7 +707,7 @@ table td {
   max-height: calc(75vh - 20px); /* Ajustez selon vos besoins */
 }
 .sticky-header {
-  background-color: #ddd !important;
+  background-color: rgb(15 52 96) !important;
 }
 .sticky-heade {
   position: sticky;

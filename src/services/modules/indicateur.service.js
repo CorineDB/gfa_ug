@@ -32,6 +32,16 @@ const IndicateursService = {
   validateSuivi(id) {
     return ApiService.post(`/gfa/suivi-indicateurs/${id}/valider`);
   },
+  addStructure(id, payload) {
+    return ApiService.post(`/gfa/indicateurs/${id}/addStrutureResponsable`, payload);
+  },
+  addYearsCible(id, payload) {
+    return ApiService.post(
+      `/gfa/indicateurs/${id}/addAnneesCible
+`,
+      payload
+    );
+  },
   filtre(params) {
     return ApiService.post("/gfa/indicateurs/filtres", params);
   },
