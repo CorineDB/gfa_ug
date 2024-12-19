@@ -84,6 +84,9 @@
             </div>
           </li>
         </ul> -->
+        <div class="flex items-center justify-end mt-5">
+          <button class="text-sm btn btn-primary" @click="getDatasCadre"><RotateCcwIcon class="mr-1 size-4" /></button>
+        </div>
         <LoaderSnipper v-if="isLoadingDataCadre" />
         <TabulatorCadreMesure v-else :data="dataAvailable" :years="annees" :ongs="responsables" :ugs="ugs" :prop-sites="sites" />
         <div v-if="!isLoadingDataCadre && verifyPermission('voir-un-indicateur')" class="flex justify-center gap-3 my-8">
@@ -681,11 +684,11 @@ const handleDelete = (data) => {
 // UI related functions
 
 const getAllSelectDatas = () => {
-  getCategories();
+  // getCategories();
+  // getUnites();
+  // getKeys();
   // getResponsables();
   // getSites();
-  getUnites();
-  getKeys();
 };
 
 const openCreateModal = () => {
@@ -829,6 +832,9 @@ onMounted(async () => {
   getDatas();
   getResponsables();
   getSites();
+  getCategories();
+  getUnites();
+  getKeys();
 });
 </script>
 

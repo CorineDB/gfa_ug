@@ -19,7 +19,7 @@
             <th rowspan="2" class="py-3 sticky-header !z-[1] border !border-slate-800 min-w-[150px]">Méthode de collecte des données</th>
             <th rowspan="2" class="py-3 sticky-header !z-[1] border !border-slate-800 min-w-[150px]">Fréquence de la collecte de données</th>
             <th rowspan="2" class="py-3 sticky-header !z-[1] border !border-slate-800 min-w-[150px]">Responsable</th>
-            <th rowspan="2" class="py-3 sticky-header !z-[1] border !border-slate-800 min-w-[350px]">Actions</th>
+            <th rowspan="2" class="py-3 sticky-header !z-[1] border !border-slate-800 min-w-[450px]">Actions</th>
           </tr>
           <tr>
             <th v-for="(year, index) in years" :key="index" class="py-3 !z-[1] sticky top-0 sticky-header border !border-slate-800 min-w-[70px]">{{ year }}</th>
@@ -72,7 +72,7 @@
                   <button v-if="verifyPermission('creer-un-suivi-indicateur')" title="Suivre" @click="handleSuivi(indicateur)" class="btn text-primary"><CornerUpLeftIcon class="size-5" /></button>
                   <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Voir" @click="goToDetailSuivi(indicateur.id)" class="btn text-primary"><EyeIcon class="size-5" /></button>
                   <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Ajouter Structure" @click="handleStructure(indicateur.id)" class="btn text-primary"><PlusIcon class="size-5" />structure</button>
-                  <!-- <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Ajouter Structure" @click="handleYearCible(indicateur.id)" class="btn text-primary"><PlusIcon class="size-5" />année cible</button> -->
+                  <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Ajouter Structure" @click="handleYearCible(indicateur)" class="btn text-primary"><PlusIcon class="size-5" />année cible</button>
                   <button v-if="verifyPermission('supprimer-un-suivi-indicateur')" title="Modifier" @click="handleEdit(indicateur)" class="btn text-pending"><Edit3Icon class="size-5" /></button>
                   <button v-if="verifyPermission('supprimer-un-suivi-indicateur')" title="Supprimer" @click="handleDelete(indicateur)" class="btn text-danger"><TrashIcon class="size-5" /></button>
                 </td>
@@ -121,7 +121,7 @@
                     <button v-if="verifyPermission('creer-un-suivi-indicateur')" title="Suivre" @click="handleSuivi(indicateur)" class="btn text-primary"><CornerUpLeftIcon class="size-5" /></button>
                     <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Voir" @click="goToDetailSuivi(indicateur.id)" class="btn text-primary"><EyeIcon class="size-5" /></button>
                     <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Ajouter Structure" @click="handleStructure(indicateur.id)" class="btn text-primary"><PlusIcon class="size-5" />structure</button>
-                    <!-- <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Ajouter Structure" @click="handleYearCible(indicateur.id)" class="btn text-primary"><PlusIcon class="size-5" />année cible</button> -->
+                    <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Ajouter Structure" @click="handleYearCible(indicateur)" class="btn text-primary"><PlusIcon class="size-5" />année cible</button>
                     <button v-if="verifyPermission('supprimer-un-suivi-indicateur')" title="Modifier" @click="handleEdit(indicateur)" class="btn text-pending"><Edit3Icon class="size-5" /></button>
                     <button v-if="verifyPermission('supprimer-un-suivi-indicateur')" title="Supprimer" @click="handleDelete(indicateur)" class="btn text-danger"><TrashIcon class="size-5" /></button>
                   </td>
@@ -135,7 +135,7 @@
   </div>
 
   <!-- Modal for creating/updating -->
-  <Modal size="modal-lg" backdrop="static" :show="showModalEdit" @hidden="closeModal">
+  <Modal size="modal-lg" backdrop="static" :show="showModalEdit" @hidden="showModalEdit = false">
     <ModalHeader>
       <h2 class="mr-auto text-base font-medium">Modifier un indicateur</h2>
     </ModalHeader>
@@ -365,6 +365,8 @@
       </div>
     </ModalBody>
   </Modal>
+
+  <AddYearCibleIndicateur v-show="showModalAddYear" v-model:showModalCreate="showModalAddYear" :currentIndicateur="currentIndicateur" />
 </template>
 
 <script setup>
@@ -381,6 +383,7 @@ import { useRouter } from "vue-router";
 import { getFieldErrors } from "../utils/helpers";
 import ExportationIndicateur from "./news/ExportationIndicateur.vue";
 import verifyPermission from "@/utils/verifyPermission";
+import AddYearCibleIndicateur from "./AddYearCibleIndicateur.vue";
 
 const props = defineProps({
   data: Array,
@@ -414,7 +417,9 @@ const scrollBar = ref(null);
 const idSelect = ref("");
 const nameSelect = ref("");
 const valueKeysIndicateurSuivi = ref([]);
+const currentIndicateur = ref({});
 const isAgregerCurrentIndicateur = ref(false);
+const showModalAddYear = ref(false);
 const showModalSuivi = ref(false);
 const showModalEdit = ref(false);
 const showModalStructure = ref(false);
@@ -431,7 +436,7 @@ const payloadUpdate = reactive({
   sources_de_donnee: "",
   methode_de_la_collecte: "",
   frequence_de_la_collecte: "",
-  responsables: { organisations: [], ug: "" },
+  // responsables: { organisations: [], ug: "" },
   // sites: [],
 });
 const payloadSuivi = reactive({
@@ -487,9 +492,10 @@ const resetFormAddStructure = () => {
 };
 const resetFormUpdate = () => {
   Object.keys(payloadUpdate).forEach((key) => {
-    payload[key] = "";
+    payloadUpdate[key] = "";
   });
-  (payloadUpdate.responsables = { organisations: [], ug: "" }), (showModalEdit.value = false);
+  showModalEdit.value = false;
+  // (payloadUpdate.responsables = { organisations: [], ug: "" }), (showModalEdit.value = false);
   errors.value = {};
 };
 const resetFormAddYearCible = () => {
@@ -526,9 +532,9 @@ const submitUpdate = async () => {
   const action = IndicateursService.update(idSelect.value, payloadUpdate);
   try {
     await action;
-    toast.success(`Indicateur modifié avec succès.`);
     // getDatas();
     resetFormUpdate();
+    toast.success(`Indicateur modifié avec succès.`);
   } catch (e) {
     if (e.response && e.response.status === 422) {
       errors.value = e.response.data.errors;
@@ -634,8 +640,8 @@ const handleEdit = (data) => {
   payloadUpdate.frequence_de_la_collecte = data.frequence_de_la_collecte;
   payloadUpdate.methode_de_la_collecte = data.methode_de_la_collecte;
   payloadUpdate.sources_de_donnee = data.sources_de_donnee;
-  payloadUpdate.responsables.ug = data.ug_responsable.id;
-  payloadUpdate.responsables.organisations = data.organisations_responsable.map((org) => org.id);
+  // payloadUpdate.responsables.ug = data.ug_responsable.id;
+  // payloadUpdate.responsables.organisations = data.organisations_responsable.map((org) => org.id);
   // payloadUpdate.sites = data.sites;
 
   showModalEdit.value = true;
@@ -654,9 +660,10 @@ const handleDelete = (data) => {
   nameSelect.value = data.nom;
   deleteModalPreview.value = true;
 };
-const handleYearCible = (id) => {
-  idSelect.value = id;
-  showModalYearCible.value = true;
+const handleYearCible = (data) => {
+  currentIndicateur.value = data;
+  idSelect.value = data.id;
+  showModalAddYear.value = true;
 };
 const handleStructure = (id) => {
   idSelect.value = id;
