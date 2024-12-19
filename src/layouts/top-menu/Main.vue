@@ -85,7 +85,7 @@
 
         <!-- END: Search -->
         <!-- BEGIN: Notifications -->
-        <Dropdown class="mr-4 intro-x sm:mr-6">
+        <!-- <Dropdown class="mr-4 intro-x sm:mr-6">
           <DropdownToggle tag="div" role="button" class="cursor-pointer notification notification--light notification--bullet">
             <BellIcon class="notification__icon dark:text-slate-500" />
           </DropdownToggle>
@@ -111,7 +111,7 @@
               </div>
             </DropdownContent>
           </DropdownMenu>
-        </Dropdown>
+        </Dropdown> -->
         <!-- END: Notifications -->
         <!-- BEGIN: Account Menu -->
         <Dropdown class="w-8 h-8 intro-x">
