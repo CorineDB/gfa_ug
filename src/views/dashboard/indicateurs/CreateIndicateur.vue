@@ -681,11 +681,11 @@ const handleDelete = (data) => {
 // UI related functions
 
 const getAllSelectDatas = () => {
-  getCategories();
+  // getCategories();
+  // getUnites();
+  // getKeys();
   // getResponsables();
   // getSites();
-  getUnites();
-  getKeys();
 };
 
 const openCreateModal = () => {
@@ -829,6 +829,9 @@ onMounted(async () => {
   getDatas();
   getResponsables();
   getSites();
+  getCategories();
+  getUnites();
+  getKeys();
 });
 </script>
 
