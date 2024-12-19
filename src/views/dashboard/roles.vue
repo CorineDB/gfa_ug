@@ -16,6 +16,8 @@ const payload = reactive({
   // type : "1"
   // programmeId: "",
 });
+
+const messageErreur = ref({});
 const tabulator = ref();
 const idSelect = ref("");
 const showModalCreate = ref(false);
@@ -56,6 +58,11 @@ const createData = async () => {
       isLoading.value = false;
       console.error(e);
       toast.error("Vérifier les informations et ressayer.");
+      if (e.response && e.response.data && e.response.data.errors) {
+        messageErreur.value = e.response.data.errors;
+      } else {
+        toast.error("Une erreur inconnue s'est produite");
+      }
     });
 };
 const getDatas = async () => {
@@ -100,6 +107,11 @@ const updateData = async () => {
       isLoading.value = false;
       console.error(e);
       toast.error("Vérifier les informations et ressayer.");
+      if (e.response && e.response.data && e.response.data.errors) {
+        messageErreur.value = e.response.data.errors;
+      } else {
+        toast.error("Une erreur inconnue s'est produite");
+      }
     });
 };
 const submitData = () => (isCreate.value ? createData() : updateData());
@@ -114,7 +126,7 @@ const deleteData = async () => {
     })
     .catch((e) => {
       isLoading.value = false;
-      console.error(e);
+
       toast.error("Une erreur est survenue, ressayer");
     });
 };
@@ -175,6 +187,7 @@ const initTabulator = () => {
   });
 };
 const handleEdit = (params) => {
+  messageErreur.value = {};
   isCreate.value = false;
   idSelect.value = params.id;
   payload.nom = params.nom;
@@ -203,6 +216,7 @@ const resetForm = () => {
 const openCreateModal = () => {
   // payload.programmeId = "";
   showModalCreate.value = isCreate.value = true;
+  messageErreur.value = {};
 };
 
 const mode = computed(() => (isCreate.value ? "Ajouter" : "Modifier"));
@@ -273,7 +287,7 @@ onMounted(() => {
             <td>{{ data.nom }}</td>
             <td>
               <div class="grid grid-cols-5 gap-1">
-                <span v-for="(permission, index) in data.permissions" class="bg-primary text-white rounded-md p-2 text-xs">
+                <span v-for="(permission, index) in data.permissions" :key="index" class="bg-primary text-white rounded-md p-2 text-xs">
                   {{ permission.nom }}
                 </span>
               </div>
@@ -307,40 +321,25 @@ onMounted(() => {
     <form @submit.prevent="submitData">
       <ModalBody>
         <div class="grid grid-cols-1 gap-4">
-          <!-- <div>
-            <label for="regular-form-1" class="form-label">Nom</label>
-            <input id="regular-form-1" type="text" required v-model="formData.nom" class="form-control" placeholder="Libellé du role" />
-          </div> -->
-
           <InputForm label="Nom" v-model="payload.nom" />
+          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
+
           <div class="my-2">
             <label for="regular-form-2" class="form-label">Description</label>
             <textarea id="regular-form-2" placeholder="Description du role" v-model="payload.description" required class="form-control px-3 py-2 mt-1 border-2 border-gray-300 w-full focus:outline-none focus:ring-2 focus:border-transparent" rows="2"></textarea>
+            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.description">{{ messageErreur.description }}</p>
           </div>
-          <div class="flex w-full">
-            <!-- <pre>{{ payload.permissions }}</pre> -->
-            <!--  -->
-            <v-select :reduce="(projet) => projet.id" class="w-full" v-model="payload.permissions" multiple label="nom" :options="permissions">
-              <template #search="{ attributes, events }">
-                <input class="vs__search form-input" :required="!payload.permissions" v-bind="attributes" v-on="events" />
-              </template>
-            </v-select>
-            <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Permissions</label>
+          <div class="w-full">
+            <div class="flex w-full">
+              <v-select :reduce="(projet) => projet.id" class="w-full" v-model="payload.permissions" multiple label="nom" :options="permissions">
+                <template #search="{ attributes, events }">
+                  <input class="vs__search form-input" :required="!payload.permissions" v-bind="attributes" v-on="events" />
+                </template>
+              </v-select>
+              <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Permissions</label>
+            </div>
+            <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.permissions">{{ messageErreur.permissions }}</p>
           </div>
-          <!-- <div class="my-2">
-            <label for="regular-form-1" class="form-label">Permissions </label>
-            <TomSelect v-model="payload.permissions" multiple :options="{ placeholder: 'Selectionez une permissions' }" class="w-full">
-              <option v-for="(permission, index) in permissions" :key="index" :value="permission.id">{{ permission.nom }}</option>
-            </TomSelect>
-          </div> -->
-          <!-- <InputForm label="Description" v-model="payload.description" />
-          <InputForm label="Note" v-model.number="payload.note" type="number" /> -->
-          <!-- <div class="">
-            <label class="form-label">Programmes </label>
-            <TomSelect v-model="payload.programmeId" :options="{ placeholder: 'Selectionez un programme' }" class="w-full">
-              <option v-for="(programme, index) in programmes" :key="index" :value="programme.id">{{ programme.nom }}</option>
-            </TomSelect>
-          </div> -->
         </div>
       </ModalBody>
       <ModalFooter>
