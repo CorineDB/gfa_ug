@@ -25,7 +25,7 @@ const idFormPerception = ref("");
 const payload = reactive({
   intitule: "",
   description: "",
-  objectif_attendu: 0,
+  // objectif_attendu: 0,
   annee_exercice: new Date().getFullYear(),
   debut: "",
   fin: "",
@@ -213,7 +213,7 @@ const handleEdit = (params) => {
   payload.intitule = params.intitule;
   payload.description = params.description ?? "";
   payload.annee_exercice = params.annee_exercice;
-  payload.objectif_attendu = params.objectif_attendu;
+  // payload.objectif_attendu = params.objectif_attendu;
   payload.debut = params.debut;
   payload.fin = params.fin;
   idFormFactuel.value = params.formulaire_factuel_de_gouvernance;
@@ -232,7 +232,7 @@ const cancelSelect = () => {
 const resetForm = () => {
   payload.intitule = "";
   payload.annee_exercice = new Date().getFullYear();
-  payload.objectif_attendu = 0;
+  // payload.objectif_attendu = 0;
   payload.debut = "";
   payload.description = "";
   payload.fin = "";
@@ -412,11 +412,11 @@ onMounted(async () => {
             </div>
           </div>
           <div class="flex items-center justify-between w-full gap-4">
-            <div class="">
+            <!-- <div class="">
               <label for="objectif" class="form-label">Objectif</label>
               <input id="objectif" type="number" min="0.05" step="0.05" max="1" required v-model.number="payload.objectif_attendu" class="form-control" placeholder="Objectif" />
               <div v-if="errors.objectif_attendu" class="mt-2 text-danger">{{ getFieldErrors(errors.objectif_attendu) }}</div>
-            </div>
+            </div> -->
             <div class="">
               <label for="annee" class="form-label">Année</label>
               <input id="annee" type="number" required v-model.number="payload.annee_exercice" class="form-control" placeholder="Année exercice" />
