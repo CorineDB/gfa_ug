@@ -1,6 +1,6 @@
 <template>
   <div>
-    <canvas ref="chartCanvas" style="height: 400px; width: 100%"></canvas>
+    <canvas ref="chartCanvas" style="height: 600px; width: 100%"></canvas>
   </div>
 </template>
 
@@ -11,8 +11,12 @@ import { Chart, registerables } from "chart.js";
 Chart.register(...registerables);
 
 export default {
-  name: "ObjectivesChart",
+  name: "CombinedChart",
   props: {
+    datas: {
+      type: Array,
+      required: true,
+    },
     objectifs: {
       type: Array,
       required: true,
@@ -27,30 +31,60 @@ export default {
 
         if (ctx) {
           // Labels for the chart
-          const labels = props.objectifs.map((item) => item.nom);
+          const labels = props.datas.map((item) => item.nom);
 
-          // Extract data for the objectifs, offsetting the first and last points
+          // Data for the bar chart (scores)
+          const factuel = props.datas.map((item) => item.indice_factuel);
+          const perception = props.datas.map((item) => item.indice_de_perception);
+          const synthese = props.datas.map((item) => item.indice_synthetique);
+
+          // Data for the scatter plot (objectifs), offsetting first and last points
           const objectifsData = props.objectifs.map((item, index) => {
             if (index === 0) {
-              return { x: -0.5, y: item.objectif_attendu }; // Offset the first point to the left
+              return { x: -0.5, y: item.objectif_attendu }; // Offset first point left
             } else if (index === props.objectifs.length - 1) {
-              return { x: index + 0.5, y: item.objectif_attendu }; // Offset the last point to the right
+              return { x: index + 0.5, y: item.objectif_attendu }; // Offset last point right
             } else {
               return { x: index, y: item.objectif_attendu };
             }
           });
 
           new Chart(ctx, {
-            type: "scatter",
+            type: "bar",
             data: {
+              labels, // Assign the labels directly
               datasets: [
+                {
+                  label: "Indice Factuel",
+                  data: factuel,
+                  backgroundColor: "rgba(54, 162, 235, 0.5)",
+                  borderColor: "rgba(54, 162, 235, 1)",
+                  borderWidth: 1,
+                },
+                {
+                  label: "Indice Perception",
+                  data: perception,
+                  backgroundColor: "rgba(75, 192, 19, 0.5)",
+                  borderColor: "rgba(75, 192, 19, 1)",
+                  borderWidth: 1,
+                },
+                {
+                  label: "Indice Synthétique",
+                  data: synthese,
+                  backgroundColor: "rgba(255, 205, 86, 0.8)",
+                  borderColor: "rgba(255, 205, 86, 1)",
+                  borderWidth: 1,
+                },
                 {
                   label: "Objectif Attendu",
                   data: objectifsData,
-                  pointBackgroundColor: "rgba(255, 0, 0, 1)", // Red color for the cross
-                  pointBorderColor: "rgba(255, 0, 0, 1)",
+                  type: "scatter", // Scatter plot for objectifs
+                  pointBackgroundColor: "rgba(127, 25, 280, 1)", // Red color for the cross
+                  pointBorderColor: "rgba(127, 25, 280, 1)",
                   pointStyle: "cross",
-                  pointRadius: 8,
+                  pointRadius: 12, // Increased size for better visibility
+                  pointBorderWidth: 2, // Increased border width for visibility
+                  pointRotation: 45,
                   showLine: false, // Disable connecting line
                 },
               ],
@@ -64,7 +98,7 @@ export default {
                 },
                 title: {
                   display: true,
-                  text: "Objectifs Attendus par Principe vs Score par principe",
+                  text: "Scores par Indice et Objectifs Attendus",
                 },
               },
               scales: {
@@ -72,12 +106,12 @@ export default {
                   beginAtZero: true,
                   title: {
                     display: true,
-                    text: "Objectif Attendu",
+                    text: "Score/Objectif",
                   },
                 },
                 x: {
-                  type: "category", // Change to category for labels to display as boxes
-                  labels: labels, // Assign the labels directly
+                  type: "category", // Use category scale for labels
+                  labels: labels,
                   title: {
                     display: true,
                     text: "Principe",
