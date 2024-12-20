@@ -15,6 +15,7 @@ import { data } from "jquery";
 import SyntheseService from "../../../services/modules/synthese.service";
 import ChartProgressionByTime from "../../../components/news/ChartProgressionByTime.vue";
 import ChartScroreByPrincipe from "../../../components/news/ChartScroreByPrincipe.vue";
+import ChartScroreByPrincipeObjectif from "../../../components/news/ChartScroreByPrincipeObjectif.vue";
 
 const router = useRouter();
 
@@ -517,6 +518,22 @@ onMounted(async () => {
                 </TomSelect>
               </div>
               <ChartScroreByPrincipe v-if="currentScore?.scores[yearSelectedOng]?.length > 0" :datas="currentScore?.scores[yearSelectedOng]" />
+              <div v-else class="h-[600px] flex justify-center items-center">
+                <p class="text-xl font-medium text-slate-600">Aucune données disponible</p>
+              </div>
+            </div>
+          </div>
+          <div class="flex justify-center w-full p-3">
+            <div class="w-full max-w-full box">
+              <p class="p-3 text-lg font-medium">Score des indices par principe vs Objectifs attendus</p>
+              <div class="!w-[250px] p-3">
+                <label class="form-label">Organisation</label>
+                <TomSelect name="organisations" v-model="ongSelectedScore" @change="changeOrganisationScore" :options="{ placeholder: 'Selectionez une organisation' }">
+                  <option value=""></option>
+                  <option v-for="organisation in organisations" :key="organisation.id" :value="organisation.id">{{ organisation.nom }}</option>
+                </TomSelect>
+              </div>
+              <ChartScroreByPrincipeObjectif v-if="statistiques.objectif_attendu" :objectifs="statistiques.objectif_attendu" />
               <div v-else class="h-[600px] flex justify-center items-center">
                 <p class="text-xl font-medium text-slate-600">Aucune données disponible</p>
               </div>

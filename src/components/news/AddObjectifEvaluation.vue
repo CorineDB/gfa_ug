@@ -63,7 +63,6 @@ const resetForm = () => {
   isLoadingPrincipes.value = true;
   errors.value = {};
   showModal.value = false;
-  emit("update-datas");
 };
 
 const submitObjectifs = async () => {
@@ -74,6 +73,9 @@ const submitObjectifs = async () => {
     await action;
     resetForm();
     toast.success(`Objectifs ajoutés avec succès.`);
+    setTimeout(() => {
+      emit("update-datas");
+    }, 500);
   } catch (e) {
     if (e.response && e.response.status === 422) {
       errors.value = e.response.data.errors;
