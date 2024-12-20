@@ -17,6 +17,9 @@
       <li v-for="(error, index) in errorsUniteMesure" :key="index">{{ error }}</li>
       <li v-for="(error, index) in errorsSite" :key="index">{{ error }}</li>
       <li v-for="(error, index) in errorsAnneCible" :key="index">{{ error }}</li>
+      <li v-for="(error, index) in countAnneeCible" :key="index" class="">
+        <span v-if="errors[`anneesCible.${index}.annee`]"> {{ getFieldErrors(errors[`anneesCible.${index}.annee`]) }}</span>
+      </li>
     </ul>
     <button type="button" class="text-white btn-close" aria-label="Close" @click="dismiss">
       <XIcon class="w-4 h-4" />
@@ -26,9 +29,11 @@
 
 <script setup>
 import { computed } from "vue";
+import { getFieldErrors } from "../../utils/helpers";
 
 const prop = defineProps({
   errors: Object,
+  countAnneeCible: Number,
 });
 
 const showAlert = computed(() => {

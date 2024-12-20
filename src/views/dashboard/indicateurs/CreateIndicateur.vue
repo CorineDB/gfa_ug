@@ -111,7 +111,7 @@
                   </span>
                 </li>
               </ol>
-              <AlertErrorIndicateur :errors="errors" />
+              <AlertErrorIndicateur :errors="errors" :countAnneeCible="countAnneeCible" />
               <!-- Information 1 -->
               <div v-show="currentStep == 1" class="">
                 <p class="mb-3 text-lg text-semibold">Informations 1</p>
@@ -791,6 +791,10 @@ const datasSearch = computed(() => {
 const dataAvailable = computed(() => {
   if (search.value.length > 0) return datasSearch.value;
   else return paginatedData.value;
+});
+
+const countAnneeCible = computed(() => {
+  return payload.anneesCible.length;
 });
 
 const truncateText = (text, maxLength = 100) => {
