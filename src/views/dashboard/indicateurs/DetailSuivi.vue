@@ -187,7 +187,7 @@ onMounted(() => {
     </div>
     <div class="col-span-12 p-5 cursor-pointer sm:col-span-4 2xl:col-span-4 bg-primary box zoom-in">
       <div class="text-base font-medium text-white">Catégorie</div>
-      <div class="text-white dark:text-slate-500 text-opacity-80">{{ datas[0]?.valeurCible.indicateur.type }}</div>
+      <div class="text-white dark:text-slate-500 text-opacity-80">{{ datas[0]?.valeurCible.indicateur.categorie.type ?? datas[0]?.valeurCible.indicateur.type ?? datas[0]?.valeurCible.indicateur.categorie.nom }}</div>
     </div>
     <div class="col-span-12 p-5 cursor-pointer bg-primary sm:col-span-4 2xl:col-span-4 box zoom-in">
       <div class="text-base font-medium text-white">Unité de mesure</div>
