@@ -16,6 +16,7 @@ import { getAllErrorMessages } from "@/utils/gestion-error";
 import ListFormFactuel from "@/components/create-form/ListFormFactuel.vue";
 import ListOptionsResponse from "@/components/create-form/ListOptionsResponse.vue";
 import DeleteButton from "@/components/news/DeleteButton.vue";
+import AuthService from "@/services/modules/auth.service";
 import { useRoute } from "vue-router";
 import { getFieldErrors } from "../../utils/helpers";
 
@@ -60,6 +61,34 @@ const isAvailable = reactive({
   indicateur: true,
   question: true,
 });
+
+const debutProgramme = ref("");
+const finProgramme = ref("");
+
+const annees = computed(() => {
+  let anneeDebut = parseInt(debutProgramme.value.split("-")[0], 10);
+  let anneeFin = parseInt(finProgramme.value.split("-")[0], 10);
+  let annees = [];
+  for (let annee = anneeDebut; annee <= anneeFin; annee++) {
+    annees.push(annee);
+  }
+  return annees;
+});
+
+const getcurrentUser = async () => {
+  await AuthService.getCurrentUser()
+    .then((result) => {
+      // responsablesForm.value.ug = result.data.data.profil.id;
+      // ugs.value.push({ id: result.data.data.profil.id, nom: result.data.data.profil.nom });
+      // idProgramme.value = result.data.data.programme.id;
+      debutProgramme.value = result.data.data.programme.debut;
+      finProgramme.value = result.data.data.programme.fin;
+    })
+    .catch((e) => {
+      console.error(e);
+      toast.error("Une erreur est survenue: Utilisateur connecté .");
+    });
+};
 
 const payload = reactive({
   libelle: "",
@@ -337,6 +366,7 @@ onMounted(() => {
     // globalOptionResponses.value = JSON.parse(localStorage.getItem("globalOptionResponses"));
   }
   updateAllTypesGouvernance();
+  getcurrentUser();
 });
 </script>
 
@@ -435,15 +465,23 @@ onMounted(() => {
   <!-- BEGIN: Modal Content -->
   <Modal backdrop="static" size="modal-xl" :show="modalForm" @hidden="modalForm = false">
     <ModalHeader>
-      <h2 class="mr-auto text-base font-medium">Enregistrer le formulaire</h2>
+      <h2 class="mr-auto text-base font-medium">Enregistrer le formulaire test</h2>
     </ModalHeader>
     <form @submit.prevent="createForm">
       <ModalBody class="space-y-5">
         <div class="flex gap-4">
           <InputForm label="Libellé" class="w-full" :control="getFieldErrors(errors.libelle)" v-model="payload.libelle" />
           <div class="w-full">
-            <label for="annee" class="form-label">Année</label>
-            <input id="annee" type="number" required v-model.number="payload.annee_exercice" class="form-control" placeholder="Année" />
+            <div class="flex-1">
+              <!-- <pre>{{ annees }}</pre> -->
+              <label class="form-label">Année cible</label>
+              <TomSelect v-model="payload.annee_exercice" name="annee_aggrer" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+                <option value=""></option>
+                <option v-for="annee in annees" :key="annee" :value="annee">{{ annee }}</option>
+              </TomSelect>
+            </div>
+            <!-- <label for="annee" class="form-label">Année</label>
+            <input id="annee" type="number" required v-model.number="payload.annee_exercice" class="form-control" placeholder="Année" /> -->
             <div v-if="errors.annee_exercice" class="mt-2 text-danger">{{ getFieldErrors(errors.annee_exercice) }}</div>
           </div>
         </div>

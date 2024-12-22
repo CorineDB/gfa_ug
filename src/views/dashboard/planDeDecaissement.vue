@@ -358,13 +358,15 @@ import BailleursService from "@/services/modules/bailleur.service.js";
 import TacheService from "@/services/modules/tache.service.js";
 import VButton from "@/components/news/VButton.vue";
 import { toast } from "vue3-toastify";
+import AuthService from "@/services/modules/auth.service";
 import { mapGetters, mapMutations, mapActions, mapState } from "vuex";
 export default {
   props: ["ppm"],
   components: { VButton },
   data() {
     return {
-      years: [],
+      debutProgramme: "",
+      finProgramme: "",
       annees: "",
       tabletoggle: [],
       etattoggle: true,
@@ -1361,6 +1363,21 @@ export default {
     },
   },
   methods: {
+    async getcurrentUser() {
+      await AuthService.getCurrentUser()
+        .then((result) => {
+          // responsablesForm.value.ug = result.data.data.profil.id;
+          // ugs.value.push({ id: result.data.data.profil.id, nom: result.data.data.profil.nom });
+          // idProgramme.value = result.data.data.programme.id;
+          this.debutProgramme = result.data.data.programme.debut;
+          this.finProgramme = result.data.data.programme.fin;
+        })
+        .catch((e) => {
+          console.error(e);
+          toast.error("Une erreur est survenue: Utilisateur connecté .");
+        });
+    },
+
     filtreParAnnee(datas) {
       let data = {};
 
@@ -1506,7 +1523,9 @@ export default {
       this.$store.dispatch("disabled");
     },
     getPermission() {
-      this.currentUser.role[0].permissions.forEach((element) => {
+      let currentUser = JSON.parse(localStorage.getItem("authenticateUser"));
+      console.log("currentUser", currentUser);
+      currentUser.role[0].permissions.forEach((element) => {
         if (element.slug === "exporter-un-suivi-ppm") {
           this.exporterSuiviPpm = true;
         }
@@ -1568,12 +1587,12 @@ export default {
       // if (this.annee == null) {
       //   const year = new Date().getFullYear();
       //   data = {
-      //     organisationId: this.currentUser.programme.id,
+      //     organisationId: JSON.parse(localStorage.getItem("authenticateUser")).programme.id,
       //     //annee: year,
       //   };
       // } else {
       //   data = {
-      //     programmeId: this.currentUser.programme.id,
+      //     programmeId: JSON.parse(localStorage.getItem("authenticateUser")).programme.id,
       //     annee: Number(annee),
       //   };
 
@@ -1596,13 +1615,13 @@ export default {
         const year = new Date().getFullYear();
         data = {
           ptabScopeId: this.version.id,
-          programmeId: this.currentUser.programme.id,
+          programmeId: JSON.parse(localStorage.getItem("authenticateUser")).programme.id,
           annee: year,
         };
       } else {
         data = {
           ptabScopeId: this.version.id,
-          programmeId: this.currentUser.programme.id,
+          programmeId: JSON.parse(localStorage.getItem("authenticateUser")).programme.id,
           annee: Number(annee),
         };
       }
@@ -1623,13 +1642,13 @@ export default {
         const year = new Date().getFullYear();
         data = {
           ptabScopeId: this.version.id,
-          programmeId: this.currentUser.programme.id,
+          programmeId: JSON.parse(localStorage.getItem("authenticateUser")).programme.id,
           annee: year,
         };
       } else {
         data = {
           ptabScopeId: this.version.id,
-          programmeId: this.currentUser.programme.id,
+          programmeId: JSON.parse(localStorage.getItem("authenticateUser")).programme.id,
           annee: Number(this.annee),
         };
       }
@@ -1650,20 +1669,20 @@ export default {
       if (this.ppm == null) {
         if (this.bailleur == null) {
           data = {
-            programmeId: this.currentUser.programme.id,
+            programmeId: JSON.parse(localStorage.getItem("authenticateUser")).programme.id,
             annee: Number(this.annee),
           };
         } else {
           data = {
             bailleurId: this.bailleur.id,
-            programmeId: this.currentUser.programme.id,
+            programmeId: JSON.parse(localStorage.getItem("authenticateUser")).programme.id,
             annee: Number(this.annee),
           };
         }
       } else {
         data = {
           bailleurId: this.bailleur.id,
-          programmeId: this.currentUser.programme.id,
+          programmeId: JSON.parse(localStorage.getItem("authenticateUser")).programme.id,
           annee: Number(this.annee),
           ppm: this.ppm,
         };
@@ -1693,6 +1712,17 @@ export default {
         });
     },
   },
+  computed: {
+    years() {
+      let anneeDebut = parseInt(this.debutProgramme.split("-")[0], 10);
+      let anneeFin = parseInt(this.finProgramme.split("-")[0], 10);
+      let annees = [];
+      for (let annee = anneeDebut; annee <= anneeFin; annee++) {
+        annees.push(annee);
+      }
+      return annees;
+    },
+  },
   mounted() {
     this.getPermission();
 
@@ -1704,9 +1734,10 @@ export default {
       };
       this.getPta(data);
       this.getBailleur();
-      this.fetchProgrammeScopes(this.currentUser.programme.id).then((response) => {
+      this.fetchProgrammeScopes(JSON.parse(localStorage.getItem("authenticateUser")).programme.id).then((response) => {
         this.scopes = response.data.data;
       });
+      this.getcurrentUser();
     }
 
     var anneeActuelle = new Date().getFullYear() + 5;

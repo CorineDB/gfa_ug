@@ -13,7 +13,7 @@
     <!-- Modal for creating/updating backdrop="static"-->
     <Modal size="modal-lg" :show="showSendMail" @hidden="showSendMail">
       <ModalHeader>
-        <h2 class="mr-auto text-base font-medium">Modifier un rapport</h2>
+        <h2 class="mr-auto text-base font-medium">Envoyer un rapport</h2>
       </ModalHeader>
       <form @submit.prevent="sendRapport">
         <ModalBody>
@@ -24,6 +24,10 @@
 
             <div class="form-group my-2">
               <InputForm label="Destinataire" class="flex-1" v-model="bcc" type="text" />
+            </div>
+
+            <div class="form-group my-2">
+              <InputForm class="col-span-12" type="file" @change="handleFileChange" required="required" placeHolder="choisir un fichier" label="Fichiers" />
             </div>
           </div>
         </ModalBody>
@@ -65,7 +69,7 @@
         <div class="py-2 my-4 flex justify-end space-x-8">
           <VButton :loading="chargement" label="Enrégistrer" />
 
-          <VButton @click="modalMail()" :loading="chargement2" label="Envoyer par mail" />
+          <VButton @click="modalMail()" label="Envoyer par mail" />
         </div>
       </form>
     </div>
@@ -84,7 +88,7 @@
         <div class="py-2 my-4 flex justify-end space-x-8">
           <VButton :loading="chargement3" label="Enrégistrer" />
 
-          <VButton :loading="chargement3" label=" Envoyer par mail " />
+          <VButton @click="modalMail()" label=" Envoyer par mail " />
         </div>
       </form>
     </div>
@@ -171,6 +175,7 @@ import InputForm from "@/components/news/InputForm.vue";
 import VButton from "@/components/news/VButton.vue";
 import html2pdf from "html2pdf.js";
 import { toast } from "vue3-toastify";
+import { helper as $h } from "@/utils/helper";
 
 //import ExportPdf from '@ckeditor/ckeditor5-export-pdf/src/exportpdf';
 
@@ -214,10 +219,25 @@ export default {
         Data: "",
         id: "",
       },
+      selectedFile: null,
+      FormRapport: new FormData(),
     };
   },
   computed: {},
   methods: {
+    handleFileChange(event) {
+      const file = event.target.files[0];
+      if (file) {
+        this.selectedFile = file;
+
+        // Créer une prévisualisation de l'image
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.imagePreview = e.target.result;
+        };
+        reader.readAsDataURL(file); // Lire le fichier en tant qu'URL de données
+      }
+    },
     modalMail() {
       this.showSendMail = true;
       this.chargement2 = false;
@@ -293,32 +313,38 @@ export default {
     },
 
     saveRapport() {
-      if (this.chargement == false) {
-        this.chargement = true;
+      var form = {
+        nom: this.nom,
+        rapport: this.editorData,
+      };
 
-        var form = {
-          nom: this.nom,
-          rapport: this.editorData,
-        };
-        ProgrammeService.rapport(form)
-          .then((data) => {
-            this.chargement = false;
-            toast.success("nouveau element ajouté");
-            this.getRapports();
-          })
-          .catch((error) => {
-            this.chargement = false;
+      ProgrammeService.rapport(form)
+        .then((data) => {
+          this.chargement = false;
+          toast.success("nouveau element ajouté");
+          this.resetFileInput();
+          $h.clearFormData(this.FormRapport);
+          this.nom = "";
+          this.editorData = "";
+          // this.messageErreur = {};
+          this.getRapports();
+        })
+        .catch((error) => {
+          this.chargement = false;
 
-            if (error.response) {
-              // Requête effectuée mais le serveur a répondu par une erreur.
-              const message = error.response.data.message;
-              toast.error(message);
-            } else if (error.request) {
-              // Demande effectuée mais aucune réponse n'est reçue du serveur.
-              //console.log(error.request);
-            }
-          });
-      }
+          if (error.response) {
+            // Requête effectuée mais le serveur a répondu par une erreur.
+            const message = error.response.data.message;
+            toast.error(message);
+          } else if (error.request) {
+            // Demande effectuée mais aucune réponse n'est reçue du serveur.
+            //console.log(error.request);
+          }
+        });
+    },
+    resetFileInput() {
+      // Réinitialiser le champ de fichier
+      this.selectedFile = null; // Réinitialiser la variable selectedFile
     },
 
     sendRapport() {
@@ -332,12 +358,36 @@ export default {
           destinataires: this.users,
           rapport: this.editorData,
         };
-        ProgrammeService.sendMailRapport(form)
+
+        console.log("destinataire", form.destinataires);
+
+        for (const key of Array.from(this.FormRapport.keys())) {
+          this.FormRapport.delete(key);
+        }
+
+        $h.ajouterObjetDansFormData(form, this.FormRapport);
+
+        if (this.selectedFile) {
+          this.FormRapport.append("fichier[]", this.selectedFile);
+        }
+
+        // Ajouter manuellement le tableau `sites` à FormData
+        if (form.destinataires && Array.isArray(form.destinataires)) {
+          form.destinataires.forEach((destinataire, index) => {
+            this.FormRapport.append(`destinataires[${index}]`, destinataire);
+          });
+        }
+
+        ProgrammeService.sendMailRapport(this.FormRapport)
           .then((data) => {
             this.chargement2 = false;
             toast.success("Email envoyé");
             this.emails = data.data.data;
             this.showSendMail = false;
+            this.resetFileInput();
+            $h.clearFormData(this.FormRapport);
+            $h.clearObjectValues(form);
+            // this.messageErreur = {};
           })
           .catch((error) => {
             this.chargement2 = false;
