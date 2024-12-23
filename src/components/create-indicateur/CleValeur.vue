@@ -11,6 +11,7 @@ import { getAllErrorMessages } from "@/utils/gestion-error";
 import { getFieldErrors } from "../../utils/helpers";
 
 const props = defineProps({});
+const emit = defineEmits(["update-datas"]);
 
 // Reactive data structure
 const payload = reactive({
@@ -46,6 +47,7 @@ const getDatas = async () => {
     isLoadingData.value = true;
     const { data } = await IndicateurValueKeys.get();
     datas.value = data.data;
+    emit("update-datas", datas.value);
   } catch (e) {
     toast.error("Erreur lors de la récupération des données.");
   } finally {

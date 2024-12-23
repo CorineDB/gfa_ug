@@ -12,6 +12,7 @@ import { getAllErrorMessages } from "@/utils/gestion-error";
 import { computed } from "vue";
 import { ages, categorieDeParticipant, sexes } from "../../utils/constants";
 import { generateUniqueId, generatevalidateKey, getvalidateKey } from "../../utils/helpers";
+import { getFieldErrors } from "@/utils/helpers.js";
 
 const TYPE_ORGANISATION = "organisation";
 
@@ -53,11 +54,14 @@ const itemsPerPage = 3;
 const getDataFormPerception = async () => {
   try {
     const { data } = await EvaluationService.getPerceptionFormEvaluation(payload.identifier_of_participant, token);
-    formDataPerception.value = data.data;
-    formulairePerception.value = formDataPerception.value.formulaire_de_gouvernance;
-    idEvaluation.value = formDataPerception.value.id;
-    payload.formulaireDeGouvernanceId = formulairePerception.value.id;
-    payload.programmeId = formDataPerception.value.programmeId;
+    //showAlertValidate.value = data.data.terminer;
+    if (!showAlertValidate.value) {
+      formDataPerception.value = data.data;
+      formulairePerception.value = formDataPerception.value.formulaire_de_gouvernance;
+      idEvaluation.value = formDataPerception.value.id;
+      payload.formulaireDeGouvernanceId = formulairePerception.value.id;
+      payload.programmeId = formDataPerception.value.programmeId;
+    }
   } catch (e) {
     toast.error("Erreur lors de la récupération des données.");
   } finally {
@@ -92,14 +96,18 @@ const submitData = async () => {
 
     try {
       const result = await action;
+
+      if (result.statutCode == 206) {
+        showAlertValidate.value = result.data.terminer;
+      }
+
       if (isValidate.value) {
         toast.success(`${result.data.message}`);
         generatevalidateKey("perception");
-        showModalPreview.value = false;
         showAlertValidate.value = true;
+        showModalPreview.value = false;
       }
       errors.value = {};
-      // await getDataFormPerception();
     } catch (e) {
       console.error(e);
       if (isValidate.value) {
@@ -113,6 +121,7 @@ const submitData = async () => {
       isLoading.value = false;
     }
   } else {
+    if (isValidate.value) toast.info("Veuillez remplir le formulaire.");
     return;
   }
 };
@@ -188,6 +197,7 @@ const findResponse = (id) => {
 const resetValidation = () => {
   showModalPreview.value = false;
   isValidate.value = false;
+  errors.value = {};
 };
 
 const openPreview = () => {
@@ -259,9 +269,12 @@ onMounted(async () => {
   } else {
     payload.identifier_of_participant = generateUniqueId();
     await getDataFormPerception();
-    // await getcurrentUserAndFetchOrganization();
-    // findFormulairePerception();
-    initializeFormData();
+
+    if (!showAlertValidate.value) {
+      // await getcurrentUserAndFetchOrganization();
+      // findFormulairePerception();
+      initializeFormData();
+    }
   }
 });
 </script>
@@ -312,13 +325,15 @@ onMounted(async () => {
               </AccordionGroup>
             </div>
           </div>
-          <div class="flex justify-center w-full mt-5">
+          <!-- <div class="flex justify-center w-full mt-5">
             <VButton v-if="isLastPage" label="Prévisualiser" class="px-8 py-3 w-max" @click="openPreview" />
-          </div>
+          </div> -->
           <div class="flex justify-center gap-3 my-8">
             <button @click="prevPage" :disabled="currentPage === 1" class="px-4 py-3 btn btn-outline-primary">Précedent</button>
             <button v-for="page in totalPages" :key="page" @click="goToPage(page)" :class="page === currentPage ? 'btn-primary' : 'btn-outline-primary'" class="px-4 py-3 btn">{{ page }}</button>
-            <button @click="nextPage" :disabled="currentPage === totalPages" class="px-4 py-3 btn btn-outline-primary">Suivant</button>
+            <button v-if="!isLastPage" @click="nextPage" :disabled="currentPage === totalPages" class="px-4 py-3 btn btn-outline-primary">Suivant</button>
+
+            <button v-if="isLastPage" @click="openPreview" class="px-4 py-3 btn btn-outline-primary">Prévisualiser</button>
             <!-- <button @click="prevPage()" class="px-4 py-3 btn btn-outline-primary">Précedent</button>
             <button v-for="(item, index) in totalPages" @click="changePage(index)" :class="index === currentPage ? 'btn-primary' : 'btn-outline-primary'" class="px-4 py-3 btn" :key="index">{{ index + 1 }}</button>
             <button @click="nextPage()" class="px-4 py-3 btn btn-outline-primary">Suivant</button> -->
@@ -345,6 +360,10 @@ onMounted(async () => {
       </ModalHeader>
 
       <ModalBody class="space-y-5">
+        <div v-if="errors['perception.age']" class="my-2 text-danger">{{ getFieldErrors(errors["perception.age"]) }}</div>
+        <div v-if="errors['perception.categorieDeParticipant']" class="my-2 text-danger">{{ getFieldErrors(errors["perception.categorieDeParticipant"]) }}</div>
+        <div v-if="errors['perception.sexe']" class="my-2 text-danger">{{ getFieldErrors(errors["perception.sexe"]) }}</div>
+        <div v-if="errors['perception.commentaire']" class="my-2 text-danger">{{ getFieldErrors(errors["perception.commentaire"]) }}</div>
         <p v-if="payload.organisationId">
           Patenaire: <span class="text-primary">{{ findOrganisation(payload.organisationId) }}</span>
         </p>

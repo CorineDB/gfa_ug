@@ -33,35 +33,33 @@
       <ModalBody class="p-10">
         <form @submit.prevent="storeUser">
           <div class="grid grid-cols-2 gap-4">
-            <!-- <div>
-              <label for="regular-form-1" class="form-label">Nom entreprise</label>
-              <input id="regular-form-1" type="text" required v-model="formData.entrepriseNom" class="form-control" placeholder="Nom de l'entreprise" />
-            </div> -->
             <div>
               <label for="regular-form-1" class="form-label">Nom</label>
               <input id="regular-form-1" type="text" required v-model="formData.nom" class="form-control" placeholder="Nom" />
+              <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
             </div>
             <div>
               <label for="regular-form-1" class="form-label">Prenoms</label>
               <input id="regular-form-1" type="text" required v-model="formData.prenom" class="form-control" placeholder="Prenoms" />
+              <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.prenom">{{ messageErreur.prenom }}</p>
             </div>
-            <!-- <div>
-              <label for="regular-form-1" class="form-label">Contact</label>
-              <input id="regular-form-1" type="number" required v-model="formData.entrepriseContact" class="form-control" placeholder="Contact" />
-            </div> -->
+
             <div>
               <label for="regular-form-1" class="form-label">Email</label>
               <input id="regular-form-1" type="email" required v-model="formData.email" class="form-control" placeholder="Email" />
+              <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.email">{{ messageErreur.email }}</p>
             </div>
 
             <div>
               <label for="regular-form-1" class="form-label">Contact</label>
-              <input id="regular-form-1" type="number" v-model="formData.contact" class="form-control" placeholder="Contact" />
+              <input id="regular-form-1" type="number" required v-model="formData.contact" class="form-control" placeholder="Contact" />
+              <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.contact">{{ messageErreur.contact }}</p>
             </div>
 
             <div>
               <label for="regular-form-1" class="form-label">Poste</label>
-              <input id="regular-form-1" type="text" v-model="formData.poste" class="form-control" placeholder="Poste" />
+              <input id="regular-form-1" type="text" required v-model="formData.poste" class="form-control" placeholder="Poste" />
+              <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.poste">{{ messageErreur.poste }}</p>
             </div>
 
             <div class="">
@@ -69,6 +67,7 @@
               <TomSelect v-model="formData.roles" multiple :options="{ placeholder: 'Selectionez les roles' }" class="w-full">
                 <option v-for="(role, index) in roles" :key="index" :value="role.id">{{ role.nom }}</option>
               </TomSelect>
+              <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.roles">{{ messageErreur.roles }}</p>
             </div>
           </div>
 
@@ -87,14 +86,14 @@
     <!-- END: Modal Content -->
     <!-- BEGIN: Modal Toggle -->
     <div class="flex justify-between">
-      <button @click="addUsers" class="btn btn-primary flex space-x-2 items-center">
-        <PlusSquareIcon />
-        <span class="uppercase font-semibold"> ajouter</span>
-      </button>
       <div class="search hidden sm:block">
         <input type="text" class="search__input form-control border-transparent" v-model="search" placeholder="Recherche..." />
         <SearchIcon class="search__icon dark:text-slate-500" />
       </div>
+      <button @click="addUsers" class="btn btn-primary flex space-x-2 items-center">
+        <PlusSquareIcon />
+        <span class="uppercase font-semibold"> ajouter</span>
+      </button>
     </div>
     <!-- END: Modal Toggle -->
 
@@ -124,7 +123,7 @@
             <td :class="data.poste ? 'text-black' : 'text-red-500'" :style="{ color: data.poste ? '#000000' : '#a9aaad', fontStyle: data.poste ? 'normal' : 'italic' }">{{ data.poste ?? "Non défini" }}</td>
             <td>
               <div class="flex flex-wrap gap-1">
-                <span v-for="(role, index) in data.roles" class="bg-primary text-white rounded-md px-2 py-1 text-xs">
+                <span v-for="(role, index) in data.roles" :key="index" class="bg-primary text-white rounded-md px-2 py-1 text-xs">
                   {{ role.nom }}
                 </span>
               </div>
@@ -205,35 +204,33 @@
     <form @submit.prevent="submitUpdateData">
       <ModalBody>
         <div class="grid grid-cols-2 gap-4">
-          <!-- <div>
-              <label for="regular-form-1" class="form-label">Nom entreprise</label>
-              <input id="regular-form-1" type="text" required v-model="formData.entrepriseNom" class="form-control" placeholder="Nom de l'entreprise" />
-            </div> -->
           <div>
             <label for="regular-form-1" class="form-label">Nom</label>
             <input id="regular-form-1" type="text" required v-model="formEdit.nom" class="form-control" placeholder="Nom" />
+            <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
           </div>
           <div>
             <label for="regular-form-1" class="form-label">Prenoms</label>
             <input id="regular-form-1" type="text" required v-model="formEdit.prenom" class="form-control" placeholder="Prenoms" />
+            <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.prenom">{{ messageErreur.prenom }}</p>
           </div>
-          <!-- <div>
-              <label for="regular-form-1" class="form-label">Contact</label>
-              <input id="regular-form-1" type="number" required v-model="formData.entrepriseContact" class="form-control" placeholder="Contact" />
-            </div> -->
+
           <div>
             <label for="regular-form-1" class="form-label">Email</label>
             <input id="regular-form-1" type="email" required v-model="formEdit.email" class="form-control" placeholder="Email" />
+            <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.email">{{ messageErreur.email }}</p>
           </div>
 
           <div>
             <label for="regular-form-1" class="form-label">Contact</label>
             <input id="regular-form-1" type="number" v-model="formEdit.contact" class="form-control" placeholder="Contact" />
+            <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.contact">{{ messageErreur.contact }}</p>
           </div>
 
           <div>
             <label for="regular-form-1" class="form-label">Poste</label>
             <input id="regular-form-1" type="text" v-model="formEdit.poste" class="form-control" placeholder="Poste" />
+            <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.poste">{{ messageErreur.poste }}</p>
           </div>
 
           <div class="">
@@ -241,6 +238,7 @@
             <TomSelect v-model="formEdit.roles" multiple :options="{ placeholder: 'Selectionez les roles' }" class="w-full">
               <option v-for="(role, index) in roles" :key="index" :value="role.id">{{ role.nom }}</option>
             </TomSelect>
+            <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.roles">{{ messageErreur.roles }}</p>
           </div>
         </div>
       </ModalBody>
@@ -253,21 +251,6 @@
     </form>
   </Modal>
   <!-- End Modal -->
-
-  <!-- Modal Delete -->
-  <!-- <Modal :show="deleteModalPreview" @hidden="deleteModalPreview = false">
-    <ModalBody class="p-0">
-      <div class="p-5 text-center">
-        <XCircleIcon class="w-16 h-16 mx-auto mt-3 text-danger" />
-        <div class="mt-5 text-3xl">Suppression</div>
-        <div class="mt-2 text-slate-500">Supprimer cette Suivi Financier?</div>
-      </div>
-      <div class="flex justify-center w-full gap-3 py-4 text-center">
-        <button type="button" @click="cancelSelect" class="mr-1 btn btn-outline-secondary">Annuler</button>
-        <DeleteButton :loading="isLoading" @click="deleteData" />
-      </div>
-    </ModalBody>
-  </Modal> -->
 </template>
 
 <script setup>
@@ -292,7 +275,10 @@ const formEdit = reactive({
 
 const userId = ref([]);
 
+const messageErreur = ref({});
+
 const openUpdateModal = function (data) {
+  messageErreur.value = {};
   console.log(data);
   updateModal.value = true;
   formEdit.nom = data.nom;
@@ -332,6 +318,12 @@ const submitUpdateData = function () {
     .catch((error) => {
       isLoading.value = false;
       toast.error("Une erreur est survenue");
+
+      if (error.response && error.response.data && error.response.data.errors) {
+        messageErreur.value = error.response.data.errors;
+      } else {
+        toast.error("Une erreur inconnue s'est produite");
+      }
     });
 };
 
@@ -471,39 +463,10 @@ const successNotificationToggle = () => {
 };
 
 const addUsers = function () {
+  messageErreur.value = {};
   showModal.value = true;
   isUpdate.value = false;
 };
-
-/* 
-  const storeUser = function() {
-    if(chargement.value == false) {
-      chargement.value = true
-      UsersService.create(formData).then((data) => {
-        message.type = 'success'
-        message.message = 'Nouveau utilisateur'
-        successNotificationToggle()
-        close()
-        getData()
-        chargement.value = false  
-      }).catch((error) => {
-        chargement.value = false  
-        if (error.response) {
-            // Requête effectuée mais le serveur a répondu par une erreur.
-            const erreurs = error.response.data.message
-            message.type = 'erreur'
-            message.message =  erreurs
-            successNotificationToggle()
-        } else if (error.request) {
-          // Demande effectuée mais aucune réponse n'est reçue du serveur.
-          //console.log(error.request);
-        } else {
-          // Une erreur s'est produite lors de la configuration de la demande
-          //console.log('dernier message', error.message);
-        }
-      })
-    }
-  } */
 
 const storeUser = function () {
   if (chargement.value == false) {
@@ -519,19 +482,13 @@ const storeUser = function () {
         chargement.value = false;
       })
       .catch((error) => {
+        console.log(error);
         chargement.value = false;
-        if (error.response) {
-          // Requête effectuée mais le serveur a répondu par une erreur.
-          const erreurs = error.response.data.message;
-          message.type = "erreur";
-          message.message = erreurs;
-          successNotificationToggle();
-        } else if (error.request) {
-          // Demande effectuée mais aucune réponse n'est reçue du serveur.
-          //console.log(error.request);
+        toast.error("Vérifier les informations et ressayer.");
+        if (error.response && error.response.data && error.response.data.errors) {
+          messageErreur.value = error.response.data.errors;
         } else {
-          // Une erreur s'est produite lors de la configuration de la demande
-          //console.log('dernier message', error.message);
+          toast.error("Une erreur inconnue s'est produite");
         }
       });
   }

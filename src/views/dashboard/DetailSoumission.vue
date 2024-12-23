@@ -74,12 +74,13 @@ onMounted(() => getSoumission());
             <th class="py-3 border border-slate-900">Réponses</th>
             <th class="py-3 border border-slate-900">Note</th>
             <th class="py-3 border border-slate-900">Source de validation</th>
+            <th class="py-3 border border-slate-900 max-w-[200px]">Preuves</th>
           </tr>
         </thead>
         <tbody>
           <template v-for="gouvernance in filterSoumission" :key="gouvernance.id">
             <tr class="bg-green-100">
-              <td colspan="6" class="font-semibold">{{ gouvernance.nom }}</td>
+              <td colspan="7" class="font-semibold">{{ gouvernance.nom }}</td>
               <!-- <td class="text-right">{{ gouvernance.indice_factuel }}</td>
               <td class=""></td> -->
             </tr>
@@ -99,6 +100,9 @@ onMounted(() => getSoumission());
                     <td class="text-center">{{ question.reponse_de_la_collecte?.nom }}</td>
                     <td class="text-center">{{ question.reponse_de_la_collecte?.point }}</td>
                     <td class="text-center">{{ question.reponse_de_la_collecte?.sourceDeVerification }}</td>
+                    <td class="flex flex-wrap gap-1.5">
+                      <a v-for="(preuve, index) in question.reponse_de_la_collecte?.preuves ?? []" class="p-1 text-xs underline btn-outline-primary" :key="index" :href="preuve.url" target="_blank" rel="noopener noreferrer">Preuve {{ index + 1 }}</a>
+                    </td>
                   </tr>
                 </template>
               </template>

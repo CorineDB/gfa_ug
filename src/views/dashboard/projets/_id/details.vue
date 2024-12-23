@@ -5,8 +5,12 @@
     <div class="flex justify-between items-center bg-white rounded-md shadow p-4 mb-6">
       <div>
         <h1 class="text-xl font-semibold text-gray-800">{{ graphiqueData?.nom }}</h1>
-        <p class="text-gray-500">Organisation : <span class="font-medium">Nom de l'Organisation</span></p>
+        <p class="text-sm text-gray-600" v-if="graphiqueData?.description !== null">{{ graphiqueData?.description }}.</p>
+        <p class="text-gray-500">
+          Equipe en charge : <span class="font-medium">{{ graphiqueData?.projet_manager }}</span>
+        </p>
       </div>
+
       <div>
         <p class="text-sm text-gray-600"><strong>TEP :</strong> {{ graphiqueData?.tep }} %</p>
         <p class="text-sm text-gray-600"><strong>TEF :</strong> {{ graphiqueData?.tef }} %</p>
@@ -15,9 +19,65 @@
         </p>
       </div>
     </div>
+    <div class="bg-white shadow-md rounded-md p-6 my-6">
+      <h2 class="text-lg font-semibold text-gray-700 mb-4">Résumé du Budget</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+        <!-- Budget Total -->
+        <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 rounded-lg">
+          <h3 class="text-lg font-semibold">Budget Total</h3>
+          <!-- {{ formatterUSD.format(graphiqueData?.budgetTotal) }} -->
+          <p class="text-2xl font-bold">{{ formatterUSD.format(graphiqueData?.pret + graphiqueData?.budgetNational) }}</p>
+        </div>
 
+        <!-- Détails du Budget -->
+        <div class="space-y-2">
+          <!-- <p class="flex justify-between items-center text-gray-600">
+            <span>Fond Fosir :</span>
+            {{ formatterUSD.format(graphiqueData?.consommer) }}
+            <span class="font-medium text-red-500"> Non disponible pour l'instant</span>
+          </p> -->
+          <p class="flex justify-between items-center text-gray-600">
+            <span>Prêt :</span>
+            <span class="font-medium">{{ formatterUSD.format(graphiqueData?.pret) }}</span>
+          </p>
+          <p class="flex justify-between items-center text-gray-600">
+            <span>Fonds Propres :</span>
+            <span class="font-medium text-green-500">{{ formatterUSD.format(graphiqueData?.budgetNational || 0) }}</span>
+          </p>
+        </div>
+      </div>
+    </div>
     <!-- Content Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="bg-white rounded-md shadow p-6 mb-3">
+        <p class="text-xl font-bold text-center">Activités</p>
+        <div class="relative mt-8">
+          <!-- v-if="graphiqueData?.statistiqueActivite > 0" -->
+          <ReportDonutChart2 v-if="graphiqueData?.statistiqueActivite" :activite="extractProperties(graphiqueData?.statistiqueActivite || [0, 0, 0])" :height="215" />
+          <div class="flex flex-col justify-center items-center absolute w-full h-full top-0 left-0">
+            <div class="text-xl 2xl:text-2xl font-medium">{{ graphiqueData?.statistiqueActivite?.total }}</div>
+            <div class="text-slate-500 mt-0.5">Total Activité</div>
+          </div>
+        </div>
+        <div class="mx-auto w-10/12 2xl:w-2/3 mt-8">
+          <div class="flex items-center">
+            <div class="w-2 h-2 bg-primary rounded-full mr-3"></div>
+            <span class="truncate">terminer : {{ graphiqueData?.statistiqueActivite?.effectue }}/{{ graphiqueData?.statistiqueActivite?.total }}</span>
+            <span class="font-medium xl:ml-auto" v-if="graphiqueData?.statistiqueActivite?.total > 0">{{ graphiqueData?.statistiqueActivite?.effectue / graphiqueData?.statistiqueActivite?.total }} %</span>
+          </div>
+          <div class="flex items-center mt-4">
+            <div class="w-2 h-2 bg-pending rounded-full mr-3"></div>
+            <span class="truncate">En cour {{ graphiqueData?.statistiqueActivite?.enCours }}/{{ graphiqueData?.statistiqueActivite?.total }}</span>
+            <span class="font-medium xl:ml-auto" v-if="graphiqueData?.statistiqueActivite?.total > 0">{{ graphiqueData?.statistiqueActivite?.enCours / graphiqueData?.statistiqueActivite?.total }} %</span>
+          </div>
+          <div class="flex items-center mt-4">
+            <div class="w-2 h-2 bg-warning rounded-full mr-3"></div>
+            <span class="truncate">En retard : {{ graphiqueData?.statistiqueActivite?.enRetard }}/{{ graphiqueData?.statistiqueActivite?.total }}</span>
+            <span class="font-medium xl:ml-auto" v-if="graphiqueData?.statistiqueActivite?.total > 0">{{ graphiqueData?.statistiqueActivite?.enRetard / graphiqueData?.statistiqueActivite?.total }} %</span>
+          </div>
+        </div>
+      </div>
+
       <!-- Map and Data -->
       <div class="col-span-2 bg-white rounded-md shadow p-6" v-if="graphiqueData?.sites?.length > 0">
         <h2 class="text-lg font-semibold text-gray-700 mb-4">Cartes géographiques</h2>
@@ -55,6 +115,7 @@
           </div>
         </div>
       </div>
+      <!-- </section> -->
 
       <!-- Activity Stream -->
       <div class="bg-white rounded-md shadow p-6">
@@ -78,41 +139,13 @@
         </ul>
       </div>
 
-      <!-- <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6"> -->
-      <div class="bg-white shadow-md rounded-md p-6">
-        <h2 class="text-lg font-semibold text-gray-700">Budget</h2>
-        <div class="mt-4 space-y-2">
-          <p class="flex justify-between text-gray-600">
-            <span>Consommé :</span>
-            <span class="font-medium text-red-500">XOF 45,000</span>
-          </p>
-          <p class="flex justify-between text-gray-600">
-            <span>Alloué :</span>
-            <span class="font-medium">XOF {{ graphiqueData?.pret }} </span>
-          </p>
-          <p class="flex justify-between text-gray-600">
-            <span>Fonds Propres :</span>
-            <span class="font-medium text-green-500">XOF {{ graphiqueData?.budgetNational }}</span>
-          </p>
-        </div>
-      </div>
       <div class="bg-white shadow-md rounded-md p-6">
         <h2 class="text-lg font-semibold text-gray-700">Jours Restants</h2>
-        <p class="mt-4 text-2xl font-bold text-gray-800">{{ graphiqueData?.nbrJourRestant }} jours</p>
+        <p class="mt-4 text-2xl font-bold text-gray-800">{{ convertDaysToYearsMonthsDays(graphiqueData?.nbrJourRestant) }}</p>
       </div>
-      <div class="bg-white shadow-md rounded-md p-6">
-        <h2 class="text-lg font-semibold text-gray-700">Total réalisation</h2>
-        <div class="mt-4">
-          <div class="h-4 bg-gray-200 rounded-full overflow-hidden">
-            <div class="h-4 bg-green-500" style="width: 75%"></div>
-          </div>
-          <p class="mt-2 text-sm text-gray-600">75% réalisé</p>
-        </div>
-      </div>
-      <!-- </section> -->
 
       <!-- Sales Analytics -->
-      <div class="bg-white rounded-md shadow p-6 col-span-2 mb-6">
+      <div class="bg-white rounded-md shadow p-6 col-span-1 mb-6">
         <h2 class="text-lg font-semibold text-gray-700 mb-4">Sales Analytics</h2>
         <div class="grid grid-cols-2 gap-4">
           <!-- Chart Placeholder -->
@@ -136,6 +169,9 @@
         </div>
       </div>
     </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
     <!-- Activities Section -->
     <section class="bg-white shadow-md rounded-md p-6 mb-6">
       <div class="flex items-center justify-between">
@@ -147,7 +183,7 @@
           <option>Non commencé</option>
         </select>
       </div>
-      <div class="mt-4 overflow-x-auto">
+      <div class="mt-4 overflow-x-auto" v-if="graphiqueData?.suivis?.length > 0">
         <table class="table-auto w-full text-left border-collapse">
           <thead class="bg-gray-100 text-gray-700 uppercase text-sm">
             <tr>
@@ -186,49 +222,17 @@
           </tbody>
         </table>
       </div>
+      <div v-else>Pas d'activité disponible pour le moment</div>
     </section>
 
     <!-- Performance Metrics Section -->
     <section class="bg-white shadow-md rounded-md p-6">
-      <h2 class="text-lg font-semibold text-gray-700">Cadre de Mesure de Rendement</h2>
+      <h2 class="text-lg font-semibold text-gray-700">Suivi Indicateurs</h2>
       <div class="mt-4 overflow-x-auto">
-        <TabulatorCadreMesureDetail :data="cadreRendement" :years="annees" />
-        <!-- <table class="table-auto w-full text-left border-collapse">
-          <thead class="bg-gray-100 text-gray-700 uppercase text-sm">
-            <tr>
-              <th class="px-4 py-2">Indicateur</th>
-              <th class="px-4 py-2">Cible (année)</th>
-              <th class="px-4 py-2">Réalisé (année)</th>
-              <th class="px-4 py-2">Taux (%)</th>
-            </tr>
-          </thead>
-          <tbody class="text-gray-600">
-            <tr>
-              <td class="border px-4 py-2">Chiffre d'affaires</td>
-              <td class="border px-4 py-2">500,000 €</td>
-              <td class="border px-4 py-2">450,000 €</td>
-              <td class="border px-4 py-2">90%</td>
-            </tr>
-            <tr>
-              <td class="border px-4 py-2">Projets livrés</td>
-              <td class="border px-4 py-2">10</td>
-              <td class="border px-4 py-2">8</td>
-              <td class="border px-4 py-2">80%</td>
-            </tr>
-          </tbody>
-        </table> -->
+        <TabulatorSuiviIndicateurDetail v-if="suivis.length > 0" :data="suivis" :years="annees" />
+        <p v-else>Pas de suivi disponible pour l'instant</p>
       </div>
     </section>
-    <!-- <h2 class="my-2">Budget</h2>
-    <PieChart :height="400" />
-    <h2 class="my-2">Activités</h2>
-    <ReportBarChart :height="400" class="py-4 mt-6" />
-    <h2 class="my-2">Rendements</h2>
-    <VerticalBarChart class="mt-4" :height="400" />
-    <div class="report-chart">
-      <h2 class="my-2">Statistiques financiers</h2>
-      <ReportLineChart :height="275" class="mt-6 -mb-6" />
-    </div> -->
   </div>
   <!-- fin new sample -->
 </template>
@@ -242,9 +246,11 @@ import ProjetService from "@/services/modules/projet.service.js";
 import VerticalBarChart from "@/components/vertical-bar-chart/Main.vue";
 import ReportLineChart from "@/components/report-line-chart/Main.vue";
 import PieChart from "@/components/pie-chart/Main.vue";
+import ReportDonutChart2 from "@/components/report-donut-chart-2/Main.vue";
+import { toast } from "vue3-toastify";
 import "leaflet/dist/leaflet.css";
 import * as L from "leaflet";
-import TabulatorCadreMesureDetail from "@/components/TabulatorCadreMesureDetail.vue";
+import TabulatorSuiviIndicateurDetail from "@/components/TabulatorSuiviIndicateurDetail.vue";
 import { LMap, LTileLayer, LMarker, LPolygon, LPopup } from "@vue-leaflet/vue-leaflet";
 
 import "leaflet.markercluster/dist/MarkerCluster.css";
@@ -254,7 +260,7 @@ import { addressPoints } from "../markerDemo";
 import icon from "../icon.png";
 import markerShadow from "../marker-shadow.png";
 import { useRouter, useRoute } from "vue-router";
-import ResultatCadreRendementService from "@/services/modules/resultat.cadre.rendement.service";
+import IndicateursService from "@/services/modules/indicateur.service";
 import AuthService from "@/services/modules/auth.service";
 
 const getStringValueOfStatutCode = (statut) => {
@@ -313,6 +319,12 @@ const getStringValueOfStatutCode = (statut) => {
   return data;
 };
 
+function extractProperties(array, properties) {
+  if (array.length) {
+    return array.map((item) => properties.map((prop) => item[prop])).flat();
+  }
+}
+
 const annees = computed(() => {
   let anneeDebut = parseInt(debutProgramme.value.split("-")[0], 10);
   let anneeFin = parseInt(finProgramme.value.split("-")[0], 10);
@@ -323,7 +335,32 @@ const annees = computed(() => {
   return annees;
 });
 
-const cadreRendement = ref([]);
+function convertDaysToYearsMonthsDays(totalDays) {
+  const daysInYear = 365;
+  const daysInMonth = 30; // approximation pour simplifier
+
+  const years = Math.floor(totalDays / daysInYear);
+  const remainingDaysAfterYears = totalDays % daysInYear;
+
+  const months = Math.floor(remainingDaysAfterYears / daysInMonth);
+  const days = remainingDaysAfterYears % daysInMonth;
+
+  const result = [];
+  if (years > 0) result.push(`${years} ${years > 1 ? "années" : "année"}`);
+  if (months > 0) result.push(`${months} ${months > 1 ? "mois" : "mois"}`);
+  if (days > 0) result.push(`${days} ${days > 1 ? "jours" : "jour"}`);
+
+  return result.join(", ");
+}
+
+const formatterUSD = new Intl.NumberFormat("fr-FR", {
+  style: "currency",
+  currency: "XOF",
+});
+
+console.log(formatterUSD.format(1234567.89)); // "$1,234,567.89"
+
+const suivis = ref([]);
 const idProgramme = ref("");
 const debutProgramme = ref("");
 const finProgramme = ref("");
@@ -332,12 +369,12 @@ const finProgramme = ref("");
 const getDatasCadre = async () => {
   //isLoadingDataCadre.value = true;
   try {
-    const { data } = await ResultatCadreRendementService.getCadreRendement(idProgramme.value);
-    cadreRendement.value = data.data;
+    const { data } = await IndicateursService.getCadreRendement(idProgramme.value);
+    suivis.value = data.data;
   } catch (e) {
     toast.error("Erreur lors de la récupération des données.");
   } finally {
-    isLoadingDataCadre.value = false;
+    // isLoadingDataCadre.value = false;
   }
 };
 

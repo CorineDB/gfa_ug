@@ -67,15 +67,22 @@ export const useSideMenuStore = defineStore("sideMenu", {
         title: "Rapport",
       },
       {
-        icon: "ZapIcon",
-        pageName: "finances_suivi",
-        title: "Suivi Financier",
+        icon: "FolderIcon",
+        title: "Gestion Financière",
+        subMenu: [
+          {
+            icon: "ZapIcon",
+            pageName: "finances_suivi",
+            title: "Suivi Financier",
+          },
+          {
+            icon: "DollarSignIcon",
+            pageName: "Plan_Decaissement",
+            title: "Plan de Décaissement",
+          },
+        ],
       },
-      {
-        icon: "DollarSignIcon",
-        pageName: "Plan_Decaissement",
-        title: "Plan de Décaissement",
-      },
+
       {
         icon: "WatchIcon",
         pageName: "ptaGlobal",

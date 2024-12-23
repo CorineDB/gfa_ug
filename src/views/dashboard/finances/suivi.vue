@@ -9,6 +9,7 @@ import Tabulator from "tabulator-tables";
 import DeleteButton from "@/components/news/DeleteButton.vue";
 import { toast } from "vue3-toastify";
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
+import AuthService from "@/services/modules/auth.service";
 
 const payload = reactive({
   consommer: "",
@@ -18,7 +19,6 @@ const payload = reactive({
   trimestre: "",
 });
 
-const years = ref([]);
 const tabulator = ref();
 const idSelect = ref("");
 const showModalCreate = ref(false);
@@ -28,6 +28,34 @@ const isLoadingData = ref(true);
 const isCreate = ref(true);
 const activites = ref([]);
 const datas = ref([]);
+
+const debutProgramme = ref("");
+const finProgramme = ref("");
+
+const years = computed(() => {
+  let anneeDebut = parseInt(debutProgramme.value.split("-")[0], 10);
+  let anneeFin = parseInt(finProgramme.value.split("-")[0], 10);
+  let annees = [];
+  for (let annee = anneeDebut; annee <= anneeFin; annee++) {
+    annees.push(annee);
+  }
+  return annees;
+});
+
+const getcurrentUser = async () => {
+  await AuthService.getCurrentUser()
+    .then((result) => {
+      // responsablesForm.value.ug = result.data.data.profil.id;
+      // ugs.value.push({ id: result.data.data.profil.id, nom: result.data.data.profil.nom });
+      // idProgramme.value = result.data.data.programme.id;
+      debutProgramme.value = result.data.data.programme.debut;
+      finProgramme.value = result.data.data.programme.fin;
+    })
+    .catch((e) => {
+      console.error(e);
+      toast.error("Une erreur est survenue: Utilisateur connecté .");
+    });
+};
 
 const createData = async () => {
   isLoading.value = true;
@@ -208,6 +236,7 @@ onMounted(() => {
 
   getDatas();
   getactivites(new Date().getFullYear());
+  getcurrentUser();
 });
 </script>
 
