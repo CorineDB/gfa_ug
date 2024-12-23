@@ -1,4 +1,4 @@
- const API_BASE_URL = "http://mybsd.shop";
+ const API_BASE_URL = "http://dms-redevabilite.com";
 
 
 const DEPLOYMENT_URL = "https://mybsd.shop/";
