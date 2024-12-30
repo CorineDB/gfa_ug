@@ -250,7 +250,7 @@ const resetForm = () => {
   errors.value = {};
 };
 const openCreateModal = () => {
-  fetchOrganisationsAndFormulaires();
+  // fetchOrganisationsAndFormulaires();
   showModalCreate.value = isCreate.value = true;
 };
 
@@ -318,7 +318,7 @@ onMounted(async () => {
             </td>
 
             <td>{{ data.created_at }}</td>
-            <td class="_flex space-x-2 ">
+            <td class="_flex space-x-2">
               <span @click="handleEdit(data)" class="text-blue-500 cursor-pointer">
                 <EditIcon />
               </span>
