@@ -31,11 +31,11 @@
         <tbody>
           <template v-for="(indicateur, j) in data" :key="indicateur.id">
             <tr>
-              <td class="font-semibold sticky-column">
+              <td class="font-semibold !bg-white sticky-column">
                 {{ indicateur.indicateur.nom }}
               </td>
               <!-- <td class="font-semibold">Ind {{ indicateur.indicateur.code }}</td> -->
-              <td class="sticky-column-second">{{ indicateur.auteur.nom }}</td>
+              <td class="sticky-column-second !bg-white">{{ indicateur.auteur.nom }}</td>
               <td class="text-center">{{ indicateur.trimestre }}</td>
               <td class="">{{ indicateur.cumul.join(", ") }}</td>
               <td v-for="(year, index) in years" :key="index">

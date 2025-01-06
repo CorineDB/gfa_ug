@@ -35,7 +35,7 @@
             </AccordionItem>
             <AccordionItem>
               <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
-                <p>Site</p>
+                <p>Zone d'intervention</p>
                 <ChevronDownIcon />
               </Accordion>
               <AccordionPanel class="p-2">

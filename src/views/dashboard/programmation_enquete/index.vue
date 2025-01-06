@@ -17,6 +17,7 @@ import ChartScroreByPrincipe from "../../../components/news/ChartScroreByPrincip
 import { getFieldErrors } from "../../../utils/helpers";
 import SyntheseService from "../../../services/modules/synthese.service";
 import AddObjectifEvaluation from "../../../components/news/AddObjectifEvaluation.vue";
+import verifyPermission from "../../../utils/verifyPermission";
 
 const router = useRouter();
 
@@ -51,6 +52,7 @@ const currentScore = ref({});
 const currentOrganisationScore = ref("");
 const ongSelectedScore = ref("");
 const yearSelectedOng = ref("");
+const search = ref("");
 const errors = ref({});
 const evaluationSelected = ref({});
 const showModalObjectif = ref(false);
@@ -194,7 +196,9 @@ function gotoSoumissions(enquete) {
     handleObjectif(enquete);
     toast.info("Veuillez ajouter des objectifs avant de poursuivre");
   } else {
-    router.push({ name: "SoumissionsEnqueteDeCollecte", params: { id: enquete.id } });
+    if (verifyPermission("voir-une-evaluation-de-gouvernance")) {
+      router.push({ name: "SoumissionsEnqueteDeCollecte", params: { id: enquete.id } });
+    }
   }
   // router.push({ name: "SoumissionsEnqueteDeCollecte", params: { id: enquete.id } });
 }
@@ -263,6 +267,12 @@ const mode = computed(() => (isCreate.value ? "Ajouter" : "Modifier"));
 
 const yearsCurrentScore = computed(() => Object.keys(currentScore.value));
 
+const datasSearch = computed(() => {
+  return datas.value.filter((evaluation) => {
+    const searchTerm = search.value.toLowerCase();
+    return evaluation.intitule.toLowerCase().includes(searchTerm);
+  });
+});
 onMounted(async () => {
   await getDatas();
   await getOrganisationsProgramme();
@@ -279,12 +289,12 @@ onMounted(async () => {
     <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
       <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
         <div class="relative w-56 text-slate-500">
-          <input type="text" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
+          <input type="text" v-model="search" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
           <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
         </div>
       </div>
       <div class="flex">
-        <button class="mr-2 shadow-md btn btn-primary" @click="openCreateModal"><PlusIcon class="w-4 h-4 mr-3" />Ajouter une évaluation de gouvernace</button>
+        <button v-if="verifyPermission('creer-une-evaluation-de-gouvernance')" class="mr-2 shadow-md btn btn-primary" @click="openCreateModal"><PlusIcon class="w-4 h-4 mr-3" />Ajouter une évaluation de gouvernace</button>
       </div>
     </div>
   </div>
@@ -301,7 +311,7 @@ onMounted(async () => {
     </div> -->
           <LoaderSnipper v-if="isLoadingData" />
           <div v-else class="grid grid-cols-12 gap-6 mt-5">
-            <div v-for="(item, index) in datas" :key="index" class="col-span-12 p-4 md:col-span-12 lg:col-span-4">
+            <div v-for="(item, index) in datasSearch" :key="index" class="col-span-12 p-4 md:col-span-12 lg:col-span-4">
               <div class="p-5 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-105 hover:bg-gray-50">
                 <!-- En-tête avec sigle et titre -->
                 <div class="relative flex items-start pt-2">
@@ -313,8 +323,8 @@ onMounted(async () => {
                     <DropdownMenu class="w-40 bg-white rounded-md shadow-lg">
                       <DropdownContent>
                         <DropdownItem @click="handleObjectif(item)"> <PlusIcon class="w-4 h-4 mr-2 text-gray-600" /> Ajouter Objectifs </DropdownItem>
-                        <DropdownItem @click="handleEdit(item)"> <Edit2Icon class="w-4 h-4 mr-2 text-gray-600" /> Modifier </DropdownItem>
-                        <DropdownItem @click="handleDelete(item)"> <TrashIcon class="w-4 h-4 mr-2 text-red-500" /> Supprimer </DropdownItem>
+                        <DropdownItem v-if="verifyPermission('modifier-une-evaluation-de-gouvernance')" @click="handleEdit(item)"> <Edit2Icon class="w-4 h-4 mr-2 text-gray-600" /> Modifier </DropdownItem>
+                        <DropdownItem v-if="verifyPermission('supprimer-une-evaluation-de-gouvernance')" @click="handleDelete(item)"> <TrashIcon class="w-4 h-4 mr-2 text-red-500" /> Supprimer </DropdownItem>
                       </DropdownContent>
                     </DropdownMenu>
                   </Dropdown>

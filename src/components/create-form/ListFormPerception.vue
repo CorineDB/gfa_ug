@@ -23,6 +23,7 @@ const listForms = ref([]);
 const previewForm = ref({});
 const idSelectedForm = ref("");
 const nameSelect = ref("");
+const search = ref("");
 const getListForm = async () => {
   isLoading.value = true;
   try {
@@ -68,7 +69,8 @@ const initTabulator = () => {
     placeholder: "Aucune donnée disponible.",
     headerHozAlign: "center",
     layout: "fitColumns",
-
+    pagination:"local", 
+    paginationSize: 10, 
     columns: [
       {
         title: "Libellé",

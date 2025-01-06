@@ -3,7 +3,7 @@
     <!-- Modal for creating/updating -->
     <Modal size="modal-xl" backdrop="static" :show="showModalCreate" @hidden="closeModal">
       <ModalHeader>
-        <h2 class="mr-auto text-base font-medium">{{ modeText }} un indicateur</h2>
+        <h2 class="mr-auto text-base font-medium">Ajouter une année cible</h2>
       </ModalHeader>
       <form @submit.prevent="submitData">
         <ModalBody>

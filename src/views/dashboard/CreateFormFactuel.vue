@@ -308,6 +308,17 @@ const resetAllFormWithDataLocalStorage = () => {
   // toast.success("Formulaire supprimé.");
 };
 
+
+const showDeleteButton = computed(() => {
+  if(
+    localStorage.getItem("globalFormFactuelData") ||
+  localStorage.getItem("previewFormFactuelData") ||
+    localStorage.getItem("globalOptionResponses")) {
+    return true; 
+  } else {
+     return false
+  }
+})
 const resetForm = () => {
   payload.libelle = "";
   modalForm.value = false;

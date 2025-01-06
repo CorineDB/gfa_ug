@@ -79,6 +79,8 @@ const initTabulator = () => {
     placeholder: "Aucune donnée disponible.",
     layout: "fitColumns",
     responsiveLayout: "hide",
+    pagination: "local",
+    paginationSize: 10,
     columns: [
       {
         title: "Nom",
@@ -148,7 +150,7 @@ const initTabulator = () => {
             return button;
           };
 
-          const viewPta = createButton("voir pta", "btn btn-pending", () => {
+          const viewPta = createButton("Plan d'action", "btn btn-pending", () => {
             goToPta(cell.getData());
           });
 
@@ -373,6 +375,15 @@ const showCommune = computed(() => !payload.departement);
 const showArrondissement = computed(() => !payload.commune);
 const showQuatier = computed(() => !payload.arrondissement);
 
+const applyFilter = () => {
+  if (tabulator.value) {
+    const query = search.value.toLowerCase();
+    tabulator.value.setFilter((data) => {
+      return data.nom.toLowerCase().includes(query) || data.sigle.toLowerCase().includes(query);
+    });
+  }
+};
+
 watch(addPointFocal, (newVal) => {
   if (!newVal) {
     payload.contact_point_focal = "";
@@ -390,6 +401,7 @@ onBeforeMount(() => {
 onMounted(() => {
   getDatas();
   getFonds();
+  initTabulator();
 });
 </script>
 
@@ -400,7 +412,7 @@ onMounted(() => {
       <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
         <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
           <div class="relative w-56 text-slate-500">
-            <input type="text" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
+            <input type="text" v-model="search" @input="applyFilter" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
             <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
           </div>
         </div>
@@ -413,7 +425,7 @@ onMounted(() => {
     <div v-show="!isLoadingData" class="p-5 mt-5 intro-y box">
       <div class="flex flex-col sm:flex-row sm:items-end xl:items-start">
         <div></div>
-        <div class="flex mt-5 sm:mt-0">
+        <!-- <div class="flex mt-5 sm:mt-0">
           <button id="tabulator-print" class="w-1/2 mr-2 btn btn-outline-secondary sm:w-auto"><PrinterIcon class="w-4 h-4 mr-2" /> Print</button>
           <Dropdown class="w-1/2 sm:w-auto">
             <DropdownToggle class="w-full btn btn-outline-secondary sm:w-auto">
@@ -429,7 +441,7 @@ onMounted(() => {
               </DropdownContent>
             </DropdownMenu>
           </Dropdown>
-        </div>
+        </div> -->
       </div>
       <div class="overflow-x-auto _scrollbar-hidden">
         <div id="tabulator" ref="tableRef" class="mt-5 overflow-x-auto _table-report _table-report--tabulator"></div>
