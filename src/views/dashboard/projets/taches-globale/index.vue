@@ -363,20 +363,13 @@ export default {
     <div v-for="(item, index) in taches" :key="index" class="col-span-12 intro-y md:col-span-6 lg:col-span-4">
       <div v-if="verifyPermission('voir-une-tache')" class="p-5 box">
         <div class="flex items-start pt-5 _px-5">
-          <div class="flex flex-col items-center w-full lg:flex-row">
-            <div class="flex items-center justify-center w-16 h-16 text-white rounded-full image-fit bg-primary">
+          <div class="_flex _flex-col _items-center w-full _lg:flex-row">
+            <!-- <div class="flex items-center justify-center w-16 h-16 text-white rounded-full image-fit bg-primary">
               {{ item.type }}
-              <!-- <img alt="Midone Tailwind HTML Admin Template" class="rounded-full" :src="faker.photos[0]" /> -->
-            </div>
-            <div class="mt-3 text-center lg:ml-4 lg:text-left lg:mt-0">
-              <a href="" class="font-medium">{{ item.nom }}</a>
-              <div class="mt-2 text-xs text-slate-500">
-                <span class="px-2 py-1 m-5 text-xs text-white rounded bg-primary/80" v-if="item.statut == -2"> Non validé </span>
-                <span class="px-2 py-1 m-5 text-xs text-white rounded bg-success/80" v-else-if="item.statut == -1"> Validé </span>
-                <span class="px-2 py-1 m-5 text-xs text-white rounded bg-pending/80" v-else-if="item.statut == 0"> En cours </span>
-                <span class="px-2 py-1 m-5 text-xs text-white rounded bg-danger/80" v-else-if="item.statut == 1"> En retard </span>
-                <span class="pl-2" v-else-if="item.statut == 2">Terminé</span>
-              </div>
+              <img alt="Midone Tailwind HTML Admin Template" class="rounded-full" :src="faker.photos[0]" />
+            </div> -->
+            <div class="mt-3 text-left _lg:ml-4 _lg:text-left lg:mt-0">
+              <span class="pr-2 font-bold">Nom :</span><a href="" class="font-medium">{{ item.nom }}</a>
             </div>
           </div>
           <Dropdown class="absolute top-0 right-0 mt-3 mr-5">
@@ -393,7 +386,7 @@ export default {
         </div>
         <div class="text-center lg:text-left">
           <div class="my-5 text-left">
-            <p class="mx-auto font-semibold text-center">Description</p>
+            <p class="mx-auto font-semibold text-left ">Description : </p>
 
             {{ item.description }}
           </div>
@@ -402,10 +395,10 @@ export default {
 
             <div class="flex items-center mt-2">
               <CheckSquareIcon class="w-4 h-4 mr-2" /> Statut :
-              <span class="pl-2" v-if="item.statut == -2"> Non validé </span>
-              <span class="pl-2" v-else-if="item.statut == -1"> Validé </span>
-              <span class="pl-2" v-else-if="item.statut == 0"> En cours </span>
-              <span class="pl-2" v-else-if="item.statut == 1"> En retard </span>
+              <span class="px-2 py-1 m-5 text-xs text-white rounded bg-primary/80" v-if="item.statut == -2"> Non validé </span>
+              <span class="px-2 py-1 m-5 text-xs text-white rounded bg-success/80" v-else-if="item.statut == -1"> Validé </span>
+              <span class="px-2 py-1 m-5 text-xs text-white rounded bg-pending/80" v-else-if="item.statut == 0"> En cours </span>
+              <span class="px-2 py-1 m-5 text-xs text-white rounded bg-danger/80" v-else-if="item.statut == 1"> En retard </span>
               <span class="pl-2" v-else-if="item.statut == 2">Terminé</span>
             </div>
             <div class="flex items-center mt-2"><CheckSquareIcon class="w-4 h-4 mr-2" /> Poids : {{ item.poids }}</div>

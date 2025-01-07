@@ -35,82 +35,118 @@
       <h2 v-if="!isUpdate" class="mr-auto text-base font-medium">Ajouter un projet</h2>
       <h2 v-else class="mr-auto text-base font-medium">Modifier un projet</h2>
     </ModalHeader>
-    <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
-      <InputForm v-model="formData.nom" class="col-span-12" type="text" required="required" placeHolder="Nom du projet" label="Nom" />
-      <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
 
-      <InputForm v-model="formData.couleur" class="col-span-12" type="color" required="required" placeHolder="Couleur" label="Couleur" />
-      <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.couleur">{{ messageErreur.couleur }}</p>
+    <form @submit.prevent="sendForm">
+      <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
+        <InputForm v-model="formData.nom" class="col-span-12" type="text" :required="true" placeHolder="Nom du projet" label="Nom*" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
 
-      <InputForm v-model="formData.debut" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de début" label="Début du projet" />
-      <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.debut">{{ messageErreur.debut }}</p>
+        <InputForm v-model="formData.couleur" class="col-span-12" type="color" :required="true" placeHolder="Couleur" label="Couleur*" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.couleur">{{ messageErreur.couleur }}</p>
 
-      <InputForm v-model="formData.fin" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de fin" label="Fin du projet " />
-      <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.fin">{{ messageErreur.fin }}</p>
+        <InputForm v-model="formData.debut" class="col-span-12" type="date" :required="true" placeHolder="Entrer la date de début" label="Début du projet*" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.debut">{{ messageErreur.debut }}</p>
 
-      <InputForm v-model="formData.nombreEmploie" class="col-span-12" type="number" required="required" placeHolder="Ex : 10" label="Nombre d'employé" />
-      <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nombreEmploie">{{ messageErreur.nombreEmploie }}</p>
+        <InputForm v-model="formData.fin" class="col-span-12" type="date" :required="true" placeHolder="Entrer la date de fin" label="Fin du projet*" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.fin">{{ messageErreur.fin }}</p>
 
-      <InputForm v-model="formData.pays" class="col-span-12" type="text" required="required" placeHolder="Ex : Bénin" label="Pays" />
-      <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pays">{{ messageErreur.pays }}</p>
+        <InputForm v-model="formData.nombreEmploie" class="col-span-12" type="number" placeHolder="Ex : 10" label="Nombre d'employé" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nombreEmploie">{{ messageErreur.nombreEmploie }}</p>
 
-      <InputForm v-model="formData.budgetNational" class="col-span-12" type="text" required="required" placeHolder="Ex : 100000" label="Fond Propre " />
-      <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.budgetNational">{{ messageErreur.budgetNational }}</p>
+        <InputForm v-model="formData.pays" class="col-span-12" type="text" placeHolder="Ex : Bénin" label="Pays" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pays">{{ messageErreur.pays }}</p>
 
-      <InputForm v-model="formData.pret" class="col-span-12" type="text" required="required" placeHolder="Ex : 100000" label="Montant financé" />
-      <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pret">{{ messageErreur.pret }}</p>
+        <InputForm v-model="formData.budgetNational" class="col-span-12" type="text" :required="true" placeHolder="Ex : 100000" label="Fond Propre*" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.budgetNational">{{ messageErreur.budgetNational }}</p>
 
-      <div class="col-span-12" v-if="!isUpdate">
-        <InputForm class="col-span-12" type="file" @change="handleFileChange" required="required" placeHolder="choisir une image" label="Images de couverture" accept="image/*" />
-        <div class="col-span-12" v-if="imagePreview">
-          <h3>Prévisualisation de l'image :</h3>
-          <img :src="imagePreview" alt="Prévisualisation" width="200" />
+        <InputForm v-model="formData.pret" class="col-span-12" type="text" :required="true" placeHolder="Ex : 100000" label="Montant financé*" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pret">{{ messageErreur.pret }}</p>
+
+        <div class="col-span-12" v-if="!isUpdate">
+          <InputForm class="col-span-12" type="file" @change="handleFileChange" placeHolder="choisir une image" label="Images de couverture" accept="image/*" />
+          <div class="col-span-12" v-if="imagePreview">
+            <h3 class="block my-3 font-bold">Prévisualisation de l'image :</h3>
+            <img :src="imagePreview" alt="Prévisualisation" width="200" />
+          </div>
         </div>
-      </div>
 
-      <div class="col-span-12">
-        <label>Organisation</label>
-        <div class="mt-2">
-          <TomSelect
-            v-model="formData.organisationId"
-            :options="{
-              placeholder: 'Veuillez associé une organisation au programme',
-            }"
-            class="w-full"
-          >
-            <option v-for="(org, index) in ongs" :key="index" :value="org.id">{{ org.nom }}</option>
-          </TomSelect>
-          <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.organisationId">{{ messageErreur.organisationId }}</p>
+        <div class="col-span-12" v-if="!isUpdate">
+          <label class="block my-3 font-bold">Pièces jointes</label>
+          <input name="fichier" class="col-span-12" placeHolder="choisir un fichier ou plusieurs" type="file" multiple @change="handleFileChange2" />
+          <!-- <InputForm class="col-span-12" type="file" @change="handleFileChange2" placeHolder="choisir un fichier ou plusieurs" label="Pièces jointes" multiple /> -->
+          <div class="col-span-12">
+            <ul>
+              <li v-for="(file, index) in files" :key="index">
+                {{ file.name }}
+              </li>
+            </ul>
+          </div>
         </div>
-      </div>
-      <div class="col-span-12">
-        <label>Sites</label>
-        <div class="mt-2">
-          <TomSelect
-            v-model="formData.sites"
-            multiple
-            :options="{
-              placeholder: 'Veuillez associé des sites',
-            }"
-            class="w-full"
-          >
-            <option v-for="(site, index) in sites" :key="index" :value="site.id">{{ site.nom }}</option>
-          </TomSelect>
-          <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.sites">{{ messageErreur.sites }}</p>
+
+        <div class="col-span-12">
+          <label>Organisation*</label>
+          <div class="mt-2">
+            <TomSelect
+              v-model="formData.organisationId"
+              :options="{
+                placeholder: 'Veuillez associé une organisation au programme',
+              }"
+              class="w-full"
+            >
+              <option v-for="(org, index) in ongs" :key="index" :value="org.id">{{ org.nom }}</option>
+            </TomSelect>
+            <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.organisationId">{{ messageErreur.organisationId }}</p>
+          </div>
         </div>
-      </div>
-      <!-- Choix de fichier -->
-      <!-- <div class="relative col-span-12">
+
+        <div class="col-span-12">
+          <label>Sites*</label>
+          <div class="mt-2">
+            <TomSelect
+              v-model="formData.sites"
+              multiple
+              :options="{
+                placeholder: 'Veuillez associé des sites',
+              }"
+              class="w-full"
+            >
+              <option v-for="(site, index) in sites" :key="index" :value="site.id">{{ site.nom }}</option>
+            </TomSelect>
+            <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.sites">{{ messageErreur.sites }}</p>
+          </div>
+        </div>
+        <!-- Choix de fichier -->
+        <!-- <div class="relative col-span-12">
         <label for="modal-form-1" class="font-medium form-label">Fichier(s)</label>
         <div ref="dropzoneElement" class="dropzone z-50 min-h-[200px] w-full"></div>
       </div> -->
-    </ModalBody>
-    <ModalFooter>
-      <div class="flex items-center justify-center">
-        <button type="button" @click="showModal = false" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
-        <VButton class="inline-block" :label="title" :loading="isLoading" @click="sendForm" />
-      </div>
-    </ModalFooter>
+      </ModalBody>
+      <ModalFooter>
+        <div class="flex items-center justify-center">
+          <button type="button" @click="showModal = false" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
+          <VButton class="inline-block" :label="title" :loading="isLoading" :type="submit" />
+        </div>
+      </ModalFooter>
+    </form>
+  </Modal>
+
+  <Modal backdrop="static" :show="prolongerModal" @hidden="prolongerModal = false">
+    <ModalHeader>
+      <h2 class="mr-auto text-base font-medium">Prolonger la date du projet</h2>
+    </ModalHeader>
+
+    <form @submit.prevent="prolongerProjet">
+      <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
+        <InputForm v-model="dateFin" :min="dateFinOld" class="col-span-12" type="date" :required="true" placeHolder="Entrer la nouvelle date de fin" label="Nouvelle Fin du projet*" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurProlongation !== null">{{ erreurProlongation }}</p>
+      </ModalBody>
+      <ModalFooter>
+        <div class="flex items-center justify-center">
+          <button type="button" @click="prolongerModal = false" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
+          <VButton class="inline-block" label="Prolonger" :loading="loadingProlonger" :type="submit" />
+        </div>
+      </ModalFooter>
+    </form>
   </Modal>
 
   <Modal :show="deleteModal" @hidden="deleteModal = false">
@@ -175,6 +211,7 @@
 
       <div class="flex items-center justify-center p-5 border-t lg:justify-end border-slate-200/60 dark:border-darkmode-400">
         <a v-if="verifyPermission('voir-details-projet')" class="flex items-center mr-auto text-primary" href="javascript:;" @click="goToDetail(item)"> <EyeIcon class="w-4 h-4 mr-1" /> Détail </a>
+        <a v-if="verifyPermission('voir-details-projet')" class="flex items-center mr-auto text-primary" href="javascript:;" @click="ouvrirModalProlongerProjet(item)" title="Prolonger la date du projet"> <CalendarIcon class="w-4 h-4 mr-1" />Étendre</a>
         <a v-if="verifyPermission('modifier-un-projet')" class="flex items-center mr-3" href="javascript:;" @click="modifierProjet(item)"> <CheckSquareIcon class="w-4 h-4 mr-1" /> Modifier </a>
         <a v-if="verifyPermission('modifier-un-projet')" class="flex items-center text-danger" href="javascript:;" @click="supprimerProjet(item)"> <Trash2Icon class="w-4 h-4 mr-1" /> Supprimer </a>
       </div>
@@ -382,7 +419,7 @@ export default {
       projetsImg: ["https://images.unsplash.com/photo-1473649085228-583485e6e4d7?q=80&w=1332&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", "https://images.unsplash.com/photo-1516047001178-6dcd2a01c694?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", "https://media.istockphoto.com/id/474234518/photo/clean-fresh-water-scarcity-symbol-black-girl-drinking-from-tap.jpg?s=1024x1024&w=is&k=20&c=Ae42yqkuqfOxBV1bedpkGtC1w2ifQqBB77Sl46nNDNQ=", "https://images.unsplash.com/flagged/photo-1555251255-e9a095d6eb9d?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", "https://images.unsplash.com/photo-1728158609567-42dc418139f9?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8TkdPJTIwYmxhY2t8ZW58MHx8MHx8fDA%3D"],
       formData: {
         nom: "",
-        couleur: "#000000",
+        couleur: "",
         debut: "",
         fin: "",
         pays: "",
@@ -398,8 +435,15 @@ export default {
       ongs: [],
       sites: [],
       selectedFile: null, // Pour stocker le fichier sélectionné
+      selectedFile2: null,
       imagePreview: null,
       update: false, // Pour afficher la prévisualisation de l'imag
+      files: [],
+      dateFin: "",
+      dateFinOld: "",
+      prolongerModal: false,
+      loadingProlonger: false,
+      erreurProlongation: null,
     };
   },
 
@@ -447,6 +491,20 @@ export default {
           this.imagePreview = e.target.result;
         };
         reader.readAsDataURL(file); // Lire le fichier en tant qu'URL de données
+      }
+    },
+    handleFileChange2(event) {
+      // Réinitialiser les fichiers précédents
+      this.files = [];
+      this.FormProjet = new FormData();
+
+      // Récupérer les fichiers sélectionnés
+      this.selectedFile2 = event.target.files;
+
+      // Ajouter chaque fichier à la liste et à l'objet FormData
+      for (const file of this.selectedFile2) {
+        this.files.push(file);
+        // this.formData.append("files[]", file); // "files[]" pour envoyer plusieurs fichiers
       }
     },
     ajouterFormNormalDansFormData() {
@@ -640,6 +698,49 @@ export default {
 
     // ...mapActions('bailleurs', { fetchBailleurs: 'FETCH_LIST_BAILLEUR_OF_PROGRAMME' }),
 
+    ouvrirModalProlongerProjet(item) {
+      console.log("item", item);
+
+      this.dateFinOld = item.fin;
+      this.projetId = item.id;
+      this.prolongerModal = true;
+
+      console.log("this.dateFinOld", this.dateFinOld);
+    },
+    prolongerProjet() {
+      this.loadingProlonger = true;
+
+      console.log("this.dateFin", this.dateFin);
+
+      let payLoad = {
+        fin: this.dateFin,
+      };
+      this.prolongerDateProjet({ projet: payLoad, id: this.projetId })
+        .then((response) => {
+          if (response.status == 200 || response.status == 201) {
+            this.prolongerModal = false;
+
+            this.dateFin = "";
+            this.dateFinOld = "";
+
+            toast.success("Prolongation éffectuée avec succès");
+
+            this.fetchProjets(this.programmeId);
+          }
+        })
+        .catch((error) => {
+          this.loadingProlonger = false;
+
+          toast.error("Une erreur s'est produite");
+
+          // Mettre à jour les messages d'erreurs dynamiquement
+          if (error.response && error.response.data && error.response.data.errors) {
+            this.erreurProlongation = error.response.data.errors;
+          } else {
+            toast.error(error.response.data.errors.message);
+          }
+        });
+    },
     gotoDetails(projet) {
       if (this.dashboardProjetVisible) {
         this.$router.push({ name: "projets_id_details", params: { id: projet.id, projet: projet } });
@@ -801,14 +902,26 @@ export default {
             this.isLoading = false;
           });
       } else {
+        if (this.formData.couleur == "") {
+          this.formData.couleur = "#000000";
+        }
         for (const key of Array.from(this.FormProjet.keys())) {
           this.FormProjet.delete(key);
         }
 
+        this.FormProjet = new FormData();
+
         $h.ajouterObjetDansFormData(this.formData, this.FormProjet);
 
         if (this.selectedFile) {
-          this.FormProjet.append("fichier[]", this.selectedFile);
+          this.FormProjet.append("image[]", this.selectedFile);
+        }
+
+        if (this.selectedFile2) {
+          for (const file of this.selectedFile2) {
+            this.files.push(file);
+            this.FormProjet.append("fichier[]", file); // "files[]" pour envoyer plusieurs fichiers
+          }
         }
 
         // Ajouter manuellement le tableau `sites` à FormData
@@ -837,13 +950,15 @@ export default {
             }
           })
           .catch((error) => {
+            this.isLoading = false;
             $h.clearFormData(this.FormProjet);
-            toast.error(error.response.data.errors.message);
+            toast.error("Une erreur s'est produite");
+
             // Mettre à jour les messages d'erreurs dynamiquement
             if (error.response && error.response.data && error.response.data.errors) {
               this.messageErreur = error.response.data.errors;
             } else {
-              toast.error("Une erreur inconnue s'est produite");
+              toast.error(error.response.data.errors.message);
             }
           });
       }

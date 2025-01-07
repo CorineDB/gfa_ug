@@ -39,7 +39,7 @@ const ProjetsService = {
   },
 
   prolonger(slug, params) {
-    return ApiService.post(`projets/${slug}/prolonger`, params);
+    return ApiService.post(`gfa/projets/${slug}/prolonger`, params);
   },
 };
 
