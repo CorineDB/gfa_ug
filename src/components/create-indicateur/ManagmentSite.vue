@@ -53,7 +53,7 @@ const submitData = async () => {
   const action = isCreate.value ? SiteService.create(payload) : SiteService.update(idSelect.value, payload);
   try {
     await action;
-    toast.success(`Site ${isCreate.value ? "crée" : "modifié"} avec succès.`);
+    toast.success(`Zone d'intervention ${isCreate.value ? "crée" : "modifié"} avec succès.`);
     getDatas();
     resetForm();
   } catch (e) {
@@ -72,7 +72,7 @@ const deleteData = async () => {
   try {
     isLoading.value = true;
     await SiteService.destroy(idSelect.value);
-    toast.success("Site supprimé avec succès.");
+    toast.success("Zone d'intervention supprimée avec succès.");
     getDatas();
   } catch (e) {
     console.error(e);
@@ -160,7 +160,7 @@ onMounted(getDatas);
     <!-- Modal for creating/updating -->
     <Modal size="modal-lg" backdrop="static" :show="showModalCreate" @hidden="closeModal">
       <ModalHeader>
-        <h2 class="mr-auto text-base font-medium">{{ modeText }} un site</h2>
+        <h2 class="mr-auto text-base font-medium">{{ modeText }} une zone d'intervention</h2>
       </ModalHeader>
       <form @submit.prevent="submitData">
         <ModalBody>
@@ -192,7 +192,7 @@ onMounted(getDatas);
         <div class="p-5 text-center">
           <XCircleIcon class="w-16 h-16 mx-auto mt-3 text-danger" />
           <div class="mt-5 text-lg">{{ nameSelect }}</div>
-          <div class="mt-2 text-slate-500">Supprimer le site?</div>
+          <div class="mt-2 text-slate-500">Supprimer la zone?</div>
         </div>
         <div class="flex justify-center gap-3 py-4">
           <button type="button" @click="cancelDelete" class="btn btn-outline-secondary">Annuler</button>

@@ -68,7 +68,8 @@ const initTabulator = () => {
     placeholder: "Aucune donnée disponible.",
     headerHozAlign: "center",
     layout: "fitColumns",
-
+    pagination:"local", 
+    paginationSize: 10, 
     columns: [
       {
         title: "Libellé",

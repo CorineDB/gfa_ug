@@ -120,7 +120,7 @@ export const useSideMenuStore = defineStore("sideMenu", {
       {
         icon: "BarChart2Icon",
         pageName: "EnqueteIndividuel",
-        title: "Enquête individuelle",
+        title: "Enquête personnalisée",
       },
 
       {
