@@ -35,7 +35,7 @@
                   <!-- <p class="form-label">Année cible</p> -->
                   <div class="flex gap-1 place-items-end">
                     <div class="flex-1">
-                      <label class="form-label">Année cible</label>
+                      <label class="form-label">Année cible<span class="text-danger">*</span> </label>
                       <TomSelect v-model="currentAnneeCibleNotAgreger.annee" name="annee_aggrer" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
                         <option value=""></option>
                         <option v-for="annee in annees" :key="annee" :value="annee">{{ annee }}</option>
@@ -65,7 +65,7 @@
 
               <div class="flex flex-wrap items-center justify-between gap-3">
                 <div v-if="payload.agreger" class="flex-1">
-                  <label class="form-label">Clé valeur</label>
+                  <label class="form-label">Clé valeur <span class="text-danger">*</span> </label>
                   <TomSelect v-model="array_value_keys" name="keys" multiple :options="{ placeholder: 'Selectionez les clés valeur' }" class="w-full">
                     <option v-for="(key, index) in keys" :key="index" :value="key.id">{{ key.libelle }}</option>
                   </TomSelect>
@@ -116,7 +116,7 @@
             <!-- Champ pour l'année -->
             <!-- <InputForm label="Année" v-model="currentAnneeCible.annee" type="number" placeholder="Entrez l'année" /> -->
             <div class="flex-1">
-              <label class="form-label">Année</label>
+              <label class="form-label">Année <span class="text-danger">*</span> </label>
               <TomSelect v-model="currentAnneeCible.annee" name="annee_aggrer" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
                 <option value=""></option>
                 <option v-for="annee in annees" :key="annee" :value="annee">{{ annee }}</option>

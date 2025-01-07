@@ -471,17 +471,17 @@ onMounted(() => {
             <p class="mb-3 text-lg text-semibold">Informations générales</p>
             <div class="space-y-3">
               <div class="grid grid-cols-2 gap-4">
-                <InputForm :required="false" label="Nom" v-model="payload.nom" :control="getFieldErrors(errors.nom)" />
-                <InputForm :required="false" label="Email" v-model="payload.email" type="email" :control="getFieldErrors(errors.email)" />
+                <InputForm :required="false" :optionel="false" label="Nom" v-model="payload.nom" :control="getFieldErrors(errors.nom)" />
+                <InputForm :required="false" :optionel="false" label="Email" v-model="payload.email" type="email" :control="getFieldErrors(errors.email)" />
               </div>
               <div class="grid grid-cols-2 gap-4">
-                <InputForm :required="false" label="Sigle" v-model="payload.sigle" :control="getFieldErrors(errors.sigle)" />
+                <InputForm :required="false" :optionel="false" label="Sigle" v-model="payload.sigle" :control="getFieldErrors(errors.sigle)" />
                 <InputForm :required="false" label="Contact" v-model.number="payload.contact" type="number" :control="getFieldErrors(errors.contact)" />
               </div>
               <div class="grid grid-cols-2 gap-4">
-                <InputForm :required="false" label="Code" :control="getFieldErrors(errors.code)" v-model.number="payload.code" type="number" />
+                <InputForm :required="false" :optionel="false" label="Code" :control="getFieldErrors(errors.code)" v-model.number="payload.code" type="number" />
                 <div>
-                  <label class="form-label">Secteur d'activité</label>
+                  <label class="form-label">Secteur d'activité <span class="text-danger">*</span> </label>
                   <TomSelect v-model="payload.secteurActivite" :options="{ placeholder: 'Selectionez  un secteur' }" class="w-full">
                     <option value=""></option>
                     <option v-for="(secteur, index) in secteursActivites" :key="index" :value="secteur">{{ secteur }}</option>
@@ -491,7 +491,7 @@ onMounted(() => {
               </div>
               <div class="grid grid-cols-2 gap-4">
                 <div>
-                  <label class="form-label">Types</label>
+                  <label class="form-label">Types<span class="text-danger">*</span> </label>
                   <TomSelect v-model="payload.type" :options="{ placeholder: 'Selectionez  un type' }" class="w-full">
                     <option value=""></option>
                     <option v-for="(type, index) in types" :key="index" :value="type.id">{{ type.label }}</option>
@@ -499,7 +499,7 @@ onMounted(() => {
                   <div v-if="errors.type" class="mt-2 text-danger">{{ getFieldErrors(errors.type) }}</div>
                 </div>
                 <div>
-                  <label class="form-label">Fonds</label>
+                  <label class="form-label">Fonds <span class="text-danger">*</span> </label>
                   <TomSelect v-model="payload.fondId" :options="{ placeholder: 'Selectionez  un fond' }" class="w-full">
                     <option value=""></option>
                     <option v-for="(fond, index) in fonds" :key="index" :value="fond.id">{{ fond.nom_du_fond }} ({{ fond.fondDisponible }})</option>
@@ -516,7 +516,7 @@ onMounted(() => {
             <div class="space-y-3">
               <div class="grid grid-cols-2 gap-4">
                 <div>
-                  <label class="form-label">Pays</label>
+                  <label class="form-label">Pays<span class="text-danger">*</span> </label>
                   <TomSelect v-model="payload.pays" @change="changeCountry" :options="{ placeholder: 'Selectionez  un pays' }" class="w-full">
                     <option value=""></option>
                     <option v-for="(country, index) in pays" :key="index" :value="country">{{ country }}</option>
@@ -527,7 +527,7 @@ onMounted(() => {
               </div>
               <div v-if="isBenin" class="grid grid-cols-2 gap-4">
                 <div>
-                  <label class="form-label">Départements</label>
+                  <label class="form-label">Départements<span class="text-danger">*</span> </label>
                   <TomSelect v-model="payload.departement" @change="updateCommunes" :options="{ placeholder: 'Selectionez un département' }" class="w-full">
                     <option value=""></option>
                     <option v-for="(dep, index) in departements" :key="index" :value="dep.lib_dep">{{ dep.lib_dep }}</option>
@@ -535,7 +535,7 @@ onMounted(() => {
                   <div v-if="errors.departement" class="mt-2 text-danger">{{ getFieldErrors(errors.departement) }}</div>
                 </div>
                 <div :class="[!showCommune ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
-                  <label class="form-label">Communes</label>
+                  <label class="form-label">Communes<span class="text-danger">*</span> </label>
                   <TomSelect v-model="payload.commune" :options="{ placeholder: 'Sélectionner la commune' }" class="w-full" @change="updateArrondissements">
                     <option v-for="commune in filteredCommunes" :key="commune.lib_com" :value="commune.lib_com">
                       {{ commune.lib_com }}
@@ -547,14 +547,14 @@ onMounted(() => {
 
               <div v-if="isBenin" class="grid grid-cols-2 gap-4">
                 <div :class="[!showArrondissement ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
-                  <label class="form-label">Arrondissemnt</label>
+                  <label class="form-label">Arrondissemnt<span class="text-danger">*</span> </label>
                   <TomSelect v-model="payload.arrondissement" @change="updateQuartiers" :options="{ placeholder: 'Selectionez  arrondissement' }" class="w-full">
                     <option v-for="(arrond, index) in filteredArrondissements" :key="index" :value="arrond.lib_arrond">{{ arrond.lib_arrond }}</option>
                   </TomSelect>
                   <div v-if="errors.arrondissement" class="mt-2 text-danger">{{ getFieldErrors(errors.arrondissement) }}</div>
                 </div>
                 <div :class="[!showQuatier ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
-                  <label class="form-label">Quatier</label>
+                  <label class="form-label">Quatier<span class="text-danger">*</span> </label>
                   <TomSelect v-model="payload.quartier" :options="{ placeholder: 'Sélectionner le quatier' }" class="w-full">
                     <option v-for="quart in filteredQuartiers" :key="quart.lib_quart" :value="quart.lib_quart">
                       {{ quart.lib_quart }}
@@ -564,17 +564,17 @@ onMounted(() => {
                 </div>
               </div>
               <div v-if="!isBenin" class="grid grid-cols-2 gap-4">
-                <InputForm :required="false" label="Département" v-model="payload.departement" :control="getFieldErrors(errors.departement)" />
-                <InputForm :required="false" label="Commune" v-model="payload.commune" :control="getFieldErrors(errors.commune)" />
+                <InputForm :required="false" :optionel="false" label="Département" v-model="payload.departement" :control="getFieldErrors(errors.departement)" />
+                <InputForm :required="false" :optionel="false" label="Commune" v-model="payload.commune" :control="getFieldErrors(errors.commune)" />
               </div>
 
               <div v-if="!isBenin" class="grid grid-cols-2 gap-4">
-                <InputForm :required="false" label="Arrondissement" v-model="payload.arrondissement" :control="getFieldErrors(errors.arrondissement)" />
-                <InputForm :required="false" label="Quatier" v-model="payload.quartier" :control="getFieldErrors(errors.quartier)" />
+                <InputForm :required="false" :optionel="false" label="Arrondissement" v-model="payload.arrondissement" :control="getFieldErrors(errors.arrondissement)" />
+                <InputForm :required="false" :optionel="false" label="Quatier" v-model="payload.quartier" :control="getFieldErrors(errors.quartier)" />
               </div>
               <div class="grid grid-cols-2 gap-4">
-                <InputForm :required="false" label="Longitude" :control="getFieldErrors(errors.longitude)" v-model.number="payload.longitude" type="number" />
-                <InputForm :required="false" label="Latitude" :control="getFieldErrors(errors.latitude)" v-model.number="payload.latitude" type="number" />
+                <InputForm :required="false" :optionel="false" label="Longitude" :control="getFieldErrors(errors.longitude)" v-model.number="payload.longitude" type="number" />
+                <InputForm :required="false" :optionel="false" label="Latitude" :control="getFieldErrors(errors.latitude)" v-model.number="payload.latitude" type="number" />
               </div>
             </div>
           </div>
@@ -584,10 +584,10 @@ onMounted(() => {
             <p class="mb-3 text-lg text-semibold">Informations Point focal</p>
             <div class="space-y-3">
               <div class="grid grid-cols-2 gap-4">
-                <InputForm label="Nom point focal" :control="getFieldErrors(errors.nom_point_focal)" v-model="payload.nom_point_focal" />
-                <InputForm label="Prénom point focal" :control="getFieldErrors(errors.prenom_point_focal)" v-model="payload.prenom_point_focal" />
+                <InputForm label="Nom point focal" :optionel="false" :control="getFieldErrors(errors.nom_point_focal)" v-model="payload.nom_point_focal" />
+                <InputForm label="Prénom point focal" :optionel="false" :control="getFieldErrors(errors.prenom_point_focal)" v-model="payload.prenom_point_focal" />
               </div>
-              <InputForm label="Contact point focal" :control="getFieldErrors(errors.contact_point_focal)" v-model="payload.contact_point_focal" type="number" />
+              <InputForm label="Contact point focal" :optionel="false" :control="getFieldErrors(errors.contact_point_focal)" v-model="payload.contact_point_focal" type="number" />
             </div>
           </div>
           <div class="flex justify-end gap-3 py-4">

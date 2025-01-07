@@ -364,7 +364,7 @@ onMounted(() => {
         <div class="flex gap-4">
           <InputForm label="Libellé" class="w-full" :control="getFieldErrors(errors.libelle)" v-model="payload.libelle" />
           <div class="w-full">
-            <label for="annee" class="form-label">Année</label>
+            <label for="annee" class="form-label">Année<span class="text-danger">*</span> </label>
             <input id="annee" type="number" required v-model.number="payload.annee_exercice" class="form-control" placeholder="Année" />
             <div v-if="errors.annee_exercice" class="mt-2 text-danger">{{ getFieldErrors(errors.annee_exercice) }}</div>
           </div>

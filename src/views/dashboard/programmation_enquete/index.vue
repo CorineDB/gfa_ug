@@ -441,7 +441,7 @@ onMounted(async () => {
               <div v-if="errors.objectif_attendu" class="mt-2 text-danger">{{ getFieldErrors(errors.objectif_attendu) }}</div>
             </div> -->
             <div class="">
-              <label for="annee" class="form-label">Année</label>
+              <label for="annee" class="form-label">Année<span class="text-danger">*</span> </label>
               <input id="annee" type="number" required v-model.number="payload.annee_exercice" class="form-control" placeholder="Année exercice" />
               <div v-if="errors.annee_exercice" class="mt-2 text-danger">{{ getFieldErrors(errors.annee_exercice) }}</div>
             </div>
@@ -451,21 +451,21 @@ onMounted(async () => {
             <InputForm label="Fin de l'enquete " v-model="payload.fin" type="date" :control="getFieldErrors(errors.fin)" />
           </div>
           <div class="">
-            <label class="form-label">Formulaires Factuel</label>
+            <label class="form-label">Formulaires Factue <span class="text-danger">*</span> l </label>
             <TomSelect v-model="idFormFactuel" :options="{ placeholder: 'Selectionez un formulaire' }" class="w-full">
               <option v-for="(form, index) in formulairesFactuel" :key="index" :value="form.id">{{ form.libelle }} ({{ form.annee_exercice }})</option>
             </TomSelect>
             <div v-if="errors.formulaires_de_gouvernance" class="mt-2 text-danger">{{ getFieldErrors(errors.formulaires_de_gouvernance) }}</div>
           </div>
           <div class="">
-            <label class="form-label">Formulaires de perception</label>
+            <label class="form-label">Formulaires de perception <span class="text-danger">*</span> </label>
             <TomSelect v-model="idFormPerception" :options="{ placeholder: 'Selectionez un formulaire' }" class="w-full">
               <option v-for="(form, index) in formulairesPerception" :key="index" :value="form.id">{{ form.libelle }} ({{ form.annee_exercice }})</option>
             </TomSelect>
             <div v-if="errors.formulaires_de_gouvernance" class="mt-2 text-danger">{{ getFieldErrors(errors.formulaires_de_gouvernance) }}</div>
           </div>
           <div class="">
-            <label class="form-label">Organisations</label>
+            <label class="form-label">Organisations <span class="text-danger">*</span> <span class="text-danger">*</span> </label>
             <TomSelect v-model="payload.organisations" multiple :options="{ placeholder: 'Selectionez les organisations' }" class="w-full">
               <option v-for="(organisation, index) in organisations" :key="index" :value="organisation.id">{{ organisation.nom }}</option>
             </TomSelect>
