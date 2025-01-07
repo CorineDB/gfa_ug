@@ -77,6 +77,19 @@ const getDatas = async () => {
       toast.error("Une erreur est survenue: Liste des soumissions.");
     });
 };
+const getClassement = async () => {
+  isLoadingData.value = true;
+  await EvaluationService.getResultatWithClassementOng(idEvaluation)
+    .then((result) => {
+      // datas.value = result.data.data;
+      // isLoadingData.value = false;
+    })
+    .catch((e) => {
+      console.error(e);
+      // isLoadingData.value = false;
+      toast.error("Une erreur est survenue: Liste des classements.");
+    });
+};
 
 const resultatSynthese = async () => {
   isLoadingResultat.value = true;
@@ -276,6 +289,7 @@ onMounted(async () => {
   }
   getEvaluation();
   resultatSynthese();
+  getClassement();
 });
 </script>
 

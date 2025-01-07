@@ -20,6 +20,21 @@
       <li v-for="(error, index) in countAnneeCible" :key="index" class="">
         <span v-if="errors[`anneesCible.${index}.annee`]"> {{ getFieldErrors(errors[`anneesCible.${index}.annee`]) }}</span>
       </li>
+
+      <div v-if="errors['anneesCible.0.valeurCible.0.keyId']">
+        <li v-for="(error, key) in countKeys" :key="key">
+          <div v-for="(error, annee) in 10" :key="annee">
+            <span v-if="errors[`anneesCible.${key}.valeurCible.${annee}.keyId`]"> {{ getFieldErrors(errors[`anneesCible.${key}.valeurCible.${annee}.keyId`]) }}</span>
+          </div>
+        </li>
+      </div>
+      <div v-if="errors['anneesCible.0.valeurCible.0.valeur']">
+        <li v-for="(error, key) in countKeys" :key="key">
+          <div v-for="(error, annee) in 10" :key="annee">
+            <span v-if="errors[`anneesCible.${key}.valeurCible.${annee}.valeur`]"> {{ getFieldErrors(errors[`anneesCible.${key}.valeurCible.${annee}.valeur`]) }}</span>
+          </div>
+        </li>
+      </div>
     </ul>
     <button type="button" class="text-white btn-close" aria-label="Close" @click="dismiss">
       <XIcon class="w-4 h-4" />
@@ -28,12 +43,21 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { computed, watch } from "vue";
 import { getFieldErrors } from "../../utils/helpers";
 
 const prop = defineProps({
   errors: Object,
-  countAnneeCible: Number,
+  countAnneeCible: {
+    type: Number,
+    required: false,
+    default: 0,
+  },
+  countKeys: {
+    type: Number,
+    required: false,
+    default: 0,
+  },
 });
 
 const showAlert = computed(() => {

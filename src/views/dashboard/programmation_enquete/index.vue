@@ -192,13 +192,8 @@ const getStatusText = (param) => {
 };
 
 function gotoSoumissions(enquete) {
-  if (!enquete.objectif_attendu.length) {
-    handleObjectif(enquete);
-    toast.info("Veuillez ajouter des objectifs avant de poursuivre");
-  } else {
-    if (verifyPermission("voir-une-evaluation-de-gouvernance")) {
-      router.push({ name: "SoumissionsEnqueteDeCollecte", params: { id: enquete.id } });
-    }
+  if (verifyPermission("voir-une-evaluation-de-gouvernance")) {
+    router.push({ name: "SoumissionsEnqueteDeCollecte", params: { id: enquete.id } });
   }
   // router.push({ name: "SoumissionsEnqueteDeCollecte", params: { id: enquete.id } });
 }
