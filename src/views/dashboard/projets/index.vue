@@ -72,7 +72,7 @@
           <input name="fichier" class="col-span-12" placeHolder="choisir un fichier ou plusieurs" type="file" multiple @change="handleFileChange2" />
           <!-- <InputForm class="col-span-12" type="file" @change="handleFileChange2" placeHolder="choisir un fichier ou plusieurs" label="Pièces jointes" multiple /> -->
           <div class="col-span-12">
-            <pre>{{ files }}</pre>
+            <!-- <pre>{{ files }}</pre> -->
             <ul>
               <li v-for="(file, index) in files" :key="index">
                 {{ file.name }}
@@ -892,6 +892,7 @@ export default {
             }
           })
           .catch((errors) => {
+            this.isLoading = false;
             console.log(errors);
             toast.error("Erreur lors de la modification");
             if (error.response && error.response.data && error.response.data.errors) {
@@ -949,6 +950,7 @@ export default {
             }
           })
           .catch((error) => {
+            console.log(error);
             this.isLoading = false;
             this.FormProjet = new FormData();
             toast.error("Une erreur s'est produite");
