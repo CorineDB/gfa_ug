@@ -16,6 +16,7 @@ import SyntheseService from "../../../services/modules/synthese.service";
 import ChartProgressionByTime from "../../../components/news/ChartProgressionByTime.vue";
 import ChartScroreByPrincipe from "../../../components/news/ChartScroreByPrincipe.vue";
 import ChartScroreByPrincipeObjectif from "../../../components/news/ChartScroreByPrincipeObjectif.vue";
+import ChartClassementOng from "../../../components/news/ChartClassementOng.vue";
 
 const router = useRouter();
 
@@ -34,6 +35,7 @@ const isLoading = ref(false);
 const isLoadingStats = ref(false);
 const showModalOrganisation = ref(false);
 const isLoadingData = ref(true);
+const isLoadingClassement = ref(true);
 const isLoadingResultat = ref(true);
 const isCreate = ref(true);
 const loadingOption = ref(true);
@@ -46,7 +48,7 @@ const currentOptionsPerception = ref({});
 const currentOrganisationsOptions = ref("");
 const yearSelectedOng = ref("");
 const ongSelectedScore = ref("");
-const ongClassements = ref([]);
+const ongClassements = ref({});
 
 const createData = async () => {
   isLoading.value = true;
@@ -78,15 +80,14 @@ const getDatas = async () => {
     });
 };
 const getClassement = async () => {
-  isLoadingData.value = true;
   await EvaluationService.getResultatWithClassementOng(idEvaluation)
     .then((result) => {
-      // datas.value = result.data.data;
-      // isLoadingData.value = false;
+      ongClassements.value = result.data.data;
+      isLoadingClassement.value = false;
     })
     .catch((e) => {
       console.error(e);
-      // isLoadingData.value = false;
+      isLoadingClassement.value = false;
       toast.error("Une erreur est survenue: Liste des classements.");
     });
 };
@@ -542,6 +543,16 @@ onMounted(async () => {
               <p class="p-3 text-lg font-medium">Score des indices par principe vs Objectifs attendus</p>
 
               <ChartScroreByPrincipeObjectif v-if="statistiques.objectif_attendu && currentScore?.scores[yearSelectedOng]?.length > 0" :datas="currentScore?.scores[yearSelectedOng]" :objectifs="statistiques.objectif_attendu" />
+              <div v-else class="h-[600px] flex justify-center items-center">
+                <p class="text-xl font-medium text-slate-600">Aucune données disponible</p>
+              </div>
+            </div>
+          </div>
+          <div class="flex justify-center w-full p-3">
+            <div class="w-full max-w-full box">
+              <p class="p-3 text-lg font-medium">Classement des organisations</p>
+
+              <ChartClassementOng v-if="!isLoadingClassement" :data="ongClassements" />
               <div v-else class="h-[600px] flex justify-center items-center">
                 <p class="text-xl font-medium text-slate-600">Aucune données disponible</p>
               </div>
