@@ -10,7 +10,7 @@
                 <ChevronDownIcon />
               </Accordion>
               <AccordionPanel class="p-2">
-                <UniteMesure @update-datas="updateUnites" />
+                <UniteMesure @update-datas="updateUnites" v-model:showModal="showModalUniteMesure" />
               </AccordionPanel>
             </AccordionItem>
 
@@ -20,7 +20,7 @@
                 <ChevronDownIcon />
               </Accordion>
               <AccordionPanel class="p-2">
-                <CleValeur @update-datas="updateKeys" />
+                <CleValeur @update-datas="updateKeys" v-model:showModal="showModalKey" />
               </AccordionPanel>
             </AccordionItem>
 
@@ -30,7 +30,7 @@
                 <ChevronDownIcon />
               </Accordion>
               <AccordionPanel class="p-2">
-                <ManagmentCategorie @update-datas="updateCategories" />
+                <ManagmentCategorie @update-datas="updateCategories" v-model:showModal="showModalCategorie" />
               </AccordionPanel>
             </AccordionItem>
             <AccordionItem>
@@ -39,7 +39,7 @@
                 <ChevronDownIcon />
               </Accordion>
               <AccordionPanel class="p-2">
-                <ManagmentSite @update-datas="updateSites" />
+                <ManagmentSite @update-datas="updateSites" v-model:showModal="showModalZone" />
               </AccordionPanel>
             </AccordionItem>
           </AccordionGroup>
@@ -183,9 +183,13 @@
                   <div class="flex flex-wrap items-center justify-between gap-3">
                     <div v-if="payload.agreger" class="flex-1">
                       <label class="form-label">Clé valeur</label>
-                      <TomSelect v-model="array_value_keys" name="keys" multiple :options="{ placeholder: 'Selectionez les clés valeur' }" class="w-full">
-                        <option v-for="(key, index) in keys" :key="index" :value="key.id">{{ key.libelle }}</option>
-                      </TomSelect>
+                      <div class="flex gap-1">
+                        <TomSelect v-model="array_value_keys" name="keys" multiple :options="{ placeholder: 'Selectionez les clés valeur' }" class="w-full">
+                          <option v-for="(key, index) in keys" :key="index" :value="key.id">{{ key.libelle }}</option>
+                        </TomSelect>
+                        <button class="flex-1 text-sm btn btn-primary" @click.prevent="showModalKey = true"><PlusIcon class="mr-1 size-3" /></button>
+                      </div>
+
                       <div v-if="errors.value_keys" class="mt-2 text-danger">{{ getFieldErrors(errors.value_keys) }}</div>
                     </div>
                   </div>
@@ -220,10 +224,13 @@
                   <div class="flex flex-wrap items-center justify-between gap-3">
                     <div class="flex-1">
                       <label class="form-label">Catégorie <span class="text-danger">*</span> </label>
-                      <TomSelect v-model="payload.categorieId" name="category" :options="{ placeholder: 'Selectionez une catégorie' }" class="w-full">
-                        <option value=""></option>
-                        <option v-for="(categorie, index) in categories" :key="categorie.id" :value="categorie.id">{{ truncateText(categorie.type + " " + categorie.indice + " " + categorie.nom) }}</option>
-                      </TomSelect>
+                      <div class="flex gap-1">
+                        <TomSelect v-model="payload.categorieId" name="category" :options="{ placeholder: 'Selectionez une catégorie' }" class="w-full">
+                          <option value=""></option>
+                          <option v-for="(categorie, index) in categories" :key="categorie.id" :value="categorie.id">{{ truncateText(categorie.type + " " + categorie.indice + " " + categorie.nom) }}</option>
+                        </TomSelect>
+                        <button class="flex-1 text-sm btn btn-primary" @click.prevent="showModalCategorie = true"><PlusIcon class="mr-1 size-3" /></button>
+                      </div>
                       <div v-if="errors.categorieId" class="mt-2 text-danger">{{ getFieldErrors(errors.categorieId) }}</div>
                     </div>
                     <div class="flex-1">
@@ -272,20 +279,26 @@
                     </div>
                     <div class="flex-1">
                       <label class="form-label">Unité de mesure <span class="text-danger">*</span> </label>
-                      <TomSelect v-model="payload.uniteeMesureId" name="unite" :options="{ placeholder: 'Selectionez une unité de mesure' }" class="w-full">
-                        <option value=""></option>
-                        <option v-for="(unite, index) in unites" :key="index" :value="unite.id">{{ unite.nom }}</option>
-                      </TomSelect>
+                      <div class="flex gap-1">
+                        <TomSelect v-model="payload.uniteeMesureId" name="unite" :options="{ placeholder: 'Selectionez une unité de mesure' }" class="w-full">
+                          <option value=""></option>
+                          <option v-for="(unite, index) in unites" :key="index" :value="unite.id">{{ unite.nom }}</option>
+                        </TomSelect>
+                        <button class="flex-1 text-sm btn btn-primary" @click.prevent="showModalUniteMesure = true"><PlusIcon class="mr-1 size-3" /></button>
+                      </div>
                       <div v-if="errors.uniteeMesureId" class="mt-2 text-danger">{{ getFieldErrors(errors.uniteeMesureId) }}</div>
                     </div>
                   </div>
                   <div class="flex flex-wrap items-center justify-between w-full gap-3">
                     <div class="flex-1">
-                      <label class="form-label">Sites <span class="text-danger">*</span> </label>
-                      <TomSelect v-model="payload.sites" multiple name="site" :options="{ placeholder: 'Selectionez les sites' }" class="w-full">
-                        <option value=""></option>
-                        <option v-for="(site, index) in sites" :key="index" :value="site.id">{{ site.nom }}</option>
-                      </TomSelect>
+                      <label class="form-label">Zone d'intervention <span class="text-danger">*</span> </label>
+                      <div class="flex gap-1">
+                        <TomSelect v-model="payload.sites" multiple name="site" :options="{ placeholder: 'Selectionez les sites' }" class="w-full">
+                          <option value=""></option>
+                          <option v-for="(site, index) in sites" :key="index" :value="site.id">{{ site.nom }}</option>
+                        </TomSelect>
+                        <button class="flex-1 text-sm btn btn-primary" @click.prevent="showModalZone = true"><PlusIcon class="mr-1 size-3" /></button>
+                      </div>
                       <div v-if="errors.sites" class="mt-2 text-danger">{{ getFieldErrors(errors.sites) }}</div>
                     </div>
                     <div class="flex-1">
@@ -436,6 +449,12 @@ const errors = ref({});
 const array_value_keys = ref([]);
 const responsablesForm = ref({ organisations: [], ug: "" });
 const currentStep = ref(1);
+
+// show Modals
+const showModalZone = ref(false);
+const showModalCategorie = ref(false);
+const showModalUniteMesure = ref(false);
+const showModalKey = ref(false);
 
 // Etat de la page et items par page
 const currentPage = ref(1);

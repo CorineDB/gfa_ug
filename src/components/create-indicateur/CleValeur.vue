@@ -23,7 +23,7 @@ const payload = reactive({
 const idSelect = ref("");
 const nameSelect = ref("");
 const search = ref("");
-const showModalCreate = ref(false);
+const showModalCreate = defineModel("showModal");
 const deleteModalPreview = ref(false);
 const isLoading = ref(false);
 const isLoadingData = ref(true);
@@ -135,7 +135,10 @@ const modeText = computed(() => (isCreate.value ? "Ajouter" : "Modifier"));
 const filterData = computed(() => datas.value.filter((data) => data.libelle.toLowerCase().includes(search.value.toLowerCase())));
 
 // Fetch data on component mount
-onMounted(getDatas);
+onMounted(() => {
+  getDatas();
+  getUniteMesure();
+});
 </script>
 
 <template>
