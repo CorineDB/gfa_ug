@@ -1,52 +1,40 @@
 <script>
-import { mapGetters, mapActions } from "vuex";
-
-import { getStringValueOfStatutCode } from "@/utils/index";
+import { mapGetters } from "vuex";
+import { toast } from "vue3-toastify";
 import ProjetService from "@/services/modules/projet.service.js";
 import ComposantesService from "@/services/modules/composante.service";
 import ActiviteService from "@/services/modules/activite.service";
 import InputForm from "@/components/news/InputForm.vue";
-import verifyPermission from "@/utils/verifyPermission";
 import VButton from "@/components/news/VButton.vue";
 import ActivitiesComponent from "./activities.vue";
-import PlanDecaissementComponent from "./plan-decaissement.vue";
+import verifyPermission from "@/utils/verifyPermission";
 import { helper as $h } from "@/utils/helper";
 
-import { toast } from "vue3-toastify";
 export default {
   components: {
     InputForm,
     VButton,
     ActivitiesComponent,
-    PlanDecaissementComponent,
   },
+
   data() {
     return {
       messageErreur: {},
       projets: [],
-      projetId: {},
+      projetId: null,
       composants: [],
       sousComposants: [],
       activites: [],
-      haveSousComposantes: false,
       isLoadingData: false,
       showModal: false,
       isUpdate: false,
       isLoading: false,
-      formData: {
-        nom: "",
-        poids: "",
-        debut: "",
-        fin: "",
-        pret: 0,
-        type: "pta",
-        composanteId: "",
-        budgetNational: 0,
+      formData: this.getInitialFormData(),
+      selectedIds: {
+        composantId: null,
+        sousComposantId: null,
+        activiteId: null,
       },
-      composantsId: {},
-      composantId: "",
-      sousComposantId: {},
-      activiteId: {},
       labels: "Ajouter",
       showDeleteModal: false,
       deleteLoader: false,
@@ -56,240 +44,151 @@ export default {
       seeActivite: true,
     };
   },
+
   computed: {
     ...mapGetters("auths", { currentUser: "GET_AUTHENTICATE_USER" }),
   },
+
   watch: {
-    projetId(newValue, oldValue) {
-      if (this.projets.length > 0 && newValue != null && newValue != undefined) {
-        this.getProjetById(newValue.id);
-      }
-    },
-    composantsId(newValue, oldValue) {
-      if (newValue != null && newValue != undefined) {
-        this.composantId = newValue.id;
-      }
-    },
-    composantId(newValue, oldValue) {
-      if (this.composants.length > 0 && newValue != null && newValue != undefined) {
-        //this.getComposantById(newValue);
+    projetId(newId) {
+      if (newId) {
+        this.loadProjetDetails(newId);
       }
     },
 
-    sousComposantId(newValue, oldValue) {
-      if (this.sousComposants.length > 0 && newValue != null && newValue != undefined) {
-        console.log("composantsId : ", newValue.id);
-        //this.getComposantById(newValue.id);
-      }
-    },
-    composantId(newValue, oldValue) {
-      if (this.sousComposants.length > 0 || newValue) {
-        this.getComposantById(newValue.id);
-      }
-    },
+    "selectedIds.composantId": "loadComposantDetails",
   },
 
   methods: {
-    text() {},
     verifyPermission,
-    clearObjectValues(obj) {
-      for (let key in obj) {
-        if (obj.hasOwnProperty(key)) {
-          let value = obj[key];
 
-          if (typeof value === "string") {
-            obj[key] = "";
-          } else if (typeof value === "number") {
-            obj[key] = 0;
-          } else if (typeof value === "boolean") {
-            obj[key] = false;
-          } else if (Array.isArray(value)) {
-            obj[key] = [];
-          } else if (typeof value === "object" && value !== null) {
-            obj[key] = {}; // ou appliquer récursion pour vider les objets imbriqués
-            clearObjectValues(obj[key]); // récursion pour les objets imbriqués
-          } else {
-            obj[key] = null; // pour les autres types (null, undefined, etc.)
-          }
-        }
-      }
+    getInitialFormData() {
+      return {
+        nom: "",
+        poids: "",
+        debut: "",
+        fin: "",
+        pret: 0,
+        type: "pta",
+        composanteId: "",
+        budgetNational: 0,
+      };
     },
+
+    resetFormData() {
+      this.formData = this.getInitialFormData();
+    },
+
     supprimerComposant(data) {
       this.showDeleteModal = true;
-      this.activiteId = data.id;
+      this.selectedIds.activiteId = data.id;
     },
-    deleteComposants() {
-      this.deleteLoader = true;
-      ActiviteService.destroy(this.activiteId)
-        .then((data) => {
-          this.deleteLoader = false;
-          this.showDeleteModal = false;
-          this.getComposantById(this.composantsId.id);
-          toast.success("Suppression  éffectuée avec succès");
-          //this.getListeProjet();
-        })
-        .catch((error) => {
-          this.deleteLoader = false;
-          toast.error("Erreur lors de la suppression");
-        });
+
+    async deleteComposants() {
+      try {
+        this.deleteLoader = true;
+        await ActiviteService.destroy(this.selectedIds.activiteId);
+        toast.success("Suppression effectuée avec succès");
+        this.loadComposantDetails();
+      } catch (error) {
+        toast.error("Erreur lors de la suppression");
+      } finally {
+        this.deleteLoader = false;
+        this.showDeleteModal = false;
+      }
     },
+
     modifierActivite(data) {
       this.messageErreur = {};
       this.labels = "Modifier";
       this.showModal = true;
-      this.update = true;
-      console.log("data", data);
-      this.formData.nom = data.nom;
-      this.formData.pret = data.pret;
-      this.formData.poids = data.poids;
-      this.formData.debut = data.durees[0].debut;
-      this.formData.fin = data.durees[0].fin;
-      this.formData.type = "pta";
-      this.formData.composanteId = Object.keys(this.sousComposantId).length === 0 ? this.composantsId : this.sousComposantId;
-      this.formData.budgetNational = data.budgetNational;
-      this.activiteId = data.id;
+      this.isUpdate = true;
+      this.formData = {
+        ...data,
+        debut: data.durees[0]?.debut || "",
+        fin: data.durees[0]?.fin || "",
+        composanteId: this.selectedIds.sousComposantId || this.selectedIds.composantId,
+      };
+      this.selectedIds.activiteId = data.id;
     },
+
     addActivite() {
-      this.messageErreur = {};
+      this.resetFormData();
       this.showModal = true;
       this.isUpdate = false;
-      if (this.haveSousComposantes) {
-        this.formData.composanteId = this.sousComposantId;
-      } else {
-        this.formData.composanteId = this.composantsId;
-      }
-
       this.labels = "Ajouter";
+      this.formData.composanteId = this.selectedIds.sousComposantId || this.selectedIds.composantId;
     },
-    sendForm() {
-      let data = {
-        nom: this.formData.nom,
-        poids: this.formData.poids,
-        debut: this.formData.debut,
-        fin: this.formData.fin,
-        pret: this.formData.pret,
-        type: this.formData.type,
+
+    async sendForm() {
+      const data = {
+        ...this.formData,
         composanteId: this.formData.composanteId.id,
-        budgetNational: this.formData.budgetNational,
+        budgetNational: parseInt(this.formData.budgetNational),
+        pret: parseInt(this.formData.pret),
       };
-      data.budgetNational = parseInt(data.budgetNational);
-      data.pret = parseInt(data.pret);
 
-      if (this.update) {
-        // this.formData.projetId = this.projetId
-        this.isLoading = true;
-        ActiviteService.update(this.activiteId, data)
-          .then((response) => {
-            if (response.status == 200 || response.status == 201) {
-              this.update = false;
-              this.isLoading = false;
-              this.showModal = false;
-              toast.success("Modification éffectuée");
+      this.isLoading = true;
+      try {
+        if (this.isUpdate) {
+          await ActiviteService.update(this.selectedIds.activiteId, data);
+          toast.success("Modification effectuée");
+        } else {
+          await ActiviteService.create(data);
+          toast.success("Ajout effectué");
+        }
 
-              this.composantsId = this.formData.composanteId;
-              $h.clearObjectValues(this.formData);
-              // delete this.formData.projetId;
-              //this.getListeProjet();
-              this.getComposantById(this.composantsId.id);
-              //this.sendRequest = false;
-            }
-          })
-          .catch((error) => {
-            // delete this.formData.projetId;
-            this.isLoading = false;
-            if (error.response && error.response.data && error.response.data.errors) {
-              this.messageErreur = error.response.data.errors;
-            } else {
-              toast.error("Une erreur inconnue s'est produite");
-            }
-            toast.error("Erreur lors de la modification");
-          });
-      } else {
-        this.isLoading = true;
-        // this.formData.budgetNational = parseInt(this.formData.budgetNational);
-        // this.formData.pret = parseInt(this.formData.pret);
-        // console.log(this.formData);
-
-        ActiviteService.create(data)
-          .then((response) => {
-            if (response.status == 200 || response.status == 201) {
-              this.isLoading = false;
-              toast.success("Ajout éffectué");
-              this.showModal = false;
-              this.getComposantById(this.composantsId.id);
-              // $h.clearObjectValues(this.formData);
-
-              this.getListeProjet();
-            }
-          })
-          .catch((error) => {
-            console.log("error", error);
-            this.isLoading = false;
-            if (error.response && error.response.data && error.response.data.errors) {
-              this.messageErreur = error.response.data.errors;
-            } else {
-              toast.error("Une erreur inconnue s'est produite");
-            }
-            toast.error("Erreur lors de l'ajout");
-          });
+        this.showModal = false;
+        this.loadComposantDetails();
+      } catch (error) {
+        this.messageErreur = error.response?.data?.errors || {};
+        toast.error("Erreur lors de l'envoi des données");
+      } finally {
+        this.isLoading = false;
       }
     },
-    getListeProjet() {
+
+    async loadProjets() {
       this.isLoadingData = true;
-      ProjetService.get()
-        .then((data) => {
-          this.isLoadingData = false;
-          this.projets = data.data.data;
-          if (Object.keys(this.projetId).length === 0) {
-            this.projetId = this.projets[0];
-          }
-
-          this.getProjetById(this.projetId.id);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    },
-    getProjetById(data) {
-      ProjetService.getDetailProjet(data)
-        .then((datas) => {
-          this.composants = datas.data.data.composantes;
-          this.composantsId = this.composants[0];
-          // if (Object.keys(this.composantsId).length === 0) {
-
-          // }
-          this.getComposantById(this.composantsId.id);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    },
-    getComposantById(data) {
-      ComposantesService.detailComposant(data)
-        .then((data) => {
-          if (data.data.data.souscomposantes.length > 0) {
-            this.sousComposants = data.data.data.souscomposantes;
-            this.haveSousComposantes = true;
-            this.sousComposantsId = this.sousComposants[0].id;
-
-            /* if ((this.sousComposantsId == "") && (this.sousComposants.length > 0) ) {
-              this.sousComposantsId = this.sousComposants[0].id;
-            } */
-          }
-
-          //this.activites = data.data.data.activites;
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+      try {
+        const response = await ProjetService.get();
+        this.projets = response.data.data;
+        this.projetId = this.projets[0]?.id || null;
+      } catch (error) {
+        console.error("Erreur lors du chargement des projets", error);
+      } finally {
+        this.isLoadingData = false;
+      }
     },
 
-    filter() {},
+    async loadProjetDetails(projetId) {
+      try {
+        const response = await ProjetService.getDetailProjet(projetId);
+        this.composants = response.data.data.composantes;
+        this.selectedIds.composantId = this.composants[0]?.id || null;
+      } catch (error) {
+        console.error("Erreur lors du chargement des détails du projet", error);
+      }
+    },
+
+    async loadComposantDetails() {
+      if (!this.selectedIds.composantId) return;
+
+      try {
+        const response = await ComposantesService.detailComposant(this.selectedIds.composantId);
+        const composantData = response.data.data;
+        this.sousComposants = composantData.souscomposantes || [];
+        this.activites = composantData.activites || [];
+        this.selectedIds.sousComposantId = this.sousComposants[0]?.id || null;
+      } catch (error) {
+        console.error("Erreur lors du chargement des détails du composant", error);
+      }
+    },
+
     seeActivities() {
       this.seePlan = false;
       this.seeActivite = true;
       this.seeStatistique = false;
-      //this.fetchActivites(this.composanteId)
     },
 
     seeStats() {
@@ -303,11 +202,11 @@ export default {
       this.seeActivite = false;
       this.seeStatistique = false;
     },
+    text() {},
   },
 
-  created() {},
-  mounted() {
-    this.getListeProjet();
+  async mounted() {
+    await this.loadProjets();
   },
 };
 </script>
@@ -347,33 +246,93 @@ export default {
       <h2 class="mb-4 text-base font-bold">Filtre</h2>
 
       <div class="grid grid-cols-2 gap-4">
-        <div class="flex w-full">
-          <!-- :reduce="(projet) => projet.id" -->
-          <v-select class="w-full" v-model="projetId" label="nom" :options="projets">
+        <div class="flex col-span-6" v-if="projets.length > 0">
+          <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Projets</label>
+          <TomSelect
+            v-model="projetId"
+            :options="{
+              placeholder: 'Choisir un Output',
+              create: false,
+              onOptionAdd: text(),
+            }"
+            class="w-full"
+          >
+            <option v-for="(element, index) in projets" :key="index" :value="element.id">{{ element.nom }}</option>
+          </TomSelect>
+        </div>
+
+        <div class="flex col-span-6" v-if="composants.length > 0">
+          <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Composants</label>
+          <TomSelect
+            v-model="selectedIds.composantId"
+            :options="{
+              placeholder: 'Choisir un Output',
+              create: false,
+              onOptionAdd: text(),
+            }"
+            class="w-full"
+          >
+            <option v-for="(element, index) in composants" :key="index" :value="element.id">{{ element.nom }}</option>
+          </TomSelect>
+        </div>
+
+        <div class="flex col-span-6" v-if="sousComposants.length > 0">
+          <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Output</label>
+          <TomSelect
+            v-model="selectedIds.sousComposantId"
+            :options="{
+              placeholder: 'Choisir un Output',
+              create: false,
+              onOptionAdd: text(),
+            }"
+            class="w-full"
+          >
+            <option v-for="(element, index) in sousComposants" :key="index" :value="element.id">{{ element.nom }}</option>
+          </TomSelect>
+        </div>
+        <!-- <div class="col-span-12 justify-evenly flex-wrap">
+          :reduce="(projet) => projet.id" 
+           <v-select class="w-full" v-model="projetId" label="nom" :options="projets">
             <template #search="{ attributes, events }">
               <input class="vs__search form-input" :required="!projetId" v-bind="attributes" v-on="events" />
             </template>
           </v-select>
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Projets</label>
-        </div>
-        <div class="flex w-full">
-          <!-- :reduce="(composant) => composant.id" -->
+        </div> -->
+
+        <!-- <div class="flex w-full">
+          :reduce="(composant) => composant.id"
           <v-select class="w-full" v-model="composantsId" label="nom" :options="composants">
             <template #search="{ attributes, events }">
               <input class="vs__search form-input" :required="!composantsId" v-bind="attributes" v-on="events" />
             </template>
           </v-select>
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OUtComes</label>
-        </div>
-        <div class="flex w-full" v-if="haveSousComposantes">
-          <!-- :reduce="(souscomposant) => souscomposant.id" -->
+        </div> -->
+
+        <!-- <div class="flex w-full">
+          <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Activité</label>
+          <TomSelect
+            v-model="selectedIds.activiteId"
+            :options="{
+              placeholder: 'Choisir une activité',
+              create: false,
+              onOptionAdd: text(),
+            }"
+            class="w-full"
+          >
+            <option v-for="(element, index) in activites" :key="index" :value="element.id">{{ element.nom }}</option>
+          </TomSelect>
+        </div> -->
+        <!-- <div class="flex w-full" v-if="haveSousComposantes">
+          :reduce="(souscomposant) => souscomposant.id"
           <v-select class="w-full" v-model="sousComposantId" label="nom" :options="sousComposants">
             <template #search="{ attributes, events }">
               <input class="vs__search form-input" :required="!sousComposantId" v-bind="attributes" v-on="events" />
             </template>
           </v-select>
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OUtPut</label>
-        </div>
+        </div> -->
 
         <!-- <div class="flex w-full" v-if="haveSousComposantes">
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OUtPut</label>
