@@ -11,6 +11,9 @@ const EvaluationService = {
   getFormEvaluation(idEvaluation) {
     return ApiService.get(`gfa/evaluations-de-gouvernance/${idEvaluation}/formulaires-de-gouvernance`);
   },
+  getResultatWithClassementOng(idEvaluation) {
+    return ApiService.get(`gfa/evaluations-de-gouvernance/${idEvaluation}/voir-resultats-avec-classement-organisations`);
+  },
   getFactuelFormEvaluation(token) {
     return ApiService.get(`gfa/formulaire-factuel/${token}`);
   },

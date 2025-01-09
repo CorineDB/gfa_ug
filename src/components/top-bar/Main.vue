@@ -55,6 +55,7 @@
 
     <!-- BEGIN: Account Menu -->
 
+    <p class="px-2 font-medium">{{ currentUsers.nom }}</p>
     <Dropdown class="w-8 h-8 intro-x">
       <DropdownToggle tag="div" role="button" class="dropdown-toggle image-fit zoom-in">
         <div class="flex items-center justify-center w-8 h-8 bg-blue-400 rounded-full shadow-lg cursor-pointer">

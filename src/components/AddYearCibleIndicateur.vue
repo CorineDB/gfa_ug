@@ -7,7 +7,8 @@
       </ModalHeader>
       <form @submit.prevent="submitData">
         <ModalBody>
-          <AlertErrorIndicateur :errors="errors" />
+          <AlertErrorIndicateur :errors="errors" :countKeys="countValueKeys" />
+
           <!-- Information 1 -->
           <div class="">
             <div class="grid grid-cols-1 gap-4">
@@ -44,7 +45,7 @@
 
                     <div class="flex flex-1 gap-1">
                       <input type="number" class="form-control" id="valeur_cible" placeholder="Valeur cible" v-model="currentAnneeCibleNotAgreger.valeurCible" />
-                      <button @click.prevent="addAnneeCibleNotAgreger" class="btn btn-primary h-9"><PlusIcon class="mr-1 size-3" /></button>
+                      <button @click.prevent="addAnneeCibleNotAgreger" class="text-xs btn btn-primary h-9"><PlusIcon class="mr-1 size-3" />Ajouter</button>
                     </div>
                   </div>
                   <div v-if="errors.valeurDeBase" class="mt-2 text-danger">{{ getFieldErrors(errors.valeurDeBase) }}</div>
@@ -64,13 +65,13 @@
               </div>
 
               <div class="flex flex-wrap items-center justify-between gap-3">
-                <div v-if="payload.agreger" class="flex-1">
+                <!-- <div v-if="payload.agreger" class="flex-1">
                   <label class="form-label">Clé valeur <span class="text-danger">*</span> </label>
                   <TomSelect v-model="array_value_keys" name="keys" multiple :options="{ placeholder: 'Selectionez les clés valeur' }" class="w-full">
                     <option v-for="(key, index) in keys" :key="index" :value="key.id">{{ key.libelle }}</option>
                   </TomSelect>
                   <div v-if="errors.value_keys" class="mt-2 text-danger">{{ getFieldErrors(errors.value_keys) }}</div>
-                </div>
+                </div> -->
               </div>
               <!-- <div v-if="array_value_keys.length > 0 && payload.agreger" class="">
                 <label class="form-label">Valeur de base</label>
@@ -82,7 +83,7 @@
                 </div>
               </div> -->
               <div v-if="payload.agreger" class="space-y-3">
-                <button v-show="array_value_keys.length > 0" class="text-sm btn btn-primary" @click.prevent="showModalAnnee = true"><PlusIcon class="mr-1 size-3" /> Ajouter une année cible</button>
+                <button v-show="array_value_keys.length > 0" class="text-sm btn btn-primary" @click.prevent="showModalAnnee = true"><PlusIcon class="mr-1 size-3" />Cliquer pour Ajouter une année cible</button>
               </div>
               <div v-if="payload.agreger && anneesCible.length > 0" class="flex flex-wrap items-center w-full gap-3">
                 <p>Années cible:</p>
@@ -234,6 +235,9 @@ const payload = reactive({
   sites: [],
 });
 
+const countValueKeys = ref(0);
+const value_keys = ref([]);
+
 const payloadNotAgreger = reactive({
   valeurDeBase: "",
   anneesCible: [],
@@ -383,19 +387,26 @@ const getcurrentUser = async () => {
 
 // Submit data (create or update)
 const submitData = async () => {
+  const updateData = { anneesCible: [], value_keys: [] };
   if (payload.agreger) {
     payload.anneesCible = anneesCible.value;
     payload.valeurDeBase = valeurDeBase.value;
-    payload.value_keys = array_value_keys.value.map((item) => {
-      return { id: item };
-    });
+    payload.value_keys = value_keys.value;
+    updateData.anneesCible = payload.anneesCible;
+    delete updateData.value_keys;
+    // updateData.value_keys = value_keys.value;
+    // payload.value_keys = array_value_keys.value.map((item) => {
+    //   return { id: item };
+    // });
   } else {
     payload.anneesCible = payloadNotAgreger.anneesCible;
     payload.valeurDeBase = payloadNotAgreger.valeurDeBase;
+    updateData.anneesCible = payload.anneesCible;
+    delete updateData.value_keys;
     delete payload.value_keys;
   }
   isLoading.value = true;
-  const action = isCreate.value ? IndicateursService.addYearsCible(idSelect.value, { anneesCible: payload.anneesCible }) : IndicateursService.update(idSelect.value, payload);
+  const action = isCreate.value ? IndicateursService.addYearsCible(idSelect.value, updateData) : IndicateursService.update(idSelect.value, payload);
   try {
     await action;
     toast.success(`Années cibles  ${isCreate.value ? "ajoutée" : "modifiée"} avec succès.`);
@@ -592,12 +603,20 @@ watch(
 
 watch(showModalCreate, (newValue) => {
   idSelect.value = props.currentIndicateur.id;
+  payload.agreger = props.currentIndicateur.agreger;
+  if (payload.agreger) {
+    countValueKeys.value = props.currentIndicateur.value_keys.length;
+    array_value_keys.value = props.currentIndicateur.value_keys.map((key) => key.id);
+    value_keys.value = props.currentIndicateur.value_keys.map((key) => {
+      return { id: key.id, uniteeMesureId: key.uniteeMesureId };
+    });
+  }
 });
+
 // Fetch data on component mount
 onMounted(async () => {
   // console.log("currentIndicateur", props.currentIndicateur);
   idSelect.value = props.currentIndicateur.id;
-  payload.agreger = props.currentIndicateur.agreger;
   await getcurrentUser();
   // getDatasCadre();
   // getDatas();

@@ -476,7 +476,7 @@ onMounted(() => {
               </div>
               <div class="grid grid-cols-2 gap-4">
                 <InputForm :required="false" :optionel="false" label="Sigle" v-model="payload.sigle" :control="getFieldErrors(errors.sigle)" />
-                <InputForm :required="false" label="Contact" v-model.number="payload.contact" type="number" :control="getFieldErrors(errors.contact)" />
+                <InputForm :required="false" label="Contact" v-model.number="payload.contact" :control="getFieldErrors(errors.contact)" />
               </div>
               <div class="grid grid-cols-2 gap-4">
                 <InputForm :required="false" :optionel="false" label="Code" :control="getFieldErrors(errors.code)" v-model.number="payload.code" type="number" />
@@ -587,7 +587,7 @@ onMounted(() => {
                 <InputForm label="Nom point focal" :optionel="false" :control="getFieldErrors(errors.nom_point_focal)" v-model="payload.nom_point_focal" />
                 <InputForm label="Prénom point focal" :optionel="false" :control="getFieldErrors(errors.prenom_point_focal)" v-model="payload.prenom_point_focal" />
               </div>
-              <InputForm label="Contact point focal" :optionel="false" :control="getFieldErrors(errors.contact_point_focal)" v-model="payload.contact_point_focal" type="number" />
+              <InputForm label="Contact point focal" :optionel="false" :control="getFieldErrors(errors.contact_point_focal)" v-model="payload.contact_point_focal" />
             </div>
           </div>
           <div class="flex justify-end gap-3 py-4">

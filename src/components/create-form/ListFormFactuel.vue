@@ -68,8 +68,8 @@ const initTabulator = () => {
     placeholder: "Aucune donnée disponible.",
     headerHozAlign: "center",
     layout: "fitColumns",
-    pagination:"local", 
-    paginationSize: 10, 
+    pagination: "local",
+    paginationSize: 10,
     columns: [
       {
         title: "Libellé",
@@ -159,6 +159,7 @@ watch(
 );
 
 onMounted(() => {
+  initTabulator();
   getListForm();
 });
 </script>
@@ -168,7 +169,7 @@ onMounted(() => {
     <h2 class="mt-10 text-lg font-medium intro-y">Formulaires Factuels</h2>
     <LoaderSnipper v-if="isLoading" />
     <div v-show="!isLoading" class="overflow-x-auto scrollbar-hidden">
-      <div id="tabulator" class="mt-5 table-report table-report--tabulator"></div>
+      <div id="tabulator" ref="tabulator" class="mt-5 table-report table-report--tabulator"></div>
     </div>
     <!-- <div v-if="!isLoading" class="grid gap-3 mx-auto grid-cols-[repeat(auto-fill,_minmax(350px,_1fr))] mt-5" v-for="form in listForms" :key="form.id">
       <div class="p-3 space-y-3 bg-white rounded shadow-md">
