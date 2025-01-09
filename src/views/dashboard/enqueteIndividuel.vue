@@ -159,6 +159,9 @@ const initTabulator = () => {
     data: datas.value,
     placeholder: "Aucune donnée disponible.",
     layout: "fitColumns",
+    responsiveLayout: "hide",
+    pagination: "local",
+    paginationSize: 5,
     columns: [
       {
         title: "Libellé",
