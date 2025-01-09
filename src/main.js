@@ -15,7 +15,8 @@ import Vue3Toastify from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
 import { surveyPlugin } from "survey-vue3-ui";
 import permissionPlugin from "./plugins/verify-permission";
-// import { Vue3SimpleHtml2pdf } from 'vue3-simple-html2pdf'
+import permissionDirective from "./utils/permissionsDirective";
+//import { Vue3SimpleHtml2pdf } from "vue3-simple-html2pdf";
 
 const app = createApp(App)
   .use(router)
@@ -31,4 +32,5 @@ const app = createApp(App)
 globalComponents(app);
 utils(app);
 app.component("v-select", vSelect);
+app.directive("permission", permissionDirective);
 app.mount("#app");

@@ -1,15 +1,6 @@
 <template>
   <div class="flex flex-col items-center mt-8 mb-4 intro-y sm:flex-row">
     <h2 class="mr-auto text-lg font-medium">Liste des projets</h2>
-    <!-- <div class="flex w-full mt-4 sm:w-auto sm:mt-0">
-      <button v-if="verifyPermission('modifier-un-projet')" class="mr-2 shadow-md btn btn-primary" @click="addProjet()">Ajouter un projet</button>
-    </div>
-    <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
-      <div class="relative w-56 text-slate-500">
-        <input type="text" v-model="search" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
-        <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
-      </div>
-    </div> -->
   </div>
 
   <div>
@@ -35,16 +26,16 @@
 
     <form @submit.prevent="sendForm">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
-        <InputForm v-model="formData.nom" class="col-span-12" type="text" :required="true" placeHolder="Nom du projet" label="Nom*" />
+        <InputForm v-model="formData.nom" class="col-span-12" type="text" :required="true" placeHolder="Nom du projet" label="Nom" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
 
-        <InputForm v-model="formData.couleur" class="col-span-12" type="color" :required="true" placeHolder="Couleur" label="Couleur*" />
+        <InputForm v-model="formData.couleur" class="col-span-12" type="color" :required="true" placeHolder="Couleur" label="Couleur" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.couleur">{{ messageErreur.couleur }}</p>
 
-        <InputForm v-model="formData.debut" class="col-span-12" type="date" :required="true" placeHolder="Entrer la date de début" label="Début du projet*" />
+        <InputForm v-model="formData.debut" class="col-span-12" type="date" :required="true" placeHolder="Entrer la date de début" label="Début du projet" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.debut">{{ messageErreur.debut }}</p>
 
-        <InputForm v-model="formData.fin" class="col-span-12" type="date" :required="true" placeHolder="Entrer la date de fin" label="Fin du projet*" />
+        <InputForm v-model="formData.fin" class="col-span-12" type="date" :required="true" placeHolder="Entrer la date de fin" label="Fin du projet" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.fin">{{ messageErreur.fin }}</p>
 
         <InputForm v-model="formData.nombreEmploie" class="col-span-12" type="number" placeHolder="Ex : 10" label="Nombre d'employé" />
@@ -53,33 +44,47 @@
         <InputForm v-model="formData.pays" class="col-span-12" type="text" placeHolder="Ex : Bénin" label="Pays" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pays">{{ messageErreur.pays }}</p>
 
-        <InputForm v-model="formData.budgetNational" class="col-span-12" type="text" :required="true" placeHolder="Ex : 100000" label="Fond Propre*" />
+        <InputForm v-model="formData.budgetNational" class="col-span-12" type="text" :required="true" placeHolder="Ex : 100000" label="Fond Propre" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.budgetNational">{{ messageErreur.budgetNational }}</p>
 
-        <InputForm v-model="formData.pret" class="col-span-12" type="text" :required="true" placeHolder="Ex : 100000" label="Montant financé*" />
+        <InputForm v-model="formData.pret" class="col-span-12" type="text" :required="true" placeHolder="Ex : 100000" label="Montant financé" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pret">{{ messageErreur.pret }}</p>
 
         <div class="col-span-12" v-if="!isUpdate">
-          <InputForm class="col-span-12" type="file" @change="handleFileChange" placeHolder="choisir une image" label="Images de couverture" accept="image/*" />
+          <label class="block my-3 font-bold text-gray-700">Images de couverture</label>
+          <input type="file" @change="handleFileChange" placeHolder="choisir une image" accept="image/*" class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
           <div class="col-span-12" v-if="imagePreview">
             <h3 class="block my-3 font-bold">Prévisualisation de l'image :</h3>
             <img :src="imagePreview" alt="Prévisualisation" width="200" />
           </div>
         </div>
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.image">{{ messageErreur.image }}</p>
 
-        <div class="col-span-12" v-if="!isUpdate">
+        <!-- <div class="col-span-12" v-if="!isUpdate">
           <label class="block my-3 font-bold">Pièces jointes</label>
           <input name="fichier" class="col-span-12" placeHolder="choisir un fichier ou plusieurs" type="file" multiple @change="handleFileChange2" />
-          <!-- <InputForm class="col-span-12" type="file" @change="handleFileChange2" placeHolder="choisir un fichier ou plusieurs" label="Pièces jointes" multiple /> -->
+          <InputForm class="col-span-12" type="file" @change="handleFileChange2" placeHolder="choisir un fichier ou plusieurs" label="Pièces jointes" multiple />
           <div class="col-span-12">
-            <!-- <pre>{{ files }}</pre> -->
-            <ul>
+            <ul v-if="files.length > 1">
               <li v-for="(file, index) in files" :key="index">
                 {{ file.name }}
               </li>
             </ul>
           </div>
+        </div> -->
+        <div class="col-span-12" v-if="!isUpdate">
+          <label class="block my-3 font-bold text-gray-700">Pièces jointes</label>
+          <input name="fichier" class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Choisir un fichier ou plusieurs" type="file" multiple @change="handleFileChange2" />
+          <div class="col-span-12 mt-4">
+            <ul v-if="files.length > 1" class="bg-gray-100 rounded-lg shadow-md p-4 space-y-2">
+              <li v-for="(file, index) in files" :key="index" class="flex items-center justify-between p-2 bg-white rounded-lg shadow-sm hover:bg-gray-50">
+                <span class="text-gray-700 font-medium">{{ file.name }}</span>
+                <button class="text-red-500 hover:text-red-700 font-semibold text-sm" @click="removeFile(index)">Supprimer</button>
+              </li>
+            </ul>
+          </div>
         </div>
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.fichier">{{ messageErreur.fichier }}</p>
 
         <div class="col-span-12">
           <label>Organisation*</label>
@@ -93,9 +98,9 @@
             >
               <option v-for="(org, index) in ongs" :key="index" :value="org.id">{{ org.nom }}</option>
             </TomSelect>
-            <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.organisationId">{{ messageErreur.organisationId }}</p>
           </div>
         </div>
+        <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.organisationId">{{ messageErreur.organisationId }}</p>
 
         <div class="col-span-12">
           <label>Sites*</label>
@@ -110,9 +115,10 @@
             >
               <option v-for="(site, index) in sites" :key="index" :value="site.id">{{ site.nom }}</option>
             </TomSelect>
-            <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.sites">{{ messageErreur.sites }}</p>
           </div>
         </div>
+        <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.sites">{{ messageErreur.sites }}</p>
+
         <!-- Choix de fichier -->
         <!-- <div class="relative col-span-12">
         <label for="modal-form-1" class="font-medium form-label">Fichier(s)</label>
@@ -160,7 +166,8 @@
       </div>
     </ModalBody>
   </Modal>
-  <div v-if="verifyPermission('voir-un-projet')" class="grid grid-cols-1 gap-6 mt-6 md:grid-cols-2 lg:grid-cols-3">
+  <LoaderSnipper v-if="isLoadingProjets" />
+  <div v-if="verifyPermission('voir-un-projet') && !isLoadingProjets" class="grid grid-cols-1 gap-6 mt-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
     <div href="#" class="relative transition-all duration-500 border-l-4 shadow-2xl box group _bg-white zoom-in border-primary hover:border-secondary" v-for="(item, index) in paginatedAndFilteredData" :key="index">
       <div class="relative m-5 bg-white">
         <div class="text-[#171a1d] group-hover:text-[#007580] font-medium text-[14px] md:text-[16px] lg:text-[18px] leading-[30px] pt-[10px]">{{ item.nom }}</div>
@@ -184,7 +191,11 @@
 
       <div class="m-5 text-slate-600 dark:text-slate-500">
         <div class="flex items-center">
-          <LinkIcon class="w-4 h-4 mr-2" /> Budget: {{ $h.formatCurrency(item.budgetNational) }}
+          <LinkIcon class="w-4 h-4 mr-2" /> Fond propre: {{ $h.formatCurrency(item.budgetNational) }}
+          <div class="ml-2 italic font-bold">Fcfa</div>
+        </div>
+        <div class="flex items-center">
+          <LinkIcon class="w-4 h-4 mr-2" /> Montant financé: {{ $h.formatCurrency(item.pret == null ? 0 : item.pret) }}
           <div class="ml-2 italic font-bold">Fcfa</div>
         </div>
         <div v-if="item.owner !== null" class="flex items-center">
@@ -207,11 +218,11 @@
         </div>
       </div>
 
-      <div class="flex items-center justify-center p-5 border-t lg:justify-end border-slate-200/60 dark:border-darkmode-400">
-        <a v-if="verifyPermission('voir-details-projet')" class="flex items-center mr-auto text-primary" href="javascript:;" @click="goToDetail(item)"> <EyeIcon class="w-4 h-4 mr-1" /> Détail </a>
-        <a v-if="verifyPermission('prolonger-un-projet')" class="flex items-center mr-auto text-primary" href="javascript:;" @click="ouvrirModalProlongerProjet(item)" title="Prolonger la date du projet"> <CalendarIcon class="w-4 h-4 mr-1" />Étendre</a>
-        <a v-if="verifyPermission('modifier-un-projet')" class="flex items-center mr-3" href="javascript:;" @click="modifierProjet(item)"> <CheckSquareIcon class="w-4 h-4 mr-1" /> Modifier </a>
-        <a v-if="verifyPermission('supprimer-un-projet')" class="flex items-center text-danger" href="javascript:;" @click="supprimerProjet(item)"> <Trash2Icon class="w-4 h-4 mr-1" /> Supprimer </a>
+      <div class="flex items-center justify-between p-5 border-t lg:justify-end border-slate-200/60 dark:border-darkmode-400">
+        <a v-if="verifyPermission('voir-details-projet')" class="flex items-center mr-auto text-primary" href="javascript:;" @click="goToDetail(item)"> <EyeIcon class="w-4 h-4 mr-1" title="voir détail" /> <span class="hidden sm:block"> Détail </span></a>
+        <a v-if="verifyPermission('prolonger-un-projet')" class="flex items-center mr-auto text-primary" href="javascript:;" @click="ouvrirModalProlongerProjet(item)" title="Prolonger la date du projet"> <CalendarIcon class="w-4 h-4 mr-1" /><span class="hidden sm:block"> Étendre </span></a>
+        <a v-if="verifyPermission('modifier-un-projet')" class="flex items-center mr-auto" href="javascript:;" @click="modifierProjet(item)"> <CheckSquareIcon class="w-4 h-4 mr-1" title="modifier le projet" /><span class="hidden sm:block"> Modifier </span> </a>
+        <a v-if="verifyPermission('supprimer-un-projet')" class="flex items-center text-danger mr-auto" href="javascript:;" @click="supprimerProjet(item)"> <Trash2Icon class="w-4 h-4 mr-1" title="supprimer le projet" /><span class="hidden sm:block"> Supprimer </span> </a>
       </div>
 
       <div class="absolute bottom-0 flex w-full">
@@ -225,7 +236,7 @@
 
     <!-- <pagination totalItems="30" itemsPerPage="10" :isLoading="false" /> -->
   </div>
-  <LoaderSnipper v-if="isLoadingProjets" />
+
   <pagination class="col-span-12" :total-items="totalItems" :items-per-page="itemsPerPage" :is-loading="isLoadingProjets" @page-changed="onPageChanged" @items-per-page-changed="onItemsPerPageChanged">
     <!-- Slots personnalisés (facultatif) -->
     <template #prev-icon>
@@ -483,11 +494,14 @@ export default {
       // Récupérer les fichiers sélectionnés
       this.selectedFile2 = event.target.files;
 
+      console.log("this.selectedFile2", this.selectedFile2);
+
       // Ajouter chaque fichier à la liste et à l'objet FormData
       for (const file of this.selectedFile2) {
         this.files.push(file);
         // this.formData.append("files[]", file); // "files[]" pour envoyer plusieurs fichiers
       }
+      console.log("this.files", this.files);
     },
     ajouterFormNormalDansFormData() {
       for (let key in this.formNormal) {
@@ -672,7 +686,7 @@ export default {
       this.currentPage = newPage;
       console.log("Page actuelle :", this.currentPage);
       // Charger les données pour la page actuelle
-      this.loadDataForPage(newPage);
+      // this.loadDataForPage(newPage);
     },
     onItemsPerPageChanged(itemsPerPage) {
       this.itemsPerPage = itemsPerPage;
@@ -783,7 +797,9 @@ export default {
     },
 
     modifierProjet(projet) {
+      console.log("projet", projet);
       this.messageErreur = {};
+      this.formData = {};
       console.log(projet);
       this.isUpdate = true;
       this.title = "Modifier";
@@ -799,11 +815,16 @@ export default {
       this.formData.pays = projet.pays;
       this.formData.pret = projet.pret;
       this.formData.sites = projet.sites.map((site) => site.id);
-      this.formData.organisationId = projet.organisationId;
+      this.formData.organisationId = projet.owner.user.id;
       this.formData.nombreEmploie = projet.nombreEmploie;
       this.formData.budgetNational = projet.budgetNational;
 
-      console.log(this.formData);
+      if (projet.sites.length > 0)
+        projet.sites.forEach((item) => {
+          this.formData.push(item);
+        });
+
+      console.log("this.formData", this.formData);
 
       this.showCloseModal(true);
     },
@@ -894,13 +915,13 @@ export default {
           .catch((errors) => {
             this.isLoading = false;
             console.log(errors);
-            toast.error("Erreur lors de la modification");
-            if (error.response && error.response.data && error.response.data.errors) {
-              this.messageErreur = error.response.data.errors;
+
+            if (errors.response && errors.response.data && errors.response.data.errors) {
+              this.messageErreur = errors.response.data.errors;
+              toast.error("Une erreur s'est produite dans votre formulaire");
             } else {
-              toast.error("Une erreur inconnue s'est produite");
+              toast.error(errors.message);
             }
-            this.isLoading = false;
           });
       } else {
         if (this.formData.couleur == "") {
@@ -915,7 +936,7 @@ export default {
         $h.ajouterObjetDansFormData(this.formData, this.FormProjet);
 
         if (this.selectedFile) {
-          this.FormProjet.append("image[]", this.selectedFile);
+          this.FormProjet.append("image", this.selectedFile);
         }
 
         if (this.selectedFile2) {
@@ -953,11 +974,11 @@ export default {
             console.log(error);
             this.isLoading = false;
             this.FormProjet = new FormData();
-            toast.error("Une erreur s'est produite");
 
             // Mettre à jour les messages d'erreurs dynamiquement
             if (error.response && error.response.data && error.response.data.errors) {
               this.messageErreur = error.response.data.errors;
+              toast.error("Une erreur s'est produite dans votre formulaire");
             } else {
               toast.error(error.response.data.errors.message);
             }

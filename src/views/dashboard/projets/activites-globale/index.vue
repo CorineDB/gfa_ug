@@ -9,6 +9,7 @@ import VButton from "@/components/news/VButton.vue";
 import ActivitiesComponent from "./activities.vue";
 import verifyPermission from "@/utils/verifyPermission";
 import NoRecordsMessage from "@/components/NoRecordsMessage.vue";
+import pagination from "@/components/news/pagination.vue";
 import { helper as $h } from "@/utils/helper";
 
 export default {
@@ -16,11 +17,17 @@ export default {
     InputForm,
     VButton,
     NoRecordsMessage,
+    pagination,
     ActivitiesComponent,
   },
 
   data() {
     return {
+      search: "",
+      isLoadingActivites: false,
+      itemsPerPage: 3, // Nombre d'éléments par page
+      totalItems: null,
+      currentPage: 1, // Page courante
       allActivite: [],
       messageErreur: {},
       projets: [],
@@ -52,6 +59,20 @@ export default {
 
   computed: {
     ...mapGetters("auths", { currentUser: "GET_AUTHENTICATE_USER" }),
+    paginatedAndFilteredData() {
+      const { paginatedData, totalFilteredItems } = $h.filterData({
+        itemsPerPage: this.itemsPerPage,
+        search: this.search,
+        data: this.activites,
+        currentPage: this.currentPage,
+        keys: ["nom"],
+      });
+
+      // Mettre à jour le total pour recalculer la pagination
+      this.totalItems = totalFilteredItems;
+
+      return paginatedData;
+    },
   },
 
   watch: {
@@ -66,6 +87,15 @@ export default {
 
   methods: {
     verifyPermission,
+    onPageChanged(newPage) {
+      this.currentPage = newPage;
+      // console.log("Page actuelle :", this.currentPage);
+      // // Charger les données pour la page actuelle
+      // this.loadDataForPage(newPage);
+    },
+    onItemsPerPageChanged(itemsPerPage) {
+      this.itemsPerPage = itemsPerPage;
+    },
     seeTypeActivities(state) {
       state = parseInt(state);
       this.seeActivitiesOfState = state;
@@ -164,6 +194,7 @@ export default {
         this.showModal = false;
         this.loadComposantDetails();
       } catch (error) {
+        this.isLoading = false;
         this.messageErreur = error.response?.data?.errors || {};
         toast.error("Erreur lors de l'envoi des données");
       } finally {
@@ -350,72 +381,7 @@ export default {
             <option v-for="(element, index) in sousComposants" :key="index" :value="element.id">{{ element.nom }}</option>
           </TomSelect>
         </div>
-        <!-- <div class="col-span-12 justify-evenly flex-wrap">
-          :reduce="(projet) => projet.id" 
-           <v-select class="w-full" v-model="projetId" label="nom" :options="projets">
-            <template #search="{ attributes, events }">
-              <input class="vs__search form-input" :required="!projetId" v-bind="attributes" v-on="events" />
-            </template>
-          </v-select>
-          <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Projets</label>
-        </div> -->
-
-        <!-- <div class="flex w-full">
-          :reduce="(composant) => composant.id"
-          <v-select class="w-full" v-model="composantsId" label="nom" :options="composants">
-            <template #search="{ attributes, events }">
-              <input class="vs__search form-input" :required="!composantsId" v-bind="attributes" v-on="events" />
-            </template>
-          </v-select>
-          <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OUtComes</label>
-        </div> -->
-
-        <!-- <div class="flex w-full">
-          <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Activité</label>
-          <TomSelect
-            v-model="selectedIds.activiteId"
-            :options="{
-              placeholder: 'Choisir une activité',
-              create: false,
-              onOptionAdd: text(),
-            }"
-            class="w-full"
-          >
-            <option v-for="(element, index) in activites" :key="index" :value="element.id">{{ element.nom }}</option>
-          </TomSelect>
-        </div> -->
-        <!-- <div class="flex w-full" v-if="haveSousComposantes">
-          :reduce="(souscomposant) => souscomposant.id"
-          <v-select class="w-full" v-model="sousComposantId" label="nom" :options="sousComposants">
-            <template #search="{ attributes, events }">
-              <input class="vs__search form-input" :required="!sousComposantId" v-bind="attributes" v-on="events" />
-            </template>
-          </v-select>
-          <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OUtPut</label>
-        </div> -->
-
-        <!-- <div class="flex w-full" v-if="haveSousComposantes">
-          <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OUtPut</label>
-          <TomSelect
-            v-model="sousComposantId"
-            :options="{
-              placeholder: 'Choisir un Output',
-              create: false,
-              onOptionAdd: text(),
-            }"
-            class="w-full"
-          >
-            <option v-for="(element, index) in sousComposants" :key="index" :value="element.id">{{ element.nom }}</option>
-          </TomSelect>
-        </div> -->
       </div>
-
-      <!-- <button class="absolute px-4 py-2 text-white transform -translate-x-1/2 bg-blue-500 rounded -bottom-3 left-1/2" @click="filter()">Filtrer</button> -->
-    </div>
-
-    <!-- Results or other components -->
-    <div class="mt-6">
-      <!-- Place the table or grid component here -->
     </div>
   </div>
 
@@ -428,7 +394,7 @@ export default {
           <h2 class="text-base font-bold">Activites</h2>
         </div>
         <div class="flex">
-          <button class="mr-2 shadow-md btn btn-primary" @click="addActivite()"><PlusIcon class="w-4 h-4 mr-3" />Ajouter une Activité</button>
+          <button class="mr-2 shadow-md btn btn-primary" v-permission="['creer-une-activite']" @click="addActivite()"><PlusIcon class="w-4 h-4 mr-3" />Ajouter une Activité test</button>
         </div>
       </div>
 
@@ -445,7 +411,7 @@ export default {
         </div>
         <div class="flex">
           <div class="relative text-slate-500">
-            <input type="text" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
+            <input v-model="search" type="text" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
             <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
           </div>
         </div>
@@ -457,7 +423,7 @@ export default {
       <LoaderSnipper v-if="isLoadingData" />
       <div v-if="!isLoadingData" class="grid grid-cols-12 gap-6 mt-5">
         <NoRecordsMessage class="col-span-12" v-if="!activites.length" title="Aucune activité trouvée" description="Il semble qu'il n'y ait pas d'activités à afficher. Veuillez revenir plus tard." />
-        <div v-else v-for="(item, index) in activites" :key="index" class="col-span-12 p-4 md:col-span-6 lg:col-span-4">
+        <div v-else v-for="(item, index) in paginatedAndFilteredData" :key="index" class="col-span-12 p-4 md:col-span-6 lg:col-span-4">
           <div v-if="verifyPermission('voir-une-activite')" class="p-5 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-105 hover:bg-gray-50">
             <div class="relative flex items-start pt-5">
               <div class="flex flex-col items-center w-full lg:flex-row">
@@ -466,14 +432,7 @@ export default {
                   <!-- <img alt="Midone Tailwind HTML Admin Template" class="rounded-full" :src="faker.photos[0]" /> -->
                 </div>
                 <div class="mt-3 text-center lg:ml-4 lg:text-left lg:mt-0 w-4/6">
-                  <a href="" class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary">{{ item.nom }} Lorem ipsum dolor, sit amet consectetur adipisicing elit. Ut porro mollitia corporis enim consequuntur autem facilis ab minima iure, fuga ullam aliquam tenetur placeat nostrum, voluptate, quibusdam doloremque perferendis vitae?</a>
-                  <!-- <div class="mt-2 text-xs text-gray-500">
-                    <span v-if="item.statut == -2" class="px-2 py-1 text-xs font-medium text-white rounded-md bg-primary"> Non validé </span>
-                    <span v-else-if="item.statut == -1" class="px-2 py-1 text-xs font-medium text-white bg-green-500 rounded-md"> Vaelidé </span>
-                    <span v-else-if="item.statut == 0" class="px-2 py-1 text-xs font-medium text-white bg-yellow-500 rounded-md"> En cours </span>
-                    <span v-else-if="item.statut == 1" class="px-2 py-1 text-xs font-medium text-white bg-red-500 rounded-md"> En retard </span>
-                    <span v-else-if="item.statut == 2" class="pl-2 font-medium">Terminé</span>
-                  </div> -->
+                  <a href="" class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary">{{ item.nom }} </a>
                 </div>
               </div>
               <Dropdown class="absolute top-0 right-0 mt-3 mr-5">
@@ -494,13 +453,14 @@ export default {
               <p class="p-3 text-gray-600 rounded-lg shadow-sm bg-gray-50">{{ item.description == null ? "Aucune description" : item.description }}</p>
 
               <div class="mt-5 space-y-3 text-gray-600">
-                <div class="flex items-center text-sm font-medium text-gray-700">
-                  <LinkIcon class="w-4 h-4 mr-2 text-primary" /> Fonds propre:
-                  <span class="ml-2 font-semibold text-gray-900">{{ item.budgetNational }}</span>
+                <div class="flex items-center">
+                  <LinkIcon class="w-4 h-4 mr-2" /> Fonds propre: {{ $h.formatCurrency(item.budgetNational) }}
+                  <div class="ml-2 italic font-bold">Fcfa</div>
                 </div>
-                 <div class="flex items-center text-sm font-medium text-gray-700">
-                  <LinkIcon class="w-4 h-4 mr-2 text-primary" /> Montant financé:
-                  <span class="ml-2 font-semibold text-gray-900">{{ item.pret }}</span>
+
+                <div class="flex items-center">
+                  <LinkIcon class="w-4 h-4 mr-2" /> Montant financé: {{ $h.formatCurrency(item.pret == null ? 0 : item.pret) }}
+                  <div class="ml-2 italic font-bold">Fcfa</div>
                 </div>
 
                 <div class="flex items-center text-sm font-medium text-gray-700">
@@ -527,6 +487,15 @@ export default {
         </div>
       </div>
     </div>
+    <pagination class="col-span-12" :total-items="totalItems" :items-per-page="itemsPerPage" :is-loading="isLoadingProjets" @page-changed="onPageChanged" @items-per-page-changed="onItemsPerPageChanged">
+      <!-- Slots personnalisés (facultatif) -->
+      <template #prev-icon>
+        <span>&laquo; Précédent</span>
+      </template>
+      <template #next-icon>
+        <span>Suivant &raquo;</span>
+      </template>
+    </pagination>
   </div>
 
   <PlanDecaissementComponent v-if="seePlan" :projetsId="projetId" :composantId="selectedIds.composantId" :sousComposantsId="selectedIds.sousComposantsId" @getProjetById="loadProjetDetails" />
@@ -537,7 +506,7 @@ export default {
 
   <Modal backdrop="static" :show="showModal" @hidden="showModal = false">
     <ModalHeader>
-      <h2 v-if="!update" class="mr-auto text-base font-medium">Ajouter une Activité test</h2>
+      <h2 v-if="!update" class="mr-auto text-base font-medium">Ajouter une Activité</h2>
       <h2 v-else class="mr-auto text-base font-medium">Modifier un Activité</h2>
     </ModalHeader>
     <form @submit.prevent="sendForm">
@@ -558,18 +527,6 @@ export default {
         <InputForm v-model="formData.fin" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de fin*" label="Fin de l'activité" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.fin">{{ messageErreur.fin }}</p>
 
-        <!-- <pre>{{ composants }}</pre> -->
-        <!-- <div class="flex col-span-12">
-        :reduce="(composant) => composant.id"
-        <v-select class="w-full" v-model="formData.composanteId" label="nom" :options="composants">
-          <template #search="{ attributes, events }">
-            <input class="vs__search form-input" :required="!formData.composanteId" v-bind="attributes" v-on="events" />
-          </template>
-        </v-select>
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.composanteId">{{ messageErreur.composanteId }}</p>
-
-        <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-bold duration-100 ease-linear -translate-y-3 bg-white _font-medium form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OutComes</label>
-      </div> -->
         <div class="flex col-span-12">
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OutCome*</label>
           <TomSelect
@@ -603,38 +560,6 @@ export default {
           </div>
           <button class="btn btn-outline-primary" @click="resetSousComposantsId()" title="Rester dans le composant"><TrashIcon class="w-4 h-4" /></button>
         </div>
-        <!-- <div class="flex col-span-12" v-if="haveSousComposantes">
-        :reduce="(composant) => composant.id"
-        <v-select class="w-full" v-model="formData.composanteId" label="nom" :options="sousComposants">
-          <template #search="{ attributes, events }">
-            <input class="vs__search form-input" :required="!formData.composanteId" v-bind="attributes" v-on="events" />
-          </template>
-        </v-select>
-        <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-bold duration-100 ease-linear -translate-y-3 bg-white _font-medium form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OutPut test</label>
-      </div> -->
-
-        <!-- <div class="flex col-span-12">
-        <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OutComes</label>
-        <TomSelect
-          v-model="formData.composanteId"
-          :options="{
-            placeholder: 'Choisir un Output',
-            create: false,
-            onOptionAdd: text(),
-          }"
-          class="w-full"
-        >
-          <option v-for="(element, index) in composants" :key="index" :value="element.id">{{ element.nom }}</option>
-        </TomSelect>
-      </div> -->
-        <!--<div class="flex col-span-12">
-        <v-select class="w-full" :reduce="(composant) => composant.id" v-model="formData.composanteId" label="nom" :options="composants">
-          <template #search="{ attributes, events }">
-            <input class="vs__search form-input" :required="!formData.composanteId" v-bind="attributes" v-on="events" />
-          </template>
-        </v-select>
-        <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-bold duration-100 ease-linear -translate-y-3 bg-white _font-medium form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OutComes</label>
-      </div>-->
       </ModalBody>
       <ModalFooter>
         <div class="flex items-center justify-center">

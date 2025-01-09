@@ -1,7 +1,7 @@
 <template>
   <div v-if="!isLoading" class="flex _flex-col justify-between items-center gap-3 my-8">
     <!-- Indication de la position actuelle -->
-    <div class="text-gray-600">Page {{ currentPage }} sur {{ totalPages }}</div>
+    <div class="hidden md:block text-gray-600">Page {{ currentPage }} sur {{ totalPages }}</div>
 
     <!-- Pagination -->
     <div class="flex justify-center gap-3">
@@ -25,7 +25,7 @@
 
     <!-- Sélecteur pour le nombre d'éléments par page -->
     <div class="mt-4">
-      <label for="itemsPerPage" class="mr-2 text-gray-600">Éléments par page :</label>
+      <label for="itemsPerPage" class="mr-2 text-gray-600 hidden md:block lg:inline-block">Éléments par page :</label>
       <select id="itemsPerPage" v-model="localItemsPerPage" @change="updateItemsPerPage" class="border border-gray-300 rounded px-6 py-1">
         <option v-for="option in itemsPerPageOptions" :key="option" :value="option">
           {{ option }}

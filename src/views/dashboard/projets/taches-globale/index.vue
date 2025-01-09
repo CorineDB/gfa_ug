@@ -10,13 +10,22 @@ import verifyPermission from "@/utils/verifyPermission";
 import InputForm from "@/components/news/InputForm.vue";
 import VButton from "@/components/news/VButton.vue";
 import { toast } from "vue3-toastify";
+import pagination from "@/components/news/pagination.vue";
+import { helper as $h } from "@/utils/helper";
+
 export default {
   components: {
     InputForm,
     VButton,
+    pagination,
   },
   data() {
     return {
+      search: "",
+      isLoadingTaches: false,
+      itemsPerPage: 3, // Nombre d'éléments par page
+      totalItems: null,
+      currentPage: 1, // Page courante
       messageErreur: {},
       projets: [],
       projetId: {},
@@ -30,7 +39,7 @@ export default {
       isLoading: false,
       formData: {
         nom: "",
-        poids: "",
+        poids: 0,
         debut: "",
         fin: "",
         activiteId: "",
@@ -47,6 +56,20 @@ export default {
   },
   computed: {
     ...mapGetters("auths", { currentUser: "GET_AUTHENTICATE_USER" }),
+    paginatedAndFilteredData() {
+      const { paginatedData, totalFilteredItems } = $h.filterData({
+        itemsPerPage: this.itemsPerPage,
+        search: this.search,
+        data: this.taches,
+        currentPage: this.currentPage,
+        keys: ["nom"],
+      });
+
+      // Mettre à jour le total pour recalculer la pagination
+      this.totalItems = totalFilteredItems;
+
+      return paginatedData;
+    },
   },
   watch: {
     projetId(newValue, oldValue) {
@@ -74,6 +97,15 @@ export default {
   },
 
   methods: {
+    onPageChanged(newPage) {
+      this.currentPage = newPage;
+      console.log("Page actuelle :", this.currentPage);
+      // Charger les données pour la page actuelle
+      // this.loadDataForPage(newPage);
+    },
+    onItemsPerPageChanged(itemsPerPage) {
+      this.itemsPerPage = itemsPerPage;
+    },
     text() {},
     verifyPermission,
     clearObjectValues(obj) {
@@ -168,15 +200,12 @@ export default {
             }
           })
           .catch((error) => {
-            console.log(error);
-            // delete this.formData.projetId;
             if (error.response && error.response.data && error.response.data.errors) {
               this.messageErreur = error.response.data.errors;
+              toast.error("Une erreur s'est produite.Vérifier le formulaire de soumission");
             } else {
-              toast.error("Une erreur inconnue s'est produite");
+              toast.error(error.message);
             }
-            this.isLoading = false;
-            toast.error("Erreur lors de la modification");
           });
       } else {
         this.isLoading = true;
@@ -193,9 +222,13 @@ export default {
             }
           })
           .catch((error) => {
-            console.log("error", error);
             this.isLoading = false;
-            toast.error("Erreur lors de l' ajout");
+            if (error.response && error.response.data && error.response.data.errors) {
+              this.messageErreur = error.response.data.errors;
+              toast.error("Une erreur s'est produite.Vérifier le formulaire de soumission");
+            } else {
+              toast.error(error.message);
+            }
           });
       }
     },
@@ -306,21 +339,6 @@ export default {
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OUtComes</label>
         </div>
 
-        <!-- <div class="flex w-full" v-if="haveSousComposantes">
-          <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OUtPut</label>
-          <TomSelect
-            v-model="sousComposantId"
-            :options="{
-              placeholder: 'Choisir un Output',
-              create: false,
-              onOptionAdd: text(),
-            }"
-            class="w-full"
-          >
-            <option v-for="(element, index) in sousComposants" :key="index" :value="element.id">{{ element.nom }}</option>
-          </TomSelect>
-        </div> -->
-
         <div class="flex w-full">
           <!-- :reduce="(activite) => activite.id" -->
           <v-select class="w-full" v-model="activitesId" label="nom" :options="activites">
@@ -346,7 +364,7 @@ export default {
     <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
       <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
         <div class="relative w-56 text-slate-500">
-          <input type="text" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
+          <input type="text" v-model="search" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
           <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
         </div>
       </div>
@@ -360,7 +378,7 @@ export default {
     <!-- BEGIN: Users Layout -->
     <!-- <pre>{{sousComposants}}</pre>   -->
 
-    <div v-for="(item, index) in taches" :key="index" class="col-span-12 intro-y md:col-span-6 lg:col-span-4">
+    <div v-for="(item, index) in paginatedAndFilteredData" :key="index" class="col-span-12 intro-y md:col-span-6 lg:col-span-4">
       <div v-if="verifyPermission('voir-une-tache')" class="p-5 box">
         <div class="flex items-start pt-5 _px-5">
           <div class="_flex _flex-col _items-center w-full _lg:flex-row">
@@ -384,12 +402,9 @@ export default {
             </DropdownMenu>
           </Dropdown>
         </div>
-        <div class="text-center lg:text-left">
-          <div class="my-5 text-left">
-            <p class="mx-auto font-semibold text-left ">Description : </p>
-
-            {{ item.description }}
-          </div>
+        <div class="text-center lg:text-left mt-4">
+          <p class="mb-3 text-md font-semibold text-primary">Description</p>
+          <p class="p-3 text-gray-600 rounded-lg shadow-sm bg-gray-50">{{ item.description == null ? "Aucune description" : item.description }}</p>
           <div class="m-5 text-slate-600 dark:text-slate-500">
             <div class="flex items-center"><GlobeIcon class="w-4 h-4 mr-2" /> Taux d'exécution physique: {{ item.tep }}</div>
 
@@ -401,12 +416,22 @@ export default {
               <span class="px-2 py-1 m-5 text-xs text-white rounded bg-danger/80" v-else-if="item.statut == 1"> En retard </span>
               <span class="pl-2" v-else-if="item.statut == 2">Terminé</span>
             </div>
-            <div class="flex items-center mt-2"><CheckSquareIcon class="w-4 h-4 mr-2" /> Poids : {{ item.poids }}</div>
+            <!-- <div class="flex items-center mt-2"><CheckSquareIcon class="w-4 h-4 mr-2" /> Poids : {{ item.poids }}</div> -->
           </div>
         </div>
       </div>
     </div>
+    <pagination class="col-span-12" :total-items="totalItems" :items-per-page="itemsPerPage" :is-loading="isLoadingData" @page-changed="onPageChanged" @items-per-page-changed="onItemsPerPageChanged">
+      <!-- Slots personnalisés (facultatif) -->
+      <template #prev-icon>
+        <span>&laquo; Précédent</span>
+      </template>
+      <template #next-icon>
+        <span>Suivant &raquo;</span>
+      </template>
+    </pagination>
   </div>
+
   <!-- END: Users Layout -->
   <LoaderSnipper v-if="isLoadingData" />
 
@@ -415,37 +440,35 @@ export default {
       <h2 v-if="!update" class="mr-auto text-base font-medium">Ajouter une tache</h2>
       <h2 v-else class="mr-auto text-base font-medium">Modifier une tache</h2>
     </ModalHeader>
-    <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
-      <InputForm v-model="formData.nom" class="col-span-12" type="text" required="required" placeHolder="Nom de la tache" label="Nom" />
-      <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
+    <form @submit.prevent="sendForm">
+      <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
+        <InputForm v-model="formData.nom" class="col-span-12" type="text" required="required" placeHolder="Nom de la tache" label="Nom" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
 
-      <InputForm v-model="formData.poids" class="col-span-12" type="number" required="required" placeHolder="Poids de l'activité " label="Poids" />
-      <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.poids">{{ messageErreur.poids }}</p>
+        <InputForm v-model="formData.debut" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de début" label="Début de la tâche" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.debut">{{ messageErreur.debut }}</p>
 
-      <InputForm v-model="formData.debut" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de début" label="Début de la tâche" />
-      <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.debut">{{ messageErreur.debut }}</p>
+        <InputForm v-model="formData.fin" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de fin " label="Fin de la tâche " />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.fin">{{ messageErreur.fin }}</p>
 
-      <InputForm v-model="formData.fin" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de fin" label="Fin de la tâche " />
-      <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.fin">{{ messageErreur.fin }}</p>
+        <div class="flex col-span-12">
+          <v-select class="w-full" v-model="formData.activiteId" label="nom" :options="activites">
+            <template #search="{ attributes, events }">
+              <input class="vs__search form-input" :required="!formData.activiteId" v-bind="attributes" v-on="events" />
+            </template>
+          </v-select>
+          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.activiteId">{{ messageErreur.activiteId }}</p>
 
-      <div class="flex col-span-12">
-        <!-- :reduce="(activite) => activite.id" -->
-        <v-select class="w-full" v-model="formData.activiteId" label="nom" :options="activites">
-          <template #search="{ attributes, events }">
-            <input class="vs__search form-input" :required="!formData.activiteId" v-bind="attributes" v-on="events" />
-          </template>
-        </v-select>
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.activiteId">{{ messageErreur.activiteId }}</p>
-
-        <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-bold duration-100 ease-linear -translate-y-3 bg-white _font-medium form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Activites</label>
-      </div>
-    </ModalBody>
-    <ModalFooter>
-      <div class="flex items-center justify-center">
-        <button type="button" @click="showModal = false" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
-        <VButton class="inline-block" :label="labels" :loading="isLoading" @click="sendForm" />
-      </div>
-    </ModalFooter>
+          <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-bold duration-100 ease-linear -translate-y-3 bg-white _font-medium form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Activites</label>
+        </div>
+      </ModalBody>
+      <ModalFooter>
+        <div class="flex items-center justify-center">
+          <button type="button" @click="showModal = false" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
+          <VButton class="inline-block" :label="labels" :loading="isLoading" />
+        </div>
+      </ModalFooter>
+    </form>
   </Modal>
 
   <Modal :show="showDeleteModal" @hidden="showDeleteModal = false">
