@@ -190,7 +190,6 @@
           <!-- <div  style="height: 40vh"></div> -->
           <div>
             <div id="map" class="h-48 mb-4 bg-gray-200 rounded-md"></div>
-            <p class="text-sm text-gray-500">Total Number of Sessions within Date Range Users</p>
           </div>
           <!-- Data Table -->
           <div>
