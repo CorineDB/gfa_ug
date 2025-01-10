@@ -61,7 +61,7 @@
       <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pret">{{ messageErreur.pret }}</p>
 
       <div class="col-span-12" v-if="!isUpdate">
-        <InputForm class="col-span-12" type="file" @change="handleFileChange" required="required" placeHolder="choisir une image" label="Images de couverture" accept="image/*" />
+        <input class="col-span-12" type="file" @change="handleFileChange" required="required" placeHolder="choisir une image" label="Images de couverture" accept="image/*" />
         <div class="col-span-12" v-if="imagePreview">
           <h3>Prévisualisation de l'image :</h3>
           <img :src="imagePreview" alt="Prévisualisation" width="200" />
@@ -142,7 +142,7 @@
           <div class="absolute inset-0 flex items-start justify-center p-5 text-white transition-opacity duration-500 bg-black opacity-0 bg-opacity-80 group-hover:opacity-100">
             <div>
               <p class="text-base font-bold lg:text-lg">Description du projet</p>
-              <p class="px-2 text-sm lg:text-base line-clamp-7">{{ item.description }} {{ key }}</p>
+              <p class="px-2 text-sm lg:text-base line-clamp-7">{{ item.description }} {{ item.key }}</p>
             </div>
           </div>
         </div>

@@ -211,7 +211,7 @@ onMounted(() => {
     <LoaderSnipper v-if="isLoadingData" />
   </div>
 
-  <div v-if="!isLoadingData" class="mt-5 box">
+  <div v-if="!isLoadingData" class="w-full mt-5 box">
     <p class="p-2 text-lg font-medium">Suivi des valeurs cibles et des valeurs réalisées</p>
     <ChartDetailSuivi :data="datas" />
   </div>
