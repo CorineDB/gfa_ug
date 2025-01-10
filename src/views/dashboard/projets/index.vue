@@ -183,7 +183,7 @@
           <div class="absolute inset-0 flex items-start justify-center p-5 text-white transition-opacity duration-500 bg-black opacity-0 bg-opacity-80 group-hover:opacity-100">
             <div>
               <p class="text-base font-bold lg:text-lg">Description du projet</p>
-              <p class="px-2 text-sm lg:text-base line-clamp-7">{{ item.description }} {{ key }}</p>
+              <p class="px-2 text-sm lg:text-base line-clamp-7">{{ item.description }} {{ item.key }}</p>
             </div>
           </div>
         </div>
