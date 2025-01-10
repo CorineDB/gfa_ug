@@ -1,32 +1,36 @@
 <template>
-  <div v-if="!isLoading" class="flex _flex-col justify-between items-center gap-3 my-8">
+  <div v-if="!isLoading" class="flex flex-col md:flex-row md:justify-between items-center gap-4 my-8">
     <!-- Indication de la position actuelle -->
-    <div class="hidden md:block text-gray-600">Page {{ currentPage }} sur {{ totalPages }}</div>
+    <div class="hidden md:block text-gray-600 text-sm">Page {{ currentPage }} sur {{ totalPages }}</div>
 
     <!-- Pagination -->
-    <div class="flex justify-center gap-3">
+    <div class="flex flex-wrap justify-center items-center gap-3 w-full md:w-auto">
       <!-- Bouton Précédent -->
-      <button @click="prevPage" :disabled="currentPage === 1" class="px-4 py-3 btn btn-outline-primary">
-        <slot name="prev-icon"><ChevronsLeftIcon class="size-5" /></slot>
+      <button @click="prevPage" :disabled="currentPage === 1" class="px-3 py-2 btn btn-outline-primary disabled:opacity-50 disabled:cursor-not-allowed" aria-label="Page précédente">
+        <slot name="prev-icon">
+          <ChevronsLeftIcon class="size-5" />
+        </slot>
       </button>
 
       <!-- Pages -->
-      <div class="flex items-center justify-center gap-3 overflow-x-auto scroll-pagination custom-scroll">
-        <button v-for="page in totalPages" :key="page" @click="goToPage(page)" :class="page === currentPage ? 'btn-primary' : 'btn-outline-primary'" class="px-4 py-3 btn">
+      <div class="flex items-center justify-center gap-2 overflow-x-auto scroll-pagination custom-scroll px-2 md:px-0">
+        <button v-for="page in totalPages" :key="page" @click="goToPage(page)" :class="[page === currentPage ? 'btn-primary' : 'btn-outline-primary', 'px-3 py-2 btn']" aria-label="Page {{ page }}">
           {{ page }}
         </button>
       </div>
 
       <!-- Bouton Suivant -->
-      <button @click="nextPage" :disabled="currentPage === totalPages" class="px-4 py-3 btn btn-outline-primary">
-        <slot name="next-icon"><ChevronsRightIcon class="size-5" /></slot>
+      <button @click="nextPage" :disabled="currentPage === totalPages" class="px-3 py-2 btn btn-outline-primary disabled:opacity-50 disabled:cursor-not-allowed" aria-label="Page suivante">
+        <slot name="next-icon">
+          <ChevronsRightIcon class="size-5" />
+        </slot>
       </button>
     </div>
 
     <!-- Sélecteur pour le nombre d'éléments par page -->
-    <div class="mt-4">
-      <label for="itemsPerPage" class="mr-2 text-gray-600 hidden md:block lg:inline-block">Éléments par page :</label>
-      <select id="itemsPerPage" v-model="localItemsPerPage" @change="updateItemsPerPage" class="border border-gray-300 rounded px-6 py-1">
+    <div class="w-full md:w-auto mt-4 md:mt-0">
+      <label for="itemsPerPage" class="block text-sm text-gray-600 mb-1 md:inline md:mr-2"> Éléments par page : </label>
+      <select id="itemsPerPage" v-model="localItemsPerPage" @change="updateItemsPerPage" class="border border-gray-300 rounded px-4 py-2 text-sm w-full md:w-auto">
         <option v-for="option in itemsPerPageOptions" :key="option" :value="option">
           {{ option }}
         </option>

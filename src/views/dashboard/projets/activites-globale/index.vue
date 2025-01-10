@@ -398,8 +398,8 @@ export default {
         </div>
       </div>
 
-      <div class="flex flex-wrap items-center justify-between col-span-12 sm:flex-nowrap xs:flex-nowrap space-y-4 md:space-y-0">
-        <div class="flex space-x-2 md:space-x-4">
+      <div class="flex flex-wrap items-center justify-between col-span-12">
+        <div class="flex flex-wrap space-x-2 md:space-x-4">
           <span :class="{ 'border-primary border-b-4 font-bold': seeActivitiesOfState == 3 }" @click="seeTypeActivities(3)" class="inline-block cursor-pointer text-xs sm:text-sm uppercase py-2 mb-2">Tout</span>
 
           <span :class="{ 'border-primary border-b-4 font-bold': seeActivitiesOfState == -1 }" @click="seeTypeActivities(-1)" class="inline-block cursor-pointer text-xs sm:text-sm uppercase py-2 mb-2">Non demarre</span>
@@ -427,11 +427,11 @@ export default {
           <div v-if="verifyPermission('voir-une-activite')" class="p-5 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-105 hover:bg-gray-50">
             <div class="relative flex items-start pt-5">
               <div class="flex flex-col items-center w-full lg:flex-row">
-                <div class="flex items-center justify-center w-[90px] h-[90px] text-white rounded-full shadow-md bg-primary">
+                <div class="flex items-center justify-center w-[90px] h-[90px] text-white rounded-full shadow-md bg-primary flex-shrink-0">
                   {{ item.type }}
                   <!-- <img alt="Midone Tailwind HTML Admin Template" class="rounded-full" :src="faker.photos[0]" /> -->
                 </div>
-                <div class="mt-3 text-center lg:ml-4 lg:text-left lg:mt-0 w-4/6">
+                <div class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary _truncate text-center lg:text-left">
                   <a href="" class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary">{{ item.nom }} </a>
                 </div>
               </div>
@@ -476,11 +476,6 @@ export default {
                   <span v-else-if="item.statut == 1" class="ml-2 text-gray-900">En retard</span>
                   <span v-else-if="item.statut == 2" class="ml-2 text-gray-900">Terminé</span>
                 </div>
-
-                <!-- <div class="flex items-center text-sm font-medium text-gray-700">
-                  <CheckSquareIcon class="w-4 h-4 mr-2 text-primary" /> Poids:
-                  <span class="ml-2 font-semibold text-gray-900">{{ item.poids }}</span>
-                </div> -->
               </div>
             </div>
           </div>
@@ -513,9 +508,6 @@ export default {
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
         <InputForm v-model="formData.nom" class="col-span-12" type="text" required="required" placeHolder="Nom de l'activité*" label="Nom test" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
-
-        <!-- <InputForm v-model="formData.poids" class="col-span-12" type="number" required="required" placeHolder="Poids de l'activité " label="Poids" />
-      <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.poids">{{ messageErreur.poids }}</p> -->
 
         <InputForm v-model="formData.pret" class="col-span-12" type="number" required="required" placeHolder="Montant financé*" label="Montant financé" />
         <InputForm v-model="formData.budgetNational" class="col-span-12" type="number" required="required" placeHolder="Ex : 2" label="Fond Propre*" />

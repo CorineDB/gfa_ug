@@ -311,7 +311,7 @@ export default {
       <h2 class="mb-4 text-base font-bold">Filtre</h2>
 
       <div class="grid grid-cols-2 gap-4">
-        <div class="flex w-full">
+        <div class="flex col-span-12 md:col-span-6">
           <!-- :reduce="(projet) => projet.id" -->
           <v-select class="w-full" v-model="projetId" label="nom" :options="projets">
             <template #search="{ attributes, events }">
@@ -320,7 +320,7 @@ export default {
           </v-select>
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Projets</label>
         </div>
-        <div class="flex w-full">
+        <div class="flex col-span-12 md:col-span-6">
           <!-- :reduce="(composant) => composant.id" -->
           <v-select class="w-full" v-model="composantsId" label="nom" :options="composants">
             <template #search="{ attributes, events }">
@@ -329,7 +329,7 @@ export default {
           </v-select>
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OUtComes</label>
         </div>
-        <div class="flex w-full" v-if="haveSousComposantes">
+        <div class="flex col-span-12 md:col-span-6" v-if="haveSousComposantes">
           <!-- :reduce="(souscomposant) => souscomposant.id" -->
           <v-select class="w-full" v-model="sousComposantId" label="nom" :options="sousComposants">
             <template #search="{ attributes, events }">
@@ -339,7 +339,7 @@ export default {
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OUtComes</label>
         </div>
 
-        <div class="flex w-full">
+        <div class="flex col-span-12 md:col-span-6">
           <!-- :reduce="(activite) => activite.id" -->
           <v-select class="w-full" v-model="activitesId" label="nom" :options="activites">
             <template #search="{ attributes, events }">
@@ -352,24 +352,19 @@ export default {
 
       <!-- <button class="absolute px-4 py-2 text-white transform -translate-x-1/2 bg-blue-500 rounded -bottom-3 left-1/2" @click="filter()">Filtrer</button> -->
     </div>
-
-    <!-- Results or other components -->
-    <div class="mt-6">
-      <!-- Place the table or grid component here -->
-    </div>
   </div>
 
   <!-- Titre de la page -->
   <div class="grid grid-cols-12 gap-6 mt-5">
-    <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
-      <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
+    <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y">
+      <div class="w-auto">
         <div class="relative w-56 text-slate-500">
           <input type="text" v-model="search" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
           <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
         </div>
       </div>
       <div v-if="verifyPermission('creer-une-tache')" class="flex">
-        <button class="mr-2 shadow-md btn btn-primary" @click="addTache()"><PlusIcon class="w-4 h-4 mr-3" />Ajouter une Tache</button>
+        <button class="mr-2 shadow-md btn btn-primary" @click="addTache()"><PlusIcon class="w-4 h-4 mr-3" />Ajouter un OutCome</button>
       </div>
     </div>
   </div>
@@ -378,14 +373,11 @@ export default {
     <!-- BEGIN: Users Layout -->
     <!-- <pre>{{sousComposants}}</pre>   -->
 
-    <div v-for="(item, index) in paginatedAndFilteredData" :key="index" class="col-span-12 intro-y md:col-span-6 lg:col-span-4">
+    <div v-for="(item, index) in paginatedAndFilteredData" :key="index" class="col-span-12 intro-y md:col-span-6 xl:col-span-4">
       <div v-if="verifyPermission('voir-une-tache')" class="p-5 box">
         <div class="flex items-start pt-5 _px-5">
           <div class="_flex _flex-col _items-center w-full _lg:flex-row">
-            <!-- <div class="flex items-center justify-center w-16 h-16 text-white rounded-full image-fit bg-primary">
-              {{ item.type }}
-              <img alt="Midone Tailwind HTML Admin Template" class="rounded-full" :src="faker.photos[0]" />
-            </div> -->
+           
             <div class="mt-3 text-left _lg:ml-4 _lg:text-left lg:mt-0">
               <span class="pr-2 font-bold">Nom :</span><a href="" class="font-medium">{{ item.nom }}</a>
             </div>
