@@ -180,7 +180,7 @@
       </div>
       <div class="flex flex-col items-center p-6 mb-3 bg-white rounded-md shadow">
         <p class="text-xl font-bold text-center">TEF</p>
-        <ChartJauge label="TEP" :temperature="graphiqueData?.tef * 100 ?? 0" />
+        <ChartJauge label="TEF" :temperature="graphiqueData?.tef * 100 ?? 0" />
       </div>
       <!-- Map and Data -->
       <div class="col-span-2 p-6 bg-white rounded-md shadow" v-if="graphiqueData?.sites?.length > 0">
