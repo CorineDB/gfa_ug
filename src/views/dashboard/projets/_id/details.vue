@@ -7,11 +7,11 @@
         <h1 class="text-xl font-semibold text-gray-800">{{ graphiqueData?.nom }}</h1>
         <p class="text-sm text-gray-600" v-if="graphiqueData?.description">{{ graphiqueData?.description }}.</p>
       </div>
-      <div class="">
+      <!-- <div class="">
         <p class="text-sm text-gray-600">
           Manager: <span class="font-medium text-primary">{{ graphiqueData?.projet_manager ?? "" }}</span>
         </p>
-      </div>
+      </div> -->
     </div>
     <div class="grid grid-cols-12 gap-6 mt-5">
       <div class="col-span-12 sm:col-span-6 xl:col-span-4 intro-y">
@@ -174,7 +174,14 @@
           </div>
         </div>
       </div>
-
+      <div class="flex flex-col items-center p-6 mb-3 bg-white rounded-md shadow">
+        <p class="text-xl font-bold text-center">TEP</p>
+        <ChartJauge label="TEP" :temperature="graphiqueData?.tep * 100 ?? 0" />
+      </div>
+      <div class="flex flex-col items-center p-6 mb-3 bg-white rounded-md shadow">
+        <p class="text-xl font-bold text-center">TEF</p>
+        <ChartJauge label="TEP" :temperature="graphiqueData?.tef * 100 ?? 0" />
+      </div>
       <!-- Map and Data -->
       <div class="col-span-2 p-6 bg-white rounded-md shadow" v-if="graphiqueData?.sites?.length > 0">
         <h2 class="mb-4 text-lg font-semibold text-gray-700">Cartes géographiques</h2>
@@ -213,10 +220,6 @@
         </div>
       </div>
       <!-- </section> -->
-    </div>
-
-    <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-      <!-- <ChartJauge /> -->
     </div>
 
     <!-- Activities Section -->
