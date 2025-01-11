@@ -101,6 +101,7 @@ import { useAuthStore } from "@/stores/modules/authentification";
 import AuthentificationService from "@/services/modules/auth.service";
 import { useRouter, useRoute } from "vue-router";
 import { API_BASE_URL } from "@/services/configs/environment";
+import { toast } from "vue3-toastify";
 const router = useRouter();
 const route = useRoute();
 const searchDropdown = ref(false);
@@ -143,27 +144,24 @@ onMounted(() => {
 });
 
 const logout = () => {
+  localStorage.removeItem("bsdInfo");
+  localStorage.removeItem("access_token");
+  localStorage.removeItem("authenticateUser");
+  toast.success("Vous êtes déconnecté");
+  setTimeout(() => {
+    router.push("/");
+  }, 100);
   AuthentificationService.logout()
     .then(() => {
-      localStorage.removeItem("bsdInfo");
-      store.resetInfo();
-      message.type = "success";
-      message.message = "Vous êtes déconnecté";
-      successNotificationToggle();
-      //toast success
-      setTimeout(() => {
-        router.push("/");
-      }, 100);
+      toast.success("Vous êtes déconnecté");
     })
     .catch((error) => {
       setTimeout(() => {
         router.push("/");
       }, 100);
       if (error.response) {
-        const message = error.response.data.message;
-        message.type = "erreur";
-        message.message = message;
-        successNotificationToggle();
+        console.log(error);
+        // toast.error("Erreur de déconnexion");
       }
     });
 };
