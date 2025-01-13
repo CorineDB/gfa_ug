@@ -15,6 +15,7 @@ const prop = defineProps({
 
 const router = useRouter();
 const tabulator = ref();
+const searchValue = ref("");
 const isLoading = ref(false);
 const isLoadingOneForm = ref(false);
 const showModal = ref(false);
@@ -63,7 +64,7 @@ const deleteOneForm = async () => {
   }
 };
 const initTabulator = () => {
-  tabulator.value = new Tabulator("#tabulator", {
+  tabulator.value = new Tabulator("#list-factuel", {
     data: listForms.value,
     placeholder: "Aucune donnée disponible.",
     headerHozAlign: "center",
@@ -121,6 +122,14 @@ const initTabulator = () => {
     ],
   });
 };
+const applyFilter = () => {
+  if (tabulator.value) {
+    const query = searchValue.value.toLowerCase();
+    tabulator.value.setFilter((data) => {
+      return data.libelle.toLowerCase().includes(query);
+    });
+  }
+};
 const handlepreview = (params) => {
   idSelectedForm.value = params.id;
   getOneForm();
@@ -159,17 +168,25 @@ watch(
 );
 
 onMounted(() => {
-  initTabulator();
   getListForm();
+  initTabulator();
 });
 </script>
 
 <template>
   <div>
     <h2 class="mt-10 text-lg font-medium intro-y">Formulaires Factuels</h2>
+    <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
+      <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
+        <div class="relative w-56 text-slate-500">
+          <input type="text" @input="applyFilter" v-model="searchValue" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
+          <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
+        </div>
+      </div>
+    </div>
     <LoaderSnipper v-if="isLoading" />
     <div v-show="!isLoading" class="overflow-x-auto scrollbar-hidden">
-      <div id="tabulator" ref="tabulator" class="mt-5 table-report table-report--tabulator"></div>
+      <div id="list-factuel" ref="list-factuel" class="mt-5 table-report table-report--tabulator"></div>
     </div>
     <!-- <div v-if="!isLoading" class="grid gap-3 mx-auto grid-cols-[repeat(auto-fill,_minmax(350px,_1fr))] mt-5" v-for="form in listForms" :key="form.id">
       <div class="p-3 space-y-3 bg-white rounded shadow-md">
