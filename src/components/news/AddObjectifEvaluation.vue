@@ -18,15 +18,15 @@
               <p class="mb-1 text-sm font-medium">{{ principe.nom }}</p>
               <div class="grid gap-3 grid-cols-[repeat(auto-fill,_minmax(250px,_1fr))]">
                 <div class="input-group">
-                  <div class="flex items-center justify-center text-sm input-group-text">Factuel</div>
+                  <div class="flex items-center justify-center text-sm input-group-text">Factuel <span class="text-danger">*</span></div>
                   <input type="number" min="0" max="1" step="0.1" class="form-control" v-model="responses[principe.id].outils.find((item) => item.type === 'factuel').objectif_attendu" placeholder="Objectif factuel" />
                 </div>
                 <div class="input-group">
-                  <div class="flex items-center justify-center text-sm input-group-text">Perception</div>
+                  <div class="flex items-center justify-center text-sm input-group-text">Perception <span class="text-danger">*</span></div>
                   <input type="number" min="0" max="1" step="0.1" class="form-control" v-model="responses[principe.id].outils.find((item) => item.type === 'perception').objectif_attendu" placeholder="Objectif perception" />
                 </div>
                 <div class="input-group">
-                  <div class="flex items-center justify-center text-sm input-group-text">Synthetique</div>
+                  <div class="flex items-center justify-center text-sm input-group-text">Synthetique <span class="text-danger">*</span></div>
                   <input type="number" min="0" max="1" step="0.1" class="form-control" v-model="responses[principe.id].outils.find((item) => item.type === 'synthetique').objectif_attendu" placeholder="Objectif synthetique" />
                 </div>
               </div>

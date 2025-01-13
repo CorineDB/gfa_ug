@@ -52,7 +52,7 @@
 
             <div>
               <label for="regular-form-1" class="form-label">Contact</label>
-              <input id="regular-form-1" type="number" required v-model="formData.contact" class="form-control" placeholder="Contact" />
+              <input id="regular-form-1" type="text" required v-model="formData.contact" class="form-control" placeholder="Contact" />
               <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.contact">{{ messageErreur.contact }}</p>
             </div>
 

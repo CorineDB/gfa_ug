@@ -308,6 +308,13 @@ const resetAllFormWithDataLocalStorage = () => {
   // toast.success("Formulaire supprimé.");
 };
 
+const showDeleteButton = computed(() => {
+  if (localStorage.getItem("globalFormFactuelData") || localStorage.getItem("previewFormFactuelData") || localStorage.getItem("globalOptionResponses")) {
+    return true;
+  } else {
+    return false;
+  }
+});
 const resetForm = () => {
   payload.libelle = "";
   modalForm.value = false;
@@ -474,7 +481,7 @@ onMounted(() => {
           <div class="w-full">
             <div class="flex-1">
               <!-- <pre>{{ annees }}</pre> -->
-              <label class="form-label">Année cible</label>
+              <label class="form-label">Année cible<span class="text-danger">*</span> </label>
               <TomSelect v-model="payload.annee_exercice" name="annee_aggrer" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
                 <option value=""></option>
                 <option v-for="annee in annees" :key="annee" :value="annee">{{ annee }}</option>

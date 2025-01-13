@@ -168,7 +168,9 @@ export default {
         identifiant.email = this.login;
         identifiant.password = this.password;
         const datas = await axios.get(`${this.base_url}/sanctum/csrf-cookie`);
-        if (datas.status == 204) {
+        //const datas = true;
+        // datas.status == 204
+        if (datas) {
           await this.authentification(identifiant)
             .then((response, status) => {
               if (response.statut === "success" || response.status === 200) {
@@ -188,7 +190,7 @@ export default {
                 this.showAlert = true;
                 toast.error("Email ou mot de passe incorrect reesayer !!!");
               } else {
-                toast.error("Une erreur s'est produite reesayer !!!");
+                toast.error("Identifiants incorrect !!!");
               }
               this.chargement = false;
             });
@@ -225,6 +227,9 @@ export default {
     },
   },
   mounted() {
+    if (localStorage.getItem("authenticateUser") && localStorage.getItem("access_token")) {
+      window.location.href = "/dashboard/projets";
+    }
     this.isValidate = localStorage.getItem("activeCompte");
   },
 

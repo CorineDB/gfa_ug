@@ -28,11 +28,11 @@ const isCreate = ref(true);
 const programmes = ref([]);
 const permissions = ref([]);
 const datas = ref([]);
+const searchValue = ref("");
 
 const getInfoUsers = async () => {
   await RoleService.getInfo()
     .then((result) => {
-      console.log(result.data.data);
       permissions.value = result.data.data.role[0].permissions;
       // datas.value = result.data.data;
       // isLoadingData.value = false;
@@ -77,7 +77,7 @@ const getDatas = async () => {
       isLoadingData.value = false;
       toast.error("Une erreur est survenue: Liste des type des options.");
     });
-  // initTabulator();
+  initTabulator();
 };
 
 const getPermissionDatas = async () => {
@@ -141,20 +141,38 @@ const getProgrammes = () => {
     });
 };
 const initTabulator = () => {
-  tabulator.value = new Tabulator("#tabulator", {
+  tabulator.value = new Tabulator("#tabulatore", {
     data: datas.value,
     placeholder: "Aucune donnée disponible.",
     layout: "fitColumns",
+    responsiveLayout: "hide",
+    pagination: "local",
+    paginationSize: 10,
     columns: [
       {
         title: "Nom",
         field: "nom",
       },
       {
-        title: "Type",
-        field: "type",
-      },
+        title: "Permissions",
+        field: "permissions",
+        formatter: (cell) => {
+          const permissions = cell.getValue(); // Récupère le tableau des permissions
+          if (!permissions || permissions.length === 0) {
+            return "<span>Aucune permission</span>";
+          }
 
+          // Générer des badges dynamiques
+          return permissions.map((permission) => `<span class="inline-block p-1 text-xs text-white rounded-md bg-primary">${permission.nom}</span>`).join(" ");
+        },
+        formatterParams: {
+          htmlOutput: true, // Active l'insertion HTML dans la cellule
+        },
+      },
+      {
+        title: "Date de création",
+        field: "created_at",
+      },
       {
         title: "Actions",
         field: "actions",
@@ -170,11 +188,11 @@ const initTabulator = () => {
             return button;
           };
 
-          const modifyButton = createButton("Modifier", "btn btn-primary", () => {
+          const modifyButton = createButton("Modifier", "btn btn-primary text-xs p-1.5", () => {
             handleEdit(cell.getData());
           });
 
-          const deleteButton = createButton("Supprimer", "btn btn-danger", () => {
+          const deleteButton = createButton("Supprimer", "btn btn-danger text-xs p-1.5", () => {
             handleDelete(cell.getData());
           });
 
@@ -220,8 +238,16 @@ const openCreateModal = () => {
 };
 
 const mode = computed(() => (isCreate.value ? "Ajouter" : "Modifier"));
-
+const applyFilter = () => {
+  if (tabulator.value) {
+    const query = searchValue.value.toLowerCase();
+    tabulator.value.setFilter((data) => {
+      return data.nom.toLowerCase().includes(query) || data.created_at.toLowerCase().includes(query);
+    });
+  }
+};
 onMounted(() => {
+  initTabulator();
   // const usersInfo = JSON.parse(localStorage.getItem("authenticateUser"));
   // if (usersInfo.role) {
   //   permissions.value = usersInfo.role[0].permissions;
@@ -238,7 +264,7 @@ onMounted(() => {
     <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
       <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
         <div class="relative w-56 text-slate-500">
-          <input type="text" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
+          <input type="text" v-model="searchValue" @input="applyFilter" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
           <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
         </div>
       </div>
@@ -249,29 +275,11 @@ onMounted(() => {
   </div>
 
   <div class="p-5 mt-5 intro-y box">
-    <!-- <div class="flex flex-col sm:flex-row sm:items-end xl:items-start">
-      <div></div>
-      <div class="flex mt-5 sm:mt-0">
-        <button id="tabulator-print" class="w-1/2 mr-2 btn btn-outline-secondary sm:w-auto"><PrinterIcon class="w-4 h-4 mr-2" /> Print</button>
-        <Dropdown class="w-1/2 sm:w-auto">
-          <DropdownToggle class="w-full btn btn-outline-secondary sm:w-auto">
-            <FileTextIcon class="w-4 h-4 mr-2" /> Export
-            <ChevronDownIcon class="w-4 h-4 ml-auto sm:ml-2" />
-          </DropdownToggle>
-          <DropdownMenu class="w-40">
-            <DropdownContent>
-              <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Export CSV </DropdownItem>
-              <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Export JSON </DropdownItem>
-              <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Export XLSX </DropdownItem>
-              <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Export HTML </DropdownItem>
-            </DropdownContent>
-          </DropdownMenu>
-        </Dropdown>
-      </div>
-    </div> -->
+    <div class="overflow-x-auto scrollbar-hidden" v-show="!isLoadingData">
+      <div id="tabulatore" ref="tabulatore" class="mt-5 table-report table-report--tabulator"></div>
+    </div>
     <div class="overflow-x-auto scrollbar-hidden" v-if="!isLoadingData">
-      <!-- <div id="tabulator" class="mt-5 table-report table-report--tabulator"></div> -->
-      <table class="table mt-5">
+      <!-- <table class="table mt-5">
         <thead class="table-light">
           <tr>
             <th class="whitespace-nowrap">#</th>
@@ -287,13 +295,12 @@ onMounted(() => {
             <td>{{ data.nom }}</td>
             <td>
               <div class="grid grid-cols-5 gap-1">
-                <span v-for="(permission, index) in data.permissions" :key="index" class="bg-primary text-white rounded-md p-2 text-xs">
+                <span v-for="(permission, index) in data.permissions" :key="index" class="p-2 text-xs text-white rounded-md bg-primary">
                   {{ permission.nom }}
                 </span>
               </div>
             </td>
             <td>{{ data.created_at }}</td>
-            <!-- v-if="$h.getPermission('write.role')" -->
             <td class="space-y-3">
               <Tippy tag="a" href="javascript:;" class="tooltip" content="cliquez pour modifier">
                 <span @click="handleEdit(data)" class="text-blue-500 cursor-pointer">
@@ -308,7 +315,7 @@ onMounted(() => {
             </td>
           </tr>
         </tbody>
-      </table>
+      </table> -->
     </div>
     <LoaderSnipper v-if="isLoadingData" />
   </div>
@@ -326,9 +333,17 @@ onMounted(() => {
 
           <div class="my-2">
             <label for="regular-form-2" class="form-label">Description</label>
-            <textarea id="regular-form-2" placeholder="Description du role" v-model="payload.description" required class="form-control px-3 py-2 mt-1 border-2 border-gray-300 w-full focus:outline-none focus:ring-2 focus:border-transparent" rows="2"></textarea>
+            <textarea id="regular-form-2" placeholder="Description du role" required v-model="payload.description" class="w-full px-3 py-2 mt-1 border-2 border-gray-300 form-control focus:outline-none focus:ring-2 focus:border-transparent" rows="2"></textarea>
             <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.description">{{ messageErreur.description }}</p>
           </div>
+          <!-- <div>
+            <label class="form-label">Permissions <span class="text-danger">*</span> </label>
+            <TomSelect v-model="payload.permissions" multiple :options="{ placeholder: 'Selectionez  un secteur' }" class="w-full">
+              <option value=""></option>
+              <option v-for="(permission, index) in permissions" :key="index" :value="permission.id">{{ permission.nom }}</option>
+            </TomSelect>
+            <div v-if="messageErreur.permissions" class="mt-2 text-danger">{{ messageErreur.permissions }}</div>
+          </div> -->
           <div class="w-full">
             <div class="flex w-full">
               <v-select :reduce="(projet) => projet.id" class="w-full" v-model="payload.permissions" multiple label="nom" :options="permissions">
@@ -336,7 +351,7 @@ onMounted(() => {
                   <input class="vs__search form-input" :required="!payload.permissions" v-bind="attributes" v-on="events" />
                 </template>
               </v-select>
-              <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Permissions</label>
+              <label class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Permissions <span class="text-danger">*</span> </label>
             </div>
             <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.permissions">{{ messageErreur.permissions }}</p>
           </div>

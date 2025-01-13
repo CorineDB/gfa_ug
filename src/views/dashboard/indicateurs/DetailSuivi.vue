@@ -7,6 +7,7 @@ import LoaderSnipper from "@/components/LoaderSnipper.vue";
 import { useRoute } from "vue-router";
 import VButton from "@/components/news/VButton.vue";
 import { getAllErrorMessages } from "@/utils/gestion-error";
+import ChartDetailSuivi from "../../../components/news/ChartDetailSuivi.vue";
 
 const route = useRoute();
 const tabulator = ref();
@@ -208,6 +209,11 @@ onMounted(() => {
       <div id="tabulator" class="mt-5 table-report table-report--tabulator"></div>
     </div>
     <LoaderSnipper v-if="isLoadingData" />
+  </div>
+
+  <div v-if="!isLoadingData" class="w-full mt-5 box">
+    <p class="p-2 text-lg font-medium">Suivi des valeurs cibles et des valeurs réalisées</p>
+    <ChartDetailSuivi :data="datas" />
   </div>
 
   <Modal :show="showModalValidate" @hidden="showModalValidate = false">

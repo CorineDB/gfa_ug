@@ -362,7 +362,7 @@
       <ModalBody>
         <div class="grid grid-cols-1 gap-5">
           <div class="flex-1">
-            <label class="form-label">Année de suivi</label>
+            <label class="form-label">Année de suivi<span class="text-danger">*</span> </label>
             <TomSelect v-model="payloadSuivi.annee" name="annee_suivi" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
               <option value=""></option>
               <option v-for="annee in years" :key="annee" :value="annee">{{ annee }}</option>
@@ -376,7 +376,7 @@
           </div>
 
           <div v-if="valueKeysIndicateurSuivi.length > 0 && isAgregerCurrentIndicateur" class="">
-            <label class="form-label">Valeur Cible</label>
+            <label class="form-label">Valeur Cible <span class="text-danger">*</span> </label>
             <div class="grid gap-3 grid-cols-[repeat(auto-fill,_minmax(300px,_1fr))]">
               <div v-for="(base, index) in valueKeysIndicateurSuivi" :key="index" class="input-group">
                 <div class="flex items-center justify-center text-sm truncate input-group-text">{{ base.libelle }}</div>
@@ -386,7 +386,7 @@
             <div v-if="errors.valeurCible" class="mt-2 text-danger">{{ getFieldErrors(errors.valeurCible) }}</div>
           </div>
           <div v-if="valueKeysIndicateurSuivi.length > 0 && isAgregerCurrentIndicateur" class="">
-            <label class="form-label">Valeur Réalisée</label>
+            <label class="form-label">Valeur Réalisée <span class="text-danger">*</span> </label>
             <div class="grid gap-3 grid-cols-[repeat(auto-fill,_minmax(300px,_1fr))]">
               <div v-for="(base, index) in valueKeysIndicateurSuivi" :key="index" class="input-group">
                 <div class="flex items-center justify-center text-sm truncate input-group-text">{{ base.libelle }}</div>
@@ -406,7 +406,7 @@
             </div>
           </div>
           <div v-if="suiviOption == 'trimestre'" class="flex-1">
-            <label class="form-label">Trimestre</label>
+            <label class="form-label">Trimestre<span class="text-danger">*</span> </label>
             <TomSelect v-model="payloadSuivi.trimestre" name="trimestre_suivi" :options="{ placeholder: 'Selectionez un trimestre' }" class="w-full">
               <option value=""></option>
               <option v-for="trimestre in trimestres" :key="trimestre" :value="trimestre">Trimestre {{ trimestre }}</option>
@@ -416,7 +416,7 @@
 
           <InputForm v-else label="Date de suivi" class="flex-1" v-model="payloadSuivi.dateSuivie" :control="getFieldErrors(errors.dateSuivie)" type="date" />
           <div class="flex-1">
-            <label class="form-label">Source de données</label>
+            <label class="form-label">Source de données <span class="text-danger">*</span> </label>
             <TomSelect v-model="payloadSuivi.sources_de_donnee" name="source" :options="{ placeholder: 'Selectionez une source' }" class="w-full">
               <option value=""></option>
               <option v-for="(source, index) in sourcesDonnees" :key="index" :value="source">{{ source }}</option>

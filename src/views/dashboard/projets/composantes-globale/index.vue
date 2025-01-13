@@ -7,14 +7,23 @@ import ComposantesService from "@/services/modules/composante.service";
 import InputForm from "@/components/news/InputForm.vue";
 import verifyPermission from "@/utils/verifyPermission";
 import VButton from "@/components/news/VButton.vue";
+import pagination from "@/components/news/pagination.vue";
+import { helper as $h } from "@/utils/helper";
+
 import { toast } from "vue3-toastify";
 export default {
   components: {
     InputForm,
     VButton,
+    pagination,
   },
   data() {
     return {
+      search: "",
+      isLoadingOutcome: false,
+      itemsPerPage: 3, // Nombre d'éléments par page
+      totalItems: null,
+      currentPage: 1, // Page courante
       messageErreur: {},
       projets: [],
       projetId: "",
@@ -25,7 +34,7 @@ export default {
       isLoading: false,
       formData: {
         nom: "",
-        poids: "",
+        poids: 0,
         projetId: "",
         pret: 0,
         budgetNational: 0,
@@ -38,6 +47,20 @@ export default {
   },
   computed: {
     ...mapGetters("auths", { currentUser: "GET_AUTHENTICATE_USER" }),
+    paginatedAndFilteredData() {
+      const { paginatedData, totalFilteredItems } = $h.filterData({
+        itemsPerPage: this.itemsPerPage,
+        search: this.search,
+        data: this.composants,
+        currentPage: this.currentPage,
+        keys: ["nom"],
+      });
+
+      // Mettre à jour le total pour recalculer la pagination
+      this.totalItems = totalFilteredItems;
+
+      return paginatedData;
+    },
   },
   watch: {
     projetId(newValue, oldValue) {
@@ -58,6 +81,15 @@ export default {
   },
 
   methods: {
+    onPageChanged(newPage) {
+      this.currentPage = newPage;
+      console.log("Page actuelle :", this.currentPage);
+      // Charger les données pour la page actuelle
+      // this.loadDataForPage(newPage);
+    },
+    onItemsPerPageChanged(itemsPerPage) {
+      this.itemsPerPage = itemsPerPage;
+    },
     clearObjectValues(obj) {
       for (let key in obj) {
         if (obj.hasOwnProperty(key)) {
@@ -144,10 +176,16 @@ export default {
             this.isLoading = false;
             if (error.response && error.response.data && error.response.data.errors) {
               this.messageErreur = error.response.data.errors;
+
+              Object.keys(this.messageErreur).forEach((key) => {
+                this.messageErreur[key] = $h.extractContentFromArray(this.messageErreur[key]);
+              });
+              toast.error("Une erreur s'est produite.Vérifier le formulaire de soumission");
             } else {
-              toast.error("Une erreur inconnue s'est produite");
+              
+              toast.error(error.message);
+              //
             }
-            toast.error(error.message);
           });
       } else {
         this.isLoading = true;
@@ -166,11 +204,19 @@ export default {
           })
           .catch((error) => {
             this.isLoading = false;
-            toast.error("Erreur lors de la modification");
+            console.log("error", error);
+
             if (error.response && error.response.data && error.response.data.errors) {
               this.messageErreur = error.response.data.errors;
+
+              Object.keys(this.messageErreur).forEach((key) => {
+                this.messageErreur[key] = $h.extractContentFromArray(this.messageErreur[key]);
+              });
+
+              console.log("this.messageErreur", this.messageErreur);
+              toast.error("Une erreur s'est produite.Vérifier le formulaire de soumission");
             } else {
-              toast.error("Une erreur inconnue s'est produite");
+              toast.error(error.message);
             }
           });
       }
@@ -221,7 +267,7 @@ export default {
       <h2 class="mb-4 text-base font-bold">Filtre</h2>
 
       <div class="grid grid-cols-3 gap-4">
-        <div class="flex w-full">
+        <div class="flex col-span-12">
           <v-select class="w-full" :reduce="(projet) => projet.id" v-model="projetId" label="nom" :options="projets">
             <template #search="{ attributes, events }">
               <input class="vs__search form-input" :required="!projetId" v-bind="attributes" v-on="events" />
@@ -230,54 +276,37 @@ export default {
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Projets</label>
         </div>
       </div>
-
-      <button class="absolute px-4 py-2 text-white transform -translate-x-1/2 bg-blue-500 rounded -bottom-3 left-1/2" @click="filter()">Filtrer</button>
-    </div>
-
-    <!-- Results or other components -->
-    <div class="mt-6">
-      <!-- Place the table or grid component here -->
     </div>
   </div>
 
   <!-- Titre de la page -->
   <div class="grid grid-cols-12 gap-6 mt-5">
-    <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
-      <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
+    <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y">
+      <div class="w-auto">
         <div class="relative w-56 text-slate-500">
-          <input type="text" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
+          <input type="text" v-model="search" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
           <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
         </div>
       </div>
-      <div v-if="verifyPermission('creer-un-outcome')" class="flex">
+      <div v-if="verifyPermission('creer-un-outcome')" class="flex mt-4 sm:mt-0">
         <button class="mr-2 shadow-md btn btn-primary" @click="addComposants()"><PlusIcon class="w-4 h-4 mr-3" />Ajouter un OutCome</button>
       </div>
     </div>
   </div>
 
   <div v-if="!isLoadingData" class="grid grid-cols-12 gap-6 mt-5">
-    <div v-for="(item, index) in composants" :key="index" class="col-span-12 p-4 md:col-span-6 lg:col-span-4">
+    <div v-for="(item, index) in paginatedAndFilteredData" :key="index" class="col-span-12 p-4 md:col-span-6 xl:col-span-4">
       <div v-if="verifyPermission('voir-un-outcome')" class="p-5 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-105 hover:bg-gray-50">
         <!-- En-tête avec sigle et titre -->
         <div class="relative flex items-start pt-5">
-          <div class="flex flex-col items-center w-full lg:flex-row">
+          <div class="relative flex flex-col items-center w-full pt-5 lg:flex-row lg:items-start">
             <!-- Circle with initial or image -->
-            <div class="flex items-center justify-center w-16 h-16 text-white rounded-full shadow-md bg-primary">
+            <div class="flex items-center justify-center w-[90px] h-[90px] text-white rounded-full shadow-md bg-primary flex-shrink-0">
               {{ item.sigle }}
             </div>
             <!-- Item details -->
-            <div class="mt-3 text-center lg:ml-4 lg:text-left lg:mt-0">
-              <a href="" class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary">
-                {{ item.nom }}
-              </a>
-              <div class="mt-2 text-xs text-gray-500">
-                <!-- Status badges -->
-                <span v-if="item.statut == -2" class="px-2 py-1 text-xs font-medium text-white rounded-md bg-primary"> Non validé </span>
-                <span v-else-if="item.statut == -1" class="px-2 py-1 text-xs font-medium text-white bg-green-500 rounded-md"> Validé </span>
-                <span v-else-if="item.statut == 0" class="px-2 py-1 text-xs font-medium text-white bg-yellow-500 rounded-md"> En cours </span>
-                <span v-else-if="item.statut == 1" class="px-2 py-1 text-xs font-medium text-white bg-red-500 rounded-md"> En retard </span>
-                <span v-else-if="item.statut == 2" class="pl-2 font-medium">Terminé</span>
-              </div>
+            <div class="mt-3 text-center lg:ml-4 lg:text-left lg:mt-0 flex-1">
+              <a href="" class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary _truncate text-center lg:text-left"> {{ item.nom }}</a>
             </div>
           </div>
           <!-- Dropdown for actions -->
@@ -297,13 +326,18 @@ export default {
         <!-- Description section with distinct styling -->
         <div class="mt-5 text-center lg:text-left">
           <p class="mb-3 text-lg font-semibold text-primary">Description</p>
-          <p class="p-3 text-gray-600 rounded-lg shadow-sm bg-gray-50">{{ item.description }}</p>
+          <p class="p-3 text-gray-600 rounded-lg shadow-sm bg-gray-50">{{ item.description == null ? "Aucune description" : item.description }}</p>
 
           <!-- Other details with iconized section headers -->
           <div class="mt-5 space-y-3 text-gray-600">
-            <div class="flex items-center text-sm font-medium text-gray-700">
-              <LinkIcon class="w-4 h-4 mr-2 text-primary" /> Budget:
-              <span class="ml-2 font-semibold text-gray-900">{{ item.budgetNational }}</span>
+            <div class="flex items-center">
+              <LinkIcon class="w-4 h-4 mr-2" /> Fonds propre: {{ $h.formatCurrency(item.budgetNational) }}
+              <div class="ml-2 italic font-bold">Fcfa</div>
+            </div>
+
+            <div class="flex items-center">
+              <LinkIcon class="w-4 h-4 mr-2" /> Montant financé: {{ $h.formatCurrency(item.pret == null ? 0 : item.pret) }}
+              <div class="ml-2 italic font-bold">Fcfa</div>
             </div>
             <div class="flex items-center text-sm font-medium text-gray-700">
               <GlobeIcon class="w-4 h-4 mr-2 text-primary" /> Taux d'exécution physique:
@@ -317,15 +351,25 @@ export default {
               <span v-else-if="item.statut == 1" class="ml-2 text-gray-900">En retard</span>
               <span v-else-if="item.statut == 2" class="ml-2 text-gray-900">Terminé</span>
             </div>
-            <div class="flex items-center text-sm font-medium text-gray-700">
+            <!-- <div class="flex items-center text-sm font-medium text-gray-700">
               <CheckSquareIcon class="w-4 h-4 mr-2 text-primary" /> Poids:
               <span class="ml-2 font-semibold text-gray-900">{{ item.poids }}</span>
-            </div>
+            </div> -->
           </div>
         </div>
       </div>
     </div>
   </div>
+
+  <pagination class="col-span-12" :total-items="totalItems" :items-per-page="itemsPerPage" :is-loading="isLoadingData" @page-changed="onPageChanged" @items-per-page-changed="onItemsPerPageChanged">
+    <!-- Slots personnalisés (facultatif) -->
+    <template #prev-icon>
+      <span>&laquo; Précédent</span>
+    </template>
+    <template #next-icon>
+      <span>Suivant &raquo;</span>
+    </template>
+  </pagination>
   <!-- END: Users Layout -->
   <LoaderSnipper v-if="isLoadingData" />
 
@@ -334,34 +378,36 @@ export default {
       <h2 v-if="!update" class="mr-auto text-base font-medium">Ajouter un Outcome</h2>
       <h2 v-else class="mr-auto text-base font-medium">Modifier un OutCome</h2>
     </ModalHeader>
-    <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
-      <InputForm v-model="formData.nom" class="col-span-12" type="text" required="required" placeHolder="Nom de l'organisation" label="Nom" />
-      <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
+    <form @submit.prevent="sendForm">
+      <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
+        <InputForm v-model="formData.nom" class="col-span-12" type="text" required="required" placeHolder="Nom de l'organisation" label="Nom" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
 
-      <InputForm v-model="formData.poids" class="col-span-12" type="number" required="required" placeHolder="Poids de l'activité " label="Poids" />
-      <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.poids">{{ messageErreur.poids }}</p>
+        <InputForm v-model="formData.budgetNational" class="col-span-12 no-spin" type="number" required="required" placeHolder="Ex : 2" label="Fond propre" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.budgetNational">{{ messageErreur.budgetNational }}</p>
 
-      <InputForm v-model="formData.pret" class="col-span-12 mb-2" type="number" label="Montant financé" />
-      <div class="flex col-span-12">
-        <v-select class="w-full" :reduce="(projet) => projet.id" v-model="formData.projetId" label="nom" :options="projets">
-          <template #search="{ attributes, events }">
-            <input class="vs__search form-input" :required="!formData.projetId" v-bind="attributes" v-on="events" />
-          </template>
-        </v-select>
-        <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-bold duration-100 ease-linear -translate-y-3 bg-white _font-medium form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Projets</label>
-      </div>
+        <InputForm v-model="formData.pret" class="col-span-12" type="number" required="required" placeHolder="Ex : 2" label="Montant financé" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pret">{{ messageErreur.pret }}</p>
 
-      <InputForm v-model="formData.budgetNational" class="col-span-12" type="number" required="required" placeHolder="Ex : 2" label="Fond propre" />
-    </ModalBody>
-    <ModalFooter>
-      <div class="flex items-center justify-center">
-        <button type="button" @click="showModal = false" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
-        <VButton class="inline-block" :label="labels" :loading="isLoading" @click="sendForm" />
-      </div>
-    </ModalFooter>
+        <div class="flex col-span-12 mt-4">
+          <v-select class="w-full" :reduce="(projet) => projet.id" v-model="formData.projetId" label="nom" :options="projets">
+            <template #search="{ attributes, events }">
+              <input class="vs__search form-input" :required="!formData.projetId" v-bind="attributes" v-on="events" />
+            </template>
+          </v-select>
+          <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-bold duration-100 ease-linear -translate-y-3 bg-white _font-medium form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Projets</label>
+        </div>
+      </ModalBody>
+      <ModalFooter>
+        <div class="flex items-center justify-center">
+          <button type="button" @click="showModal = false" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
+          <VButton class="inline-block" :label="labels" :loading="isLoading" />
+        </div>
+      </ModalFooter>
+    </form>
   </Modal>
 
-  <Modal :show="showDeleteModal" @hidden="showDeleteModal = false">
+  <Modal  backdrop="static":show="showDeleteModal" @hidden="showDeleteModal = false">
     <ModalBody class="p-0">
       <div class="p-5 text-center">
         <XCircleIcon class="w-16 h-16 mx-auto mt-3 text-danger" />
@@ -376,4 +422,22 @@ export default {
   </Modal>
 </template>
 
-<style></style>
+<style>
+.no-spin {
+  /* Cacher les icônes pour Chrome, Edge, et Safari */
+  -webkit-appearance: none;
+  margin: 0;
+
+  /* Cacher les icônes pour Firefox */
+  -moz-appearance: textfield;
+
+  /* Compatibilité supplémentaire */
+  appearance: none;
+
+  /* Optionnel : personnaliser les styles du champ */
+  /* border: 1px solid #ccc;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 14px; */
+}
+</style>

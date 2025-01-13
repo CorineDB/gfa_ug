@@ -10,7 +10,7 @@
                 <ChevronDownIcon />
               </Accordion>
               <AccordionPanel class="p-2">
-                <UniteMesure @update-datas="updateUnites" />
+                <UniteMesure @update-datas="updateUnites" v-model:showModal="showModalUniteMesure" />
               </AccordionPanel>
             </AccordionItem>
 
@@ -20,7 +20,7 @@
                 <ChevronDownIcon />
               </Accordion>
               <AccordionPanel class="p-2">
-                <CleValeur @update-datas="updateKeys" />
+                <CleValeur @update-datas="updateKeys" v-model:showModal="showModalKey" />
               </AccordionPanel>
             </AccordionItem>
 
@@ -30,16 +30,16 @@
                 <ChevronDownIcon />
               </Accordion>
               <AccordionPanel class="p-2">
-                <ManagmentCategorie @update-datas="updateCategories" />
+                <ManagmentCategorie @update-datas="updateCategories" v-model:showModal="showModalCategorie" />
               </AccordionPanel>
             </AccordionItem>
             <AccordionItem>
               <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
-                <p>Site</p>
+                <p>Zone d'intervention</p>
                 <ChevronDownIcon />
               </Accordion>
               <AccordionPanel class="p-2">
-                <ManagmentSite @update-datas="updateSites" />
+                <ManagmentSite @update-datas="updateSites" v-model:showModal="showModalZone" />
               </AccordionPanel>
             </AccordionItem>
           </AccordionGroup>
@@ -118,7 +118,7 @@
 
                 <div class="grid grid-cols-1 gap-4">
                   <div class="flex flex-wrap items-center justify-between gap-3">
-                    <InputForm class="flex-1" :required="false" :control="getFieldErrors(errors.nom)" label="Nom" v-model="payload.nom" />
+                    <InputForm class="flex-1" :required="false" :optionel="false" :control="getFieldErrors(errors.nom)" label="Nom" v-model="payload.nom" />
                     <div class="flex-1">
                       <label class="form-label" for="description">Description</label>
                       <div class="">
@@ -132,7 +132,7 @@
                       <input id="agreer" class="form-check-input" type="checkbox" v-model="payload.agreger" />
                       <label class="form-check-label" for="agreer">Indicateur Agréger</label>
                     </div>
-                    <InputForm class="flex-1" label="Indice" v-model="payload.indice" :required="false" :control="getFieldErrors(errors.indice)" type="number" />
+                    <InputForm class="flex-1" label="Indice" :optionel="false" v-model="payload.indice" :required="false" :control="getFieldErrors(errors.indice)" type="number" />
                   </div>
                   <div class="flex flex-wrap items-center justify-between gap-3">
                     <div class="flex-1">
@@ -152,7 +152,7 @@
                       <!-- <p class="form-label">Année cible</p> -->
                       <div class="flex gap-1 place-items-end">
                         <div class="flex-1">
-                          <label class="form-label">Année cible</label>
+                          <label class="form-label">Année cible <span class="text-danger">*</span> </label>
                           <TomSelect v-model="currentAnneeCibleNotAgreger.annee" name="annee_aggrer" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
                             <option value=""></option>
                             <option v-for="annee in annees" :key="annee" :value="annee">{{ annee }}</option>
@@ -183,9 +183,13 @@
                   <div class="flex flex-wrap items-center justify-between gap-3">
                     <div v-if="payload.agreger" class="flex-1">
                       <label class="form-label">Clé valeur</label>
-                      <TomSelect v-model="array_value_keys" name="keys" multiple :options="{ placeholder: 'Selectionez les clés valeur' }" class="w-full">
-                        <option v-for="(key, index) in keys" :key="index" :value="key.id">{{ key.libelle }}</option>
-                      </TomSelect>
+                      <div class="flex gap-1">
+                        <TomSelect v-model="array_value_keys" name="keys" multiple :options="{ placeholder: 'Selectionez les clés valeur' }" class="w-full">
+                          <option v-for="(key, index) in keys" :key="index" :value="key.id">{{ key.libelle }}</option>
+                        </TomSelect>
+                        <button class="flex-1 text-sm btn btn-primary" @click.prevent="showModalKey = true"><PlusIcon class="mr-1 size-3" /></button>
+                      </div>
+
                       <div v-if="errors.value_keys" class="mt-2 text-danger">{{ getFieldErrors(errors.value_keys) }}</div>
                     </div>
                   </div>
@@ -219,15 +223,18 @@
                 <div class="grid grid-cols-1 gap-4">
                   <div class="flex flex-wrap items-center justify-between gap-3">
                     <div class="flex-1">
-                      <label class="form-label">Catégorie</label>
-                      <TomSelect v-model="payload.categorieId" name="category" :options="{ placeholder: 'Selectionez une catégorie' }" class="w-full">
-                        <option value=""></option>
-                        <option v-for="(categorie, index) in categories" :key="categorie.id" :value="categorie.id">{{ truncateText(categorie.type + " " + categorie.indice + " " + categorie.nom) }}</option>
-                      </TomSelect>
+                      <label class="form-label">Catégorie <span class="text-danger">*</span> </label>
+                      <div class="flex gap-1">
+                        <TomSelect v-model="payload.categorieId" name="category" :options="{ placeholder: 'Selectionez une catégorie' }" class="w-full">
+                          <option value=""></option>
+                          <option v-for="(categorie, index) in categories" :key="categorie.id" :value="categorie.id">{{ truncateText(categorie.type + " " + categorie.indice + " " + categorie.nom) }}</option>
+                        </TomSelect>
+                        <button class="flex-1 text-sm btn btn-primary" @click.prevent="showModalCategorie = true"><PlusIcon class="mr-1 size-3" /></button>
+                      </div>
                       <div v-if="errors.categorieId" class="mt-2 text-danger">{{ getFieldErrors(errors.categorieId) }}</div>
                     </div>
                     <div class="flex-1">
-                      <label class="form-label">Type de variables</label>
+                      <label class="form-label">Type de variables <span class="text-danger">*</span> </label>
                       <TomSelect v-model="payload.type_de_variable" name="type_variable" :options="{ placeholder: 'Selectionez un type de variable' }" class="w-full">
                         <option value=""></option>
                         <option v-for="(variable, index) in payload.agreger ? type_variablees : type_variablees_agreger" :key="index" :value="variable.id">{{ variable.label }}</option>
@@ -254,7 +261,7 @@
                     </div>
                   </div>
                   <div class="flex-1">
-                    <label class="form-label">UG</label>
+                    <label class="form-label">UG <span class="text-danger">*</span> </label>
                     <TomSelect v-model="responsablesForm.ug" name="ug" :options="{ placeholder: 'Selectionez un UG' }" class="w-full">
                       <option value=""></option>
                       <option v-for="(ug, index) in ugs" :key="index" :value="ug.id">{{ ug.nom }}</option>
@@ -263,7 +270,7 @@
                   </div>
                   <div class="flex flex-wrap items-center justify-between gap-3">
                     <div class="flex-1">
-                      <label class="form-label">Responsables</label>
+                      <label class="form-label">Responsables <span class="text-danger">*</span> </label>
                       <TomSelect v-model="responsablesForm.organisations" name="responsable" multiple :options="{ placeholder: 'Selectionez un responsable' }" class="w-full">
                         <option value=""></option>
                         <option v-for="(responsable, index) in responsables" :key="index" :value="responsable.id">{{ responsable.nom }}</option>
@@ -271,21 +278,27 @@
                       <div v-if="errors['responsables.organisations']" class="mt-2 text-danger">{{ getFieldErrors(errors["responsables.organisations"]) }}</div>
                     </div>
                     <div class="flex-1">
-                      <label class="form-label">Unité de mesure</label>
-                      <TomSelect v-model="payload.uniteeMesureId" name="unite" :options="{ placeholder: 'Selectionez une unité de mesure' }" class="w-full">
-                        <option value=""></option>
-                        <option v-for="(unite, index) in unites" :key="index" :value="unite.id">{{ unite.nom }}</option>
-                      </TomSelect>
+                      <label class="form-label">Unité de mesure <span class="text-danger">*</span> </label>
+                      <div class="flex gap-1">
+                        <TomSelect v-model="payload.uniteeMesureId" name="unite" :options="{ placeholder: 'Selectionez une unité de mesure' }" class="w-full">
+                          <option value=""></option>
+                          <option v-for="(unite, index) in unites" :key="index" :value="unite.id">{{ unite.nom }}</option>
+                        </TomSelect>
+                        <button class="flex-1 text-sm btn btn-primary" @click.prevent="showModalUniteMesure = true"><PlusIcon class="mr-1 size-3" /></button>
+                      </div>
                       <div v-if="errors.uniteeMesureId" class="mt-2 text-danger">{{ getFieldErrors(errors.uniteeMesureId) }}</div>
                     </div>
                   </div>
                   <div class="flex flex-wrap items-center justify-between w-full gap-3">
                     <div class="flex-1">
-                      <label class="form-label">Sites</label>
-                      <TomSelect v-model="payload.sites" multiple name="site" :options="{ placeholder: 'Selectionez les sites' }" class="w-full">
-                        <option value=""></option>
-                        <option v-for="(site, index) in sites" :key="index" :value="site.id">{{ site.nom }}</option>
-                      </TomSelect>
+                      <label class="form-label">Zone d'intervention <span class="text-danger">*</span> </label>
+                      <div class="flex gap-1">
+                        <TomSelect v-model="payload.sites" multiple name="site" :options="{ placeholder: 'Selectionez les sites' }" class="w-full">
+                          <option value=""></option>
+                          <option v-for="(site, index) in sites" :key="index" :value="site.id">{{ site.nom }}</option>
+                        </TomSelect>
+                        <button class="flex-1 text-sm btn btn-primary" @click.prevent="showModalZone = true"><PlusIcon class="mr-1 size-3" /></button>
+                      </div>
                       <div v-if="errors.sites" class="mt-2 text-danger">{{ getFieldErrors(errors.sites) }}</div>
                     </div>
                     <div class="flex-1">
@@ -436,6 +449,12 @@ const errors = ref({});
 const array_value_keys = ref([]);
 const responsablesForm = ref({ organisations: [], ug: "" });
 const currentStep = ref(1);
+
+// show Modals
+const showModalZone = ref(false);
+const showModalCategorie = ref(false);
+const showModalUniteMesure = ref(false);
+const showModalKey = ref(false);
 
 // Etat de la page et items par page
 const currentPage = ref(1);

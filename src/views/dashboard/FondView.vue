@@ -15,6 +15,7 @@ const payload = reactive({
 });
 const tabulator = ref();
 const idSelect = ref("");
+const searchValue = ref("");
 const showModalCreate = ref(false);
 const deleteModalPreview = ref(false);
 const isLoading = ref(false);
@@ -89,6 +90,9 @@ const initTabulator = () => {
     data: datas.value,
     placeholder: "Aucune donnée disponible.",
     layout: "fitColumns",
+    responsiveLayout: "hide",
+    pagination: "local",
+    paginationSize: 10,
     columns: [
       {
         title: "Nom",
@@ -130,6 +134,14 @@ const initTabulator = () => {
     ],
   });
 };
+const applyFilter = () => {
+  if (tabulator.value) {
+    const query = searchValue.value.toLowerCase();
+    tabulator.value.setFilter((data) => {
+      return data.nom_du_fond.toLowerCase().includes(query);
+    });
+  }
+};
 const handleEdit = (params) => {
   isCreate.value = false;
   idSelect.value = params.id;
@@ -158,6 +170,7 @@ const openCreateModal = () => {
 const mode = computed(() => (isCreate.value ? "Ajouter" : "Modifier"));
 
 onMounted(() => {
+  initTabulator();
   getDatas();
 });
 </script>
@@ -168,7 +181,7 @@ onMounted(() => {
     <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
       <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
         <div class="relative w-56 text-slate-500">
-          <input type="text" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
+          <input type="text" @input="applyFilter" v-model="searchValue" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
           <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
         </div>
       </div>
@@ -199,7 +212,7 @@ onMounted(() => {
         </Dropdown>
       </div>
     </div>
-    <div class="overflow-x-auto scrollbar-hidden" v-if="!isLoadingData">
+    <div class="overflow-x-auto scrollbar-hidden" v-show="!isLoadingData">
       <div id="tabulator" class="mt-5 table-report table-report--tabulator"></div>
     </div>
     <LoaderSnipper v-if="isLoadingData" />
