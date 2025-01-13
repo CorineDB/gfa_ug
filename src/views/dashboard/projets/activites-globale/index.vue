@@ -196,6 +196,9 @@ export default {
       } catch (error) {
         this.isLoading = false;
         this.messageErreur = error.response?.data?.errors || {};
+        Object.keys(this.messageErreur).forEach((key) => {
+          this.messageErreur[key] = $h.extractContentFromArray(this.messageErreur[key]);
+        });
         toast.error("Erreur lors de l'envoi des données");
       } finally {
         this.isLoading = false;
@@ -348,6 +351,8 @@ export default {
             }"
             class="w-full"
           >
+            <option value="">Choisir un projet</option>
+
             <option v-for="(element, index) in projets" :key="index" :value="element.id">{{ element.nom }}</option>
           </TomSelect>
         </div>
@@ -378,6 +383,8 @@ export default {
             }"
             class="w-full"
           >
+            <option value="">Choisir un Output</option>
+
             <option v-for="(element, index) in sousComposants" :key="index" :value="element.id">{{ element.nom }}</option>
           </TomSelect>
         </div>
@@ -530,6 +537,8 @@ export default {
             }"
             class="w-full"
           >
+              <option value="">Choisir un Outcome</option>
+
             <option v-for="(element, index) in composants" :key="index" :value="element.id">{{ element.nom }}</option>
           </TomSelect>
         </div>
@@ -562,7 +571,7 @@ export default {
     </form>
   </Modal>
 
-  <Modal :show="showDeleteModal" @hidden="showDeleteModal = false">
+  <Modal backdrop="static" :show="showDeleteModal" @hidden="showDeleteModal = false">
     <ModalBody class="p-0">
       <div class="p-5 text-center">
         <XCircleIcon class="w-16 h-16 mx-auto mt-3 text-danger" />

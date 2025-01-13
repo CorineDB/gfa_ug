@@ -176,9 +176,13 @@ export default {
             this.isLoading = false;
             if (error.response && error.response.data && error.response.data.errors) {
               this.messageErreur = error.response.data.errors;
+
+              Object.keys(this.messageErreur).forEach((key) => {
+                this.messageErreur[key] = $h.extractContentFromArray(this.messageErreur[key]);
+              });
               toast.error("Une erreur s'est produite.Vérifier le formulaire de soumission");
             } else {
-              alert("ok");
+              
               toast.error(error.message);
               //
             }
@@ -204,6 +208,10 @@ export default {
 
             if (error.response && error.response.data && error.response.data.errors) {
               this.messageErreur = error.response.data.errors;
+
+              Object.keys(this.messageErreur).forEach((key) => {
+                this.messageErreur[key] = $h.extractContentFromArray(this.messageErreur[key]);
+              });
 
               console.log("this.messageErreur", this.messageErreur);
               toast.error("Une erreur s'est produite.Vérifier le formulaire de soumission");
@@ -299,7 +307,6 @@ export default {
             <!-- Item details -->
             <div class="mt-3 text-center lg:ml-4 lg:text-left lg:mt-0 flex-1">
               <a href="" class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary _truncate text-center lg:text-left"> {{ item.nom }}</a>
-              
             </div>
           </div>
           <!-- Dropdown for actions -->
@@ -400,7 +407,7 @@ export default {
     </form>
   </Modal>
 
-  <Modal :show="showDeleteModal" @hidden="showDeleteModal = false">
+  <Modal  backdrop="static":show="showDeleteModal" @hidden="showDeleteModal = false">
     <ModalBody class="p-0">
       <div class="p-5 text-center">
         <XCircleIcon class="w-16 h-16 mx-auto mt-3 text-danger" />

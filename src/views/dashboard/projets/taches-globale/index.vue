@@ -202,6 +202,9 @@ export default {
           .catch((error) => {
             if (error.response && error.response.data && error.response.data.errors) {
               this.messageErreur = error.response.data.errors;
+              Object.keys(this.messageErreur).forEach((key) => {
+                this.messageErreur[key] = $h.extractContentFromArray(this.messageErreur[key]);
+              });
               toast.error("Une erreur s'est produite.Vérifier le formulaire de soumission");
             } else {
               toast.error(error.message);
@@ -225,6 +228,9 @@ export default {
             this.isLoading = false;
             if (error.response && error.response.data && error.response.data.errors) {
               this.messageErreur = error.response.data.errors;
+              Object.keys(this.messageErreur).forEach((key) => {
+                this.messageErreur[key] = $h.extractContentFromArray(this.messageErreur[key]);
+              });
               toast.error("Une erreur s'est produite.Vérifier le formulaire de soumission");
             } else {
               toast.error(error.message);
@@ -377,7 +383,6 @@ export default {
       <div v-if="verifyPermission('voir-une-tache')" class="p-5 box">
         <div class="flex items-start pt-5 _px-5">
           <div class="_flex _flex-col _items-center w-full _lg:flex-row">
-           
             <div class="mt-3 text-left _lg:ml-4 _lg:text-left lg:mt-0">
               <span class="pr-2 font-bold">Nom :</span><a href="" class="font-medium">{{ item.nom }}</a>
             </div>
@@ -463,7 +468,7 @@ export default {
     </form>
   </Modal>
 
-  <Modal :show="showDeleteModal" @hidden="showDeleteModal = false">
+  <Modal backdrop="static" :show="showDeleteModal" @hidden="showDeleteModal = false">
     <ModalBody class="p-0">
       <div class="p-5 text-center">
         <XCircleIcon class="w-16 h-16 mx-auto mt-3 text-danger" />

@@ -1,83 +1,116 @@
-<div class="p-6">
-    <!-- Nom du Projet -->
-    <h2 class="text-2xl font-semibold text-gray-800">Nom du Projet</h2>
-
-    <!-- Résumé du Projet -->
-    <p class="mt-2 text-gray-600">
-      Ce projet vise à améliorer l'accès à l'éducation dans les zones rurales en construisant des écoles et en fournissant des ressources éducatives essentielles.
-    </p>
-
-    <!-- Objectifs du Projet -->
-    <div class="mt-4">
-      <h3 class="text-lg font-medium text-gray-800">Objectifs</h3>
-      <ul class="list-disc list-inside text-gray-600">
-        <li>Construction de 10 écoles</li>
-        <li>Distribution de 5000 manuels scolaires</li>
-        <li>Formation de 100 enseignants</li>
-      </ul>
-    </div>
-
-    <!-- Bénéficiaires -->
-    <div class="mt-4">
-      <h3 class="text-lg font-medium text-gray-800">Bénéficiaires</h3>
-      <p class="text-gray-600">Les communautés rurales dans la région du nord, touchant 10 000 enfants.</p>
-    </div>
-
-    <!-- Partenaires et Sponsors -->
-    <div class="mt-4">
-      <h3 class="text-lg font-medium text-gray-800">Partenaires</h3>
-      <p class="text-gray-600">Sponsorisé par ABC Foundation et en partenariat avec XYZ Organization.</p>
-    </div>
-
-    <!-- Durée du Projet -->
-    <div class="mt-4">
-      <h3 class="text-lg font-medium text-gray-800">Durée</h3>
-      <p class="text-gray-600">Lancement : Janvier 2024 | Fin prévue : Décembre 2025</p>
-    </div>
-
-    <!-- Impact -->
-    <div class="mt-4">
-      <h3 class="text-lg font-medium text-gray-800">Impact</h3>
-      <p class="text-gray-600">Amélioration de la qualité de l'éducation et augmentation du taux de scolarisation de 20% dans les zones ciblées.</p>
-    </div>
-
-    <!-- Lien vers plus d'infos -->
-    <div class="mt-4">
-      <a href="#" class="text-indigo-600 hover:text-indigo-800 font-semibold">Voir plus de détails</a>
-    </div>
-  </div>
-
-  <!-- Contact -->
-  <div class="px-6 py-4 bg-gray-100">
-    <h3 class="text-sm font-medium text-gray-800">Contact</h3>
-    <p class="text-gray-600">John Doe, Responsable du Projet</p>
-    <p class="text-gray-600">Email : john.doe@example.com</p>
-  </div>
-
-
-
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-    <!-- Autres projets (copie le div ci-dessus pour chaque projet) -->
-    <div v-for="(projet, index) in projets" :key="index" class="bg-white shadow-lg rounded-lg p-4 relative zoom-in">
-      <h3 class="text-xl font-bold mb-2">{{ projet.nom }}</h3>
-      <p class="text-gray-700 mb-4">{{ projet.description }}</p>
-      <div class="flex justify-between items-center">
-        <span v-if="-2" class="text-red-600 font-semibold"> Non validé </span>
-        <span v-else-if="-1" class="text-green-600 font-semibold"> Validé </span>
-        <span v-else-if="0" class="text-pending font-semibold"> En cours </span>
-        <span v-else-if="1" class="text-red-600 font-semibold"> En retard </span>
-        <span v-else-if="2" class="text-primary font-semibold">Terminé</span>
-        <div class="space-x-3">
-          <button class="btn btn-secondary mr-1 mb-2" title="voir détail projet">
-            <EyeIcon class="w-4 h-4" />
-          </button>
-          <button class="btn btn-primary mr-1 mb-2" title="modifier le projet" @click="modifierProjet(projet)">
-            <EditIcon class="w-4 h-4" />
-          </button>
-          <button class="btn btn-danger mr-1 mb-2" title="supprimer le projet" >
-            <TrashIcon class="w-4 h-4" />
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
+{
+  "id": "BwAYRx2G4Vq6JL23G9Y1dmzXr5MpkaWkAnoenlA8yKOQBZERvwgN7jxb0M6znyeq",
+  "nom": "Renforcement de la Transparence Institutionnelle 3",
+  "codePta": "2.5.1.91",
+  "debut": "2025-01-10",
+  "fin": "2025-03-31",
+  "couleur": "#bf1d1d",
+  "nombreEmploie": null,
+  "budgetNational": 999999999999,
+  "pret": 999999999999,
+  "depenses": 0,
+  "objectifGlobaux": null,
+  "pays": "Bénin",
+  "tauxEngagement": null,
+  "secteurActivite": "Environnement",
+  "dateAprobation": "2023-12-07",
+  "description": null,
+  "owner": {
+    "id": "OkRz5AKY2EoaM8GOZdPewk9DjAnplX3VbZ35yK6gRzBv4LrJxbVNm10YWoVnvM98",
+    "sigle": "dwdw",
+    "code": 91,
+    "created_at": "2024-12-09",
+    "nom_point_focal": "dff",
+    "prenom_point_focal": "fff",
+    "contact_point_focal": "34444444444",
+    "pays": "ff",
+    "departement": "dd",
+    "commune": "cotonou",
+    "arrondissement": "ddd",
+    "quartier": "ddd",
+    "secteurActivite": "fff",
+    "longitude": 4,
+    "latitude": 6,
+    "type": "osc_fosir",
+    "programmeId": null,
+    "user": {
+      "id": "6gEKkv25aXRpPZBj7xLoVegzlbdEQMOV7LJA5Dk2NwKynv0m691GqY4rWxGV7wRj",
+      "nom": "ddd",
+      "prenom": null,
+      "email": "vkanontin@gmail.com",
+      "contact": "9399393444",
+      "poste": null,
+      "type": "organisation",
+      "emailVerifiedAt": null,
+      "code": 0,
+      "created_at": "2024-12-09",
+      "first_connexion": 0,
+      "statut": 0,
+      "account_verification_request_sent_at": "2024-12-09 10:30:38",
+      "password_update_at": null,
+      "last_password_remember": null,
+      "link_is_valide": 1,
+      "lastRequest": null,
+      "roles": [
+        {
+          "id": "K2r3OpDRRxzyr7A19Dmb5ZeoOwYnlgkKdL63vBXEKQWV280GPpdMNjaqwqmndxGz",
+          "nom": "Organisation",
+          "description": "Organisation",
+          "roleable_type": null,
+          "roleable_id": null,
+          "created_at": "2024-09-30T14:53:28.000000Z",
+          "programmeId": null
+        }
+      ]
+    }
+  },
+  "statut": 0,
+  "tep": 0,
+  "tef": 0,
+  "tepByAnnee": 0,
+  "image": {
+    "id": "RkxlwnZA2wYgvN759bLzqm3pn8GE1BKL4AKrZP06OXDodyeRAJlaxkVW4Bg38NWo",
+    "nom": "1736438896-wow_core-office.jpeg",
+    "url": "https://dms-redevabilite.com:8443/storage/upload/projets/preview/1736438896-wow_core-office.jpeg",
+    "auteur": {
+      "id": "VApb6mXWVzR91opYNBe0D6ng5yLw2AJmpOE4GxQdXMrWbkl7qjaPKmZv9Gnk45ez",
+      "nom": "GFA UG",
+      "prenom": null,
+      "contact": "65571256",
+      "email": "cocorine999@gmail.com",
+      "type": "unitee-de-gestion",
+      "programmeId": "Kd6Zov9ybW9PRxngKpQv81oeXMr6YOJgmV5ZlG47dkq2zjwABDLma3y0DGj3BP7w",
+      "poste": null,
+      "created_at": "2024-09-24 06:29:03"
+    },
+    "extension": "jpeg"
+  },
+  "fichiers": [],
+  "programme": {
+    "id": "Kd6Zov9ybW9PRxngKpQv81oeXMr6YOJgmV5ZlG47dkq2zjwABDLma3y0DGj3BP7w",
+    "nom": "GFA Redevabilite",
+    "code": "2.5.1",
+    "budgetNational": 5000000,
+    "debut": "2022-10",
+    "fin": "2026-10",
+    "description": "dfsfsdfs",
+    "objectifGlobaux": "satisfaction",
+    "created_at": "2024-09-24T06:27:16.000000Z",
+    "organismeDeTutelle": "Ministère"
+  },
+  "link": "upload/projets/preview/1736438896-wow_core-office.jpeg",
+  "composantes": [],
+  "sites": [
+    {
+      "id": "3ql0ZLo4zLNP6o3mRY297q1AkDjyVEbgV5XJr04xQd8BGawlnZgMevKpR6zngD7w",
+      "nom": "site b",
+      "quartier": "test4",
+      "arrondissement": "test3",
+      "commune": "test2",
+      "departement": "test",
+      "longitude": "1.2333",
+      "latitude": "3.33333"
+    }
+  ],
+  "audit": null
+}
