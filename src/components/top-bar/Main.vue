@@ -21,38 +21,6 @@
       </ol> -->
     </nav>
 
-    <!-- END: Breadcrumb -->
-
-    <!-- BEGIN: Notifications -->
-    <!-- <Dropdown class="mr-auto intro-x sm:mr-6">
-      <DropdownToggle tag="div" role="button" class="cursor-pointer notification notification--bullet">
-        <BellIcon class="notification__icon dark:text-slate-500" />
-      </DropdownToggle>
-      <DropdownMenu class="pt-2 notification-content">
-        <DropdownContent tag="div" class="notification-content__box">
-          <div class="notification-content__title">Notifications</div>
-          <div v-for="(faker, fakerKey) in $_.take($f(), 5)" :key="fakerKey" class="relative flex items-center cursor-pointer" :class="{ 'mt-5': fakerKey }">
-            <div class="flex-none w-12 h-12 mr-1 image-fit">
-              <img alt="Tinker Tailwind HTML Admin Template" class="rounded-full" :src="faker.photos[0]" />
-              <div class="absolute bottom-0 right-0 w-3 h-3 border-2 border-white rounded-full bg-success dark:border-darkmode-600"></div>
-            </div>
-            <div class="ml-2 overflow-hidden">
-              <div class="flex items-center">
-                <a href="javascript:;" class="mr-5 font-medium truncate">{{ faker.users[0].name }}</a>
-                <div class="ml-auto text-xs text-slate-400 whitespace-nowrap">
-                  {{ faker.times[0] }}
-                </div>
-              </div>
-              <div class="w-full truncate text-slate-500 mt-0.5">
-                {{ faker.news[0].shortContent }}
-              </div>
-            </div>
-          </div>
-        </DropdownContent>
-      </DropdownMenu>
-    </Dropdown> -->
-    <!-- END: Notifications -->
-
     <!-- BEGIN: Account Menu -->
 
     <p class="px-2 font-medium">{{ currentUsers.nom }}</p>
@@ -84,7 +52,7 @@
 
           <DropdownDivider class="border-white/[0.08]" />
           <DropdownItem class="dropdown-item hover:bg-white/5">
-            <span class="flex items-center space-x-2 cursor-pointer" @click="logout"> <ToggleRightIcon class="w-4 h-4 mr-2" /> Se déconnecter </span>
+            <span class="flex items-center space-x-2 cursor-pointer" @click="logout"> <ToggleRightIcon class="w-4 h-4 mr-2" /> Se déconnecter test</span>
           </DropdownItem>
         </DropdownContent>
       </DropdownMenu>
@@ -143,9 +111,11 @@ onMounted(() => {
 });
 
 const logout = () => {
+  alert("1");
   AuthentificationService.logout()
     .then(() => {
-      localStorage.removeItem("bsdInfo");
+      alert("2");
+      localStorage.clear();
       store.resetInfo();
       message.type = "success";
       message.message = "Vous êtes déconnecté";
@@ -159,9 +129,10 @@ const logout = () => {
       setTimeout(() => {
         router.push("/");
       }, 100);
+      console.log(error);
       if (error.response) {
-        const message = error.response.data.message;
-        message.type = "erreur";
+        const message = error.message;
+        message.type = "error";
         message.message = message;
         successNotificationToggle();
       }
