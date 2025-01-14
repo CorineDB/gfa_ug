@@ -1,5 +1,5 @@
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapActions } from "vuex";
 import { toast } from "vue3-toastify";
 import ProjetService from "@/services/modules/projet.service.js";
 import ComposantesService from "@/services/modules/composante.service";
@@ -54,6 +54,32 @@ export default {
       seeActivite: true,
       seeActivitiesOfState: 3,
       haveSousComposantes: false,
+      
+      planDeDecaissement: [],
+      planDeDecaissementPayload: {
+        activiteId: null,
+        trimestre: this.getCurrentQuarter(), // Trimestre actuel
+        annee: new Date().getFullYear(), // Set current year as default
+        budgetNational: 0,
+        pret: 0,
+      },
+      showModalPlanDeDecaissement: false,
+      loadingPlanDeDecaissement: false,
+      erreurPlanDeDecaissement: null,
+
+      dateDebut: "",
+      dateDebutOld: "",
+      dateFin: "",
+      dateFinOld: "",
+      showModalProlongement: false,
+      loadingProlonger: false,
+      erreurProlongation: null,
+
+      showModalCloturerActivite: false,
+      cloturerModal: false,
+      loadingCloturer: false,
+      erreurPlanDeDecaissement: null,
+      activiteId: null
     };
   },
 
@@ -86,6 +112,18 @@ export default {
   },
 
   methods: {
+    ...mapActions({
+      // Mapping des actions pour le module activites
+      prolongerDureeActivite: "activites/PROLONGER_DATE",
+      // Mapping des actions pour le module planDeDecaissements
+      storePlanDecaissement: "planDeDecaissements/STORE_PLAN_DE_DECAISSEMENT",
+    }),
+    
+    getCurrentQuarter() {
+      const month = new Date().getMonth() + 1; // Les mois sont indexés à partir de 0
+      return Math.ceil(month / 3); // Calcul du trimestre actuel
+    },
+
     verifyPermission,
     onPageChanged(newPage) {
       this.currentPage = newPage;
@@ -298,6 +336,98 @@ export default {
       this.seeStatistique = false;
     },
     text() {},
+    
+    ouvrirModalProlongerActivite(item) {
+      this.dateDebutOld = item.debut;
+      this.dateFinOld = item.fin;
+      this.activiteId = item.id;
+      this.showModalProlongement = true;
+    },
+
+    prolongementActivite() {
+      this.loadingProlonger = true;
+
+      let payLoad = {
+        debut: this.dateDebut,
+        fin: this.dateFin,
+      };
+
+      this.prolongerDureeActivite({ dates: payLoad, id: this.activiteId})
+        .then((response) => {
+          if (response.status == 200 || response.status == 201) {
+            this.showModalProlongement = false;
+
+            this.dateDebut = "";
+            this.dateDebutOld = "";
+            this.dateFin = "";
+            this.dateFinOld = "";
+
+            toast.success("Prolongation éffectuée avec succès");
+
+            this.loadSousComposantDetails();
+            //this.fetchProjets(this.programmeId);
+          }
+        })
+        .catch((error) => {
+          this.loadingProlonger = false;
+
+          toast.error("Une erreur s'est produite");
+
+          // Mettre à jour les messages d'erreurs dynamiquement
+          if (error.response && error.response.data && error.response.data.errors) {
+            this.erreurProlongation = error.response.data.errors;
+          } else {
+            toast.error(error.response.data.errors.message);
+          }
+        });
+    },
+    
+    ouvrirModalPlanDeDecaissementActivite(item) {
+      this.planDeDecaissementPayload.activiteId = item.id;
+      this.planDeDecaissement.push(this.planDeDecaissementPayload);
+      this.showModalPlanDeDecaissement = true;
+    },
+
+    addPlan() {
+      this.planDeDecaissement.push(this.planDeDecaissementPayload);
+    },
+    removePlan(index) {
+      this.planDeDecaissement.splice(index, 1);
+    },
+
+    planDeDecaissementActivite() {
+      this.loadingPlanDeDecaissement = true;
+
+      console.log(this.planDeDecaissement)
+
+      for (let index = 0; index < this.planDeDecaissement.length; index++) {
+
+        this.storePlanDecaissement(this.planDeDecaissement[index])
+          .then((response) => {
+            if (response.status == 200 || response.status == 201) {
+              this.showModalPlanDeDecaissement = false;
+              toast.success("Plan de decaissement enrégistré avec succès");
+
+              this.loadSousComposantDetails();
+              //this.fetchProjets(this.programmeId);
+            }
+          })
+          .catch((error) => {
+            this.loadingPlanDeDecaissement = false;
+
+            toast.error("Une erreur s'est produite");
+
+            // Mettre à jour les messages d'erreurs dynamiquement
+            if (error.response && error.response.data && error.response.data.errors) {
+              this.erreurPlanDeDecaissement = error.response.data.errors;
+            } else {
+              toast.error(error.response.data.errors.message);
+            }
+          });
+        
+      }
+    },
+    
   },
 
   async mounted() {
@@ -449,6 +579,11 @@ export default {
                 <DropdownMenu class="w-40">
                   <DropdownContent>
                     <DropdownItem v-if="verifyPermission('modifier-une-activite')" @click="modifierActivite(item)"> <Edit2Icon class="w-4 h-4 mr-2" /> Modifier </DropdownItem>
+                    <DropdownItem v-if="verifyPermission('prolonger-une-activite')" @click="ouvrirModalProlongerActivite(item)"> <CalendarIcon class="w-4 h-4 mr-2" /> Prolonger </DropdownItem>
+                    <DropdownItem v-if="verifyPermission('creer-un-plan-de-decaissement')" @click="ouvrirModalPlanDeDecaissementActivite(item)"> <CalendarIcon class="w-4 h-4 mr-2" /> Plan de decaissement </DropdownItem>
+
+                    <!-- <a v-if="verifyPermission('prolonger-un-projet')" class="flex items-center mr-auto text-primary" href="javascript:;" @click="ouvrirModalProlongerProjet(item)" title="Prolonger la date du projet"> <CalendarIcon class="w-4 h-4 mr-1" /><span class="hidden sm:block"> Étendre </span></a> -->
+
                     <DropdownItem v-if="verifyPermission('supprimer-une-activite')" @click="supprimerComposant(item)"> <TrashIcon class="w-4 h-4 mr-2" /> Supprimer </DropdownItem>
                   </DropdownContent>
                 </DropdownMenu>
@@ -466,7 +601,7 @@ export default {
                 </div>
 
                 <div class="flex items-center">
-                  <LinkIcon class="w-4 h-4 mr-2" /> Montant financé: {{ $h.formatCurrency(item.pret == null ? 0 : item.pret) }}
+                  <LinkIcon class="w-4 h-4 mr-2" /> Montant financé: {{ item.pret == null ? 0 : $h.formatCurrency(item.pret) }}
                   <div class="ml-2 italic font-bold">Fcfa</div>
                 </div>
 
@@ -584,6 +719,178 @@ export default {
       </div>
     </ModalBody>
   </Modal>
+
+  <Modal backdrop="static" :show="showModalProlongement" @hidden="showModalProlongement = false">
+    <ModalHeader>
+      <h2 class="mr-auto text-base font-medium">Prolonger l'activite</h2>
+    </ModalHeader>
+
+    <form @submit.prevent="prolongementActivite">
+      <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">       
+        <InputForm v-model="dateDebut" :min="dateDebutOld" class="col-span-12" type="date" :required="true" placeHolder="Entrer la nouvelle date debut" label="Nouvelle date debut de l'activite" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurProlongation != null && erreurProlongation.debut">{{ erreurProlongation.debut }}</p>
+
+        <InputForm v-model="dateFin" :min="dateFinOld" class="col-span-12" type="date" :required="true" placeHolder="Entrer la nouvelle date fin" label="Nouvelle date fin de l'activite" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurProlongation != null && erreurProlongation.fin">{{ erreurProlongation.fin }}</p>
+
+      </ModalBody>
+      <ModalFooter>
+        <div class="flex items-center justify-center">
+          <button type="button" @click="showModalProlongement = false" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
+          <VButton class="inline-block" label="Prolonger" :loading="loadingProlonger" :type="submit" />
+        </div>
+      </ModalFooter>
+    </form>
+  </Modal>
+
+  <Modal backdrop="static" :show="showModalPlanDeDecaissement" @hidden="showModalPlanDeDecaissement = false">
+    <ModalHeader>
+      <h2 class="mr-auto text-base font-medium">Plan de décaissement</h2>
+    </ModalHeader>
+
+    <form @submit.prevent="planDeDecaissementActivite">
+      <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
+        <div v-for="(plan, index) in planDeDecaissement" :key="index" class="col-span-12 border-b pb-4 mb-4">
+          <h3 class="text-sm font-medium mb-2">Plan {{ index + 1 }}</h3>
+          
+          <InputForm 
+            v-model="plan.annee" 
+            :min="2000" 
+            class="col-span-12" 
+            type="number" 
+            :required="true" 
+            placeHolder="Saisissez l'année" 
+            label="Saisissez l'année de décaissement" 
+          />
+          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.annee">
+            {{ erreurPlanDeDecaissement[index].annee }}
+          </p>
+
+          <InputForm 
+            v-model="plan.trimestre" 
+            :min="1" 
+            :max="4" 
+            class="col-span-12" 
+            type="number" 
+            :required="true" 
+            placeHolder="Sélectionnez le trimestre" 
+            label="Sélectionnez le trimestre" 
+          />
+          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.trimestre">
+            {{ erreurPlanDeDecaissement[index].trimestre }}
+          </p>
+
+          <InputForm 
+            v-model="plan.budgetNational" 
+            :min="0" 
+            class="col-span-12" 
+            type="number" 
+            :required="true" 
+            placeHolder="Saisissez le fond propre" 
+            label="Saisissez le fond propre" 
+          />
+          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.budgetNational">
+            {{ erreurPlanDeDecaissement[index].budgetNational }}
+          </p>
+
+          <InputForm 
+            v-model="plan.pret" 
+            :min="0" 
+            class="col-span-12" 
+            type="number" 
+            :required="true" 
+            placeHolder="Saisissez le montant financé" 
+            label="Saisissez le montant financé" 
+          />
+          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.pret">
+            {{ erreurPlanDeDecaissement[index].pret }}
+          </p>
+
+          <button 
+            type="button" 
+            @click="removePlan(index)" 
+            class="mt-2 text-red-600 text-sm underline"
+          >
+            Supprimer ce plan
+          </button>
+        </div>
+
+        <button 
+          type="button" 
+          @click="addPlan" 
+          class="col-span-12 btn btn-outline-primary"
+        >
+          Ajouter un autre plan
+        </button>
+      </ModalBody>
+      <ModalFooter>
+        <div class="flex items-center justify-center">
+          <button 
+            type="button" 
+            @click="showModalPlanDeDecaissement = false" 
+            class="w-full mr-1 btn btn-outline-secondary"
+          >
+            Annuler
+          </button>
+          <VButton 
+            class="inline-block" 
+            label="Enregistrer" 
+            :loading="loadingPlanDeDecaissement" 
+            :type="submit" 
+          />
+        </div>
+      </ModalFooter>
+    </form>
+  </Modal>
+
+  <!-- <Modal backdrop="static" :show="showModalPlanDeDecaissement" @hidden="showModalPlanDeDecaissement = false">
+    <ModalHeader>
+      <h2 class="mr-auto text-base font-medium">Plan de decaissement</h2>
+    </ModalHeader>
+
+    <form @submit.prevent="planDeDecaissementActivite">
+      <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">       
+        <InputForm v-model="planDeDecaissementPayload.annee" :min="2000" class="col-span-12" type="number" :required="true" placeHolder="Saisissez l'annee" label="Saisissez l'annee de decaissement" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement != null && erreurPlanDeDecaissement.annee">{{ erreurPlanDeDecaissement.annee }}</p>
+    
+        <InputForm v-model="planDeDecaissementPayload.trimestre" :min="1" :max="4" class="col-span-12" type="number" :required="true" placeHolder="Selectionnez le trimestre" label="Selectionnez le trimestre" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement != null && erreurPlanDeDecaissement.trimestre">{{ erreurPlanDeDecaissement.trimestre }}</p>
+
+        <InputForm v-model="planDeDecaissementPayload.budgetNational" :min="0" class="col-span-12" type="number" :required="true" placeHolder="Saisissez le fond propre" label="Saisissez le fond propre" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement != null && erreurPlanDeDecaissement.budgetNational">{{ erreurPlanDeDecaissement.budgetNational }}</p>
+
+        <InputForm v-model="planDeDecaissementPayload.pret" :min="0" class="col-span-12" type="number" :required="true" placeHolder="Saisissez le montant finance" label="Saisissez le montant finance" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement != null && erreurPlanDeDecaissement.pret">{{ erreurPlanDeDecaissement.budgetNational }}</p>
+
+      </ModalBody>
+      <ModalFooter>
+        <div class="flex items-center justify-center">
+          <button type="button" @click="showModalPlanDeDecaissement = false" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
+          <VButton class="inline-block" label="Enregistrer" :loading="loadingPlanDeDecaissement" :type="submit" />
+        </div>
+      </ModalFooter>
+    </form>
+  </Modal> -->
+  
+
+  <!-- <Modal backdrop="static" :show="cloturerActivite" @hidden="cloturerActivite = false">
+    <ModalHeader>
+      <h2 class="mr-auto text-base font-medium">Prolonger la duree de l'activite</h2>
+    </ModalHeader>
+
+    <form @submit.prevent="cloturerActivite">
+      <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
+        <InputForm v-model="dateFin" :min="dateFinOld" class="col-span-12" type="date" :required="true" placeHolder="Entrer la nouvelle date de fin" label="Nouvelle Fin du projet*" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurCloturer !== null">{{ erreurCloturer }}</p>
+      </ModalBody>
+      <ModalFooter>
+        <div class="flex items-center justify-center">
+          <button type="button" @click="cloturerActivite = false" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
+          <VButton class="inline-block" label="Cloturer" :loading="loadingCloturer" :type="submit" />
+        </div>
+      </ModalFooter>
+    </form>
+  </Modal> -->
 </template>
 
 <style></style>

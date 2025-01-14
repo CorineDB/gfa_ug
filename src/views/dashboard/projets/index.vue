@@ -756,6 +756,7 @@ export default {
           }
         });
     },
+
     gotoDetails(projet) {
       if (this.dashboardProjetVisible) {
         this.$router.push({ name: "projets_id_details", params: { id: projet.id, projet: projet } });
