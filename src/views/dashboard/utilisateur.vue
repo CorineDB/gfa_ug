@@ -130,7 +130,8 @@
             </td>
 
             <td>{{ data.created_at }}</td>
-            <td v-if="$h.getPermission('write.utilisateur')" class="flex space-x-2 items-center">
+            <!-- v-if="$h.getPermission('write.utilisateur')" -->
+            <td  class="flex space-x-2 items-center">
               <Tippy tag="a" href="javascript:;" class="tooltip" content="cliquez pour modifier">
                 <span @click="modifier(index, data)" class="text-blue-500 cursor-pointer">
                   <EditIcon />
@@ -138,16 +139,8 @@
               </Tippy>
 
               <Tippy tag="a" href="javascript:;" class="tooltip" content="cliquez pour modifier">
-                <span @click="supprimer(index, data)" class="text-red-500 cursor-pointer">
-                  <Trash2Icon />
-                </span>
+                <Trash2Icon class="text-red-500 cursor-pointer" @click="supprimer(index, data)" />
               </Tippy>
-            </td>
-            <td>
-              <div class="flex justify-evenly">
-                <EditIcon @click="openUpdateModal(data)" class="w-4 h-4 mr-3" />
-                <TrashIcon class="w-4 h-4 mr-3" />
-              </div>
             </td>
           </tr>
         </tbody>
@@ -495,6 +488,7 @@ const storeUser = function () {
 };
 
 const supprimer = function (index, data) {
+   
   deleteModalPreview.value = true;
   deleteData.id = data.id;
   deleteData.nom = data.nom;

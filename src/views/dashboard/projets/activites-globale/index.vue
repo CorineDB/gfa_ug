@@ -10,6 +10,7 @@ import ActivitiesComponent from "./activities.vue";
 import verifyPermission from "@/utils/verifyPermission";
 import NoRecordsMessage from "@/components/NoRecordsMessage.vue";
 import pagination from "@/components/news/pagination.vue";
+// import PlanDecaissementComponent from "@/components/PlanDecaissement.vue";
 import { helper as $h } from "@/utils/helper";
 
 export default {
@@ -18,7 +19,8 @@ export default {
     VButton,
     NoRecordsMessage,
     pagination,
-    ActivitiesComponent,
+    // PlanDecaissementComponent,
+    // ActivitiesComponent,
   },
 
   data() {
@@ -109,6 +111,8 @@ export default {
     },
 
     "selectedIds.composantId": "loadComposantDetails",
+
+    "formData.composanteId": "loadComposantDetails",
   },
 
   methods: {
@@ -201,20 +205,29 @@ export default {
 
     addActivite() {
       this.resetFormData();
+      this.messageErreur = {};
       this.showModal = true;
       this.isUpdate = false;
       this.labels = "Ajouter";
-      // this.formData.composanteId = this.selectedIds.composantId;
+      setTimeout(() => {
+        this.formData.composanteId = "";
+        this.selectedIds.sousComposantId = "";
+        this.text();
+      }, 400);
     },
     resetSousComposantsId() {
-      this.selectedIds.composantId = null;
-      this.text();
+      this.selectedIds.sousComposantId = "";
+      // this.text();
     },
 
     async sendForm() {
+      console.log("this.selectedIds.composantId == null", this.selectedIds.composantId == null);
+
+      console.log("this.formData.composanteId.id ", this.formData.composanteId.id);
+
       const data = {
         ...this.formData,
-        composanteId: this.selectedIds.composantId == null ? this.formData.composanteId.id : this.selectedIds.composantId,
+        composanteId: this.selectedIds.composantId == "" ? this.formData.composanteId : this.selectedIds.composantId,
         budgetNational: parseInt(this.formData.budgetNational),
         pret: parseInt(this.formData.pret),
       };
@@ -296,7 +309,7 @@ export default {
     },
 
     async loadSousComposantDetails() {
-      if (!this.selectedIds.sousComposantId) return;
+      if (!this.selectedIds.sousComposantId || this.selectedIds.sousComposantId == "") return;
 
       try {
         const response = await ComposantesService.detailComposant(this.selectedIds.sousComposantId);
@@ -492,7 +505,7 @@ export default {
           <TomSelect
             v-model="selectedIds.composantId"
             :options="{
-              placeholder: 'Choisir un Output',
+              placeholder: 'Choisir un Outcome',
               create: false,
               onOptionAdd: text(),
             }"
@@ -502,21 +515,24 @@ export default {
           </TomSelect>
         </div>
 
-        <div class="flex col-span-6" v-if="sousComposants.length > 0">
-          <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Output</label>
-          <TomSelect
-            v-model="selectedIds.sousComposantId"
-            :options="{
-              placeholder: 'Choisir un Output',
-              create: false,
-              onOptionAdd: text(),
-            }"
-            class="w-full"
-          >
-            <option value="">Choisir un Output</option>
+        <div class="col-span-6 flex items-center justify-center">
+          <div class="flex w-full mr-4" v-if="sousComposants.length > 0">
+            <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Output</label>
+            <TomSelect
+              v-model="selectedIds.sousComposantId"
+              :options="{
+                placeholder: 'Choisir un Output',
+                create: false,
+                onOptionAdd: text(),
+              }"
+              class="w-full"
+            >
+              <option value="">Choisir un Output</option>
 
-            <option v-for="(element, index) in sousComposants" :key="index" :value="element.id">{{ element.nom }}</option>
-          </TomSelect>
+              <option v-for="(element, index) in sousComposants" :key="index" :value="element.id">{{ element.nom }}</option>
+            </TomSelect>
+          </div>
+          <button v-if="sousComposants.length > 0" type="button" class="btn btn-outline-primary" @click="resetSousComposantsId()" title="Rester dans le composant"><TrashIcon class="w-4 h-4" /></button>
         </div>
       </div>
     </div>
@@ -531,7 +547,7 @@ export default {
           <h2 class="text-base font-bold">Activites</h2>
         </div>
         <div class="flex">
-          <button class="mr-2 shadow-md btn btn-primary" v-permission="['creer-une-activite']" @click="addActivite()"><PlusIcon class="w-4 h-4 mr-3" />Ajouter une Activité test</button>
+          <button class="mr-2 shadow-md btn btn-primary" v-permission="['creer-une-activite']" @click="addActivite()"><PlusIcon class="w-4 h-4 mr-3" />Ajouter une Activité</button>
         </div>
       </div>
 
@@ -564,7 +580,7 @@ export default {
           <div v-if="verifyPermission('voir-une-activite')" class="p-5 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-105 hover:bg-gray-50">
             <div class="relative flex items-start pt-5">
               <div class="flex flex-col items-center w-full lg:flex-row">
-                <div class="flex items-center justify-center w-[90px] h-[90px] text-white rounded-full shadow-md bg-primary flex-shrink-0">
+                <div class="flex items-center justify-center w-[90px] h-[90px] text-white rounded-full shadow-md bg-primary flex-shrink-0 mr-4">
                   {{ item.type }}
                   <!-- <img alt="Midone Tailwind HTML Admin Template" class="rounded-full" :src="faker.photos[0]" /> -->
                 </div>
@@ -635,7 +651,7 @@ export default {
     </pagination>
   </div>
 
-  <PlanDecaissementComponent v-if="seePlan" :projetsId="projetId" :composantId="selectedIds.composantId" :sousComposantsId="selectedIds.sousComposantsId" @getProjetById="loadProjetDetails" />
+  <!-- <PlanDecaissementComponent v-if="seePlan" :projetsId="projetId" :composantId="selectedIds.composantId" :sousComposantsId="selectedIds.sousComposantsId" @getProjetById="loadProjetDetails" /> -->
 
   <!-- v-if="false == true" -->
 
@@ -652,8 +668,10 @@ export default {
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
 
         <InputForm v-model="formData.pret" class="col-span-12" type="number" required="required" placeHolder="Montant financé*" label="Montant financé" />
-        <InputForm v-model="formData.budgetNational" class="col-span-12" type="number" required="required" placeHolder="Ex : 2" label="Fond Propre*" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pret">{{ messageErreur.pret }}</p>
+
+        <InputForm v-model="formData.budgetNational" class="col-span-12" type="number" required="required" placeHolder="Ex : 2" label="Fond Propre" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pret">{{ messageErreur.budgetNational }}</p>
 
         <InputForm v-model="formData.debut" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de début*" label="Début de l'activité" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.debut">{{ messageErreur.debut }}</p>
@@ -672,14 +690,14 @@ export default {
             }"
             class="w-full"
           >
-              <option value="">Choisir un Outcome</option>
+            <option value="">Choisir un Outcome</option>
 
             <option v-for="(element, index) in composants" :key="index" :value="element.id">{{ element.nom }}</option>
           </TomSelect>
         </div>
 
         <div class="flex col-span-12" v-if="haveSousComposantes">
-          <div class="flex w-11/12">
+          <div class="flex w-11/12 mr-2">
             <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OutPut*</label>
             <TomSelect
               v-model="selectedIds.sousComposantId"
@@ -690,11 +708,11 @@ export default {
               }"
               class="w-full"
             >
-              <option>Choisir une sous-composantes</option>
+              <option value="">Choisir un Output</option>
               <option v-for="(element, index) in sousComposants" :key="index" :value="element.id">{{ element.nom }}</option>
             </TomSelect>
           </div>
-          <button class="btn btn-outline-primary" @click="resetSousComposantsId()" title="Rester dans le composant"><TrashIcon class="w-4 h-4" /></button>
+          <button type="button" class="btn btn-outline-primary" @click="resetSousComposantsId()" title="Rester dans le composant"><TrashIcon class="w-4 h-4" /></button>
         </div>
       </ModalBody>
       <ModalFooter>
