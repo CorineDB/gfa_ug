@@ -23,6 +23,8 @@
 
     <!-- BEGIN: Account Menu -->
 
+    <router-link to="/files"> <FolderPlusIcon class="w-6 h-6 mr-4" title="Ajouter des fichiers" /> </router-link>
+
     <p class="px-2 font-medium">{{ currentUsers.nom }}</p>
     <Dropdown class="w-8 h-8 intro-x">
       <DropdownToggle tag="div" role="button" class="dropdown-toggle image-fit zoom-in">
@@ -52,7 +54,7 @@
 
           <DropdownDivider class="border-white/[0.08]" />
           <DropdownItem class="dropdown-item hover:bg-white/5">
-            <span class="flex items-center space-x-2 cursor-pointer" @click="logout"> <ToggleRightIcon class="w-4 h-4 mr-2" /> Se déconnecter test</span>
+            <span class="flex items-center space-x-2 cursor-pointer" @click="logout"> <ToggleRightIcon class="w-4 h-4 mr-2" /> Se déconnecter</span>
           </DropdownItem>
         </DropdownContent>
       </DropdownMenu>
@@ -69,6 +71,7 @@ import { useAuthStore } from "@/stores/modules/authentification";
 import AuthentificationService from "@/services/modules/auth.service";
 import { useRouter, useRoute } from "vue-router";
 import { API_BASE_URL } from "@/services/configs/environment";
+import { toast } from "vue3-toastify";
 const router = useRouter();
 const route = useRoute();
 const searchDropdown = ref(false);
@@ -111,19 +114,16 @@ onMounted(() => {
 });
 
 const logout = () => {
-  alert("1");
+  localStorage.removeItem("bsdInfo");
+  localStorage.removeItem("access_token");
+  localStorage.removeItem("authenticateUser");
+  toast.success("Vous êtes déconnecté");
+  setTimeout(() => {
+    router.push("/");
+  }, 100);
   AuthentificationService.logout()
     .then(() => {
-      alert("2");
-      localStorage.clear();
-      store.resetInfo();
-      message.type = "success";
-      message.message = "Vous êtes déconnecté";
-      successNotificationToggle();
-      //toast success
-      setTimeout(() => {
-        router.push("/");
-      }, 100);
+      toast.success("Vous êtes déconnecté");
     })
     .catch((error) => {
       setTimeout(() => {
@@ -131,10 +131,8 @@ const logout = () => {
       }, 100);
       console.log(error);
       if (error.response) {
-        const message = error.message;
-        message.type = "error";
-        message.message = message;
-        successNotificationToggle();
+        console.log(error);
+        // toast.error("Erreur de déconnexion");
       }
     });
 };

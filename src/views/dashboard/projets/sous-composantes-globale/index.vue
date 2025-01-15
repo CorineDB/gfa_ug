@@ -308,7 +308,7 @@ export default {
         </div>
       </div>
       <div v-if="verifyPermission('creer-un-output')" class="flex">
-        <button class="mr-2 shadow-md btn btn-primary" @click="addSousComposants()"><PlusIcon class="w-4 h-4 mr-3" />Ajouter un OutCome</button>
+        <button class="mr-2 shadow-md btn btn-primary" @click="addSousComposants()"><PlusIcon class="w-4 h-4 mr-3" />Ajouter un Output</button>
       </div>
     </div>
   </div>
@@ -430,7 +430,7 @@ export default {
     </form>
   </Modal>
 
-  <Modal  backdrop="static" :show="showDeleteModal" @hidden="showDeleteModal = false">
+  <Modal backdrop="static" :show="showDeleteModal" @hidden="showDeleteModal = false">
     <ModalBody class="p-0">
       <div class="p-5 text-center">
         <XCircleIcon class="w-16 h-16 mx-auto mt-3 text-danger" />
