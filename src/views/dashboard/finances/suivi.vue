@@ -33,8 +33,10 @@ const debutProgramme = ref("");
 const finProgramme = ref("");
 
 const years = computed(() => {
-  let anneeDebut = parseInt(debutProgramme.value.split("-")[0], 10);
-  let anneeFin = parseInt(finProgramme.value.split("-")[0], 10);
+  console.log("debut",  `${debutProgramme.value.split("-") }`);
+  console.log("fin",  `${finProgramme.value.split("-")}`);
+  let anneeDebut = parseInt(`${debutProgramme.value.split("-")[0]}`);
+  let anneeFin = parseInt(`${finProgramme.value.split("-")[0]}`);
   let annees = [];
   for (let annee = anneeDebut; annee <= anneeFin; annee++) {
     annees.push(annee);
@@ -48,6 +50,8 @@ const getcurrentUser = async () => {
       // responsablesForm.value.ug = result.data.data.profil.id;
       // ugs.value.push({ id: result.data.data.profil.id, nom: result.data.data.profil.nom });
       // idProgramme.value = result.data.data.programme.id;
+      console.log("debut", result.data.data.programme.debut);
+      console.log("fin", result.data.data.programme.debut);
       debutProgramme.value = result.data.data.programme.debut;
       finProgramme.value = result.data.data.programme.fin;
     })
@@ -221,7 +225,8 @@ const resetForm = () => {
 };
 const openCreateModal = () => {
   // payload.programmeId = "";
-  showModalCreate.value = isCreate.value = true;
+  showModalCreate.value = true;
+  isCreate.value = true;
 };
 
 const mode = computed(() => (isCreate.value ? "Ajouter" : "Modifier"));
@@ -385,8 +390,8 @@ onMounted(() => {
           <div class="">
             <label class="form-label">Sources</label>
             <TomSelect v-model="payload.type" :options="{ placeholder: 'Selectionez une source' }" class="w-full">
-              <option value="0">Pret</option>
-              <option value="1">Budget National</option>
+              <option value="0">Montant financé</option>
+              <option value="1">Fond Propre</option>
             </TomSelect>
           </div>
           <!-- <pre>{{years}}</pre> -->

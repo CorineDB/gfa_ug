@@ -5,7 +5,7 @@ import { getStringValueOfStatutCode } from "@/utils/index";
 import ProjetService from "@/services/modules/projet.service.js";
 import ComposantesService from "@/services/modules/composante.service";
 import ActiviteService from "@/services/modules/activite.service";
-import PlanDeDecaissementService from '@/services/modules/plan.decaissement.service';
+import PlanDeDecaissementService from "@/services/modules/plan.decaissement.service";
 import InputForm from "@/components/news/InputForm.vue";
 import VButton from "@/components/news/VButton.vue";
 import NoRecordsMessage from "@/components/NoRecordsMessage.vue";
@@ -15,10 +15,10 @@ export default {
   components: {
     InputForm,
     VButton,
-    NoRecordsMessage
+    NoRecordsMessage,
   },
 
-  emits: ['getProjetById'], // Declare the custom event
+  emits: ["getProjetById"], // Declare the custom event
   props: {
     sousComposantsId: {
       type: String,
@@ -31,7 +31,7 @@ export default {
     projetsId: {
       type: String,
       required: true,
-    }
+    },
   },
   data() {
     return {
@@ -50,7 +50,7 @@ export default {
         trimestre: 0,
         pret: 0,
         budgetNational: 0,
-        activiteId: ""
+        activiteId: "",
       },
 
       composantsId: "",
@@ -61,17 +61,16 @@ export default {
       showDeleteModal: false,
       deleteLoader: false,
       planDeDecaissement: [],
-      tacheId: ''
+      tacheId: "",
     };
   },
   computed: {
     ...mapGetters("auths", { currentUser: "GET_AUTHENTICATE_USER" }),
   },
   watch: {
-    
     projetId(newValue, oldValue) {
       //if (this.composants.length > 0) {
-        this.triggerGetProjetDetailsById(newValue);
+      this.triggerGetProjetDetailsById(newValue);
       //}
     },
     composantId(newValue, oldValue) {
@@ -80,7 +79,6 @@ export default {
       }
     },
     projetsId(newValue, oldValue) {
-
       if (newValue != null && newValue != undefined) {
         this.projetId = newValue;
       }
@@ -91,7 +89,7 @@ export default {
       }
     },
     sousComposantId(newValue, oldValue) {
-      if (newValue!=null && newValue != undefined) {
+      if (newValue != null && newValue != undefined) {
         this.getComposantById(newValue);
       }
     },
@@ -101,12 +99,11 @@ export default {
       }
     },
 
-
     sousComposantsId(newValue, oldValue) {
       if (newValue != null && newValue != undefined) {
         this.sousComposantId = newValue;
       }
-    }
+    },
   },
 
   methods: {
@@ -166,16 +163,16 @@ export default {
     addTache() {
       this.showModal = true;
       this.isUpdate = false;
-      
+
       this.formData.activiteId = this.activitesId;
 
       this.labels = "Ajouter";
     },
     sendForm() {
-        this.formData.annee = parseInt(this.formData.annee);
-        this.formData.trimestre = parseInt(this.formData.trimestre);
-        this.formData.budgetNational = parseInt(this.formData.budgetNational);
-        this.formData.pret = parseInt(this.formData.pret);
+      this.formData.annee = parseInt(this.formData.annee);
+      this.formData.trimestre = parseInt(this.formData.trimestre);
+      this.formData.budgetNational = parseInt(this.formData.budgetNational);
+      this.formData.pret = parseInt(this.formData.pret);
       if (this.update) {
         // this.formData.projetId = this.projetId
         this.isLoading = true;
@@ -227,13 +224,12 @@ export default {
           this.isLoadingData = false;
           this.projets = data.data.data;
 
-          if ((this.projetId == "") && (this.projets.length > 0) ) {
+          if (this.projetId == "" && this.projets.length > 0) {
             this.projetId = this.projets[0].id;
           }
-          if(this.projetId != "" && this.projetId != null && this.projetId != undefined){
+          if (this.projetId != "" && this.projetId != null && this.projetId != undefined) {
             this.getProjetById(this.projetId);
           }
-
         })
         .catch((error) => {
           console.log(error);
@@ -250,10 +246,10 @@ export default {
         .then((datas) => {
           this.composants = datas.data.data.composantes;
 
-          if ((this.composantsId == "") && (this.composants.length > 0) ) {
+          if (this.composantsId == "" && this.composants.length > 0) {
             this.composantsId = this.composants[0].id;
           }
-          if(this.composantsId != "" && this.composantsId != null && this.composantsId != undefined){
+          if (this.composantsId != "" && this.composantsId != null && this.composantsId != undefined) {
             this.getComposantById(this.composantsId);
           }
         })
@@ -264,29 +260,27 @@ export default {
     triggerGetProjetDetailsById(data = null) {
       // Emit the event with the projetId as payload
       console.log("Emit");
-      this.$emit('getProjetById', data ?? this.projetId);
+      this.$emit("getProjetById", data ?? this.projetId);
     },
     getComposantById(data) {
       ComposantesService.detailComposant(data)
-        .then((data) => {        
-         
+        .then((data) => {
           this.activites = data.data.data.activites;
 
           if (data.data.data.souscomposantes.length > 0) {
-            this.sousComposants = data.data.data.souscomposantes;/* 
+            this.sousComposants = data.data.data.souscomposantes; /* 
             if ((this.sousComposantsId == "") && (this.sousComposants.length > 0) ) {
               this.sousComposantId = this.sousComposants[0].id;
             } */
             this.haveSousComposantes = true;
           }
 
-          if ((this.activitesId == "") && this.activites.length > 0) {
+          if (this.activitesId == "" && this.activites.length > 0) {
             this.activitesId = this.activites[0].id;
           }
-          if(this.activitesId != "" && this.activitesId != null && this.activitesId != undefined){
+          if (this.activitesId != "" && this.activitesId != null && this.activitesId != undefined) {
             this.getActiviteById(this.activitesId);
           }
-
         })
         .catch((error) => {
           console.log(error);
@@ -306,66 +300,58 @@ export default {
     filter() {},
   },
 
-created() {},
-mounted() {
-  console.log("Mont");
-},
+  created() {},
+  mounted() {
+    console.log("Mont");
+  },
 };
 </script>
 
 <template>
-
-
-
-    <!-- Filtre -->
-    <div class="container mx-auto">
-      <!-- Combined Filter Section -->
-      <div class="relative p-6 mt-3 space-y-3 bg-white rounded-lg shadow-md">
-
-        <div class="flex w-full">
-            <label for="_input-wizard-10"
-              class="absolute z-10 px-3 ml-1 text-base font-bold duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Activites</label>
-            <TomSelect v-model="activitesId" :options="{
-              placeholder: 'Choisir une activite',
-              create: false,
-              onOptionAdd: text(),
-            }" class="w-full">
-              <option v-for="(activite, index) in activites" :key="index" :value="activite.id">{{ activite.codePta }} {{ activite.nom }}
-              </option>
-            </TomSelect>
-          </div>
-            
-
-        <div class="flex flex-wrap items-center justify-between col-span-12 sm:flex-nowrap">
-          <div class="flex">
-            <h2 class="text-base font-bold">Plan de decaissement</h2>
-          </div>
-          <div class="flex">
-            <button class="mr-2 shadow-md btn btn-primary" @click="addTache()">
-              <PlusIcon class="w-4 h-4 mr-3" />Ajouter un plan de decaissement
-            </button>
-          </div>
-        </div>
-
-        <div class="flex flex-wrap items-center justify-between col-span-12 sm:flex-nowrap xs:flex-nowrap space-y-4 md:space-y-0">
-          <div class="flex space-x-2 md:space-x-4">
-
-          </div>
-          <div class="flex">
-            <div class="relative text-slate-500">
-                <input type="text" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
-                <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
-            </div>
-          </div>
-        </div>
-
+  <!-- Filtre -->
+  <div class="container mx-auto">
+    <!-- Combined Filter Section -->
+    <div class="relative p-6 mt-3 space-y-3 bg-white rounded-lg shadow-md">
+      <div class="flex w-full">
+        <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-base font-bold duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Activites</label>
+        <TomSelect
+          v-model="activitesId"
+          :options="{
+            placeholder: 'Choisir une activite',
+            create: false,
+            onOptionAdd: text(),
+          }"
+          class="w-full"
+        >
+          <option v-for="(activite, index) in activites" :key="index" :value="activite.id">{{ activite.codePta }} {{ activite.nom }}</option>
+        </TomSelect>
       </div>
 
-      <!-- Results or other components -->
-      <div class="mt-6">
-        <!-- Place the table or grid component here -->
+      <div class="flex flex-wrap items-center justify-between col-span-12 sm:flex-nowrap">
+        <div class="flex">
+          <h2 class="text-base font-bold">Plan de decaissement</h2>
+        </div>
+        <div class="flex">
+          <button class="mr-2 shadow-md btn btn-primary" @click="addTache()"><PlusIcon class="w-4 h-4 mr-3" />Ajouter un plan de decaissement</button>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-between col-span-12 sm:flex-nowrap xs:flex-nowrap space-y-4 md:space-y-0">
+        <div class="flex space-x-2 md:space-x-4"></div>
+        <div class="flex">
+          <div class="relative text-slate-500">
+            <input type="text" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
+            <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
+          </div>
+        </div>
       </div>
     </div>
+
+    <!-- Results or other components -->
+    <div class="mt-6">
+      <!-- Place the table or grid component here -->
+    </div>
+  </div>
 
   <div v-if="!isLoadingData" class="grid grid-cols-12 gap-6 mt-5">
     <!-- BEGIN: Users Layout -->
@@ -411,26 +397,22 @@ mounted() {
               <span class="pl-2" v-else-if="item.activite.statut == 1"> En retard </span>
               <span class="pl-2" v-else-if="item.activite.statut == 2">Terminé</span>
             </div> -->
-            <div class="flex items-center mt-2"> Annee : {{ item.annee }}</div>
+            <div class="flex items-center mt-2">Annee : {{ item.annee }}</div>
 
-            <div class="flex items-center mt-2"> Trimestre : {{ item.trimestre }}</div>
+            <div class="flex items-center mt-2">Trimestre : {{ item.trimestre }}</div>
 
-            <div class="flex items-center mt-2"> Fond propre : {{ item.budgetNational }}</div>
+            <div class="flex items-center mt-2">Fond propre : {{ item.budgetNational }}</div>
 
-            <div class="flex items-center mt-2"> Montant alloue : {{ item.pret }}</div>
+            <div class="flex items-center mt-2">Montant alloue : {{ item.pret }}</div>
 
-            <div class="flex items-center mt-2"> De {{ item.debut }} {{ item.fin }}</div>
+            <div class="flex items-center mt-2">De {{ item.debut }} {{ item.fin }}</div>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-
-  <NoRecordsMessage v-if="!sousComposants.length"
-      title="No outputs Found"
-      description="It seems there are no outputs to display. Please check back later."
-    />
+  <NoRecordsMessage v-if="!sousComposants.length" title="No outputs Found" description="It seems there are no outputs to display. Please check back later." />
 
   <!-- END: Users Layout -->
   <LoaderSnipper v-if="isLoadingData" />
@@ -441,19 +423,14 @@ mounted() {
       <h2 v-else class="mr-auto text-base font-medium">Modifier une tache</h2>
     </ModalHeader>
     <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
-      
-      <InputForm v-model="formData.annee" class="col-span-12" type="number" required="required" placeHolder="Ex : 2024"
-          label="Annee de base" />
-      <InputForm v-model="formData.trimestre" class="col-span-12" type="number" required="required" placeHolder="Ex : 2"
-          label="Trimestre" />
+      <InputForm v-model="formData.annee" class="col-span-12" type="number" required="required" placeHolder="Ex : 2024" label="Annee de base" />
+      <InputForm v-model="formData.trimestre" class="col-span-12" type="number" required="required" placeHolder="Ex : 2" label="Trimestre" />
 
-      <InputForm v-model="formData.budgetNational" class="col-span-12" type="number" required="required"
-          placeHolder="Ex : 500000" label="Fond propre" />
+      <InputForm v-model="formData.budgetNational" class="col-span-12" type="number" required="required" placeHolder="Ex : 500000" label="Fond propre" />
 
-      <InputForm v-model="formData.pret" class="col-span-12" type="number" required="required" placeHolder="Ex : 2000000"
-          label="Montant financier" />
+      <InputForm v-model="formData.pret" class="col-span-12" type="number" required="required" placeHolder="Ex : 2000000" label="Montant financier" />
 
-       <div class="flex mt-2 col-span-12">
+      <div class="flex mt-2 col-span-12">
         <v-select class="w-full" :reduce="(activite) => activite.id" v-model="formData.activiteId" label="nom" :options="activites">
           <template #search="{ attributes, events }">
             <input class="vs__search form-input" :required="!formData.activiteId" v-bind="attributes" v-on="events" />
@@ -461,7 +438,6 @@ mounted() {
         </v-select>
         <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-bold duration-100 ease-linear -translate-y-3 bg-white _font-medium form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Activites</label>
       </div>
-
     </ModalBody>
     <ModalFooter>
       <div class="flex items-center justify-center">

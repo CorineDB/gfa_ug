@@ -200,6 +200,7 @@ export default {
             }
           })
           .catch((error) => {
+            this.isLoading = false;
             if (error.response && error.response.data && error.response.data.errors) {
               this.messageErreur = error.response.data.errors;
               Object.keys(this.messageErreur).forEach((key) => {
@@ -342,7 +343,7 @@ export default {
               <input class="vs__search form-input" :required="!sousComposantId" v-bind="attributes" v-on="events" />
             </template>
           </v-select>
-          <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OUtComes</label>
+          <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OUtput</label>
         </div>
 
         <div class="flex col-span-12 md:col-span-6">
@@ -370,7 +371,7 @@ export default {
         </div>
       </div>
       <div v-if="verifyPermission('creer-une-tache')" class="flex">
-        <button class="mr-2 shadow-md btn btn-primary" @click="addTache()"><PlusIcon class="w-4 h-4 mr-3" />Ajouter un OutCome</button>
+        <button class="mr-2 shadow-md btn btn-primary" @click="addTache()"><PlusIcon class="w-4 h-4 mr-3" />Ajouter une tâche</button>
       </div>
     </div>
   </div>

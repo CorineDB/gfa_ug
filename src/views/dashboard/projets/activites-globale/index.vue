@@ -10,7 +10,7 @@ import ActivitiesComponent from "./activities.vue";
 import verifyPermission from "@/utils/verifyPermission";
 import NoRecordsMessage from "@/components/NoRecordsMessage.vue";
 import pagination from "@/components/news/pagination.vue";
-// import PlanDecaissementComponent from "@/components/PlanDecaissement.vue";
+import PlanDecaissementComponent from "@/components/PlanDecaissement.vue";
 import { helper as $h } from "@/utils/helper";
 
 export default {
@@ -19,7 +19,7 @@ export default {
     VButton,
     NoRecordsMessage,
     pagination,
-    // PlanDecaissementComponent,
+    PlanDecaissementComponent,
     // ActivitiesComponent,
   },
 
@@ -43,9 +43,9 @@ export default {
       isLoading: false,
       formData: this.getInitialFormData(),
       selectedIds: {
-        composantId: null,
-        sousComposantId: null,
-        activiteId: null,
+        composantId: "",
+        sousComposantId: "",
+        activiteId: "",
       },
       labels: "Ajouter",
       showDeleteModal: false,
@@ -56,7 +56,7 @@ export default {
       seeActivite: true,
       seeActivitiesOfState: 3,
       haveSousComposantes: false,
-      
+
       planDeDecaissement: [],
       planDeDecaissementPayload: {
         activiteId: null,
@@ -81,7 +81,7 @@ export default {
       cloturerModal: false,
       loadingCloturer: false,
       erreurPlanDeDecaissement: null,
-      activiteId: null
+      activiteId: null,
     };
   },
 
@@ -112,17 +112,26 @@ export default {
 
     "selectedIds.composantId": "loadComposantDetails",
 
-    "formData.composanteId": "loadComposantDetails",
+    "selectedIds.sousComposantId": "loadSousComposantDetails",
+
+    // "formData.composanteId": "mettreAjoutOutcome",
+
+    //"formData.composanteId": "loadComposantDetails",
   },
 
   methods: {
+    changeActiviteId(id) {
+      this.selectedIds.activiteId = id;
+
+      console.log("this.selectedIds.activiteId", this.selectedIds.activiteId);
+    },
     ...mapActions({
       // Mapping des actions pour le module activites
       prolongerDureeActivite: "activites/PROLONGER_DATE",
       // Mapping des actions pour le module planDeDecaissements
       storePlanDecaissement: "planDeDecaissements/STORE_PLAN_DE_DECAISSEMENT",
     }),
-    
+
     getCurrentQuarter() {
       const month = new Date().getMonth() + 1; // Les mois sont indexés à partir de 0
       return Math.ceil(month / 3); // Calcul du trimestre actuel
@@ -202,7 +211,10 @@ export default {
       };
       this.selectedIds.activiteId = data.id;
     },
-
+    mettreAjoutOutcome(id) {
+      //alert("ok")
+      this.selectedIds.composantId = id;
+    },
     addActivite() {
       this.resetFormData();
       this.messageErreur = {};
@@ -212,22 +224,23 @@ export default {
       setTimeout(() => {
         this.formData.composanteId = "";
         this.selectedIds.sousComposantId = "";
+        this.sousComposants = [];
+        this.haveSousComposantes = false;
         this.text();
       }, 400);
     },
     resetSousComposantsId() {
+      // console.log("this.selectedIds.composantId", this.selectedIds.composantId);
       this.selectedIds.sousComposantId = "";
+      this.loadComposantDetails();
       // this.text();
     },
 
     async sendForm() {
-      console.log("this.selectedIds.composantId == null", this.selectedIds.composantId == null);
-
-      console.log("this.formData.composanteId.id ", this.formData.composanteId.id);
-
+      console.log("this.selectedIds.composantId", this.selectedIds.composantId);
       const data = {
         ...this.formData,
-        composanteId: this.selectedIds.composantId == "" ? this.formData.composanteId : this.selectedIds.composantId,
+        composanteId: this.selectedIds.sousComposantId == "" ? this.formData.composanteId : this.selectedIds.sousComposantId,
         budgetNational: parseInt(this.formData.budgetNational),
         pret: parseInt(this.formData.pret),
       };
@@ -239,6 +252,13 @@ export default {
           toast.success("Modification effectuée");
         } else {
           await ActiviteService.create(data);
+          if (this.selectedIds.sousComposantId == "") {
+            // this.selectedIds.composantId = this.formData.composanteId;
+            this.loadComposantDetails();
+          } else {
+            this.loadSousComposantDetails();
+          }
+
           toast.success("Ajout effectué");
         }
 
@@ -271,17 +291,21 @@ export default {
     },
 
     async loadProjetDetails(projetId) {
+      // console.log("this.selectedIds.composantId1", this.selectedIds.composantId);
       try {
         const response = await ProjetService.getDetailProjet(projetId);
         this.composants = response.data.data.composantes;
-        this.selectedIds.composantId = this.composants[0]?.id || null;
+        this.selectedIds.composantId = this.composants[0]?.id || "";
+
+        console.log("this.selectedIds.composantId2", this.selectedIds.composantId);
+        // alert("ok");
       } catch (error) {
         console.error("Erreur lors du chargement des détails du projet", error);
       }
     },
 
     async loadComposantDetails() {
-      if (!this.selectedIds.composantId) return;
+      if (!this.selectedIds.composantId || this.selectedIds.composantId == "") return;
 
       try {
         const response = await ComposantesService.detailComposant(this.selectedIds.composantId);
@@ -289,15 +313,19 @@ export default {
 
         // Mettre à jour les sous-composants et activités du composant
         this.sousComposants = composantData.souscomposantes || [];
+        console.log("this.sousComposants", this.sousComposants);
         this.activites = composantData.activites || [];
+        this.currentPage = 1;
         this.allActivite = this.activites;
 
         // Vérifier s'il y a des sous-composants
         if (this.sousComposants.length > 0) {
           this.haveSousComposantes = true;
-          this.selectedIds.sousComposantId = this.sousComposants[0]?.id || null;
 
-          this.loadSousComposantDetails(); // Charger les activités du premier sous-composant
+          // if (this.selectedIds.sousComposantId == "" || !this.selectedIds.sousComposantId) return;
+
+          // this.selectedIds.sousComposantId = this.sousComposants[0]?.id || null;
+          // this.loadSousComposantDetails(); // Charger les activités du premier sous-composant
         } else {
           this.haveSousComposantes = false;
           // Pas de sous-composants, afficher directement les activités du composant
@@ -328,6 +356,7 @@ export default {
     updateActivitesList(activites) {
       this.activites = activites;
       this.allActivite = this.activites;
+      this.currentPage = 1;
       console.log(this.activites);
     },
 
@@ -349,7 +378,7 @@ export default {
       this.seeStatistique = false;
     },
     text() {},
-    
+
     ouvrirModalProlongerActivite(item) {
       this.dateDebutOld = item.debut;
       this.dateFinOld = item.fin;
@@ -365,7 +394,7 @@ export default {
         fin: this.dateFin,
       };
 
-      this.prolongerDureeActivite({ dates: payLoad, id: this.activiteId})
+      this.prolongerDureeActivite({ dates: payLoad, id: this.activiteId })
         .then((response) => {
           if (response.status == 200 || response.status == 201) {
             this.showModalProlongement = false;
@@ -394,7 +423,7 @@ export default {
           }
         });
     },
-    
+
     ouvrirModalPlanDeDecaissementActivite(item) {
       this.planDeDecaissementPayload.activiteId = item.id;
       this.planDeDecaissement.push(this.planDeDecaissementPayload);
@@ -411,10 +440,9 @@ export default {
     planDeDecaissementActivite() {
       this.loadingPlanDeDecaissement = true;
 
-      console.log(this.planDeDecaissement)
+      console.log(this.planDeDecaissement);
 
       for (let index = 0; index < this.planDeDecaissement.length; index++) {
-
         this.storePlanDecaissement(this.planDeDecaissement[index])
           .then((response) => {
             if (response.status == 200 || response.status == 201) {
@@ -437,10 +465,8 @@ export default {
               toast.error(error.response.data.errors.message);
             }
           });
-        
       }
     },
-    
   },
 
   async mounted() {
@@ -465,16 +491,16 @@ export default {
         <span class="mx-2 text-xs font-semibold">ajouter </span>
       </button>
 
-      <button v-if="seePlan && planDeDecaissement" @click="addPlan" title="ajouter" class="p-2 overflow-hidden flex space-x-2 items-center text-xs font-semibold text-white uppercase bg-primary focus:outline-none focus:shadow-outline">
+      <!-- <button v-if="seePlan && planDeDecaissement" @click="addPlan" title="ajouter" class="p-2 overflow-hidden flex space-x-2 items-center text-xs font-semibold text-white uppercase bg-primary focus:outline-none focus:shadow-outline">
         <span>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" style="fill: rgba(255, 255, 255, 1); transform: ; msfilter: ">
             <path d="M19 11h-6V5h-2v6H5v2h6v6h2v-6h6z"></path></svg
         ></span>
         <span class="mx-2 text-xs md:text-sm font-semibold">ajouter</span>
-      </button>
+      </button> -->
     </div>
   </div>
-  <h2 class="mt-10 text-lg font-medium intro-y">Activités</h2>
+  <!-- <h2 class="mt-10 text-lg font-medium intro-y">Activités</h2> -->
 
   <!-- Filtre -->
   <div class="container px-4 mx-auto">
@@ -501,7 +527,7 @@ export default {
         </div>
 
         <div class="flex col-span-6" v-if="composants.length > 0">
-          <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Composants</label>
+          <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Outcomes</label>
           <TomSelect
             v-model="selectedIds.composantId"
             :options="{
@@ -533,6 +559,24 @@ export default {
             </TomSelect>
           </div>
           <button v-if="sousComposants.length > 0" type="button" class="btn btn-outline-primary" @click="resetSousComposantsId()" title="Rester dans le composant"><TrashIcon class="w-4 h-4" /></button>
+        </div>
+
+        <div class="flex col-span-6" v-if="seePlan">
+          <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Activités</label>
+          <TomSelect
+            v-model="selectedIds.activiteId"
+            :options="{
+              placeholder: 'Choisir une activité',
+              create: false,
+              onOptionAdd: text(),
+            }"
+            class="w-full"
+            title="Veuillez sélectionner une activité pour afficher son plan de décaissement"
+          >
+            <option value="">Choisir une activité</option>
+
+            <option v-for="(element, index) in activites" :key="index" :value="element.id">{{ element.nom }}</option>
+          </TomSelect>
         </div>
       </div>
     </div>
@@ -651,7 +695,9 @@ export default {
     </pagination>
   </div>
 
-  <!-- <PlanDecaissementComponent v-if="seePlan" :projetsId="projetId" :composantId="selectedIds.composantId" :sousComposantsId="selectedIds.sousComposantsId" @getProjetById="loadProjetDetails" /> -->
+  <!-- <pre>{{ seePlan }}</pre> -->
+
+  <PlanDecaissementComponent v-if="seePlan" :activiteId="selectedIds.activiteId" :activites="activites" @send-activiteId="changeActiviteId" />
 
   <!-- v-if="false == true" -->
 
@@ -679,9 +725,10 @@ export default {
         <InputForm v-model="formData.fin" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de fin*" label="Fin de l'activité" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.fin">{{ messageErreur.fin }}</p>
 
-        <div class="flex col-span-12">
+        <div class="flex col-span-12 mt-2">
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OutCome*</label>
           <TomSelect
+            @change="mettreAjoutOutcome(formData.composanteId)"
             v-model="formData.composanteId"
             :options="{
               placeholder: 'Choisir un Outcome',
@@ -744,13 +791,12 @@ export default {
     </ModalHeader>
 
     <form @submit.prevent="prolongementActivite">
-      <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">       
+      <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
         <InputForm v-model="dateDebut" :min="dateDebutOld" class="col-span-12" type="date" :required="true" placeHolder="Entrer la nouvelle date debut" label="Nouvelle date debut de l'activite" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurProlongation != null && erreurProlongation.debut">{{ erreurProlongation.debut }}</p>
 
         <InputForm v-model="dateFin" :min="dateFinOld" class="col-span-12" type="date" :required="true" placeHolder="Entrer la nouvelle date fin" label="Nouvelle date fin de l'activite" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurProlongation != null && erreurProlongation.fin">{{ erreurProlongation.fin }}</p>
-
       </ModalBody>
       <ModalFooter>
         <div class="flex items-center justify-center">
@@ -770,92 +816,36 @@ export default {
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
         <div v-for="(plan, index) in planDeDecaissement" :key="index" class="col-span-12 border-b pb-4 mb-4">
           <h3 class="text-sm font-medium mb-2">Plan {{ index + 1 }}</h3>
-          
-          <InputForm 
-            v-model="plan.annee" 
-            :min="2000" 
-            class="col-span-12" 
-            type="number" 
-            :required="true" 
-            placeHolder="Saisissez l'année" 
-            label="Saisissez l'année de décaissement" 
-          />
+
+          <InputForm v-model="plan.annee" :min="2000" class="col-span-12" type="number" :required="true" placeHolder="Saisissez l'année" label="Saisissez l'année de décaissement" />
           <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.annee">
             {{ erreurPlanDeDecaissement[index].annee }}
           </p>
 
-          <InputForm 
-            v-model="plan.trimestre" 
-            :min="1" 
-            :max="4" 
-            class="col-span-12" 
-            type="number" 
-            :required="true" 
-            placeHolder="Sélectionnez le trimestre" 
-            label="Sélectionnez le trimestre" 
-          />
+          <InputForm v-model="plan.trimestre" :min="1" :max="4" class="col-span-12" type="number" :required="true" placeHolder="Sélectionnez le trimestre" label="Sélectionnez le trimestre" />
           <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.trimestre">
             {{ erreurPlanDeDecaissement[index].trimestre }}
           </p>
 
-          <InputForm 
-            v-model="plan.budgetNational" 
-            :min="0" 
-            class="col-span-12" 
-            type="number" 
-            :required="true" 
-            placeHolder="Saisissez le fond propre" 
-            label="Saisissez le fond propre" 
-          />
+          <InputForm v-model="plan.budgetNational" :min="0" class="col-span-12" type="number" :required="true" placeHolder="Saisissez le fond propre" label="Saisissez le fond propre" />
           <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.budgetNational">
             {{ erreurPlanDeDecaissement[index].budgetNational }}
           </p>
 
-          <InputForm 
-            v-model="plan.pret" 
-            :min="0" 
-            class="col-span-12" 
-            type="number" 
-            :required="true" 
-            placeHolder="Saisissez le montant financé" 
-            label="Saisissez le montant financé" 
-          />
+          <InputForm v-model="plan.pret" :min="0" class="col-span-12" type="number" :required="true" placeHolder="Saisissez le montant financé" label="Saisissez le montant financé" />
           <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.pret">
             {{ erreurPlanDeDecaissement[index].pret }}
           </p>
 
-          <button 
-            type="button" 
-            @click="removePlan(index)" 
-            class="mt-2 text-red-600 text-sm underline"
-          >
-            Supprimer ce plan
-          </button>
+          <button type="button" @click="removePlan(index)" class="mt-2 text-red-600 text-sm underline">Supprimer ce plan</button>
         </div>
 
-        <button 
-          type="button" 
-          @click="addPlan" 
-          class="col-span-12 btn btn-outline-primary"
-        >
-          Ajouter un autre plan
-        </button>
+        <button type="button" @click="addPlan" class="col-span-12 btn btn-outline-primary">Ajouter un autre plan</button>
       </ModalBody>
       <ModalFooter>
         <div class="flex items-center justify-center">
-          <button 
-            type="button" 
-            @click="showModalPlanDeDecaissement = false" 
-            class="w-full mr-1 btn btn-outline-secondary"
-          >
-            Annuler
-          </button>
-          <VButton 
-            class="inline-block" 
-            label="Enregistrer" 
-            :loading="loadingPlanDeDecaissement" 
-            :type="submit" 
-          />
+          <button type="button" @click="showModalPlanDeDecaissement = false" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
+          <VButton class="inline-block" label="Enregistrer" :loading="loadingPlanDeDecaissement" :type="submit" />
         </div>
       </ModalFooter>
     </form>
@@ -889,7 +879,6 @@ export default {
       </ModalFooter>
     </form>
   </Modal> -->
-  
 
   <!-- <Modal backdrop="static" :show="cloturerActivite" @hidden="cloturerActivite = false">
     <ModalHeader>

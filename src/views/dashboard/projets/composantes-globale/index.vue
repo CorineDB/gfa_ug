@@ -182,7 +182,6 @@ export default {
               });
               toast.error("Une erreur s'est produite.Vérifier le formulaire de soumission");
             } else {
-              
               toast.error(error.message);
               //
             }
@@ -264,7 +263,7 @@ export default {
   <div class="container px-4 mx-auto">
     <!-- Combined Filter Section -->
     <div class="relative p-6 mt-3 space-y-3 bg-white rounded-lg shadow-md">
-      <h2 class="mb-4 text-base font-bold">Filtre</h2>
+      <h2 class="mb-4 text-base font-bold">Filtre </h2>
 
       <div class="grid grid-cols-3 gap-4">
         <div class="flex col-span-12">
@@ -407,7 +406,7 @@ export default {
     </form>
   </Modal>
 
-  <Modal  backdrop="static":show="showDeleteModal" @hidden="showDeleteModal = false">
+  <Modal backdrop="static" :show="showDeleteModal" @hidden="showDeleteModal = false">
     <ModalBody class="p-0">
       <div class="p-5 text-center">
         <XCircleIcon class="w-16 h-16 mx-auto mt-3 text-danger" />
