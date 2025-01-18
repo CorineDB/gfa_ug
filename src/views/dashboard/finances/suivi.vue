@@ -32,17 +32,7 @@ const datas = ref([]);
 const debutProgramme = ref("");
 const finProgramme = ref("");
 
-const years = computed(() => {
-  console.log("debut",  `${debutProgramme.value.split("-") }`);
-  console.log("fin",  `${finProgramme.value.split("-")}`);
-  let anneeDebut = parseInt(`${debutProgramme.value.split("-")[0]}`);
-  let anneeFin = parseInt(`${finProgramme.value.split("-")[0]}`);
-  let annees = [];
-  for (let annee = anneeDebut; annee <= anneeFin; annee++) {
-    annees.push(annee);
-  }
-  return annees;
-});
+const years = ref([]);
 
 const getcurrentUser = async () => {
   await AuthService.getCurrentUser()
@@ -62,6 +52,7 @@ const getcurrentUser = async () => {
 };
 
 const createData = async () => {
+  console.log("payload", payload);
   isLoading.value = true;
   await SuiviFinancierService.create(payload)
     .then(() => {
@@ -224,20 +215,31 @@ const resetForm = () => {
   showModalCreate.value = false;
 };
 const openCreateModal = () => {
-  // payload.programmeId = "";
+  years.value = [];
+  let anneeDebut = parseInt(debutProgramme.value.split("-")[0]);
+  let anneeFin = parseInt(finProgramme.value.split("-")[0]);
+
+  for (let annee = anneeDebut; annee <= anneeFin; annee++) {
+    years.value.push(annee);
+  }
+
+  console.log("years", years.value);
+
   showModalCreate.value = true;
   isCreate.value = true;
 };
 
+const text = function () {};
+
 const mode = computed(() => (isCreate.value ? "Ajouter" : "Modifier"));
 
 onMounted(() => {
-  var anneeActuelle = new Date().getFullYear() + 5;
-  let i = 0;
-  for (var annee = 2016; annee <= anneeActuelle; annee++) {
-    i++;
-    years.value.push({ nom: `${annee}` });
-  }
+  // var anneeActuelle = new Date().getFullYear() + 5;
+  // let i = 0;
+  // for (var annee = 2016; annee <= anneeActuelle; annee++) {
+  //   i++;
+  //   years.value.push({ nom: `${annee}` });
+  // }
 
   getDatas();
   getactivites(new Date().getFullYear());
@@ -396,10 +398,20 @@ onMounted(() => {
           </div>
           <!-- <pre>{{years}}</pre> -->
           <div class="">
-            <label class="form-label">Année</label>
-            <TomSelect v-model="payload.annee" @change="handleInput(payload.annee)" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
-              <option v-for="(year, index) in years" :key="index" :value="year.nom">{{ year.nom }}</option>
+            <label class="form-label">Année test</label>
+            <TomSelect
+              v-model="payload.annee"
+              @change="handleInput(payload.annee)"
+              :options="{
+                placeholder: 'Sélectionner une année',
+                create: false,
+                onOptionAdd: text(),
+              }"
+              class="w-full"
+            >
+              <option v-for="(year, index) in years" :key="index" :value="year">{{ year }}</option>
             </TomSelect>
+            <pre></pre>
           </div>
 
           <div class="">
