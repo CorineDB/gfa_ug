@@ -12,6 +12,14 @@ import LoaderSnipper from "@/components/LoaderSnipper.vue";
 import AuthService from "@/services/modules/auth.service";
 
 
+const showModalFiltre = ref(false);
+const annees = ref("");
+const filterPayload = reactive({
+  trimestre: 1, // Trimestre actuel
+  annee: new Date().getFullYear(), // Set current year as default
+});
+const isLoadingFilter = ref(false);
+
 const suiviFinancier = ref([]);
 const suiviFinancierPayload = reactive({
   activiteId: null,
@@ -51,7 +59,9 @@ const years = computed(() => {
   let anneeFin = parseInt(finProgramme.value.split("-")[0], 10);
   let annees = [];
   for (let annee = anneeDebut; annee <= anneeFin; annee++) {
-    annees.push(annee);
+    if(annee <= new Date().getFullYear()){
+      annees.push(annee);
+    }
   }
   return annees;
 });
@@ -238,8 +248,6 @@ const openCreateModal = () => {
   showModalCreate.value = isCreate.value = true;
 };
 
-
-
 const getCurrentQuarter = () => {
   const month = new Date().getMonth() + 1; // Les mois sont indexés à partir de 0
   return Math.ceil(month / 3); // Calcul du trimestre actuel
@@ -297,6 +305,42 @@ const suiviFinancierActivite = () => {
 
 const mode = computed(() => (isCreate.value ? "Ajouter" : "Modifier"));
 
+const openFilterModal = () => {
+  console.log(filterPayload.annee);
+  filterPayload.trimestre = 3; //getCurrentQuarter();
+  showModalFiltre.value = true;
+};
+
+const filterSuiviFinancierActivite =  async () => {
+  isLoadingFilter.value = true;
+
+  console.log(filterPayload.annee);
+
+  filterPayload.annee = parseInt(filterPayload.annee);
+  filterPayload.trimestre = parseInt(filterPayload.trimestre);
+
+  await SuiviFinancierService.filtre(filterPayload)
+    .then((result) => {
+      datas.value = result.data.data;
+      console.log(datas.value);
+      isLoadingFilter.value = false;
+      resetFilterModal();
+      toast.success("Suivi Financier filtrer.");
+    })
+    .catch((e) => {
+      console.log(e);
+      isLoadingFilter.value = false;
+      toast.error("Vérifier les informations et ressayer.");
+    });
+  
+};
+
+const resetFilterModal = () => {
+  isLoadingFilter.value = false;
+  annees.value = '';
+  showModalFiltre.value = false;
+};
+
 onMounted(() => {
   var anneeActuelle = new Date().getFullYear() + 5;
   let i = 0;
@@ -320,12 +364,15 @@ onMounted(() => {
           <input type="text" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
           <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
         </div>
-      </div>
+      </div> 
       <div class="flex">
+        <button class="mr-2 shadow-md btn btn-primary" @click="openFilterModal"><FilterIcon class="w-4 h-4 mr-3" />Filtrer le PA</button>
+      </div>
+      <!-- <div class="flex">
         <button class="mr-2 shadow-md btn btn-primary" @click="openCreateModal">
           <PlusIcon class="w-4 h-4 mr-3" />Ajouter un Suivi Financier
         </button>
-      </div>
+      </div> -->
     </div>
   </div>
 
@@ -637,4 +684,42 @@ onMounted(() => {
     </form>
   </Modal>
 
+  <!-- Modal Register & Update -->
+  <Modal backdrop="static" :show="showModalFiltre" @hidden="showModalFiltre = false">
+    <ModalHeader>
+      <h2 class="mr-auto text-base font-medium">Filtrer le pta</h2>
+    </ModalHeader>
+    <form @submit.prevent="filterSuiviFinancierActivite">
+      <ModalBody>
+        <div class="grid grid-cols-1 gap-4">
+          <!-- <pre>{{years}}</pre> -->
+          <div class="">
+            <label class="form-label">Année</label>
+            <TomSelect v-model="filterPayload.annee" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+              <option v-for="year in years" :value="year">{{ year }}</option>
+            </TomSelect>
+          </div>
+          <div class="">
+            <label class="form-label">Trimestre</label>
+            <TomSelect v-model="filterPayload.trimestre" :options="{ placeholder: 'Selectionez le trimestre' }" class="w-full">
+              <option v-for="i in 4" :value="i">Trimestre {{ i }}</option>
+            </TomSelect>
+          </div>
+        </div>
+      </ModalBody>
+      <ModalFooter>
+        <div class="flex gap-2">
+          <button
+            type="button"
+            @click="resetFilterModal"
+            class="w-full px-2 py-2 my-3 align-top btn btn-outline-secondary"
+          >
+            Annuler
+          </button>
+          <VButton :loading="isLoadingFilter" label="Filtrer" />
+        </div>
+      </ModalFooter>
+    </form>
+  </Modal>
+  <!-- End Modal -->
 </template>
