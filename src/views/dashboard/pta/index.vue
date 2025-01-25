@@ -137,29 +137,29 @@
                 <span v-if="pta.isTache" class="text-sm text-red-600"> {{ pta.nom }}</span>
               </td>
               <td v-if="pta.bn != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
-                <span class="font-bold"> {{ pta.bn | formatNumber }} </span>
-                <!--  <span v-else class="font-bold" >0 FCFA</span> -->
+                <span class="font-bold"> {{ $h.formatCurrency(pta.bn) }} </span>
               </td>
               <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700" v-else></td>
 
-              <!-- <td v-if="pta.pret != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
-                  <span class="font-bold text-green-500"> {{ pta.pret | formatNumber }} </span>
-                   <span v-else class="font-bold" >0 FCFA </span>
-                </td> -->
-              <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700" v-else></td> -->
-              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
-                <span class="font-bold text-yellow-500"> 222</span>
+              <td v-if="pta.depenses != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
+                <span class="font-bold"> {{ $h.formatCurrency(pta.depenses) }} </span>
               </td>
+              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700" v-else></td>
+
+              <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700" v-else></td> -->
+              <!-- <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
+                <span class="font-bold text-yellow-500"> {{ $h.formatCurrency(pta.depenses) }}</span>
+              </td> -->
               <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
-                <span class="font-bold text-yellow-500"> 222</span>
+                <span class="font-bold text-yellow-500"> {{ $h.formatCurrency(222) }}</span>
               </td>
 
               <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
-                <span class="font-bold text-yellow-500"> 222</span>
+                <span class="font-bold text-yellow-500"> {{ $h.formatCurrency(222) }}</span>
               </td>
 
               <td v-if="pta.pret != '' || pta.bn != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
-                <span class="font-bold text-yellow-500"> {{ (pta.pret + pta.bn) | formatNumber }} </span>
+                <span class="font-bold text-yellow-500"> {{ $h.formatCurrency(pta.pret + pta.bn) }} </span>
                 <!--  <span v-else class="font-bold" >0 FCFA </span> -->
               </td>
               <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700" v-else></td>
@@ -240,75 +240,56 @@
               <!--  planing -->
 
               <td v-if="pta.t1Bn != undefined && pta.t1Bn != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
-                <span class="font-bold"> {{ pta.t1Bn | formatNumber }} </span>
+                <span class="font-bold"> {{ $h.formatCurrency(pta.t1Bn) }} </span>
                 <!--  <span v-else class="font-bold" >0 FCFA</span> -->
               </td>
               <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700" v-else></td>
 
-              <!--  planing semestre -->
-              <!-- <td v-if="pta.t1Pret != undefined && pta.t1Pret != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
-                  <span class="font-bold"> {{ pta.t1Pret | formatNumber }} </span>
-                   <span v-else class="font-bold" >0 FCFA </span>
-                </td>
-                <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700" v-else></td> -->
-
               <td v-if="pta.t1Pret != '' || pta.t1Bn != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
-                <span class="font-bold"> {{ (pta.t1Pret + pta.t1Bn) | formatNumber }} </span>
+                <span class="font-bold"> {{ $h.formatCurrency(pta.t1Pret + pta.t1Bn) }} </span>
                 <!--  <span v-else class="font-bold" >0 FCFA </span> -->
               </td>
               <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700" v-else></td>
 
               <td v-if="pta.t2Bn != undefined && pta.t2Bn != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
-                <span class="font-bold"> {{ pta.t2Bn | formatNumber }} </span>
+                <span class="font-bold"> {{ $h.formatCurrency(pta.t2Bn) }} </span>
                 <!--  <span v-else class="font-bold" >0 FCFA</span> -->
               </td>
               <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700" v-else></td>
 
               <td v-if="pta.t2Pret != undefined && pta.t2Pret != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
-                <span class="font-bold"> {{ pta.t2Pret | formatNumber }} </span>
+                <span class="font-bold"> {{ $h.formatCurrency(pta.t2Pret) }} </span>
                 <!--  <span v-else class="font-bold" >0 FCFA </span> -->
               </td>
               <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700" v-else></td>
 
               <td v-if="pta.t2Pret != '' || pta.t2Bn != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
-                <span class="font-bold"> {{ (pta.t2Pret + pta.t2Bn) | formatNumber }} </span>
+                <span class="font-bold"> {{ $h.formatCurrency(pta.t2Pret + pta.t2Bn) }} </span>
                 <!--  <span v-else class="font-bold" >0 FCFA </span> -->
               </td>
               <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700" v-else></td>
 
               <td v-if="pta.t3Bn != undefined && pta.t3Bn != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
-                <span class="font-bold"> {{ pta.t3Bn | formatNumber }} </span>
+                <span class="font-bold"> {{ $h.formatCurrency(pta.t3Bn) }} </span>
                 <!--  <span v-else class="font-bold" >0 FCFA</span> -->
               </td>
               <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700" v-else></td>
 
-              <!-- <td v-if="pta.t3Pret != undefined && pta.t3Pret != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
-                  <span class="font-bold"> {{ pta.t3Pret | formatNumber }} </span>
-                   <span v-else class="font-bold" >0 FCFA </span>
-                </td>
-                <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700" v-else></td> -->
-
               <td v-if="pta.t3Pret != '' || pta.t3Bn != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
-                <span class="font-bold"> {{ (pta.t3Pret + pta.t3Bn) | formatNumber }} </span>
+                <span class="font-bold"> {{ $h.formatCurrency(pta.t3Pret + pta.t3Bn) }} </span>
                 <!--  <span v-else class="font-bold" >0 FCFA </span> -->
               </td>
               <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700" v-else></td>
 
               <td v-if="pta.t4Bn != undefined && pta.t4Bn != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
-                <span class="font-bold"> {{ pta.t4Bn | formatNumber }} </span>
+                <span class="font-bold"> {{ $h.formatCurrency(pta.t4Bn) }} </span>
                 <!--  <span v-else class="font-bold" >0 FCFA</span> -->
               </td>
 
               <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700" v-else></td>
 
-              <!-- <td v-if="pta.t4Pret != undefined && pta.t4Pret != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
-                  <span class="font-bold"> {{ pta.t4Pret | formatNumber }} </span>
-                   <span v-else class="font-bold" >0 FCFA </span>
-                </td>
-                <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700" v-else></td> -->
-
               <td v-if="pta.t4Pret != '' || pta.t4Bn != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
-                <span v-if="pta.t4Pret != undefined && pta.t4Bn != undefined" class="font-bold"> {{ (pta.t4Pret + pta.t4Bn) | formatNumber }} </span>
+                <span v-if="pta.t4Pret != undefined && pta.t4Bn != undefined" class="font-bold"> {{ $h.formatCurrency(pta.t4Pret + pta.t4Bn) }} </span>
                 <!--  <span v-else class="font-bold" >0 FCFA </span> -->
               </td>
               <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700" v-else></td>
@@ -363,6 +344,8 @@ import TacheService from "@/services/modules/tache.service.js";
 import VButton from "@/components/news/VButton.vue";
 import { toast } from "vue3-toastify";
 import { mapGetters, mapMutations, mapActions, mapState } from "vuex";
+import { helper as $h } from "@/utils/helper";
+
 export default {
   props: ["ppm"],
   components: { VButton },

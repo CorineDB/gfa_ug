@@ -165,6 +165,7 @@ export default {
     },
 
     modifierActivite(data) {
+      console.log(data);
       this.labels = "Modifier";
       this.showModal = true;
       this.update = true;

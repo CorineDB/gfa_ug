@@ -5,7 +5,7 @@
 
   <div>
     <h3>An interactive leaflet map</h3>
-    <div id="map" style="height: 40vh"></div>
+    <div id="map" style="height: 50vh"></div>
   </div>
   <div class="flex flex-col items-center justify-between mt-8 mb-4 intro-y sm:flex-row">
     <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
@@ -334,7 +334,8 @@ export default {
       zoom: 2,
       initialMap: null,
       myIcon: null,
-      markerLatLng: [47.31322, -1.319482],
+      //markerLatLng: [47.31322, -1.319482],
+      markerLatLng: [0, 0],
 
       savedInput: [],
       base_url: API_BASE_URL,
@@ -1053,6 +1054,7 @@ export default {
     },
   },
   mounted() {
+    this.fetchSites();
     // Initialiser la carte lorsque le composant est monté
     // Configurer l'icône
     this.myIcon = L.icon({
@@ -1080,15 +1082,26 @@ export default {
     }).addTo(this.initialMap);
 
     // Ajouter des marqueurs individuels
-    L.marker([6.3746, 2.6004], { icon: this.myIcon }).addTo(this.initialMap);
     L.marker([6.3752, 2.8349], { icon: this.myIcon }).addTo(this.initialMap);
 
     // Créer un groupe de marqueurs
     const markers = L.markerClusterGroup();
 
+    console.log(this.sites);
     // Ajouter des marqueurs à partir de `addressPoints`
-    addressPoints.forEach((element, index) => {
-      const each_marker = new L.marker([element.latitude, element.longitude], { icon: this.myIcon }).bindPopup(`<strong> Hello Bangladesh! </strong> <br> I am a popup number ${index}`);
+    this.sites.forEach((site, index) => {
+      const each_marker = new L.marker([parseInt(site.latitude), parseInt(site.longitude)], { icon: this.myIcon }).bindPopup(`
+        <b>${site.nom}</b><br>
+        Arrondissement: ${site.arrondissement}<br>
+        Commune: ${site.commune}<br>
+        Département: ${site.departement}<br>
+        <b>Projects:</b><br>
+        <ul>
+          ${site.projets
+            .map((project) => `<li>${project.nom}</li>`)
+            .join("")}
+        </ul>
+      `);
       markers.addLayer(each_marker);
     });
 
@@ -1097,7 +1110,6 @@ export default {
     // Initialiser Dropzone après le montage du composant
     //  this.initializeDropzone();
     this.fetchOngs();
-    this.fetchSites();
   },
 
   watch: {

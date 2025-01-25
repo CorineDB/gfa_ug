@@ -12,6 +12,7 @@ import NoRecordsMessage from "@/components/NoRecordsMessage.vue";
 import pagination from "@/components/news/pagination.vue";
 import PlanDecaissementComponent from "@/components/PlanDecaissement.vue";
 import { helper as $h } from "@/utils/helper";
+import ChartJauge from "../../../../components/news/ChartJauge.vue";
 
 export default {
   components: {
@@ -20,6 +21,7 @@ export default {
     NoRecordsMessage,
     pagination,
     PlanDecaissementComponent,
+    ChartJauge,
     // ActivitiesComponent,
   },
 
@@ -50,6 +52,8 @@ export default {
       labels: "Ajouter",
       showDeleteModal: false,
       deleteLoader: false,
+      activiteTep: 0,
+      activiteTef: 0,
 
       seeStatistique: false,
       seePlan: false,
@@ -124,6 +128,18 @@ export default {
       this.selectedIds.activiteId = id;
 
       console.log("this.selectedIds.activiteId", this.selectedIds.activiteId);
+    },
+    getInfoActivite(id) {
+      if (id !== null || id !== "")
+        ActiviteService.get(id)
+          .then((response) => {
+            console.log(response.data.data);
+            this.activiteTep = response.data.data.tep;
+            this.activiteTef = response.data.data.tef;
+          })
+          .catch((error) => {
+            console.log(error);
+          });
     },
     ...mapActions({
       // Mapping des actions pour le module activites
@@ -561,7 +577,7 @@ export default {
           <button v-if="sousComposants.length > 0" type="button" class="btn btn-outline-primary" @click="resetSousComposantsId()" title="Rester dans le composant"><TrashIcon class="w-4 h-4" /></button>
         </div>
 
-        <div class="flex col-span-6" v-if="seePlan">
+        <div class="flex col-span-6" v-if="seePlan || seeStatistique">
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Activités</label>
           <TomSelect
             v-model="selectedIds.activiteId"
@@ -570,6 +586,7 @@ export default {
               create: false,
               onOptionAdd: text(),
             }"
+            @change="getInfoActivite(selectedIds.activiteId)"
             class="w-full"
             title="Veuillez sélectionner une activité pour afficher son plan de décaissement"
           >
@@ -698,6 +715,17 @@ export default {
   <!-- <pre>{{ seePlan }}</pre> -->
 
   <PlanDecaissementComponent v-if="seePlan" :activiteId="selectedIds.activiteId" :activites="activites" @send-activiteId="changeActiviteId" />
+
+  <div v-if="seeStatistique" class="flex flex-col sm:flex-row justify-evenly mt-4">
+    <div class="flex flex-col items-center p-6 mb-3 bg-white rounded-md shadow">
+      <p class="text-xl font-bold text-center">TEP DE L'ACTIVITE</p>
+      <ChartJauge label="TEP" :temperature="activiteTep * 100 ?? 0" />
+    </div>
+    <div class="flex flex-col items-center p-6 mb-3 bg-white rounded-md shadow">
+      <p class="text-xl font-bold text-center">TEF DE L'ACTIVITE</p>
+      <ChartJauge label="TEF" :temperature="activiteTef * 100 ?? 0" />
+    </div>
+  </div>
 
   <!-- v-if="false == true" -->
 
