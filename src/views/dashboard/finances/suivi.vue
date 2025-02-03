@@ -456,37 +456,37 @@ onMounted(() => {
                     <span class="font-bold">{{ suivi.trimestre }}</span>
                   </td>
                   <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
-                    <span class="font-bold">{{ suivi.periode.budjet | formatNumber }}</span>
+                    <span class="font-bold">{{ $h.formatCurrency(suivi.periode.budjet) }}</span>
                   </td>
                   <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
-                    <span class="font-bold">{{ suivi.periode.consommer | formatNumber }}</span>
+                    <span class="font-bold">{{ $h.formatCurrency(suivi.periode.consommer) }}</span>
                   </td>
                   <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
-                    <span class="font-bold">{{ suivi.periode.disponible | formatNumber }}</span>
+                    <span class="font-bold">{{ $h.formatCurrency(suivi.periode.disponible) }}</span>
                   </td>
                   <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
                     <span class="font-bold">{{ suivi.periode.pourcentage }}</span>
                   </td>
                   <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
-                    <span class="font-bold">{{ suivi.exercice.budjet | formatNumber }}</span>
+                    <span class="font-bold">{{ $h.formatCurrency(suivi.exercice.budjet) }}</span>
                   </td>
                   <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
-                    <span class="font-bold">{{ suivi.exercice.consommer | formatNumber }}</span>
+                    <span class="font-bold">{{ $h.formatCurrency(suivi.exercice.consommer) }}</span>
                   </td>
                   <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
-                    <span class="font-bold">{{ suivi.exercice.disponible | formatNumber }}</span>
+                    <span class="font-bold">{{ $h.formatCurrency(suivi.exercice.disponible) }}</span>
                   </td>
                   <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
                     <span class="font-bold">{{ suivi.exercice.pourcentage }}</span>
                   </td>
                   <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
-                    <span class="font-bold">{{ suivi.cumul.budjet | formatNumber }}</span>
+                    <span class="font-bold">{{ $h.formatCurrency(suivi.cumul.budjet) }}</span>
                   </td>
                   <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
-                    <span class="font-bold">{{ suivi.cumul.consommer | formatNumber }}</span>
+                    <span class="font-bold">{{ $h.formatCurrency(suivi.cumul.consommer) }}</span>
                   </td>
                   <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
-                    <span class="font-bold">{{ suivi.cumul.disponible | formatNumber }}</span>
+                    <span class="font-bold">{{ $h.formatCurrency(suivi.cumul.disponible) }}</span>
                   </td>
                   <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
                     <span class="font-bold">{{ suivi.cumul.pourcentage }}</span>
@@ -643,13 +643,13 @@ onMounted(() => {
           <div class="">
             <label class="form-label">Année</label>
             <TomSelect v-model="filterPayload.annee" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
-              <option v-for="year in years" :value="year">{{ year }}</option>
+              <option v-for="(year, index) in years" :key="index" :value="year">{{ year }}</option>
             </TomSelect>
           </div>
           <div class="">
             <label class="form-label">Trimestre</label>
             <TomSelect v-model="filterPayload.trimestre" :options="{ placeholder: 'Selectionez le trimestre' }" class="w-full">
-              <option v-for="i in 4" :value="i">Trimestre {{ i }}</option>
+              <option v-for="(i, index2) in 4" :key="index2" :value="i">Trimestre {{ i }}</option>
             </TomSelect>
           </div>
         </div>

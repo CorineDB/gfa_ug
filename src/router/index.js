@@ -28,6 +28,7 @@ import ToolsFactuel from "../views/dashboard/ToolsFactuel.vue";
 import ToolsPerception from "../views/dashboard/ToolsPerception.vue";
 import FicheFactuel from "../views/dashboard/FicheFactuel.vue";
 import pta from "../views/dashboard/organisation/pta.vue";
+import detailSuiviePta from "../views/dashboard/pta/detailSuiviePta.vue";
 import PtaGlobal from "../views/dashboard/pta/index.vue";
 
 import Ong from "../views/dashboard/organisation/ong.vue";
@@ -252,6 +253,11 @@ const routes = [
         path: "pta/:ongId",
         name: "pta",
         component: pta,
+      },
+      {
+        path: "suivi/:activiteId",
+        name: "detailSuiviePta",
+        component: detailSuiviePta,
       },
       {
         path: "ptaGlobal",

@@ -307,6 +307,9 @@ export default {
     },
 
     async loadProjetDetails(projetId) {
+      this.composants = [];
+      this.sousComposants = [];
+      this.activites = [];
       // console.log("this.selectedIds.composantId1", this.selectedIds.composantId);
       try {
         const response = await ProjetService.getDetailProjet(projetId);
