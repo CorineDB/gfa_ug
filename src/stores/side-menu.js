@@ -14,6 +14,11 @@ export const useSideMenuStore = defineStore("sideMenu", {
         title: "Projets",
         subMenu: [
           {
+            icon: "WatchIcon",
+            pageName: "ptaGlobal",
+            title: "Plan d'action Global",
+          },
+          {
             icon: "FolderIcon",
             pageName: "projets",
             title: "Projets",
@@ -81,12 +86,6 @@ export const useSideMenuStore = defineStore("sideMenu", {
             title: "Plan de Décaissement",
           },
         ],
-      },
-
-      {
-        icon: "WatchIcon",
-        pageName: "ptaGlobal",
-        title: "Plan d'action Global",
       },
 
       {
