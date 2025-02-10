@@ -176,9 +176,12 @@ export default {
             this.isLoading = false;
             if (error.response && error.response.data && error.response.data.errors) {
               this.messageErreur = error.response.data.errors;
+
+              Object.keys(this.messageErreur).forEach((key) => {
+                this.messageErreur[key] = $h.extractContentFromArray(this.messageErreur[key]);
+              });
               toast.error("Une erreur s'est produite.Vérifier le formulaire de soumission");
             } else {
-              alert("ok");
               toast.error(error.message);
               //
             }
@@ -204,6 +207,10 @@ export default {
 
             if (error.response && error.response.data && error.response.data.errors) {
               this.messageErreur = error.response.data.errors;
+
+              Object.keys(this.messageErreur).forEach((key) => {
+                this.messageErreur[key] = $h.extractContentFromArray(this.messageErreur[key]);
+              });
 
               console.log("this.messageErreur", this.messageErreur);
               toast.error("Une erreur s'est produite.Vérifier le formulaire de soumission");
@@ -256,10 +263,10 @@ export default {
   <div class="container px-4 mx-auto">
     <!-- Combined Filter Section -->
     <div class="relative p-6 mt-3 space-y-3 bg-white rounded-lg shadow-md">
-      <h2 class="mb-4 text-base font-bold">Filtre</h2>
+      <h2 class="mb-4 text-base font-bold">Filtre </h2>
 
       <div class="grid grid-cols-3 gap-4">
-        <div class="flex w-full">
+        <div class="flex col-span-12">
           <v-select class="w-full" :reduce="(projet) => projet.id" v-model="projetId" label="nom" :options="projets">
             <template #search="{ attributes, events }">
               <input class="vs__search form-input" :required="!projetId" v-bind="attributes" v-on="events" />
@@ -268,33 +275,26 @@ export default {
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Projets</label>
         </div>
       </div>
-
-      <!-- <button class="absolute px-4 py-2 text-white transform -translate-x-1/2 bg-blue-500 rounded -bottom-3 left-1/2" @click="filter()">Filtrer</button> -->
-    </div>
-
-    <!-- Results or other components -->
-    <div class="mt-6">
-      <!-- Place the table or grid component here -->
     </div>
   </div>
 
   <!-- Titre de la page -->
   <div class="grid grid-cols-12 gap-6 mt-5">
-    <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
-      <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
+    <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y">
+      <div class="w-auto">
         <div class="relative w-56 text-slate-500">
           <input type="text" v-model="search" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
           <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
         </div>
       </div>
-      <div v-if="verifyPermission('creer-un-outcome')" class="flex">
+      <div v-if="verifyPermission('creer-un-outcome')" class="flex mt-4 sm:mt-0">
         <button class="mr-2 shadow-md btn btn-primary" @click="addComposants()"><PlusIcon class="w-4 h-4 mr-3" />Ajouter un OutCome</button>
       </div>
     </div>
   </div>
 
   <div v-if="!isLoadingData" class="grid grid-cols-12 gap-6 mt-5">
-    <div v-for="(item, index) in paginatedAndFilteredData" :key="index" class="col-span-12 p-4 md:col-span-6 lg:col-span-4">
+    <div v-for="(item, index) in paginatedAndFilteredData" :key="index" class="col-span-12 p-4 md:col-span-6 xl:col-span-4">
       <div v-if="verifyPermission('voir-un-outcome')" class="p-5 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-105 hover:bg-gray-50">
         <!-- En-tête avec sigle et titre -->
         <div class="relative flex items-start pt-5">
@@ -305,15 +305,7 @@ export default {
             </div>
             <!-- Item details -->
             <div class="mt-3 text-center lg:ml-4 lg:text-left lg:mt-0 flex-1">
-              <a href="" class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary _truncate text-center lg:text-left"> {{ item.nom }} Lorem ipsum dolor, sit amet consectetur adipisicing elit. Ut porro mollitia corporis enim consequuntur autem facilis ab minima iure, fuga ullam aliquam tenetur placeat nostrum, voluptate, quibusdam doloremque perferendis vitae? </a>
-              <!-- <div class="mt-2 text-xs text-gray-500">
-                Status badges
-                <span v-if="item.statut == -2" class="px-2 py-1 text-xs font-medium text-white rounded-md bg-primary"> Non validé </span>
-                <span v-else-if="item.statut == -1" class="px-2 py-1 text-xs font-medium text-white bg-green-500 rounded-md"> Validé </span>
-                <span v-else-if="item.statut == 0" class="px-2 py-1 text-xs font-medium text-white bg-yellow-500 rounded-md"> En cours </span>
-                <span v-else-if="item.statut == 1" class="px-2 py-1 text-xs font-medium text-white bg-red-500 rounded-md"> En retard </span>
-                <span v-else-if="item.statut == 2" class="pl-2 font-medium">Terminé</span>
-              </div> -->
+              <a href="" class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary _truncate text-center lg:text-left"> {{ item.nom }}</a>
             </div>
           </div>
           <!-- Dropdown for actions -->
@@ -414,7 +406,7 @@ export default {
     </form>
   </Modal>
 
-  <Modal :show="showDeleteModal" @hidden="showDeleteModal = false">
+  <Modal backdrop="static" :show="showDeleteModal" @hidden="showDeleteModal = false">
     <ModalBody class="p-0">
       <div class="p-5 text-center">
         <XCircleIcon class="w-16 h-16 mx-auto mt-3 text-danger" />

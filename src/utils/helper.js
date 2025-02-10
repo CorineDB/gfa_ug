@@ -4,25 +4,32 @@ import duration from "dayjs/plugin/duration";
 dayjs.extend(duration);
 
 const helpers = {
-   filterData({ itemsPerPage, search, data, currentPage, keys }) {
+  extractContentFromArray(arr) {
+    if (Array.isArray(arr) && arr.length === 1 && typeof arr[0] === "string") {
+      return arr[0]; // Retourne la chaîne unique contenue dans le tableau
+    } else {
+      throw new Error("L'entrée doit être un tableau contenant une seule chaîne de caractères.");
+    }
+  },
+  filterData({ itemsPerPage, search, data, currentPage, keys }) {
     const lowercasedSearch = search.toLowerCase();
-  
+
     // Filtrer les données en fonction des clés et du terme de recherche
-    const filteredData = data.filter(item => 
-      keys.some(key => {
-        const value = key.split('.').reduce((obj, keyPart) => obj?.[keyPart], item);
+    const filteredData = data.filter((item) =>
+      keys.some((key) => {
+        const value = key.split(".").reduce((obj, keyPart) => obj?.[keyPart], item);
         return value?.toString().toLowerCase().includes(lowercasedSearch);
       })
     );
-  
+
     // Pagination : Calculer l'index de début et de fin
     const start = (currentPage - 1) * parseInt(itemsPerPage);
     const end = start + parseInt(itemsPerPage);
-  
+
     // Retourner les données paginées
     return {
       paginatedData: filteredData.slice(start, end),
-      totalFilteredItems: filteredData.length
+      totalFilteredItems: filteredData.length,
     };
   },
   reformatDate(dateStr) {

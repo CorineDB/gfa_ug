@@ -69,7 +69,7 @@
         <div class="py-2 my-4 flex justify-end space-x-8">
           <VButton :loading="chargement" label="Enrégistrer" />
 
-          <VButton @click="modalMail()" label="Envoyer par mail" />
+          <button type="button" class="btn btn-primary w-full my-3 px-2" :disabled="editorData == '' && nom == ''" @click="modalMail()" label="Envoyer par mail">Envoyer par mail</button>
         </div>
       </form>
     </div>
@@ -206,7 +206,7 @@ export default {
       rapports: [],
       emails: [],
       // editor: ClassicEditor,
-      editorData: "Zone de saisis",
+      editorData: "Contenu du rapport",
       // editorConfig: {
       //   // The configuration of the editor.
       // },
@@ -356,10 +356,11 @@ export default {
         var form = {
           objet: this.objet,
           destinataires: this.users,
-          rapport: this.editorData,
+          rapport: this.Update ? this.edit.Data : this.editorData,
         };
 
-        console.log("destinataire", form.destinataires);
+        console.log("form", form);
+        //edit.Data
 
         for (const key of Array.from(this.FormRapport.keys())) {
           this.FormRapport.delete(key);

@@ -5,7 +5,7 @@
       <option value="indice_de_perception_avg">Indice de Perception</option>
       <option value="indice_synthetique_avg">Indice Synthétique</option>
     </TomSelect>
-    <canvas ref="barChart" style="max-height: 500px"></canvas>
+    <canvas ref="barChart" style="height: 500px !important; width: 100% !important; max-height: 500px !important"></canvas>
   </div>
 </template>
 

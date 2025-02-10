@@ -5,7 +5,7 @@
 
   <div>
     <h3>An interactive leaflet map</h3>
-    <div id="map" style="height: 40vh"></div>
+    <div id="map" style="height: 70vh"></div>
   </div>
   <div class="flex flex-col items-center justify-between mt-8 mb-4 intro-y sm:flex-row">
     <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
@@ -15,7 +15,8 @@
       </div>
     </div>
     <div class="flex w-full mt-4 sm:w-auto sm:mt-0">
-      <button v-if="verifyPermission('creer-un-projet')" class="mr-2 shadow-md btn btn-primary" @click="addProjet()">Ajouter un projet</button>
+      <button v-if="verifyPermission('creer-un-projet')" class="mr-2 shadow-md btn btn-primary"
+        @click="addProjet()">Ajouter un projet</button>
     </div>
   </div>
   <Modal backdrop="static" :show="showModal" @hidden="showModal = false">
@@ -26,39 +27,60 @@
 
     <form @submit.prevent="sendForm">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
-        <InputForm v-model="formData.nom" class="col-span-12" type="text" :required="true" placeHolder="Nom du projet" label="Nom" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
+        <InputForm v-model="formData.nom" class="col-span-12" type="text" :required="true" placeHolder="Nom du projet"
+          label="Nom" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nom">{{
+          $h.extractContentFromArray(messageErreur.nom) }}</p>
 
-        <InputForm v-model="formData.couleur" class="col-span-12" type="color" :required="true" placeHolder="Couleur" label="Couleur" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.couleur">{{ messageErreur.couleur }}</p>
+        <InputForm v-model="formData.couleur" class="col-span-12" type="color" :required="true" placeHolder="Couleur"
+          label="Couleur" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.couleur">{{
+          $h.extractContentFromArray(messageErreur.couleur) }}</p>
 
-        <InputForm v-model="formData.debut" class="col-span-12" type="date" :required="true" placeHolder="Entrer la date de début" label="Début du projet" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.debut">{{ messageErreur.debut }}</p>
+        <InputForm v-model="formData.debut" class="col-span-12" type="date" :required="true"
+          placeHolder="Entrer la date de début" label="Début du projet" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.debut">{{
+          $h.extractContentFromArray(messageErreur.debut) }}</p>
 
-        <InputForm v-model="formData.fin" class="col-span-12" type="date" :required="true" placeHolder="Entrer la date de fin" label="Fin du projet" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.fin">{{ messageErreur.fin }}</p>
+        <InputForm v-model="formData.fin" class="col-span-12" type="date" :required="true"
+          placeHolder="Entrer la date de fin" label="Fin du projet" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.fin">{{
+          $h.extractContentFromArray(messageErreur.fin) }}</p>
 
-        <InputForm v-model="formData.nombreEmploie" class="col-span-12" type="number" placeHolder="Ex : 10" label="Nombre d'employé" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nombreEmploie">{{ messageErreur.nombreEmploie }}</p>
+        <InputForm v-model="formData.nombreEmploie" class="col-span-12" type="number" placeHolder="Ex : 10"
+          label="Nombre d'employé" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nombreEmploie">{{
+          $h.extractContentFromArray(messageErreur.nombreEmploie) }}</p>
 
         <InputForm v-model="formData.pays" class="col-span-12" type="text" placeHolder="Ex : Bénin" label="Pays" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pays">{{ messageErreur.pays }}</p>
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pays">{{
+          $h.extractContentFromArray(messageErreur.pays) }}</p>
 
-        <InputForm v-model="formData.budgetNational" class="col-span-12" type="text" :required="true" placeHolder="Ex : 100000" label="Fond Propre" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.budgetNational">{{ messageErreur.budgetNational }}</p>
+        <InputForm v-model="formData.budgetNational" class="col-span-12" type="text" :required="true"
+          placeHolder="Ex : 100000" label="Fond Propre" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.budgetNational">{{
+          $h.extractContentFromArray(messageErreur.budgetNational) }}</p>
 
-        <InputForm v-model="formData.pret" class="col-span-12" type="text" :required="true" placeHolder="Ex : 100000" label="Montant financé" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pret">{{ messageErreur.pret }}</p>
+        <InputForm v-model="formData.pret" class="col-span-12" type="text" :required="true" placeHolder="Ex : 100000"
+          label="Montant financé" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pret">{{
+          $h.extractContentFromArray(messageErreur.pret) }}</p>
 
         <div class="col-span-12" v-if="!isUpdate">
           <label class="block my-3 font-bold text-gray-700">Images de couverture</label>
-          <input type="file" @change="handleFileChange" placeHolder="choisir une image" accept="image/*" class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-          <div class="col-span-12" v-if="imagePreview">
-            <h3 class="block my-3 font-bold">Prévisualisation de l'image :</h3>
-            <img :src="imagePreview" alt="Prévisualisation" width="200" />
+          <input type="file" ref="fileInput" @change="handleFileChange" placeHolder="choisir une image" accept="image/*"
+            class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+          <div class="col-span-12 flex items-center justify-start" v-if="imagePreview">
+            <div class="mr-3">
+              <h3 class="block my-3 font-bold">Prévisualisation de l'image :</h3>
+              <img :src="imagePreview" alt="Prévisualisation" width="200" />
+            </div>
+            <button type="button" class="text-red-500 hover:text-red-700 font-semibold text-sm"
+              @click="clearFiles(index)">Supprimer</button>
           </div>
         </div>
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.image">{{ messageErreur.image }}</p>
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.image">{{
+          $h.extractContentFromArray(messageErreur.image) }}</p>
 
         <!-- <div class="col-span-12" v-if="!isUpdate">
           <label class="block my-3 font-bold">Pièces jointes</label>
@@ -74,50 +96,51 @@
         </div> -->
         <div class="col-span-12" v-if="!isUpdate">
           <label class="block my-3 font-bold text-gray-700">Pièces jointes</label>
-          <input name="fichier" class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Choisir un fichier ou plusieurs" type="file" multiple @change="handleFileChange2" />
+          <input name="fichier" ref="fileInput2"
+            class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="Choisir un fichier ou plusieurs" type="file" multiple @change="handleFileChange2" />
           <div class="col-span-12 mt-4">
-            <ul v-if="files.length > 1" class="bg-gray-100 rounded-lg shadow-md p-4 space-y-2">
-              <li v-for="(file, index) in files" :key="index" class="flex items-center justify-between p-2 bg-white rounded-lg shadow-sm hover:bg-gray-50">
+            <ul v-if="files.length > 0" class="bg-gray-100 rounded-lg shadow-md p-4 space-y-2">
+              <li v-for="(file, index) in files" :key="index"
+                class="flex items-center justify-between p-2 bg-white rounded-lg shadow-sm hover:bg-gray-50">
                 <span class="text-gray-700 font-medium">{{ file.name }}</span>
-                <button class="text-red-500 hover:text-red-700 font-semibold text-sm" @click="removeFile(index)">Supprimer</button>
+                <button type="button" class="text-red-500 hover:text-red-700 font-semibold text-sm"
+                  @click="removeFile(index)">Supprimer</button>
               </li>
             </ul>
           </div>
         </div>
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.fichier">{{ messageErreur.fichier }}</p>
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.fichier">{{
+          $h.extractContentFromArray(messageErreur.fichier) }}</p>
 
         <div class="col-span-12">
           <label>Organisation*</label>
           <div class="mt-2">
-            <TomSelect
-              v-model="formData.organisationId"
-              :options="{
-                placeholder: 'Veuillez associé une organisation au programme',
-              }"
-              class="w-full"
-            >
+            <TomSelect v-model="formData.organisationId" :options="{
+          placeholder: 'Veuillez associé une organisation au programme',
+        }" class="w-full">
+              <option value="">Choisir une organisation</option>
               <option v-for="(org, index) in ongs" :key="index" :value="org.id">{{ org.nom }}</option>
             </TomSelect>
           </div>
         </div>
-        <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.organisationId">{{ messageErreur.organisationId }}</p>
+        <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.organisationId">{{
+          $h.extractContentFromArray(messageErreur.organisationId) }}</p>
 
         <div class="col-span-12">
           <label>Sites*</label>
           <div class="mt-2">
-            <TomSelect
-              v-model="formData.sites"
-              multiple
-              :options="{
-                placeholder: 'Veuillez associé des sites',
-              }"
-              class="w-full"
-            >
+            <TomSelect v-model="sitesId" multiple :options="{
+          placeholder: 'Veuillez associé des sites',
+        }" class="w-full">
+              <option value="">Choisir un site</option>
+
               <option v-for="(site, index) in sites" :key="index" :value="site.id">{{ site.nom }}</option>
             </TomSelect>
           </div>
         </div>
-        <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.sites">{{ messageErreur.sites }}</p>
+        <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.sites">{{
+          $h.extractContentFromArray(messageErreur.sites) }}</p>
 
         <!-- Choix de fichier -->
         <!-- <div class="relative col-span-12">
@@ -127,7 +150,8 @@
       </ModalBody>
       <ModalFooter>
         <div class="flex items-center justify-center">
-          <button type="button" @click="showModal = false" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
+          <button type="button" @click="showModal = false"
+            class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
           <VButton class="inline-block" :label="title" :loading="isLoading" :type="submit" />
         </div>
       </ModalFooter>
@@ -141,12 +165,15 @@
 
     <form @submit.prevent="prolongerProjet">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
-        <InputForm v-model="dateFin" :min="dateFinOld" class="col-span-12" type="date" :required="true" placeHolder="Entrer la nouvelle date de fin" label="Nouvelle Fin du projet*" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurProlongation !== null">{{ erreurProlongation }}</p>
+        <InputForm v-model="dateFin" :min="dateFinOld" class="col-span-12" type="date" :required="true"
+          placeHolder="Entrer la nouvelle date de fin" label="Nouvelle Fin du projet*" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurProlongation !== null">{{ erreurProlongation
+          }}</p>
       </ModalBody>
       <ModalFooter>
         <div class="flex items-center justify-center">
-          <button type="button" @click="prolongerModal = false" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
+          <button type="button" @click="prolongerModal = false"
+            class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
           <VButton class="inline-block" label="Prolonger" :loading="loadingProlonger" :type="submit" />
         </div>
       </ModalFooter>
@@ -161,29 +188,41 @@
         <div class="mt-2 text-slate-500">Voulez vous supprimer le projet ? <br />Cette action ne peut être annulé</div>
       </div>
       <div class="flex gap-2 px-5 pb-8 text-center">
-        <button type="button" @click="deleteModal = false" class="w-full my-3 mr-1 btn btn-outline-secondary">Annuler</button>
+        <button type="button" @click="deleteModal = false"
+          class="w-full my-3 mr-1 btn btn-outline-secondary">Annuler</button>
         <VButton :loading="isLoading" label="Supprimer" @click="deleteProjets" />
       </div>
     </ModalBody>
   </Modal>
   <LoaderSnipper v-if="isLoadingProjets" />
-  <div v-if="verifyPermission('voir-un-projet') && !isLoadingProjets" class="grid grid-cols-1 gap-6 mt-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-    <div href="#" class="relative transition-all duration-500 border-l-4 shadow-2xl box group _bg-white zoom-in border-primary hover:border-secondary" v-for="(item, index) in paginatedAndFilteredData" :key="index">
+  <div v-if="verifyPermission('voir-un-projet') && !isLoadingProjets"
+    class="grid grid-cols-1 gap-6 mt-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+    <div href="#"
+      class="relative transition-all duration-500 border-l-4 shadow-2xl box group _bg-white zoom-in border-primary hover:border-secondary"
+      v-for="(item, index) in paginatedAndFilteredData" :key="index">
       <div class="relative m-5 bg-white">
-        <div class="text-[#171a1d] group-hover:text-[#007580] font-medium text-[14px] md:text-[16px] lg:text-[18px] leading-[30px] pt-[10px]">{{ item.nom }}</div>
+        <div
+          class="text-[#171a1d] group-hover:text-[#007580] font-medium text-[14px] md:text-[16px] lg:text-[18px] leading-[30px] pt-[10px]">
+          {{ item.nom }}</div>
       </div>
 
-      <div class="relative mt-[12px] m-5 h-40 2xl:h-56 image-fit rounded-md overflow-hidden before:block before:absolute before:w-full before:h-full before:top-0 before:left-0 before:z-10 before:bg-gradient-to-t before:from-black before:to-black/10">
-        <div class="absolute top-0 left-0 w-1/2 h-0 group-hover:h-full bg-[#02008052] transition-all duration-[.5s]"></div>
-        <div class="absolute bottom-0 right-0 w-1/2 h-0 group-hover:h-full bg-[#02008052] transition-all duration-[.5s]"></div>
+      <div
+        class="relative mt-[12px] m-5 h-40 2xl:h-56 image-fit rounded-md overflow-hidden before:block before:absolute before:w-full before:h-full before:top-0 before:left-0 before:z-10 before:bg-gradient-to-t before:from-black before:to-black/10">
+        <div class="absolute top-0 left-0 w-1/2 h-0 group-hover:h-full bg-[#02008052] transition-all duration-[.5s]">
+        </div>
+        <div
+          class="absolute bottom-0 right-0 w-1/2 h-0 group-hover:h-full bg-[#02008052] transition-all duration-[.5s]">
+        </div>
 
         <div class="relative h-64 overflow-hidden group/hw hway hway-active">
-          <img class="object-contain group-hover:opacity-30 transition-all duration-[.5s] h-auto" :src="projetsImg[index]" alt="" />
+          <img class="object-contain group-hover:opacity-30 transition-all duration-[.5s] h-auto"
+            :src="item.image == null ? projetsImg[0] : item.image.url" alt="" />
           <!-- Description cachée avec effet de survol -->
-          <div class="absolute inset-0 flex items-start justify-center p-5 text-white transition-opacity duration-500 bg-black opacity-0 bg-opacity-80 group-hover:opacity-100">
+          <div
+            class="absolute inset-0 flex items-start justify-center p-5 text-white transition-opacity duration-500 bg-black opacity-0 bg-opacity-80 group-hover:opacity-100">
             <div>
               <p class="text-base font-bold lg:text-lg">Description du projet</p>
-              <p class="px-2 text-sm lg:text-base line-clamp-7">{{ item.description }} {{ key }}</p>
+              <p class="px-2 text-sm lg:text-base line-clamp-7">{{ item.description }} {{ item.key }}</p>
             </div>
           </div>
         </div>
@@ -205,24 +244,43 @@
         <div class="flex items-center mt-2">
           <ClockIcon class="w-4 h-4 mr-2" />
           <div>
-            Date : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(item.debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(item.fin) }}</span>
+            Date : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(item.debut) }}</span> au <span class="font-bold">
+              {{ $h.reformatDate(item.fin) }}</span>
           </div>
         </div>
         <div class="flex items-center mt-2">
           <CheckSquareIcon class="w-4 h-4 mr-2" /> Statut :
           <span class="p-1 pl-2 text-white bg-black rounded-md shadow-md" v-if="item.statut == -2"> Non validé </span>
-          <span class="p-1 pl-2 text-white bg-green-500 rounded-md shadow-md" v-else-if="item.statut == -1"> Validé </span>
-          <span class="p-1 pl-1 text-white bg-yellow-500 rounded-md shadow-md" v-else-if="item.statut == 0"> En cours </span>
-          <span class="p-1 pl-1 text-white bg-red-500 rounded-md shadow-md" v-else-if="item.statut == 1"> En retard </span>
+          <span class="p-1 pl-2 text-white bg-green-500 rounded-md shadow-md" v-else-if="item.statut == -1"> Validé
+          </span>
+          <span class="p-1 pl-1 text-white bg-yellow-500 rounded-md shadow-md" v-else-if="item.statut == 0"> En cours
+          </span>
+          <span class="p-1 pl-1 text-white bg-red-500 rounded-md shadow-md" v-else-if="item.statut == 1"> En retard
+          </span>
           <span class="pl-2" v-else-if="item.statut == 2">Terminé</span>
         </div>
       </div>
 
-      <div class="flex items-center justify-between p-5 border-t lg:justify-end border-slate-200/60 dark:border-darkmode-400">
-        <a v-if="verifyPermission('voir-details-projet')" class="flex items-center mr-auto text-primary" href="javascript:;" @click="goToDetail(item)"> <EyeIcon class="w-4 h-4 mr-1" title="voir détail" /> <span class="hidden sm:block"> Détail </span></a>
-        <a v-if="verifyPermission('prolonger-un-projet')" class="flex items-center mr-auto text-primary" href="javascript:;" @click="ouvrirModalProlongerProjet(item)" title="Prolonger la date du projet"> <CalendarIcon class="w-4 h-4 mr-1" /><span class="hidden sm:block"> Étendre </span></a>
-        <a v-if="verifyPermission('modifier-un-projet')" class="flex items-center mr-auto" href="javascript:;" @click="modifierProjet(item)"> <CheckSquareIcon class="w-4 h-4 mr-1" title="modifier le projet" /><span class="hidden sm:block"> Modifier </span> </a>
-        <a v-if="verifyPermission('supprimer-un-projet')" class="flex items-center text-danger mr-auto" href="javascript:;" @click="supprimerProjet(item)"> <Trash2Icon class="w-4 h-4 mr-1" title="supprimer le projet" /><span class="hidden sm:block"> Supprimer </span> </a>
+      <div
+        class="flex items-center justify-between p-5 border-t lg:justify-end border-slate-200/60 dark:border-darkmode-400">
+        <a v-if="verifyPermission('voir-details-projet')" class="flex items-center mr-auto text-primary"
+          href="javascript:;" @click="goToDetail(item)">
+          <EyeIcon class="w-4 h-4 mr-1" title="voir détail" /> <span class="hidden sm:block"> Détail </span>
+        </a>
+        <a v-if="verifyPermission('prolonger-un-projet')" class="flex items-center mr-auto text-primary"
+          href="javascript:;" @click="ouvrirModalProlongerProjet(item)" title="Prolonger la date du projet">
+          <CalendarIcon class="w-4 h-4 mr-1" /><span class="hidden sm:block"> Étendre </span>
+        </a>
+        <a v-if="verifyPermission('modifier-un-projet')" class="flex items-center mr-auto" href="javascript:;"
+          @click="modifierProjet(item)">
+          <CheckSquareIcon class="w-4 h-4 mr-1" title="modifier le projet" /><span class="hidden sm:block"> Modifier
+          </span>
+        </a>
+        <a v-if="verifyPermission('supprimer-un-projet')" class="flex items-center text-danger mr-auto"
+          href="javascript:;" @click="supprimerProjet(item)">
+          <Trash2Icon class="w-4 h-4 mr-1" title="supprimer le projet" /><span class="hidden sm:block"> Supprimer
+          </span>
+        </a>
       </div>
 
       <div class="absolute bottom-0 flex w-full">
@@ -237,7 +295,8 @@
     <!-- <pagination totalItems="30" itemsPerPage="10" :isLoading="false" /> -->
   </div>
 
-  <pagination class="col-span-12" :total-items="totalItems" :items-per-page="itemsPerPage" :is-loading="isLoadingProjets" @page-changed="onPageChanged" @items-per-page-changed="onItemsPerPageChanged">
+  <pagination class="col-span-12" :total-items="totalItems" :items-per-page="itemsPerPage"
+    :is-loading="isLoadingProjets" @page-changed="onPageChanged" @items-per-page-changed="onItemsPerPageChanged">
     <!-- Slots personnalisés (facultatif) -->
     <template #prev-icon>
       <span>&laquo; Précédent</span>
@@ -328,7 +387,8 @@ export default {
       zoom: 2,
       initialMap: null,
       myIcon: null,
-      markerLatLng: [47.31322, -1.319482],
+      //markerLatLng: [47.31322, -1.319482],
+      markerLatLng: [0, 0],
 
       savedInput: [],
       base_url: API_BASE_URL,
@@ -388,11 +448,12 @@ export default {
         fin: "",
         pays: "",
         pret: "",
-        sites: [],
+
         organisationId: "",
         nombreEmploie: Number,
         budgetNational: Number,
       },
+      sitesId: [],
       dropzoneMultipleRef: null,
       FormProjet: new FormData(),
       isLoading: false,
@@ -439,30 +500,26 @@ export default {
 
       return paginatedData;
     },
-    // Obtenir les éléments de la page actuelle
-    // paginatedData() {
-    //   const start = (this.currentPage - 1) * parseInt(this.itemsPerPage);
-    //   const end = start + parseInt(this.itemsPerPage);
-    //   if (this.dataAvailable) return this.dataAvailable.slice(start, end);
-    // },
-    // datasSearch() {
-    //   return $h.filterData(this.projets, ["nom"], this.search);
-    // },
-
-    // dataAvailable() {
-    //   if (this.search.length > 0) return this.datasSearch;
-    //   else return this.projets;
-    // },
-
-    // filteredProjet() {
-    //   var self = this;
-    //   return this.projets.filter(function (projet) {
-    //     return projet.bailleur.sigle.toLowerCase().indexOf(self.search.toLowerCase()) >= 0 || projet.nom.toLowerCase().indexOf(self.search.toLowerCase()) >= 0 || projet.codePta.toLowerCase().indexOf(self.search.toLowerCase()) >= 0;
-    //   });
-    // },
   },
 
   methods: {
+    removeFile(index) {
+      // Supprime le fichier à l'index donné
+      console.log("this.selectedFile2", this.selectedFile2);
+      //  delete this.selectedFile2[index];
+      this.selectedFile2.splice(index, 1);
+      this.files.splice(index, 1);
+      // Réinitialise l'input file pour éviter les conflits
+      const dataTransfer = new DataTransfer();
+
+      this.selectedFile2.forEach((file) => dataTransfer.items.add(file));
+      this.$refs.fileInput2.files = dataTransfer.files;
+    },
+    clearFiles() {
+      this.$refs.fileInput.value = ""; // Réinitialise l'input file
+      this.selectedFiles = null; // Réinitialise les fichiers dans le data
+      this.imagePreview = null;
+    },
     goToDetail(projet) {
       console.log(projet);
       this.$router.push({ name: "projets_id_details", params: { id: projet.id, projet: projet } });
@@ -492,16 +549,14 @@ export default {
       this.FormProjet = new FormData();
 
       // Récupérer les fichiers sélectionnés
-      this.selectedFile2 = event.target.files;
+      // this.selectedFile2 = event.target.files;
+      this.selectedFile2 = Array.from(event.target.files);
 
       console.log("this.selectedFile2", this.selectedFile2);
 
-      // Ajouter chaque fichier à la liste et à l'objet FormData
       for (const file of this.selectedFile2) {
         this.files.push(file);
-        // this.formData.append("files[]", file); // "files[]" pour envoyer plusieurs fichiers
       }
-      console.log("this.files", this.files);
     },
     ajouterFormNormalDansFormData() {
       for (let key in this.formNormal) {
@@ -536,7 +591,6 @@ export default {
     },
     fetchSites() {
       // this.active();
-
       SiteService.get()
         .then((data) => {
           const datas = data.data.data;
@@ -755,6 +809,7 @@ export default {
           }
         });
     },
+
     gotoDetails(projet) {
       if (this.dashboardProjetVisible) {
         this.$router.push({ name: "projets_id_details", params: { id: projet.id, projet: projet } });
@@ -794,6 +849,8 @@ export default {
       this.isUpdate = false;
       this.showCloseModal(true);
       //alert("ok");
+      console.log(this.sites)
+      console.log(this.ongs)
     },
 
     modifierProjet(projet) {
@@ -814,15 +871,16 @@ export default {
       this.formData.fin = projet.fin;
       this.formData.pays = projet.pays;
       this.formData.pret = projet.pret;
-      this.formData.sites = projet.sites.map((site) => site.id);
-      this.formData.organisationId = projet.owner.user.id;
+      this.sitesId = projet.sites.map((site) => site.id);
+      this.formData.sites = this.sitesId;
+      this.formData.organisationId = projet.owner.id;
       this.formData.nombreEmploie = projet.nombreEmploie;
       this.formData.budgetNational = projet.budgetNational;
 
-      if (projet.sites.length > 0)
-        projet.sites.forEach((item) => {
-          this.formData.push(item);
-        });
+      // if (projet.sites.length > 0)
+      //   projet.sites.forEach((item) => {
+      //     this.formData.push(item);
+      //   });
 
       console.log("this.formData", this.formData);
 
@@ -901,6 +959,7 @@ export default {
     sendForm() {
       if (this.isUpdate) {
         this.isLoading = true;
+        this.formData.sites = this.sitesId;
         // projet.statut = projet.statut;
         this.updateProjet({ projet: this.formData, id: this.projetId })
           .then((response) => {
@@ -938,16 +997,16 @@ export default {
         if (this.selectedFile) {
           this.FormProjet.append("image", this.selectedFile);
         }
-
         if (this.selectedFile2) {
-          for (const file of this.selectedFile2) {
-            this.FormProjet.append("fichier[]", file); // "files[]" pour envoyer plusieurs fichiers
-          }
+          Object.keys(this.selectedFile2).forEach((key) => {
+            const file = this.selectedFile2[key];
+            this.FormProjet.append(`fichier[${key}]`, file);
+          });
         }
 
         // Ajouter manuellement le tableau `sites` à FormData
-        if (this.formData.sites && Array.isArray(this.formData.sites)) {
-          this.formData.sites.forEach((site, index) => {
+        if (this.sitesId && Array.isArray(this.sitesId)) {
+          this.sitesId.forEach((site, index) => {
             this.FormProjet.append(`sites[${index}]`, site);
           });
         }
@@ -980,7 +1039,7 @@ export default {
               this.messageErreur = error.response.data.errors;
               toast.error("Une erreur s'est produite dans votre formulaire");
             } else {
-              toast.error(error.response.data.errors.message);
+              toast.error(error.message);
             }
           });
       }
@@ -1045,58 +1104,98 @@ export default {
             { name: "Description", type: "", key: "description", placeholdere: "Description du projet", isSelect: false, isTextArea: true, data: "", required: false, errors: [] },
           ];
         })
-        .catch((error) => {});
+        .catch((error) => { });
     },
+    initializeMap() {
+      // Initialiser la carte lorsque le composant est monté
+      // Configurer l'icône
+      this.myIcon = L.icon({
+        iconUrl: icon,
+        iconSize: [30, 30],
+        iconAnchor: [22, 94],
+        popupAnchor: [-3, -76],
+        shadowUrl: markerShadow,
+        shadowSize: [60, 30],
+        shadowAnchor: [22, 94],
+      });
+
+      // Initialiser la carte
+      this.initialMap = L.map("map", {
+        zoomControl: true,
+        zoomAnimation: false,
+        fadeAnimation: true,
+        markerZoomAnimation: true,
+      }).setView([6.35610, 2.39182], 10);
+
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 100,
+        attribution: '',
+      }).addTo(this.initialMap);
+
+      // Ajouter des marqueurs individuels      
+      L.marker([6.35610, 2.39182], { icon: this.myIcon }).bindPopup(`GFA Redevabilite`).addTo(this.initialMap);      
+    }
   },
   mounted() {
-    // Initialiser la carte lorsque le composant est monté
-    // Configurer l'icône
-    this.myIcon = L.icon({
-      iconUrl: icon,
-      iconSize: [30, 30],
-      iconAnchor: [22, 94],
-      popupAnchor: [-3, -76],
-      shadowUrl: markerShadow,
-      shadowSize: [60, 30],
-      shadowAnchor: [22, 94],
-    });
-
-    // Initialiser la carte
-    this.initialMap = L.map("map", {
-      zoomControl: true,
-      zoom: 1,
-      zoomAnimation: false,
-      fadeAnimation: true,
-      markerZoomAnimation: true,
-    }).setView([6.8041, 2.4152], 6);
-
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    }).addTo(this.initialMap);
-
-    // Ajouter des marqueurs individuels
-    L.marker([6.3746, 2.6004], { icon: this.myIcon }).addTo(this.initialMap);
-    L.marker([6.3752, 2.8349], { icon: this.myIcon }).addTo(this.initialMap);
-
-    // Créer un groupe de marqueurs
-    const markers = L.markerClusterGroup();
-
-    // Ajouter des marqueurs à partir de `addressPoints`
-    addressPoints.forEach((element, index) => {
-      const each_marker = new L.marker([element.latitude, element.longitude], { icon: this.myIcon }).bindPopup(`<strong> Hello Bangladesh! </strong> <br> I am a popup number ${index}`);
-      markers.addLayer(each_marker);
-    });
-
-    this.initialMap.addLayer(markers);
+    this.initializeMap();
+    this.fetchSites(); // Wait for sites to load
 
     // Initialiser Dropzone après le montage du composant
     //  this.initializeDropzone();
     this.fetchOngs();
-    this.fetchSites();
   },
 
   watch: {
+    sites: function (sites) {
+      
+      // Ajouter des marqueurs à partir de `addressPoints`
+      this.sites.forEach((site, index) => {
+        const latitude = parseFloat(site.latitude);
+        const longitude = parseFloat(site.longitude);
+
+        L.marker([latitude, longitude], { icon: this.myIcon }).bindPopup(`
+        <b>${site.nom}</b><br>
+        Arrondissement: ${site.arrondissement}<br>
+        Commune: ${site.commune}<br>
+        Département: ${site.departement}<br>
+        <b>Projects:</b><br>
+        <ul>
+          ${site.projets
+            .map((project) => `<li>${project.nom}</li>`)
+            .join("")}
+        </ul>
+      `).addTo(this.initialMap);
+      });
+      /*
+      // Créer un groupe de marqueurs
+
+      // Initialize marker cluster group with clustering disabled
+      const markers = L.markerClusterGroup();
+      
+      // Ajouter des marqueurs à partir de `addressPoints`
+      this.sites.forEach((site, index) => {
+        const each_marker = L.marker([parseFloat(site.latitude), parseFloat(site.longitude)], { icon: this.myIcon }).bindPopup(`
+        <b>${site.nom}</b><br>
+        Arrondissement: ${site.arrondissement}<br>
+        Commune: ${site.commune}<br>
+        Département: ${site.departement}<br>
+        <b>Projects:</b><br>
+        <ul>
+          ${site.projets
+            .map((project) => `<li>${project.nom}</li>`)
+            .join("")}
+        </ul>
+      `);
+
+        // Add marker directly to the map
+        //each_marker.addTo(this.initialMap);
+
+        markers.addLayer(each_marker);
+        
+      });
+
+      this.initialMap.addLayer(markers);*/
+    },
     loading: function (value) {
       //this.loading = value
     },
@@ -1130,9 +1229,11 @@ export default {
 .icon-bold {
   font-weight: 800;
 }
+
 .dropdown-content {
   transform: translate(200px, 200px);
 }
+
 .custom_height {
   height: 288px;
 }
