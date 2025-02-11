@@ -86,7 +86,7 @@ export default {
     obtenirDate(annee) {
       // Convertir l'année en chaîne et concaténer avec "-01-01"
       let myDate = `${annee}-01-01`;
-      console.log("myDate", myDate);
+      //console.log("myDate", myDate);
 
       const date = new Date(myDate); // Exemple de date
       const dateISO = date.toISOString().split("T")[0];
@@ -99,7 +99,7 @@ export default {
     text() {},
     onPageChanged(newPage) {
       this.currentPage = newPage;
-      console.log("Page actuelle :", this.currentPage);
+      //console.log("Page actuelle :", this.currentPage);
       // Charger les données pour la page actuelle
       // this.loadDataForPage(newPage);
     },
@@ -131,7 +131,7 @@ export default {
     verifyPermission,
     supprimerPlanDeDecaissement(data) {
       this.showDeleteModal = true;
-      console.log("this.planDeDecaissementId", this.planDeDecaissementId);
+      //console.log("this.planDeDecaissementId", this.planDeDecaissementId);
       this.planDeDecaissementId = data.id;
     },
     deleteplanDeDecaissement() {
@@ -147,17 +147,17 @@ export default {
           }, 100);
         })
         .catch((error) => {
-          console.log("error", error);
+          //console.log("error", error);
           this.deleteLoader = false;
           toast.error("Erreur lors de la suppression");
         });
     },
     modifierPlanDeDecaissement(data) {
       this.messageErreur = {};
-      console.log(data);
+      //console.log(data);
       this.labels = "Modifier";
       this.showModal = true;
-      console.log("showModal", this.showModal);
+      //console.log("showModal", this.showModal);
       this.update = true;
 
       this.formData.pret = data.pret ?? "";
@@ -165,14 +165,14 @@ export default {
       this.formData.budgetNational = data.budgetNational;
       this.formData.trimestre = data.trimestre.toString();
 
-      console.log("data.annee", data.annee);
+      //console.log("data.annee", data.annee);
 
       this.formData.annee = this.obtenirDate(data.annee);
       this.planDeDecaissementId = data.id;
 
-      console.log("planDeDecaissementId", this.planDeDecaissementId);
+      //console.log("planDeDecaissementId", this.planDeDecaissementId);
 
-      console.log("this.formData", this.formData);
+      //console.log("this.formData", this.formData);
     },
     addPlanDeDecaissement() {
       this.showModal = true;
@@ -206,7 +206,7 @@ export default {
           })
           .catch((error) => {
             this.formData.annee = new Date(oldDate).toISOString().split("T")[0];
-            console.log(error);
+            //console.log(error);
             this.isLoading = false;
             if (error.response && error.response.data && error.response.data.errors) {
               this.messageErreur = error.response.data.errors;
@@ -221,21 +221,26 @@ export default {
             }
           });
       } else {
+        // alert("ok");
         this.isLoading = true;
         this.formData.budgetNational = parseInt(this.formData.budgetNational);
         this.formData.pret = parseInt(this.formData.pret);
 
-        if (this.formData.annee) {
-          const dateObj = new Date(this.formData.annee); // Convertir la chaîne en objet Date
-          this.formData.annee = dateObj.getFullYear(); // Extraire l'année
-        }
+        console.log("this.formData.annee", this.formData.annee);
 
-        console.log("this.activiteId", this.activiteId);
+        // if (this.formData.annee) {
+        //   const dateObj = new Date(this.formData.annee); // Convertir la chaîne en objet Date
+        //   this.formData.annee = dateObj.getFullYear(); // Extraire l'année
+        // }
+
+        // console.log("this.formData.annee", this.formData.annee);
+
+        // //console.log("this.activiteId", this.activiteId);
 
         PlanDeCaissement.create(this.formData)
           .then((response) => {
             if (response.status == 200 || response.status == 201) {
-              console.log("this.formData.activiteId", this.formData.activiteId);
+              //console.log("this.formData.activiteId", this.formData.activiteId);
               //this.activiteIdLocal = this.formData.activiteId;
 
               this.getListePlanDeDecaissement(this.formData.activiteId);
@@ -249,7 +254,7 @@ export default {
             }
           })
           .catch((error) => {
-            console.log("error", error);
+            //console.log("error", error);
 
             this.formData.annee = new Date(oldDate).toISOString().split("T")[0];
             this.isLoading = false;
@@ -273,11 +278,11 @@ export default {
     getListePlanDeDecaissement(id) {
       ActiviteService.plansDeDecaissement(id)
         .then((data) => {
-          console.log(data.data.data);
+          //console.log(data.data.data);
           this.planDeDecaissement = data.data.data;
         })
         .catch((error) => {
-          console.log(error);
+          //console.log(error);
         });
     },
 

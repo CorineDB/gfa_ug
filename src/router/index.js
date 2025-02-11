@@ -80,6 +80,8 @@ import CreateIndicateur from "../views/dashboard/indicateurs/CreateIndicateur.vu
 import CadreMesure from "../views/dashboard/CadreMesure.vue";
 import SuiviIndicateur from "../views/dashboard/indicateurs/SuiviIndicateur.vue";
 import DetailSuivi from "../views/dashboard/indicateurs/DetailSuivi.vue";
+import DetailSuiviFinancier from "../views/dashboard/finances/DetailSuiviFinancier.vue";
+
 import UpdateFormPerception from "../views/dashboard/UpdateFormPerception.vue";
 import UpdateFormFactuel from "../views/dashboard/UpdateFormFactuel.vue";
 import SurveyFormView from "../views/dashboard/SurveyFormView.vue";
@@ -161,6 +163,11 @@ const routes = [
         path: "indicateur/:id",
         name: "detail_indicateur",
         component: DetailSuivi,
+      },
+      {
+        path: "suiviFinancier/:id",
+        name: "detail_suivi",
+        component: DetailSuiviFinancier,
       },
       {
         path: "suivi-indicateur",

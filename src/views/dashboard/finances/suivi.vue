@@ -10,7 +10,9 @@ import DeleteButton from "@/components/news/DeleteButton.vue";
 import { toast } from "vue3-toastify";
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
 import AuthService from "@/services/modules/auth.service";
+import { useRouter } from "vue-router";
 
+const router = useRouter();
 const showModalFiltre = ref(false);
 const annees = ref("");
 const filterPayload = reactive({
@@ -27,6 +29,23 @@ const suiviFinancierPayload = reactive({
   consommer: 0,
   type: 0,
 });
+
+const resetFilter = function () {
+  filterPayload.trimestre = 1;
+  filterPayload.annee = new Date().getFullYear();
+
+  filterSuiviFinancierActivite();
+};
+
+// const annees = computed(() => {
+//   let anneeDebut = parseInt(debutProgramme.value.split("-")[0], 10);
+//   let anneeFin = parseInt(finProgramme.value.split("-")[0], 10);
+//   let annees = [];
+//   for (let annee = anneeDebut; annee <= anneeFin; annee++) {
+//     annees.push(annee);
+//   }
+//   return annees;
+// });
 
 const showModalSuiviFinancier = ref(false);
 const loadingSuiviFinancier = ref(false);
@@ -53,21 +72,21 @@ const datas = ref([]);
 const debutProgramme = ref("");
 const finProgramme = ref("");
 
-const years = ref([]);
+// const years = ref([]);
 
-// const years = computed(() => {
-//   console.log("debut",  `${debutProgramme.value.split("-") }`);
-//   console.log("fin",  `${finProgramme.value.split("-")}`);
-//   let anneeDebut = parseInt(`${debutProgramme.value.split("-")[0]}`);
-//   let anneeFin = parseInt(`${finProgramme.value.split("-")[0]}`);
-//   let annees = [];
-//   for (let annee = anneeDebut; annee <= anneeFin; annee++) {
-//     if(annee <= new Date().getFullYear()){
-//       annees.push(annee);
-//     }
-//   }
-//   return annees;
-// });
+const years = computed(() => {
+  console.log("debut", `${debutProgramme.value.split("-")}`);
+  console.log("fin", `${finProgramme.value.split("-")}`);
+  let anneeDebut = parseInt(`${debutProgramme.value.split("-")[0]}`);
+  let anneeFin = parseInt(`${finProgramme.value.split("-")[0]}`);
+  let annees = [];
+  for (let annee = anneeDebut; annee <= anneeFin; annee++) {
+    if (annee <= new Date().getFullYear()) {
+      annees.push(annee);
+    }
+  }
+  return annees;
+});
 
 const getcurrentUser = async () => {
   await AuthService.getCurrentUser()
@@ -205,15 +224,16 @@ const initTabulator = () => {
             return button;
           };
 
-          const modifyButton = createButton("Modifier", "btn btn-primary", () => {
-            handleEdit(cell.getData());
+          const voirDetail = createButton("Voir détail", "btn btn-primary", () => {
+            console.log("cell.getData().id", cell.getData().id);
+            handleDetail(cell.getData().id);
           });
 
           const deleteButton = createButton("Supprimer", "btn btn-danger", () => {
             handleDelete(cell.getData());
           });
 
-          container.append(modifyButton, deleteButton);
+          container.append(voirDetail, deleteButton);
 
           return container;
         },
@@ -221,18 +241,14 @@ const initTabulator = () => {
     ],
   });
 };
-const handleEdit = (params) => {
-  console.log(params);
-  showModalCreate.value = true;
-  // isCreate.value = false;
-  // idSelect.value = params.id;
-
-  // payload.libelle = params.libelle;
-  // payload.description = params.description;
-  // payload.key = params.key;
-  // payload.uniteeMesureId = params.uniteeMesureId;
-  // payload.programmeId = params.programmeId;
+const handleDetail = (data) => {
+  // console.log("handleDetail id", id);
+  router.push({
+    name: "detail_suivi",
+    params: { id: data.activite.id },
+  });
 };
+
 const handleDelete = (params) => {
   idSelect.value = params.id;
   deleteModalPreview.value = true;
@@ -380,6 +396,10 @@ onMounted(() => {
       </div>
       <div class="flex">
         <button class="mr-2 shadow-md btn btn-primary" @click="openFilterModal"><FilterIcon class="w-4 h-4 mr-3" />Filtrer le PA</button>
+
+        <button class="btn btn-primary" title="Réinitialiser le filtre" @click="resetFilter()">
+          <RefreshCwIcon class="w-5 h-5" />
+        </button>
       </div>
       <!-- <div class="flex">
         <button class="mr-2 shadow-md btn btn-primary" @click="openCreateModal">
@@ -494,7 +514,7 @@ onMounted(() => {
                   <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700 text-center">
                     <button @click="ouvrirModalSuiviFinancierActivite(suivi)" class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-xs px-4 py-2 mr-2">Suivre</button>
 
-                    <button @click="handleEdit(suivi)" class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-xs px-4 py-2 mr-2">Modifier</button>
+                    <button @click="handleDetail(suivi)" class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-xs px-4 py-2 mr-2">Voir détail</button>
 
                     <button @click="handleDelete(suivi)" class="text-white bg-red-500 hover:bg-red-600 font-medium rounded-lg text-xs px-4 py-2">Supprimer</button>
                   </td>
@@ -585,7 +605,7 @@ onMounted(() => {
     <form @submit.prevent="suiviFinancierActivite">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
         <div v-for="(plan, index) in suiviFinancier" :key="index" class="col-span-12 border-b pb-4 mb-4">
-          <h3 class="text-sm font-medium mb-2">Plan {{ index + 1 }}</h3>
+          <h3 class="text-sm font-medium mb-3">Plan {{ index + 1 }}</h3>
 
           <div class="">
             <InputForm label="Consommé" v-model="plan.consommer" type="number" />
@@ -595,7 +615,7 @@ onMounted(() => {
             </p>
           </div>
 
-          <div class="">
+          <div class="mt-5">
             <label class="form-label">Sources</label>
             <TomSelect v-model="plan.type" :options="{ placeholder: 'Selectionez une source' }" class="w-full">
               <option value="0">Fond propre</option>
@@ -603,14 +623,14 @@ onMounted(() => {
             </TomSelect>
           </div>
 
-          <div class="">
+          <div class="mt-5">
             <InputForm v-model="plan.trimestre" :min="1" :max="4" class="col-span-12" type="number" :required="true" :disabled="true" placeHolder="Sélectionnez le trimestre" label="Sélectionnez le trimestre" />
             <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurSuiviFinancier?.[index]?.trimestre">
               {{ erreurSuiviFinancier[index].trimestre }}
             </p>
           </div>
 
-          <div class="">
+          <div class="mt-5">
             <InputForm v-model="plan.annee" :min="2000" class="col-span-12" type="number" :required="true" :disabled="true" placeHolder="Saisissez l'année" label="Saisissez l'année de décaissement" />
             <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurSuiviFinancier?.[index]?.annee">
               {{ erreurSuiviFinancier[index].annee }}

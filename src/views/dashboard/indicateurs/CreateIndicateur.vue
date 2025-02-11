@@ -502,11 +502,15 @@ const currentAnneeCibleNotAgreger = ref({
 
 // Fetch data
 const getDatasCadre = async () => {
+   
   isLoadingDataCadre.value = true;
   try {
+     
     const { data } = await ResultatCadreRendementService.getCadreRendement(idProgramme.value);
     cadreRendement.value = data.data;
+     
   } catch (e) {
+    console.log(e);
     toast.error("Erreur lors de la récupération des données.");
   } finally {
     isLoadingDataCadre.value = false;

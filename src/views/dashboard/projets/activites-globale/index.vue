@@ -52,8 +52,8 @@ export default {
       labels: "Ajouter",
       showDeleteModal: false,
       deleteLoader: false,
-      activiteTep: 0,
-      activiteTef: 0,
+      activiteTep: 0.23,
+      activiteTef: 0.1,
 
       seeStatistique: false,
       seePlan: false,
@@ -130,16 +130,23 @@ export default {
       console.log("this.selectedIds.activiteId", this.selectedIds.activiteId);
     },
     getInfoActivite(id) {
-      if (id !== null || id !== "")
+      
+      if (id !== null || id !== "") {
+       
         ActiviteService.get(id)
           .then((response) => {
             console.log(response.data.data);
-            this.activiteTep = response.data.data.tep;
-            this.activiteTef = response.data.data.tef;
+            this.activiteTep = 12;
+            this.activiteTef = 67;
+            console.log("this.activiteTep ", this.activiteTep);
+            console.log("this.activiteTef ", this.activiteTef);
+            // this.activiteTep = response.data.data.tep;
+            // this.activiteTef = response.data.data.tef;
           })
           .catch((error) => {
             console.log(error);
           });
+      }
     },
     ...mapActions({
       // Mapping des actions pour le module activites
@@ -490,6 +497,10 @@ export default {
 
   async mounted() {
     await this.loadProjets();
+
+    if(selectedIds.activiteId !== "" || selectedIds.activiteId !== null){
+      this.getInfoActivite(selectedIds.activiteId)
+    }
   },
 };
 </script>
@@ -722,6 +733,7 @@ export default {
   <div v-if="seeStatistique" class="flex flex-col sm:flex-row justify-evenly mt-4">
     <div class="flex flex-col items-center p-6 mb-3 bg-white rounded-md shadow">
       <p class="text-xl font-bold text-center">TEP DE L'ACTIVITE</p>
+
       <ChartJauge label="TEP" :temperature="activiteTep * 100 ?? 0" />
     </div>
     <div class="flex flex-col items-center p-6 mb-3 bg-white rounded-md shadow">
