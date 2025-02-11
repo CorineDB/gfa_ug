@@ -4,7 +4,7 @@
     <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
       <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
         <div class="relative w-56 text-slate-500">
-          <input type="text" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
+          <input type="text" class="w-56 pr-10 form-control box" v-model="search" placeholder="Recherche..." />
           <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
         </div>
       </div>
@@ -31,7 +31,7 @@
           </thead>
 
           <tbody>
-            <tr v-for="pta in dataNew" :key="pta.id" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+            <tr v-for="pta in filteredData" :key="pta.id" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
               <!-- <th scope="row" class=" p-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                   {{ pta.owner_nom }}
                    <pre>{{ pta.nom }}</pre>
@@ -337,7 +337,7 @@
       </div>
     </div>
   </div>
-  <NoRecordsMessage class="col-span-12" v-if="!dataNew.length" title="Aucun plan d'action pour l'instant" description="Il semble qu'il n'y ait pas de plan d'action à afficher. Veuillez revenir plus tard." />
+  <NoRecordsMessage class="col-span-12" v-if="!dataNew.length" title="Aucun plan de décaissement pour l'instant" description="Il semble qu'il n'y ait pas de plan d'action à afficher. Veuillez revenir plus tard." />
 
   <!-- Modal Register & Update -->
   <Modal backdrop="static" :show="showModalFiltre" @hidden="showModalFiltre = false">
@@ -461,6 +461,9 @@ export default {
   components: { VButton, NoRecordsMessage, InputForm },
   data() {
     return {
+      currentPages: 1,
+      search: "",
+      itemsPerPage: this.dataNew?.length + 1,
       isCreate: true,
       suiviFinancierPayload: {
         activiteId: null,
@@ -802,6 +805,22 @@ export default {
       this.fich.push(programme);
       return programme;
     },
+    filteredData() {
+      const keys = ["nom"];
+      const lowercasedSearch = this.search.toLowerCase();
+
+      if (this.search == "") {
+        return this.dataNew;
+      } else {
+        this.dataNew.filter((item) =>
+          keys.some((key) => {
+            const value = key.split(".").reduce((obj, keyPart) => obj?.[keyPart], item);
+            return value?.toString().toLowerCase().includes(lowercasedSearch);
+          })
+        );
+      }
+    },
+
     json_data() {
       const programme = [];
       if (this.ptab != undefined && this.ptab != null) {
@@ -1475,6 +1494,20 @@ export default {
     },
   },
   methods: {
+    // paginatedAndFilteredData() {
+    //   const { paginatedData, totalFilteredItems } = $h.filterData({
+    //     itemsPerPage: this.itemsPerPage,
+    //     search: this.search,
+    //     data: this.dataNew(),
+    //     currentPage: this.currentPages,
+    //     keys: ["nom"],
+    //   });
+
+    //   // Mettre à jour le total pour recalculer la pagination
+    //   this.totalItems = totalFilteredItems;
+
+    //   return paginatedData;
+    // },
     voirSuiviActivite(data) {
       this.$router.push({ name: "finances_suivi" });
     },
@@ -1529,6 +1562,9 @@ export default {
       const month = new Date().getMonth() + 1; // Les mois sont indexés à partir de 0
       return Math.ceil(month / 3); // Calcul du trimestre actuel
     },
+    resetFilter() {
+      this.filtreParAnnee(new Date().getFullYear());
+    },
 
     ouvrirModalSuiviFinancierActivite(item) {
       console.log(item.activiteId);
@@ -1550,7 +1586,6 @@ export default {
       let data = {};
 
       data = {
-        organisationId: this.$route.params.ongId,
         annee: datas,
       };
       this.getPta(data);

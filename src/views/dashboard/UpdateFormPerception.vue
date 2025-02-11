@@ -48,6 +48,10 @@ const isAvailable = reactive({
   indicateur: true,
 });
 
+const goBackToCreate = function () {
+  router.push({ name: "create_form_perception" });
+};
+
 const payload = reactive({
   libelle: "",
   annee_exercice: new Date().getFullYear(),
@@ -259,11 +263,18 @@ const getOneForm = async () => {
     isLoadingOneForm.value = false;
   }
 };
+
 const updateForm = async () => {
   isLoadingForm.value = true;
+  alert("ok");
+  const data = {
+    test: "je",
+  };
+
   try {
-    await FormulaireFactuel.update(idForm, payload);
+    await FormulaireFactuel.update(idForm, data);
     toast.success(`Formulaire Modifiée avec succès.`);
+    alert("2");
     fetchListForms.value = !fetchListForms.value;
     clearUniqueKeys();
     resetAllForm();
@@ -360,7 +371,9 @@ onMounted(async () => {
                 <div class="max-h-[25vh] h-[25vh] py-2 border-t overflow-y-auto">
                   <ListAccordionQuestion :indicateurs-array="previewFormPerceptionData" @remove="removeIndicator" />
                 </div>
-                <div class="flex justify-start py-2">
+                <div class="flex justify-between py-2">
+                  <button @click="goBackToCreate" class="px-5 text-base btn btn-primary"><ArrowLeftIcon class="mr-1 size-5" />Annuler les modifications</button>
+
                   <button :disabled="!showForm" @click="previewForm" class="px-5 text-base btn btn-primary"><CheckIcon class="mr-1 size-5" />Prévisualiser le formumlaire</button>
                 </div>
               </div>

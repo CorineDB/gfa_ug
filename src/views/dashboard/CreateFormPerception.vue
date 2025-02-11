@@ -55,6 +55,8 @@ const isAvailable = reactive({
   indicateur: true,
 });
 
+
+
 const payload = reactive({
   libelle: "",
   annee_exercice: new Date().getFullYear(),
@@ -343,6 +345,8 @@ onMounted(() => {
                 </div>
                 <div class="flex justify-start py-2">
                   <button :disabled="!showForm" @click="previewForm" class="px-5 text-base btn btn-primary"><CheckIcon class="mr-1 size-5" />Prévisualiser le formumlaire</button>
+                
+
                 </div>
               </div>
             </div>

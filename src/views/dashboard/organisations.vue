@@ -573,8 +573,8 @@ onMounted(() => {
                 <InputForm :required="false" :optionel="false" label="Quatier" v-model="payload.quartier" :control="getFieldErrors(errors.quartier)" />
               </div>
               <div class="grid grid-cols-2 gap-4">
-                <InputForm :required="false" :optionel="false" label="Longitude" :control="getFieldErrors(errors.longitude)" v-model.number="payload.longitude" type="number" />
-                <InputForm :required="false" :optionel="false" label="Latitude" :control="getFieldErrors(errors.latitude)" v-model.number="payload.latitude" type="number" />
+                <InputForm :required="false" :optionel="false" label="Longitude" :control="getFieldErrors(errors.longitude)" v-model.text="payload.longitude" type="text" />
+                <InputForm :required="false" :optionel="false" label="Latitude" :control="getFieldErrors(errors.latitude)" v-model.text="payload.latitude" type="text" />
               </div>
             </div>
           </div>
