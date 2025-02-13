@@ -266,13 +266,15 @@ const getOneForm = async () => {
 
 const updateForm = async () => {
   isLoadingForm.value = true;
-  alert("ok");
-  const data = {
-    test: "je",
-  };
+
+  payload.perception.options_de_reponse = previewOptionResponses.value.options_de_reponse;
+
+  console.log(payload);
+
+  //alert("1");
 
   try {
-    await FormulaireFactuel.update(idForm, data);
+    await FormulaireFactuel.update(idForm, payload);
     toast.success(`Formulaire Modifiée avec succès.`);
     alert("2");
     fetchListForms.value = !fetchListForms.value;
@@ -359,6 +361,7 @@ onMounted(async () => {
             <div class="flex flex-col gap-8">
               <div class="space-y-2">
                 <p class="text-lg font-medium">Liste des options de réponses</p>
+
                 <ListOptionsResponse :options="previewOptionResponses.options_de_reponse" />
               </div>
               <div class="space-y-2">

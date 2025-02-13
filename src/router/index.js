@@ -267,7 +267,7 @@ const routes = [
         component: detailSuiviePta,
       },
       {
-        path: "ptaGlobal",
+        path: "plan-action",
         name: "ptaGlobal",
         component: PtaGlobal,
       },

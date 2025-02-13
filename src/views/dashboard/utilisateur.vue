@@ -131,9 +131,9 @@
 
             <td>{{ data.created_at }}</td>
             <!-- v-if="$h.getPermission('write.utilisateur')" -->
-            <td  class="flex space-x-2 items-center">
+            <td class="flex space-x-2 items-center">
               <Tippy tag="a" href="javascript:;" class="tooltip" content="cliquez pour modifier">
-                <span @click="modifier(index, data)" class="text-blue-500 cursor-pointer">
+                <span @click="openUpdateModal(data)" class="text-blue-500 cursor-pointer">
                   <EditIcon />
                 </span>
               </Tippy>
@@ -488,7 +488,6 @@ const storeUser = function () {
 };
 
 const supprimer = function (index, data) {
-   
   deleteModalPreview.value = true;
   deleteData.id = data.id;
   deleteData.nom = data.nom;

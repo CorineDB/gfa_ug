@@ -498,7 +498,7 @@ onMounted(() => {
                   </TomSelect>
                   <div v-if="errors.type" class="mt-2 text-danger">{{ getFieldErrors(errors.type) }}</div>
                 </div>
-                <div>
+                <div v-if="payload.type !== 'osc' && payload.type !== ''">
                   <label class="form-label">Fonds <span class="text-danger">*</span> </label>
                   <TomSelect v-model="payload.fondId" :options="{ placeholder: 'Selectionez  un fond' }" class="w-full">
                     <option value=""></option>

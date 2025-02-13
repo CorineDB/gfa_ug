@@ -366,7 +366,6 @@ const filterSuiviFinancierActivite = async () => {
 
 const resetFilterModal = () => {
   isLoadingFilter.value = false;
-  annees.value = "";
   showModalFiltre.value = false;
 };
 

@@ -13,6 +13,7 @@ import pagination from "@/components/news/pagination.vue";
 import PlanDecaissementComponent from "@/components/PlanDecaissement.vue";
 import { helper as $h } from "@/utils/helper";
 import ChartJauge from "../../../../components/news/ChartJauge.vue";
+import LoaderSnipper from "@/components/LoaderSnipper.vue";
 
 export default {
   components: {
@@ -22,6 +23,7 @@ export default {
     pagination,
     PlanDecaissementComponent,
     ChartJauge,
+    LoaderSnipper,
     // ActivitiesComponent,
   },
 
@@ -35,7 +37,7 @@ export default {
       allActivite: [],
       messageErreur: {},
       projets: [],
-      projetId: null,
+      projetId: "",
       composants: [],
       sousComposants: [],
       activites: [],
@@ -130,9 +132,7 @@ export default {
       console.log("this.selectedIds.activiteId", this.selectedIds.activiteId);
     },
     getInfoActivite(id) {
-      
       if (id !== null || id !== "") {
-       
         ActiviteService.get(id)
           .then((response) => {
             console.log(response.data.data);
@@ -301,15 +301,16 @@ export default {
 
     async loadProjets() {
       this.isLoadingData = true;
+      console.log(this.projets);
       try {
         const response = await ProjetService.get();
         this.projets = response.data.data;
-        this.projetId = this.projets[0]?.id || null;
-        this.isLoadingData = false;
+        this.projetId = this.projets[0]?.id || "";
+        // this.isLoadingData = false;
       } catch (error) {
         console.error("Erreur lors du chargement des projets", error);
       } finally {
-        this.isLoadingData = false;
+        if (this.projetId == "") this.isLoadingData = false;
       }
     },
 
@@ -327,6 +328,8 @@ export default {
         // alert("ok");
       } catch (error) {
         console.error("Erreur lors du chargement des détails du projet", error);
+      } finally {
+        if (this.selectedIds.composantId == "") this.isLoadingData = false;
       }
     },
 
@@ -359,6 +362,8 @@ export default {
         }
       } catch (error) {
         console.error("Erreur lors du chargement des détails du composant", error);
+      } finally {
+        this.isLoadingData = false;
       }
     },
 
@@ -498,8 +503,8 @@ export default {
   async mounted() {
     await this.loadProjets();
 
-    if(selectedIds.activiteId !== "" || selectedIds.activiteId !== null){
-      this.getInfoActivite(selectedIds.activiteId)
+    if (this.selectedIds.activiteId !== "" || this.selectedIds.activiteId !== null) {
+      this.getInfoActivite(selectedIds.activiteId);
     }
   },
 };
@@ -533,13 +538,16 @@ export default {
   <!-- <h2 class="mt-10 text-lg font-medium intro-y">Activités</h2> -->
 
   <!-- Filtre -->
-  <div class="container px-4 mx-auto">
+  <div class="w-full px-4 mx-auto">
     <!-- Combined Filter Section -->
     <div class="relative p-6 mt-3 space-y-3 bg-white rounded-lg shadow-md">
       <h2 class="mb-4 text-base font-bold">Filtre</h2>
 
       <div class="grid grid-cols-2 gap-4">
-        <div class="flex col-span-6" v-if="projets.length > 0">
+        <!-- <pre>{{ projets }}</pre> -->
+        <!-- v-if="projets.length > 0" -->
+        <!--  -->
+        <div class="flex col-span-6">
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Projets</label>
           <TomSelect
             v-model="projetId"
@@ -551,12 +559,11 @@ export default {
             class="w-full"
           >
             <option value="">Choisir un projet</option>
-
             <option v-for="(element, index) in projets" :key="index" :value="element.id">{{ element.nom }}</option>
           </TomSelect>
         </div>
-
-        <div class="flex col-span-6" v-if="composants.length > 0">
+        <!--  v-if="composants.length > 0" -->
+        <div class="flex col-span-6">
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Outcomes</label>
           <TomSelect
             v-model="selectedIds.composantId"
@@ -571,8 +578,9 @@ export default {
           </TomSelect>
         </div>
 
+        <!-- v-if="sousComposants.length > 0" -->
         <div class="col-span-6 flex items-center justify-center">
-          <div class="flex w-full mr-4" v-if="sousComposants.length > 0">
+          <div class="flex w-full mr-4">
             <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Output</label>
             <TomSelect
               v-model="selectedIds.sousComposantId"
