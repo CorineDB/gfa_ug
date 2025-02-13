@@ -39,7 +39,7 @@
       </ModalBody>
       <ModalFooter>
         <div class="flex gap-2">
-          <button type="button" @click="resetForm" class="w-full px-2 py-2 my-3 align-top btn btn-outline-secondary">Annuler</button>
+          <button type="button" @click="resetFormSites" class="w-full px-2 py-2 my-3 align-top btn btn-outline-secondary">Annuler</button>
           <VButton :loading="isLoadingSite" label="Ajouter" />
         </div>
       </ModalFooter>
@@ -149,7 +149,7 @@
 
               <option v-for="(site, index) in sites" :key="index" :value="site.id">{{ site.nom }}</option>
             </TomSelect>
-            <button class=" shadow-md btn btn-primary" @click="showModalCreate = true"><PlusIcon class="w-4 h-4 mr-3" /></button>
+            <button class="shadow-md btn btn-primary" @click="showModalCreate = true"><PlusIcon class="w-4 h-4 mr-3" /></button>
           </div>
         </div>
         <p class="text-red-500 text-[12px] mt-2 col-span-12" title="Ajouter un site" v-if="messageErreur.sites">{{ $h.extractContentFromArray(messageErreur.sites) }}</p>
@@ -488,7 +488,7 @@ export default {
   },
 
   methods: {
-    resetForm() {
+    resetFormSites() {
       this.payloadSites.libelle = "";
       this.payloadSites.description = "";
       this.payloadSites.note = "";
