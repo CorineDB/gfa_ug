@@ -368,7 +368,7 @@ export default {
     </div>
   </div>
 
-  <NoRecordsMessage v-if="!activites.length" title="No Activities Found" description="It seems there are no activities to display. Please check back later." />
+  <NoRecordsMessage v-if="!activites.length" title="Aucune activité trouvée" description="Il semble qu'il n'y ait pas d'activités à afficher. Veuillez en créer un." />
 
   <!-- END: Users Layout -->
   <LoaderSnipper v-if="isLoadingData" />

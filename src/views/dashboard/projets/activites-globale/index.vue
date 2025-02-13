@@ -140,8 +140,7 @@ export default {
             this.activiteTef = 67;
             console.log("this.activiteTep ", this.activiteTep);
             console.log("this.activiteTef ", this.activiteTef);
-            // this.activiteTep = response.data.data.tep;
-            // this.activiteTef = response.data.data.tef;
+          
           })
           .catch((error) => {
             console.log(error);
@@ -306,8 +305,9 @@ export default {
         const response = await ProjetService.get();
         this.projets = response.data.data;
         this.projetId = this.projets[0]?.id || "";
-        // this.isLoadingData = false;
+        this.isLoadingData = false;
       } catch (error) {
+        this.isLoadingData = false;
         console.error("Erreur lors du chargement des projets", error);
       } finally {
         if (this.projetId == "") this.isLoadingData = false;
@@ -318,8 +318,10 @@ export default {
       this.composants = [];
       this.sousComposants = [];
       this.activites = [];
+      this.isLoadingData = true;
       // console.log("this.selectedIds.composantId1", this.selectedIds.composantId);
       try {
+        this.isLoadingData = false;
         const response = await ProjetService.getDetailProjet(projetId);
         this.composants = response.data.data.composantes;
         this.selectedIds.composantId = this.composants[0]?.id || "";
@@ -327,6 +329,7 @@ export default {
         console.log("this.selectedIds.composantId2", this.selectedIds.composantId);
         // alert("ok");
       } catch (error) {
+        this.isLoadingData = false;
         console.error("Erreur lors du chargement des détails du projet", error);
       } finally {
         if (this.selectedIds.composantId == "") this.isLoadingData = false;
@@ -335,11 +338,11 @@ export default {
 
     async loadComposantDetails() {
       if (!this.selectedIds.composantId || this.selectedIds.composantId == "") return;
-
+      this.isLoadingData = true;
       try {
         const response = await ComposantesService.detailComposant(this.selectedIds.composantId);
         const composantData = response.data.data;
-
+        this.isLoadingData = false;
         // Mettre à jour les sous-composants et activités du composant
         this.sousComposants = composantData.souscomposantes || [];
         console.log("this.sousComposants", this.sousComposants);
@@ -350,17 +353,13 @@ export default {
         // Vérifier s'il y a des sous-composants
         if (this.sousComposants.length > 0) {
           this.haveSousComposantes = true;
-
-          // if (this.selectedIds.sousComposantId == "" || !this.selectedIds.sousComposantId) return;
-
-          // this.selectedIds.sousComposantId = this.sousComposants[0]?.id || null;
-          // this.loadSousComposantDetails(); // Charger les activités du premier sous-composant
         } else {
           this.haveSousComposantes = false;
           // Pas de sous-composants, afficher directement les activités du composant
           this.updateActivitesList(this.activites);
         }
       } catch (error) {
+        this.isLoadingData = false;
         console.error("Erreur lors du chargement des détails du composant", error);
       } finally {
         this.isLoadingData = false;
@@ -525,17 +524,8 @@ export default {
         ></span>
         <span class="mx-2 text-xs font-semibold">ajouter </span>
       </button>
-
-      <!-- <button v-if="seePlan && planDeDecaissement" @click="addPlan" title="ajouter" class="p-2 overflow-hidden flex space-x-2 items-center text-xs font-semibold text-white uppercase bg-primary focus:outline-none focus:shadow-outline">
-        <span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" style="fill: rgba(255, 255, 255, 1); transform: ; msfilter: ">
-            <path d="M19 11h-6V5h-2v6H5v2h6v6h2v-6h6z"></path></svg
-        ></span>
-        <span class="mx-2 text-xs md:text-sm font-semibold">ajouter</span>
-      </button> -->
     </div>
   </div>
-  <!-- <h2 class="mt-10 text-lg font-medium intro-y">Activités</h2> -->
 
   <!-- Filtre -->
   <div class="w-full px-4 mx-auto">
@@ -544,9 +534,6 @@ export default {
       <h2 class="mb-4 text-base font-bold">Filtre</h2>
 
       <div class="grid grid-cols-2 gap-4">
-        <!-- <pre>{{ projets }}</pre> -->
-        <!-- v-if="projets.length > 0" -->
-        <!--  -->
         <div class="flex col-span-6">
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Projets</label>
           <TomSelect
@@ -578,7 +565,6 @@ export default {
           </TomSelect>
         </div>
 
-        <!-- v-if="sousComposants.length > 0" -->
         <div class="col-span-6 flex items-center justify-center">
           <div class="flex w-full mr-4">
             <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Output</label>
@@ -658,13 +644,13 @@ export default {
     <div class="mt-6">
       <LoaderSnipper v-if="isLoadingData" />
       <div v-if="!isLoadingData" class="grid grid-cols-12 gap-6 mt-5">
-        <NoRecordsMessage class="col-span-12" v-if="!activites.length" title="Aucune activité trouvée" description="Il semble qu'il n'y ait pas d'activités à afficher. Veuillez revenir plus tard." />
+        <NoRecordsMessage class="col-span-12" v-if="!paginatedAndFilteredData.length" title="Aucune activité trouvée" description="Il semble qu'il n'y ait pas d'activités à afficher. Veuillez en créer un." />
         <div v-else v-for="(item, index) in paginatedAndFilteredData" :key="index" class="col-span-12 p-4 md:col-span-6 lg:col-span-4">
           <div v-if="verifyPermission('voir-une-activite')" class="p-5 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-105 hover:bg-gray-50">
             <div class="relative flex items-start pt-5">
               <div class="flex flex-col items-center w-full lg:flex-row">
                 <div class="flex items-center justify-center w-[90px] h-[90px] text-white rounded-full shadow-md bg-primary flex-shrink-0 mr-4">
-                  {{ item.type }}
+                  {{ item.codePta }}
                   <!-- <img alt="Midone Tailwind HTML Admin Template" class="rounded-full" :src="faker.photos[0]" /> -->
                 </div>
                 <div class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary _truncate text-center lg:text-left">
@@ -703,6 +689,7 @@ export default {
                   <LinkIcon class="w-4 h-4 mr-2" /> Montant financé: {{ item.pret == null ? 0 : $h.formatCurrency(item.pret) }}
                   <div class="ml-2 italic font-bold">Fcfa</div>
                 </div>
+                <!-- <pre>{{ item }}</pre> -->
 
                 <div class="flex items-center text-sm font-medium text-gray-700">
                   <GlobeIcon class="w-4 h-4 mr-2 text-primary" /> Taux d'exécution physique:
@@ -716,6 +703,18 @@ export default {
                   <span v-else-if="item.statut == 0" class="ml-2 text-gray-900">En cours</span>
                   <span v-else-if="item.statut == 1" class="ml-2 text-gray-900">En retard</span>
                   <span v-else-if="item.statut == 2" class="ml-2 text-gray-900">Terminé</span>
+                </div>
+                <div class="flex items-center mt-2">
+                  <ClockIcon class="w-4 h-4 mr-2" />
+                  <div>
+                    Date : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(item.debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(item.fin) }}</span>
+                  </div>
+                </div>
+                <div class="flex items-center mt-2" v-for="(plage, t) in item.durees" :key="t">
+                  <ClockIcon class="w-4 h-4 mr-2" />
+                  <div>
+                    Plage de date {{ t + 1 }} : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(plage.debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(plage.fin) }}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -734,8 +733,6 @@ export default {
     </pagination>
   </div>
 
-  <!-- <pre>{{ seePlan }}</pre> -->
-
   <PlanDecaissementComponent v-if="seePlan" :activiteId="selectedIds.activiteId" :activites="activites" @send-activiteId="changeActiviteId" />
 
   <div v-if="seeStatistique" class="flex flex-col sm:flex-row justify-evenly mt-4">
@@ -750,8 +747,6 @@ export default {
     </div>
   </div>
 
-  <!-- v-if="false == true" -->
-
   <!-- END: Users Layout -->
 
   <Modal backdrop="static" :show="showModal" @hidden="showModal = false">
@@ -761,22 +756,22 @@ export default {
     </ModalHeader>
     <form @submit.prevent="sendForm">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
-        <InputForm v-model="formData.nom" class="col-span-12" type="text" required="required" placeHolder="Nom de l'activité*" label="Nom test" />
+        <InputForm v-model="formData.nom" class="col-span-12 mt-4" type="text" required="required" placeHolder="Nom de l'activité*" label="Nom test" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
 
-        <InputForm v-model="formData.pret" class="col-span-12" type="number" required="required" placeHolder="Montant financé*" label="Montant financé" />
+        <InputForm v-model="formData.pret" class="col-span-12 mt-4" type="number" required="required" placeHolder="Montant financé*" label="Montant financé" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pret">{{ messageErreur.pret }}</p>
 
-        <InputForm v-model="formData.budgetNational" class="col-span-12" type="number" required="required" placeHolder="Ex : 2" label="Fond Propre" />
+        <InputForm v-model="formData.budgetNational" class="col-span-12 mt-4" type="number" required="required" placeHolder="Ex : 2" label="Fond Propre" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pret">{{ messageErreur.budgetNational }}</p>
 
-        <InputForm v-model="formData.debut" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de début*" label="Début de l'activité" />
+        <InputForm v-model="formData.debut" class="col-span-12 mt-4" type="date" required="required" placeHolder="Entrer la date de début*" label="Début de l'activité" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.debut">{{ messageErreur.debut }}</p>
 
-        <InputForm v-model="formData.fin" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de fin*" label="Fin de l'activité" />
+        <InputForm v-model="formData.fin" class="col-span-12 mt-4" type="date" required="required" placeHolder="Entrer la date de fin*" label="Fin de l'activité" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.fin">{{ messageErreur.fin }}</p>
 
-        <div class="flex col-span-12 mt-2">
+        <div class="flex col-span-12 mt-4">
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OutCome*</label>
           <TomSelect
             @change="mettreAjoutOutcome(formData.composanteId)"
@@ -794,7 +789,7 @@ export default {
           </TomSelect>
         </div>
 
-        <div class="flex col-span-12" v-if="haveSousComposantes">
+        <div class="flex col-span-12 mt-4" v-if="haveSousComposantes">
           <div class="flex w-11/12 mr-2">
             <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OutPut*</label>
             <TomSelect
@@ -901,54 +896,6 @@ export default {
       </ModalFooter>
     </form>
   </Modal>
-
-  <!-- <Modal backdrop="static" :show="showModalPlanDeDecaissement" @hidden="showModalPlanDeDecaissement = false">
-    <ModalHeader>
-      <h2 class="mr-auto text-base font-medium">Plan de decaissement</h2>
-    </ModalHeader>
-
-    <form @submit.prevent="planDeDecaissementActivite">
-      <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">       
-        <InputForm v-model="planDeDecaissementPayload.annee" :min="2000" class="col-span-12" type="number" :required="true" placeHolder="Saisissez l'annee" label="Saisissez l'annee de decaissement" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement != null && erreurPlanDeDecaissement.annee">{{ erreurPlanDeDecaissement.annee }}</p>
-    
-        <InputForm v-model="planDeDecaissementPayload.trimestre" :min="1" :max="4" class="col-span-12" type="number" :required="true" placeHolder="Selectionnez le trimestre" label="Selectionnez le trimestre" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement != null && erreurPlanDeDecaissement.trimestre">{{ erreurPlanDeDecaissement.trimestre }}</p>
-
-        <InputForm v-model="planDeDecaissementPayload.budgetNational" :min="0" class="col-span-12" type="number" :required="true" placeHolder="Saisissez le fond propre" label="Saisissez le fond propre" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement != null && erreurPlanDeDecaissement.budgetNational">{{ erreurPlanDeDecaissement.budgetNational }}</p>
-
-        <InputForm v-model="planDeDecaissementPayload.pret" :min="0" class="col-span-12" type="number" :required="true" placeHolder="Saisissez le montant finance" label="Saisissez le montant finance" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement != null && erreurPlanDeDecaissement.pret">{{ erreurPlanDeDecaissement.budgetNational }}</p>
-
-      </ModalBody>
-      <ModalFooter>
-        <div class="flex items-center justify-center">
-          <button type="button" @click="showModalPlanDeDecaissement = false" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
-          <VButton class="inline-block" label="Enregistrer" :loading="loadingPlanDeDecaissement" :type="submit" />
-        </div>
-      </ModalFooter>
-    </form>
-  </Modal> -->
-
-  <!-- <Modal backdrop="static" :show="cloturerActivite" @hidden="cloturerActivite = false">
-    <ModalHeader>
-      <h2 class="mr-auto text-base font-medium">Prolonger la duree de l'activite</h2>
-    </ModalHeader>
-
-    <form @submit.prevent="cloturerActivite">
-      <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
-        <InputForm v-model="dateFin" :min="dateFinOld" class="col-span-12" type="date" :required="true" placeHolder="Entrer la nouvelle date de fin" label="Nouvelle Fin du projet*" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurCloturer !== null">{{ erreurCloturer }}</p>
-      </ModalBody>
-      <ModalFooter>
-        <div class="flex items-center justify-center">
-          <button type="button" @click="cloturerActivite = false" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
-          <VButton class="inline-block" label="Cloturer" :loading="loadingCloturer" :type="submit" />
-        </div>
-      </ModalFooter>
-    </form>
-  </Modal> -->
 </template>
 
 <style></style>

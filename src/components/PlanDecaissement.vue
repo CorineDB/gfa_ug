@@ -331,7 +331,7 @@ v-if="!isLoadingData"
 v-if="verifyPermission('voir-un-plan-de-decaissement')" -->
   <!-- <pre>{{ planDeDecaissement }}</pre> -->
   <div class="grid grid-cols-12 gap-6 mt-5">
-    <NoRecordsMessage class="col-span-12" v-if="!planDeDecaissement.length" title="Aucun plan de décaissement disponible" description="Il semble qu'il n'y ait pas de plan de décaissement à afficher. Veuillez sélectionner une activité dans le filtre ci-dessus." />
+    <NoRecordsMessage class="col-span-12" v-if="!planDeDecaissement.length" title="Aucun plan de décaissement disponible" description="Il semble qu'il n'y ait pas de plan de décaissement à afficher. Veuillez ajouter des suivis financiers aux différentes activités." />
 
     <div v-for="(item, index) in paginatedAndFilteredDataPlan" :key="index" class="col-span-12 p-4 md:col-span-6 xl:col-span-4">
       <div class="p-5 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-105 hover:bg-gray-50">

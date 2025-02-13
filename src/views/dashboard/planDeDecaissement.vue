@@ -337,7 +337,7 @@
       </div>
     </div>
   </div>
-  <NoRecordsMessage class="col-span-12" v-if="!dataNew.length" title="Aucun plan de décaissement pour l'instant" description="Il semble qu'il n'y ait pas de plan d'action à afficher. Veuillez revenir plus tard." />
+  <NoRecordsMessage class="col-span-12" v-if="!dataNew.length" title="Aucun plan de décaissement pour l'instant" description="Il semble qu'il n'y ait pas de plan d'action à afficher.Veuillez ajouter des suivis financiers aux différentes activités." />
 
   <!-- Modal Register & Update -->
   <Modal backdrop="static" :show="showModalFiltre" @hidden="showModalFiltre = false">

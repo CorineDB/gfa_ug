@@ -12,12 +12,16 @@ import VButton from "@/components/news/VButton.vue";
 import { toast } from "vue3-toastify";
 import pagination from "@/components/news/pagination.vue";
 import { helper as $h } from "@/utils/helper";
+import NoRecordsMessage from "@/components/NoRecordsMessage.vue";
+import LoaderSnipper from "@/components/LoaderSnipper.vue";
 
 export default {
   components: {
     InputForm,
     VButton,
     pagination,
+    NoRecordsMessage,
+    LoaderSnipper,
   },
   data() {
     return {
@@ -28,7 +32,7 @@ export default {
       currentPage: 1, // Page courante
       messageErreur: {},
       projets: [],
-      projetId: null,
+      projetId: "",
       composants: [],
       sousComposants: [],
       selectedIds: {
@@ -195,8 +199,6 @@ export default {
         activiteId: this.formData.activiteId,
       };
       if (this.update) {
-        //this.formData.budgetNational = parseInt(this.formData.budgetNational);
-        // this.formData.projetId = this.projetId
         this.isLoading = true;
         TachesService.update(this.tacheId, data)
           .then((response) => {
@@ -273,7 +275,7 @@ export default {
       try {
         const response = await ProjetService.get();
         this.projets = response.data.data;
-        this.projetId = this.projets[0]?.id || null;
+        this.projetId = this.projets[0]?.id || "";
         this.isLoadingData = false;
       } catch (error) {
         console.error("Erreur lors du chargement des projets", error);
@@ -282,33 +284,34 @@ export default {
       }
     },
     async loadProjetDetails(projetId) {
+      this.isLoadingData = true;
       // console.log("this.selectedIds.composantId1", this.selectedIds.composantId);
       try {
         const response = await ProjetService.getDetailProjet(projetId);
+        this.isLoadingData = false;
         this.composants = response.data.data.composantes;
         this.selectedIds.composantId = this.composants[0]?.id || "";
 
         console.log("this.selectedIds.composantId2", this.selectedIds.composantId);
         // alert("ok");
       } catch (error) {
+        this.isLoadingData = false;
         console.error("Erreur lors du chargement des détails du projet", error);
       }
     },
     async loadComposantDetails() {
       if (!this.selectedIds.composantId || this.selectedIds.composantId == "") return;
 
+      this.isLoadingData = true;
+
       try {
         const response = await ComposantesService.detailComposant(this.selectedIds.composantId);
         const composantData = response.data.data;
-
-        // Mettre à jour les sous-composants et activités du composant
+        this.isLoadingData = false;
         this.sousComposants = composantData.souscomposantes || [];
         console.log("this.sousComposants", this.sousComposants);
         this.activites = composantData.activites || [];
-        // this.currentPage = 1;
-        // this.allActivite = this.activites;
 
-        // Vérifier s'il y a des sous-composants
         if (this.sousComposants.length > 0) {
           this.haveSousComposantes = true;
         } else {
@@ -322,40 +325,33 @@ export default {
     },
     async loadSousComposantDetails() {
       if (!this.selectedIds.sousComposantId || this.selectedIds.sousComposantId == "") return;
-
+      this.isLoadingData = true;
       try {
         const response = await ComposantesService.detailComposant(this.selectedIds.sousComposantId);
         const sousComposantData = response.data.data;
-
+        this.isLoadingData = false;
         console.log("sousComposantData", sousComposantData);
 
-        // Mettre à jour les activités du sous-composant
         this.updateActivitesList(sousComposantData.activites || []);
       } catch (error) {
+        this.isLoadingData = false;
         console.log("erreur", error);
         console.error("Erreur lors du chargement des détails du sous-composant", error);
       }
     },
     updateActivitesList(activites) {
       this.activites = activites;
-      // this.allActivite = this.activites;
-      // this.currentPage = 1;
-      // console.log(this.activites);
     },
     text() {},
     async loadActiviteDetails() {
       if (!this.selectedIds.activiteId || this.selectedIds.activiteId == "") return;
-
+      this.isLoadingData = true;
       try {
         const response = await ActiviteService.get(this.selectedIds.activiteId);
         this.taches = response.data.data.taches;
-        // this.paginatedAndFilteredData();
-
-        // console.log("sousComposantData", sousComposantData);
-
-        // // Mettre à jour les activités du sous-composant
-        // this.updateActivitesList(sousComposantData.activites || []);
+        this.isLoadingData = false;
       } catch (error) {
+        this.isLoadingData = false;
         console.log("erreur", error);
         console.error("Erreur lors du chargement des détails du sous-composant", error);
       }
@@ -364,64 +360,6 @@ export default {
       this.selectedIds.sousComposantId = "";
       this.loadComposantDetails();
     },
-    // getListeProjet() {
-    //   this.isLoadingData = true;
-    //   ProjetService.get()
-    //     .then((data) => {
-    //       this.isLoadingData = false;
-    //       this.projets = data.data.data;
-    //       if (Object.keys(this.projetId).length === 0) {
-    //         this.projetId = this.projets[0];
-    //       }
-
-    //       this.getProjetById(this.projetId.id);
-    //     })
-    //     .catch((error) => {
-    //       console.log(error);
-    //     });
-    // },
-    // getProjetById(data) {
-    //   ProjetService.getDetailProjet(data)
-    //     .then((datas) => {
-    //       this.composants = datas.data.data.composantes;
-    //       this.composantsId = this.composants[0];
-    //       // if (Object.keys(this.composantsId).length === 0) {
-
-    //       // }
-    //       this.getComposantById(this.composantsId.id);
-    //     })
-    //     .catch((error) => {
-    //       console.log(error);
-    //     });
-    // },
-    // getComposantById(data) {
-    //   ComposantesService.detailComposant(data)
-    //     .then((data) => {
-    //       this.activites = data.data.data.activites;
-
-    //       if (data.data.data.souscomposantes.length > 0) {
-    //         this.sousComposants = data.data.data.souscomposantes;
-    //         this.sousComposantId = this.sousComposants[0];
-    //         this.haveSousComposantes = true;
-    //       }
-
-    //       this.activitesId = this.activites[0];
-    //       this.getActiviteById(this.activitesId.id);
-    //     })
-    //     .catch((error) => {
-    //       console.log(error);
-    //     });
-    // },
-
-    // getActiviteById(data) {
-    //   ActiviteService.get(data)
-    //     .then((response) => {
-    //       this.taches = response.data.data.taches;
-    //     })
-    //     .catch((error) => {
-    //       console.log(error);
-    //     });
-    // },
 
     filter() {},
   },
@@ -443,7 +381,8 @@ export default {
       <h2 class="mb-4 text-base font-bold">Filtre</h2>
 
       <div class="grid grid-cols-2 gap-4">
-        <div class="flex col-span-6" v-if="projets.length > 0">
+        <!-- v-if="projets.length > 0" -->
+        <div class="flex col-span-6">
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Projets</label>
           <TomSelect
             v-model="projetId"
@@ -460,7 +399,8 @@ export default {
           </TomSelect>
         </div>
 
-        <div class="flex col-span-6" v-if="composants.length > 0">
+        <!-- v-if="composants.length > 0" -->
+        <div class="flex col-span-6">
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Outcomes</label>
           <TomSelect
             v-model="selectedIds.composantId"
@@ -475,7 +415,8 @@ export default {
           </TomSelect>
         </div>
 
-        <div class="col-span-6 flex items-center justify-center" v-if="composants.length > 0 && sousComposants.length > 0">
+        <!-- v-if="composants.length > 0 && sousComposants.length > 0" -->
+        <div class="col-span-6 flex items-center justify-center">
           <div class="flex w-full mr-4">
             <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Output</label>
             <TomSelect
@@ -495,7 +436,8 @@ export default {
           <button v-if="sousComposants.length > 0" type="button" class="btn btn-outline-primary" @click="resetSousComposantsId()" title="Rester dans le composant"><TrashIcon class="w-4 h-4" /></button>
         </div>
 
-        <div class="flex col-span-6" v-if="activites.length > 0 && (sousComposants.length > 0 || composants.length > 0)">
+        <!-- v-if="activites.length > 0 && (sousComposants.length > 0 || composants.length > 0)" -->
+        <div class="flex col-span-6">
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Activités</label>
           <TomSelect
             v-model="selectedIds.activiteId"
@@ -533,10 +475,12 @@ export default {
     </div>
   </div>
 
+  <LoaderSnipper v-if="isLoadingData" />
+
   <div v-if="!isLoadingData" class="grid grid-cols-12 gap-6 mt-5">
     <!-- BEGIN: Users Layout -->
     <!-- <pre>{{sousComposants}}</pre>   -->
-
+    <NoRecordsMessage class="col-span-12" v-if="!paginatedAndFilteredData.length" title="Aucune tâche trouvée" description="Il semble qu'il n'y ait pas de tâche à afficher. Veuillez en créer un." />
     <div v-for="(item, index) in paginatedAndFilteredData" :key="index" class="col-span-12 intro-y md:col-span-6 xl:col-span-4">
       <div v-if="verifyPermission('voir-une-tache')" class="p-5 box">
         <div class="flex items-start pt-5 _px-5">
@@ -571,6 +515,18 @@ export default {
               <span class="px-2 py-1 m-5 text-xs text-white rounded bg-danger/80" v-else-if="item.statut == 1"> En retard </span>
               <span class="pl-2" v-else-if="item.statut == 2">Terminé</span>
             </div>
+            <div class="flex items-center mt-2">
+              <ClockIcon class="w-4 h-4 mr-2" />
+              <div>
+                Date : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(item.debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(item.fin) }}</span>
+              </div>
+            </div>
+            <div class="flex items-center mt-2" v-for="(plage, t) in item.durees" :key="t">
+              <ClockIcon class="w-4 h-4 mr-2" />
+              <div>
+                Plage de date {{ t + 1 }} : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(plage.debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(plage.fin) }}</span>
+              </div>
+            </div>
             <!-- <div class="flex items-center mt-2"><CheckSquareIcon class="w-4 h-4 mr-2" /> Poids : {{ item.poids }}</div> -->
           </div>
         </div>
@@ -588,7 +544,6 @@ export default {
   </div>
 
   <!-- END: Users Layout -->
-  <LoaderSnipper v-if="isLoadingData" />
 
   <Modal backdrop="static" :show="showModal" @hidden="showModal = false">
     <ModalHeader>

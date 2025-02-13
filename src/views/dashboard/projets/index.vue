@@ -26,15 +26,63 @@
     <form @submit.prevent="createData">
       <ModalBody>
         <div class="grid grid-cols-1 gap-4">
-          <InputForm label="Nom" v-model="payloadSites.nom" />
-          <InputForm label="Longitude" v-model="payloadSites.longitude" />
-          <InputForm label="Latitude" v-model.number="payloadSites.latitude" />
-          <!-- <div class="">
-            <label class="form-label">Programmes </label>
-            <TomSelect v-model="payload.programmeId" :options="{ placeholder: 'Selectionez un programme' }" class="w-full">
-              <option v-for="(programme, index) in programmes" :key="index" :value="programme.id">{{ programme.nom }}</option>
+          <InputForm label="Nom" v-model="payloadSites.nom" class="col-span-12" />
+          <InputForm label="Longitude" v-model="payloadSites.longitude" class="col-span-12" />
+          <div v-if="errors.longitude" class="mt-2 text-danger">{{ getFieldErrors(errors.longitude) }}</div>
+
+          <InputForm label="Latitude" v-model.number="payloadSites.latitude" class="col-span-12" />
+          <div v-if="errors.latitude" class="mt-2 text-danger">{{ getFieldErrors(errors.latitude) }}</div>
+
+          <div class="col-span-12">
+            <label class="form-label">Pays<span class="text-danger">*</span> </label>
+            <TomSelect v-model="payloadSites.pays" @change="changeCountry" :options="{ placeholder: 'Selectionez  un pays' }" class="w-full">
+              <option value=""></option>
+              <option v-for="(country, index) in pays" :key="index" :value="country">{{ country }}</option>
             </TomSelect>
-          </div> -->
+            <div v-if="errors.pays" class="mt-2 text-danger">{{ getFieldErrors(errors.pays) }}</div>
+          </div>
+          <div v-if="isBenin" class="col-span-12">
+            <div class="w-full mb-4">
+              <label class="form-label">Départements<span class="text-danger">*</span> </label>
+              <TomSelect v-model="payloadSites.departement" @change="updateCommunes" :options="{ placeholder: 'Selectionez un département' }" class="w-full">
+                <option value=""></option>
+                <option v-for="(dep, index) in departements" :key="index" :value="dep.lib_dep">{{ dep.lib_dep }}</option>
+              </TomSelect>
+              <div v-if="errors.departement" class="mt-2 text-danger">{{ getFieldErrors(errors.departement) }}</div>
+            </div>
+            <div class="mb-4" :class="[!showCommune ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
+              <label class="form-label">Communes<span class="text-danger">*</span> </label>
+              <TomSelect v-model="payloadSites.commune" :options="{ placeholder: 'Sélectionner la commune' }" class="w-full" @change="updateArrondissements">
+                <option v-for="commune in filteredCommunes" :key="commune.lib_com" :value="commune.lib_com">
+                  {{ commune.lib_com }}
+                </option>
+              </TomSelect>
+              <div v-if="errors.commune" class="mt-2 text-danger">{{ getFieldErrors(errors.commune) }}</div>
+            </div>
+          </div>
+
+          <div v-if="isBenin" class="col-span-12">
+            <div class="w-full mb-4" :class="[!showArrondissement ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
+              <label class="form-label">Arrondissemnt<span class="text-danger">*</span> </label>
+              <TomSelect v-model="payloadSites.arrondissement" @change="updateQuartiers" :options="{ placeholder: 'Selectionez  arrondissement' }" class="w-full">
+                <option v-for="(arrond, index) in filteredArrondissements" :key="index" :value="arrond.lib_arrond">{{ arrond.lib_arrond }}</option>
+              </TomSelect>
+              <div v-if="errors.arrondissement" class="mt-2 text-danger">{{ getFieldErrors(errors.arrondissement) }}</div>
+            </div>
+            <div class="w-full mb-4" :class="[!showQuatier ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
+              <label class="form-label">Quatier<span class="text-danger">*</span> </label>
+              <TomSelect v-model="payloadSites.quartier" :options="{ placeholder: 'Sélectionner le quatier' }" class="w-full">
+                <option v-for="quart in filteredQuartiers" :key="quart.lib_quart" :value="quart.lib_quart">
+                  {{ quart.lib_quart }}
+                </option>
+              </TomSelect>
+              <div v-if="errors.quartier" class="mt-2 text-danger">{{ getFieldErrors(errors.quartier) }}</div>
+            </div>
+          </div>
+          <div v-if="!isBenin" class="col-span-12">
+            <InputForm :required="false" :optionel="false" label="Département" v-model="payloadSites.departement" :control="getFieldErrors(errors.departement)" class="mb-4" />
+            <InputForm :required="false" :optionel="false" label="Commune" v-model="payloadSites.commune" :control="getFieldErrors(errors.commune)" class="mb-4" />
+          </div>
         </div>
       </ModalBody>
       <ModalFooter>
@@ -69,8 +117,16 @@
         <InputForm v-model="formData.nombreEmploie" class="col-span-12" type="number" placeHolder="Ex : 10" label="Nombre d'employé" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nombreEmploie">{{ $h.extractContentFromArray(messageErreur.nombreEmploie) }}</p>
 
-        <InputForm v-model="formData.pays" class="col-span-12" type="text" placeHolder="Ex : Bénin" label="Pays" />
+        <div class="col-span-12">
+          <label class="form-label">Pays<span class="text-danger">*</span> </label>
+          <TomSelect v-model="formData.pays" :options="{ placeholder: 'Selectionez  un pays' }" class="w-full">
+            <option value=""></option>
+            <option v-for="(country, index) in pays" :key="index" :value="country">{{ country }}</option>
+          </TomSelect>
+        </div>
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pays">{{ $h.extractContentFromArray(messageErreur.pays) }}</p>
+
+        <!-- <InputForm v-model="formData.pays" class="col-span-12" type="text" placeHolder="Ex : Bénin" label="Pays" /> -->
 
         <InputForm v-model="formData.budgetNational" class="col-span-12" type="text" :required="true" placeHolder="Ex : 100000" label="Fond Propre" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.budgetNational">{{ $h.extractContentFromArray(messageErreur.budgetNational) }}</p>
@@ -91,18 +147,6 @@
         </div>
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.image">{{ $h.extractContentFromArray(messageErreur.image) }}</p>
 
-        <!-- <div class="col-span-12" v-if="!isUpdate">
-          <label class="block my-3 font-bold">Pièces jointes</label>
-          <input name="fichier" class="col-span-12" placeHolder="choisir un fichier ou plusieurs" type="file" multiple @change="handleFileChange2" />
-          <InputForm class="col-span-12" type="file" @change="handleFileChange2" placeHolder="choisir un fichier ou plusieurs" label="Pièces jointes" multiple />
-          <div class="col-span-12">
-            <ul v-if="files.length > 1">
-              <li v-for="(file, index) in files" :key="index">
-                {{ file.name }}
-              </li>
-            </ul>
-          </div>
-        </div> -->
         <div class="col-span-12" v-if="!isUpdate">
           <label class="block my-3 font-bold text-gray-700">Pièces jointes</label>
           <input name="fichier" ref="fileInput2" class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Choisir un fichier ou plusieurs" type="file" multiple @change="handleFileChange2" />
@@ -205,9 +249,7 @@
   <div v-if="verifyPermission('voir-un-projet') && !isLoadingProjets" class="grid grid-cols-1 gap-6 mt-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
     <div href="#" class="relative transition-all duration-500 border-l-4 shadow-2xl box group _bg-white zoom-in border-primary hover:border-secondary" v-for="(item, index) in paginatedAndFilteredData" :key="index">
       <div class="relative m-5 bg-white">
-        <div class="text-[#171a1d] group-hover:text-[#007580] font-medium text-[14px] md:text-[16px] lg:text-[18px] leading-[30px] pt-[10px]">
-          {{ item.nom }}
-        </div>
+        <div class="text-[#171a1d] group-hover:text-[#007580] font-medium text-[14px] md:text-[16px] lg:text-[18px] leading-[30px] pt-[10px]">{{ item.codePta }} - {{ item.nom }}</div>
       </div>
 
       <div class="relative mt-[12px] m-5 h-40 2xl:h-56 image-fit rounded-md overflow-hidden before:block before:absolute before:w-full before:h-full before:top-0 before:left-0 before:z-10 before:bg-gradient-to-t before:from-black before:to-black/10">
@@ -310,18 +352,33 @@ import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import "leaflet.markercluster";
 import { addressPoints } from "./markerDemo";
 import icon from "./icon.png";
-import markerShadow from "./marker-shadow.png";
+import contries from "@/pays.json";
+import markerShadow from "./marker-shadow.png"; // ../../utils/helpers"
+// import { getFieldErrors } from "../../../utils/helpers";
+import decoupage from "@/decoupage_territorial_benin.json";
 
 export default {
   components: { LoaderSnipper, InputForm, VButton, LMap, LTileLayer, LMarker, LPolygon, LPopup, pagination },
   data() {
     return {
+      selectedDepartementData: "",
+      departements: [],
+      errors: {},
+      pays: [],
+      indexBenin: 1,
+      isBenin: false,
       showModalCreate: false,
       payloadSites: {
         nom: "",
         longitude: "",
         latitude: "",
+        arrondissement: "",
+        commune: "",
+        departement: "",
+        pays: "",
+        quartier: "",
       },
+
       isLoadingSite: false,
       search: "",
       isLoadingProjets: false,
@@ -485,9 +542,75 @@ export default {
 
       return paginatedData;
     },
+    filteredCommunes() {
+      if (!this.payloadSites.departement) return [];
+      this.selectedDepartementData = this.departements.find((dep) => dep.lib_dep === this.payloadSites.departement);
+      return this.selectedDepartementData ? this.selectedDepartementData.communes : [];
+    },
+    filteredArrondissements() {
+      if (!this.payloadSites.commune || !this.selectedDepartementData) return [];
+      const communeData = this.selectedDepartementData.communes.find((com) => com.lib_com === this.payloadSites.commune);
+      return communeData ? communeData.arrondissements : [];
+    },
+    filteredQuartiers() {
+      if (!this.payloadSites.arrondissement) return [];
+      const arrondissementData = this.filteredArrondissements.find((arrond) => arrond.lib_arrond === this.payloadSites.arrondissement);
+      return arrondissementData ? arrondissementData.quartiers : [];
+    },
+    showCommune() {
+      return !this.payloadSites.departement;
+    },
+    showArrondissement() {
+      return !this.payloadSites.commune;
+    },
+    showQuatier() {
+      return !this.payloadSites.arrondissement;
+    },
   },
 
   methods: {
+    resetPayload() {
+      Object.keys(this.payloadSites).forEach((key) => {
+        this.payload[key] = "";
+      });
+    },
+    resetForm() {
+      this.resetPayload();
+      this.errors = {};
+      this.showModalCreate = false;
+    },
+    getFieldErrors(errors) {
+      if (!errors || !Array.isArray(errors)) return "";
+      return errors.join(", ");
+    },
+    updateQuartiers() {
+      this.payloadSites.quartier = "";
+    },
+    updateArrondissements() {
+      this.payloadSites.arrondissement = "";
+      this.payloadSites.quartier = "";
+    },
+    updateCommunes() {
+      this.payloadSites.commune = "";
+      this.payloadSites.arrondissement = "";
+      this.payloadSites.quartier = "";
+    },
+    changeCountry() {
+      if (this.payloadSites.pays === "Bénin") {
+        this.indexBenin = -1;
+        this.isBenin = true;
+        this.updateCommunes();
+      } else {
+        this.indexBenin++;
+        if (this.indexBenin == 0) {
+          this.payloadSites.quartier = "";
+          this.payloadSites.arrondissement = "";
+          this.payloadSites.commune = "";
+          this.payloadSites.departement = "";
+        }
+        this.isBenin = false;
+      }
+    },
     resetFormSites() {
       this.payloadSites.libelle = "";
       this.payloadSites.description = "";
@@ -501,7 +624,7 @@ export default {
         .then(() => {
           this.isLoadingSite = false;
           this.fetchSites();
-          resetForm();
+          this.resetForm();
           toast.success("Sites créer.");
         })
         .catch((e) => {
@@ -1142,6 +1265,10 @@ export default {
       // Ajouter des marqueurs individuels
       L.marker([6.3561, 2.39182], { icon: this.myIcon }).bindPopup(`GFA Redevabilite`).addTo(this.initialMap);
     },
+  },
+  beforeMount() {
+    this.pays = Object.values(contries);
+    this.departements = decoupage;
   },
   mounted() {
     this.initializeMap();
