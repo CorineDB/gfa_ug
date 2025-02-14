@@ -140,7 +140,6 @@ export default {
             this.activiteTef = 67;
             console.log("this.activiteTep ", this.activiteTep);
             console.log("this.activiteTef ", this.activiteTef);
-          
           })
           .catch((error) => {
             console.log(error);
@@ -546,7 +545,7 @@ export default {
             class="w-full"
           >
             <option value="">Choisir un projet</option>
-            <option v-for="(element, index) in projets" :key="index" :value="element.id">{{ element.nom }}</option>
+            <option v-for="(element, index) in projets" :key="index" :value="element.id">{{ element.codePta }} - {{ element.nom }}</option>
           </TomSelect>
         </div>
         <!--  v-if="composants.length > 0" -->
@@ -561,7 +560,7 @@ export default {
             }"
             class="w-full"
           >
-            <option v-for="(element, index) in composants" :key="index" :value="element.id">{{ element.nom }}</option>
+            <option v-for="(element, index) in composants" :key="index" :value="element.id">{{ element.codePta }} - {{ element.nom }}</option>
           </TomSelect>
         </div>
 
@@ -579,7 +578,7 @@ export default {
             >
               <option value="">Choisir un Output</option>
 
-              <option v-for="(element, index) in sousComposants" :key="index" :value="element.id">{{ element.nom }}</option>
+              <option v-for="(element, index) in sousComposants" :key="index" :value="element.id">{{ element.codePta }} - {{ element.nom }}</option>
             </TomSelect>
           </div>
           <button v-if="sousComposants.length > 0" type="button" class="btn btn-outline-primary" @click="resetSousComposantsId()" title="Rester dans le composant"><TrashIcon class="w-4 h-4" /></button>
@@ -600,7 +599,7 @@ export default {
           >
             <option value="">Choisir une activité</option>
 
-            <option v-for="(element, index) in activites" :key="index" :value="element.id">{{ element.nom }}</option>
+            <option v-for="(element, index) in activites" :key="index" :value="element.id">{{ element.codePta }} - {{ element.nom }}</option>
           </TomSelect>
         </div>
       </div>
@@ -785,7 +784,7 @@ export default {
           >
             <option value="">Choisir un Outcome</option>
 
-            <option v-for="(element, index) in composants" :key="index" :value="element.id">{{ element.nom }}</option>
+            <option v-for="(element, index) in composants" :key="index" :value="element.id">{{ element.codePta }} - {{ element.nom }}</option>
           </TomSelect>
         </div>
 
@@ -802,7 +801,7 @@ export default {
               class="w-full"
             >
               <option value="">Choisir un Output</option>
-              <option v-for="(element, index) in sousComposants" :key="index" :value="element.id">{{ element.nom }}</option>
+              <option v-for="(element, index) in sousComposants" :key="index" :value="element.id">{{ element.codePta }} - {{ element.nom }}</option>
             </TomSelect>
           </div>
           <button type="button" class="btn btn-outline-primary" @click="resetSousComposantsId()" title="Rester dans le composant"><TrashIcon class="w-4 h-4" /></button>

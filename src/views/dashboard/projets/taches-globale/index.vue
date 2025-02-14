@@ -395,7 +395,7 @@ export default {
           >
             <option value="">Choisir un projet</option>
 
-            <option v-for="(element, index) in projets" :key="index" :value="element.id">{{ element.nom }}</option>
+            <option v-for="(element, index) in projets" :key="index" :value="element.id">{{ element.codePta }}-{{ element.nom }}</option>
           </TomSelect>
         </div>
 
@@ -411,7 +411,7 @@ export default {
             }"
             class="w-full"
           >
-            <option v-for="(element, index) in composants" :key="index" :value="element.id">{{ element.nom }}</option>
+            <option v-for="(element, index) in composants" :key="index" :value="element.id">{{ element.codePta }}-{{ element.nom }}</option>
           </TomSelect>
         </div>
 
@@ -430,7 +430,7 @@ export default {
             >
               <option value="">Choisir un Output</option>
 
-              <option v-for="(element, index) in sousComposants" :key="index" :value="element.id">{{ element.nom }}</option>
+              <option v-for="(element, index) in sousComposants" :key="index" :value="element.id">{{ element.codePta }}-{{ element.nom }}</option>
             </TomSelect>
           </div>
           <button v-if="sousComposants.length > 0" type="button" class="btn btn-outline-primary" @click="resetSousComposantsId()" title="Rester dans le composant"><TrashIcon class="w-4 h-4" /></button>
@@ -451,7 +451,7 @@ export default {
           >
             <option value="">Choisir une activité</option>
 
-            <option v-for="(element, index) in activites" :key="index" :value="element.id">{{ element.nom }}</option>
+            <option v-for="(element, index) in activites" :key="index" :value="element.id">{{ element.codePta }}-{{ element.nom }}</option>
           </TomSelect>
         </div>
       </div>
@@ -575,7 +575,7 @@ export default {
             >
               <option value="">Choisir un projet</option>
 
-              <option v-for="(element, index) in projets" :key="index" :value="element.id">{{ element.nom }}</option>
+              <option v-for="(element, index) in projets" :key="index" :value="element.id">{{ element.codePta }}-{{ element.nom }}</option>
             </TomSelect>
           </div>
         </div>
@@ -591,7 +591,7 @@ export default {
             }"
             class="w-full"
           >
-            <option v-for="(element, index) in composants" :key="index" :value="element.id">{{ element.nom }}</option>
+            <option v-for="(element, index) in composants" :key="index" :value="element.id">{{ element.codePta }}-{{ element.nom }}</option>
           </TomSelect>
         </div>
 
@@ -608,7 +608,7 @@ export default {
           >
             <option value="">Choisir un Output</option>
 
-            <option v-for="(element, index) in sousComposants" :key="index" :value="element.id">{{ element.nom }}</option>
+            <option v-for="(element, index) in sousComposants" :key="index" :value="element.id">{{ element.codePta }}-{{ element.nom }}</option>
           </TomSelect>
         </div>
 
@@ -626,7 +626,7 @@ export default {
           >
             <option value="">Choisir une activité</option>
 
-            <option v-for="(element, index) in activites" :key="index" :value="element.id">{{ element.nom }}</option>
+            <option v-for="(element, index) in activites" :key="index" :value="element.id">{{ element.codePta }}-{{ element.nom }}</option>
           </TomSelect>
           <!-- <v-select class="w-full" v-model="formData.activiteId" label="nom" :options="activites">
             <template #search="{ attributes, events }">
