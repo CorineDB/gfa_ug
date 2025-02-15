@@ -13,8 +13,6 @@ const payload = reactive({
   nom: "",
   description: "",
   permissions: [],
-  // type : "1"
-  // programmeId: "",
 });
 
 const messageErreur = ref({});

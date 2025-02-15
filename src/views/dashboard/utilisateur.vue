@@ -29,65 +29,72 @@
     <!-- END: Modal Content -->
 
     <!-- BEGIN: Modal Content -->
-    <Modal size="modal-xl" :show="showModal" @hidden="close">
-      <ModalBody class="p-10">
-        <form @submit.prevent="storeUser">
+    <Modal :show="showModal" @hidden="close">
+      <ModalHeader>
+        <h2 class="mr-auto text-base font-medium">Ajouter un utilisateur</h2>
+      </ModalHeader>
+      <form @submit.prevent="storeUser">
+        <ModalBody class="p-10">
           <div class="grid grid-cols-2 gap-4">
-            <div>
+            <div class="col-span-6">
               <label for="regular-form-1" class="form-label">Nom</label>
               <input id="regular-form-1" type="text" required v-model="formData.nom" class="form-control" placeholder="Nom" />
               <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
             </div>
-            <div>
+            <div class="col-span-6">
               <label for="regular-form-1" class="form-label">Prenoms</label>
               <input id="regular-form-1" type="text" required v-model="formData.prenom" class="form-control" placeholder="Prenoms" />
               <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.prenom">{{ messageErreur.prenom }}</p>
             </div>
 
-            <div>
+            <div class="col-span-6">
               <label for="regular-form-1" class="form-label">Email</label>
               <input id="regular-form-1" type="email" required v-model="formData.email" class="form-control" placeholder="Email" />
               <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.email">{{ messageErreur.email }}</p>
             </div>
 
-            <div>
+            <div class="col-span-6">
               <label for="regular-form-1" class="form-label">Contact</label>
               <input id="regular-form-1" type="text" required v-model="formData.contact" class="form-control" placeholder="Contact" />
               <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.contact">{{ messageErreur.contact }}</p>
             </div>
 
-            <div>
+            <div class="col-span-6">
               <label for="regular-form-1" class="form-label">Poste</label>
               <input id="regular-form-1" type="text" required v-model="formData.poste" class="form-control" placeholder="Poste" />
               <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.poste">{{ messageErreur.poste }}</p>
             </div>
 
-            <div class="">
-              <label class="form-label">Roles</label>
-              <TomSelect v-model="formData.roles" multiple :options="{ placeholder: 'Selectionez les roles' }" class="w-full">
-                <option v-for="(role, index) in roles" :key="index" :value="role.id">{{ role.nom }}</option>
-              </TomSelect>
-              <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.roles">{{ messageErreur.roles }}</p>
+            <div class="col-span-6">
+              <div class="">
+                <label class="form-label">Roles</label>
+                <div class="flex w-full">
+                  <TomSelect v-model="formData.roles" multiple :options="{ placeholder: 'Selectionez les roles' }" class="w-11/12 pr-3">
+                    <option v-for="(role, index) in roles" :key="index" :value="role.id">{{ role.nom }}</option>
+                  </TomSelect>
+                  <button @click="openCreateModal" class="btn w-10 h-10 btn-primary mr-1 mb-2">
+                    <PlusIcon class="w-5 h-5" />
+                  </button>
+                </div>
+
+                <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.roles">{{ messageErreur.roles }}</p>
+              </div>
             </div>
           </div>
-
-          <button class="btn btn-primary py-3 px-4 w-full my-3 xl:mr-3 align-top">
-            <span class="text-sm font-semibold uppercase" v-if="!chargement"> Ajouter </span>
-            <span v-else class="flex justify-center items-center space-x-2">
-              <span class="px-4 font-semibold"> chargement ... </span>
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-center animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-            </span>
-          </button>
-        </form>
-      </ModalBody>
+        </ModalBody>
+        <ModalFooter>
+          <div class="flex gap-2">
+            <button type="button" @click="resetForm" class="w-full px-2 py-2 my-3 align-top btn btn-outline-secondary">Annuler</button>
+            <VButton :loading="isLoading" label="Ajouter" />
+          </div>
+        </ModalFooter>
+      </form>
     </Modal>
     <!-- END: Modal Content -->
     <!-- BEGIN: Modal Toggle -->
     <div class="flex justify-between">
       <div class="search hidden sm:block">
-        <input type="text" class="search__input form-control border-transparent" v-model="search" placeholder="Recherche..." />
+        <input type="text" class="search__input form-control border-transparent" v-model="searchs" placeholder="Recherche..." />
         <SearchIcon class="search__icon dark:text-slate-500" />
       </div>
       <button @click="addUsers" class="btn btn-primary flex space-x-2 items-center">
@@ -190,6 +197,46 @@
     </div>
   </div>
 
+  <!-- Modal Register & Update -->
+  <Modal backdrop="static" :show="showModalCreate" @hidden="showModalCreate = false">
+    <ModalHeader>
+      <h2 class="mr-auto text-base font-medium">Ajouter un Rôle</h2>
+    </ModalHeader>
+    <form @submit.prevent="createData">
+      <ModalBody>
+        <div class="grid grid-cols-1 gap-4">
+          <InputForm label="Nom" v-model="payload.nom" />
+          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
+
+          <div class="my-2">
+            <label for="regular-form-2" class="form-label">Description</label>
+            <textarea id="regular-form-2" placeholder="Description du role" required v-model="payload.description" class="w-full px-3 py-2 mt-1 border-2 border-gray-300 form-control focus:outline-none focus:ring-2 focus:border-transparent" rows="2"></textarea>
+            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.description">{{ messageErreur.description }}</p>
+          </div>
+
+          <div class="w-full">
+            <div class="flex w-full">
+              <v-select :reduce="(projet) => projet.id" class="w-full" v-model="payload.permissions" multiple label="nom" :options="permissions">
+                <template #search="{ attributes, events }">
+                  <input class="vs__search form-input" :required="!payload.permissions" v-bind="attributes" v-on="events" />
+                </template>
+              </v-select>
+              <label class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Permissions <span class="text-danger">*</span> </label>
+            </div>
+            <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.permissions">{{ messageErreur.permissions }}</p>
+          </div>
+        </div>
+      </ModalBody>
+      <ModalFooter>
+        <div class="flex gap-2">
+          <button type="button" @click="resetRoleForm" class="w-full px-2 py-2 my-3 align-top btn btn-outline-secondary">Annuler</button>
+          <VButton :loading="isLoading" :label="mode" />
+        </div>
+      </ModalFooter>
+    </form>
+  </Modal>
+  <!-- End Modal -->
+
   <Modal backdrop="static" size="modal-xl" :show="updateModal" @hidden="updateModal = false">
     <ModalHeader>
       <h2 class="mr-auto text-base font-medium">Modifier un utilisateur</h2>
@@ -253,6 +300,7 @@ import RoleService from "@/services/modules/roles.permissions.service";
 import { helper as $h } from "@/utils/helper";
 import { toast } from "vue3-toastify";
 import VButton from "@/components/news/VButton.vue";
+import InputForm from "@/components/news/InputForm.vue";
 
 // Modfier un utilisateur
 const updateModal = ref(false);
@@ -265,6 +313,62 @@ const formEdit = reactive({
   poste: "",
   roles: [],
 });
+
+const showModalCreate = ref(false);
+const payload = reactive({
+  nom: "",
+  description: "",
+  permissions: [],
+});
+
+const resetRoleForm = () => {
+  payload.nom = "";
+  payload.description = "";
+  payload.permissions = [];
+
+  showModalCreate.value = false;
+};
+
+const permissions = ref([]);
+
+const getInfoUsers = async () => {
+  await RoleService.getInfo()
+    .then((result) => {
+      permissions.value = result.data.data.role[0].permissions;
+    })
+    .catch((e) => {
+      console.error(e);
+
+      toast.error("Une erreur est survenue: Liste des type des options.");
+    });
+};
+
+const createData = async () => {
+  isLoading.value = true;
+  await RoleService.create(payload)
+    .then(() => {
+      isLoading.value = false;
+      getRole();
+      resetRoleForm();
+      toast.success("Rôles et permissions créer.");
+    })
+    .catch((e) => {
+      isLoading.value = false;
+      console.error(e);
+      toast.error("Vérifier les informations et ressayer.");
+      if (e.response && e.response.data && e.response.data.errors) {
+        messageErreur.value = e.response.data.errors;
+      } else {
+        toast.error("Une erreur inconnue s'est produite");
+      }
+    });
+};
+
+const openCreateModal = () => {
+  // payload.programmeId = "";
+  showModalCreate.value = true;
+  messageErreur.value = {};
+};
 
 const userId = ref([]);
 
@@ -285,15 +389,15 @@ const openUpdateModal = function (data) {
 };
 
 const resetForm = () => {
-  console.log("formEdit", formEdit);
   formEdit.nom = "";
   formEdit.prenom = "";
   formEdit.contact = "";
   formEdit.email = "";
   formEdit.poste = "";
   formEdit.roles = [];
+
   updateModal.value = false;
-  console.log("formEditFin", formEdit);
+  showModal.value = false;
 };
 
 const isLoading = ref(false);
@@ -323,7 +427,7 @@ const submitUpdateData = function () {
 const showModal = ref(false);
 const deleteModalPreview = ref(false);
 const successNotification = ref();
-const search = ref("");
+const searchs = ref("");
 const users = ref([]);
 const roles = ref([]);
 const deleteData = reactive({});
@@ -357,35 +461,35 @@ const message = reactive({
 });
 
 const resultQuery = computed(() => {
-  if (search.value) {
+  if (searchs.value) {
     return users.value.filter((item) => {
       return (
-        search.value
+        searchs.value
           .toLowerCase()
           .split(" ")
           .every((v) => item.nom.toLowerCase().includes(v)) ||
-        search.value
+        searchs.value
           .toLowerCase()
           .split(" ")
           .every((v) => item.prenom.toLowerCase().includes(v)) ||
-        search.value
+        searchs.value
           .toLowerCase()
           .split(" ")
           .every((v) => item.email.toLowerCase().includes(v)) ||
-        search.value
+        searchs.value
           .toLowerCase()
           .split(" ")
           .every((v) => item.poste.toLowerCase().includes(v)) ||
-        search.value
+        searchs.value
           .toLowerCase()
           .split(" ")
           .every((v) => item.contact.toLowerCase().includes(v)) ||
-        search.value
+        searchs.value
           .toLowerCase()
           .split(" ")
           .every((v) => item.role.nom.toLowerCase().includes(v)) ||
-        //search.value.toLowerCase().split(' ').every(v => item.entreprise.nom.toLowerCase().includes(v)) ||
-        search.value
+        //searchs.value.toLowerCase().split(' ').every(v => item.entreprise.nom.toLowerCase().includes(v)) ||
+        searchs.value
           .toLowerCase()
           .split(" ")
           .every((v) => item.created_at.toLowerCase().includes(v))
@@ -406,6 +510,7 @@ onMounted(function () {
   }
   getData();
   getRole();
+  getInfoUsers();
 });
 
 const getRole = function () {

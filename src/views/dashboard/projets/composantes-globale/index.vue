@@ -65,6 +65,15 @@ export default {
 
       return paginatedData;
     },
+    getPlageProjet() {
+      let obj = null;
+
+      if (this.projetId !== "") {
+        obj = this.projets.find((item) => item.id === this.projetId);
+      }
+
+      return obj ? obj : null;
+    },
   },
   watch: {
     projetId(newValue, oldValue) {
@@ -447,12 +456,12 @@ export default {
             <option value="">Choisir un projet</option>
             <option v-for="(element, index) in projets" :key="index" :value="element.id">{{ element.codePta }} - {{ element.nom }}</option>
           </TomSelect>
-          <!-- <v-select class="w-full" :reduce="(projet) => projet.id" v-model="formData.projetId" label="nom" :options="projets">
-            <template #search="{ attributes, events }">
-              <input class="vs__search form-input" :required="!formData.projetId" v-bind="attributes" v-on="events" />
-            </template>
-          </v-select>
-          <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-bold duration-100 ease-linear -translate-y-3 bg-white _font-medium form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Projets</label> -->
+        </div>
+        <div v-if="getPlageProjet" class="flex items-center mt-2 col-span-12">
+          <ClockIcon class="w-4 h-4 mr-2" />
+          <div>
+            Durée du projet : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(getPlageProjet.debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(getPlageProjet.fin) }}</span>
+          </div>
         </div>
       </ModalBody>
       <ModalFooter>

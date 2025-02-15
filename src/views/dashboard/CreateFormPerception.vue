@@ -327,7 +327,7 @@ onMounted(() => {
         </TabList>
         <TabPanels class="mt-5">
           <TabPanel class="leading-relaxed">
-            <div class="flex items-end justify-end"><button @click="showDeleteForm = true" class="btn btn-outline-danger">Supprimer le formulaire</button></div>
+            <div v-if="currentPreviewPerceptionFormData.indicateur.nom !==''" class="flex items-end justify-end"><button @click="showDeleteForm = true" class="btn btn-outline-danger">Supprimer le formulaire</button></div>
             <div class="flex flex-col gap-8">
               <div class="space-y-2">
                 <p class="text-lg font-medium">Liste des options de réponses</p>

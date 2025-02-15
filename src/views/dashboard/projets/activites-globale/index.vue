@@ -54,8 +54,8 @@ export default {
       labels: "Ajouter",
       showDeleteModal: false,
       deleteLoader: false,
-      activiteTep: 0.23,
-      activiteTef: 0.1,
+      activiteTep: 0,
+      activiteTef: 0,
 
       seeStatistique: false,
       seePlan: false,
@@ -107,6 +107,16 @@ export default {
 
       return paginatedData;
     },
+    getPlageProjet() {
+      let obj = null;
+
+      if (this.projetId !== "") {
+        obj = this.projets.find((item) => item.id === this.projetId);
+      }
+
+      return obj ? obj : null;
+      // Retourne le nom ou `null` si non trouvé
+    },
   },
 
   watch: {
@@ -136,8 +146,8 @@ export default {
         ActiviteService.get(id)
           .then((response) => {
             console.log(response.data.data);
-            this.activiteTep = 12;
-            this.activiteTef = 67;
+            this.activiteTep = response.data.data.tep;
+            this.activiteTef = response.data.data.tef;
             console.log("this.activiteTep ", this.activiteTep);
             console.log("this.activiteTef ", this.activiteTef);
           })
@@ -502,7 +512,7 @@ export default {
     await this.loadProjets();
 
     if (this.selectedIds.activiteId !== "" || this.selectedIds.activiteId !== null) {
-      this.getInfoActivite(selectedIds.activiteId);
+      this.getInfoActivite(this.selectedIds.activiteId);
     }
   },
 };
@@ -804,7 +814,15 @@ export default {
               <option v-for="(element, index) in sousComposants" :key="index" :value="element.id">{{ element.codePta }} - {{ element.nom }}</option>
             </TomSelect>
           </div>
+
           <button type="button" class="btn btn-outline-primary" @click="resetSousComposantsId()" title="Rester dans le composant"><TrashIcon class="w-4 h-4" /></button>
+        </div>
+
+        <div v-if="getPlageProjet" class="flex items-center mt-2 col-span-12">
+          <ClockIcon class="w-4 h-4 mr-2" />
+          <div>
+            Durée du projet : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(getPlageProjet.debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(getPlageProjet.fin) }}</span>
+          </div>
         </div>
       </ModalBody>
       <ModalFooter>

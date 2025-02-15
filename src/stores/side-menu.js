@@ -127,6 +127,11 @@ export const useSideMenuStore = defineStore("sideMenu", {
         pageName: "Utilisateur",
         title: "Utilisateurs",
       },
+      // {
+      //   icon: "UnlockIcon",
+      //   pageName: "Roles",
+      //   title: "Rôles et permissions",
+      // },
       {
         icon: "SettingsIcon",
         pageName: "setting",

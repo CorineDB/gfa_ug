@@ -440,13 +440,14 @@ onMounted(() => {
         </TabList>
         <TabPanels class="mt-5">
           <TabPanel class="leading-relaxed">
-            <div class="flex items-end justify-end"><button @click="showDeleteForm = true" class="btn btn-outline-danger">Supprimer le formulaire</button></div>
+            <div v-if="currentPreviewFactuelFormData.indicateur.nom !== ''" class="flex items-end justify-end"><button @click="showDeleteForm = true" class="btn btn-outline-danger">Supprimer le formulaire</button></div>
             <div class="flex flex-col gap-8">
               <div class="space-y-2">
                 <p class="text-lg font-medium">Liste des options de réponses</p>
                 <ListOptionsResponse :options="previewOptionResponses.options_de_reponse" />
               </div>
               <div class="space-y-2">
+                <pre>{{ currentPreviewFactuelFormData.indicateur.nom }}</pre>
                 <p class="text-lg font-medium">Ajouter des indicateurs</p>
                 <FactuelStructure :type="currentPreviewFactuelFormData.type.nom" :principe="currentPreviewFactuelFormData.principe.nom" :critere="currentPreviewFactuelFormData.critere.nom" :indicateur="currentPreviewFactuelFormData.indicateur.nom" />
                 <button :disabled="!isCurrentFormValid" @click="addNewIndicator" class="my-4 text-sm btn btn-primary"><PlusIcon class="mr-1 size-4" />Ajouter</button>

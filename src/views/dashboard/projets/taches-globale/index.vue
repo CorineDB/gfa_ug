@@ -74,6 +74,16 @@ export default {
 
       return paginatedData;
     },
+    getPlageActivite() {
+      let obj = null;
+
+      if (this.formData.activiteId !== "") {
+         obj = this.activites.find((item) => item.id === this.formData.activiteId);
+      }
+
+      return obj ? obj.durees : null;
+      // Retourne le nom ou `null` si non trouvé
+    },
   },
   watch: {
     // projetId(newValue, oldValue) {
@@ -112,6 +122,9 @@ export default {
   },
 
   methods: {
+    handleChange(data) {
+      this.getPlageActivite(data);
+    },
     onPageChanged(newPage) {
       this.currentPage = newPage;
       console.log("Page actuelle :", this.currentPage);
@@ -562,7 +575,7 @@ export default {
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.fin">{{ messageErreur.fin }}</p>
 
         <div class="col-span-12 mt-4">
-          <div class="flex col-span-12" v-if="projets.length > 0 && !update">
+          <div class="flex col-span-12" v-if="!update">
             <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Projets</label>
             <TomSelect
               v-model="projetId"
@@ -580,7 +593,7 @@ export default {
           </div>
         </div>
 
-        <div class="flex col-span-12 mt-4" v-if="composants.length > 0 && !update">
+        <div class="flex col-span-12 mt-4" v-if="!update">
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Outcomes</label>
           <TomSelect
             v-model="selectedIds.composantId"
@@ -595,7 +608,7 @@ export default {
           </TomSelect>
         </div>
 
-        <div class="flex col-span-12 mt-4" v-if="composants.length > 0 && sousComposants.length > 0 && !update">
+        <div class="flex col-span-12 mt-4" v-if="!update">
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Output</label>
           <TomSelect
             v-model="selectedIds.sousComposantId"
@@ -636,6 +649,18 @@ export default {
           <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.activiteId">{{ messageErreur.activiteId }}</p>
 
           <!-- <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-bold duration-100 ease-linear -translate-y-3 bg-white _font-medium form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Activites</label> -->
+        </div>
+
+        <!-- <pre>{{ getPlageActivite }}</pre> -->
+
+        <div v-if="getPlageActivite" class="col-span-12">
+         <span class="font-bold text-md">Plage de date de l'activité :</span> 
+          <div class="flex items-center mt-2" v-for="(plage, t) in getPlageActivite" :key="t">
+            <ClockIcon class="w-4 h-4 mr-2" />
+            <div>
+              Plage de date {{ t + 1 }} : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(plage.debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(plage.fin) }}</span>
+            </div>
+          </div>
         </div>
       </ModalBody>
       <ModalFooter>
