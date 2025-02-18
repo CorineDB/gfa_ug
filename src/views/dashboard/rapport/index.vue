@@ -18,17 +18,21 @@
       <form @submit.prevent="sendRapport">
         <ModalBody>
           <div class="grid grid-cols-1 gap-4">
+            <!-- <pre> editorData {{ editorData }}</pre> -->
             <div class="form-group my-2">
               <InputForm label="Objet" class="flex-1" v-model="objet" type="text" />
             </div>
 
+            <!-- <pre>Edit data {{ edit.Data }}</pre> -->
+
             <div class="form-group my-2">
               <InputForm label="Destinataire" class="flex-1" v-model="bcc" type="text" />
             </div>
-
+            <!-- <pre>{{ Update }}</pre> -->
             <div class="form-group my-2">
               <InputForm class="col-span-12" type="file" @change="handleFileChange" required="required" placeHolder="choisir un fichier" label="Fichiers" />
             </div>
+            <!-- <pre>{{ FormRapport }}</pre> -->
           </div>
         </ModalBody>
         <ModalFooter>
@@ -69,7 +73,7 @@
         <div class="py-2 my-4 flex justify-end space-x-8">
           <VButton :loading="chargement" label="Enrégistrer" />
 
-          <button type="button" class="btn btn-primary w-full my-3 px-2" :disabled="editorData == '' && nom == ''" @click="modalMail()" label="Envoyer par mail">Envoyer par mail</button>
+          <button type="button" class="btn btn-primary w-full my-3 px-2" :disabled="editorData == '' && nom == ''" @click.stop.prevent="modalMail()" label="Envoyer par mail">Envoyer par mail</button>
         </div>
       </form>
     </div>
@@ -352,6 +356,8 @@ export default {
         this.chargement2 = true;
 
         this.users = this.bcc.split(",").map((email) => email.trim());
+
+        
 
         var form = {
           objet: this.objet,

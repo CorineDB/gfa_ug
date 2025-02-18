@@ -490,6 +490,8 @@ export default {
 
   <LoaderSnipper v-if="isLoadingData" />
 
+  <!-- <pre>{{ paginatedAndFilteredData }}</pre> -->
+
   <div v-if="!isLoadingData" class="grid grid-cols-12 gap-6 mt-5">
     <!-- BEGIN: Users Layout -->
     <!-- <pre>{{sousComposants}}</pre>   -->

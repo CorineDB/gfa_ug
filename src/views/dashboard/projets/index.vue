@@ -574,6 +574,7 @@ export default {
         this.payload[key] = "";
       });
     },
+    verifyPermission,
     resetForm() {
       this.resetPayload();
       this.errors = {};
@@ -1345,7 +1346,7 @@ export default {
   created() {
     this.getPermission();
     if (!this.projetVisible) {
-      this.$router.push("/401-non-autorise");
+      // this.$router.push("/401-non-autorise");
     }
     this.programmeId = this.currentUser.programme.id;
     if (this.programmeId) {

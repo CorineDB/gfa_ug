@@ -46,7 +46,7 @@ const globalData = localStorage.getItem("globalFormFactuelData");
 const previewData = localStorage.getItem("previewFormFactuelData");
 
 const goBackToCreate = function () {
-  router.push({ name: "create_form_perception" });
+  router.push({ name: "create_form_factuel" });
 };
 
 const isAvailable = reactive({

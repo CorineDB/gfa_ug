@@ -9,7 +9,7 @@
         </div>
       </div>
       <div class="flex">
-        <button class="mr-2 shadow-md btn btn-primary" @click="showModalFiltre = true"><FilterIcon class="w-4 h-4 mr-3" />Filtrer le PA</button>
+        <button class="mr-2 shadow-md btn btn-primary" @click="showModalFiltre = true"><FilterIcon class="w-4 h-4 mr-3" />Filtrer le Plan de décaissement</button>
         <button class="btn btn-primary" title="Réinitialiser le filtre" @click="resetFilter()">
           <RefreshCwIcon class="w-5 h-5" />
         </button>

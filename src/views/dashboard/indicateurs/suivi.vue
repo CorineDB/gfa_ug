@@ -749,7 +749,7 @@ export default {
   created() {
     this.getPermission()
     if (!this.suiviIndicateurVisible) {
-      this.$router.push('/401-non-autorise')
+       this.$router.push('/401-non-autorise')
     }
     if (this.currentUser != undefined) {
 
