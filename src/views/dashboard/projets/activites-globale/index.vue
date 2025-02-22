@@ -117,6 +117,17 @@ export default {
       return obj ? obj : null;
       // Retourne le nom ou `null` si non trouvé
     },
+    getPlageActivite() {
+      let obj = null;
+
+      if (this.activiteId !== "") {
+        console.log("activiteId", this.activiteId);
+        obj = this.activites.find((item) => item.id === this.activiteId);
+      }
+
+      return obj ? obj : null;
+      // Retourne le nom ou `null` si non trouvé
+    },
   },
 
   watch: {
@@ -130,7 +141,7 @@ export default {
 
     "selectedIds.sousComposantId": "loadSousComposantDetails",
 
-    // "formData.composanteId": "mettreAjoutOutcome",
+    "formData.composanteId": "mettreAjoutOutcome",
 
     //"formData.composanteId": "loadComposantDetails",
   },
@@ -196,6 +207,7 @@ export default {
     getInitialFormData() {
       return {
         nom: "",
+        description: "",
         poids: 0,
         debut: "",
         fin: "",
@@ -240,10 +252,37 @@ export default {
         fin: data.durees[0]?.fin || "",
         composanteId: this.selectedIds.sousComposantId || this.selectedIds.composantId,
       };
+      formData.description = data.description;
       this.selectedIds.activiteId = data.id;
     },
-    mettreAjoutOutcome(id) {
-      //alert("ok")
+    async mettreAjoutOutcome(id) {
+      if (!id || id == "") return;
+
+      try {
+        const response = await ComposantesService.detailComposant(id);
+        const composantData = response.data.data;
+        this.isLoadingData = false;
+        // Mettre à jour les sous-composants et activités du composant
+        this.sousComposants = composantData.souscomposantes || [];
+        console.log("this.sousComposants", this.sousComposants);
+        this.activites = composantData.activites || [];
+        this.currentPage = 1;
+        this.allActivite = this.activites;
+
+        // Vérifier s'il y a des sous-composants
+        if (this.sousComposants.length > 0) {
+          this.haveSousComposantes = true;
+        } else {
+          this.haveSousComposantes = false;
+          // Pas de sous-composants, afficher directement les activités du composant
+          this.updateActivitesList(this.activites);
+        }
+      } catch (error) {
+        this.isLoadingData = false;
+        console.error("Erreur lors du chargement des détails du composant", error);
+      } finally {
+        this.isLoadingData = false;
+      }
       this.selectedIds.composantId = id;
     },
     addActivite() {
@@ -287,6 +326,7 @@ export default {
             // this.selectedIds.composantId = this.formData.composanteId;
             this.loadComposantDetails();
           } else {
+            // alert("ok");
             this.loadSousComposantDetails();
           }
 
@@ -294,14 +334,27 @@ export default {
         }
 
         this.showModal = false;
-        this.loadComposantDetails();
+        // this.loadComposantDetails();
       } catch (error) {
+        // alert("ok");
+        // this.isLoading = false;
+        // this.messageErreur = error.response?.data?.errors || {};
+        // Object.keys(this.messageErreur).forEach((key) => {
+        //   this.messageErreur[key] = $h.extractContentFromArray(this.messageErreur[key]);
+        // });
+        // toast.error("Erreur lors de l'envoi des données");
+
         this.isLoading = false;
-        this.messageErreur = error.response?.data?.errors || {};
-        Object.keys(this.messageErreur).forEach((key) => {
-          this.messageErreur[key] = $h.extractContentFromArray(this.messageErreur[key]);
-        });
-        toast.error("Erreur lors de l'envoi des données");
+        console.log(error);
+
+        console.log(error.response.data.errors.length > 0);
+
+        if (error.response && error.response.data && Object.keys(error.response.data.errors).length > 0) {
+          this.messageErreur = error.response.data.errors;
+          toast.error("Une erreur s'est produite dans votre formulaire");
+        } else {
+          toast.error(error.response.data.message);
+        }
       } finally {
         this.isLoading = false;
       }
@@ -347,31 +400,26 @@ export default {
 
     async loadComposantDetails() {
       if (!this.selectedIds.composantId || this.selectedIds.composantId == "") return;
+
       this.isLoadingData = true;
+
       try {
         const response = await ComposantesService.detailComposant(this.selectedIds.composantId);
         const composantData = response.data.data;
         this.isLoadingData = false;
-        // Mettre à jour les sous-composants et activités du composant
         this.sousComposants = composantData.souscomposantes || [];
         console.log("this.sousComposants", this.sousComposants);
         this.activites = composantData.activites || [];
-        this.currentPage = 1;
-        this.allActivite = this.activites;
 
-        // Vérifier s'il y a des sous-composants
         if (this.sousComposants.length > 0) {
           this.haveSousComposantes = true;
         } else {
           this.haveSousComposantes = false;
-          // Pas de sous-composants, afficher directement les activités du composant
+
           this.updateActivitesList(this.activites);
         }
       } catch (error) {
-        this.isLoadingData = false;
         console.error("Erreur lors du chargement des détails du composant", error);
-      } finally {
-        this.isLoadingData = false;
       }
     },
 
@@ -452,13 +500,13 @@ export default {
         .catch((error) => {
           this.loadingProlonger = false;
 
-          toast.error("Une erreur s'est produite");
+          console.log(error);
+          toast.error(error.response.data.message);
 
           // Mettre à jour les messages d'erreurs dynamiquement
           if (error.response && error.response.data && error.response.data.errors) {
             this.erreurProlongation = error.response.data.errors;
-          } else {
-            toast.error(error.response.data.errors.message);
+            toast.error("Une erreur s'est produite");
           }
         });
     },
@@ -486,7 +534,12 @@ export default {
           .then((response) => {
             if (response.status == 200 || response.status == 201) {
               this.showModalPlanDeDecaissement = false;
+              this.loadingPlanDeDecaissement = false;
+
               toast.success("Plan de decaissement enrégistré avec succès");
+              if (index === this.planDeDecaissement.length - 1) {
+                this.planDeDecaissement = [];
+              }
 
               this.loadSousComposantDetails();
               //this.fetchProjets(this.programmeId);
@@ -652,6 +705,7 @@ export default {
     <!-- Results or other components -->
     <div class="mt-6">
       <LoaderSnipper v-if="isLoadingData" />
+
       <div v-if="!isLoadingData" class="grid grid-cols-12 gap-6 mt-5">
         <NoRecordsMessage class="col-span-12" v-if="!paginatedAndFilteredData.length" title="Aucune activité trouvée" description="Il semble qu'il n'y ait pas d'activités à afficher. Veuillez en créer un." />
         <div v-else v-for="(item, index) in paginatedAndFilteredData" :key="index" class="col-span-12 p-4 md:col-span-6 lg:col-span-4">
@@ -698,7 +752,6 @@ export default {
                   <LinkIcon class="w-4 h-4 mr-2" /> Montant financé: {{ item.pret == null ? 0 : $h.formatCurrency(item.pret) }}
                   <div class="ml-2 italic font-bold">Fcfa</div>
                 </div>
-                <!-- <pre>{{ item }}</pre> -->
 
                 <div class="flex items-center text-sm font-medium text-gray-700">
                   <GlobeIcon class="w-4 h-4 mr-2 text-primary" /> Taux d'exécution physique:
@@ -765,25 +818,23 @@ export default {
     </ModalHeader>
     <form @submit.prevent="sendForm">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
-        <InputForm v-model="formData.nom" class="col-span-12 mt-4" type="text" required="required" placeHolder="Nom de l'activité*" label="Nom test" />
+        <InputForm v-model="formData.nom" class="col-span-12 mt-4" type="text" required="required" placeHolder="Nom de l'activité*" label="Nom" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
+
+        <div class="input-form mt-3 col-span-12">
+          <label for="validation-form-6" class="form-label w-full"> Description </label>
+          <textarea v-model="formData.description" class="form-control w-full" name="comment" placeholder="Ajouter une description"></textarea>
+        </div>
 
         <InputForm v-model="formData.pret" class="col-span-12 mt-4" type="number" required="required" placeHolder="Montant financé*" label="Montant financé" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pret">{{ messageErreur.pret }}</p>
 
         <InputForm v-model="formData.budgetNational" class="col-span-12 mt-4" type="number" required="required" placeHolder="Ex : 2" label="Fond Propre" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pret">{{ messageErreur.budgetNational }}</p>
-
-        <InputForm v-model="formData.debut" class="col-span-12 mt-4" type="date" required="required" placeHolder="Entrer la date de début*" label="Début de l'activité" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.debut">{{ messageErreur.debut }}</p>
-
-        <InputForm v-model="formData.fin" class="col-span-12 mt-4" type="date" required="required" placeHolder="Entrer la date de fin*" label="Fin de l'activité" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.fin">{{ messageErreur.fin }}</p>
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.budgetNational">{{ messageErreur.budgetNational }}</p>
 
         <div class="flex col-span-12 mt-4">
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OutCome*</label>
           <TomSelect
-            @change="mettreAjoutOutcome(formData.composanteId)"
             v-model="formData.composanteId"
             :options="{
               placeholder: 'Choisir un Outcome',
@@ -817,6 +868,12 @@ export default {
 
           <button type="button" class="btn btn-outline-primary" @click="resetSousComposantsId()" title="Rester dans le composant"><TrashIcon class="w-4 h-4" /></button>
         </div>
+
+        <InputForm v-model="formData.debut" class="col-span-12 mt-4" type="date" required="required" placeHolder="Entrer la date de début*" label="Début de l'activité" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.debut">{{ messageErreur.debut }}</p>
+
+        <InputForm v-model="formData.fin" class="col-span-12 mt-4" type="date" required="required" placeHolder="Entrer la date de fin*" label="Fin de l'activité" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.fin">{{ messageErreur.fin }}</p>
 
         <div v-if="getPlageProjet" class="flex items-center mt-2 col-span-12">
           <ClockIcon class="w-4 h-4 mr-2" />
@@ -860,6 +917,22 @@ export default {
 
         <InputForm v-model="dateFin" :min="dateFinOld" class="col-span-12" type="date" :required="true" placeHolder="Entrer la nouvelle date fin" label="Nouvelle date fin de l'activite" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurProlongation != null && erreurProlongation.fin">{{ erreurProlongation.fin }}</p>
+
+        <div class="col-span-12" v-if="getPlageActivite">
+          <div class="flex items-center mt-2" v-for="(plage, t) in getPlageActivite.durees" :key="t">
+            <ClockIcon class="w-4 h-4 mr-2" />
+            <div>
+              Plage de date {{ getPlageActivite.durees.length + 1 }} : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(getPlageActivite.durees[getPlageActivite.durees.length - 1].debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(getPlageActivite.durees[getPlageActivite.durees.length - 1].fin) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- <div v-if="getPlageProjet" class="flex items-center mt-2 col-span-12">
+          <ClockIcon class="w-4 h-4 mr-2" />
+          <div>
+            Durée du projet : Du <span class="px-1 font-bold"> {{ $h.reformatDate(getPlageProjet.debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(getPlageProjet.fin) }}</span>
+          </div>
+        </div> -->
       </ModalBody>
       <ModalFooter>
         <div class="flex items-center justify-center">

@@ -43,6 +43,7 @@ export default {
       isLoading: false,
       formData: {
         nom: "",
+        description: "",
         poids: 0,
         pret: "",
         composanteId: "",
@@ -79,7 +80,63 @@ export default {
       }
 
       return obj ? obj : null;
-      
+    },
+    getMontantRestant() {
+      let fondPropreOutcome = 0;
+      let montantFinanceOutcome = 0;
+      let sommeFondPropreOutput = 0;
+      let sommeMontantFinanceOutput = 0;
+      let outcomes = null;
+      let sousComposantes = null;
+
+      let resteFondPropre = 0;
+      let resteMontantFinance = 0;
+
+      // if (this.selectedIds.composantId !== "") {
+      //   outcomes = this.composants.find((item) => item.id === this.selectedIds.composantId);
+      //   fondPropreOutcome = outcomes.budgetNational;
+      //   montantFinanceOutcome = outcomes.pret;
+
+      //   if (outcomes.souscomposantes.length) {
+      //     sousComposantes = outcomes.souscomposantes;
+      //     sommeFondPropreOutput = 0;
+      //     sommeMontantFinanceOutput = 0;
+
+      //     sousComposantes.forEach((item) => {
+      //       sommeFondPropreOutput = sommeFondPropreOutput + item.budgetNational;
+      //       sommeMontantFinanceOutput = sommeMontantFinanceOutput + item.pret;
+      //     });
+
+      //     resteFondPropre = fondPropreOutcome - sommeFondPropreOutput;
+
+      //     resteMontantFinance = montantFinanceOutcome - sommeMontantFinanceOutput;
+      //   }
+      // }
+
+      console.log(this.formData.composanteId);
+
+      if (this.formData.composanteId !== "") {
+        outcomes = this.composants.find((item) => item.id === this.formData.composanteId);
+        fondPropreOutcome = outcomes.budgetNational;
+        montantFinanceOutcome = outcomes.pret;
+
+        if (outcomes.souscomposantes.length) {
+          sousComposantes = outcomes.souscomposantes;
+          sommeFondPropreOutput = 0;
+          sommeMontantFinanceOutput = 0;
+
+          sousComposantes.forEach((item) => {
+            sommeFondPropreOutput = sommeFondPropreOutput + item.budgetNational;
+            sommeMontantFinanceOutput = sommeMontantFinanceOutput + item.pret;
+          });
+
+          resteFondPropre = fondPropreOutcome - sommeFondPropreOutput;
+
+          resteMontantFinance = montantFinanceOutcome - sommeMontantFinanceOutput;
+        }
+      }
+
+      return { budgetRestant: resteFondPropre, pretRestant: sommeMontantFinanceOutput };
     },
   },
   watch: {
@@ -89,13 +146,6 @@ export default {
       }
     },
     "selectedIds.composantId": "loadComposantDetails",
-
-    // "selectedIds.sousComposantId": "loadSousComposantDetails",
-    // composantsId(newValue, oldValue) {
-    //   if (this.composants.length > 0) {
-    //     this.getComposantById(newValue);
-    //   }
-    // },
   },
 
   methods: {
@@ -161,6 +211,7 @@ export default {
       this.update = true;
 
       this.formData.nom = data.nom;
+      this.formData.description = data.description;
       this.formData.poids = data.poids;
       this.formData.pret = data.pret;
       this.formData.composanteId = data.composanteId;
@@ -172,7 +223,7 @@ export default {
       this.messageErreur = {};
       this.showModal = true;
       this.isUpdate = false;
-      this.formData.composanteId = this.composantsId;
+      this.formData.composanteId = "";
       this.labels = "Ajouter";
     },
     sendForm() {
@@ -186,28 +237,30 @@ export default {
               this.isLoading = false;
               this.showModal = false;
               toast.success("Modification éffectuée");
-              this.composantsId = this.formData.composanteId;
+              this.selectedIds.composantId = this.formData.composanteId;
               this.clearObjectValues(this.formData);
 
-              this.getListeProjet();
+              this.loadComposantDetails();
             }
           })
           .catch((error) => {
             this.isLoading = false;
-            if (error.response && error.response.data && error.response.data.errors) {
+            if (error.response && error.response.data && Object.keys(error.response.data.errors).length > 0) {
               this.messageErreur = error.response.data.errors;
               Object.keys(this.messageErreur).forEach((key) => {
                 this.messageErreur[key] = $h.extractContentFromArray(this.messageErreur[key]);
               });
               toast.error("Une erreur s'est produite.Vérifier le formulaire de soumission");
             } else {
-              toast.error(error.message);
+              toast.error(error.response.data.message);
             }
           });
       } else {
         this.isLoading = true;
         this.formData.budgetNational = parseInt(this.formData.budgetNational);
         this.formData.pret = parseInt(this.formData.pret);
+        this.selectedIds.composantId = this.formData.composanteId;
+        console.log(this.selectedIds.composantId);
         ComposantesService.create(this.formData)
           .then((response) => {
             if (response.status == 200 || response.status == 201) {
@@ -215,20 +268,22 @@ export default {
               toast.success("Ajout éffectué");
               this.showModal = false;
               this.clearObjectValues(this.formData);
+              this.loadComposantDetails();
 
-              this.getListeProjet();
+              // this.getListeProjet();
             }
           })
           .catch((error) => {
             this.isLoading = false;
-            if (error.response && error.response.data && error.response.data.errors) {
+
+            if (error.response && error.response.data && Object.keys(error.response.data.errors).length > 0) {
               this.messageErreur = error.response.data.errors;
               Object.keys(this.messageErreur).forEach((key) => {
                 this.messageErreur[key] = $h.extractContentFromArray(this.messageErreur[key]);
               });
               toast.error("Une erreur s'est produite.Vérifier le formulaire de soumission");
             } else {
-              toast.error(error.message);
+              toast.error(error.response.data.message);
             }
           });
       }
@@ -327,41 +382,6 @@ export default {
       }
     },
 
-    // getProjetById(data) {
-    //   this.isLoadingData = true;
-    //   ProjetService.getDetailProjet(data)
-    //     .then((datas) => {
-    //       this.composants = datas.data.data.composantes;
-
-    //       if (!this.composants.length) this.composantsId = this.composants[0].id;
-    //       // this.composantsId.nom = this.composants[0].nom;
-
-    //       if (!this.composants.length) {
-    //         this.isLoadingData = false;
-    //         this.composantsId = "";
-    //       }
-
-    //       this.getComposantById(this.composantsId.id);
-    //     })
-    //     .catch((error) => {
-    //       this.isLoadingData = false;
-    //       console.log(error);
-    //     });
-    // },
-    // getComposantById(data) {
-    //   this.isLoadingData = true;
-    //   ComposantesService.detailComposant(data)
-    //     .then((data) => {
-    //       this.isLoadingData = false;
-    //       this.sousComposants = data.data.data.souscomposantes;
-    //       console.log(this.sousComposants);
-    //     })
-    //     .catch((error) => {
-    //       this.isLoadingData = false;
-    //       console.log(error);
-    //     });
-    // },
-
     filter() {},
   },
 
@@ -405,12 +425,6 @@ export default {
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Projets</label>
         </div>
         <div class="flex col-span-12 md:col-span-6">
-          <!-- :reduce="(composant) => composant.id" -->
-          <!-- <v-select class="w-full" v-model="composantsId" label="nom" :options="composants">
-            <template #search="{ attributes, events }">
-              <input class="vs__search form-input" :required="!composantsId" v-bind="attributes" v-on="events" />
-            </template>
-          </v-select> -->
           <TomSelect
             v-model="selectedIds.composantId"
             :options="{
@@ -444,12 +458,13 @@ export default {
       </div>
     </div>
   </div>
+  <!-- <pre>{{ getMontantRestant }}</pre> -->
 
   <LoaderSnipper v-if="isLoadingData" />
 
   <div v-if="!isLoadingData" class="grid grid-cols-12 gap-6 mt-5">
     <!-- BEGIN: Users Layout -->
-    <!-- <pre>{{sousComposants}}</pre>   -->
+
     <NoRecordsMessage class="col-span-12" v-if="!paginatedAndFilteredData.length" title="Aucun output trouvé" description="Il semble qu'il n'y ait pas d'output à afficher. Veuillez en créer un. " />
 
     <div v-for="(item, index) in paginatedAndFilteredData" :key="index" class="col-span-12 intro-y md:col-span-6 xl:col-span-4">
@@ -539,12 +554,18 @@ export default {
         <InputForm v-model="formData.nom" class="col-span-12 mt-4" type="text" required="required" label="Nom" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
 
+        <div class="input-form mt-3 col-span-12">
+          <label for="validation-form-6" class="form-label w-full"> Description </label>
+          <textarea v-model="formData.description" class="form-control w-full" name="comment" placeholder="Ajouter une description"></textarea>
+        </div>
+
         <InputForm v-model="formData.budgetNational" class="col-span-12 mt-4 no-spin" type="number" required="required" placeHolder="Ex : 2" label="Fond propre" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.budgetNational">{{ messageErreur.budgetNational }}</p>
 
         <InputForm v-model="formData.pret" class="col-span-12 mt-4 no-spin" type="number" required="required" placeHolder="Fond propre" label="Montant financé" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pret">{{ messageErreur.pret }}</p>
 
+        <!-- <pre>{{ formData.composanteId }}</pre> -->
         <div class="flex col-span-12 mt-4">
           <TomSelect
             @change="mettreAjoutOutcome(formData.composanteId)"
@@ -556,19 +577,29 @@ export default {
             }"
             class="w-full"
           >
+            <option value=""></option>
             <option v-for="(element, index) in composants" :key="index" :value="element.id">{{ element.codePta }} {{ element.nom }}</option>
           </TomSelect>
 
-          <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.composanteId">{{ messageErreur.composanteId }}</p>
-
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-bold duration-100 ease-linear -translate-y-3 bg-white _font-medium form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OutComes</label>
         </div>
+        <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.composanteId">{{ messageErreur.composanteId }}</p>
+
         <div v-if="getPlageProjet" class="flex items-center mt-2 col-span-12">
           <ClockIcon class="w-4 h-4 mr-2" />
           <div>
             Durée du projet : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(getPlageProjet.debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(getPlageProjet.fin) }}</span>
           </div>
         </div>
+
+        <!-- <div v-if="getMontantRestant" class="flex items-center mt-2 col-span-12">
+          <DollarSignIcon class="w-4 h-4 mr-2" />
+          <div>
+            Montant restant de OutCome : <br />
+            Fond Propre <span class="pr-1 font-bold"> {{ $h.formatCurrency(getMontantRestant.budgetRestant) }}</span> <br />
+            Montant budgétisé : <span class="font-bold"> {{ $h.formatCurrency(getMontantRestant.pretRestant) }}</span>
+          </div>
+        </div> -->
       </ModalBody>
       <ModalFooter>
         <div class="flex items-center justify-center">

@@ -27,10 +27,10 @@
       <ModalBody>
         <div class="grid grid-cols-1 gap-4">
           <InputForm label="Nom" v-model="payloadSites.nom" class="col-span-12" />
-          <InputForm label="Longitude" v-model="payloadSites.longitude" class="col-span-12" />
+          <InputForm label="Longitude" type="number" v-model="payloadSites.longitude" class="col-span-12" />
           <div v-if="errors.longitude" class="mt-2 text-danger">{{ getFieldErrors(errors.longitude) }}</div>
 
-          <InputForm label="Latitude" v-model.number="payloadSites.latitude" class="col-span-12" />
+          <InputForm label="Latitude" type="number" v-model.number="payloadSites.latitude" class="col-span-12" />
           <div v-if="errors.latitude" class="mt-2 text-danger">{{ getFieldErrors(errors.latitude) }}</div>
 
           <div class="col-span-12">
@@ -82,12 +82,14 @@
           <div v-if="!isBenin" class="col-span-12">
             <InputForm :required="false" :optionel="false" label="Département" v-model="payloadSites.departement" :control="getFieldErrors(errors.departement)" class="mb-4" />
             <InputForm :required="false" :optionel="false" label="Commune" v-model="payloadSites.commune" :control="getFieldErrors(errors.commune)" class="mb-4" />
+            <InputForm :required="false" :optionel="false" label="Arrondissement" v-model="payloadSites.arrondissement" :control="getFieldErrors(errors.arrondissement)" class="mb-4" />
+            <InputForm :required="false" :optionel="false" label="Quartier" v-model="payloadSites.quartier" :control="getFieldErrors(errors.quartier)" class="mb-4" />
           </div>
         </div>
       </ModalBody>
       <ModalFooter>
         <div class="flex gap-2">
-          <button type="button" @click="resetFormSites" class="w-full px-2 py-2 my-3 align-top btn btn-outline-secondary">Annuler</button>
+          <button type="button" @click="resetFormSite" class="w-full px-2 py-2 my-3 align-top btn btn-outline-secondary">Annuler</button>
           <VButton :loading="isLoadingSite" label="Ajouter" />
         </div>
       </ModalFooter>
@@ -153,7 +155,7 @@
           <div class="col-span-12 mt-4">
             <ul v-if="files.length > 0" class="bg-gray-100 rounded-lg shadow-md p-4 space-y-2">
               <li v-for="(file, index) in files" :key="index" class="flex items-center justify-between p-2 bg-white rounded-lg shadow-sm hover:bg-gray-50">
-                <span class="text-gray-700 font-medium">{{ file.name }}</span>
+                <span class="text-gray-700 font-medium word-break">{{ file.name }}</span>
                 <button type="button" class="text-red-500 hover:text-red-700 font-semibold text-sm" @click="removeFile(index)">Supprimer</button>
               </li>
             </ul>
@@ -368,16 +370,7 @@ export default {
       indexBenin: 1,
       isBenin: false,
       showModalCreate: false,
-      payloadSites: {
-        nom: "",
-        longitude: "",
-        latitude: "",
-        arrondissement: "",
-        commune: "",
-        departement: "",
-        pays: "",
-        quartier: "",
-      },
+      payloadSites: this.getinitForm(),
 
       isLoadingSite: false,
       search: "",
@@ -569,13 +562,23 @@ export default {
   },
 
   methods: {
+    getinitForm() {
+      return {
+        nom: "",
+        longitude: "",
+        latitude: "",
+        arrondissement: "",
+        commune: "",
+        departement: "",
+        pays: "",
+        quartier: "",
+      };
+    },
     resetPayload() {
-      Object.keys(this.payloadSites).forEach((key) => {
-        this.payload[key] = "";
-      });
+      this.payloadSites = this.getinitForm;
     },
     verifyPermission,
-    resetForm() {
+    resetFormSite() {
       this.resetPayload();
       this.errors = {};
       this.showModalCreate = false;
@@ -620,12 +623,23 @@ export default {
       this.showModalCreate = false;
     },
     async createData() {
+      this.payloadSites.longitude = this.payloadSites.longitude + "";
+      this.payloadSites.latitude = this.payloadSites.latitude + "";
+
+      if (this.payloadSites.longitude.includes(",")) {
+        this.payloadSites.longitude = this.payloadSites.longitude.replace(",", ".");
+      }
+
+      if (this.payloadSites.latitude.includes(",")) {
+        this.payloadSites.latitude = this.payloadSites.latitude.replace(",", ".");
+      }
+
       this.isLoadingSite = true;
       await SiteService.create(this.payloadSites)
         .then(() => {
           this.isLoadingSite = false;
           this.fetchSites();
-          this.resetForm();
+          this.resetFormSite();
           toast.success("Sites créer.");
         })
         .catch((e) => {
@@ -1106,11 +1120,11 @@ export default {
             this.isLoading = false;
             console.log(errors);
 
-            if (errors.response && errors.response.data && errors.response.data.errors) {
+            if (errors.response && errors.response.data &&  Object.keys(errors.response.data.errors).length > 0) {
               this.messageErreur = errors.response.data.errors;
               toast.error("Une erreur s'est produite dans votre formulaire");
             } else {
-              toast.error(errors.message);
+              toast.error(errors.response.data.message);
             }
           });
       } else {
@@ -1166,11 +1180,11 @@ export default {
             this.FormProjet = new FormData();
 
             // Mettre à jour les messages d'erreurs dynamiquement
-            if (error.response && error.response.data && error.response.data.errors) {
+            if (error.response && error.response.data &&   Object.keys(error.response.data.errors).length > 0) {
               this.messageErreur = error.response.data.errors;
               toast.error("Une erreur s'est produite dans votre formulaire");
             } else {
-              toast.error(error.message);
+              toast.error(error.response.data.message);
             }
           });
       }

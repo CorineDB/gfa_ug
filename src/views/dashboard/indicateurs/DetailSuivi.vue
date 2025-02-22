@@ -4,12 +4,13 @@ import IndicateursService from "@/services/modules/indicateur.service";
 import Tabulator from "tabulator-tables";
 import { toast } from "vue3-toastify";
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import VButton from "@/components/news/VButton.vue";
 import { getAllErrorMessages } from "@/utils/gestion-error";
 import ChartDetailSuivi from "../../../components/news/ChartDetailSuivi.vue";
 
 const route = useRoute();
+const router = useRouter();
 const tabulator = ref();
 const idSelect = ref("");
 const showModalValidate = ref(false);
@@ -177,7 +178,11 @@ onMounted(() => {
 </script>
 
 <template>
-  <h2 class="mt-10 text-lg font-medium intro-y">Détail du suivi</h2>
+  <div class="flex justify-between items-center mt-10">
+    <h2 class="_mt-10 text-lg font-medium intro-y">Détail du suivi</h2>
+    <button class="btn btn-primary" @click="router.go(-1)">Retour <CornerDownLeftIcon class="w-4 h-4 ml-2" /></button>
+  </div>
+
   <div class="grid grid-cols-12 gap-6 mt-5">
     <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap"></div>
   </div>

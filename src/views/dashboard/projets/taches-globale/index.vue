@@ -78,7 +78,7 @@ export default {
       let obj = null;
 
       if (this.formData.activiteId !== "") {
-         obj = this.activites.find((item) => item.id === this.formData.activiteId);
+        obj = this.activites.find((item) => item.id === this.formData.activiteId);
       }
 
       return obj ? obj.durees : null;
@@ -183,6 +183,7 @@ export default {
       this.showModal = true;
       this.update = true;
       this.formData.nom = data.nom;
+      this.formData.description = data.description;
       this.formData.poids = data.poids;
       this.formData.debut = data.debut;
       this.formData.fin = data.fin;
@@ -230,14 +231,14 @@ export default {
           })
           .catch((error) => {
             this.isLoading = false;
-            if (error.response && error.response.data && error.response.data.errors) {
+            if (error.response && error.response.data && Object.keys(error.response.data.errors).length > 0) {
               this.messageErreur = error.response.data.errors;
               Object.keys(this.messageErreur).forEach((key) => {
                 this.messageErreur[key] = $h.extractContentFromArray(this.messageErreur[key]);
               });
               toast.error("Une erreur s'est produite.Vérifier le formulaire de soumission");
             } else {
-              toast.error(error.message);
+              toast.error(error.response.data.message);
             }
           });
       } else {
@@ -247,10 +248,12 @@ export default {
         TachesService.create(data)
           .then((response) => {
             if (response.status == 200 || response.status == 201) {
+              console.log(this.selectedIds.activiteId);
+              this.loadActiviteDetails();
               this.isLoading = false;
               toast.success("Ajout éffectué");
               this.showModal = false;
-              this.loadActiviteDetails;
+
               this.resetFormData();
 
               // this.getListeProjet();
@@ -258,7 +261,7 @@ export default {
           })
           .catch((error) => {
             this.isLoading = false;
-            if (error.response && error.response.data && error.response.data.errors) {
+            if (error.response && error.response.data && Object.keys(error.response.data.errors).length > 0) {
               this.messageErreur = error.response.data.errors;
               Object.keys(this.messageErreur).forEach((key) => {
                 this.messageErreur[key] = $h.extractContentFromArray(this.messageErreur[key]);
@@ -273,6 +276,7 @@ export default {
     getInitialFormData() {
       return {
         nom: "",
+        description: "",
         poids: 0,
         debut: "",
         fin: "",
@@ -306,7 +310,6 @@ export default {
         this.selectedIds.composantId = this.composants[0]?.id || "";
 
         console.log("this.selectedIds.composantId2", this.selectedIds.composantId);
-        // alert("ok");
       } catch (error) {
         this.isLoadingData = false;
         console.error("Erreur lors du chargement des détails du projet", error);
@@ -490,7 +493,7 @@ export default {
 
   <LoaderSnipper v-if="isLoadingData" />
 
-  <!-- <pre>{{ paginatedAndFilteredData }}</pre> -->
+ 
 
   <div v-if="!isLoadingData" class="grid grid-cols-12 gap-6 mt-5">
     <!-- BEGIN: Users Layout -->
@@ -570,11 +573,10 @@ export default {
         <InputForm v-model="formData.nom" class="col-span-12" type="text" required="required" placeHolder="Nom de la tache" label="Nom" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
 
-        <InputForm v-model="formData.debut" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de début" label="Début de la tâche" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.debut">{{ messageErreur.debut }}</p>
-
-        <InputForm v-model="formData.fin" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de fin " label="Fin de la tâche " />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.fin">{{ messageErreur.fin }}</p>
+        <div class="input-form mt-3 col-span-12">
+          <label for="validation-form-6" class="form-label w-full"> Description </label>
+          <textarea v-model="formData.description" class="form-control w-full" name="comment" placeholder="Ajouter une description"></textarea>
+        </div>
 
         <div class="col-span-12 mt-4">
           <div class="flex col-span-12" v-if="!update">
@@ -653,10 +655,16 @@ export default {
           <!-- <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-bold duration-100 ease-linear -translate-y-3 bg-white _font-medium form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Activites</label> -->
         </div>
 
+        <InputForm v-model="formData.debut" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de début" label="Début de la tâche" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.debut">{{ messageErreur.debut }}</p>
+
+        <InputForm v-model="formData.fin" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de fin " label="Fin de la tâche " />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.fin">{{ messageErreur.fin }}</p>
+
         <!-- <pre>{{ getPlageActivite }}</pre> -->
 
         <div v-if="getPlageActivite" class="col-span-12">
-         <span class="font-bold text-md">Plage de date de l'activité :</span> 
+          <span class="font-bold text-md">Plage de date de l'activité :</span>
           <div class="flex items-center mt-2" v-for="(plage, t) in getPlageActivite" :key="t">
             <ClockIcon class="w-4 h-4 mr-2" />
             <div>

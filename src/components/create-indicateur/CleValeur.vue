@@ -10,7 +10,16 @@ import LoaderData from "./LoaderData.vue";
 import { getAllErrorMessages } from "@/utils/gestion-error";
 import { getFieldErrors } from "../../utils/helpers";
 
-const props = defineProps({});
+import { watch } from "vue";
+
+const props = defineProps(["parentClicked"]);
+
+watch(
+  () => props.parentClicked,
+  (newValue, oldValue) => {
+    getUniteMesure();
+  }
+);
 const emit = defineEmits(["update-datas"]);
 
 // Reactive data structure
@@ -32,11 +41,14 @@ const datas = ref([]);
 const unitesMesure = ref([]);
 const errors = ref({});
 
+const text = function () {};
+
 const getUniteMesure = async () => {
   try {
     const { data } = await UniteeDeMesureService.get();
     unitesMesure.value = data.data;
   } catch (e) {
+    console.log(e);
     toast.error("Erreur lors de la récupération des données.");
   }
 };
@@ -119,8 +131,9 @@ const resetForm = () => {
   errors.value = {};
 };
 const openCreateModal = () => {
-  resetForm();
   getUniteMesure();
+  resetForm();
+
   isCreate.value = true;
   showModalCreate.value = true;
 };
@@ -184,9 +197,10 @@ onMounted(() => {
                 <div v-if="errors.description" class="mt-2 text-danger">{{ getFieldErrors(errors.description) }}</div>
               </div>
             </div>
+
             <div>
               <label class="form-label">Unité de mesure</label>
-              <TomSelect v-model="payload.uniteeMesureId" :options="{ placeholder: 'Selectionez une unité' }" class="w-full">
+              <TomSelect v-model="payload.uniteeMesureId" :options="{ placeholder: 'Selectionez une unité', create: false, onOptionAdd: text() }" class="w-full">
                 <option value=""></option>
                 <option v-for="(unite, index) in unitesMesure" :key="index" :value="unite.id">{{ unite.nom }}</option>
               </TomSelect>

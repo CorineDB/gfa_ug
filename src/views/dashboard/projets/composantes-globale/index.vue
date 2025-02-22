@@ -38,6 +38,7 @@ export default {
       isLoading: false,
       formData: {
         nom: "",
+        description: "",
         poids: 0,
         projetId: "",
         pret: 0,
@@ -164,6 +165,7 @@ export default {
       console.log("showModal", this.showModal);
       this.update = true;
       this.formData.nom = data.nom;
+      this.formData.description = data.description;
       this.formData.poids = data.poids;
       this.formData.pret = data.pret ?? "";
       this.formData.projetId = data.projetId;
@@ -199,7 +201,7 @@ export default {
           .catch((error) => {
             console.log(error);
             this.isLoading = false;
-            if (error.response && error.response.data && error.response.data.errors) {
+            if (error.response && error.response.data && Object.keys(error.response.data.errors).length > 0) {
               this.messageErreur = error.response.data.errors;
 
               Object.keys(this.messageErreur).forEach((key) => {
@@ -207,7 +209,7 @@ export default {
               });
               toast.error("Une erreur s'est produite.Vérifier le formulaire de soumission");
             } else {
-              toast.error(error.message);
+              toast.error(error.response.data.message);
               //
             }
           });
@@ -230,7 +232,7 @@ export default {
             this.isLoading = false;
             console.log("error", error);
 
-            if (error.response && error.response.data && error.response.data.errors) {
+            if (error.response && error.response.data && Object.keys(error.response.data.errors).length > 0) {
               this.messageErreur = error.response.data.errors;
 
               Object.keys(this.messageErreur).forEach((key) => {
@@ -240,7 +242,7 @@ export default {
               console.log("this.messageErreur", this.messageErreur);
               toast.error("Une erreur s'est produite.Vérifier le formulaire de soumission");
             } else {
-              toast.error(error.message);
+              toast.error(error.response.data.message);
             }
           });
       }
@@ -435,6 +437,11 @@ export default {
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
         <InputForm v-model="formData.nom" class="col-span-12" type="text" required="required" placeHolder="Nom de l'organisation" label="Nom" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
+
+        <div class="input-form mt-3 col-span-12">
+          <label for="validation-form-6" class="form-label w-full"> Description </label>
+          <textarea v-model="formData.description" class="form-control w-full" name="comment" placeholder="Ajouter une description"></textarea>
+        </div>
 
         <InputForm v-model="formData.budgetNational" class="col-span-12 no-spin" type="number" required="required" placeHolder="Ex : 2" label="Fond propre" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.budgetNational">{{ messageErreur.budgetNational }}</p>

@@ -210,6 +210,22 @@ const getOne = async (id) => {
 // Submit data (create or update)
 const submitData = async () => {
   isLoading.value = true;
+ // this.value = this.value.replace(",", ".");
+
+ payload.longitude = payload.longitude + ""
+ payload.latitude  = payload.latitude + ""
+
+ if (payload.longitude.includes(",")) {
+    payload.longitude  = payload.longitude.replace(",", ".")
+ }
+
+ if (payload.latitude.includes(",")) {
+    payload.latitude  = payload.latitude.replace(",", ".")
+ }
+
+
+  
+
   const action = isCreate.value ? OngService.create(payload) : OngService.update(idSelect.value, payload);
   try {
     await action;
@@ -250,8 +266,8 @@ const handleEdit = (data) => {
   payload.nom = data.nom;
   payload.departement = data.departement;
   payload.commune = data.commune;
-  // payload.arrondissement = data.arrondissement;
-  // payload.quartier = data.quartier;
+  payload.arrondissement = data.arrondissement ?? "";
+  payload.quartier = data.quartier ?? "";
   payload.addresse = data.addresse ?? "";
   payload.latitude = data.latitude;
   payload.longitude = data.longitude;
@@ -287,9 +303,12 @@ function resetPayload() {
 
 // UI related functions
 const resetForm = () => {
+  // alert("ok")
+  currentStep.value = 1;
   resetPayload();
   errors.value = {};
   showModalCreate.value = false;
+  currentStep.value = 1;
 };
 const openCreateModal = () => {
   resetForm();
@@ -466,6 +485,8 @@ onMounted(() => {
             </li>
           </ol>
           <AlertErrorOng :errors="errors" />
+
+          <!-- <pre>{{ payload }}</pre> -->
           <!-- Informations  Generale -->
           <div v-show="currentStep == 1" class="">
             <p class="mb-3 text-lg text-semibold">Informations générales</p>
@@ -547,7 +568,7 @@ onMounted(() => {
 
               <div v-if="isBenin" class="grid grid-cols-2 gap-4">
                 <div :class="[!showArrondissement ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
-                  <label class="form-label">Arrondissemnt<span class="text-danger">*</span> </label>
+                  <label class="form-label">Arrondissement<span class="text-danger">*</span> </label>
                   <TomSelect v-model="payload.arrondissement" @change="updateQuartiers" :options="{ placeholder: 'Selectionez  arrondissement' }" class="w-full">
                     <option v-for="(arrond, index) in filteredArrondissements" :key="index" :value="arrond.lib_arrond">{{ arrond.lib_arrond }}</option>
                   </TomSelect>
@@ -573,8 +594,8 @@ onMounted(() => {
                 <InputForm :required="false" :optionel="false" label="Quatier" v-model="payload.quartier" :control="getFieldErrors(errors.quartier)" />
               </div>
               <div class="grid grid-cols-2 gap-4">
-                <InputForm :required="false" :optionel="false" label="Longitude" :control="getFieldErrors(errors.longitude)" v-model.text="payload.longitude" type="text" />
-                <InputForm :required="false" :optionel="false" label="Latitude" :control="getFieldErrors(errors.latitude)" v-model.text="payload.latitude" type="text" />
+                <InputForm :required="false" :optionel="false" label="Longitude" step="0.1" :control="getFieldErrors(errors.longitude)" v-model.text="payload.longitude" type="number" />
+                <InputForm :required="false" :optionel="false" label="Latitude" step="0.1" :control="getFieldErrors(errors.latitude)" v-model.text="payload.latitude" type="number" />
               </div>
             </div>
           </div>
