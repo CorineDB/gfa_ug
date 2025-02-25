@@ -7,7 +7,7 @@
       <!-- BEGIN: Side Menu -->
       <nav v-if="!isToolsPerception" class="fixed h-screen overflow-scroll side-nav navColor scrollbar-hidden">
         <router-link :to="{ name: 'DashboardGfa' }" tag="a" class="flex flex-wrap items-center justify-center mt-3 intro-x">
-          <h1 class="font-semibold text-white">Programme de redevabilité</h1>
+          <h1 class="font-semibold text-white">{{ nomProgramme }}</h1>
           <p>{{ currentUsers.role }}</p>
           <!-- <img alt="Programme de redevabilité" class="w-[5rem] sm:w-[7rem]" :src="usersProfileImage" /> -->
         </router-link>
@@ -135,273 +135,31 @@ watch(
 const updatedMenu = () => {
   sideMenu.value.forEach((element) => {
     updateMenu.push(element);
-    // if ($h.getPermission("voir-un-ano") && element.title == "Anos") {
-    //   updateMenu.push(element);
-    // }
-    // if () {
-    //   updateMenu.push(element);
-    // }
-
-    // if (element.title == "Dashboard") {
-    //   updateMenu.push(element);
-    // }
-
-    // if ($h.getPermission("voir-un-utilisateur")) {
-    //   // this.utilisateurVisible = true;
-    // }
-    // if ($h.getPermission("voir-un-audit")) {
-    //   // this.auditVisible = true;
-    // }
-    // if ($h.getPermission("voir-une-institution")) {
-    //   // this.institutionVisible = true;
-    // }
-    // if ($h.getPermission("voir-ptab")) {
-    //   // this.voirPtaVisible = true;
-    // }
-    // if ($h.getPermission("voir-ppm")) {
-    //   // this.voirPpmVisible = true;
-    // }
-
-    // if ($h.getPermission("voir-un-decaissement")) {
-    //   // this.decaissementVisible = true;
-    // }
-    // if ($h.getPermission("voir-un-pap")) {
-    //   // this.papVisible = true;
-    // }
-    // if ($h.getPermission("voir-un-programme")) {
-    //   // this.programmeVisible = true;
-    // }
-    // if ($h.getPermission("voir-un-suivi-financier")) {
-    //   // this.pointFinancierVisible = true;
-    // }
-    // if ($h.getPermission("voir-une-checklist")) {
-    //   // this.checklistVisible = true;
-    // }
-    // if ($h.getPermission("voir-une-unitee-de-gestion")) {
-    //   // this.uniteeDeGestionVisible = true;
-    // }
-    // if ($h.getPermission("voir-un-mod")) {
-    //   // this.modVsisible = true;
-    // }
-    // if ($h.getPermission("voir-une-mission-de-controle")) {
-    //   // this.missionControleVisible = true;
-    // }
-    // if ($h.getPermission("voir-une-entreprise-executante")) {
-    //   // this.entrepriseExecutanteVisible = true;
-    // }
-    // if ($h.getPermission("voir-un-suivi-financier")) {
-    //   // this.suiviFinancierVisible = true;
-    // }
-    // if ($h.getPermission("voir-un-bailleur")) {
-    //   // this.bailleursVsisible = true;
-    // }
-
-    // if ($h.getPermission("voir-un-role")) {
-    //   // this.roleVisible = true;
-    // }
-    // if ($h.getPermission("voir-un-projet")) {
-    //   // this.projetVisible = true;
-    // }
-    // if ($h.getPermission("voir-une-composante")) {
-    //   // this.composanteVisible = true;
-    // }
-    // if ($h.getPermission("voir-une-composante-revise")) {
-    //   // this.composanteReVisible = true;
-    // }
-    // if ($h.getPermission("voir-une-activite")) {
-    //   // this.activiteVisible = true;
-    // }
-    // if ($h.getPermission("voir-une-activite-revise")) {
-    //   // this.activiteReVisible = true;
-    // }
-    // if ($h.getPermission("voir-une-tache")) {
-    //   // this.tacheVisible = true;
-    // }
-    // if ($h.getPermission("voir-un-suivi-tache")) {
-    //   // this.suiviTacheVisible = true;
-    // }
-    // if ($h.getPermission("voir-une-tache-revise")) {
-    //   // this.tacheReVisible = true;
-    // }
-    // if ($h.getPermission("voir-un-suivi-tache-revise")) {
-    //   // this.suiviTacheReVisible = true;
-    // }
-    // if ($h.getPermission("voir-un-indicateur")) {
-    //   // this.indicateurVisible = true;
-    // }
-    // if ($h.getPermission("voir-un-indicateur-mod")) {
-    //   // this.indicateurModVisible = true;
-    // }
-
-    // if ($h.getPermission("voir-un-suivi-indicateur")) {
-    //   // this.suiviIndicateurVisible = true;
-    // }
-    // if ($h.getPermission("voir-un-suivi-indicateur-mod")) {
-    //   // this.suiviIndicateurModVisible = true;
-    // }
-
-    // if ($h.getPermission("voir-un-plan-de-decaissement")) {
-    //   // this.planDecaissementVisible = true;
-    // }
-    // if ($h.getPermission("voir-un-dashboard")) {
-    //   // this.dashboardProjetVisible = true;
-    // }
-    // if ($h.getPermission("voir-raccourcir-composante-activite-tache")) {
-    //   // this.raccourcieElementVisible = true;
-    // }
-    // if ($h.getPermission("voir-une-statistique")) {
-    //   // this.statistiqueActiviteVisible = true;
-    // }
-    // if ($h.getPermission("voir-une-statistique-revise")) {
-    //   // this.statistiqueActiviteReVisible = true;
-    // }
-    // if ($h.getPermission("voir-un-decaissement")) {
-    //   // this.decaissementVisible = true;
-    // }
-    // if ($h.getPermission("voir-revision-ptab")) {
-    //   // this.revisionVisible = true;
-    // }
-    // if ($h.getPermission("voir-un-decaissement")) {
-    //   // this.decaissementVisible = true;
-    // }
-    // if ($h.getPermission("voir-une-liste-entreprise-mod")) {
-    //   // this.listeEntrepriseModVisible = true;
-    // }
-    // if ($h.getPermission("voir-une-liste-entreprise-mission-de-controle")) {
-    //   // this.listeEntrepriseMoVisible = true;
-    // }
-    // if ($h.getPermission("voir-activite-environnementale-mission-de-controle")) {
-    //   // this.activiteEnvMoVisible = true;
-    // }
-    // if ($h.getPermission("voir-activite-environnementale-mission-de-controle")) {
-    //   // this.activiteEnvMoVisible = true;
-    // }
-    // if ($h.getPermission("voir-une-liste-entreprise-entreprise-exec")) {
-    //   // this.listeEntrepriseExecVisible = true;
-    // }
-    // if ($h.getPermission("voir-passation-mission-de-controle")) {
-    //   // this.passationMissionVisible = true;
-    // }
-    // if ($h.getPermission("voir-passation-entreprise-executante")) {
-    //   // this.passationEntrepriseVisible = true;
-    // }
-    // if ($h.getPermission("voir-passation-mod")) {
-    //   // this.passationModVisible = true;
-    // }
-    // if ($h.getPermission("voir-une-checklist-mod")) {
-    //   // this.checklistModVisible = true;
-    // }
-    // if ($h.getPermission("voir-un-gouvernement")) {
-    //   // this.gouvernementVisible = true;
-    // }
-    // if ($h.getPermission("voir-une-activite-environnementale")) {
-    //   // this.activiteEnVisible = true;
-    // }
-    // if ($h.getPermission("voir-un-formulaire")) {
-    //   // this.formulaireVisible = true;
-    // }
-    // if ($h.getPermission("voir-une-configuration-alerte")) {
-    //   // this.alertVisible = true;
-    // }
-    // if ($h.getPermission("voir-un-site")) {
-    //   // this.siteVisible = true;
-    // }
-    // if ($h.getPermission("voir-une-categorie")) {
-    //   // this.categorieVisible = true;
-    // }
-    // if ($h.getPermission("voir-une-unite-de-mesure")) {
-    //   // this.uniteDeMesureVisible = true;
-    // }
-    // if ($h.getPermission("voir-un-historique")) {
-    //   // this.historiqueVisible = true;
-    // }
-    // if ($h.getPermission("faire-un-backup")) {
-    //   // this.backupVisible = true;
-    // }
-    // if ($h.getPermission("voir-une-maitrise-oeuvre")) {
-    //   // this.maitriseOeuvreVisible = true;
-    // }
-
-    // if (element.title == "Dashboard") {
-    //   if ($h.getPermission("read.statistique")) {
-    //     updateMenu.push(element);
-    //   }
-    // } else if (element.title == "Dashboard GFA") {
-    //   if ($h.getPermission("read.equipement") || $h.getPermission("write.equipement")) {
-    //     updateMenu.push(element);
-    //   }
-    // } else if (element.title == "Association") {
-    //   if ($h.getPermission("read.equipement") || $h.getPermission("write.equipement")) {
-    //     updateMenu.push(element);
-    //   }
-    // } else if (element.title == "Campagne") {
-    //   if ($h.getPermission("read.campagne") || $h.getPermission("write.campagne")) {
-    //     updateMenu.push(element);
-    //   }
-    // } else if (element.title == "API Client") {
-    //   if ($h.getPermission("read.api.client") || $h.getPermission("write.api.client")) {
-    //     updateMenu.push(element);
-    //   }
-    // } else if (element.title == "Choix") {
-    //   if ($h.getPermission("read.indicateur") || $h.getPermission("write.indicateur")) {
-    //     updateMenu.push(element);
-    //   }
-    // } else if (element.title == "Principes") {
-    //   if ($h.getPermission("read.indicateur") || $h.getPermission("write.indicateur")) {
-    //     updateMenu.push(element);
-    //   }
-    // } else if (element.title == "Structure") {
-    //   if ($h.getPermission("read.indicateur") || $h.getPermission("write.indicateur")) {
-    //     updateMenu.push(element);
-    //   }
-    // } else if (element.title == "Gouvernance") {
-    //   if ($h.getPermission("read.indicateur") || $h.getPermission("write.indicateur")) {
-    //     updateMenu.push(element);
-    //   }
-    // } else if (element.title == "Outil Factuel") {
-    //   if ($h.getPermission("read.indicateur") || $h.getPermission("write.indicateur")) {
-    //     updateMenu.push(element);
-    //   }
-    // } else if (element.title == "Outil de Perception") {
-    //   if ($h.getPermission("read.indicateur") || $h.getPermission("write.indicateur")) {
-    //     updateMenu.push(element);
-    //   }
-    // } else if (element.title == "Fiche de Synthèse") {
-    //   if ($h.getPermission("read.indicateur") || $h.getPermission("write.indicateur")) {
-    //     updateMenu.push(element);
-    //   }
-    // } else if (element.title == "Programmation des Rapports") {
-    //   if ($h.getPermission("read.rapport") || $h.getPermission("write.rapport")) {
-    //     updateMenu.push(element);
-    //   }
-    // } else if (element.title == "Sites") {
-    //   if ($h.getPermission("read.site") || $h.getPermission("write.site")) {
-    //     updateMenu.push(element);
-    //   }
-    // } else if (element.title == "Feedbacks") {
-    //   if ($h.getPermission("read.feedback") || $h.getPermission("write.feedback")) {
-    //     updateMenu.push(element);
-    //   }
-    // } else if (element.title == "Resolution") {
-    //   if ($h.getPermission("read.resolution") || $h.getPermission("write.resolution")) {
-    //     updateMenu.push(element);
-    //   }
-    // } else if (element.title == "Roles & Permissions") {
-    //   if ($h.getPermission("read.role") || $h.getPermission("write.role")) {
-    //     updateMenu.push(element);
-    //   }
-    // } else if (element.title == "Utilisateurs") {
-    //   if ($h.getPermission("read.utilisateur") || $h.getPermission("write.utilisateur")) {
-    //     updateMenu.push(element);
-    //   }
-    // }
   });
 };
 const usersProfileImage = ref("");
 const currentUsers = reactive({});
+const nomProgramme = ref("");
 
 onMounted(() => {
   const usersInfo = JSON.parse(localStorage.getItem("authenticateUser"));
+
+  console.log("permissions", usersInfo.roles);
+  let permissions = usersInfo.role[0].permissions;
+
+  // let permissions = [
+  //   {
+  //     id: "07BZNxb9Q4mR1Y0AkbE3xvzo2GdDqnjZK1JZ6leKapX95rgMwP78NLBVWQ4LEvAn",
+  //     nom: "Voir un projet",
+  //     slug: "voir-un-projet",
+  //   },
+  // ];
+
+  sideMenuStore.setTabPermission(permissions);
+
+  sideMenuStore.addToMenuIfPermissionGranted();
+
+  nomProgramme.value = usersInfo.programme.nom;
   //console.log(usersInfo);
 
   if (usersInfo) {
@@ -412,7 +170,7 @@ onMounted(() => {
 
   dom("body").removeClass("error-page").removeClass("login").addClass("main");
   updatedMenu();
-  formattedMenu.value = $h.toRaw(lastMenu.value);
+  formattedMenu.value = $h.toRaw(sideMenu.value);
 });
 </script>
 <style scoped>

@@ -120,9 +120,8 @@ export default {
     getPlageActivite() {
       let obj = null;
 
-      if (this.activiteId !== "") {
-        console.log("activiteId", this.activiteId);
-        obj = this.activites.find((item) => item.id === this.activiteId);
+      if (this.selectedIds.activiteId !== "") {
+        obj = this.activites.find((item) => item.id === this.selectedIds.activiteId);
       }
 
       return obj ? obj : null;
@@ -150,7 +149,7 @@ export default {
     changeActiviteId(id) {
       this.selectedIds.activiteId = id;
 
-      console.log("this.selectedIds.activiteId", this.selectedIds.activiteId);
+      // console.log("this.selectedIds.activiteId", this.selectedIds.activiteId);
     },
     getInfoActivite(id) {
       if (id !== null || id !== "") {
@@ -470,6 +469,7 @@ export default {
       this.dateDebutOld = item.debut;
       this.dateFinOld = item.fin;
       this.activiteId = item.id;
+      this.selectedIds.activiteId = this.activiteId;
       this.showModalProlongement = true;
     },
 
@@ -795,7 +795,7 @@ export default {
     </pagination>
   </div>
 
-  <PlanDecaissementComponent v-if="seePlan" :activiteId="selectedIds.activiteId" :activites="activites" @send-activiteId="changeActiviteId" />
+  <PlanDecaissementComponent v-if="seePlan" :activiteId="selectedIds.activiteId" :activites="activites" @send-activiteId="changeActiviteId" :getPlageActivites="getPlageActivite" />
 
   <div v-if="seeStatistique" class="flex flex-col sm:flex-row justify-evenly mt-4">
     <div class="flex flex-col items-center p-6 mb-3 bg-white rounded-md shadow">
@@ -813,7 +813,7 @@ export default {
 
   <Modal backdrop="static" :show="showModal" @hidden="showModal = false">
     <ModalHeader>
-      <h2 v-if="!update" class="mr-auto text-base font-medium">Ajouter une Activité</h2>
+      <h2 v-if="!isUpdate" class="mr-auto text-base font-medium">Ajouter une Activité</h2>
       <h2 v-else class="mr-auto text-base font-medium">Modifier un Activité</h2>
     </ModalHeader>
     <form @submit.prevent="sendForm">
@@ -974,6 +974,22 @@ export default {
           </p>
 
           <button type="button" @click="removePlan(index)" class="mt-2 text-red-600 text-sm underline">Supprimer ce plan</button>
+
+          <div class="col-span-12" v-if="getPlageActivite">
+            <div class="flex items-center mt-2" v-for="(plage, t) in getPlageActivite.durees" :key="t">
+              <ClockIcon class="w-4 h-4 mr-2" />
+              <div>
+                Plage de date {{ getPlageActivite.durees.length + 1 }} : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(getPlageActivite.durees[getPlageActivite.durees.length - 1].debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(getPlageActivite.durees[getPlageActivite.durees.length - 1].fin) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="getPlageProjet" class="flex items-center mt-2 col-span-12">
+            <ClockIcon class="w-4 h-4 mr-2" />
+            <div>
+              Durée du projet : Du <span class="px-1 font-bold"> {{ $h.reformatDate(getPlageProjet.debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(getPlageProjet.fin) }}</span>
+            </div>
+          </div>
         </div>
 
         <button type="button" @click="addPlan" class="col-span-12 btn btn-outline-primary">Ajouter un autre plan</button>

@@ -174,6 +174,21 @@ export default {
           await this.authentification(identifiant)
             .then((response, status) => {
               if (response.statut === "success" || response.status === 200) {
+                const usersInfo = JSON.parse(localStorage.getItem("authenticateUser"));
+
+                let permissions = usersInfo.roles[0].permissions;
+
+                //   let permissions = [
+                //    {
+                //      id: "07BZNxb9Q4mR1Y0AkbE3xvzo2GdDqnjZK1JZ6leKapX95rgMwP78NLBVWQ4LEvAn",
+                //       nom: "Voir un projet",
+                //       slug: "voir-un-projet",
+                //     },
+                //   ];
+
+                sideMenuStore.setTabPermission(permissions);
+
+                sideMenuStore.addToMenuIfPermissionGranted();
                 this.chargement = false;
                 if (response.data.utilisateur.type == "administrateur") {
                   // this.$toast.success("Connexion réussie")

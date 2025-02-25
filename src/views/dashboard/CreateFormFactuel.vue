@@ -19,6 +19,7 @@ import DeleteButton from "@/components/news/DeleteButton.vue";
 import AuthService from "@/services/modules/auth.service";
 import { useRoute } from "vue-router";
 import { getFieldErrors } from "../../utils/helpers";
+// import { helper as $h } from "@/utils/helper";
 
 const route = useRoute();
 
@@ -52,6 +53,10 @@ const typesGouvernance = ref({ types_de_gouvernance: [] });
 const uniqueKeys = new Map();
 const globalData = localStorage.getItem("globalFormFactuelData");
 const previewData = localStorage.getItem("previewFormFactuelData");
+
+const extractMessage = function (errorArray) {
+  return Array.isArray(errorArray) && errorArray.length > 0 ? errorArray[0] : "";
+};
 
 const isAvailable = reactive({
   option: true,
@@ -335,6 +340,7 @@ const createForm = async () => {
   } catch (e) {
     if (e.response && e.response.status === 422) {
       errors.value = e.response.data.errors;
+      toast.error(`Une erreur est survenu dans le formulaire.`);
     } else {
       toast.error(getAllErrorMessages(e));
     }
@@ -473,7 +479,7 @@ onMounted(() => {
   <!-- BEGIN: Modal Content -->
   <Modal backdrop="static" size="modal-xl" :show="modalForm" @hidden="modalForm = false">
     <ModalHeader>
-      <h2 class="mr-auto text-base font-medium">Enregistrer le formulaire test</h2>
+      <h2 class="mr-auto text-base font-medium">Enregistrer le formulaire</h2>
     </ModalHeader>
     <form @submit.prevent="createForm">
       <ModalBody class="space-y-5">
@@ -494,6 +500,9 @@ onMounted(() => {
           </div>
         </div>
         <div>
+          <p class="text-red-500 text-[12px] -mt-2 col-span-12 my-2" v-if="errors['factuel.options_de_reponse.0.point']">{{ extractMessage(errors["factuel.options_de_reponse.0.point"]) }}</p>
+          <p class="text-red-500 text-[12px] -mt-2 col-span-12 my-2" v-if="errors['factuel.options_de_reponse.0.point']">{{ extractMessage(errors["factuel.options_de_reponse.0.point"]) }}</p>
+
           <p class="mb-3">Options de réponses</p>
           <ListOptionsResponse :options="previewOptionResponses.options_de_reponse" />
         </div>

@@ -210,23 +210,26 @@ const getOne = async (id) => {
 // Submit data (create or update)
 const submitData = async () => {
   isLoading.value = true;
- // this.value = this.value.replace(",", ".");
+  // this.value = this.value.replace(",", ".");
 
- payload.longitude = payload.longitude + ""
- payload.latitude  = payload.latitude + ""
+  payload.longitude = payload.longitude + "";
+  payload.latitude = payload.latitude + "";
 
- if (payload.longitude.includes(",")) {
-    payload.longitude  = payload.longitude.replace(",", ".")
- }
+  if (payload.longitude.includes(",")) {
+    payload.longitude = payload.longitude.replace(",", ".");
+  }
 
- if (payload.latitude.includes(",")) {
-    payload.latitude  = payload.latitude.replace(",", ".")
- }
-
-
-  
+  if (payload.latitude.includes(",")) {
+    payload.latitude = payload.latitude.replace(",", ".");
+  }
 
   const action = isCreate.value ? OngService.create(payload) : OngService.update(idSelect.value, payload);
+
+  if (!isCreate.value) {
+    if (payload.type == "osc") {
+      delete payload.fondId;
+    }
+  }
   try {
     await action;
     toast.success(`Organisation ${isCreate.value ? "créee" : "modifiée"} avec succès.`);
@@ -444,23 +447,6 @@ onMounted(() => {
     <div v-show="!isLoadingData" class="p-5 mt-5 intro-y box">
       <div class="flex flex-col sm:flex-row sm:items-end xl:items-start">
         <div></div>
-        <!-- <div class="flex mt-5 sm:mt-0">
-          <button id="tabulator-print" class="w-1/2 mr-2 btn btn-outline-secondary sm:w-auto"><PrinterIcon class="w-4 h-4 mr-2" /> Print</button>
-          <Dropdown class="w-1/2 sm:w-auto">
-            <DropdownToggle class="w-full btn btn-outline-secondary sm:w-auto">
-              <FileTextIcon class="w-4 h-4 mr-2" /> Export
-              <ChevronDownIcon class="w-4 h-4 ml-auto sm:ml-2" />
-            </DropdownToggle>
-            <DropdownMenu class="w-40">
-              <DropdownContent>
-                <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Export CSV </DropdownItem>
-                <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Export JSON </DropdownItem>
-                <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Export XLSX </DropdownItem>
-                <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Export HTML </DropdownItem>
-              </DropdownContent>
-            </DropdownMenu>
-          </Dropdown>
-        </div> -->
       </div>
       <div class="overflow-x-auto _scrollbar-hidden">
         <div id="tabulator" ref="tableRef" class="mt-5 overflow-x-auto _table-report _table-report--tabulator"></div>
@@ -486,7 +472,6 @@ onMounted(() => {
           </ol>
           <AlertErrorOng :errors="errors" />
 
-          <!-- <pre>{{ payload }}</pre> -->
           <!-- Informations  Generale -->
           <div v-show="currentStep == 1" class="">
             <p class="mb-3 text-lg text-semibold">Informations générales</p>

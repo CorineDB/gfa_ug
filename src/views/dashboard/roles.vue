@@ -334,15 +334,15 @@ onMounted(() => {
             <textarea id="regular-form-2" placeholder="Description du role" required v-model="payload.description" class="w-full px-3 py-2 mt-1 border-2 border-gray-300 form-control focus:outline-none focus:ring-2 focus:border-transparent" rows="2"></textarea>
             <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.description">{{ messageErreur.description }}</p>
           </div>
-          <!-- <div>
+          <div>
             <label class="form-label">Permissions <span class="text-danger">*</span> </label>
             <TomSelect v-model="payload.permissions" multiple :options="{ placeholder: 'Selectionez  un secteur' }" class="w-full">
               <option value=""></option>
               <option v-for="(permission, index) in permissions" :key="index" :value="permission.id">{{ permission.nom }}</option>
             </TomSelect>
-            <div v-if="messageErreur.permissions" class="mt-2 text-danger">{{ messageErreur.permissions }}</div>
-          </div> -->
-          <div class="w-full">
+            <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.permissions">{{ messageErreur.permissions }}</p>
+          </div>
+          <!-- <div class="w-full">
             <div class="flex w-full">
               <v-select :reduce="(projet) => projet.id" class="w-full" v-model="payload.permissions" multiple label="nom" :options="permissions">
                 <template #search="{ attributes, events }">
@@ -351,8 +351,7 @@ onMounted(() => {
               </v-select>
               <label class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Permissions <span class="text-danger">*</span> </label>
             </div>
-            <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.permissions">{{ messageErreur.permissions }}</p>
-          </div>
+          </div> -->
         </div>
       </ModalBody>
       <ModalFooter>

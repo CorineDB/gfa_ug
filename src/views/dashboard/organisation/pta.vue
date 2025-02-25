@@ -1,5 +1,9 @@
 <template>
-  <h2 class="mt-10 text-lg font-medium intro-y">Plan d'Action</h2>
+  <div class="flex justify-between mt-4 items-center">
+    <h2 class="text-lg font-medium intro-y">Plan d'Action</h2>
+    <button class="btn btn-primary" @click="$router.go(-1)">Retour <CornerDownLeftIcon class="w-4 h-4 ml-2" /></button>
+  </div>
+  <!-- <h2 class="mt-10 text-lg font-medium intro-y">Plan d'Action</h2> -->
   <div class="grid grid-cols-12 gap-6 my-5">
     <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
       <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
@@ -104,16 +108,9 @@
               <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">Fond propres</th>
               <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">Montant financé XOF</th>
               <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">TOTAL</th>
-              <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">
-                <button @click="ouvrirModalSuiviFinancierActivite(suivi)" class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-xs px-4 py-2 mr-2">Suivre</button>
-
-                <button @click="handleEdit(suivi)" class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-xs px-4 py-2 mr-2">Modifier</button>
-
-                <button @click="handleDelete(suivi)" class="text-white bg-red-500 hover:bg-red-600 font-medium rounded-lg text-xs px-4 py-2">Supprimer</button>
-              </th>
             </tr>
           </thead>
-          <pre>{{ dataNew.length }}</pre>
+          <!-- <pre>{{ dataNew.length }}</pre> -->
           <tbody>
             <tr v-for="pta in dataNew" :key="pta.id" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
               <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
@@ -302,6 +299,13 @@
                 <!--  <span v-else class="font-bold" >0 FCFA </span> -->
               </td>
               <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700" v-else></td>
+              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
+                <button v-if="pta.isActivite" @click="ouvrirModalSuiviFinancierActivite(pta)" class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-xs px-4 py-2 mr-2">Suivre</button>
+
+                <button v-if="pta.isActivite" @click="voirSuiviActivite()" class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-xs px-4 py-2 mr-2">Voir les suivis</button>
+
+                <!-- <button v-if="pta.isActivite" @click="handleDelete(pta)" class="text-white bg-red-500 hover:bg-red-600 font-medium rounded-lg text-xs px-4 py-2">Supprimer</button> -->
+              </td>
             </tr>
           </tbody>
         </table>

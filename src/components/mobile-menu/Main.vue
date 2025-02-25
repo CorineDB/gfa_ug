@@ -13,7 +13,7 @@
           class="w-16"
           :src="usersProfileImage"
         /> -->
-        <span class="ml-3 text-lg text-white"> Programme de redevabilité </span>
+        <span class="ml-3 text-lg text-white"> {{ nomProgramme }} </span>
       </a>
       <a href="javascript:;" class="mobile-menu-toggler">
         <BarChart2Icon class="w-8 h-8 text-white transform -rotate-90" @click="toggleMobileMenu" />
@@ -114,6 +114,8 @@ const formattedMenu = ref([]);
 const sideMenuStore = useSideMenuStore();
 const mobileMenu = computed(() => nestedMenu(sideMenuStore.menu, route));
 
+const nomProgramme = ref("");
+
 watch(
   computed(() => route.path),
   () => {
@@ -124,6 +126,25 @@ const usersProfileImage = ref("");
 onMounted(() => {
   const usersInfo = JSON.parse(localStorage.getItem("authenticateUser"));
 
+  console.log("permissions", usersInfo.roles);
+
+  let permissions = usersInfo.role[0].permissions;
+
+  
+
+  // let permissions = [
+  //   {
+  //     id: "07BZNxb9Q4mR1Y0AkbE3xvzo2GdDqnjZK1JZ6leKapX95rgMwP78NLBVWQ4LEvAn",
+  //     nom: "Voir un projet",
+  //     slug: "voir-un-projet",
+  //   },
+  // ];
+
+  sideMenuStore.setTabPermission(permissions);
+
+  sideMenuStore.addToMenuIfPermissionGranted();
+
+  nomProgramme.value = usersInfo.programme.nom;
   // if (usersInfo) {
   //   usersProfileImage.value = API_BASE_URL + usersInfo.users.profil}
 
