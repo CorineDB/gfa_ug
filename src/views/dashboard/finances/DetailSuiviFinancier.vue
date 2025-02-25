@@ -135,7 +135,7 @@ const createData = async () => {
       toast.error(getAllErrorMessages(e));
 
       if (e.response && e.response.data && e.response.data.errors) {
-        erreurSuiviFinancier = error.response.data.errors;
+        erreurSuiviFinancier.value = error.response.data.errors;
       } else {
         toast.error(e.response.data.errors.message);
       }
@@ -170,7 +170,7 @@ const updateData = async () => {
       toast.error(getAllErrorMessages(e));
 
       if (e.response && e.response.data && e.response.data.errors) {
-        erreurSuiviFinancier = error.response.data.errors;
+        erreurSuiviFinancier.value = error.response.data.errors;
       } else {
         toast.error(e.response.data.errors.message);
       }

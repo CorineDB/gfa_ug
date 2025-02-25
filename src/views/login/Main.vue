@@ -176,7 +176,7 @@ export default {
               if (response.statut === "success" || response.status === 200) {
                 const usersInfo = JSON.parse(localStorage.getItem("authenticateUser"));
 
-                let permissions = usersInfo.roles[0].permissions;
+                let permissions = usersInfo.role[0].permissions;
 
                 //   let permissions = [
                 //    {
