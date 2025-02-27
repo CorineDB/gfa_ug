@@ -159,9 +159,9 @@ onMounted(() => {
   //   },
   // ];
 
-  sideMenuStore.setTabPermission(permissions);
+  simpleMenuStore.setTabPermission(permissions);
 
-  sideMenuStore.addToMenuIfPermissionGranted();
+  simpleMenuStore.addToMenuIfPermissionGranted();
   dom("body").removeClass("error-page").removeClass("login").addClass("main");
   formattedMenu.value = $h.toRaw(simpleMenu.value);
 });

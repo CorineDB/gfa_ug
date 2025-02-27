@@ -27,7 +27,7 @@ const suiviFinancierPayload = reactive({
   trimestre: 1, // Trimestre actuel
   annee: new Date().getFullYear(), // Set current year as default
   consommer: 0,
-  type: 0,
+  // type: 0,
 });
 
 const resetFilter = function () {
@@ -615,14 +615,14 @@ onMounted(() => {
             </p>
           </div>
 
-          <div class="mt-5">
+          <!-- <div class="mt-5">
             <label class="form-label">Sources</label>
             <TomSelect v-model="plan.type" :options="{ placeholder: 'Selectionez une source' }" class="w-full">
               <option value="">Choisir un suivi</option>
               <option value="fond-propre">Fond propre</option>
               <option value="budjet-Alloue">Budget Alloue</option>
             </TomSelect>
-          </div>
+          </div> -->
 
           <div class="mt-5">
             <InputForm v-model="plan.trimestre" :min="1" :max="4" class="col-span-12" type="number" :required="true" :disabled="true" placeHolder="Sélectionnez le trimestre" label="Sélectionnez le trimestre" />

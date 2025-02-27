@@ -44,7 +44,7 @@ export const useSideMenuStore = defineStore("sideMenu", {
       title: "Taches",
     },
     cadreMesureRendements: {
-      icon: "FolderIcon",
+      icon: "LayoutIcon",
       title: "Cadre Mesure Rendement",
       subMenu: [],
     },
@@ -69,7 +69,7 @@ export const useSideMenuStore = defineStore("sideMenu", {
       title: "Rapport",
     },
     gestionFinancier: {
-      icon: "FolderIcon",
+      icon: "DollarSignIcon",
       title: "Gestion Financière",
       subMenu: [],
     },
@@ -89,7 +89,7 @@ export const useSideMenuStore = defineStore("sideMenu", {
       title: "Organisations",
     },
     outils: {
-      icon: "FolderIcon",
+      icon: "FileTextIcon",
       pageName: "projets",
       title: "Outils de collecte",
       subMenu: [],

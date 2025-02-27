@@ -49,7 +49,7 @@ const payload = reactive({
   trimestre: 1, // Trimestre actuel
   annee: new Date().getFullYear(), // Set current year as default
   consommer: 0,
-  type: 0,
+  // type: 0,
 });
 
 const getCurrentQuarter = () => {
@@ -285,7 +285,7 @@ const resetForm = () => {
   payload.trimestre = 1; // Trimestre actuel
   payload.annee = new Date().getFullYear(); // Set current year as default
   payload.consommer = 0;
-  payload.type = 0;
+  // payload.type = 0;
   showModalCreate.value = false;
 };
 const openCreateModal = () => {
@@ -293,7 +293,7 @@ const openCreateModal = () => {
   payload.trimestre = 1; // Trimestre actuel
   payload.annee = new Date().getFullYear(); // Set current year as default
   payload.consommer = 0;
-  payload.type = "";
+  // payload.type = "";
   payload.activiteId = route.params.id;
 };
 
@@ -372,13 +372,13 @@ onMounted(() => {
               {{ erreurSuiviFinancier[index].consommer }}
             </p>
           </div>
-          <div class="col-span-12">
+          <!-- <div class="col-span-12">
             <label class="form-label">Sources</label>
             <TomSelect v-model="payload.type" :options="{ placeholder: 'Selectionez une source' }" class="w-full">
               <option value="fond-propre">Fond propre</option>
               <option value="budget-alloue">Budget Alloue</option>
             </TomSelect>
-          </div>
+          </div> -->
           <div class="col-span-12">
             <InputForm v-model="payload.trimestre" :min="1" :max="4" class="col-span-12" type="number" :required="true" :disabled="true" placeHolder="Sélectionnez le trimestre" label="Sélectionnez le trimestre" />
             <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurSuiviFinancier?.[index]?.trimestre">
