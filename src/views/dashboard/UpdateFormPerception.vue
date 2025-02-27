@@ -267,16 +267,20 @@ const getOneForm = async () => {
 const updateForm = async () => {
   isLoadingForm.value = true;
 
+  console.log(previewPrincipesGouvernance.principes_de_gouvernance);
+
   payload.perception.options_de_reponse = previewOptionResponses.value.options_de_reponse;
 
-  console.log(payload);
+  payload.perception.principes_de_gouvernance = previewPrincipesGouvernance.value.principes_de_gouvernance;
+
+  // console.log(payload);
 
   //alert("1");
 
   try {
     await FormulaireFactuel.update(idForm, payload);
     toast.success(`Formulaire Modifiée avec succès.`);
-    alert("2");
+
     fetchListForms.value = !fetchListForms.value;
     clearUniqueKeys();
     resetAllForm();
@@ -364,6 +368,7 @@ onMounted(async () => {
 
                 <ListOptionsResponse :options="previewOptionResponses.options_de_reponse" />
               </div>
+              <!-- <pre>{{ currentForm }}</pre> -->
               <div class="space-y-2">
                 <p class="text-lg font-medium">Ajouter des questions opérationnelles</p>
                 <PerceptionStructure :principe="currentPreviewPerceptionFormData.principe.nom" :indicateur="currentPreviewPerceptionFormData.indicateur.nom" />
@@ -372,6 +377,7 @@ onMounted(async () => {
               <div v-if="!isLoadingOneForm" class="space-y-2">
                 <p class="text-lg font-medium">Liste des questions opérationnelles</p>
                 <div class="max-h-[25vh] h-[25vh] py-2 border-t overflow-y-auto">
+                  <pre>{{ previewFormPerceptionData }}</pre>
                   <ListAccordionQuestion :indicateurs-array="previewFormPerceptionData" @remove="removeIndicator" />
                 </div>
                 <div class="flex justify-between py-2">
@@ -407,6 +413,7 @@ onMounted(async () => {
         </div>
         <div class="max-h-[50vh] h-[50vh] overflow-y-auto">
           <p class="mb-3">Formulaire de perception</p>
+          <pre>{{ previewPrincipesGouvernance.principes_de_gouvernance }}</pre>
           <PreviewPerceptionForm :principes="previewPrincipesGouvernance.principes_de_gouvernance" />
         </div>
       </ModalBody>

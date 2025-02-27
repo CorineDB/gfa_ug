@@ -298,6 +298,8 @@ const resetModalSuiviFinancierActivite = (item) => {
 };
 
 const addPlan = () => {
+  // suiviFinancierPayload.type = parseInt(suiviFinancierPayload.type);
+
   suiviFinancier.value.push(suiviFinancierPayload);
 };
 
@@ -529,7 +531,7 @@ onMounted(() => {
   </div>
 
   <!-- Modal Register & Update -->
-  <Modal backdrop="static" :show="showModalCreate" @hidden="showModalCreate = false">
+  <!-- <Modal backdrop="static" :show="showModalCreate" @hidden="showModalCreate = false">
     <ModalHeader>
       <h2 class="mr-auto text-base font-medium">{{ mode }} un Suivi Financier</h2>
     </ModalHeader>
@@ -540,17 +542,16 @@ onMounted(() => {
           <div class="">
             <label class="form-label">Sources</label>
             <TomSelect v-model="payload.type" :options="{ placeholder: 'Selectionez une source' }" class="w-full">
-              <option value="0">Montant financé</option>
-              <option value="1">Fond Propre</option>
+              <option value="fond-propre">Montant financé</option>
+              <option value="budget-alloue">Fond Propre</option>
             </TomSelect>
           </div>
-          <!-- <pre>{{years}}</pre> -->
+
           <div class="">
             <label class="form-label">Année</label>
             <TomSelect v-model="payload.annee" @change="handleInput(payload.annee)" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
               <option v-for="(year, index) in years" :key="index" :value="year.nom">{{ year.nom }}</option>
             </TomSelect>
-            <pre></pre>
           </div>
 
           <div class="">
@@ -577,7 +578,7 @@ onMounted(() => {
         </div>
       </ModalFooter>
     </form>
-  </Modal>
+  </Modal> -->
   <!-- End Modal -->
 
   <!-- Modal Delete -->
@@ -617,8 +618,9 @@ onMounted(() => {
           <div class="mt-5">
             <label class="form-label">Sources</label>
             <TomSelect v-model="plan.type" :options="{ placeholder: 'Selectionez une source' }" class="w-full">
-              <option value="0">Fond propre</option>
-              <option value="1">Budget Alloue</option>
+              <option value="">Choisir un suivi</option>
+              <option value="fond-propre">Fond propre</option>
+              <option value="budjet-Alloue">Budget Alloue</option>
             </TomSelect>
           </div>
 

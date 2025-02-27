@@ -121,6 +121,7 @@ const resetFilterModal = () => {
 };
 
 const createData = async () => {
+  // payload.type = parseInt(payload.type);
   isLoading.value = true;
   await SuiviFinancier.create(payload)
     .then(() => {
@@ -292,7 +293,7 @@ const openCreateModal = () => {
   payload.trimestre = 1; // Trimestre actuel
   payload.annee = new Date().getFullYear(); // Set current year as default
   payload.consommer = 0;
-  payload.type = 0;
+  payload.type = "";
   payload.activiteId = route.params.id;
 };
 
@@ -359,7 +360,7 @@ onMounted(() => {
   <!-- Modal Register & Update -->
   <Modal backdrop="static" :show="showModalCreate" @hidden="showModalCreate = false">
     <ModalHeader>
-      <h2 class="mr-auto text-base font-medium">{{ mode }} une suivi</h2>
+      <h2 class="mr-auto text-base font-medium">{{ mode }} un suivi</h2>
     </ModalHeader>
     <form @submit.prevent="submitData">
       <ModalBody>
@@ -374,8 +375,8 @@ onMounted(() => {
           <div class="col-span-12">
             <label class="form-label">Sources</label>
             <TomSelect v-model="payload.type" :options="{ placeholder: 'Selectionez une source' }" class="w-full">
-              <option value="0">Fond propre</option>
-              <option value="1">Budget Alloue</option>
+              <option value="fond-propre">Fond propre</option>
+              <option value="budget-alloue">Budget Alloue</option>
             </TomSelect>
           </div>
           <div class="col-span-12">

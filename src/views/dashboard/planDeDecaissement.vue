@@ -47,11 +47,12 @@
                 </span>
                 <span v-if="pta.isTache" class="text-sm text-red-600"> {{ pta.code }}</span>
               </td>
-              <td>
-                <select v-if="pta.isTache" class="form-select form-select-sm mt-2" aria-label=".form-select-sm example" @change="togglesuivie(pta)">
-                  <option value="0">0%</option>
-                  <option value="50">50%</option>
-                  <option value="100">100%</option>
+              <td v-if="pta.isTache">
+                <!-- <pre>{{ pta }}</pre> -->
+                <select class="form-select form-select-sm mt-2" aria-label=".form-select-sm example" v-model="pta.poidsActuel" @change="togglesuivie(pta)">
+                  <option :value="0">0%</option>
+                  <option :value="50">50%</option>
+                  <option :value="100">100%</option>
                 </select>
                 <!-- <button
                     v-if="pta.isTache"
@@ -1634,10 +1635,10 @@ export default {
     togglesuivie(pta) {
       //this.dataNew;
 
-      this.redtoggle = false;
-      this.graytoggle = false;
+      //  this.redtoggle = false;
+      // this.graytoggle = false;
       //this.greentoggle=true;
-      this.translatetoggle = false;
+      // this.translatetoggle = false;
 
       //console.log(this.tabletoggle[id]);
 
@@ -1646,7 +1647,7 @@ export default {
         tacheId: pta.id,
       };
       //  console.log(id)
-      if (pta.poidsActuel > 0) {
+      if (pta.poidsActuel > 50) {
         this.tabletoggle[pta.id] = 0;
         TacheService.deleteSuivis(pta.id)
           .then((data) => {

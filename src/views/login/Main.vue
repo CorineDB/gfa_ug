@@ -107,6 +107,11 @@ import axios from "axios";
 import VButton from "@/components/news/VButton.vue";
 import { API_BASE_URL } from "@/services/configs/environment.js";
 import { toast } from "vue3-toastify";
+import { useSideMenuStore } from "@/stores/side-menu";
+import { useSimpleMenuStore } from "@/stores/simple-menu";
+
+//const sideMenuStore = useSideMenuStore();
+//const simpleMenuStore = useSimpleMenuStore();
 
 export default {
   name: "IndexPage",
@@ -176,7 +181,7 @@ export default {
               if (response.statut === "success" || response.status === 200) {
                 const usersInfo = JSON.parse(localStorage.getItem("authenticateUser"));
 
-                let permissions = usersInfo.role[0].permissions;
+                //  let permissions = usersInfo.role[0].permissions;
 
                 //   let permissions = [
                 //    {
@@ -186,9 +191,14 @@ export default {
                 //     },
                 //   ];
 
-                sideMenuStore.setTabPermission(permissions);
+                //  sideMenuStore.setTabPermission(permissions);
 
-                sideMenuStore.addToMenuIfPermissionGranted();
+                // sideMenuStore.addToMenuIfPermissionGranted();
+
+                // simpleMenuStore.setTabPermission(permissions);
+
+                // sideMenuStore.addToMenuIfPermissionGranted();
+
                 this.chargement = false;
                 if (response.data.utilisateur.type == "administrateur") {
                   // this.$toast.success("Connexion réussie")
