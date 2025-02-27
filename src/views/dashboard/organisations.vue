@@ -560,7 +560,7 @@ onMounted(() => {
                   <div v-if="errors.arrondissement" class="mt-2 text-danger">{{ getFieldErrors(errors.arrondissement) }}</div>
                 </div>
                 <div :class="[!showQuatier ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
-                  <label class="form-label">Quatier<span class="text-danger">*</span> </label>
+                  <label class="form-label">Quartier<span class="text-danger">*</span> </label>
                   <TomSelect v-model="payload.quartier" :options="{ placeholder: 'Sélectionner le quatier' }" class="w-full">
                     <option v-for="quart in filteredQuartiers" :key="quart.lib_quart" :value="quart.lib_quart">
                       {{ quart.lib_quart }}
@@ -576,7 +576,7 @@ onMounted(() => {
 
               <div v-if="!isBenin" class="grid grid-cols-2 gap-4">
                 <InputForm :required="false" :optionel="false" label="Arrondissement" v-model="payload.arrondissement" :control="getFieldErrors(errors.arrondissement)" />
-                <InputForm :required="false" :optionel="false" label="Quatier" v-model="payload.quartier" :control="getFieldErrors(errors.quartier)" />
+                <InputForm :required="false" :optionel="false" label="Quartier" v-model="payload.quartier" :control="getFieldErrors(errors.quartier)" />
               </div>
               <div class="grid grid-cols-2 gap-4">
                 <InputForm :required="false" :optionel="false" label="Longitude" step="0.1" :control="getFieldErrors(errors.longitude)" v-model.text="payload.longitude" type="number" />

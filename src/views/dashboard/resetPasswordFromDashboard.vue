@@ -10,6 +10,8 @@
       </div>
     </div>
   </Notification>
+
+  
   <div class="flex items-center mt-8 intro-y">
     <h2 class="mr-auto text-lg font-medium">Changer le mot de passe</h2>
   </div>

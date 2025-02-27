@@ -281,7 +281,7 @@ onMounted(getDatas);
                 <div v-if="errors.arrondissement" class="mt-2 text-danger">{{ getFieldErrors(errors.arrondissement) }}</div>
               </div>
               <div class="w-full mb-4" :class="[!showQuatier ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
-                <label class="form-label">Quatier<span class="text-danger">*</span> </label>
+                <label class="form-label">Quartier<span class="text-danger">*</span> </label>
                 <TomSelect v-model="payload.quartier" :options="{ placeholder: 'Sélectionner le quatier' }" class="w-full">
                   <option v-for="quart in filteredQuartiers" :key="quart.lib_quart" :value="quart.lib_quart">
                     {{ quart.lib_quart }}

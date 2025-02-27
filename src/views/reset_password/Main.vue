@@ -1,8 +1,70 @@
 <template>
-  <div>
+  <div class="container px-6 mx-auto">
+      <div class="flex flex-col text-center md:text-left md:flex-row h-screen justify-evenly md:items-center">
+        <div class="flex flex-col w-full">
+          <div>
+            <img alt="Midone Tailwind HTML Admin Template" class="w-48 p-4 bg-white rounded-xl mx-auto md:float-left " src="../../assets/images/GFA.png" />    
+          </div>
+          <h1 class="text-5xl text-white font-bold my-5">GFA Survey</h1>
+          <p class="w-full md:w-11/12 mx-auto md:mx-0 text-white mb-5">
+            Responsabilité partagée, Qualité améliorée : Unis pour un meilleur service social.
+          </p>
+        </div>
+        <div class="w-full md:w-full lg:w-9/12 mx-auto md:mx-0">
+          <div class="bg-white p-10 flex flex-col w-full shadow-xl rounded-xl">
+
+            <form @submit.prevent="ressetPassword" class="flex items-center ">
+                <div class="w-full">
+                  <div class="px-4">
+                    <Alert v-if="showAlert && (errors.token || errors.email)" class="flex items-center mb-2 !py-2 alert-danger-soft" v-slot="{ dismiss }">
+                      <ul class="font-medium !list-disc">
+                        <li v-if="errors.token">
+                          {{ getFieldErrors(errors.token) }} <br />
+                          <span @click="goPageRequest" class="text-blue-500 underline cursor-pointer">Demander un lien</span>
+                        </li>
+                        <li v-if="errors.email">{{ getFieldErrors(errors.email) }}</li>
+                        
+                      </ul>
+                      <button type="button" class="text-white btn-close" aria-label="Close" @click="dismiss">
+                        <XIcon class="w-4 h-4" />
+                      </button>
+                    </Alert>
+                  </div>
+                  <Alert v-if="showFormError && errorMessageForm" class="flex items-center mb-2 alert-danger"> <AlertOctagonIcon class="w-6 h-6 mr-2" /> {{ errorMessageForm }} </Alert>
+                  <Alert v-if="showFormSuccess" class="flex items-center mb-2 alert-primary"> <AlertCircleIcon class="w-6 h-6 mr-2" /> Consulter votre mail pour accéder au lien pour definr votre mot de passe. </Alert>
+                  <h2 class="text-2xl font-bold text-center intro-x xl:text-3xl xl:text-left">Définir un nouveau mot de passe</h2>
+                  <div class="mt-2 text-center intro-x text-slate-400 xl:hidden">Responsabilité partagée, Qualité améliorée : Unis pour un meilleur service social.</div>
+                  <div class="mt-8 intro-x">
+                    <div class="space-y-4">
+                      <input type="hidden" v-model.trim="payload.email" id="email" class="block px-4 py-3 intro-x login__input form-control" placeholder="Email pour recevoir le lien" />
+                      <div class="">
+                        <input type="password" required minlength="8" v-model.trim="payload.new_password" id="password" class="block px-4 py-3 intro-x login__input form-control" placeholder="Nouveau mot de passe" />
+                        <div v-if="errors.new_password" class="mt-2 text-danger">{{ getFieldErrors(errors.new_password) }}</div>
+                      </div>
+                      <div class="">
+                        <input type="password" required minlength="8" v-model.trim="payload.new_password_confirmation" id="confirm_password" class="block px-4 py-3 intro-x login__input form-control" placeholder="Confirmer le mot de passe" />
+                        <div v-if="errors.new_password_confirmation" class="mt-2 text-danger">{{ getFieldErrors(errors.new_password_confirmation) }}</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mt-5 text-center intro-x xl:mt-8 xl:text-left">
+                    <VButton :loading="chargement" label="Envoyer" class="py-3" />
+                  </div>
+                </div>
+            </form>
+           
+          </div>
+        </div>
+      </div>
+  </div>
+   
+   
+ 
+
+  <!-- <div>
     <div class="sm:px-10 md:px-0">
       <div class="block grid-cols-2 gap-4 bg-white xl:grid">
-        <!-- BEGIN: Login Info -->
+        BEGIN: Login Info
         <div class="flex-col hidden min-h-screen p-5 bg-primary xl:flex">
           <div class="my-auto text-center bg-primary">
             <img alt="Midone Tailwind HTML Admin Template" class="w-1/2 mx-auto -intro-x" src="@/assets/images/Checklist-rafiki.svg" />
@@ -10,8 +72,8 @@
             <div class="px-4 mt-5 text-xl text-white -intro-x text-opacity-70 dark:text-slate-400">Responsabilité partagée, Qualité améliorée : Unis pour un meilleur service social.</div>
           </div>
         </div>
-        <!-- END: Login Info -->
-        <!-- BEGIN: Login Form -->
+        END: Login Info
+        BEGIN: Login Form
 
         <form @submit.prevent="ressetPassword" class="flex items-center h-screen py-5 m-10 _bg-white xl:h-auto xl:py-0 sm:mx-auto xl:my-0">
           <div class="w-full px-5 py-8 mx-auto my-auto bg-white rounded-md shadow-md dark:bg-darkmode-600 xl:bg-transparent sm:px-8 xl:p-0 xl:shadow-none sm:w-3/4 lg:w-2/4 xl:w-auto">
@@ -23,8 +85,7 @@
                     <span @click="goPageRequest" class="text-blue-500 underline cursor-pointer">Demander un lien</span>
                   </li>
                   <li v-if="errors.email">{{ getFieldErrors(errors.email) }}</li>
-                  <!-- <li v-if="errors.new_password_confirmation">{{ getFieldErrors(errors.new_password_confirmation) }}</li> -->
-                  <!-- <li v-if="errors.new_password">{{ getFieldErrors(errors.new_password) }}</li> -->
+                  
                 </ul>
                 <button type="button" class="text-white btn-close" aria-label="Close" @click="dismiss">
                   <XIcon class="w-4 h-4" />
@@ -53,10 +114,10 @@
             </div>
           </div>
         </form>
-        <!-- END: Login Form -->
+        END: Login Form
       </div>
     </div>
-  </div>
+  </div> -->
 </template>
 
 <script setup>
