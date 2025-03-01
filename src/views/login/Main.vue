@@ -1,5 +1,7 @@
 <template>
-  <div class="body h-screen flex justify-center items-center" >
+        <!-- <img alt="Midone Tailwind HTML Admin Template" class="hidden"  src="../../assets/images/newSvg.svg" /> -->
+
+  <!-- <div class="body h-screen flex justify-center items-center" >
     <div class="container ">
 
       <div class="display w-2/3 flex flex-col  sm:hidden">
@@ -14,7 +16,6 @@
             Responsabilité partagée, Qualité améliorée : Unis pour un meilleur service social.
           </p>
         </div>
-        <!-- <img alt="Midone Tailwind HTML Admin Template" class="hidden"  src="../../assets/images/newSvg.svg" /> -->
       </div>
       <div class="display   _sm:ml-14 _lg:ml-28 flex flex-col hidden md:flex flex-col justify-center items-center">
         <div class="_ml-16 flex flex-col justify-center items-center w-full">
@@ -118,7 +119,7 @@
 
       </div>
     </div>   
-  </div>
+  </div> -->
 
   <div class=" h-screen flex justify-center items-center" >
     <div class="w-1/2">
@@ -138,7 +139,7 @@
           src="../../assets/images/side2.png" />
       </div>
     </div>
-    <div class="w-1/2 bg-white">
+    <div class="w-1/2 bg-gray-200 h-screen flex flex-col items-center justify-center">
 
       <div class="login  w-2/3">
 
@@ -179,7 +180,7 @@
                     v-model.trim="password" placeholder="Mots de passe" />
 
                   <span @click="invisible" v-if="show"
-                    class="absolute eye z-30 text-blue-500 cursor-pointer right-4 top-4"><svg stroke="currentColor"
+                    class="absolute eye z-30 text-[#0f3460] cursor-pointer right-4 top-4"><svg stroke="currentColor"
                       fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024" height="1.8em" width="1.6em"
                       xmlns="http://www.w3.org/2000/svg">
                       <defs>
@@ -195,7 +196,7 @@
                       </path>
                     </svg></span>
                   <span @click="invisible" v-if="!show"
-                    class="absolute eye z-30 text-blue-500 cursor-pointer right-4 top-4"><svg stroke="currentColor"
+                    class="absolute eye z-30 text-[#0f3460] cursor-pointer right-4 top-4"><svg stroke="currentColor"
                       fill="currentColor" stroke-width="0" viewBox="0 0 16 16" height="1.8em" width="1.6em"
                       xmlns="http://www.w3.org/2000/svg">
                       <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"></path>
@@ -222,7 +223,10 @@
           </div>
         </form>
 
-    </div>
+      </div>
+
+      <div class="text-center intro-x text-[#0f3460] mt-10 font-bold" >Réalisé par Célerité
+        holding . {{ year }}</div>
 
     </div>
     <!-- <div class="container ">
@@ -242,8 +246,7 @@
     </div>    -->
   </div>
 
-  <div class="text-center intro-x text-white">Célerité
-    holding tout les droits réservés {{ year }}</div>
+ 
 
 
 
