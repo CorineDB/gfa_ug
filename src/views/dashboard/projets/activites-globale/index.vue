@@ -548,13 +548,14 @@ export default {
           .catch((error) => {
             this.loadingPlanDeDecaissement = false;
 
-            toast.error("Une erreur s'est produite");
 
             // Mettre à jour les messages d'erreurs dynamiquement
-            if (error.response && error.response.data && error.response.data.errors) {
+            if (error.response && error.response.data && error.response.data.errors.length > 0) {
               this.erreurPlanDeDecaissement = error.response.data.errors;
+            toast.error("Une erreur s'est produite dans votre formualaire");
+
             } else {
-              toast.error(error.response.data.errors.message);
+              toast.error(error.response.data.message);
             }
           });
       }
@@ -743,13 +744,14 @@ export default {
               <p class="p-3 text-gray-600 rounded-lg shadow-sm bg-gray-50">{{ item.description == null ? "Aucune description" : item.description }}</p>
 
               <div class="mt-5 space-y-3 text-gray-600">
+                <pre>{{ item.budgetNational  }}</pre>
                 <div class="flex items-center">
-                  <LinkIcon class="w-4 h-4 mr-2" /> Fonds propre: {{ $h.formatCurrency(item.budgetNational) }}
+                  <LinkIcon class="w-4 h-4 mr-2" /> Fonds propre: {{ item.budgetNational == null || item.budgetNational == 0 ? 0 : $h.formatCurrency(item.budgetNational) }}
                   <div class="ml-2 italic font-bold">Fcfa</div>
                 </div>
 
                 <div class="flex items-center">
-                  <LinkIcon class="w-4 h-4 mr-2" /> Montant financé: {{ item.pret == null ? 0 : $h.formatCurrency(item.pret) }}
+                  <LinkIcon class="w-4 h-4 mr-2" /> Montant financé: {{ item.pret == null || item.pret == 0 ? 0 : $h.formatCurrency(item.pret) }}
                   <div class="ml-2 italic font-bold">Fcfa</div>
                 </div>
 

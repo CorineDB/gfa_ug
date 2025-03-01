@@ -2,11 +2,11 @@ import { defineStore } from "pinia";
 
 export const useSimpleMenuStore = defineStore("simpleMenu", {
   state: () => ({
-    dashboard: {
-      icon: "GridIcon",
-      pageName: "DashboardGfa",
-      title: "Dashboard GFA",
-    },
+    // dashboard: {
+    //   icon: "GridIcon",
+    //   pageName: "DashboardGfa",
+    //   title: "Dashboard GFA",
+    // },
     projets: {
       icon: "FolderIcon",
       pageName: "projets",
@@ -15,7 +15,7 @@ export const useSimpleMenuStore = defineStore("simpleMenu", {
     },
     planAction: {
       icon: "WatchIcon",
-      pageName: "ptaGlobal",
+      pageName: "Pta Global",
       title: "Plan d'action Global",
     },
     projet: {
@@ -25,22 +25,22 @@ export const useSimpleMenuStore = defineStore("simpleMenu", {
     },
     outcome: {
       icon: "FolderIcon",
-      pageName: "dashboard_projets_composantes_globale",
+      pageName: "OutComes",
       title: "OutComes",
     },
     output: {
       icon: "FolderIcon",
-      pageName: "dashboard_projets_sous_composantes_globale",
+      pageName: "OutPuts",
       title: "OutPut",
     },
     activite: {
       icon: "FolderIcon",
-      pageName: "dashboard_projets_activites_globale",
+      pageName: "Activités",
       title: "Activités",
     },
     tache: {
       icon: "FolderIcon",
-      pageName: "dashboard_projets_taches_globale",
+      pageName: "Tâches",
       title: "Taches",
     },
     cadreMesureRendements: {
@@ -50,7 +50,7 @@ export const useSimpleMenuStore = defineStore("simpleMenu", {
     },
     indicateurs: {
       icon: "BarChart2Icon",
-      pageName: "create_indicateur",
+      pageName: "Indicateurs",
       title: "Indicateurs",
     },
     suiviIndicateurs: {
@@ -85,7 +85,7 @@ export const useSimpleMenuStore = defineStore("simpleMenu", {
     },
     organisation: {
       icon: "CpuIcon",
-      pageName: "Ongs",
+      pagename: "Organisations",
       title: "Organisations",
     },
     outils: {
@@ -106,7 +106,7 @@ export const useSimpleMenuStore = defineStore("simpleMenu", {
     },
     programmationEnquete: {
       icon: "BarChart2Icon",
-      pageName: "Programmation_enquete",
+      pageName: "Évaluations & Résulats",
       title: "Évaluations & Résulats",
     },
 
@@ -148,164 +148,7 @@ export const useSimpleMenuStore = defineStore("simpleMenu", {
       title: "Rôles et permissions",
     },
     menu: [],
-    // menu: [
-    //   // {
-    //   //   icon: "GridIcon",
-    //   //   pageName: "DashboardGfa",
-    //   //   title: "Dashboard GFA",
-    //   // },
-    //   {
-    //     icon: "FolderIcon",
-    //     pageName: "projets",
-    //     title: "Projets",
-    //     subMenu: [
-    //       {
-    //         icon: "WatchIcon",
-    //         pageName: "ptaGlobal",
-    //         title: "Plan d'action Global",
-    //       },
-    //       {
-    //         icon: "FolderIcon",
-    //         pageName: "projets",
-    //         title: "Projets",
-    //       },
-    //       {
-    //         icon: "FolderIcon",
-    //         pageName: "dashboard_projets_composantes_globale",
-    //         title: "OutComes",
-    //       },
-    //       {
-    //         icon: "FolderIcon",
-    //         pageName: "dashboard_projets_sous_composantes_globale",
-    //         title: "OutPut",
-    //       },
-    //       {
-    //         icon: "FolderIcon",
-    //         pageName: "dashboard_projets_activites_globale",
-    //         title: "Activités",
-    //       },
-    //       {
-    //         icon: "FolderIcon",
-    //         pageName: "dashboard_projets_taches_globale",
-    //         title: "Taches",
-    //       },
-    //     ],
-    //   },
-    //   {
-    //     icon: "FolderIcon",
-    //     title: "Cadre Mesure Rendement",
-    //     subMenu: [
-    //       {
-    //         icon: "BarChart2Icon",
-    //         pageName: "create_indicateur",
-    //         title: "Indicateurs",
-    //       },
-    //       {
-    //         icon: "BarChart2Icon",
-    //         pageName: "suivi_indicateur",
-    //         title: "Suivi Indicateurs",
-    //       },
-    //     ],
-    //   },
-    //   {
-    //     icon: "ServerIcon",
-    //     pageName: "audit",
-    //     title: "Audit",
-    //   },
-    //   {
-    //     icon: "ArchiveIcon",
-    //     pageName: "rapport",
-    //     title: "Rapport",
-    //   },
-    //   {
-    //     icon: "FolderIcon",
-    //     title: "Gestion Financière",
-    //     subMenu: [
-    //       {
-    //         icon: "ZapIcon",
-    //         pageName: "finances_suivi",
-    //         title: "Suivi Financier",
-    //       },
-    //       {
-    //         icon: "DollarSignIcon",
-    //         pageName: "Plan_Decaissement",
-    //         title: "Plan de Décaissement",
-    //       },
-    //     ],
-    //   },
-
-    //   {
-    //     icon: "CpuIcon",
-    //     pageName: "Ongs",
-    //     title: "Organisations",
-    //   },
-    //   {
-    //     icon: "FolderIcon",
-    //     pageName: "projets",
-    //     title: "Outils de collecte",
-    //     subMenu: [
-    //       {
-    //         icon: "SettingsIcon",
-    //         pageName: "create_form_factuel",
-    //         title: "Création Formulaire Factuel",
-    //       },
-    //       {
-    //         icon: "SettingsIcon",
-    //         pageName: "create_form_perception",
-    //         title: "Création Formulaire de Perception",
-    //       },
-    //     ],
-    //   },
-    //   {
-    //     icon: "BarChart2Icon",
-    //     pageName: "Programmation_enquete",
-    //     title: "Évaluations & Résulats",
-    //   },
-
-    //   {
-    //     icon: "BarChart2Icon",
-    //     pageName: "EnqueteIndividuel",
-    //     title: "Enquête personnalisée",
-    //   },
-
-    //   {
-    //     icon: "UsersIcon",
-    //     pageName: "Utilisateur",
-    //     title: "Utilisateurs",
-    //   },
-    //   // {
-    //   //   icon: "UnlockIcon",
-    //   //   pageName: "Roles",
-    //   //   title: "Rôles et permissions",
-    //   // },
-    //   {
-    //     icon: "SettingsIcon",
-    //     pageName: "setting",
-    //     title: "Paramètres",
-    //     subMenu: [
-    //       {
-    //         icon: "BarChart2Icon",
-    //         pageName: "sources_verification",
-    //         title: "Sources de vérification",
-    //       },
-    //       {
-    //         icon: "BarChart2Icon",
-    //         pageName: "fonds",
-    //         title: "Fonds",
-    //       },
-    //       // {
-    //       //   icon: "BarChart2Icon",
-    //       //   pageName: "TypeResultat",
-    //       //   title: "Résultats Cadre de rendement",
-    //       // },
-    //       {
-    //         icon: "BarChart2Icon",
-    //         pageName: "Roles",
-    //         title: "Rôles et permissions",
-    //       },
-    //     ],
-    //   },
-    // ],
+   
   }),
   actions: {
     setTabPermission(newTabPermission) {
@@ -314,7 +157,7 @@ export const useSimpleMenuStore = defineStore("simpleMenu", {
     addToMenuIfPermissionGranted() {
       this.menu = [];
 
-      this.menu.push(this.dashboard);
+      // this.menu.push(this.dashboard);
       if (this.tabPermission.some((permission) => permission.slug === "voir-un-projet" || permission.slug === "voir-ptab" || permission.slug === "voir-un-outcome" || permission.slug === "voir-un-output" || permission.slug === "voir-une-activite" || permission.slug === "voir-une-tache")) {
         this.menu.push(this.projets);
         this.projets.subMenu = [];

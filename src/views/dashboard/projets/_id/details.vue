@@ -4,7 +4,8 @@
     <!-- Header -->
     <div class="flex items-center justify-between">
       <div class="">
-        <h1 class="text-xl font-semibold text-gray-800">{{ graphiqueData?.nom }}</h1>
+        <!-- <pre>{{ graphiqueData }}</pre> -->
+        <h1 class="text-xl font-semibold text-gray-800"> {{graphiqueData?.codePta}} - {{ graphiqueData?.nom }}</h1>
         <p class="text-sm text-gray-600" v-if="graphiqueData?.description">{{ graphiqueData?.description }}.</p>
       </div>
       <!-- <div class="">

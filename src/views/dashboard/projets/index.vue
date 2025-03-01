@@ -4,7 +4,7 @@
   </div>
 
   <div>
-    <h3>An interactive leaflet map</h3>
+    <!-- <h3>An interactive leaflet map</h3> -->
     <div id="map" style="height: 70vh"></div>
   </div>
   <div class="flex flex-col items-center justify-between mt-8 mb-4 intro-y sm:flex-row">
@@ -248,7 +248,7 @@
     </ModalBody>
   </Modal>
   <LoaderSnipper v-if="isLoadingProjets" />
-  <div v-if="verifyPermission('voir-un-projet') && !isLoadingProjets" class="grid grid-cols-1 gap-6 mt-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+  <div v-if="verifyPermission('voir-un-projet') && !isLoadingProjets" class="grid grid-cols-1 gap-6 mt-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
     <div href="#" class="relative transition-all duration-500 border-l-4 shadow-2xl box group _bg-white zoom-in border-primary hover:border-secondary" v-for="(item, index) in paginatedAndFilteredData" :key="index">
       <div class="relative m-5 bg-white">
         <div class="text-[#171a1d] group-hover:text-[#007580] font-medium text-[14px] md:text-[16px] lg:text-[18px] leading-[30px] pt-[10px]">{{ item.codePta }} - {{ item.nom }}</div>
@@ -272,11 +272,12 @@
 
       <div class="m-5 text-slate-600 dark:text-slate-500">
         <div class="flex items-center">
-          <LinkIcon class="w-4 h-4 mr-2" /> Fond propre: {{ $h.formatCurrency(item.budgetNational) }}
+          <LinkIcon class="w-4 h-4 mr-2" /> Fond propre: {{ item.budgetNational == null || item.budgetNational == 0 ? 0 : $h.formatCurrency(item.budgetNational) }}
           <div class="ml-2 italic font-bold">Fcfa</div>
         </div>
         <div class="flex items-center">
-          <LinkIcon class="w-4 h-4 mr-2" /> Montant financé: {{ $h.formatCurrency(item.pret == null ? 0 : item.pret) }}
+         
+          <LinkIcon class="w-4 h-4 mr-2" /> Montant financé: {{ item.pret == null || item.pret == 0 ? 0 :  $h.formatCurrency(item.pret ) }}
           <div class="ml-2 italic font-bold">Fcfa</div>
         </div>
         <div v-if="item.owner !== null" class="flex items-center">
@@ -667,7 +668,7 @@ export default {
     },
     goToDetail(projet) {
       console.log(projet);
-      this.$router.push({ name: "projets_id_details", params: { id: projet.id, projet: projet } });
+      this.$router.push({ name: "Détails Projets", params: { id: projet.id, projet: projet } });
     },
     verifyPermission,
     resetFileInput() {
@@ -845,7 +846,7 @@ export default {
       };
 
       localStorage.setItem("profondeurProjet", JSON.stringify(profondeurProjet));
-      this.$router.push({ name: "dashboard_projets_composantes_globale" });
+      this.$router.push({ name: "OutComes" });
     },
 
     active() {
@@ -957,7 +958,7 @@ export default {
 
     gotoDetails(projet) {
       if (this.dashboardProjetVisible) {
-        this.$router.push({ name: "projets_id_details", params: { id: projet.id, projet: projet } });
+        this.$router.push({ name: "Détails Projets", params: { id: projet.id, projet: projet } });
       }
     },
 

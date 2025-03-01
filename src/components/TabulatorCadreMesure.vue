@@ -566,7 +566,7 @@ const valeurRealise = ref([]);
 
 const goToDetailSuivi = (id) => {
   router.push({
-    name: "detail_indicateur",
+    name: "Détail du suivi",
     params: { id },
   });
 };

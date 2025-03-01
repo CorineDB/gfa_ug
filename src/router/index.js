@@ -96,14 +96,14 @@ const routes = [
     component: SideMenu,
     name: "dashboard",
     children: [
-      {
-        path: "gfa",
-        name: "DashboardGfa",
-        component: DashboardGfa,
-      },
+      // {
+      //   path: "gfa",
+      //   name: "DashboardGfa",
+      //   component: DashboardGfa,
+      // },
       {
         path: "/organisation",
-        name: "Ongs",
+        name: "Organisations",
         component: Organisations,
       },
       {
@@ -121,17 +121,17 @@ const routes = [
         path: "/projets/:id/details",
         component: projets_id_details,
 
-        name: "projets_id_details",
+        name: "Détails Projets",
       },
       {
         path: "projets/composantes-globale",
         component: dashboard_projets_composantes_globale,
-        name: "dashboard_projets_composantes_globale",
+        name: "OutComes",
       },
       {
         path: "/dashboard/projets/sous-composantes-globale",
         component: dashboard_projets_sous_composantes_globale,
-        name: "dashboard_projets_sous_composantes_globale",
+        name: "OutPuts",
       },
       {
         path: "/marqueur-classemnt/:e",
@@ -142,31 +142,31 @@ const routes = [
         path: "projets/activites-globale",
         component: dashboard_projets_activites_globale,
 
-        name: "dashboard_projets_activites_globale",
+        name: "Activités",
       },
       {
         path: "projets/taches-globale",
         component: dashboard_projets_taches_globale,
-        name: "dashboard_projets_taches_globale",
+        name: "Tâches",
       },
       {
         path: "enquetes",
-        name: "Programmation_enquete",
+        name: "Évaluations & Résulats",
         component: Programmation_enquete,
       },
       {
         path: "indicateurs",
-        name: "create_indicateur",
+        name: "Indicateurs",
         component: CreateIndicateur,
       },
       {
         path: "indicateur/:id",
-        name: "detail_indicateur",
+        name: "Détail du suivi",
         component: DetailSuivi,
       },
       {
         path: "suiviFinancier/:id",
-        name: "detail_suivi",
+        name: "Détail du suivi financier",
         component: DetailSuiviFinancier,
       },
       {
@@ -268,7 +268,7 @@ const routes = [
       },
       {
         path: "plan-action",
-        name: "ptaGlobal",
+        name: "Pta Global",
         component: PtaGlobal,
       },
       {
@@ -410,11 +410,11 @@ const routes = [
         name: "resultat_collecte",
         component: FicheResultat,
       },
-      {
-        path: "indicateurs",
-        name: "Indicateurs",
-        component: indicateurs,
-      },
+      // {
+      //   path: "indicateurs",
+      //   name: "Indicateurs",
+      //   component: indicateurs,
+      // },
       {
         path: "suiviIndicateurs",
         name: "SuiviIndicateurs",

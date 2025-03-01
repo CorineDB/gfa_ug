@@ -6,7 +6,7 @@
     <div class="flex mt-[4.7rem] md:mt-0 relative overflow-hidden">
       <!-- BEGIN: Side Menu -->
       <nav v-if="!isToolsPerception" class="fixed h-screen overflow-scroll side-nav navColor scrollbar-hidden">
-        <router-link :to="{ name: 'DashboardGfa' }" tag="a" class="flex flex-wrap items-center justify-center mt-3 intro-x">
+        <router-link  :to="{ name: 'projets' }" tag="a" class="flex flex-wrap items-center justify-center mt-3 intro-x">
           <h1 class="font-semibold text-white">{{ nomProgramme }}</h1>
           <p>{{ currentUsers.role }}</p>
           <!-- <img alt="Programme de redevabilité" class="w-[5rem] sm:w-[7rem]" :src="usersProfileImage" /> -->

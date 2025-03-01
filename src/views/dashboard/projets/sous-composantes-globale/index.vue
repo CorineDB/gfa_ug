@@ -223,7 +223,7 @@ export default {
       this.messageErreur = {};
       this.showModal = true;
       this.isUpdate = false;
-      this.formData.composanteId = "";
+      this.formData.composanteId = this.selectedIds.composantId;
       this.labels = "Ajouter";
     },
     sendForm() {
@@ -504,12 +504,14 @@ export default {
           <!-- Other details with iconized section headers -->
           <div class="mt-5 space-y-3 text-gray-600">
             <div class="flex items-center">
-              <LinkIcon class="w-4 h-4 mr-2" /> Fonds propre: {{ $h.formatCurrency(item.budgetNational) }}
+              <LinkIcon class="w-4 h-4 mr-2" /> Fonds propre: {{ item.budgetNational == null || item.budgetNational == 0 ? 0 : $h.formatCurrency(item.budgetNational) }}
               <div class="ml-2 italic font-bold">Fcfa</div>
             </div>
 
             <div class="flex items-center">
-              <LinkIcon class="w-4 h-4 mr-2" /> Montant financé: {{ $h.formatCurrency(item.pret == null ? 0 : item.pret) }}
+              <pre>{{ item.pret }} Pret</pre>
+
+              <LinkIcon class="w-4 h-4 mr-2" /> Montant financé: {{ item.pret == null || item.pret == 0 ? 0 :  $h.formatCurrency(item.pret ) }}
               <div class="ml-2 italic font-bold">Fcfa</div>
             </div>
             <div class="flex items-center text-sm font-medium text-gray-700">

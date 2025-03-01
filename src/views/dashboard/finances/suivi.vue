@@ -244,7 +244,7 @@ const initTabulator = () => {
 const handleDetail = (data) => {
   // console.log("handleDetail id", id);
   router.push({
-    name: "detail_suivi",
+    name: "Détail du suivi financier",
     params: { id: data.activite.id },
   });
 };
@@ -323,13 +323,14 @@ const suiviFinancierActivite = () => {
         console.log(error);
         loadingSuiviFinancier.value = false;
 
-        toast.error("Une erreur s'est produite");
+        
 
         // Mettre à jour les messages d'erreurs dynamiquement
-        if (error.response && error.response.data && error.response.data.errors) {
+        if (error.response && error.response.data && error.response.data.errors.length > 0) {
           erreurSuiviFinancier.value = error.response.data.errors;
+          toast.error("Une erreur s'est produite dans le formulaire");
         } else {
-          toast.error(error.response.data.errors.message);
+          toast.error(error.response.data.message);
         }
       });
   }
@@ -477,37 +478,37 @@ onMounted(() => {
                     <span class="font-bold">{{ suivi.trimestre }}</span>
                   </td>
                   <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
-                    <span class="font-bold">{{ $h.formatCurrency(suivi.periode.budjet) }}</span>
+                    <span class="font-bold">{{ suivi.periode.budget == null || suivi.periode.budget == 0 ? 0 : $h.formatCurrency(suivi.periode.budget) }}</span>
                   </td>
                   <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
-                    <span class="font-bold">{{ $h.formatCurrency(suivi.periode.consommer) }}</span>
+                    <span class="font-bold">{{ suivi.periode.consommer == null || suivi.periode.consommer == 0 ? 0 : $h.formatCurrency(suivi.periode.consommer) }}</span>
                   </td>
                   <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
-                    <span class="font-bold">{{ $h.formatCurrency(suivi.periode.disponible) }}</span>
+                    <span class="font-bold">{{ suivi.periode.disponible == null || suivi.periode.disponible == 0 ? 0 : $h.formatCurrency(suivi.periode.disponible) }}</span>
                   </td>
                   <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
                     <span class="font-bold">{{ suivi.periode.pourcentage }}</span>
                   </td>
                   <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
-                    <span class="font-bold">{{ $h.formatCurrency(suivi.exercice.budjet) }}</span>
+                    <span class="font-bold">{{ suivi.exercice.budget == null || suivi.exercice.budget == 0 ? 0 : $h.formatCurrency(suivi.exercice.budget) }}</span>
                   </td>
                   <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
-                    <span class="font-bold">{{ $h.formatCurrency(suivi.exercice.consommer) }}</span>
+                    <span class="font-bold">{{ suivi.exercice.consommer == null || suivi.exercice.consommer == 0 ? 0 : $h.formatCurrency(suivi.exercice.consommer) }}</span>
                   </td>
                   <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
-                    <span class="font-bold">{{ $h.formatCurrency(suivi.exercice.disponible) }}</span>
+                    <span class="font-bold">{{ suivi.exercice.disponible == null || suivi.exercice.disponible == 0 ? 0 : $h.formatCurrency(suivi.exercice.disponible) }}</span>
                   </td>
                   <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
                     <span class="font-bold">{{ suivi.exercice.pourcentage }}</span>
                   </td>
                   <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
-                    <span class="font-bold">{{ $h.formatCurrency(suivi.cumul.budjet) }}</span>
+                    <span class="font-bold">{{ suivi.cumul.budget == null || suivi.cumul.budget == 0 ? 0 : $h.formatCurrency(suivi.cumul.budget) }}</span>
                   </td>
                   <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
-                    <span class="font-bold">{{ $h.formatCurrency(suivi.cumul.consommer) }}</span>
+                    <span class="font-bold">{{ suivi.cumul.consommer == null || suivi.cumul.consommer == 0 ? 0 : $h.formatCurrency(suivi.cumul.consommer) }}</span>
                   </td>
                   <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
-                    <span class="font-bold">{{ $h.formatCurrency(suivi.cumul.disponible) }}</span>
+                    <span class="font-bold">{{ suivi.cumul.disponible == null || suivi.cumul.disponible == 0 ? 0 : $h.formatCurrency(suivi.cumul.disponible) }}</span>
                   </td>
                   <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
                     <span class="font-bold">{{ suivi.cumul.pourcentage }}</span>
@@ -620,7 +621,7 @@ onMounted(() => {
             <TomSelect v-model="plan.type" :options="{ placeholder: 'Selectionez une source' }" class="w-full">
               <option value="">Choisir un suivi</option>
               <option value="fond-propre">Fond propre</option>
-              <option value="budjet-Alloue">Budget Alloue</option>
+              <option value="budget-Alloue">Budget Alloue</option>
             </TomSelect>
           </div> -->
 
