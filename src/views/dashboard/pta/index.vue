@@ -83,7 +83,7 @@
         </table>
       </div>
 
-      <div class="absolute shadow-md left-1/4 sm:rounded-lg">
+      <div class="absolute shadow-md left-[370px] sm:rounded-lg">
         <table class="w-full overflow-auto text-sm text-left text-gray-500 dark:text-gray-400">
           <thead class="sticky top-0 text-xs border bg-blue-200 text-gray-700 uppercase _z-20 _bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr class="">
