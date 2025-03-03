@@ -381,7 +381,7 @@ onMounted(() => {
   // }
 
   getDatas();
-  getactivites(new Date().getFullYear());
+ // getactivites(new Date().getFullYear());
   getcurrentUser();
 });
 </script>
@@ -397,7 +397,7 @@ onMounted(() => {
         </div>
       </div>
       <div class="flex">
-        <button class="mr-2 shadow-md btn btn-primary" @click="openFilterModal"><FilterIcon class="w-4 h-4 mr-3" />Filtrer le PA</button>
+        <button class="mr-2 shadow-md btn btn-primary" @click="openFilterModal"><FilterIcon class="w-4 h-4 mr-3" />Filtrer le suivi financier</button>
 
         <button class="btn btn-primary" title="Réinitialiser le filtre" @click="resetFilter()">
           <RefreshCwIcon class="w-5 h-5" />

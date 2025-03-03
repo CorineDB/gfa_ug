@@ -25,7 +25,7 @@
 
     <!-- BEGIN: Account Menu -->
 
-    <router-link to="/files"> <FolderPlusIcon class="w-6 h-6 mr-4" title="Ajouter des fichiers" /> </router-link>
+    <!-- <router-link to="/files"> <FolderPlusIcon class="w-6 h-6 mr-4" title="Ajouter des fichiers" /> </router-link> -->
 
     <p class="px-2 font-medium">{{ currentUsers.nom }}</p>
     <Dropdown class="w-8 h-8 intro-x">

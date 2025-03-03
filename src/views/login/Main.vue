@@ -1,137 +1,16 @@
 <template>
-        <!-- <img alt="Midone Tailwind HTML Admin Template" class="hidden"  src="../../assets/images/newSvg.svg" /> -->
 
-  <!-- <div class="body h-screen flex justify-center items-center" >
-    <div class="container ">
-
-      <div class="display w-2/3 flex flex-col  sm:hidden">
-        <div class="flex flex-col items-center justify-center w-full">
-          <div>
-            <img alt="Midone Tailwind HTML Admin Template" class="w-48 p-4 bg-white rounded-xl mx-auto md:float-left "
-              src="../../assets/images/GFA.png" />
-
-          </div>
-          <h1 class="text-xl text-white font-bold my-5">DMS Redevabilité</h1>
-          <p class="w-full md:w-11/12 mx-auto md:mx-0 text-white mb-5 text-center">
-            Responsabilité partagée, Qualité améliorée : Unis pour un meilleur service social.
-          </p>
-        </div>
-      </div>
-      <div class="display   _sm:ml-14 _lg:ml-28 flex flex-col hidden md:flex flex-col justify-center items-center">
+  <div class=" h-screen bg-white sm:bg-[#0f3460] flex justify-center items-center">
+    <div class="w-1/2 hidden md:block p-5">
+      <div class="flex flex-col hidden md:flex flex-col justify-center items-center">
         <div class="_ml-16 flex flex-col justify-center items-center w-full">
           <div>
             <img alt="Midone Tailwind HTML Admin Template" class="w-48 p-4 bg-white rounded-xl mx-auto _md:float-left "
               src="../../assets/images/GFA.png" />
 
           </div>
-          <h1 class="sm:text-2xl lg:text-5xl text-white font-bold my-5 text-center">DMS Redevabilité</h1>
-          <p class="w-full text-center text-xl _md:w-11/12 mx-auto _md:mx-0 text-white mb-5">
-            Responsabilité partagée, Qualité améliorée : Unis pour un meilleur service social.
-          </p>
-        </div>
-        <img alt="Midone Tailwind HTML Admin Template" class="_lg:w-2/3 _h-auto mx-auto"
-          src="../../assets/images/side2.png" />
-      </div>
-      <div class="login  w-2/3">
-
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1439 319">
-          <path fill="#0f3460" fill-opacity="1"
-            d="M0,32L34.3,32C68.6,32,137,32,206,69.3C274.3,107,343,181,411,213.3C480,245,549,235,617,208C685.7,181,754,139,823,122.7C891.4,107,960,117,1029,138.7C1097.1,160,1166,192,1234,186.7C1302.9,181,1371,139,1406,117.3L1440,96L1440,0L1405.7,0C1371.4,0,1303,0,1234,0C1165.7,0,1097,0,1029,0C960,0,891,0,823,0C754.3,0,686,0,617,0C548.6,0,480,0,411,0C342.9,0,274,0,206,0C137.1,0,69,0,34,0L0,0Z">
-          </path>
-        </svg>
-        <form @submit.prevent="save" autocomplete="on" class="">
-          <div class="w-full px-5 py-8 mx-auto my-auto">
-            <Alert v-if="showAlert" class="flex items-center mb-2 alert-danger">
-              <AlertCircleIcon class="w-6 h-6 mr-2" /> Email ou mot de passe incorrect.
-            </Alert>
-            <svg width="47" height="47" class="mx-auto my-4" viewBox="0 0 47 47" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <g clip-path="url(#clip0)">
-              <path d="M16.5141 36.8509L9.50869 40.6738C9.10118 40.9067 8.73248 41.1784 8.38318 41.4694C12.4777 44.9236 17.756 47 23.5194 47C29.244 47 34.4835 44.943 38.5587 41.5471C38.19 41.2366 37.7824 40.9455 37.3167 40.7126L29.8068 36.9674C28.8365 36.4822 28.2155 35.4926 28.2155 34.4059V31.4562C28.429 31.2234 28.6619 30.9129 28.9336 30.5442C29.962 29.1082 30.7383 27.5169 31.2622 25.848C32.2325 25.557 32.9311 24.6643 32.9311 23.597V20.4533C32.9311 19.7547 32.6206 19.1338 32.1549 18.7068V14.166C32.1549 14.166 33.0863 7.08298 23.5 7.08298C13.9137 7.08298 14.8646 14.166 14.8646 14.166V18.7068C14.3795 19.1338 14.0884 19.7547 14.0884 20.4533V23.597C14.0884 24.4314 14.5153 25.1495 15.1751 25.5764C15.9513 28.9917 18.0277 31.4562 18.0277 31.4562V34.3476C18.0083 35.3761 17.4261 36.3464 16.5141 36.8509Z" fill="#ECF0F1"/>
-              <path d="M23.9075 1.0601e-05C10.9252 -0.213449 0.232815 10.1297 -5.04004e-05 23.0925C-0.116483 30.4472 3.16304 37.0644 8.38311 41.4695C8.7324 41.1784 9.0817 40.9067 9.48922 40.6738L16.4946 36.851C17.4066 36.3464 17.9888 35.3761 17.9888 34.3283V31.4562C17.9888 31.4562 15.9318 28.9918 15.1362 25.5764C14.4764 25.1495 14.0495 24.4315 14.0495 23.597V20.4534C14.0495 19.7548 14.36 19.1338 14.8257 18.7069V14.166C14.8257 14.166 13.8943 7.083 23.4806 7.083C33.0668 7.083 32.1548 14.166 32.1548 14.166V18.7069C32.6399 19.1338 32.931 19.7548 32.931 20.4534V23.597C32.931 24.6449 32.213 25.5376 31.2621 25.8481C30.7188 27.5169 29.9426 29.1082 28.9335 30.5442C28.6812 30.9129 28.4289 31.2234 28.2155 31.4562V34.4059C28.2155 35.4926 28.8365 36.4823 29.8067 36.9674L37.3166 40.7126C37.763 40.9455 38.1705 41.2172 38.5586 41.5471C43.6234 37.3167 46.9029 31.0099 47.0194 23.9075C47.2134 10.9253 36.8897 0.232876 23.9075 1.0601e-05Z" fill="#556080"/>
-              </g>
-              <defs>
-              <clipPath id="clip0">
-              <rect width="47" height="47" fill="white"/>
-              </clipPath>
-              </defs>
-            </svg>
-            <h2 class="text-3xl font-extrabold text-center intro-x text-[#0f3460]">Se connecter</h2>
-            <div class="mt-2 text-center intro-x text-slate-400 xl:hidden">Responsabilité partagée, Qualité améliorée :
-              Unis pour un meilleur service social.</div>
-            <div class="mt-8 intro-x">
-              <div>
-                <input type="text" autocomplete="on" v-model.trim="login"
-                  class="block px-4 py-3 intro-x login__input form-control" placeholder="Email" />
-
-              </div>
-
-              <div class="">
-                <div class="relative">
-                  <input :type="statePassword" class="block px-4 py-3 mt-4 intro-x login__input form-control"
-                    v-model.trim="password" placeholder="Mots de passe" />
-
-                  <span @click="invisible" v-if="show"
-                    class="absolute eye z-30 text-blue-500 cursor-pointer right-4 top-4"><svg stroke="currentColor"
-                      fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024" height="1.8em" width="1.6em"
-                      xmlns="http://www.w3.org/2000/svg">
-                      <defs>
-                        <clipPath>
-                          <path fill="none" d="M124-288l388-672 388 672H124z" clip-rule="evenodd"></path>
-                        </clipPath>
-                      </defs>
-                      <path
-                        d="M508 624a112 112 0 0 0 112-112c0-3.28-.15-6.53-.43-9.74L498.26 623.57c3.21.28 6.45.43 9.74.43zm370.72-458.44L836 122.88a8 8 0 0 0-11.31 0L715.37 232.23Q624.91 186 512 186q-288.3 0-430.2 300.3a60.3 60.3 0 0 0 0 51.5q56.7 119.43 136.55 191.45L112.56 835a8 8 0 0 0 0 11.31L155.25 889a8 8 0 0 0 11.31 0l712.16-712.12a8 8 0 0 0 0-11.32zM332 512a176 176 0 0 1 258.88-155.28l-48.62 48.62a112.08 112.08 0 0 0-140.92 140.92l-48.62 48.62A175.09 175.09 0 0 1 332 512z">
-                      </path>
-                      <path
-                        d="M942.2 486.2Q889.4 375 816.51 304.85L672.37 449A176.08 176.08 0 0 1 445 676.37L322.74 798.63Q407.82 838 512 838q288.3 0 430.2-300.3a60.29 60.29 0 0 0 0-51.5z">
-                      </path>
-                    </svg></span>
-                  <span @click="invisible" v-if="!show"
-                    class="absolute eye z-30 text-blue-500 cursor-pointer right-4 top-4"><svg stroke="currentColor"
-                      fill="currentColor" stroke-width="0" viewBox="0 0 16 16" height="1.8em" width="1.6em"
-                      xmlns="http://www.w3.org/2000/svg">
-                      <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"></path>
-                      <path
-                        d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z">
-                      </path>
-                    </svg></span>
-                </div>
-
-              </div>
-            </div>
-            <div class="flex mt-4 text-xs intro-x text-slate-600 dark:text-slate-500 sm:text-sm">
-              <div class="flex items-center mr-auto">
-                <input id="remember-me" type="checkbox" class="mr-2 border form-check-input" />
-                <label class="mr-3 cursor-pointer select-none" for="remember-me">Se souvenir de moi</label>
-              </div>
-              <span class="cursor-pointer" @click="goPageRequest()">Mots de passe oublié?</span>
-            </div>
-            <div class="mt-5 text-center intro-x xl:mt-8 xl:text-left">
-
-              <VButton :loading="chargement" label="Se connecter" class="py-3" />
-            </div>
-
-          </div>
-        </form>
-
-
-        
-
-      </div>
-    </div>   
-  </div> -->
-
-  <div class=" h-screen flex justify-center items-center" >
-    <div class="w-1/2">
-      <div class="display   _sm:ml-14 _lg:ml-28 flex flex-col hidden md:flex flex-col justify-center items-center">
-        <div class="_ml-16 flex flex-col justify-center items-center w-full">
-          <div>
-            <img alt="Midone Tailwind HTML Admin Template" class="w-48 p-4 bg-white rounded-xl mx-auto _md:float-left "
-              src="../../assets/images/GFA.png" />
-
-          </div>
-          <h1 class="sm:text-2xl lg:text-5xl text-white font-bold my-5 text-center">DMS Redevabilité</h1>
-          <p class="w-full text-center text-xl _md:w-11/12 mx-auto _md:mx-0 text-white mb-5">
+          <h1 class="text-base lg:text-xl text-white font-bold my-5 text-center">DMS Redevabilité</h1>
+          <p class="w-full text-center text-base lg:text-xl text-white mb-5">
             Responsabilité partagée, Qualité améliorée : Unis pour un meilleur service social.
           </p>
         </div>
@@ -139,9 +18,19 @@
           src="../../assets/images/side2.png" />
       </div>
     </div>
-    <div class="w-1/2 bg-gray-200 h-screen flex flex-col items-center justify-center">
+    <div class="w-full md:w-1/2 bg-gray-200 h-screen flex flex-col items-center justify-center">
 
-      <div class="login  w-2/3">
+      <div class=" flex flex-col justify-center items-center w-full md:hidden">
+        <div>
+          <img alt="Midone Tailwind HTML Admin Template" class="w-48 p-4 bg-white rounded-xl mx-auto _md:float-left "
+            src="../../assets/images/GFA.png" />
+        </div>
+        <!-- <h1 class="sm:text-2xl lg:text-5xl text-[#0f3460] font-bold my-5 text-center">DMS Redevabilité</h1> -->
+        <p class="w-full text-center text-sm xl:text-xl _md:w-11/12 mx-auto _md:mx-0 text-[#0f3460] my-5">
+          Responsabilité partagée, Qualité améliorée : Unis pour un meilleur service social.
+        </p>
+      </div>
+      <div class="login w-2/3">
 
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1439 319">
           <path fill="#0f3460" fill-opacity="1"
@@ -153,15 +42,20 @@
             <Alert v-if="showAlert" class="flex items-center mb-2 alert-danger">
               <AlertCircleIcon class="w-6 h-6 mr-2" /> Email ou mot de passe incorrect.
             </Alert>
-            <svg width="47" height="47" class="mx-auto my-4" viewBox="0 0 47 47" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="47" height="47" class="mx-auto my-4" viewBox="0 0 47 47" fill="none"
+              xmlns="http://www.w3.org/2000/svg">
               <g clip-path="url(#clip0)">
-              <path d="M16.5141 36.8509L9.50869 40.6738C9.10118 40.9067 8.73248 41.1784 8.38318 41.4694C12.4777 44.9236 17.756 47 23.5194 47C29.244 47 34.4835 44.943 38.5587 41.5471C38.19 41.2366 37.7824 40.9455 37.3167 40.7126L29.8068 36.9674C28.8365 36.4822 28.2155 35.4926 28.2155 34.4059V31.4562C28.429 31.2234 28.6619 30.9129 28.9336 30.5442C29.962 29.1082 30.7383 27.5169 31.2622 25.848C32.2325 25.557 32.9311 24.6643 32.9311 23.597V20.4533C32.9311 19.7547 32.6206 19.1338 32.1549 18.7068V14.166C32.1549 14.166 33.0863 7.08298 23.5 7.08298C13.9137 7.08298 14.8646 14.166 14.8646 14.166V18.7068C14.3795 19.1338 14.0884 19.7547 14.0884 20.4533V23.597C14.0884 24.4314 14.5153 25.1495 15.1751 25.5764C15.9513 28.9917 18.0277 31.4562 18.0277 31.4562V34.3476C18.0083 35.3761 17.4261 36.3464 16.5141 36.8509Z" fill="#ECF0F1"/>
-              <path d="M23.9075 1.0601e-05C10.9252 -0.213449 0.232815 10.1297 -5.04004e-05 23.0925C-0.116483 30.4472 3.16304 37.0644 8.38311 41.4695C8.7324 41.1784 9.0817 40.9067 9.48922 40.6738L16.4946 36.851C17.4066 36.3464 17.9888 35.3761 17.9888 34.3283V31.4562C17.9888 31.4562 15.9318 28.9918 15.1362 25.5764C14.4764 25.1495 14.0495 24.4315 14.0495 23.597V20.4534C14.0495 19.7548 14.36 19.1338 14.8257 18.7069V14.166C14.8257 14.166 13.8943 7.083 23.4806 7.083C33.0668 7.083 32.1548 14.166 32.1548 14.166V18.7069C32.6399 19.1338 32.931 19.7548 32.931 20.4534V23.597C32.931 24.6449 32.213 25.5376 31.2621 25.8481C30.7188 27.5169 29.9426 29.1082 28.9335 30.5442C28.6812 30.9129 28.4289 31.2234 28.2155 31.4562V34.4059C28.2155 35.4926 28.8365 36.4823 29.8067 36.9674L37.3166 40.7126C37.763 40.9455 38.1705 41.2172 38.5586 41.5471C43.6234 37.3167 46.9029 31.0099 47.0194 23.9075C47.2134 10.9253 36.8897 0.232876 23.9075 1.0601e-05Z" fill="#556080"/>
+                <path
+                  d="M16.5141 36.8509L9.50869 40.6738C9.10118 40.9067 8.73248 41.1784 8.38318 41.4694C12.4777 44.9236 17.756 47 23.5194 47C29.244 47 34.4835 44.943 38.5587 41.5471C38.19 41.2366 37.7824 40.9455 37.3167 40.7126L29.8068 36.9674C28.8365 36.4822 28.2155 35.4926 28.2155 34.4059V31.4562C28.429 31.2234 28.6619 30.9129 28.9336 30.5442C29.962 29.1082 30.7383 27.5169 31.2622 25.848C32.2325 25.557 32.9311 24.6643 32.9311 23.597V20.4533C32.9311 19.7547 32.6206 19.1338 32.1549 18.7068V14.166C32.1549 14.166 33.0863 7.08298 23.5 7.08298C13.9137 7.08298 14.8646 14.166 14.8646 14.166V18.7068C14.3795 19.1338 14.0884 19.7547 14.0884 20.4533V23.597C14.0884 24.4314 14.5153 25.1495 15.1751 25.5764C15.9513 28.9917 18.0277 31.4562 18.0277 31.4562V34.3476C18.0083 35.3761 17.4261 36.3464 16.5141 36.8509Z"
+                  fill="#ECF0F1" />
+                <path
+                  d="M23.9075 1.0601e-05C10.9252 -0.213449 0.232815 10.1297 -5.04004e-05 23.0925C-0.116483 30.4472 3.16304 37.0644 8.38311 41.4695C8.7324 41.1784 9.0817 40.9067 9.48922 40.6738L16.4946 36.851C17.4066 36.3464 17.9888 35.3761 17.9888 34.3283V31.4562C17.9888 31.4562 15.9318 28.9918 15.1362 25.5764C14.4764 25.1495 14.0495 24.4315 14.0495 23.597V20.4534C14.0495 19.7548 14.36 19.1338 14.8257 18.7069V14.166C14.8257 14.166 13.8943 7.083 23.4806 7.083C33.0668 7.083 32.1548 14.166 32.1548 14.166V18.7069C32.6399 19.1338 32.931 19.7548 32.931 20.4534V23.597C32.931 24.6449 32.213 25.5376 31.2621 25.8481C30.7188 27.5169 29.9426 29.1082 28.9335 30.5442C28.6812 30.9129 28.4289 31.2234 28.2155 31.4562V34.4059C28.2155 35.4926 28.8365 36.4823 29.8067 36.9674L37.3166 40.7126C37.763 40.9455 38.1705 41.2172 38.5586 41.5471C43.6234 37.3167 46.9029 31.0099 47.0194 23.9075C47.2134 10.9253 36.8897 0.232876 23.9075 1.0601e-05Z"
+                  fill="#556080" />
               </g>
               <defs>
-              <clipPath id="clip0">
-              <rect width="47" height="47" fill="white"/>
-              </clipPath>
+                <clipPath id="clip0">
+                  <rect width="47" height="47" fill="white" />
+                </clipPath>
               </defs>
             </svg>
             <h2 class="text-3xl font-extrabold text-center intro-x text-[#0f3460]">Se connecter</h2>
@@ -225,101 +119,13 @@
 
       </div>
 
-      <div class="text-center intro-x text-[#0f3460] mt-10 font-bold" >Réalisé par Célerité
+      <div class="text-center intro-x text-[#0f3460] mt-10 font-bold">Réalisé par Célerité
         holding . {{ year }}</div>
 
     </div>
-    <!-- <div class="container ">
-      <div class="display w-2/3 flex flex-col  sm:hidden">
-        <div class="flex flex-col items-center justify-center w-full">
-          <div>
-            <img alt="Midone Tailwind HTML Admin Template" class="w-48 p-4 bg-white rounded-xl mx-auto md:float-left "
-              src="../../assets/images/GFA.png" />
 
-          </div>
-          <h1 class="text-xl text-white font-bold my-5">DMS Redevabilité</h1>
-          <p class="w-full md:w-11/12 mx-auto md:mx-0 text-white mb-5 text-center">
-            Responsabilité partagée, Qualité améliorée : Unis pour un meilleur service social.
-          </p>
-        </div>
-      </div>      
-    </div>    -->
   </div>
 
- 
-
-
-
-
-
-  <!-- <div>  
-    <div class="sm:px-10 md:px-0">
-      <div class="block grid-cols-2 gap-4 bg-white xl:grid">
-        BEGIN: Login Info
-        <div class="flex-col hidden min-h-screen p-5 bg-primary xl:flex">
-          <a href="" class="p-2 pt-5 mx-auto bg-white border shadow-sm -intro-x h-fit w-fit rounded-xl">
-            <img alt="Midone Tailwind HTML Admin Template" class="w-48 mx-auto" src="../../assets/images/GFA.png" />
-          </a>
-          <div class="my-auto text-center bg-primary">
-            <img alt="Midone Tailwind HTML Admin Template" class="w-1/2 mx-auto -intro-x" src="@/assets/images/Checklist-rafiki.svg" />
-            <div class="mt-10 text-3xl font-medium leading-tight text-white -intro-x">GFA Survey <br /></div>
-            <div class="px-4 mt-5 text-xl text-white -intro-x text-opacity-70 dark:text-slate-400">Responsabilité partagée, Qualité améliorée : Unis pour un meilleur service social.</div>
-          </div>
-        </div>
-        END: Login Info
-        BEGIN: Login Form
-        <form @submit.prevent="save" autocomplete="on" class="flex items-center h-screen py-5 m-10 _bg-white xl:h-auto xl:py-0 sm:mx-auto xl:my-0">
-          <div class="w-full px-5 py-8 mx-auto my-auto bg-white rounded-md shadow-md dark:bg-darkmode-600 xl:bg-transparent sm:px-8 xl:p-0 xl:shadow-none sm:w-3/4 lg:w-2/4 xl:w-auto">
-            <Alert v-if="showAlert" class="flex items-center mb-2 alert-danger"> <AlertCircleIcon class="w-6 h-6 mr-2" /> Email ou mot de passe incorrect.</Alert>
-            <h2 class="text-2xl font-bold text-center intro-x xl:text-3xl xl:text-left">Se connecter</h2>
-            <div class="mt-2 text-center intro-x text-slate-400 xl:hidden">Responsabilité partagée, Qualité améliorée : Unis pour un meilleur service social.</div>
-            <div class="mt-8 intro-x">
-              <div>
-                <input type="text" autocomplete="on" v-model.trim="login" class="block px-4 py-3 intro-x login__input form-control" placeholder="Email" />
-               
-              </div>
-
-              <div class="">
-                <div class="relative">
-                  <input :type="statePassword" class="block px-4 py-3 mt-4 intro-x login__input form-control" v-model.trim="password" placeholder="Mots de passe" />
-
-                  <span @click="invisible" v-if="show" class="absolute z-10 text-blue-500 cursor-pointer right-4 top-2"
-                    ><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024" height="1.8em" width="1.6em" xmlns="http://www.w3.org/2000/svg">
-                      <defs>
-                        <clipPath>
-                          <path fill="none" d="M124-288l388-672 388 672H124z" clip-rule="evenodd"></path>
-                        </clipPath>
-                      </defs>
-                      <path d="M508 624a112 112 0 0 0 112-112c0-3.28-.15-6.53-.43-9.74L498.26 623.57c3.21.28 6.45.43 9.74.43zm370.72-458.44L836 122.88a8 8 0 0 0-11.31 0L715.37 232.23Q624.91 186 512 186q-288.3 0-430.2 300.3a60.3 60.3 0 0 0 0 51.5q56.7 119.43 136.55 191.45L112.56 835a8 8 0 0 0 0 11.31L155.25 889a8 8 0 0 0 11.31 0l712.16-712.12a8 8 0 0 0 0-11.32zM332 512a176 176 0 0 1 258.88-155.28l-48.62 48.62a112.08 112.08 0 0 0-140.92 140.92l-48.62 48.62A175.09 175.09 0 0 1 332 512z"></path>
-                      <path d="M942.2 486.2Q889.4 375 816.51 304.85L672.37 449A176.08 176.08 0 0 1 445 676.37L322.74 798.63Q407.82 838 512 838q288.3 0 430.2-300.3a60.29 60.29 0 0 0 0-51.5z"></path></svg
-                  ></span>
-                  <span @click="invisible" v-if="!show" class="absolute z-10 text-blue-500 cursor-pointer right-4 top-2"
-                    ><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16" height="1.8em" width="1.6em" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"></path>
-                      <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"></path></svg
-                  ></span>
-                </div>
-                
-              </div>
-            </div>
-            <div class="flex mt-4 text-xs intro-x text-slate-600 dark:text-slate-500 sm:text-sm">
-              <div class="flex items-center mr-auto">
-                <input id="remember-me" type="checkbox" class="mr-2 border form-check-input" />
-                <label class="mr-3 cursor-pointer select-none" for="remember-me">Se souvenir de moi</label>
-              </div>
-              <span class="cursor-pointer" @click="goPageRequest()">Mots de passe oublié?</span>
-            </div>
-            <div class="mt-5 text-center intro-x xl:mt-8 xl:text-left">
-              
-              <VButton :loading="chargement" label="Se connecter" class="py-3" />
-            </div>
-            <div class="mt-10 text-center intro-x xl:mt-24 text-slate-600 dark:text-slate-500 xl:text-left">Célerité holding tout les droits réservés {{ year }}</div>
-          </div>
-        </form>
-        END: Login Form
-      </div>
-    </div>
-  </div> -->
 </template>
 
 <script>
@@ -505,10 +311,6 @@ export default {
 </script>
 
 <style scoped>
-.custom-bg {
-  background-color: #0f3460;
-}
-
 .eye {
   z-index: 999;
 }
@@ -518,21 +320,6 @@ export default {
   margin: 0px;
 }
 
-.body {
-  background: #0f3460;
-  
-
-
-}
-
-.container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
-  background: #0f3460;
-  padding: 20px;
-  grid-gap: 40px;
-  place-items: center;
-}
 
 .login {
   background: #fff;
@@ -584,9 +371,7 @@ input[type=password] {
   margin-bottom: 10px;
 }
 
-.display {
-  background: #0f3460;
-}
+
 
 .business-svg {
 

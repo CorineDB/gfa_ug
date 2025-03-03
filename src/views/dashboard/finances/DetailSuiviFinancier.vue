@@ -70,7 +70,6 @@ const filterPayload = reactive({
 const resetFilter = function () {
   filterPayload.trimestre = 1;
   filterPayload.annee = new Date().getFullYear();
-
   getDatas();
 };
 

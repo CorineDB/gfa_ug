@@ -1,7 +1,7 @@
 <template>
     <div class="container px-6 mx-auto">
       <div
-        class="flex flex-col text-center md:text-left md:flex-row h-screen justify-evenly md:items-center"
+        class="flex flex-col text-center md:text-left md:flex-row h-screen justify-evenly md:items-center w-full lg:w-10/12 mx-auto"
       >
         <div class="flex flex-col w-full">
           <div>

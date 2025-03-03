@@ -88,7 +88,7 @@ import SurveyFormView from "../views/dashboard/SurveyFormView.vue";
 import DetailEvaluationIndividuel from "../views/dashboard/DetailEvaluationIndividuel.vue";
 import FicheMarqueurClassement from "../views/dashboard/FicheMarqueurClassement.vue";
 import FondView from "../views/dashboard/FondView.vue";
-import Gestionnaire from "../views/dashboard/fileManager/index.vue";
+// import Gestionnaire from "../views/dashboard/fileManager/index.vue";
 
 const routes = [
   {
@@ -106,11 +106,11 @@ const routes = [
         name: "Organisations",
         component: Organisations,
       },
-      {
-        path: "/files",
-        name: "Gestionnaire",
-        component: Gestionnaire,
-      },
+      // {
+      //   path: "/files",
+      //   name: "Gestionnaire",
+      //   component: Gestionnaire,
+      // },
 
       {
         path: "indicateursDeGouvernance",
