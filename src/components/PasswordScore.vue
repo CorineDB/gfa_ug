@@ -1,18 +1,25 @@
 <template>
-    <div class="relative select-none">
-      <p class="absolute mt-1 text-sm">
-        {{ description.label }}
-      </p>
-    </div>
+  <div class="relative select-none">
+    <!-- <pre>{{ descriptions.length }}</pre> -->
+    <BaseProgressBar :value="score" :max="descriptions.length" :color="description.color" />
+    <p class="_absolute mt-1 text-sm">
+      {{ description.label }}
+    </p>
+  </div>
+  
 </template>
 
 <script>
 import { zxcvbn, zxcvbnOptions } from "@zxcvbn-ts/core";
 import zxcvbnCommonPackage from "@zxcvbn-ts/language-common";
+import BaseProgressBar from "./BaseProgressBar.vue";
 import zxcvbnEnPackage from "@zxcvbn-ts/language-en";
 import { computed } from "vue";
 
 export default {
+  components: {
+    BaseProgressBar,
+  },
   props: {
     value: {
       type: String,
@@ -30,7 +37,7 @@ export default {
       graphs: zxcvbnCommonPackage.adjacencyGraphs,
       translations: zxcvbnEnPackage.translations,
     };
-    
+
     zxcvbnOptions.setOptions(options);
 
     // Calcul du score
@@ -44,14 +51,14 @@ export default {
     const descriptions = computed(() => [
       {
         color: "bg-red-600",
-        label: "Weak, my 2 years old son can break it!",
+        label: "Faible, mon fils de 2 ans peut le casser !",
       },
-      { color: "bg-red-300", label: "Still weak, keep on trying!" },
-      { color: "bg-yellow-400", label: "We are getting there..." },
-      { color: "bg-green-200", label: "Nice, but you can still do better" },
+      { color: "bg-red-300", label: "Toujours faible, continuez d'essayer !" },
+      { color: "bg-yellow-400", label: "Nous y arrivons..." },
+      { color: "bg-green-200", label: "C'est bien, mais on peut encore faire mieux" },
       {
         color: "bg-green-400",
-        label: "Congratulations, you made it!",
+        label: "Félicitations, vous avez réussi !",
       },
     ]);
 
@@ -60,12 +67,12 @@ export default {
         ? descriptions.value[score.value - 1]
         : {
             color: "bg-transparent",
-            label: "Start typing to check your password",
+            label: "Commencez à taper pour vérifier votre mot de passe",
           }
     );
 
     // Retourne le score pour l'utiliser dans le template
-    return { description };
+    return { description ,score , descriptions};
   },
-}
+};
 </script>
