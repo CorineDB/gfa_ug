@@ -14,6 +14,8 @@ import PlanDecaissementComponent from "@/components/PlanDecaissement.vue";
 import { helper as $h } from "@/utils/helper";
 import ChartJauge from "../../../../components/news/ChartJauge.vue";
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
+import PlanDeCaissement from "@/services/modules/plan.decaissement.service";
+import AuthService from "@/services/modules/auth.service";
 
 export default {
   components: {
@@ -29,6 +31,8 @@ export default {
 
   data() {
     return {
+      loaderListePlan: false,
+      listePlanDeDecaissement: [],
       search: "",
       isLoadingActivites: false,
       itemsPerPage: 3, // Nombre d'éléments par page
@@ -88,6 +92,8 @@ export default {
       loadingCloturer: false,
       erreurPlanDeDecaissement: null,
       activiteId: null,
+      debutProgramme: "",
+      finProgramme: "",
     };
   },
 
@@ -106,6 +112,19 @@ export default {
       this.totalItems = totalFilteredItems;
 
       return paginatedData;
+    },
+    years() {
+      console.log("debut", `${this.debutProgramme.split("-")}`);
+      console.log("fin", `${this.finProgramme.split("-")}`);
+      let anneeDebut = parseInt(`${this.debutProgramme.split("-")[0]}`);
+      let anneeFin = parseInt(`${this.finProgramme.split("-")[0]}`);
+      let annees = [];
+      for (let annee = anneeDebut; annee <= anneeFin; annee++) {
+        if (annee <= new Date().getFullYear()) {
+          annees.push(annee);
+        }
+      }
+      return annees;
     },
     getPlageProjet() {
       let obj = null;
@@ -146,6 +165,33 @@ export default {
   },
 
   methods: {
+    async getcurrentUser() {
+      await AuthService.getCurrentUser()
+        .then((result) => {
+          this.debutProgramme = result.data.data.programme.debut;
+          this.finProgramme = result.data.data.programme.fin;
+        })
+        .catch((e) => {
+          console.error(e);
+          toast.error("Une erreur est survenue: Utilisateur connecté .");
+        });
+    },
+    getListePlanDeDecaissement(id) {
+      this.loaderListePlan = true;
+
+      ActiviteService.plansDeDecaissement(id)
+        .then((data) => {
+          this.loaderListePlan = false;
+          //console.log(data.data.data);
+          this.listePlanDeDecaissement = data.data.data;
+
+          console.log("this.listePlanDeDecaissement", this.listePlanDeDecaissement);
+        })
+        .catch((error) => {
+          this.loaderListePlan = false;
+          //console.log(error);
+        });
+    },
     changeActiviteId(id) {
       this.selectedIds.activiteId = id;
 
@@ -241,17 +287,36 @@ export default {
     },
 
     modifierActivite(data) {
+      console.log("data ", data);
       this.messageErreur = {};
       this.labels = "Modifier";
       this.showModal = true;
       this.isUpdate = true;
-      this.formData = {
-        ...data,
-        debut: data.durees[0]?.debut || "",
-        fin: data.durees[0]?.fin || "",
-        composanteId: this.selectedIds.sousComposantId || this.selectedIds.composantId,
-      };
-      formData.description = data.description;
+
+      this.formData.nom = data.nom;
+      this.formData.poids = data.poids;
+      this.formData.debut = data.debut;
+      this.formData.fin = data.fin;
+      this.formData.pret = parseInt(data.pret);
+      this.formData.type = data.type;
+      this.formData.composanteId = data.composanteId;
+      this.formData.budgetNational = parseInt(data.budgetNational);
+      // this.formData.nom = data.nom
+      // this.formData.nom = data.nom
+      // this.formData.nom = data.nom
+
+      // this.formData = {
+      //   ...data,
+      //   debut: data.durees[0]?.debut || "",
+      //   fin: data.durees[0]?.fin || "",
+      //   composanteId: data.composanteId,
+      // };
+      if (data.description == null) {
+        this.formData.description = "";
+      } else {
+        this.formData.description = data.description;
+      }
+
       this.selectedIds.activiteId = data.id;
     },
     async mettreAjoutOutcome(id) {
@@ -306,20 +371,30 @@ export default {
     },
 
     async sendForm() {
-      console.log("this.selectedIds.composantId", this.selectedIds.composantId);
-      const data = {
-        ...this.formData,
-        composanteId: this.selectedIds.sousComposantId == "" ? this.formData.composanteId : this.selectedIds.sousComposantId,
-        budgetNational: parseInt(this.formData.budgetNational),
-        pret: parseInt(this.formData.pret),
-      };
-
       this.isLoading = true;
       try {
         if (this.isUpdate) {
-          await ActiviteService.update(this.selectedIds.activiteId, data);
+          // const data = {
+          //   ...this.formData,
+          //   // composanteId: this.selectedIds.sousComposantId == "" ? this.formData.composanteId : this.selectedIds.sousComposantId,
+          //   budgetNational: parseInt(this.formData.budgetNational),
+          //   pret: parseInt(this.formData.pret),
+          // };
+          if (this.formData.description == "") {
+            delete this.formData.description;
+          }
+
+          console.log("data", data);
+          await ActiviteService.update(this.selectedIds.activiteId, this.formData);
           toast.success("Modification effectuée");
         } else {
+          const data = {
+            ...this.formData,
+            composanteId: this.selectedIds.sousComposantId == "" ? this.formData.composanteId : this.selectedIds.sousComposantId,
+            budgetNational: parseInt(this.formData.budgetNational),
+            pret: parseInt(this.formData.pret),
+          };
+
           await ActiviteService.create(data);
           if (this.selectedIds.sousComposantId == "") {
             // this.selectedIds.composantId = this.formData.composanteId;
@@ -335,18 +410,9 @@ export default {
         this.showModal = false;
         // this.loadComposantDetails();
       } catch (error) {
-        // alert("ok");
-        // this.isLoading = false;
-        // this.messageErreur = error.response?.data?.errors || {};
-        // Object.keys(this.messageErreur).forEach((key) => {
-        //   this.messageErreur[key] = $h.extractContentFromArray(this.messageErreur[key]);
-        // });
-        // toast.error("Erreur lors de l'envoi des données");
-
-        this.isLoading = false;
         console.log(error);
 
-        console.log(error.response.data.errors.length > 0);
+        this.isLoading = false;
 
         if (error.response && error.response.data && Object.keys(error.response.data.errors).length > 0) {
           this.messageErreur = error.response.data.errors;
@@ -512,7 +578,9 @@ export default {
     },
 
     ouvrirModalPlanDeDecaissementActivite(item) {
+      this.planDeDecaissement = [];
       this.planDeDecaissementPayload.activiteId = item.id;
+      this.getListePlanDeDecaissement(this.planDeDecaissementPayload.activiteId);
       this.planDeDecaissement.push(this.planDeDecaissementPayload);
       this.showModalPlanDeDecaissement = true;
     },
@@ -524,41 +592,81 @@ export default {
       this.planDeDecaissement.splice(index, 1);
     },
 
-    planDeDecaissementActivite() {
+    async planDeDecaissementActivite() {
       this.loadingPlanDeDecaissement = true;
 
-      console.log(this.planDeDecaissement);
-
       for (let index = 0; index < this.planDeDecaissement.length; index++) {
-        this.storePlanDecaissement(this.planDeDecaissement[index])
-          .then((response) => {
-            if (response.status == 200 || response.status == 201) {
-              this.showModalPlanDeDecaissement = false;
-              this.loadingPlanDeDecaissement = false;
+        // let status =  this.listePlanDeDecaissement.some(plan  => plan.annee ==  this.planDeDecaissement[index].annee && plan.trimestre == this.planDeDecaissement[index].trimestre );
 
-              toast.success("Plan de decaissement enrégistré avec succès");
-              if (index === this.planDeDecaissement.length - 1) {
-                this.planDeDecaissement = [];
-              }
+        let plan = this.listePlanDeDecaissement.filter((plan) => plan.annee == this.planDeDecaissement[index].annee && plan.trimestre == this.planDeDecaissement[index].trimestre);
 
-              this.loadSousComposantDetails();
-              //this.fetchProjets(this.programmeId);
-            }
-          })
-          .catch((error) => {
-            this.loadingPlanDeDecaissement = false;
+        console.log("plan", plan);
 
+        const action = plan.length > 0 ? PlanDeCaissement.update(plan[0].id, this.planDeDecaissement[index]) : this.storePlanDecaissement(this.planDeDecaissement[index]);
 
-            // Mettre à jour les messages d'erreurs dynamiquement
-            if (error.response && error.response.data && error.response.data.errors.length > 0) {
-              this.erreurPlanDeDecaissement = error.response.data.errors;
+        try {
+          await action;
+          toast.success("Plan de decaissement enrégistré avec succès");
+          if (index === this.planDeDecaissement.length - 1) {
+            this.showModalPlanDeDecaissement = false;
+
+            alert("ok");
+
+            setTimeout(() => {
+              this.planDeDecaissement = [];
+            }, 500);
+          }
+
+          // getDatas();
+          // getDatasCadre();
+          // resetForm();
+        } catch (e) {
+          this.loadingPlanDeDecaissement = false;
+
+          // Mettre à jour les messages d'erreurs dynamiquement
+          if (error.response && error.response.data && error.response.data.errors.length > 0) {
+            this.erreurPlanDeDecaissement = error.response.data.errors;
             toast.error("Une erreur s'est produite dans votre formualaire");
-
-            } else {
-              toast.error(error.response.data.message);
-            }
-          });
+          } else {
+            toast.error(error.response.data.message);
+          }
+        } finally {
+          this.loadingPlanDeDecaissement = false;
+          this.getListePlanDeDecaissement(this.planDeDecaissement[0].activiteId);
+        }
       }
+
+      // if(plan.length > 0){
+      //   PlanDeCaissement.update(plan[0].id, this.planDeDecaissement[index])
+      // }else {
+      //   this.storePlanDecaissement(this.planDeDecaissement[index])
+      // }
+
+      // .then((response) => {
+      //   if (response.status == 200 || response.status == 201) {
+      //     this.showModalPlanDeDecaissement = false;
+      //     this.loadingPlanDeDecaissement = false;
+
+      //     toast.success("Plan de decaissement enrégistré avec succès");
+      //     if (index === this.planDeDecaissement.length - 1) {
+      //       this.planDeDecaissement = [];
+      //     }
+
+      //     this.loadSousComposantDetails();
+      //     //this.fetchProjets(this.programmeId);
+      //   }
+      // })
+      // .catch((error) => {
+      //   this.loadingPlanDeDecaissement = false;
+
+      //   // Mettre à jour les messages d'erreurs dynamiquement
+      //   if (error.response && error.response.data && error.response.data.errors.length > 0) {
+      //     this.erreurPlanDeDecaissement = error.response.data.errors;
+      //     toast.error("Une erreur s'est produite dans votre formualaire");
+      //   } else {
+      //     toast.error(error.response.data.message);
+      //   }
+      // });
     },
   },
 
@@ -568,6 +676,7 @@ export default {
     if (this.selectedIds.activiteId !== "" || this.selectedIds.activiteId !== null) {
       this.getInfoActivite(this.selectedIds.activiteId);
     }
+    this.getcurrentUser();
   },
 };
 </script>
@@ -744,7 +853,7 @@ export default {
               <p class="p-3 text-gray-600 rounded-lg shadow-sm bg-gray-50">{{ item.description == null ? "Aucune description" : item.description }}</p>
 
               <div class="mt-5 space-y-3 text-gray-600">
-                <pre>{{ item.budgetNational  }}</pre>
+                <pre>{{ item.budgetNational }}</pre>
                 <div class="flex items-center">
                   <LinkIcon class="w-4 h-4 mr-2" /> Fonds propre: {{ item.budgetNational == null || item.budgetNational == 0 ? 0 : $h.formatCurrency(item.budgetNational) }}
                   <div class="ml-2 italic font-bold">Fcfa</div>
@@ -834,7 +943,7 @@ export default {
         <InputForm v-model="formData.budgetNational" class="col-span-12 mt-4" type="number" required="required" placeHolder="Ex : 2" label="Fond Propre" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.budgetNational">{{ messageErreur.budgetNational }}</p>
 
-        <div class="flex col-span-12 mt-4">
+        <div v-if="!isUpdate" class="flex col-span-12 mt-4">
           <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OutCome*</label>
           <TomSelect
             v-model="formData.composanteId"
@@ -851,7 +960,7 @@ export default {
           </TomSelect>
         </div>
 
-        <div class="flex col-span-12 mt-4" v-if="haveSousComposantes">
+        <div class="flex col-span-12 mt-4" v-if="haveSousComposantes && !isUpdate">
           <div class="flex w-11/12 mr-2">
             <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OutPut*</label>
             <TomSelect
@@ -914,13 +1023,13 @@ export default {
 
     <form @submit.prevent="prolongementActivite">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
-        <InputForm v-model="dateDebut" :min="dateDebutOld" class="col-span-12" type="date" :required="true" placeHolder="Entrer la nouvelle date debut" label="Nouvelle date debut de l'activite" />
+        <InputForm v-model="dateDebut" :min="dateDebutOld" class="col-span-12 mt-4" type="date" :required="true" placeHolder="Entrer la nouvelle date debut" label="Nouvelle date debut de l'activite" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurProlongation != null && erreurProlongation.debut">{{ erreurProlongation.debut }}</p>
 
-        <InputForm v-model="dateFin" :min="dateFinOld" class="col-span-12" type="date" :required="true" placeHolder="Entrer la nouvelle date fin" label="Nouvelle date fin de l'activite" />
+        <InputForm v-model="dateFin" :min="dateFinOld" class="col-span-12 mt-4" type="date" :required="true" placeHolder="Entrer la nouvelle date fin" label="Nouvelle date fin de l'activite" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurProlongation != null && erreurProlongation.fin">{{ erreurProlongation.fin }}</p>
 
-        <div class="col-span-12" v-if="getPlageActivite">
+        <div class="col-span-12 mt-4" v-if="getPlageActivite">
           <div class="flex items-center mt-2" v-for="(plage, t) in getPlageActivite.durees" :key="t">
             <ClockIcon class="w-4 h-4 mr-2" />
             <div>
@@ -955,29 +1064,39 @@ export default {
         <div v-for="(plan, index) in planDeDecaissement" :key="index" class="col-span-12 border-b pb-4 mb-4">
           <h3 class="text-sm font-medium mb-2">Plan {{ index + 1 }}</h3>
 
-          <InputForm v-model="plan.annee" :min="2000" class="col-span-12" type="number" :required="true" placeHolder="Saisissez l'année" label="Saisissez l'année de décaissement" />
+          <div class="col-span-12 mt-3">
+            <label class="form-label">Sélectionnner l'année de décaissement</label>
+            <TomSelect v-model="plan.annee" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+              <option v-for="(year, index) in years" :key="index" :value="year">{{ year }}</option>
+            </TomSelect>
+            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.annee">
+              {{ erreurPlanDeDecaissement[index].annee }}
+            </p>
+          </div>
+
+          <!-- <InputForm v-model="plan.annee" :min="2000" class="col-span-12" type="number" :required="true" placeHolder="Saisissez l'année" label="Saisissez l'année de décaissement" />
           <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.annee">
             {{ erreurPlanDeDecaissement[index].annee }}
-          </p>
+          </p> -->
 
-          <InputForm v-model="plan.trimestre" :min="1" :max="4" class="col-span-12" type="number" :required="true" placeHolder="Sélectionnez le trimestre" label="Sélectionnez le trimestre" />
+          <InputForm v-model="plan.trimestre" :min="1" :max="4" class="col-span-12 mt-4" type="number" :required="true" placeHolder="Sélectionnez le trimestre" label="Sélectionnez le trimestre" />
           <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.trimestre">
             {{ erreurPlanDeDecaissement[index].trimestre }}
           </p>
 
-          <InputForm v-model="plan.budgetNational" :min="0" class="col-span-12" type="number" :required="true" placeHolder="Saisissez le fond propre" label="Saisissez le fond propre" />
+          <InputForm v-model="plan.budgetNational" :min="0" class="col-span-12 mt-4" type="number" :required="true" placeHolder="Saisissez le fond propre" label="Saisissez le fond propre" />
           <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.budgetNational">
             {{ erreurPlanDeDecaissement[index].budgetNational }}
           </p>
 
-          <InputForm v-model="plan.pret" :min="0" class="col-span-12" type="number" :required="true" placeHolder="Saisissez le montant financé" label="Saisissez le montant financé" />
+          <InputForm v-model="plan.pret" :min="0" class="col-span-12 mt-4" type="number" :required="true" placeHolder="Saisissez le montant financé" label="Saisissez le montant financé" />
           <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.pret">
             {{ erreurPlanDeDecaissement[index].pret }}
           </p>
 
-          <button type="button" @click="removePlan(index)" class="mt-2 text-red-600 text-sm underline">Supprimer ce plan</button>
+          <button type="button" @click="removePlan(index)" class="mt-4 text-red-600 text-sm underline">Supprimer ce plan</button>
 
-          <div class="col-span-12" v-if="getPlageActivite">
+          <div class="col-span-12 mt-4" v-if="getPlageActivite">
             <div class="flex items-center mt-2" v-for="(plage, t) in getPlageActivite.durees" :key="t">
               <ClockIcon class="w-4 h-4 mr-2" />
               <div>
@@ -986,7 +1105,7 @@ export default {
             </div>
           </div>
 
-          <div v-if="getPlageProjet" class="flex items-center mt-2 col-span-12">
+          <div v-if="getPlageProjet" class="flex items-center mt-4 col-span-12">
             <ClockIcon class="w-4 h-4 mr-2" />
             <div>
               Durée du projet : Du <span class="px-1 font-bold"> {{ $h.reformatDate(getPlageProjet.debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(getPlageProjet.fin) }}</span>
@@ -999,7 +1118,7 @@ export default {
       <ModalFooter>
         <div class="flex items-center justify-center">
           <button type="button" @click="showModalPlanDeDecaissement = false" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
-          <VButton class="inline-block" label="Enregistrer" :loading="loadingPlanDeDecaissement" :type="submit" />
+          <VButton class="inline-block" label="Enregistrer" :loading="loadingPlanDeDecaissement" :disabled="loaderListePlan" :type="submit" />
         </div>
       </ModalFooter>
     </form>

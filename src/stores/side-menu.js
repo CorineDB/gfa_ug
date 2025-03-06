@@ -193,12 +193,7 @@ export const useSideMenuStore = defineStore("sideMenu", {
         }
       }
 
-      if (this.tabPermission.some((permission) => permission.slug === "voir-un-audit")) {
-        this.menu.push(this.audit);
-      }
-      if (this.tabPermission.some((permission) => permission.slug === "voir-un-rapport")) {
-        this.menu.push(this.rapport);
-      }
+     
 
       if (this.tabPermission.some((permission) => permission.slug === "voir-un-suivi-financier" || permission.slug === "voir-un-plan-de-decaissement")) {
         this.menu.push(this.gestionFinancier);
@@ -232,6 +227,13 @@ export const useSideMenuStore = defineStore("sideMenu", {
 
       if (this.tabPermission.some((permission) => permission.slug === "voir-une-enquete-individuelle")) {
         this.menu.push(this.enqueteIndividuel);
+      }
+
+      if (this.tabPermission.some((permission) => permission.slug === "voir-un-audit")) {
+        this.menu.push(this.audit);
+      }
+      if (this.tabPermission.some((permission) => permission.slug === "voir-un-rapport")) {
+        this.menu.push(this.rapport);
       }
 
       if (this.tabPermission.some((permission) => permission.slug === "voir-un-utilisateur")) {

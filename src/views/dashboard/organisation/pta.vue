@@ -326,7 +326,7 @@
           <div class="">
             <label class="form-label">Année</label>
             <TomSelect v-model="annees" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
-              <option v-for="(year, index) in years" :key="index" :value="year.nom">{{ year.nom }}</option>
+              <option v-for="(year, index) in years" :key="index" :value="year">{{ year }}</option>
             </TomSelect>
           </div>
         </div>
@@ -361,6 +361,8 @@ import { toast } from "vue3-toastify";
 import { mapGetters, mapMutations, mapActions, mapState } from "vuex";
 import NoRecordsMessage from "@/components/NoRecordsMessage.vue";
 import SuiviFinancierService from "@/services/modules/suiviFinancier.service";
+import AuthService from "@/services/modules/auth.service";
+
 // import VButton from "@/components/news/VButton.vue";
 
 export default {
@@ -381,7 +383,6 @@ export default {
         type: 0,
       },
       poidsActuel: "",
-      years: [],
       annees: "",
       tabletoggle: [],
       etattoggle: true,
@@ -420,9 +421,23 @@ export default {
       exporterSuiviPta: false,
       exporterSuiviRePpm: false,
       exporterSuiviRePta: false,
+      debutProgramme: "",
+      finProgramme: "",
     };
   },
   computed: {
+    years() {
+     
+      let anneeDebut = parseInt(`${this.debutProgramme.split("-")[0]}`);
+      let anneeFin = parseInt(`${this.finProgramme.split("-")[0]}`);
+      let annees = [];
+      for (let annee = anneeDebut; annee <= anneeFin; annee++) {
+        if (annee <= new Date().getFullYear()) {
+          annees.push(annee);
+        }
+      }
+      return annees;
+    },
     ...mapGetters("auths", { currentUser: "GET_AUTHENTICATE_USER" }),
     ...mapState({
       loading: (state) => state.loading,
@@ -1382,6 +1397,17 @@ export default {
     },
   },
   methods: {
+    async getcurrentUser() {
+      await AuthService.getCurrentUser()
+        .then((result) => {
+          this.debutProgramme = result.data.data.programme.debut;
+          this.finProgramme = result.data.data.programme.fin;
+        })
+        .catch((e) => {
+          console.error(e);
+          toast.error("Une erreur est survenue: Utilisateur connecté .");
+        });
+    },
     removePlan(index) {
       this.suiviFinancier.splice(index, 1);
     },
@@ -1806,14 +1832,7 @@ export default {
         this.scopes = response.data.data;
       });
     }
-
-    var anneeActuelle = new Date().getFullYear() + 5;
-    let i = 0;
-    for (var annee = 2016; annee <= anneeActuelle; annee++) {
-      i++;
-      this.years.push({ nom: `${annee}` });
-    }
-    console.log(this.years);
+    this.getcurrentUser();
   },
 };
 </script>

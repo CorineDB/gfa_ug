@@ -286,6 +286,7 @@ export default {
           this.planDeDecaissement = data.data.data;
         })
         .catch((error) => {
+          this.loaderListePlan = false;
           //console.log(error);
         });
     },
@@ -459,8 +460,16 @@ v-if="verifyPermission('voir-un-plan-de-decaissement')" -->
 
         <!-- <InputForm v-model="formData.annee" class="col-span-12" type="date" required="required" placeHolder="Annee de base" label="Année de base" /> -->
 
-        <InputForm v-model="formData.annee" :min="2000" class="col-span-12" type="number" :required="true" placeHolder="Saisissez l'année" label="Saisissez l'année de décaissement" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.annee">{{ messageErreur.annee }}</p>
+        <div class="col-span-12 mt-3">
+          <label class="form-label">Année</label>
+          <TomSelect v-model="formData.annee" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+            <option v-for="(year, index) in years" :key="index" :value="year.nom">{{ year.nom }}</option>
+          </TomSelect>
+          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.annee">{{ messageErreur.annee }}</p>
+        </div>
+
+        <!-- <InputForm v-model="formData.annee" :min="2000" class="col-span-12" type="number" :required="true" placeHolder="Saisissez l'année" label="Saisissez l'année de décaissement" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.annee">{{ messageErreur.annee }}</p> -->
 
         <InputForm v-model="formData.budgetNational" class="col-span-12 no-spin" type="number" required="required" placeHolder="Ex : 2" label="Fond propre" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.budgetNational">{{ messageErreur.budgetNational }}</p>

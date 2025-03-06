@@ -2,11 +2,10 @@
   <div class="relative select-none">
     <!-- <pre>{{ descriptions.length }}</pre> -->
     <BaseProgressBar :value="score" :max="descriptions.length" :color="description.color" />
-    <p class="_absolute mt-1 text-sm">
+    <p class="_absolute mt-1 text-sm text-left">
       {{ description.label }}
     </p>
   </div>
-  
 </template>
 
 <script>
@@ -51,14 +50,14 @@ export default {
     const descriptions = computed(() => [
       {
         color: "bg-red-600",
-        label: "Faible, mon fils de 2 ans peut le casser !",
+        label: "Faible",
       },
-      { color: "bg-red-300", label: "Toujours faible, continuez d'essayer !" },
-      { color: "bg-yellow-400", label: "Nous y arrivons..." },
-      { color: "bg-green-200", label: "C'est bien, mais on peut encore faire mieux" },
+      { color: "bg-red-300", label: "Toujours faible" },
+      { color: "bg-yellow-400", label: "Moyen" },
+      { color: "bg-green-200", label: "Bien" },
       {
         color: "bg-green-400",
-        label: "Félicitations, vous avez réussi !",
+        label: "Fort",
       },
     ]);
 
@@ -72,7 +71,7 @@ export default {
     );
 
     // Retourne le score pour l'utiliser dans le template
-    return { description ,score , descriptions};
+    return { description, score, descriptions };
   },
 };
 </script>

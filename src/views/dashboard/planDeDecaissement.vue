@@ -1,5 +1,5 @@
 <template>
-  <h2 class="mt-10 text-lg font-medium intro-y">Plan d'Action</h2>
+  <h2 class="mt-10 text-lg font-medium intro-y">Plan de décaissement</h2>
   <div class="grid grid-cols-12 gap-6 my-5">
     <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
       <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
@@ -352,7 +352,7 @@
           <div class="">
             <label class="form-label">Année</label>
             <TomSelect v-model="annees" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
-              <option v-for="(year, index) in years" :key="index" :value="year.nom">{{ year.nom }}</option>
+              <option v-for="(year, index) in years" :key="index" :value="year">{{ year }}</option>
             </TomSelect>
           </div>
         </div>
@@ -415,19 +415,23 @@
             </p>
           </div>
 
-          <!-- <div class="w-full mt-3">
-            <InputForm v-model="plan.trimestre" :min="1" :max="4" class="col-span-12" type="number" :required="true" :disabled="true" placeHolder="Sélectionnez le trimestre" label="Sélectionnez le trimestre" />
-            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurSuiviFinancier?.[index]?.trimestre">
-              {{ erreurSuiviFinancier[index].trimestre }}
+          <div class="w-full mt-3">
+            <label class="form-label">Année</label>
+            <TomSelect v-model="plan.annee" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+              <option v-for="(year, index) in years" :key="index" :value="year.nom">{{ year.nom }}</option>
+            </TomSelect>
+            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurSuiviFinancier?.[index]?.annee">
+              {{ erreurSuiviFinancier[index].annee }}
             </p>
-          </div> -->
+          </div>
 
+          <!-- 
           <div class="w-full mt-3">
             <InputForm v-model="plan.annee" :min="2000" class="col-span-12" type="number" :required="true" :disabled="true" placeHolder="Saisissez l'année" label="Saisissez l'année de décaissement" />
             <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurSuiviFinancier?.[index]?.annee">
               {{ erreurSuiviFinancier[index].annee }}
             </p>
-          </div>
+          </div> -->
 
           <button type="button" @click="removePlan(index)" class="mt-2 text-red-600 text-sm underline">Supprimer ce suivi</button>
         </div>
@@ -456,6 +460,7 @@ import { helper as $h } from "@/utils/helper";
 import NoRecordsMessage from "@/components/NoRecordsMessage.vue";
 import SuiviFinancierService from "@/services/modules/suiviFinancier.service";
 import InputForm from "@/components/news/InputForm.vue";
+import AuthService from "@/services/modules/auth.service";
 
 export default {
   props: ["ppm"],
@@ -477,7 +482,6 @@ export default {
       loadingSuiviFinancier: false,
       erreurSuiviFinancier: null,
       suiviFinancier: [],
-      years: [],
       annees: "",
       tabletoggle: [],
       etattoggle: true,
@@ -516,12 +520,25 @@ export default {
       exporterSuiviPta: false,
       exporterSuiviRePpm: false,
       exporterSuiviRePta: false,
+      debutProgramme: "",
+      finProgramme: "",
     };
   },
   computed: {
     ...mapGetters("auths", { currentUser: "GET_AUTHENTICATE_USER" }),
     ...mapState({
       loading: (state) => state.loading,
+      years() {
+        let anneeDebut = parseInt(`${this.debutProgramme.split("-")[0]}`);
+        let anneeFin = parseInt(`${this.finProgramme.split("-")[0]}`);
+        let annees = [];
+        for (let annee = anneeDebut; annee <= anneeFin; annee++) {
+          if (annee <= new Date().getFullYear()) {
+            annees.push(annee);
+          }
+        }
+        return annees;
+      },
     }),
     dataNew() {
       const programme = [];
@@ -1509,6 +1526,17 @@ export default {
 
     //   return paginatedData;
     // },
+    async getcurrentUser() {
+      await AuthService.getCurrentUser()
+        .then((result) => {
+          this.debutProgramme = result.data.data.programme.debut;
+          this.finProgramme = result.data.data.programme.fin;
+        })
+        .catch((e) => {
+          console.error(e);
+          toast.error("Une erreur est survenue: Utilisateur connecté .");
+        });
+    },
     voirSuiviActivite(data) {
       this.$router.push({ name: "finances_suivi" });
     },
@@ -1904,6 +1932,7 @@ export default {
     },
   },
   mounted() {
+    alert("ok");
     this.getPermission();
 
     if (this.revisionVisible || this.ppmVisible || this.ptaVisible) {
@@ -1918,14 +1947,7 @@ export default {
         this.scopes = response.data.data;
       });
     }
-
-    var anneeActuelle = new Date().getFullYear() + 5;
-    let i = 0;
-    for (var annee = 2016; annee <= anneeActuelle; annee++) {
-      i++;
-      this.years.push({ nom: `${annee}` });
-    }
-    console.log(this.years);
+    this.getcurrentUser();
   },
 };
 </script>

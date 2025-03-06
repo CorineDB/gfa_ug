@@ -27,7 +27,7 @@
 
     <!-- <router-link to="/files"> <FolderPlusIcon class="w-6 h-6 mr-4" title="Ajouter des fichiers" /> </router-link> -->
 
-    <p class="px-2 font-medium">{{ currentUsers.nom }}</p>
+    <!-- <p class="px-2 font-medium">{{ currentUsers.nom }}</p> -->
     <Dropdown class="w-8 h-8 intro-x">
       <DropdownToggle tag="div" role="button" class="dropdown-toggle image-fit zoom-in">
         <div class="flex items-center justify-center w-8 h-8 bg-blue-400 rounded-full shadow-lg cursor-pointer">
@@ -104,8 +104,8 @@ onMounted(() => {
 
   if (usersInfo) {
     // usersProfileImage.value = API_BASE_URL + usersInfo.users.profil
-    // currentUsers.nom = usersInfo.profil.nom
-    currentUsers.nom = "test";
+     currentUsers.nom = usersInfo.nom
+   // currentUsers.nom = "test";
     // currentUsers.prenom = usersInfo.users.prenom
     currentUsers.role = usersInfo.role[0].nom;
     //  + currentUsers.prenom[0]

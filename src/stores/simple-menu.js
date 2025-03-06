@@ -148,7 +148,6 @@ export const useSimpleMenuStore = defineStore("simpleMenu", {
       title: "Rôles et permissions",
     },
     menu: [],
-   
   }),
   actions: {
     setTabPermission(newTabPermission) {
@@ -193,13 +192,6 @@ export const useSimpleMenuStore = defineStore("simpleMenu", {
         }
       }
 
-      if (this.tabPermission.some((permission) => permission.slug === "voir-un-audit")) {
-        this.menu.push(this.audit);
-      }
-      if (this.tabPermission.some((permission) => permission.slug === "voir-un-rapport")) {
-        this.menu.push(this.rapport);
-      }
-
       if (this.tabPermission.some((permission) => permission.slug === "voir-un-suivi-financier" || permission.slug === "voir-un-plan-de-decaissement")) {
         this.menu.push(this.gestionFinancier);
         this.gestionFinancier.subMenu = [];
@@ -232,6 +224,13 @@ export const useSimpleMenuStore = defineStore("simpleMenu", {
 
       if (this.tabPermission.some((permission) => permission.slug === "voir-une-enquete-individuelle")) {
         this.menu.push(this.enqueteIndividuel);
+      }
+
+      if (this.tabPermission.some((permission) => permission.slug === "voir-un-audit")) {
+        this.menu.push(this.audit);
+      }
+      if (this.tabPermission.some((permission) => permission.slug === "voir-un-rapport")) {
+        this.menu.push(this.rapport);
       }
 
       if (this.tabPermission.some((permission) => permission.slug === "voir-un-utilisateur")) {

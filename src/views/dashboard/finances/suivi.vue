@@ -11,13 +11,95 @@ import { toast } from "vue3-toastify";
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
 import AuthService from "@/services/modules/auth.service";
 import { useRouter } from "vue-router";
+import { useStore } from "vuex";
+import { helper as $h } from "@/utils/helper";
+
+// Ajout de plan de décaissement
+
+const store = useStore();
+
+// Définition des actions
+const prolongerDureeActivite = async (payload) => {
+  await store.dispatch("activites/PROLONGER_DATE", payload);
+};
+
+const storePlanDecaissement = async (payload) => {
+  await store.dispatch("planDeDecaissements/STORE_PLAN_DE_DECAISSEMENT", payload);
+};
+
+// ...mapActions({
+//       // Mapping des actions pour le module activites
+//       prolongerDureeActivite: "activites/PROLONGER_DATE",
+//       // Mapping des actions pour le module planDeDecaissements
+//       storePlanDecaissement: "planDeDecaissements/STORE_PLAN_DE_DECAISSEMENT",
+//     }),
+
+const erreurPlanDeDecaissement = ref(null);
+const planDeDecaissement = ref([]);
+const loadingPlanDeDecaissement = ref(false);
+const showModalPlanDeDecaissement = ref(false);
+
+const getCurrentQuarter = function () {
+  const month = new Date().getMonth() + 1; // Les mois sont indexés à partir de 0
+  return Math.ceil(month / 3); // Calcul du trimestre actuel
+};
+
+const planDeDecaissementPayload = ref({
+  activiteId: null,
+  trimestre: getCurrentQuarter(), // Trimestre actuel
+  annee: new Date().getFullYear(), // Set current year as default
+  budgetNational: 0,
+  pret: 0,
+});
+
+const removePlanDeDecaissement = function (index) {
+  planDeDecaissement.value.splice(index, 1);
+};
+
+const planDeDecaissementActivite = function () {
+  loadingPlanDeDecaissement.value = true;
+
+  console.log(planDeDecaissement.value);
+
+  for (let index = 0; index < planDeDecaissement.value.length; index++) {
+    storePlanDecaissement(planDeDecaissement.value[index])
+      .then((response) => {
+        showModalPlanDeDecaissement.value = false;
+        loadingPlanDeDecaissement.value = false;
+
+        toast.success("Plan de decaissement enrégistré avec succès");
+        if (index === planDeDecaissement.value.length - 1) {
+          planDeDecaissement.value = [];
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        loadingPlanDeDecaissement.value = false;
+        // Mettre à jour les messages d'erreurs dynamiquement
+        if (error.response && error.response.data && error.response.data.errors.length > 0) {
+          erreurPlanDeDecaissement.value = error.response.data.errors;
+          toast.error("Une erreur s'est produite dans votre formualaire");
+        } else {
+          toast.error(error.response.data.message);
+        }
+      });
+  }
+};
+
+const ouvrirModalPlanDeDecaissementActivite = function (data) {
+  console.log(data);
+  showModalPlanDeDecaissement.value = true;
+  planDeDecaissementPayload.value.activiteId = data.activite.id;
+  planDeDecaissement.value.push(planDeDecaissementPayload.value);
+  showModalPlanDeDecaissement.value = true;
+};
 
 const router = useRouter();
 const showModalFiltre = ref(false);
 const annees = ref("");
 const filterPayload = reactive({
-  trimestre: 1, // Trimestre actuel
-  annee: new Date().getFullYear(), // Set current year as default
+  trimestre: getCurrentQuarter(),
+  annee: new Date().getFullYear(),
 });
 const isLoadingFilter = ref(false);
 
@@ -37,15 +119,35 @@ const resetFilter = function () {
   filterSuiviFinancierActivite();
 };
 
-// const annees = computed(() => {
-//   let anneeDebut = parseInt(debutProgramme.value.split("-")[0], 10);
-//   let anneeFin = parseInt(finProgramme.value.split("-")[0], 10);
-//   let annees = [];
-//   for (let annee = anneeDebut; annee <= anneeFin; annee++) {
-//     annees.push(annee);
-//   }
-//   return annees;
-// });
+const getPlageActivitePlan = computed(() => {
+  let obj = null;
+
+  if (planDeDecaissementPayload.value.activiteId !== "") {
+    obj = datas.value.suiviFinanciers?.find((item) => item.activite.id === planDeDecaissementPayload.value.activiteId);
+  }
+
+  console.log("obj", obj);
+
+  return obj ? obj : null;
+  // Retourne le nom ou `null` si non trouvé
+});
+
+const getPlageActivite = computed(() => {
+  let obj = null;
+
+  console.log("payload.activiteId", payload.activiteId);
+
+  console.log("datas.value.suiviFinanciers", datas.value.suiviFinanciers);
+
+  if (suiviFinancierPayload.activiteId !== "") {
+    obj = datas.value.suiviFinanciers?.find((item) => item.activite.id === suiviFinancierPayload.activiteId);
+  }
+
+  console.log("obj", obj);
+
+  return obj ? obj : null;
+  // Retourne le nom ou `null` si non trouvé
+});
 
 const showModalSuiviFinancier = ref(false);
 const loadingSuiviFinancier = ref(false);
@@ -280,10 +382,10 @@ const openCreateModal = () => {
   isCreate.value = true;
 };
 
-const getCurrentQuarter = () => {
-  const month = new Date().getMonth() + 1; // Les mois sont indexés à partir de 0
-  return Math.ceil(month / 3); // Calcul du trimestre actuel
-};
+// const getCurrentQuarter = () => {
+//   const month = new Date().getMonth() + 1; // Les mois sont indexés à partir de 0
+//   return Math.ceil(month / 3); // Calcul du trimestre actuel
+// };
 
 const ouvrirModalSuiviFinancierActivite = (item) => {
   suiviFinancierPayload.activiteId = item.activite.id;
@@ -323,8 +425,6 @@ const suiviFinancierActivite = () => {
         console.log(error);
         loadingSuiviFinancier.value = false;
 
-        
-
         // Mettre à jour les messages d'erreurs dynamiquement
         if (error.response && error.response.data && error.response.data.errors.length > 0) {
           erreurSuiviFinancier.value = error.response.data.errors;
@@ -355,8 +455,6 @@ const filterSuiviFinancierActivite = async () => {
   await SuiviFinancierService.filtre(filterPayload)
     .then((result) => {
       datas.value = result.data.data;
-      console.log(datas.value);
-      isLoadingFilter.value = false;
       resetFilterModal();
       toast.success("Suivi Financier filtrer.");
     })
@@ -370,6 +468,10 @@ const filterSuiviFinancierActivite = async () => {
 const resetFilterModal = () => {
   isLoadingFilter.value = false;
   showModalFiltre.value = false;
+  filterPayload = {
+    trimestre: getCurrentQuarter(),
+    annee: new Date().getFullYear(),
+  };
 };
 
 onMounted(() => {
@@ -381,7 +483,7 @@ onMounted(() => {
   // }
 
   getDatas();
- // getactivites(new Date().getFullYear());
+  // getactivites(new Date().getFullYear());
   getcurrentUser();
 });
 </script>
@@ -403,11 +505,6 @@ onMounted(() => {
           <RefreshCwIcon class="w-5 h-5" />
         </button>
       </div>
-      <!-- <div class="flex">
-        <button class="mr-2 shadow-md btn btn-primary" @click="openCreateModal">
-          <PlusIcon class="w-4 h-4 mr-3" />Ajouter un Suivi Financier
-        </button>
-      </div> -->
     </div>
   </div>
 
@@ -432,97 +529,112 @@ onMounted(() => {
         </Dropdown>
       </div>
     </div>
-    <!-- <div class="overflow-x-auto scrollbar-hidden" v-if="!isLoadingData">
-      <div id="tabulator" class="mt-5 table-report table-report--tabulator"></div>
-    </div> -->
+
     <div>
       <div class="border my-4 rounded-lg border-gray-300 shadow-md" v-if="!isLoadingData">
         <!-- suivi budgetaire  current -->
         <div class="current">
-          <div class="overflow-x-auto relative shadow-md sm:rounded-lg">
-            <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-              <thead class="text-xs text-gray-700 uppercase bg-blue-100 dark:bg-gray-700 dark:text-gray-400">
-                <tr>
-                  <th scope="col" rowspan="2" class="py-3 px-6 border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">Activités</th>
-                  <th scope="col" rowspan="2" class="py-3 px-6 border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">Année</th>
-                  <th scope="col" rowspan="2" class="py-3 px-6 border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">Trimestre</th>
-                  <th scope="col" colspan="4" class="py-3 px-6 border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Période</th>
-                  <th scope="col" colspan="4" class="py-3 px-6 text-center border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">Exercice</th>
-                  <th scope="col" colspan="4" class="py-3 px-6 text-center border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">Cumul</th>
-                  <th scope="col" rowspan="2" class="py-3 px-6 border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap text-center">Actions</th>
-                </tr>
-                <tr>
-                  <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Budget</th>
-                  <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Consommé</th>
-                  <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Disponible</th>
-                  <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">TEF</th>
-                  <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Budget</th>
-                  <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Consommé</th>
-                  <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Disponible</th>
-                  <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">TEF</th>
-                  <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Budget</th>
-                  <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Consommé</th>
-                  <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Disponible</th>
-                  <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">TEF</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(suivi, index) in datas.suiviFinanciers" :key="index" class="bg-white border-b hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
-                  <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
-                    <span class="font-bold">{{ suivi?.activite?.codePta }}-{{ suivi?.activite?.nom }}</span>
-                  </td>
-                  <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
-                    <span class="font-bold">{{ suivi.annee }}</span>
-                  </td>
-                  <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
-                    <span class="font-bold">{{ suivi.trimestre }}</span>
-                  </td>
-                  <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
-                    <span class="font-bold">{{ suivi.periode.budget == null || suivi.periode.budget == 0 ? 0 : $h.formatCurrency(suivi.periode.budget) }}</span>
-                  </td>
-                  <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
-                    <span class="font-bold">{{ suivi.periode.consommer == null || suivi.periode.consommer == 0 ? 0 : $h.formatCurrency(suivi.periode.consommer) }}</span>
-                  </td>
-                  <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
-                    <span class="font-bold">{{ suivi.periode.disponible == null || suivi.periode.disponible == 0 ? 0 : $h.formatCurrency(suivi.periode.disponible) }}</span>
-                  </td>
-                  <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
-                    <span class="font-bold">{{ suivi.periode.pourcentage }}</span>
-                  </td>
-                  <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
-                    <span class="font-bold">{{ suivi.exercice.budget == null || suivi.exercice.budget == 0 ? 0 : $h.formatCurrency(suivi.exercice.budget) }}</span>
-                  </td>
-                  <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
-                    <span class="font-bold">{{ suivi.exercice.consommer == null || suivi.exercice.consommer == 0 ? 0 : $h.formatCurrency(suivi.exercice.consommer) }}</span>
-                  </td>
-                  <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
-                    <span class="font-bold">{{ suivi.exercice.disponible == null || suivi.exercice.disponible == 0 ? 0 : $h.formatCurrency(suivi.exercice.disponible) }}</span>
-                  </td>
-                  <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
-                    <span class="font-bold">{{ suivi.exercice.pourcentage }}</span>
-                  </td>
-                  <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
-                    <span class="font-bold">{{ suivi.cumul.budget == null || suivi.cumul.budget == 0 ? 0 : $h.formatCurrency(suivi.cumul.budget) }}</span>
-                  </td>
-                  <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
-                    <span class="font-bold">{{ suivi.cumul.consommer == null || suivi.cumul.consommer == 0 ? 0 : $h.formatCurrency(suivi.cumul.consommer) }}</span>
-                  </td>
-                  <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
-                    <span class="font-bold">{{ suivi.cumul.disponible == null || suivi.cumul.disponible == 0 ? 0 : $h.formatCurrency(suivi.cumul.disponible) }}</span>
-                  </td>
-                  <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
-                    <span class="font-bold">{{ suivi.cumul.pourcentage }}</span>
-                  </td>
-                  <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700 text-center">
-                    <button @click="ouvrirModalSuiviFinancierActivite(suivi)" class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-xs px-4 py-2 mr-2">Suivre</button>
+          <div class="overflow-y-auto overflow-x-auto flex relative shadow-md sm:rounded-lg">
+            <div style="width: 20%; position: sticky; left: 0; background: transparent; z-index: 1; margin-right: 1%">
+              <table class="top-0 left-0 block w-full text-sm text-left table-fixed border-collaspe table1">
+                <thead class="sticky top-0 z-20 text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                  <tr style="height: 82px">
+                    <th scope="col" rowspan="2" class="py-3 px-6 border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">Activités</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style="height: 49px" v-for="(suivi, index) in datas.suiviFinanciers" :key="index" class="bg-white border-b hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+                    <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
+                      <span class="font-bold">{{ suivi?.activite?.codePta }}-{{ suivi?.activite?.nom }}</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
 
-                    <button @click="handleDetail(suivi)" class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-xs px-4 py-2 mr-2">Voir détail</button>
+            <div class="absolute shadow-md perso left-[220px] sm:rounded-lg">
+              <table class="w-full overflow-auto text-sm text-left text-gray-500 dark:text-gray-400">
+                <thead class="sticky top-0 text-xs text-gray-700 uppercase _z-20 bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                  <tr>
+                    <th scope="col" rowspan="2" class="py-3 px-6 border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">Année</th>
+                    <th scope="col" rowspan="2" class="py-3 px-6 border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">Trimestre</th>
+                    <th scope="col" colspan="4" class="py-3 px-6 border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Période</th>
+                    <th scope="col" colspan="4" class="py-3 px-6 text-center border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">Exercice</th>
+                    <th scope="col" colspan="4" class="py-3 px-6 text-center border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">Cumul</th>
+                    <th scope="col" rowspan="2" class="py-3 px-6 border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap text-center">Actions</th>
+                  </tr>
+                  <tr>
+                    <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Budget</th>
+                    <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Consommé</th>
+                    <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Disponible</th>
+                    <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">TEF</th>
+                    <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Budget</th>
+                    <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Consommé</th>
+                    <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Disponible</th>
+                    <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">TEF</th>
+                    <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Budget</th>
+                    <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Consommé</th>
+                    <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Disponible</th>
+                    <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">TEF</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(suivi, index) in datas.suiviFinanciers" :key="index" class="bg-white border-b hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+                    <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
+                      <span class="font-bold">{{ suivi.annee }}</span>
+                    </td>
+                    <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
+                      <span class="font-bold">{{ suivi.trimestre }}</span>
+                    </td>
+                    <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
+                      <span class="font-bold">{{ suivi.periode.budget == null || suivi.periode.budget == 0 ? 0 : $h.formatCurrency(suivi.periode.budget) }}</span>
+                    </td>
+                    <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
+                      <span class="font-bold">{{ suivi.periode.consommer == null || suivi.periode.consommer == 0 ? 0 : $h.formatCurrency(suivi.periode.consommer) }}</span>
+                    </td>
+                    <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
+                      <span class="font-bold">{{ suivi.periode.disponible == null || suivi.periode.disponible == 0 ? 0 : $h.formatCurrency(suivi.periode.disponible) }}</span>
+                    </td>
+                    <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
+                      <span class="font-bold">{{ suivi.periode.pourcentage }}</span>
+                    </td>
+                    <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
+                      <span class="font-bold">{{ suivi.exercice.budget == null || suivi.exercice.budget == 0 ? 0 : $h.formatCurrency(suivi.exercice.budget) }}</span>
+                    </td>
+                    <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
+                      <span class="font-bold">{{ suivi.exercice.consommer == null || suivi.exercice.consommer == 0 ? 0 : $h.formatCurrency(suivi.exercice.consommer) }}</span>
+                    </td>
+                    <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
+                      <span class="font-bold">{{ suivi.exercice.disponible == null || suivi.exercice.disponible == 0 ? 0 : $h.formatCurrency(suivi.exercice.disponible) }}</span>
+                    </td>
+                    <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
+                      <span class="font-bold">{{ suivi.exercice.pourcentage }}</span>
+                    </td>
+                    <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
+                      <span class="font-bold">{{ suivi.cumul.budget == null || suivi.cumul.budget == 0 ? 0 : $h.formatCurrency(suivi.cumul.budget) }}</span>
+                    </td>
+                    <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
+                      <span class="font-bold">{{ suivi.cumul.consommer == null || suivi.cumul.consommer == 0 ? 0 : $h.formatCurrency(suivi.cumul.consommer) }}</span>
+                    </td>
+                    <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
+                      <span class="font-bold">{{ suivi.cumul.disponible == null || suivi.cumul.disponible == 0 ? 0 : $h.formatCurrency(suivi.cumul.disponible) }}</span>
+                    </td>
+                    <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
+                      <span class="font-bold">{{ suivi.cumul.pourcentage }}</span>
+                    </td>
+                    <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700 text-center">
+                      <button @click="ouvrirModalSuiviFinancierActivite(suivi)" class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-xs px-4 py-2 mr-2">Suivre</button>
 
-                    <!-- <button @click="handleDelete(suivi)" class="text-white bg-red-500 hover:bg-red-600 font-medium rounded-lg text-xs px-4 py-2">Supprimer</button> -->
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                      <button @click="handleDetail(suivi)" class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-xs px-4 py-2 mr-2">Voir détail</button>
+
+                      <button @click="ouvrirModalPlanDeDecaissementActivite(suivi)" title="Ajouter un plan de décaissement" class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-xs px-4 py-2 mr-2">Ajouter un Plan de décaissement</button>
+
+                      <!-- <button @click="handleDelete(suivi)" class="text-white bg-red-500 hover:bg-red-600 font-medium rounded-lg text-xs px-4 py-2">Supprimer</button> -->
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
@@ -531,56 +643,58 @@ onMounted(() => {
     <LoaderSnipper v-if="isLoadingData" />
   </div>
 
-  <!-- Modal Register & Update -->
-  <!-- <Modal backdrop="static" :show="showModalCreate" @hidden="showModalCreate = false">
+  <Modal backdrop="static" :show="showModalPlanDeDecaissement" @hidden="showModalPlanDeDecaissement = false">
     <ModalHeader>
-      <h2 class="mr-auto text-base font-medium">{{ mode }} un Suivi Financier</h2>
+      <h2 class="mr-auto text-base font-medium">Plan de décaissement</h2>
     </ModalHeader>
-    <form @submit.prevent="submitData">
-      <ModalBody>
-        <div class="grid grid-cols-1 gap-4">
-          <InputForm label="Consommé" v-model="payload.consommer" />
-          <div class="">
-            <label class="form-label">Sources</label>
-            <TomSelect v-model="payload.type" :options="{ placeholder: 'Selectionez une source' }" class="w-full">
-              <option value="fond-propre">Montant financé</option>
-              <option value="budget-alloue">Fond Propre</option>
-            </TomSelect>
-          </div>
 
-          <div class="">
-            <label class="form-label">Année</label>
-            <TomSelect v-model="payload.annee" @change="handleInput(payload.annee)" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
-              <option v-for="(year, index) in years" :key="index" :value="year.nom">{{ year.nom }}</option>
-            </TomSelect>
-          </div>
+    <form @submit.prevent="planDeDecaissementActivite">
+      <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
+        <div v-for="(plan, index) in planDeDecaissement" :key="index" class="col-span-12 border-b pb-4 mb-4">
+          <h3 class="text-sm font-medium mb-2">Plan {{ index + 1 }}</h3>
 
-          <div class="">
-            <label class="form-label">Activités</label>
-            <TomSelect v-model="payload.activiteId" :options="{ placeholder: 'Selectionez une unité de mesure' }" class="w-full">
-              <option v-for="(unite, index) in activites" :key="index" :value="unite.id">{{ unite.nom }}</option>
-            </TomSelect>
-          </div>
-          <div class="">
-            <label class="form-label">Trimestre</label>
-            <TomSelect v-model="payload.trimestre" :options="{ placeholder: 'Selectionez une source' }" class="w-full">
-              <option value="1">Trimestre 1</option>
-              <option value="2">Trimestre 2</option>
-              <option value="3">Trimestre 3</option>
-              <option value="4">Trimestre 4</option>
-            </TomSelect>
+          <InputForm v-model="plan.annee" :min="2000" class="col-span-12" type="number" :required="true" placeHolder="Saisissez l'année" label="Saisissez l'année de décaissement" />
+          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.annee">
+            {{ erreurPlanDeDecaissement[index].annee }}
+          </p>
+
+          <InputForm v-model="plan.trimestre" :min="1" :max="4" class="col-span-12" type="number" :required="true" placeHolder="Sélectionnez le trimestre" label="Sélectionnez le trimestre" />
+          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.trimestre">
+            {{ erreurPlanDeDecaissement[index].trimestre }}
+          </p>
+
+          <InputForm v-model="plan.budgetNational" :min="0" class="col-span-12" type="number" :required="true" placeHolder="Saisissez le fond propre" label="Saisissez le fond propre" />
+          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.budgetNational">
+            {{ erreurPlanDeDecaissement[index].budgetNational }}
+          </p>
+
+          <InputForm v-model="plan.pret" :min="0" class="col-span-12" type="number" :required="true" placeHolder="Saisissez le montant financé" label="Saisissez le montant financé" />
+          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.pret">
+            {{ erreurPlanDeDecaissement[index].pret }}
+          </p>
+
+          <button type="button" @click="removePlan(index)" class="mt-2 text-red-600 text-sm underline">Supprimer ce plan</button>
+        </div>
+
+        <button type="button" @click="addPlan" class="col-span-12 btn btn-outline-primary">Ajouter un autre plan</button>
+
+        <div class="col-span-12" v-if="getPlageActivitePlan">
+          <div class="flex items-center mt-2">
+            <ClockIcon class="w-4 h-4 mr-2" />
+            <div>
+              Durée de l'activité : Du <span class="px-1 font-bold"> {{ $h.reformatDate(getPlageActivitePlan.activite.debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(getPlageActivitePlan.activite.fin) }}</span>
+            </div>
           </div>
         </div>
       </ModalBody>
       <ModalFooter>
-        <div class="flex gap-2">
-          <button type="button" @click="resetForm" class="w-full px-2 py-2 my-3 align-top btn btn-outline-secondary">Annuler</button>
-          <VButton :loading="isLoading" :label="mode" />
+        <div class="flex items-center justify-center">
+          <button type="button" @click="showModalPlanDeDecaissement = false" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
+          <VButton class="inline-block" label="Enregistrer" :loading="loadingPlanDeDecaissement" :type="submit" />
         </div>
       </ModalFooter>
     </form>
-  </Modal> -->
-  <!-- End Modal -->
+  </Modal>
 
   <!-- Modal Delete -->
   <Modal :show="deleteModalPreview" @hidden="deleteModalPreview = false">
@@ -616,15 +730,6 @@ onMounted(() => {
             </p>
           </div>
 
-          <!-- <div class="mt-5">
-            <label class="form-label">Sources</label>
-            <TomSelect v-model="plan.type" :options="{ placeholder: 'Selectionez une source' }" class="w-full">
-              <option value="">Choisir un suivi</option>
-              <option value="fond-propre">Fond propre</option>
-              <option value="budget-Alloue">Budget Alloue</option>
-            </TomSelect>
-          </div> -->
-
           <div class="mt-5">
             <InputForm v-model="plan.trimestre" :min="1" :max="4" class="col-span-12" type="number" :required="true" :disabled="true" placeHolder="Sélectionnez le trimestre" label="Sélectionnez le trimestre" />
             <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurSuiviFinancier?.[index]?.trimestre">
@@ -639,10 +744,21 @@ onMounted(() => {
             </p>
           </div>
 
+          <!-- <pre>getPlageActivite :{{ getPlageActivite.activite }}</pre> -->
+
           <button type="button" @click="removePlan(index)" class="mt-2 text-red-600 text-sm underline">Supprimer ce suivi</button>
         </div>
 
         <button type="button" @click="addPlan" class="col-span-12 btn btn-outline-primary">Ajouter un autre suivi</button>
+
+        <div class="col-span-12" v-if="getPlageActivite">
+          <div class="flex items-center mt-2">
+            <ClockIcon class="w-4 h-4 mr-2" />
+            <div>
+              Durée de l'activité : Du <span class="px-1 font-bold"> {{ $h.reformatDate(getPlageActivite.activite.debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(getPlageActivite.activite.fin) }}</span>
+            </div>
+          </div>
+        </div>
       </ModalBody>
       <ModalFooter>
         <div class="flex items-center justify-center">
