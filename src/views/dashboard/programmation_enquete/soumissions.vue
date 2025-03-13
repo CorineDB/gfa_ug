@@ -499,7 +499,7 @@ onMounted(async () => {
         <div class="flex flex-col items-center w-full gap-8">
           <div class="flex justify-center w-full p-3">
             <div class="w-full max-w-full box">
-              <p class="p-3 text-lg font-medium">Résultats synthetique par année</p>
+              <p class="p-3 text-lg font-medium">Résultats synthetique par année fs</p>
               <div class="!w-[250px] p-3">
                 <label class="form-label">Organisation</label>
                 <TomSelect name="organisations" v-model="ongSelectedScore" @change="changeOrganisationScore" :options="{ placeholder: 'Selectionez une organisation' }">

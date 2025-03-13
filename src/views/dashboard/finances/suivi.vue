@@ -719,8 +719,11 @@ onMounted(() => {
 
     <form @submit.prevent="suiviFinancierActivite">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
+        <pre>{{ suiviFinancier }}</pre>
         <div v-for="(plan, index) in suiviFinancier" :key="index" class="col-span-12 border-b pb-4 mb-4">
           <h3 class="text-sm font-medium mb-3">Plan {{ index + 1 }}</h3>
+
+
 
           <div class="">
             <InputForm label="Consommé" v-model="plan.consommer" type="number" />

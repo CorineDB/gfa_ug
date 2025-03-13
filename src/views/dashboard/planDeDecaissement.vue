@@ -1932,7 +1932,7 @@ export default {
     },
   },
   mounted() {
-    alert("ok");
+    // alert("ok");
     this.getPermission();
 
     if (this.revisionVisible || this.ppmVisible || this.ptaVisible) {

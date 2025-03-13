@@ -6,7 +6,7 @@
     <div class="flex mt-[4.7rem] md:mt-0 relative overflow-hidden">
       <!-- BEGIN: Side Menu -->
       <nav v-if="!isToolsPerception" class="fixed h-screen overflow-scroll side-nav navColor scrollbar-hidden">
-        <router-link  :to="{ name: 'projets' }" tag="a" class="flex flex-wrap items-center justify-center mt-3 intro-x">
+        <router-link :to="{ name: 'projets' }" tag="a" class="flex flex-wrap items-center justify-center mt-3 intro-x">
           <h1 class="font-semibold text-white">{{ nomProgramme }}</h1>
           <p>{{ currentUsers.role }}</p>
           <!-- <img alt="Programme de redevabilité" class="w-[5rem] sm:w-[7rem]" :src="usersProfileImage" /> -->
@@ -144,28 +144,18 @@ const nomProgramme = ref("");
 onMounted(() => {
   const usersInfo = JSON.parse(localStorage.getItem("authenticateUser"));
 
-  console.log("permissions", usersInfo.roles);
-  let permissions = usersInfo.role[0].permissions;
-
-  // let permissions = [
-  //   {
-  //     id: "07BZNxb9Q4mR1Y0AkbE3xvzo2GdDqnjZK1JZ6leKapX95rgMwP78NLBVWQ4LEvAn",
-  //     nom: "Voir un projet",
-  //     slug: "voir-un-projet",
-  //   },
-  // ];
-
-  sideMenuStore.setTabPermission(permissions);
-
-  sideMenuStore.addToMenuIfPermissionGranted();
-
-  nomProgramme.value = usersInfo.programme.nom;
-  //console.log(usersInfo);
-
   if (usersInfo) {
+    let permissions = usersInfo.role[0].permissions;
+
+    sideMenuStore.setTabPermission(permissions);
+
+    sideMenuStore.addToMenuIfPermissionGranted();
+
+    nomProgramme.value = usersInfo.programme.nom;
+
     currentUsers.nom = "test";
+
     currentUsers.role = usersInfo.role[0].nom;
-    // usersProfileImage.value = API_BASE_URL + usersInfo.users.profil;
   }
 
   dom("body").removeClass("error-page").removeClass("login").addClass("main");

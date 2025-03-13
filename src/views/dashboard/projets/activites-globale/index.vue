@@ -610,7 +610,7 @@ export default {
           if (index === this.planDeDecaissement.length - 1) {
             this.showModalPlanDeDecaissement = false;
 
-            alert("ok");
+             
 
             setTimeout(() => {
               this.planDeDecaissement = [];
