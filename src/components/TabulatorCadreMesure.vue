@@ -566,7 +566,7 @@ const valeurRealise = ref([]);
 
 const goToDetailSuivi = (id) => {
   router.push({
-    name: "detail_indicateur",
+    name: "Détail du suivi",
     params: { id },
   });
 };
@@ -742,7 +742,9 @@ const deleteData = async () => {
     await IndicateursService.destroy(idSelect.value);
     toast.success("Indicateur supprimé avec succès.");
     // getDatas();
+     
     setTimeout(() => {
+       
       emit("update-datas");
     }, 500);
   } catch (e) {

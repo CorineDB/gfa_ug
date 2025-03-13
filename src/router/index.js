@@ -80,13 +80,15 @@ import CreateIndicateur from "../views/dashboard/indicateurs/CreateIndicateur.vu
 import CadreMesure from "../views/dashboard/CadreMesure.vue";
 import SuiviIndicateur from "../views/dashboard/indicateurs/SuiviIndicateur.vue";
 import DetailSuivi from "../views/dashboard/indicateurs/DetailSuivi.vue";
+import DetailSuiviFinancier from "../views/dashboard/finances/DetailSuiviFinancier.vue";
+
 import UpdateFormPerception from "../views/dashboard/UpdateFormPerception.vue";
 import UpdateFormFactuel from "../views/dashboard/UpdateFormFactuel.vue";
 import SurveyFormView from "../views/dashboard/SurveyFormView.vue";
 import DetailEvaluationIndividuel from "../views/dashboard/DetailEvaluationIndividuel.vue";
 import FicheMarqueurClassement from "../views/dashboard/FicheMarqueurClassement.vue";
 import FondView from "../views/dashboard/FondView.vue";
-import Gestionnaire from "../views/dashboard/fileManager/index.vue";
+// import Gestionnaire from "../views/dashboard/fileManager/index.vue";
 
 const routes = [
   {
@@ -94,21 +96,21 @@ const routes = [
     component: SideMenu,
     name: "dashboard",
     children: [
-      {
-        path: "gfa",
-        name: "DashboardGfa",
-        component: DashboardGfa,
-      },
+      // {
+      //   path: "gfa",
+      //   name: "DashboardGfa",
+      //   component: DashboardGfa,
+      // },
       {
         path: "/organisation",
-        name: "Ongs",
+        name: "Organisations",
         component: Organisations,
       },
-      {
-        path: "/files",
-        name: "Gestionnaire",
-        component: Gestionnaire,
-      },
+      // {
+      //   path: "/files",
+      //   name: "Gestionnaire",
+      //   component: Gestionnaire,
+      // },
 
       {
         path: "indicateursDeGouvernance",
@@ -119,17 +121,17 @@ const routes = [
         path: "/projets/:id/details",
         component: projets_id_details,
 
-        name: "projets_id_details",
+        name: "Détails Projets",
       },
       {
         path: "projets/composantes-globale",
         component: dashboard_projets_composantes_globale,
-        name: "dashboard_projets_composantes_globale",
+        name: "OutComes",
       },
       {
         path: "/dashboard/projets/sous-composantes-globale",
         component: dashboard_projets_sous_composantes_globale,
-        name: "dashboard_projets_sous_composantes_globale",
+        name: "OutPuts",
       },
       {
         path: "/marqueur-classemnt/:e",
@@ -140,27 +142,32 @@ const routes = [
         path: "projets/activites-globale",
         component: dashboard_projets_activites_globale,
 
-        name: "dashboard_projets_activites_globale",
+        name: "Activités",
       },
       {
         path: "projets/taches-globale",
         component: dashboard_projets_taches_globale,
-        name: "dashboard_projets_taches_globale",
+        name: "Tâches",
       },
       {
         path: "enquetes",
-        name: "Programmation_enquete",
+        name: "Évaluations & Résulats",
         component: Programmation_enquete,
       },
       {
         path: "indicateurs",
-        name: "create_indicateur",
+        name: "Indicateurs",
         component: CreateIndicateur,
       },
       {
         path: "indicateur/:id",
-        name: "detail_indicateur",
+        name: "Détail du suivi",
         component: DetailSuivi,
+      },
+      {
+        path: "suiviFinancier/:id",
+        name: "Détail du suivi financier",
+        component: DetailSuiviFinancier,
       },
       {
         path: "suivi-indicateur",
@@ -260,8 +267,8 @@ const routes = [
         component: detailSuiviePta,
       },
       {
-        path: "ptaGlobal",
-        name: "ptaGlobal",
+        path: "plan-action",
+        name: "Pta Global",
         component: PtaGlobal,
       },
       {
@@ -403,11 +410,11 @@ const routes = [
         name: "resultat_collecte",
         component: FicheResultat,
       },
-      {
-        path: "indicateurs",
-        name: "Indicateurs",
-        component: indicateurs,
-      },
+      // {
+      //   path: "indicateurs",
+      //   name: "Indicateurs",
+      //   component: indicateurs,
+      // },
       {
         path: "suiviIndicateurs",
         name: "SuiviIndicateurs",
@@ -484,12 +491,18 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  // Permettre l'accès à la route "toolsPerception" quel que soit l'état d'authentification
+  const isAuthenticated = localStorage.getItem("authenticateUser");
+
+  // Permettre l'accès à certaines routes spécifiques sans authentification
   if (["ToolsPerception", "activation", "reset_Password", "view_survey", "request_password", "reset_Password"].includes(to.name)) {
     next();
   }
-  // Rediriger vers "/" si non authentifié et que la route n'est pas la page d'accueil
-  else if (!localStorage.getItem("authenticateUser") && to.path !== "/") {
+  // Si authentifié et qu'on essaie d'aller sur "/", rediriger vers "/projet"
+  else if (isAuthenticated && to.path === "/") {
+    next("/dashboard/projets");
+  }
+  // Si non authentifié et qu'on essaie d'accéder à une autre page que "/", rediriger vers "/"
+  else if (!isAuthenticated && to.path !== "/") {
     next("/");
   } else {
     next();

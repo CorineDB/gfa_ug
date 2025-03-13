@@ -210,7 +210,26 @@ const getOne = async (id) => {
 // Submit data (create or update)
 const submitData = async () => {
   isLoading.value = true;
+  // this.value = this.value.replace(",", ".");
+
+  payload.longitude = payload.longitude + "";
+  payload.latitude = payload.latitude + "";
+
+  if (payload.longitude.includes(",")) {
+    payload.longitude = payload.longitude.replace(",", ".");
+  }
+
+  if (payload.latitude.includes(",")) {
+    payload.latitude = payload.latitude.replace(",", ".");
+  }
+
   const action = isCreate.value ? OngService.create(payload) : OngService.update(idSelect.value, payload);
+
+  if (!isCreate.value) {
+    if (payload.type == "osc") {
+      delete payload.fondId;
+    }
+  }
   try {
     await action;
     toast.success(`Organisation ${isCreate.value ? "créee" : "modifiée"} avec succès.`);
@@ -250,8 +269,8 @@ const handleEdit = (data) => {
   payload.nom = data.nom;
   payload.departement = data.departement;
   payload.commune = data.commune;
-  // payload.arrondissement = data.arrondissement;
-  // payload.quartier = data.quartier;
+  payload.arrondissement = data.arrondissement ?? "";
+  payload.quartier = data.quartier ?? "";
   payload.addresse = data.addresse ?? "";
   payload.latitude = data.latitude;
   payload.longitude = data.longitude;
@@ -287,9 +306,12 @@ function resetPayload() {
 
 // UI related functions
 const resetForm = () => {
+  // alert("ok")
+  currentStep.value = 1;
   resetPayload();
   errors.value = {};
   showModalCreate.value = false;
+  currentStep.value = 1;
 };
 const openCreateModal = () => {
   resetForm();
@@ -425,23 +447,6 @@ onMounted(() => {
     <div v-show="!isLoadingData" class="p-5 mt-5 intro-y box">
       <div class="flex flex-col sm:flex-row sm:items-end xl:items-start">
         <div></div>
-        <!-- <div class="flex mt-5 sm:mt-0">
-          <button id="tabulator-print" class="w-1/2 mr-2 btn btn-outline-secondary sm:w-auto"><PrinterIcon class="w-4 h-4 mr-2" /> Print</button>
-          <Dropdown class="w-1/2 sm:w-auto">
-            <DropdownToggle class="w-full btn btn-outline-secondary sm:w-auto">
-              <FileTextIcon class="w-4 h-4 mr-2" /> Export
-              <ChevronDownIcon class="w-4 h-4 ml-auto sm:ml-2" />
-            </DropdownToggle>
-            <DropdownMenu class="w-40">
-              <DropdownContent>
-                <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Export CSV </DropdownItem>
-                <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Export JSON </DropdownItem>
-                <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Export XLSX </DropdownItem>
-                <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Export HTML </DropdownItem>
-              </DropdownContent>
-            </DropdownMenu>
-          </Dropdown>
-        </div> -->
       </div>
       <div class="overflow-x-auto _scrollbar-hidden">
         <div id="tabulator" ref="tableRef" class="mt-5 overflow-x-auto _table-report _table-report--tabulator"></div>
@@ -466,6 +471,7 @@ onMounted(() => {
             </li>
           </ol>
           <AlertErrorOng :errors="errors" />
+
           <!-- Informations  Generale -->
           <div v-show="currentStep == 1" class="">
             <p class="mb-3 text-lg text-semibold">Informations générales</p>
@@ -498,7 +504,7 @@ onMounted(() => {
                   </TomSelect>
                   <div v-if="errors.type" class="mt-2 text-danger">{{ getFieldErrors(errors.type) }}</div>
                 </div>
-                <div>
+                <div v-if="payload.type !== 'osc' && payload.type !== ''">
                   <label class="form-label">Fonds <span class="text-danger">*</span> </label>
                   <TomSelect v-model="payload.fondId" :options="{ placeholder: 'Selectionez  un fond' }" class="w-full">
                     <option value=""></option>
@@ -547,14 +553,14 @@ onMounted(() => {
 
               <div v-if="isBenin" class="grid grid-cols-2 gap-4">
                 <div :class="[!showArrondissement ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
-                  <label class="form-label">Arrondissemnt<span class="text-danger">*</span> </label>
+                  <label class="form-label">Arrondissement<span class="text-danger">*</span> </label>
                   <TomSelect v-model="payload.arrondissement" @change="updateQuartiers" :options="{ placeholder: 'Selectionez  arrondissement' }" class="w-full">
                     <option v-for="(arrond, index) in filteredArrondissements" :key="index" :value="arrond.lib_arrond">{{ arrond.lib_arrond }}</option>
                   </TomSelect>
                   <div v-if="errors.arrondissement" class="mt-2 text-danger">{{ getFieldErrors(errors.arrondissement) }}</div>
                 </div>
                 <div :class="[!showQuatier ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
-                  <label class="form-label">Quatier<span class="text-danger">*</span> </label>
+                  <label class="form-label">Quartier<span class="text-danger">*</span> </label>
                   <TomSelect v-model="payload.quartier" :options="{ placeholder: 'Sélectionner le quatier' }" class="w-full">
                     <option v-for="quart in filteredQuartiers" :key="quart.lib_quart" :value="quart.lib_quart">
                       {{ quart.lib_quart }}
@@ -570,11 +576,11 @@ onMounted(() => {
 
               <div v-if="!isBenin" class="grid grid-cols-2 gap-4">
                 <InputForm :required="false" :optionel="false" label="Arrondissement" v-model="payload.arrondissement" :control="getFieldErrors(errors.arrondissement)" />
-                <InputForm :required="false" :optionel="false" label="Quatier" v-model="payload.quartier" :control="getFieldErrors(errors.quartier)" />
+                <InputForm :required="false" :optionel="false" label="Quartier" v-model="payload.quartier" :control="getFieldErrors(errors.quartier)" />
               </div>
               <div class="grid grid-cols-2 gap-4">
-                <InputForm :required="false" :optionel="false" label="Longitude" :control="getFieldErrors(errors.longitude)" v-model.number="payload.longitude" type="number" />
-                <InputForm :required="false" :optionel="false" label="Latitude" :control="getFieldErrors(errors.latitude)" v-model.number="payload.latitude" type="number" />
+                <InputForm :required="false" :optionel="false" label="Longitude" step="0.1" :control="getFieldErrors(errors.longitude)" v-model.text="payload.longitude" type="number" />
+                <InputForm :required="false" :optionel="false" label="Latitude" step="0.1" :control="getFieldErrors(errors.latitude)" v-model.text="payload.latitude" type="number" />
               </div>
             </div>
           </div>

@@ -4,7 +4,7 @@
   </div>
 
   <div>
-    <h3>An interactive leaflet map</h3>
+    <!-- <h3>An interactive leaflet map</h3> -->
     <div id="map" style="height: 70vh"></div>
   </div>
   <div class="flex flex-col items-center justify-between mt-8 mb-4 intro-y sm:flex-row">
@@ -15,10 +15,87 @@
       </div>
     </div>
     <div class="flex w-full mt-4 sm:w-auto sm:mt-0">
-      <button v-if="verifyPermission('creer-un-projet')" class="mr-2 shadow-md btn btn-primary"
-        @click="addProjet()">Ajouter un projet</button>
+      <button v-if="verifyPermission('creer-un-projet')" class="mr-2 shadow-md btn btn-primary" @click="addProjet()">Ajouter un projet</button>
     </div>
   </div>
+  <!-- Modal Register & Update -->
+  <Modal backdrop="static" :show="showModalCreate" @hidden="showModalCreate = false">
+    <ModalHeader>
+      <h2 class="mr-auto text-base font-medium">Ajouter un Site</h2>
+    </ModalHeader>
+    <form @submit.prevent="createData">
+      <ModalBody>
+        <div class="grid grid-cols-1 gap-4">
+          <InputForm label="Nom" v-model="payloadSites.nom" class="col-span-12" />
+          <InputForm label="Longitude" type="number" v-model="payloadSites.longitude" class="col-span-12" />
+          <div v-if="errors.longitude" class="mt-2 text-danger">{{ getFieldErrors(errors.longitude) }}</div>
+
+          <InputForm label="Latitude" type="number" v-model.number="payloadSites.latitude" class="col-span-12" />
+          <div v-if="errors.latitude" class="mt-2 text-danger">{{ getFieldErrors(errors.latitude) }}</div>
+
+          <div class="col-span-12">
+            <label class="form-label">Pays<span class="text-danger">*</span> </label>
+            <TomSelect v-model="payloadSites.pays" @change="changeCountry" :options="{ placeholder: 'Selectionez  un pays' }" class="w-full">
+              <option value=""></option>
+              <option v-for="(country, index) in pays" :key="index" :value="country">{{ country }}</option>
+            </TomSelect>
+            <div v-if="errors.pays" class="mt-2 text-danger">{{ getFieldErrors(errors.pays) }}</div>
+          </div>
+          <div v-if="isBenin" class="col-span-12">
+            <div class="w-full mb-4">
+              <label class="form-label">Départements<span class="text-danger">*</span> </label>
+              <TomSelect v-model="payloadSites.departement" @change="updateCommunes" :options="{ placeholder: 'Selectionez un département' }" class="w-full">
+                <option value=""></option>
+                <option v-for="(dep, index) in departements" :key="index" :value="dep.lib_dep">{{ dep.lib_dep }}</option>
+              </TomSelect>
+              <div v-if="errors.departement" class="mt-2 text-danger">{{ getFieldErrors(errors.departement) }}</div>
+            </div>
+            <div class="mb-4" :class="[!showCommune ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
+              <label class="form-label">Communes<span class="text-danger">*</span> </label>
+              <TomSelect v-model="payloadSites.commune" :options="{ placeholder: 'Sélectionner la commune' }" class="w-full" @change="updateArrondissements">
+                <option v-for="commune in filteredCommunes" :key="commune.lib_com" :value="commune.lib_com">
+                  {{ commune.lib_com }}
+                </option>
+              </TomSelect>
+              <div v-if="errors.commune" class="mt-2 text-danger">{{ getFieldErrors(errors.commune) }}</div>
+            </div>
+          </div>
+
+          <div v-if="isBenin" class="col-span-12">
+            <div class="w-full mb-4" :class="[!showArrondissement ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
+              <label class="form-label">Arrondissemnt<span class="text-danger">*</span> </label>
+              <TomSelect v-model="payloadSites.arrondissement" @change="updateQuartiers" :options="{ placeholder: 'Selectionez  arrondissement' }" class="w-full">
+                <option v-for="(arrond, index) in filteredArrondissements" :key="index" :value="arrond.lib_arrond">{{ arrond.lib_arrond }}</option>
+              </TomSelect>
+              <div v-if="errors.arrondissement" class="mt-2 text-danger">{{ getFieldErrors(errors.arrondissement) }}</div>
+            </div>
+            <div class="w-full mb-4" :class="[!showQuatier ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
+              <label class="form-label">Quartier<span class="text-danger">*</span> </label>
+              <TomSelect v-model="payloadSites.quartier" :options="{ placeholder: 'Sélectionner le quatier' }" class="w-full">
+                <option v-for="quart in filteredQuartiers" :key="quart.lib_quart" :value="quart.lib_quart">
+                  {{ quart.lib_quart }}
+                </option>
+              </TomSelect>
+              <div v-if="errors.quartier" class="mt-2 text-danger">{{ getFieldErrors(errors.quartier) }}</div>
+            </div>
+          </div>
+          <div v-if="!isBenin" class="col-span-12">
+            <InputForm :required="false" :optionel="false" label="Département" v-model="payloadSites.departement" :control="getFieldErrors(errors.departement)" class="mb-4" />
+            <InputForm :required="false" :optionel="false" label="Commune" v-model="payloadSites.commune" :control="getFieldErrors(errors.commune)" class="mb-4" />
+            <InputForm :required="false" :optionel="false" label="Arrondissement" v-model="payloadSites.arrondissement" :control="getFieldErrors(errors.arrondissement)" class="mb-4" />
+            <InputForm :required="false" :optionel="false" label="Quartier" v-model="payloadSites.quartier" :control="getFieldErrors(errors.quartier)" class="mb-4" />
+          </div>
+        </div>
+      </ModalBody>
+      <ModalFooter>
+        <div class="flex gap-2">
+          <button type="button" @click="resetFormSite" class="w-full px-2 py-2 my-3 align-top btn btn-outline-secondary">Annuler</button>
+          <VButton :loading="isLoadingSite" label="Ajouter" />
+        </div>
+      </ModalFooter>
+    </form>
+  </Modal>
+  <!-- End Modal -->
   <Modal backdrop="static" :show="showModal" @hidden="showModal = false">
     <ModalHeader>
       <h2 v-if="!isUpdate" class="mr-auto text-base font-medium">Ajouter un projet</h2>
@@ -27,120 +104,101 @@
 
     <form @submit.prevent="sendForm">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
-        <InputForm v-model="formData.nom" class="col-span-12" type="text" :required="true" placeHolder="Nom du projet"
-          label="Nom" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nom">{{
-          $h.extractContentFromArray(messageErreur.nom) }}</p>
+        <InputForm v-model="formData.nom" class="col-span-12" type="text" :required="true" placeHolder="Nom du projet" label="Nom" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nom">{{ $h.extractContentFromArray(messageErreur.nom) }}</p>
 
-        <InputForm v-model="formData.couleur" class="col-span-12" type="color" :required="true" placeHolder="Couleur"
-          label="Couleur" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.couleur">{{
-          $h.extractContentFromArray(messageErreur.couleur) }}</p>
+        <InputForm v-model="formData.couleur" class="col-span-12" type="color" :required="true" placeHolder="Couleur" label="Couleur" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.couleur">{{ $h.extractContentFromArray(messageErreur.couleur) }}</p>
 
-        <InputForm v-model="formData.debut" class="col-span-12" type="date" :required="true"
-          placeHolder="Entrer la date de début" label="Début du projet" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.debut">{{
-          $h.extractContentFromArray(messageErreur.debut) }}</p>
+        <InputForm v-model="formData.debut" class="col-span-12" type="date" :required="true" placeHolder="Entrer la date de début" label="Début du projet" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.debut">{{ $h.extractContentFromArray(messageErreur.debut) }}</p>
 
-        <InputForm v-model="formData.fin" class="col-span-12" type="date" :required="true"
-          placeHolder="Entrer la date de fin" label="Fin du projet" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.fin">{{
-          $h.extractContentFromArray(messageErreur.fin) }}</p>
+        <InputForm v-model="formData.fin" class="col-span-12" type="date" :required="true" placeHolder="Entrer la date de fin" label="Fin du projet" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.fin">{{ $h.extractContentFromArray(messageErreur.fin) }}</p>
 
-        <InputForm v-model="formData.nombreEmploie" class="col-span-12" type="number" placeHolder="Ex : 10"
-          label="Nombre d'employé" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nombreEmploie">{{
-          $h.extractContentFromArray(messageErreur.nombreEmploie) }}</p>
+        <InputForm v-model="formData.nombreEmploie" class="col-span-12" type="number" placeHolder="Ex : 10" label="Nombre d'employé" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nombreEmploie">{{ $h.extractContentFromArray(messageErreur.nombreEmploie) }}</p>
 
-        <InputForm v-model="formData.pays" class="col-span-12" type="text" placeHolder="Ex : Bénin" label="Pays" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pays">{{
-          $h.extractContentFromArray(messageErreur.pays) }}</p>
+        <div class="col-span-12">
+          <label class="form-label">Pays<span class="text-danger">*</span> </label>
+          <TomSelect v-model="formData.pays" :options="{ placeholder: 'Selectionez  un pays' }" class="w-full">
+            <option value=""></option>
+            <option v-for="(country, index) in pays" :key="index" :value="country">{{ country }}</option>
+          </TomSelect>
+        </div>
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pays">{{ $h.extractContentFromArray(messageErreur.pays) }}</p>
 
-        <InputForm v-model="formData.budgetNational" class="col-span-12" type="text" :required="true"
-          placeHolder="Ex : 100000" label="Fond Propre" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.budgetNational">{{
-          $h.extractContentFromArray(messageErreur.budgetNational) }}</p>
+        <!-- <InputForm v-model="formData.pays" class="col-span-12" type="text" placeHolder="Ex : Bénin" label="Pays" /> -->
 
-        <InputForm v-model="formData.pret" class="col-span-12" type="text" :required="true" placeHolder="Ex : 100000"
-          label="Montant financé" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pret">{{
-          $h.extractContentFromArray(messageErreur.pret) }}</p>
+        <InputForm v-model="formData.budgetNational" class="col-span-12" type="text" :required="true" placeHolder="Ex : 100000" label="Fond Propre" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.budgetNational">{{ $h.extractContentFromArray(messageErreur.budgetNational) }}</p>
+
+        <InputForm v-model="formData.pret" class="col-span-12" type="text" :required="true" placeHolder="Ex : 100000" label="Montant financé" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pret">{{ $h.extractContentFromArray(messageErreur.pret) }}</p>
 
         <div class="col-span-12" v-if="!isUpdate">
           <label class="block my-3 font-bold text-gray-700">Images de couverture</label>
-          <input type="file" ref="fileInput" @change="handleFileChange" placeHolder="choisir une image" accept="image/*"
-            class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+          <input type="file" ref="fileInput" @change="handleFileChange" placeHolder="choisir une image" accept="image/*" class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
           <div class="col-span-12 flex items-center justify-start" v-if="imagePreview">
             <div class="mr-3">
               <h3 class="block my-3 font-bold">Prévisualisation de l'image :</h3>
               <img :src="imagePreview" alt="Prévisualisation" width="200" />
             </div>
-            <button type="button" class="text-red-500 hover:text-red-700 font-semibold text-sm"
-              @click="clearFiles(index)">Supprimer</button>
+            <button type="button" class="text-red-500 hover:text-red-700 font-semibold text-sm" @click="clearFiles(index)">Supprimer</button>
           </div>
         </div>
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.image">{{
-          $h.extractContentFromArray(messageErreur.image) }}</p>
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.image">{{ $h.extractContentFromArray(messageErreur.image) }}</p>
 
-        <!-- <div class="col-span-12" v-if="!isUpdate">
-          <label class="block my-3 font-bold">Pièces jointes</label>
-          <input name="fichier" class="col-span-12" placeHolder="choisir un fichier ou plusieurs" type="file" multiple @change="handleFileChange2" />
-          <InputForm class="col-span-12" type="file" @change="handleFileChange2" placeHolder="choisir un fichier ou plusieurs" label="Pièces jointes" multiple />
-          <div class="col-span-12">
-            <ul v-if="files.length > 1">
-              <li v-for="(file, index) in files" :key="index">
-                {{ file.name }}
-              </li>
-            </ul>
-          </div>
-        </div> -->
         <div class="col-span-12" v-if="!isUpdate">
           <label class="block my-3 font-bold text-gray-700">Pièces jointes</label>
-          <input name="fichier" ref="fileInput2"
-            class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="Choisir un fichier ou plusieurs" type="file" multiple @change="handleFileChange2" />
+          <input name="fichier" ref="fileInput2" class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Choisir un fichier ou plusieurs" type="file" multiple @change="handleFileChange2" />
           <div class="col-span-12 mt-4">
             <ul v-if="files.length > 0" class="bg-gray-100 rounded-lg shadow-md p-4 space-y-2">
-              <li v-for="(file, index) in files" :key="index"
-                class="flex items-center justify-between p-2 bg-white rounded-lg shadow-sm hover:bg-gray-50">
-                <span class="text-gray-700 font-medium">{{ file.name }}</span>
-                <button type="button" class="text-red-500 hover:text-red-700 font-semibold text-sm"
-                  @click="removeFile(index)">Supprimer</button>
+              <li v-for="(file, index) in files" :key="index" class="flex items-center justify-between p-2 bg-white rounded-lg shadow-sm hover:bg-gray-50">
+                <span class="text-gray-700 font-medium word-break">{{ file.name }}</span>
+                <button type="button" class="text-red-500 hover:text-red-700 font-semibold text-sm" @click="removeFile(index)">Supprimer</button>
               </li>
             </ul>
           </div>
         </div>
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.fichier">{{
-          $h.extractContentFromArray(messageErreur.fichier) }}</p>
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.fichier">{{ $h.extractContentFromArray(messageErreur.fichier) }}</p>
 
         <div class="col-span-12">
           <label>Organisation*</label>
           <div class="mt-2">
-            <TomSelect v-model="formData.organisationId" :options="{
-          placeholder: 'Veuillez associé une organisation au programme',
-        }" class="w-full">
+            <TomSelect
+              v-model="formData.organisationId"
+              :options="{
+                placeholder: 'Veuillez associé une organisation au programme',
+              }"
+              class="w-full"
+            >
               <option value="">Choisir une organisation</option>
               <option v-for="(org, index) in ongs" :key="index" :value="org.id">{{ org.nom }}</option>
             </TomSelect>
           </div>
         </div>
-        <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.organisationId">{{
-          $h.extractContentFromArray(messageErreur.organisationId) }}</p>
+        <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.organisationId">{{ $h.extractContentFromArray(messageErreur.organisationId) }}</p>
 
         <div class="col-span-12">
           <label>Sites*</label>
-          <div class="mt-2">
-            <TomSelect v-model="sitesId" multiple :options="{
-          placeholder: 'Veuillez associé des sites',
-        }" class="w-full">
+          <div class="mt-2 flex">
+            <TomSelect
+              v-model="sitesId"
+              multiple
+              :options="{
+                placeholder: 'Veuillez associé des sites',
+              }"
+              class="w-11/12 mr-2"
+            >
               <option value="">Choisir un site</option>
 
               <option v-for="(site, index) in sites" :key="index" :value="site.id">{{ site.nom }}</option>
             </TomSelect>
+            <button class="shadow-md btn btn-primary" @click="showModalCreate = true"><PlusIcon class="w-4 h-4 mr-3" /></button>
           </div>
         </div>
-        <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.sites">{{
-          $h.extractContentFromArray(messageErreur.sites) }}</p>
+        <p class="text-red-500 text-[12px] mt-2 col-span-12" title="Ajouter un site" v-if="messageErreur.sites">{{ $h.extractContentFromArray(messageErreur.sites) }}</p>
 
         <!-- Choix de fichier -->
         <!-- <div class="relative col-span-12">
@@ -150,8 +208,7 @@
       </ModalBody>
       <ModalFooter>
         <div class="flex items-center justify-center">
-          <button type="button" @click="showModal = false"
-            class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
+          <button type="button" @click="showModal = false" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
           <VButton class="inline-block" :label="title" :loading="isLoading" :type="submit" />
         </div>
       </ModalFooter>
@@ -165,15 +222,12 @@
 
     <form @submit.prevent="prolongerProjet">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
-        <InputForm v-model="dateFin" :min="dateFinOld" class="col-span-12" type="date" :required="true"
-          placeHolder="Entrer la nouvelle date de fin" label="Nouvelle Fin du projet*" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurProlongation !== null">{{ erreurProlongation
-          }}</p>
+        <InputForm v-model="dateFin" :min="dateFinOld" class="col-span-12" type="date" :required="true" placeHolder="Entrer la nouvelle date de fin" label="Nouvelle Fin du projet*" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurProlongation !== null">{{ erreurProlongation }}</p>
       </ModalBody>
       <ModalFooter>
         <div class="flex items-center justify-center">
-          <button type="button" @click="prolongerModal = false"
-            class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
+          <button type="button" @click="prolongerModal = false" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
           <VButton class="inline-block" label="Prolonger" :loading="loadingProlonger" :type="submit" />
         </div>
       </ModalFooter>
@@ -188,38 +242,26 @@
         <div class="mt-2 text-slate-500">Voulez vous supprimer le projet ? <br />Cette action ne peut être annulé</div>
       </div>
       <div class="flex gap-2 px-5 pb-8 text-center">
-        <button type="button" @click="deleteModal = false"
-          class="w-full my-3 mr-1 btn btn-outline-secondary">Annuler</button>
+        <button type="button" @click="deleteModal = false" class="w-full my-3 mr-1 btn btn-outline-secondary">Annuler</button>
         <VButton :loading="isLoading" label="Supprimer" @click="deleteProjets" />
       </div>
     </ModalBody>
   </Modal>
   <LoaderSnipper v-if="isLoadingProjets" />
-  <div v-if="verifyPermission('voir-un-projet') && !isLoadingProjets"
-    class="grid grid-cols-1 gap-6 mt-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-    <div href="#"
-      class="relative transition-all duration-500 border-l-4 shadow-2xl box group _bg-white zoom-in border-primary hover:border-secondary"
-      v-for="(item, index) in paginatedAndFilteredData" :key="index">
+  <div v-if="verifyPermission('voir-un-projet') && !isLoadingProjets" class="grid grid-cols-1 gap-6 mt-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
+    <div href="#" class="relative transition-all duration-500 border-l-4 shadow-2xl box group _bg-white zoom-in border-primary hover:border-secondary" v-for="(item, index) in paginatedAndFilteredData" :key="index">
       <div class="relative m-5 bg-white">
-        <div
-          class="text-[#171a1d] group-hover:text-[#007580] font-medium text-[14px] md:text-[16px] lg:text-[18px] leading-[30px] pt-[10px]">
-          {{ item.nom }}</div>
+        <div class="text-[#171a1d] group-hover:text-[#007580] font-medium text-[14px] md:text-[16px] lg:text-[18px] leading-[30px] pt-[10px]">{{ item.codePta }} - {{ item.nom }}</div>
       </div>
 
-      <div
-        class="relative mt-[12px] m-5 h-40 2xl:h-56 image-fit rounded-md overflow-hidden before:block before:absolute before:w-full before:h-full before:top-0 before:left-0 before:z-10 before:bg-gradient-to-t before:from-black before:to-black/10">
-        <div class="absolute top-0 left-0 w-1/2 h-0 group-hover:h-full bg-[#02008052] transition-all duration-[.5s]">
-        </div>
-        <div
-          class="absolute bottom-0 right-0 w-1/2 h-0 group-hover:h-full bg-[#02008052] transition-all duration-[.5s]">
-        </div>
+      <div class="relative mt-[12px] m-5 h-40 2xl:h-56 image-fit rounded-md overflow-hidden before:block before:absolute before:w-full before:h-full before:top-0 before:left-0 before:z-10 before:bg-gradient-to-t before:from-black before:to-black/10">
+        <div class="absolute top-0 left-0 w-1/2 h-0 group-hover:h-full bg-[#02008052] transition-all duration-[.5s]"></div>
+        <div class="absolute bottom-0 right-0 w-1/2 h-0 group-hover:h-full bg-[#02008052] transition-all duration-[.5s]"></div>
 
         <div class="relative h-64 overflow-hidden group/hw hway hway-active">
-          <img class="object-contain group-hover:opacity-30 transition-all duration-[.5s] h-auto"
-            :src="item.image == null ? projetsImg[0] : item.image.url" alt="" />
+          <img class="object-contain group-hover:opacity-30 transition-all duration-[.5s] h-auto" :src="item.image == null ? projetsImg[0] : item.image.url" alt="" />
           <!-- Description cachée avec effet de survol -->
-          <div
-            class="absolute inset-0 flex items-start justify-center p-5 text-white transition-opacity duration-500 bg-black opacity-0 bg-opacity-80 group-hover:opacity-100">
+          <div class="absolute inset-0 flex items-start justify-center p-5 text-white transition-opacity duration-500 bg-black opacity-0 bg-opacity-80 group-hover:opacity-100">
             <div>
               <p class="text-base font-bold lg:text-lg">Description du projet</p>
               <p class="px-2 text-sm lg:text-base line-clamp-7">{{ item.description }} {{ item.key }}</p>
@@ -230,11 +272,12 @@
 
       <div class="m-5 text-slate-600 dark:text-slate-500">
         <div class="flex items-center">
-          <LinkIcon class="w-4 h-4 mr-2" /> Fond propre: {{ $h.formatCurrency(item.budgetNational) }}
+          <LinkIcon class="w-4 h-4 mr-2" /> Fond propre: {{ item.budgetNational == null || item.budgetNational == 0 ? 0 : $h.formatCurrency(item.budgetNational) }}
           <div class="ml-2 italic font-bold">Fcfa</div>
         </div>
         <div class="flex items-center">
-          <LinkIcon class="w-4 h-4 mr-2" /> Montant financé: {{ $h.formatCurrency(item.pret == null ? 0 : item.pret) }}
+         
+          <LinkIcon class="w-4 h-4 mr-2" /> Montant financé: {{ item.pret == null || item.pret == 0 ? 0 :  $h.formatCurrency(item.pret ) }}
           <div class="ml-2 italic font-bold">Fcfa</div>
         </div>
         <div v-if="item.owner !== null" class="flex items-center">
@@ -244,43 +287,24 @@
         <div class="flex items-center mt-2">
           <ClockIcon class="w-4 h-4 mr-2" />
           <div>
-            Date : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(item.debut) }}</span> au <span class="font-bold">
-              {{ $h.reformatDate(item.fin) }}</span>
+            Date : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(item.debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(item.fin) }}</span>
           </div>
         </div>
         <div class="flex items-center mt-2">
           <CheckSquareIcon class="w-4 h-4 mr-2" /> Statut :
           <span class="p-1 pl-2 text-white bg-black rounded-md shadow-md" v-if="item.statut == -2"> Non validé </span>
-          <span class="p-1 pl-2 text-white bg-green-500 rounded-md shadow-md" v-else-if="item.statut == -1"> Validé
-          </span>
-          <span class="p-1 pl-1 text-white bg-yellow-500 rounded-md shadow-md" v-else-if="item.statut == 0"> En cours
-          </span>
-          <span class="p-1 pl-1 text-white bg-red-500 rounded-md shadow-md" v-else-if="item.statut == 1"> En retard
-          </span>
+          <span class="p-1 pl-2 text-white bg-green-500 rounded-md shadow-md" v-else-if="item.statut == -1"> Validé </span>
+          <span class="p-1 pl-1 text-white bg-yellow-500 rounded-md shadow-md" v-else-if="item.statut == 0"> En cours </span>
+          <span class="p-1 pl-1 text-white bg-red-500 rounded-md shadow-md" v-else-if="item.statut == 1"> En retard </span>
           <span class="pl-2" v-else-if="item.statut == 2">Terminé</span>
         </div>
       </div>
 
-      <div
-        class="flex items-center justify-between p-5 border-t lg:justify-end border-slate-200/60 dark:border-darkmode-400">
-        <a v-if="verifyPermission('voir-details-projet')" class="flex items-center mr-auto text-primary"
-          href="javascript:;" @click="goToDetail(item)">
-          <EyeIcon class="w-4 h-4 mr-1" title="voir détail" /> <span class="hidden sm:block"> Détail </span>
-        </a>
-        <a v-if="verifyPermission('prolonger-un-projet')" class="flex items-center mr-auto text-primary"
-          href="javascript:;" @click="ouvrirModalProlongerProjet(item)" title="Prolonger la date du projet">
-          <CalendarIcon class="w-4 h-4 mr-1" /><span class="hidden sm:block"> Étendre </span>
-        </a>
-        <a v-if="verifyPermission('modifier-un-projet')" class="flex items-center mr-auto" href="javascript:;"
-          @click="modifierProjet(item)">
-          <CheckSquareIcon class="w-4 h-4 mr-1" title="modifier le projet" /><span class="hidden sm:block"> Modifier
-          </span>
-        </a>
-        <a v-if="verifyPermission('supprimer-un-projet')" class="flex items-center text-danger mr-auto"
-          href="javascript:;" @click="supprimerProjet(item)">
-          <Trash2Icon class="w-4 h-4 mr-1" title="supprimer le projet" /><span class="hidden sm:block"> Supprimer
-          </span>
-        </a>
+      <div class="flex items-center justify-between p-5 border-t lg:justify-end border-slate-200/60 dark:border-darkmode-400">
+        <a v-if="verifyPermission('voir-details-projet')" class="flex items-center mr-auto text-primary" href="javascript:;" @click="goToDetail(item)"> <EyeIcon class="w-4 h-4 mr-1" title="voir détail" /> <span class="hidden sm:block"> Détail </span> </a>
+        <a v-if="verifyPermission('prolonger-un-projet')" class="flex items-center mr-auto text-primary" href="javascript:;" @click="ouvrirModalProlongerProjet(item)" title="Prolonger la date du projet"> <CalendarIcon class="w-4 h-4 mr-1" /><span class="hidden sm:block"> Étendre </span> </a>
+        <a v-if="verifyPermission('modifier-un-projet')" class="flex items-center mr-auto" href="javascript:;" @click="modifierProjet(item)"> <CheckSquareIcon class="w-4 h-4 mr-1" title="modifier le projet" /><span class="hidden sm:block"> Modifier </span> </a>
+        <a v-if="verifyPermission('supprimer-un-projet')" class="flex items-center text-danger mr-auto" href="javascript:;" @click="supprimerProjet(item)"> <Trash2Icon class="w-4 h-4 mr-1" title="supprimer le projet" /><span class="hidden sm:block"> Supprimer </span> </a>
       </div>
 
       <div class="absolute bottom-0 flex w-full">
@@ -295,8 +319,7 @@
     <!-- <pagination totalItems="30" itemsPerPage="10" :isLoading="false" /> -->
   </div>
 
-  <pagination class="col-span-12" :total-items="totalItems" :items-per-page="itemsPerPage"
-    :is-loading="isLoadingProjets" @page-changed="onPageChanged" @items-per-page-changed="onItemsPerPageChanged">
+  <pagination class="col-span-12" :total-items="totalItems" :items-per-page="itemsPerPage" :is-loading="isLoadingProjets" @page-changed="onPageChanged" @items-per-page-changed="onItemsPerPageChanged">
     <!-- Slots personnalisés (facultatif) -->
     <template #prev-icon>
       <span>&laquo; Précédent</span>
@@ -332,12 +355,25 @@ import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import "leaflet.markercluster";
 import { addressPoints } from "./markerDemo";
 import icon from "./icon.png";
-import markerShadow from "./marker-shadow.png";
+import contries from "@/pays.json";
+import markerShadow from "./marker-shadow.png"; // ../../utils/helpers"
+// import { getFieldErrors } from "../../../utils/helpers";
+import decoupage from "@/decoupage_territorial_benin.json";
 
 export default {
   components: { LoaderSnipper, InputForm, VButton, LMap, LTileLayer, LMarker, LPolygon, LPopup, pagination },
   data() {
     return {
+      selectedDepartementData: "",
+      departements: [],
+      errors: {},
+      pays: [],
+      indexBenin: 1,
+      isBenin: false,
+      showModalCreate: false,
+      payloadSites: this.getinitForm(),
+
+      isLoadingSite: false,
       search: "",
       isLoadingProjets: false,
       itemsPerPage: 3, // Nombre d'éléments par page
@@ -500,9 +536,119 @@ export default {
 
       return paginatedData;
     },
+    filteredCommunes() {
+      if (!this.payloadSites.departement) return [];
+      this.selectedDepartementData = this.departements.find((dep) => dep.lib_dep === this.payloadSites.departement);
+      return this.selectedDepartementData ? this.selectedDepartementData.communes : [];
+    },
+    filteredArrondissements() {
+      if (!this.payloadSites.commune || !this.selectedDepartementData) return [];
+      const communeData = this.selectedDepartementData.communes.find((com) => com.lib_com === this.payloadSites.commune);
+      return communeData ? communeData.arrondissements : [];
+    },
+    filteredQuartiers() {
+      if (!this.payloadSites.arrondissement) return [];
+      const arrondissementData = this.filteredArrondissements.find((arrond) => arrond.lib_arrond === this.payloadSites.arrondissement);
+      return arrondissementData ? arrondissementData.quartiers : [];
+    },
+    showCommune() {
+      return !this.payloadSites.departement;
+    },
+    showArrondissement() {
+      return !this.payloadSites.commune;
+    },
+    showQuatier() {
+      return !this.payloadSites.arrondissement;
+    },
   },
 
   methods: {
+    getinitForm() {
+      return {
+        nom: "",
+        longitude: "",
+        latitude: "",
+        arrondissement: "",
+        commune: "",
+        departement: "",
+        pays: "",
+        quartier: "",
+      };
+    },
+    resetPayload() {
+      this.payloadSites = this.getinitForm;
+    },
+    verifyPermission,
+    resetFormSite() {
+      this.resetPayload();
+      this.errors = {};
+      this.showModalCreate = false;
+    },
+    getFieldErrors(errors) {
+      if (!errors || !Array.isArray(errors)) return "";
+      return errors.join(", ");
+    },
+    updateQuartiers() {
+      this.payloadSites.quartier = "";
+    },
+    updateArrondissements() {
+      this.payloadSites.arrondissement = "";
+      this.payloadSites.quartier = "";
+    },
+    updateCommunes() {
+      this.payloadSites.commune = "";
+      this.payloadSites.arrondissement = "";
+      this.payloadSites.quartier = "";
+    },
+    changeCountry() {
+      if (this.payloadSites.pays === "Bénin") {
+        this.indexBenin = -1;
+        this.isBenin = true;
+        this.updateCommunes();
+      } else {
+        this.indexBenin++;
+        if (this.indexBenin == 0) {
+          this.payloadSites.quartier = "";
+          this.payloadSites.arrondissement = "";
+          this.payloadSites.commune = "";
+          this.payloadSites.departement = "";
+        }
+        this.isBenin = false;
+      }
+    },
+    resetFormSites() {
+      this.payloadSites.libelle = "";
+      this.payloadSites.description = "";
+      this.payloadSites.note = "";
+      // payload.programmeId = "";
+      this.showModalCreate = false;
+    },
+    async createData() {
+      this.payloadSites.longitude = this.payloadSites.longitude + "";
+      this.payloadSites.latitude = this.payloadSites.latitude + "";
+
+      if (this.payloadSites.longitude.includes(",")) {
+        this.payloadSites.longitude = this.payloadSites.longitude.replace(",", ".");
+      }
+
+      if (this.payloadSites.latitude.includes(",")) {
+        this.payloadSites.latitude = this.payloadSites.latitude.replace(",", ".");
+      }
+
+      this.isLoadingSite = true;
+      await SiteService.create(this.payloadSites)
+        .then(() => {
+          this.isLoadingSite = false;
+          this.fetchSites();
+          this.resetFormSite();
+          toast.success("Sites créer.");
+        })
+        .catch((e) => {
+          this.isLoadingSite = false;
+          console.error(e);
+          toast.error("Vérifier les informations et ressayer.");
+        });
+    },
     removeFile(index) {
       // Supprime le fichier à l'index donné
       console.log("this.selectedFile2", this.selectedFile2);
@@ -522,7 +668,7 @@ export default {
     },
     goToDetail(projet) {
       console.log(projet);
-      this.$router.push({ name: "projets_id_details", params: { id: projet.id, projet: projet } });
+      this.$router.push({ name: "Détails Projets", params: { id: projet.id, projet: projet } });
     },
     verifyPermission,
     resetFileInput() {
@@ -700,7 +846,7 @@ export default {
       };
 
       localStorage.setItem("profondeurProjet", JSON.stringify(profondeurProjet));
-      this.$router.push({ name: "dashboard_projets_composantes_globale" });
+      this.$router.push({ name: "OutComes" });
     },
 
     active() {
@@ -812,7 +958,7 @@ export default {
 
     gotoDetails(projet) {
       if (this.dashboardProjetVisible) {
-        this.$router.push({ name: "projets_id_details", params: { id: projet.id, projet: projet } });
+        this.$router.push({ name: "Détails Projets", params: { id: projet.id, projet: projet } });
       }
     },
 
@@ -849,8 +995,8 @@ export default {
       this.isUpdate = false;
       this.showCloseModal(true);
       //alert("ok");
-      console.log(this.sites)
-      console.log(this.ongs)
+      console.log(this.sites);
+      console.log(this.ongs);
     },
 
     modifierProjet(projet) {
@@ -975,11 +1121,11 @@ export default {
             this.isLoading = false;
             console.log(errors);
 
-            if (errors.response && errors.response.data && errors.response.data.errors) {
+            if (errors.response && errors.response.data &&  Object.keys(errors.response.data.errors).length > 0) {
               this.messageErreur = errors.response.data.errors;
               toast.error("Une erreur s'est produite dans votre formulaire");
             } else {
-              toast.error(errors.message);
+              toast.error(errors.response.data.message);
             }
           });
       } else {
@@ -1035,11 +1181,11 @@ export default {
             this.FormProjet = new FormData();
 
             // Mettre à jour les messages d'erreurs dynamiquement
-            if (error.response && error.response.data && error.response.data.errors) {
+            if (error.response && error.response.data &&   Object.keys(error.response.data.errors).length > 0) {
               this.messageErreur = error.response.data.errors;
               toast.error("Une erreur s'est produite dans votre formulaire");
             } else {
-              toast.error(error.message);
+              toast.error(error.response.data.message);
             }
           });
       }
@@ -1104,7 +1250,7 @@ export default {
             { name: "Description", type: "", key: "description", placeholdere: "Description du projet", isSelect: false, isTextArea: true, data: "", required: false, errors: [] },
           ];
         })
-        .catch((error) => { });
+        .catch((error) => {});
     },
     initializeMap() {
       // Initialiser la carte lorsque le composant est monté
@@ -1125,16 +1271,20 @@ export default {
         zoomAnimation: false,
         fadeAnimation: true,
         markerZoomAnimation: true,
-      }).setView([6.35610, 2.39182], 10);
+      }).setView([6.3561, 2.39182], 10);
 
       L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 100,
-        attribution: '',
+        attribution: "",
       }).addTo(this.initialMap);
 
-      // Ajouter des marqueurs individuels      
-      L.marker([6.35610, 2.39182], { icon: this.myIcon }).bindPopup(`GFA Redevabilite`).addTo(this.initialMap);      
-    }
+      // Ajouter des marqueurs individuels
+      L.marker([6.3561, 2.39182], { icon: this.myIcon }).bindPopup(`GFA Redevabilite`).addTo(this.initialMap);
+    },
+  },
+  beforeMount() {
+    this.pays = Object.values(contries);
+    this.departements = decoupage;
   },
   mounted() {
     this.initializeMap();
@@ -1147,31 +1297,32 @@ export default {
 
   watch: {
     sites: function (sites) {
-      
       // Ajouter des marqueurs à partir de `addressPoints`
       this.sites.forEach((site, index) => {
         const latitude = parseFloat(site.latitude);
         const longitude = parseFloat(site.longitude);
 
-        L.marker([latitude, longitude], { icon: this.myIcon }).bindPopup(`
+        L.marker([latitude, longitude], { icon: this.myIcon })
+          .bindPopup(
+            `
         <b>${site.nom}</b><br>
         Arrondissement: ${site.arrondissement}<br>
         Commune: ${site.commune}<br>
         Département: ${site.departement}<br>
         <b>Projects:</b><br>
         <ul>
-          ${site.projets
-            .map((project) => `<li>${project.nom}</li>`)
-            .join("")}
+          ${site.projets.map((project) => `<li>${project.nom}</li>`).join("")}
         </ul>
-      `).addTo(this.initialMap);
+      `
+          )
+          .addTo(this.initialMap);
       });
       /*
       // Créer un groupe de marqueurs
 
       // Initialize marker cluster group with clustering disabled
       const markers = L.markerClusterGroup();
-      
+
       // Ajouter des marqueurs à partir de `addressPoints`
       this.sites.forEach((site, index) => {
         const each_marker = L.marker([parseFloat(site.latitude), parseFloat(site.longitude)], { icon: this.myIcon }).bindPopup(`
@@ -1191,7 +1342,7 @@ export default {
         //each_marker.addTo(this.initialMap);
 
         markers.addLayer(each_marker);
-        
+
       });
 
       this.initialMap.addLayer(markers);*/
@@ -1210,7 +1361,7 @@ export default {
   created() {
     this.getPermission();
     if (!this.projetVisible) {
-      this.$router.push("/401-non-autorise");
+      // this.$router.push("/401-non-autorise");
     }
     this.programmeId = this.currentUser.programme.id;
     if (this.programmeId) {

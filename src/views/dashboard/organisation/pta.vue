@@ -1,5 +1,9 @@
 <template>
-  <h2 class="mt-10 text-lg font-medium intro-y">Plan d'Action</h2>
+  <div class="flex justify-between mt-4 items-center">
+    <h2 class="text-lg font-medium intro-y">Plan d'Action</h2>
+    <button class="btn btn-primary" @click="$router.go(-1)">Retour <CornerDownLeftIcon class="w-4 h-4 ml-2" /></button>
+  </div>
+  <!-- <h2 class="mt-10 text-lg font-medium intro-y">Plan d'Action</h2> -->
   <div class="grid grid-cols-12 gap-6 my-5">
     <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
       <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
@@ -104,16 +108,9 @@
               <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">Fond propres</th>
               <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">Montant financé XOF</th>
               <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">TOTAL</th>
-              <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">
-                <button @click="ouvrirModalSuiviFinancierActivite(suivi)" class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-xs px-4 py-2 mr-2">Suivre</button>
-
-                <button @click="handleEdit(suivi)" class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-xs px-4 py-2 mr-2">Modifier</button>
-
-                <button @click="handleDelete(suivi)" class="text-white bg-red-500 hover:bg-red-600 font-medium rounded-lg text-xs px-4 py-2">Supprimer</button>
-              </th>
             </tr>
           </thead>
-          <pre>{{ dataNew.length }}</pre>
+          <!-- <pre>{{ dataNew.length }}</pre> -->
           <tbody>
             <tr v-for="pta in dataNew" :key="pta.id" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
               <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
@@ -302,13 +299,20 @@
                 <!--  <span v-else class="font-bold" >0 FCFA </span> -->
               </td>
               <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700" v-else></td>
+              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
+                <button v-if="pta.isActivite" @click="ouvrirModalSuiviFinancierActivite(pta)" class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-xs px-4 py-2 mr-2">Suivre</button>
+
+                <button v-if="pta.isActivite" @click="voirSuiviActivite()" class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-xs px-4 py-2 mr-2">Voir les suivis</button>
+
+                <!-- <button v-if="pta.isActivite" @click="handleDelete(pta)" class="text-white bg-red-500 hover:bg-red-600 font-medium rounded-lg text-xs px-4 py-2">Supprimer</button> -->
+              </td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
   </div>
-  <NoRecordsMessage class="col-span-12" v-if="!dataNew.length" title="Aucun plan d'action pour l'instant" description="Il semble qu'il n'y ait pas de plan d'action à afficher. Veuillez revenir plus tard." />
+  <NoRecordsMessage class="col-span-12" v-if="!dataNew.length" title="Aucun plan d'action pour l'instant" description="Aucun plan d'action n'est disponible pour le moment. Veuillez en établir un." />
 
   <!-- Modal Register & Update -->
   <Modal backdrop="static" :show="showModalFiltre" @hidden="showModalFiltre = false">
@@ -322,7 +326,7 @@
           <div class="">
             <label class="form-label">Année</label>
             <TomSelect v-model="annees" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
-              <option v-for="(year, index) in years" :key="index" :value="year.nom">{{ year.nom }}</option>
+              <option v-for="(year, index) in years" :key="index" :value="year">{{ year }}</option>
             </TomSelect>
           </div>
         </div>
@@ -357,6 +361,8 @@ import { toast } from "vue3-toastify";
 import { mapGetters, mapMutations, mapActions, mapState } from "vuex";
 import NoRecordsMessage from "@/components/NoRecordsMessage.vue";
 import SuiviFinancierService from "@/services/modules/suiviFinancier.service";
+import AuthService from "@/services/modules/auth.service";
+
 // import VButton from "@/components/news/VButton.vue";
 
 export default {
@@ -377,7 +383,6 @@ export default {
         type: 0,
       },
       poidsActuel: "",
-      years: [],
       annees: "",
       tabletoggle: [],
       etattoggle: true,
@@ -416,9 +421,23 @@ export default {
       exporterSuiviPta: false,
       exporterSuiviRePpm: false,
       exporterSuiviRePta: false,
+      debutProgramme: "",
+      finProgramme: "",
     };
   },
   computed: {
+    years() {
+     
+      let anneeDebut = parseInt(`${this.debutProgramme.split("-")[0]}`);
+      let anneeFin = parseInt(`${this.finProgramme.split("-")[0]}`);
+      let annees = [];
+      for (let annee = anneeDebut; annee <= anneeFin; annee++) {
+        if (annee <= new Date().getFullYear()) {
+          annees.push(annee);
+        }
+      }
+      return annees;
+    },
     ...mapGetters("auths", { currentUser: "GET_AUTHENTICATE_USER" }),
     ...mapState({
       loading: (state) => state.loading,
@@ -1378,6 +1397,17 @@ export default {
     },
   },
   methods: {
+    async getcurrentUser() {
+      await AuthService.getCurrentUser()
+        .then((result) => {
+          this.debutProgramme = result.data.data.programme.debut;
+          this.finProgramme = result.data.data.programme.fin;
+        })
+        .catch((e) => {
+          console.error(e);
+          toast.error("Une erreur est survenue: Utilisateur connecté .");
+        });
+    },
     removePlan(index) {
       this.suiviFinancier.splice(index, 1);
     },
@@ -1802,14 +1832,7 @@ export default {
         this.scopes = response.data.data;
       });
     }
-
-    var anneeActuelle = new Date().getFullYear() + 5;
-    let i = 0;
-    for (var annee = 2016; annee <= anneeActuelle; annee++) {
-      i++;
-      this.years.push({ nom: `${annee}` });
-    }
-    console.log(this.years);
+    this.getcurrentUser();
   },
 };
 </script>

@@ -9,7 +9,11 @@
     <!-- <h2 class="mt-10 text-lg font-medium intro-y">Détails de l'evaluation</h2> -->
     <LoaderSnipper v-if="isLoadingData" />
     <div v-else class="mt-5">
-      <p class="my-4 text-lg font-medium intro-y">Liste des soumissions</p>
+      <div class="flex justify-between mt-4 items-center">
+        <h2 class="my-4 text-lg font-medium intro-y">Liste des soumissions</h2>
+        <button class="btn btn-primary" @click="router.go(-1)">Retour <CornerDownLeftIcon class="w-4 h-4 ml-2" /></button>
+      </div>
+      <!-- <p class="my-4 text-lg font-medium intro-y">Liste des soumissions</p> -->
       <div class="flex flex-col gap-2 max-h-[70vh] overflow-y-auto">
         <div @click="goToPageSoumission(soumission.id)" v-for="(soumission, index) in datas" :key="index" class="flex items-center justify-between w-full gap-2 px-2 py-3 text-base font-medium text-black truncate transition-all bg-white border border-l-4 rounded shadow-md cursor-pointer border-primary">
           <p>

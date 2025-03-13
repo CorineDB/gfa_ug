@@ -18,17 +18,24 @@
       <form @submit.prevent="sendRapport">
         <ModalBody>
           <div class="grid grid-cols-1 gap-4">
+            <!-- <pre> editorData {{ editorData }}</pre> -->
             <div class="form-group my-2">
               <InputForm label="Objet" class="flex-1" v-model="objet" type="text" />
+              <!-- <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreurs.objet">{{ $h.extractContentFromArray(messageErreurs.objet) }}</p> -->
             </div>
+
+            <!-- <pre>Edit data {{ edit.Data }}</pre> -->
 
             <div class="form-group my-2">
               <InputForm label="Destinataire" class="flex-1" v-model="bcc" type="text" />
+              <!-- <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreurs.destinataires">{{ $h.extractContentFromArray(messageErreurs.destinaires) }}</p> -->
             </div>
-
+            <!-- <pre>{{ Update }}</pre> -->
             <div class="form-group my-2">
               <InputForm class="col-span-12" type="file" @change="handleFileChange" required="required" placeHolder="choisir un fichier" label="Fichiers" />
+              <!-- <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreurs.rapport">{{ $h.extractContentFromArray(messageErreurs.rapport) }}</p> -->
             </div>
+            <!-- <pre>{{ FormRapport }}</pre> -->
           </div>
         </ModalBody>
         <ModalFooter>
@@ -69,7 +76,7 @@
         <div class="py-2 my-4 flex justify-end space-x-8">
           <VButton :loading="chargement" label="Enrégistrer" />
 
-          <button type="button" class="btn btn-primary w-full my-3 px-2" :disabled="editorData == '' && nom == ''" @click="modalMail()" label="Envoyer par mail">Envoyer par mail</button>
+          <button type="button" class="btn btn-primary w-full my-3 px-2" :disabled="editorData == '' && nom == ''" @click.stop.prevent="modalMail()" label="Envoyer par mail">Envoyer par mail</button>
         </div>
       </form>
     </div>
@@ -186,6 +193,7 @@ export default {
   },
   data() {
     return {
+      messageErreurs: {},
       savedInput: [],
       chargement: false,
       chargement2: false,
@@ -193,7 +201,6 @@ export default {
       showModal: false,
       showSendMail: false,
       showRapport: false,
-      update: false,
       Update: false,
       title: "",
       nom: "",
@@ -206,7 +213,7 @@ export default {
       rapports: [],
       emails: [],
       // editor: ClassicEditor,
-      editorData: "Contenu du rapport",
+      editorData: "",
       // editorConfig: {
       //   // The configuration of the editor.
       // },
@@ -214,6 +221,7 @@ export default {
       voirHistorique: false,
       selectMail: false,
       rapportId: "",
+      contenueModifie: "",
       edit: {
         nom: "",
         Data: "",
@@ -239,6 +247,12 @@ export default {
       }
     },
     modalMail() {
+      if (this.Update) {
+        this.saveEditRapport();
+      } else {
+        this.sendRapport();
+      }
+
       this.showSendMail = true;
       this.chargement2 = false;
     },
@@ -318,6 +332,8 @@ export default {
         rapport: this.editorData,
       };
 
+      this.contenueModifie = this.editorData;
+
       ProgrammeService.rapport(form)
         .then((data) => {
           this.chargement = false;
@@ -356,11 +372,8 @@ export default {
         var form = {
           objet: this.objet,
           destinataires: this.users,
-          rapport: this.Update ? this.edit.Data : this.editorData,
+          rapport: this.contenueModifie,
         };
-
-        console.log("form", form);
-        //edit.Data
 
         for (const key of Array.from(this.FormRapport.keys())) {
           this.FormRapport.delete(key);
@@ -384,22 +397,28 @@ export default {
             this.chargement2 = false;
             toast.success("Email envoyé");
             this.emails = data.data.data;
-            this.showSendMail = false;
+            // this.showSendMail = false;
             this.resetFileInput();
             $h.clearFormData(this.FormRapport);
             $h.clearObjectValues(form);
             // this.messageErreur = {};
           })
-          .catch((error) => {
+          .catch((errors) => {
             this.chargement2 = false;
 
-            if (error.response) {
-              // Requête effectuée mais le serveur a répondu par une erreur.
-              const message = error.response.data.message;
-              toast.error(message);
-            } else if (error.request) {
-              // Demande effectuée mais aucune réponse n'est reçue du serveur.
-              //console.log(error.request);
+            if (errors.response && errors.response.data && Object.keys(errors.response.data.errors).length > 0) {
+              if ("destinataires.0" in errors.response.data.errors) {
+                errors.response.data.errors["destinataires"] = errors.response.data.errors["destinataires.0"];
+                delete errors.response.data.errors["destinataires.0"];
+              }
+
+              this.messageErreurs = errors.response.data.errors;
+
+              console.log("tableau d'erreurs", this.messageErreurs);
+
+              toast.error("Une erreur s'est produite dans votre formulaire");
+            } else {
+              toast.error(errors.response.data.message);
             }
           });
       }
@@ -443,6 +462,9 @@ export default {
           nom: this.edit.nom,
           rapport: this.edit.Data,
         };
+
+        this.contenueModifie = this.edit.Data;
+
         ProgrammeService.updateRapports(this.edit.id, form)
           .then((data) => {
             this.chargement3 = false;
