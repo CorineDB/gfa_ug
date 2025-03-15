@@ -374,15 +374,19 @@ onMounted(async () => {
 
             <td>{{ data.entrepriseContact }}</td>
             <td>{{ data.annee }}</td>
+            
+            <td>{{ data.dateDeTransmission }}</td>
             <td>{{ data.etat }}</td>
             <td>{{ data.categorie }}</td>
-            <td>{{ data.dateDeTransmission }}</td>
-
             <td>
               <span v-if="data.statut == 1">Terminer</span>
               <span v-if="data.statut == 0">En cours</span>
               <span v-if="data.statut == -1">En attente</span>
             </td>
+            
+           
+
+            
 
             <td>{{ data.created_at }}</td>
             <td class="_flex space-x-2">

@@ -535,7 +535,7 @@ onMounted(() => {
   </Modal>
 </template>
 
-<style>
+<style >
 .accordion .accordion-item .accordion-header .accordion-button:not(.collapsed) {
   background: rgb(var(--color-primary)) !important;
 }

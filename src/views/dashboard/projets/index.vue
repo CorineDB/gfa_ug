@@ -3,10 +3,6 @@
     <h2 class="mr-auto text-lg font-medium">Liste des projets</h2>
   </div>
 
-  <div>
-    <!-- <h3>An interactive leaflet map</h3> -->
-    <div id="map" style="height: 70vh"></div>
-  </div>
   <div class="flex flex-col items-center justify-between mt-8 mb-4 intro-y sm:flex-row">
     <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
       <div class="relative w-56 text-slate-500">
@@ -248,6 +244,8 @@
     </ModalBody>
   </Modal>
   <LoaderSnipper v-if="isLoadingProjets" />
+  <NoRecordsMessage class="col-span-12" v-if="!paginatedAndFilteredData.length" title="Aucun projet trouvé" description="Il semble qu'il n'y ait pas de projet à afficher. Veuillez en créer un." />
+
   <div v-if="verifyPermission('voir-un-projet') && !isLoadingProjets" class="grid grid-cols-1 gap-6 mt-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
     <div href="#" class="relative transition-all duration-500 border-l-4 shadow-2xl box group _bg-white zoom-in border-primary hover:border-secondary" v-for="(item, index) in paginatedAndFilteredData" :key="index">
       <div class="relative m-5 bg-white">
@@ -276,8 +274,7 @@
           <div class="ml-2 italic font-bold">Fcfa</div>
         </div>
         <div class="flex items-center">
-         
-          <LinkIcon class="w-4 h-4 mr-2" /> Montant financé: {{ item.pret == null || item.pret == 0 ? 0 :  $h.formatCurrency(item.pret ) }}
+          <LinkIcon class="w-4 h-4 mr-2" /> Montant financé: {{ item.pret == null || item.pret == 0 ? 0 : $h.formatCurrency(item.pret) }}
           <div class="ml-2 italic font-bold">Fcfa</div>
         </div>
         <div v-if="item.owner !== null" class="flex items-center">
@@ -319,7 +316,7 @@
     <!-- <pagination totalItems="30" itemsPerPage="10" :isLoading="false" /> -->
   </div>
 
-  <pagination class="col-span-12" :total-items="totalItems" :items-per-page="itemsPerPage" :is-loading="isLoadingProjets" @page-changed="onPageChanged" @items-per-page-changed="onItemsPerPageChanged">
+  <pagination v-if="paginatedAndFilteredData.length > 0" class="col-span-12" :total-items="totalItems" :items-per-page="itemsPerPage" :is-loading="isLoadingProjets" @page-changed="onPageChanged" @items-per-page-changed="onItemsPerPageChanged">
     <!-- Slots personnalisés (facultatif) -->
     <template #prev-icon>
       <span>&laquo; Précédent</span>
@@ -328,9 +325,15 @@
       <span>Suivant &raquo;</span>
     </template>
   </pagination>
+
+  <div class="mt-5">
+    <!-- <h3>An interactive leaflet map</h3> -->
+    <div id="map" style="height: 70vh"></div>
+  </div>
 </template>
 
 <script>
+import NoRecordsMessage from "@/components/NoRecordsMessage.vue";
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
 import ProgrammeService from "@/services/modules/programme.service.js";
 import ProjetService from "@/services/modules/projet.service.js";
@@ -361,7 +364,7 @@ import markerShadow from "./marker-shadow.png"; // ../../utils/helpers"
 import decoupage from "@/decoupage_territorial_benin.json";
 
 export default {
-  components: { LoaderSnipper, InputForm, VButton, LMap, LTileLayer, LMarker, LPolygon, LPopup, pagination },
+  components: { LoaderSnipper, NoRecordsMessage, InputForm, VButton, LMap, LTileLayer, LMarker, LPolygon, LPopup, pagination },
   data() {
     return {
       selectedDepartementData: "",
@@ -1121,7 +1124,7 @@ export default {
             this.isLoading = false;
             console.log(errors);
 
-            if (errors.response && errors.response.data &&  Object.keys(errors.response.data.errors).length > 0) {
+            if (errors.response && errors.response.data && Object.keys(errors.response.data.errors).length > 0) {
               this.messageErreur = errors.response.data.errors;
               toast.error("Une erreur s'est produite dans votre formulaire");
             } else {
@@ -1181,7 +1184,7 @@ export default {
             this.FormProjet = new FormData();
 
             // Mettre à jour les messages d'erreurs dynamiquement
-            if (error.response && error.response.data &&   Object.keys(error.response.data.errors).length > 0) {
+            if (error.response && error.response.data && Object.keys(error.response.data.errors).length > 0) {
               this.messageErreur = error.response.data.errors;
               toast.error("Une erreur s'est produite dans votre formulaire");
             } else {
