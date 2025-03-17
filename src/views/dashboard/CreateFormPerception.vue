@@ -55,6 +55,8 @@ const isAvailable = reactive({
   indicateur: true,
 });
 
+
+
 const payload = reactive({
   libelle: "",
   annee_exercice: new Date().getFullYear(),
@@ -325,7 +327,7 @@ onMounted(() => {
         </TabList>
         <TabPanels class="mt-5">
           <TabPanel class="leading-relaxed">
-            <div class="flex items-end justify-end"><button @click="showDeleteForm = true" class="btn btn-outline-danger">Supprimer le formulaire</button></div>
+            <div v-if="currentPreviewPerceptionFormData.indicateur.nom !==''" class="flex items-end justify-end"><button @click="showDeleteForm = true" class="btn btn-outline-danger">Supprimer le formulaire</button></div>
             <div class="flex flex-col gap-8">
               <div class="space-y-2">
                 <p class="text-lg font-medium">Liste des options de réponses</p>
@@ -343,6 +345,8 @@ onMounted(() => {
                 </div>
                 <div class="flex justify-start py-2">
                   <button :disabled="!showForm" @click="previewForm" class="px-5 text-base btn btn-primary"><CheckIcon class="mr-1 size-5" />Prévisualiser le formumlaire</button>
+                
+
                 </div>
               </div>
             </div>

@@ -247,8 +247,15 @@ const resetForm = () => {
   payload.debut = "";
   payload.description = "";
   payload.fin = "";
-  idFormFactuel.value = formulairesFactuel.value[0].id;
-  idFormPerception.value = formulairesPerception.value[0].id;
+  if (formulairesFactuel.value.length) {
+    idFormFactuel.value = formulairesFactuel.value[0].id;
+  }
+
+  if (formulairesPerception.value.length) {
+    idFormPerception.value = formulairesPerception.value[0].id;
+  }
+  // idFormFactuel.value = formulairesFactuel.value[0].id;
+  // idFormPerception.value = formulairesPerception.value[0].id;
   payload.organisations = [];
   showModalCreate.value = false;
   errors.value = {};
@@ -279,7 +286,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <h2 class="my-10 text-lg font-medium intro-y">Évaluation de gouvernace</h2>
+  <h2 class="my-10 text-lg font-medium intro-y">Évaluation de gouvernance</h2>
   <div class="grid grid-cols-12 gap-6 mb-5">
     <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
       <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
@@ -289,7 +296,7 @@ onMounted(async () => {
         </div>
       </div>
       <div class="flex">
-        <button v-if="verifyPermission('creer-une-evaluation-de-gouvernance')" class="mr-2 shadow-md btn btn-primary" @click="openCreateModal"><PlusIcon class="w-4 h-4 mr-3" />Ajouter une évaluation de gouvernace</button>
+        <button v-if="verifyPermission('creer-une-evaluation-de-gouvernance')" class="mr-2 shadow-md btn btn-primary" @click="openCreateModal"><PlusIcon class="w-4 h-4 mr-3" />Ajouter une évaluation de gouvernance</button>
       </div>
     </div>
   </div>
@@ -301,9 +308,7 @@ onMounted(async () => {
     <TabPanels class="mt-5">
       <TabPanel>
         <div class="p-5 mt-5 intro-y">
-          <!-- <div class="overflow-x-auto scrollbar-hidden" v-if="!isLoadingData">
-      <div id="tabulator" class="mt-5 table-report table-report--tabulator"></div>
-    </div> -->
+         
           <LoaderSnipper v-if="isLoadingData" />
           <div v-else class="grid grid-cols-12 gap-6 mt-5">
             <div v-for="(item, index) in datasSearch" :key="index" class="col-span-12 p-4 md:col-span-12 lg:col-span-4">
@@ -373,7 +378,7 @@ onMounted(async () => {
           <div class="flex flex-col items-center w-full gap-8">
             <div class="flex justify-center w-full p-3">
               <div class="w-full max-w-full box">
-                <p class="p-3 text-lg font-medium">Résultats synthetique par année</p>
+                <p class="p-3 text-lg font-medium">Résultats synthetique par année sqs</p>
                 <div class="!w-[250px] p-3">
                   <label class="form-label">Organisation</label>
                   <TomSelect name="organisations" v-model="ongSelectedScore" @change="changeOrganisationScore" :options="{ placeholder: 'Selectionez une organisation' }">
@@ -381,6 +386,7 @@ onMounted(async () => {
                     <option v-for="organisation in ongsProgramme" :key="organisation.id" :value="organisation.id">{{ organisation.nom }}</option>
                   </TomSelect>
                 </div>
+                <pre>{{ currentScore }}</pre>
                 <ChartProgressionByTime :chartData="currentScore" v-if="ongSelectedScore && !isLoadingDataScore" />
                 <div class="h-[600px] flex justify-center items-center" v-if="!ongSelectedScore && !isLoadingDataScore">
                   <p class="text-xl font-medium text-slate-600">Veuillez choisir une organisation pour afficher le graphique</p>

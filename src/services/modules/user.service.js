@@ -4,13 +4,13 @@ import ApiService from '@/services/configs/api.service'
 const UsersService = {
 
     query(type, params) {
-      return ApiService.query("utilisateurs", {
+      return ApiService.query("gfa/utilisateurs", {
         params: params
       });
     },
 
     get(slug) {
-      return ApiService.get("utilisateurs", slug);
+      return ApiService.get("gfa/utilisateurs", slug);
     },
   
    
@@ -18,16 +18,16 @@ const UsersService = {
       return ApiService.post("register", params);
     },
     addUsers(params) {
-      return ApiService.post("utilisateurs", params);
+      return ApiService.post("gfa/utilisateurs", params);
     },
     
 
     update(slug, params) {
-      return ApiService.update("utilisateurs", slug, params);
+      return ApiService.update("gfa/utilisateurs", slug, params);
     },
 
     destroy(slug) {
-      return ApiService.delete(`utilisateurs/${slug}`);
+      return ApiService.delete(`gfa/utilisateurs/${slug}`);
     },
     getUsersInfo(slug){
       return ApiService.get(`utilisateurs/${slug}`);

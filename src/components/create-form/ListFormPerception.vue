@@ -150,6 +150,8 @@ const cancelDelete = () => {
   showModalDelete.value = false;
 };
 
+
+
 const optionPreviewForm = computed(() => {
   if (previewForm.value.options_de_reponse)
     return previewForm.value.options_de_reponse.map((option) => ({

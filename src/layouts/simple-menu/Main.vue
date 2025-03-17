@@ -145,6 +145,18 @@ watch(
 );
 
 onMounted(() => {
+  const usersInfo = JSON.parse(localStorage.getItem("authenticateUser"));
+
+  console.log("permissions", usersInfo.roles);
+
+  if (usersInfo) {
+    let permissions = usersInfo.role[0].permissions;
+
+    simpleMenuStore.setTabPermission(permissions);
+
+    simpleMenuStore.addToMenuIfPermissionGranted();
+  }
+
   dom("body").removeClass("error-page").removeClass("login").addClass("main");
   formattedMenu.value = $h.toRaw(simpleMenu.value);
 });

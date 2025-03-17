@@ -295,19 +295,13 @@ onMounted(async () => {
 </script>
 
 <template>
-  <h2 class="mt-4 text-lg font-medium intro-y">Soumissions par organisations</h2>
+  <div class="flex justify-between mt-4 items-center">
+    <h2 class="text-lg font-medium intro-y">Soumissions par organisations</h2>
+    <button class="btn btn-primary" @click="router.go(-1)">Retour <CornerDownLeftIcon class="w-4 h-4 ml-2" /></button>
+  </div>
+
   <div class="grid grid-cols-12 gap-6 mt-1">
     <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
-      <!-- <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
-        <div class="relative w-56 text-slate-500">
-          <input type="text" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
-          <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
-        </div>
-      </div> -->
-      <!-- <div class="flex">
-        <button class="mr-2 shadow-md btn btn-primary" @click="openFactuelModal">Remplir formulaire Factuel</button>
-        <button class="mr-2 shadow-md btn btn-primary" @click="openPerceptionModal">Remplir formulaire de perception</button>
-      </div> -->
       <div class="flex">
         <!-- <button class="text-sm btn btn-primary" @click="goToPageSynthese(soumission.id)">Fiche Synthèse</button> -->
         <!-- <button class="mr-2 shadow-md btn btn-primary" @click="opendAddParticipant">Ajouter les participants</button> -->
@@ -505,7 +499,7 @@ onMounted(async () => {
         <div class="flex flex-col items-center w-full gap-8">
           <div class="flex justify-center w-full p-3">
             <div class="w-full max-w-full box">
-              <p class="p-3 text-lg font-medium">Résultats synthetique par année</p>
+              <p class="p-3 text-lg font-medium">Résultats synthetique par année fs</p>
               <div class="!w-[250px] p-3">
                 <label class="form-label">Organisation</label>
                 <TomSelect name="organisations" v-model="ongSelectedScore" @change="changeOrganisationScore" :options="{ placeholder: 'Selectionez une organisation' }">

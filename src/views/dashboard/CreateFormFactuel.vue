@@ -19,6 +19,7 @@ import DeleteButton from "@/components/news/DeleteButton.vue";
 import AuthService from "@/services/modules/auth.service";
 import { useRoute } from "vue-router";
 import { getFieldErrors } from "../../utils/helpers";
+// import { helper as $h } from "@/utils/helper";
 
 const route = useRoute();
 
@@ -52,6 +53,10 @@ const typesGouvernance = ref({ types_de_gouvernance: [] });
 const uniqueKeys = new Map();
 const globalData = localStorage.getItem("globalFormFactuelData");
 const previewData = localStorage.getItem("previewFormFactuelData");
+
+const extractMessage = function (errorArray) {
+  return Array.isArray(errorArray) && errorArray.length > 0 ? errorArray[0] : "";
+};
 
 const isAvailable = reactive({
   option: true,
@@ -335,6 +340,7 @@ const createForm = async () => {
   } catch (e) {
     if (e.response && e.response.status === 422) {
       errors.value = e.response.data.errors;
+      toast.error(`Une erreur est survenu dans le formulaire.`);
     } else {
       toast.error(getAllErrorMessages(e));
     }
@@ -378,7 +384,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex w-full gap-2">
+  <div v-if="!modalForm" class="flex w-full gap-2">
     <section class="w-[30%] h-screen pr-1 overflow-y-auto border-r-2 pt-5">
       <AccordionGroup :selectedIndex="indexAccordion" class="space-y-1">
         <AccordionItem class="">
@@ -440,13 +446,14 @@ onMounted(() => {
         </TabList>
         <TabPanels class="mt-5">
           <TabPanel class="leading-relaxed">
-            <div class="flex items-end justify-end"><button @click="showDeleteForm = true" class="btn btn-outline-danger">Supprimer le formulaire</button></div>
+            <div v-if="currentPreviewFactuelFormData.indicateur.nom !== ''" class="flex items-end justify-end"><button @click="showDeleteForm = true" class="btn btn-outline-danger">Supprimer le formulaire</button></div>
             <div class="flex flex-col gap-8">
               <div class="space-y-2">
                 <p class="text-lg font-medium">Liste des options de réponses</p>
                 <ListOptionsResponse :options="previewOptionResponses.options_de_reponse" />
               </div>
               <div class="space-y-2">
+                <pre>{{ currentPreviewFactuelFormData.indicateur.nom }}</pre>
                 <p class="text-lg font-medium">Ajouter des indicateurs</p>
                 <FactuelStructure :type="currentPreviewFactuelFormData.type.nom" :principe="currentPreviewFactuelFormData.principe.nom" :critere="currentPreviewFactuelFormData.critere.nom" :indicateur="currentPreviewFactuelFormData.indicateur.nom" />
                 <button :disabled="!isCurrentFormValid" @click="addNewIndicator" class="my-4 text-sm btn btn-primary"><PlusIcon class="mr-1 size-4" />Ajouter</button>
@@ -469,10 +476,48 @@ onMounted(() => {
       </TabGroup>
     </section>
   </div>
+
+  <div v-else class="w-full mt-4">
+    <form @submit.prevent="createForm">
+      <div class="flex gap-4">
+        <InputForm label="Libellé" class="w-full" :control="getFieldErrors(errors.libelle)" v-model="payload.libelle" />
+        <div class="w-full">
+          <div class="flex-1">
+            <!-- <pre>{{ annees }}</pre> -->
+            <label class="form-label">Année cible<span class="text-danger">*</span> </label>
+            <TomSelect v-model="payload.annee_exercice" name="annee_aggrer" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+              <option value=""></option>
+              <option v-for="annee in annees" :key="annee" :value="annee">{{ annee }}</option>
+            </TomSelect>
+          </div>
+          <!-- <label for="annee" class="form-label">Année</label>
+            <input id="annee" type="number" required v-model.number="payload.annee_exercice" class="form-control" placeholder="Année" /> -->
+          <div v-if="errors.annee_exercice" class="mt-2 text-danger">{{ getFieldErrors(errors.annee_exercice) }}</div>
+        </div>
+      </div>
+      <div>
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12 my-2" v-if="errors['factuel.options_de_reponse.0.point']">{{ extractMessage(errors["factuel.options_de_reponse.0.point"]) }}</p>
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12 my-2" v-if="errors['factuel.options_de_reponse.0.point']">{{ extractMessage(errors["factuel.options_de_reponse.0.point"]) }}</p>
+
+        <p class="mb-3">Options de réponses</p>
+        <ListOptionsResponse :options="previewOptionResponses.options_de_reponse" />
+      </div>
+      <div class="_max-h-[50vh] _h-[50vh] overflow-y-auto mt-4">
+        <p class="mb-3">Formulaire factuel</p>
+        <PreviewFactuelForm :types-gouvernance="previewTypesGouvernance.types_de_gouvernance" />
+      </div>
+
+      <div class="flex gap-2">
+        <button type="button" @click="resetErrors" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
+        <VButton :loading="isLoadingForm" label="Enregistrer" />
+      </div>
+    </form>
+  </div>
+
   <!-- BEGIN: Modal Content -->
-  <Modal backdrop="static" size="modal-xl" :show="modalForm" @hidden="modalForm = false">
+  <Modal backdrop="static" size="modal-xl" :show="modalForm === !modalForm" @hidden="modalForm = false">
     <ModalHeader>
-      <h2 class="mr-auto text-base font-medium">Enregistrer le formulaire test</h2>
+      <h2 class="mr-auto text-base font-medium">Enregistrer le formulaire</h2>
     </ModalHeader>
     <form @submit.prevent="createForm">
       <ModalBody class="space-y-5">
@@ -493,6 +538,9 @@ onMounted(() => {
           </div>
         </div>
         <div>
+          <p class="text-red-500 text-[12px] -mt-2 col-span-12 my-2" v-if="errors['factuel.options_de_reponse.0.point']">{{ extractMessage(errors["factuel.options_de_reponse.0.point"]) }}</p>
+          <p class="text-red-500 text-[12px] -mt-2 col-span-12 my-2" v-if="errors['factuel.options_de_reponse.0.point']">{{ extractMessage(errors["factuel.options_de_reponse.0.point"]) }}</p>
+
           <p class="mb-3">Options de réponses</p>
           <ListOptionsResponse :options="previewOptionResponses.options_de_reponse" />
         </div>

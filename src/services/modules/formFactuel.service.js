@@ -22,7 +22,7 @@ const FormulaireFactuel = {
   },
 
   update(id, payload) {
-    return ApiService.update(`gfa/formulaires-de-gouvernance/${id}`, payload);
+    return ApiService.update(`gfa/formulaires-de-gouvernance`, id, payload);
   },
 
   destroy(id) {

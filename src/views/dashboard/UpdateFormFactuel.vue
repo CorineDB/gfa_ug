@@ -45,6 +45,10 @@ const uniqueKeys = new Map();
 const globalData = localStorage.getItem("globalFormFactuelData");
 const previewData = localStorage.getItem("previewFormFactuelData");
 
+const goBackToCreate = function () {
+  router.push({ name: "create_form_factuel" });
+};
+
 const isAvailable = reactive({
   option: true,
   type: true,
@@ -325,6 +329,8 @@ const getOneForm = async () => {
 };
 const updateForm = async () => {
   isLoadingForm.value = true;
+  payload.factuel.options_de_reponse = previewOptionResponses.value.options_de_reponse;
+
   try {
     await FormulaireFactuel.update(idForm, payload);
     toast.success(`Formulaire modifiée avec succès.`);
@@ -444,7 +450,9 @@ onMounted(async () => {
                 <div class="max-h-[25vh] h-[25vh] py-2 border-t overflow-y-auto">
                   <ListAccordionIndicateur :indicateurs-array="previewFormFactuelData" @remove="removeIndicator" />
                 </div>
-                <div class="flex justify-start py-2">
+                <div class="flex justify-between py-2">
+                  <button @click="goBackToCreate" class="px-5 text-base btn btn-primary"><ArrowLeftIcon class="mr-1 size-5" />Annuler les modifications</button>
+
                   <button :disabled="!showForm" @click="previewForm" class="px-5 text-base btn btn-primary"><CheckIcon class="mr-1 size-5" />Prévisualiser le formumlaire</button>
                 </div>
               </div>

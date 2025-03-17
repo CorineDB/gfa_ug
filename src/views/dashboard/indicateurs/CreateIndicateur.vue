@@ -20,7 +20,7 @@
                 <ChevronDownIcon />
               </Accordion>
               <AccordionPanel class="p-2">
-                <CleValeur @update-datas="updateKeys" v-model:showModal="showModalKey" />
+                <CleValeur @update-datas="updateKeys" v-model:showModal="showModalKey" :parentClicked="parentClicked" />
               </AccordionPanel>
             </AccordionItem>
 
@@ -187,7 +187,7 @@
                         <TomSelect v-model="array_value_keys" name="keys" multiple :options="{ placeholder: 'Selectionez les clés valeur' }" class="w-full">
                           <option v-for="(key, index) in keys" :key="index" :value="key.id">{{ key.libelle }}</option>
                         </TomSelect>
-                        <button class="flex-1 text-sm btn btn-primary" @click.prevent="showModalKey = true"><PlusIcon class="mr-1 size-3" /></button>
+                        <button class="flex-1 text-sm btn btn-primary" @click.prevent="(showModalKey = true), handleParentClick()"><PlusIcon class="mr-1 size-3" /></button>
                       </div>
 
                       <div v-if="errors.value_keys" class="mt-2 text-danger">{{ getFieldErrors(errors.value_keys) }}</div>
@@ -471,6 +471,15 @@ const anneesCible = ref([]);
 // Objet réactif pour stocker les valeurs des champs saisis
 const valeur = ref({});
 
+// const getUniteMesure = async () => {
+//   try {
+//     const { data } = await UniteeDeMesureService.get();
+//     unitesMesure.value = data.data;
+//   } catch (e) {
+//     toast.error("Erreur lors de la récupération des données.");
+//   }
+// };
+
 const payload = reactive({
   responsables: responsablesForm.value,
   nom: "",
@@ -502,13 +511,10 @@ const currentAnneeCibleNotAgreger = ref({
 
 // Fetch data
 const getDatasCadre = async () => {
-   
   isLoadingDataCadre.value = true;
   try {
-     
     const { data } = await ResultatCadreRendementService.getCadreRendement(idProgramme.value);
     cadreRendement.value = data.data;
-     
   } catch (e) {
     console.log(e);
     toast.error("Erreur lors de la récupération des données.");
@@ -547,6 +553,7 @@ const deleteAnneeCible = (item) => {
   anneesCible.value.splice(item, 1);
 };
 const resetForm = () => {
+  currentStep.value = 1;
   payloadNotAgreger.anneesCible = [];
   payloadNotAgreger.valeurDeBase = "";
   array_value_keys.value = [];
@@ -617,6 +624,7 @@ const updateUnites = (datas) => {
 const updateKeys = (datas) => {
   keys.value = datas; // Stocke les données reçues
 };
+
 const updateCategories = (datas) => {
   categories.value = datas; // Stocke les données reçues
 };
@@ -643,6 +651,12 @@ const getcurrentUser = async () => {
       console.error(e);
       toast.error("Une erreur est survenue: Utilisateur connecté .");
     });
+};
+
+const parentClicked = ref(false);
+
+const handleParentClick = () => {
+  parentClicked.value = !parentClicked.value;
 };
 
 // Submit data (create or update)

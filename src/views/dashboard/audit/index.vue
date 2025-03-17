@@ -20,6 +20,41 @@ import { getFieldErrors } from "../../../utils/helpers";
 import SyntheseService from "../../../services/modules/synthese.service";
 import { helper as $h } from "@/utils/helper";
 import { data } from "jquery";
+import pagination from "@/components/news/pagination.vue";
+
+// Pagination :
+const datas = ref([]);
+const totalItems = ref(null);
+const itemsPerPage = ref(3);
+const currentPage = ref(1);
+
+const onPageChanged = function (newPage) {
+  console.log(newPage);
+
+  currentPage.value = newPage;
+};
+
+const onItemsPerPageChanged = function (itemsPerPage) {
+  console.log("itemsPerPage.value ", itemsPerPage.value);
+  itemsPerPage.value = itemsPerPage;
+};
+
+const search = ref("");
+
+const paginatedAndFilteredData = computed(() => {
+  const { paginatedData, totalFilteredItems } = $h.filterData({
+    itemsPerPage: itemsPerPage.value,
+    search: search.value,
+    data: datas.value,
+    currentPage: currentPage.value,
+    keys: ["entreprise"],
+  });
+
+  // Mettre à jour le total pour recalculer la pagination
+  totalItems.value = totalFilteredItems;
+
+  return paginatedData;
+});
 
 const router = useRouter();
 
@@ -44,6 +79,8 @@ const imagePreview = ref(null);
 
 const FormAjout = new FormData();
 
+const fileInput = ref(null);
+
 const handleFileChange = function (event) {
   const file = event.target.files[0];
   if (file) {
@@ -55,6 +92,14 @@ const handleFileChange = function (event) {
       imagePreview.value = e.target.result;
     };
     reader.readAsDataURL(file); // Lire le fichier en tant qu'URL de données
+  }
+};
+
+const resetFileInput = () => {
+  if (fileInput.value) {
+    fileInput.value.value = ""; // Réinitialiser l'input file
+    selectedFile.value = null;
+    document.querySelector('input[type="file"]').value = ""; // Vider l'input
   }
 };
 
@@ -93,7 +138,6 @@ const isLoading = ref(false);
 const isLoadingData = ref(true);
 const isLoadingDataScore = ref(false);
 const isCreate = ref(true);
-const datas = ref([]);
 
 const errors = ref({});
 
@@ -135,14 +179,23 @@ const createData = async () => {
       resetForm();
       toast.success("audit créer.");
     })
-    .catch((e) => {
+    .catch((error) => {
       console.log(e);
       isLoading.value = false;
-      if (e.response && e.response.status === 422) {
-        errors.value = e.response.data.errors;
+
+      if (error.response && error.response.data && Object.keys(error.response.data.errors).length > 0) {
+        messageErreur.value = error.response.data.errors;
+        toast.error("Une erreur s'est produite dans votre formulaire");
       } else {
-        toast.error(getAllErrorMessages(e));
+        toast.error(error.response.data.message);
       }
+      toast.error("Une erreur est survenue, ressayer");
+
+      // if (e.response && e.response.status === 422) {
+      //   errors.value = e.response.data.errors;
+      // } else {
+      //   toast.error(getAllErrorMessages(e));
+      // }
     });
 };
 const getDatas = async () => {
@@ -168,11 +221,20 @@ const updateData = async () => {
       resetForm();
       toast.success("Audit modifiée.");
     })
-    .catch((e) => {
-      if (e.response && e.response.status === 422) {
-        errors.value = e.response.data.errors;
+    .catch((error) => {
+      // if (e.response && e.response.status === 422) {
+      //   errors.value = e.response.data.errors;
+      // } else {
+      //   toast.error(getAllErrorMessages(e));
+      // }
+
+      toast.error("Une erreur s'est produite");
+
+      // Mettre à jour les messages d'erreurs dynamiquement
+      if (error.response && error.response.data && Object.keys(error.response.data.errors).length > 0) {
+        messageErreur.value = error.response.data.errors;
       } else {
-        toast.error(getAllErrorMessages(e));
+        toast.error(error.response.data.errors.message);
       }
       console.error(e);
     })
@@ -180,6 +242,8 @@ const updateData = async () => {
       isLoading.value = false;
     });
 };
+const messageErreur = ref({});
+
 const submitData = () => (isCreate.value ? createData() : updateData());
 const deleteData = async () => {
   isLoading.value = true;
@@ -190,10 +254,10 @@ const deleteData = async () => {
       toast.success("Audit  supprimée");
       getDatas();
     })
-    .catch((e) => {
+    .catch((error) => {
       isLoading.value = false;
-      console.error(e);
-      toast.error("Une erreur est survenue, ressayer");
+
+      toast.error(error.response.data.message);
     });
 };
 
@@ -234,6 +298,7 @@ const cancelSelect = () => {
   idSelect.value = "";
 };
 const resetForm = () => {
+  resetFileInput();
   payload.annee = "";
   payload.entreprise = "";
   payload.entrepriseContact = "";
@@ -243,6 +308,7 @@ const resetForm = () => {
   payload.fin = "";
   payload.projetId = "";
   payload.categorie = "";
+  usersId.value = [];
   // idFormFactuel.value = formulairesFactuel.value[0].id;
   // idFormPerception.value = formulairesPerception.value[0].id;
   // payload.organisations = [];
@@ -271,7 +337,7 @@ onMounted(async () => {
     <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
       <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
         <div class="relative w-56 text-slate-500">
-          <input type="text" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
+          <input type="text" class="w-56 pr-10 form-control box" v-model="search" placeholder="Recherche..." />
           <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
         </div>
       </div>
@@ -280,6 +346,7 @@ onMounted(async () => {
       </div>
     </div>
   </div>
+
   <div class="p-5 mt-5 intro-y">
     <LoaderSnipper v-if="isLoadingData" />
     <div v-else class="overflow-x-auto mt-5">
@@ -300,22 +367,26 @@ onMounted(async () => {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(data, index) in datas" :key="index">
+          <tr v-for="(data, index) in paginatedAndFilteredData" :key="index">
             <td>{{ index + 1 }}</td>
             <td>{{ data.projet.nom }}</td>
             <td>{{ data.entreprise }}</td>
 
             <td>{{ data.entrepriseContact }}</td>
             <td>{{ data.annee }}</td>
+            
+            <td>{{ data.dateDeTransmission }}</td>
             <td>{{ data.etat }}</td>
             <td>{{ data.categorie }}</td>
-            <td>{{ data.dateDeTransmission }}</td>
-
             <td>
               <span v-if="data.statut == 1">Terminer</span>
               <span v-if="data.statut == 0">En cours</span>
               <span v-if="data.statut == -1">En attente</span>
             </td>
+            
+           
+
+            
 
             <td>{{ data.created_at }}</td>
             <td class="_flex space-x-2">
@@ -337,6 +408,18 @@ onMounted(async () => {
         </tbody>
       </table>
     </div>
+
+    <!-- <pre>{{ paginatedAndFilteredData }}</pre> -->
+
+    <pagination class="col-span-12" :total-items="totalItems" :items-per-page="itemsPerPage" :is-loading="isLoadingData" @page-changed="onPageChanged" @items-per-page-changed="onItemsPerPageChanged">
+      <!-- Slots personnalisés (facultatif) -->
+      <template #prev-icon>
+        <span>&laquo; Précédent</span>
+      </template>
+      <template #next-icon>
+        <span>Suivant &raquo;</span>
+      </template>
+    </pagination>
   </div>
 
   <!-- Modal Register & Update -->
@@ -348,20 +431,29 @@ onMounted(async () => {
       <ModalBody>
         <div class="grid grid-cols-1 gap-4">
           <InputForm class="col-span-12" label="Prestataire" v-model="payload.entreprise" :control="getFieldErrors(errors.entreprise)" />
-          <InputForm class="col-span-12" label="Contact" type="number" v-model="payload.entrepriseContact" :control="getFieldErrors(errors.entrepriseContact)" />
-          <InputForm class="col-span-12" label="Excercice audité" type="text" v-model="payload.annee" :control="getFieldErrors(errors.annee)" />
-          <InputForm class="col-span-12" label="Date de transmission" type="date" v-model="payload.dateDeTransmission" :control="getFieldErrors(errors.dateDeTransmission)" />
-          <InputForm class="col-span-12" label="Etat avancement" v-model="payload.etat" :control="getFieldErrors(errors.etat)" />
+          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.entreprise">{{ $h.extractContentFromArray(messageErreur.entreprise) }}</p>
 
-          <InputForm v-if="isCreate" class="col-span-12" type="file" @change="handleFileChange" required="required" placeHolder="choisir un fichier" label="Rapport" />
+          <InputForm class="col-span-12" label="Contact" type="number" v-model="payload.entrepriseContact" :control="getFieldErrors(errors.entrepriseContact)" />
+          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.entrepriseContact">{{ $h.extractContentFromArray(messageErreur.entrepriseContact) }}</p>
+
+          <InputForm class="col-span-12" label="Excercice audité" type="text" v-model="payload.annee" :control="getFieldErrors(errors.annee)" />
+          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.annee">{{ $h.extractContentFromArray(messageErreur.annee) }}</p>
+
+          <InputForm class="col-span-12" label="Date de transmission" type="date" v-model="payload.dateDeTransmission" :control="getFieldErrors(errors.dateDeTransmission)" />
+          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.dateDeTransmission">{{ $h.extractContentFromArray(messageErreur.dateDeTransmission) }}</p>
+
+          <InputForm class="col-span-12" label="Etat avancement" v-model="payload.etat" :control="getFieldErrors(errors.etat)" />
+          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.etat">{{ $h.extractContentFromArray(messageErreur.etat) }}</p>
+
+          <InputForm v-if="isCreate" ref="fileInput" class="col-span-12" type="file" @change="handleFileChange" required="required" placeHolder="choisir un fichier" label="Rapport" />
+          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.fichier">{{ $h.extractContentFromArray(messageErreur.fichier) }}</p>
 
           <div v-if="isCreate" class="col-span-12">
-            <!-- <pre>{{ usersId }}</pre> -->
             <label class="form-label">Partager à</label>
             <TomSelect v-model="usersId" multiple :options="{ placeholder: 'Selectionez un utilisateur' }" class="w-full">
               <option v-for="(form, index) in users" :key="index" :value="form.id">{{ form.nom }}</option>
             </TomSelect>
-            <!-- <div v-if="errors.formulaires_de_gouvernance" class="mt-2 text-danger">{{ getFieldErrors(errors.formulaires_de_gouvernance) }}</div> -->
+            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.usersId">{{ $h.extractContentFromArray(messageErreur.usersId) }}</p>
           </div>
 
           <div class="col-span-12">
@@ -373,7 +465,7 @@ onMounted(async () => {
               <option value="2">Audit des acquisitions</option>
               <option value="3">Audit techniques</option>
             </TomSelect>
-            <!-- <div v-if="errors.formulaires_de_gouvernance" class="mt-2 text-danger">{{ getFieldErrors(errors.formulaires_de_gouvernance) }}</div> -->
+            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.categorie">{{ $h.extractContentFromArray(messageErreur.categorie) }}</p>
           </div>
           <div class="col-span-12">
             <label class="form-label">Statut</label>
@@ -383,7 +475,7 @@ onMounted(async () => {
               <option value="0">En cours</option>
               <option value="-1">En attente</option>
             </TomSelect>
-            <!-- <div v-if="errors.formulaires_de_gouvernance" class="mt-2 text-danger">{{ getFieldErrors(errors.formulaires_de_gouvernance) }}</div> -->
+            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.statut">{{ $h.extractContentFromArray(messageErreur.statut) }}</p>
           </div>
 
           <div class="col-span-12">
@@ -391,56 +483,8 @@ onMounted(async () => {
             <TomSelect v-model="payload.projetId" :options="{ placeholder: 'Selectionez un projet' }" class="w-full">
               <option v-for="(form, index) in projets" :key="index" :value="form.id">{{ form.nom }}</option>
             </TomSelect>
-            <!-- <div v-if="errors.formulaires_de_gouvernance" class="mt-2 text-danger">{{ getFieldErrors(errors.formulaires_de_gouvernance) }}</div> -->
+            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.projetId">{{ $h.extractContentFromArray(messageErreur.projetId) }}</p>
           </div>
-
-          <!-- old -->
-
-          <!-- <InputForm label="Description" :control="getFieldErrors(errors.description)" v-model="payload.description" :required="false" /> -->
-          <!-- <div class="flex-1">
-            <label class="form-label" for="description">Description</label>
-            <div class="">
-              <textarea name="description" class="form-control" id="description" v-model="payload.description" cols="30" rows="3"></textarea>
-              <div v-if="errors.description" class="mt-2 text-danger">{{ getFieldErrors(errors.description) }}</div>
-            </div>
-          </div>
-          <div class="flex items-center justify-between w-full gap-4">
-            <div class="">
-              <label for="objectif" class="form-label">Objectif</label>
-              <input id="objectif" type="number" min="0.05" step="0.05" max="1" required v-model.number="payload.objectif_attendu" class="form-control" placeholder="Objectif" />
-              <div v-if="errors.objectif_attendu" class="mt-2 text-danger">{{ getFieldErrors(errors.objectif_attendu) }}</div>
-            </div>
-            <div class="">
-              <label for="annee" class="form-label">Année</label>
-              <input id="annee" type="number" required v-model.number="payload.annee_exercice" class="form-control" placeholder="Année exercice" />
-              <div v-if="errors.annee_exercice" class="mt-2 text-danger">{{ getFieldErrors(errors.annee_exercice) }}</div>
-            </div>
-          </div>
-          <div class="flex w-full gap-4">
-            <InputForm label="Début de l'enquete " v-model="payload.debut" type="date" :control="getFieldErrors(errors.debut)" />
-            <InputForm label="Fin de l'enquete " v-model="payload.fin" type="date" :control="getFieldErrors(errors.fin)" />
-          </div>
-          <div class="">
-            <label class="form-label">Formulaires Factuel</label>
-            <TomSelect v-model="idFormFactuel" :options="{ placeholder: 'Selectionez un formulaire' }" class="w-full">
-              <option v-for="(form, index) in formulairesFactuel" :key="index" :value="form.id">{{ form.libelle }} ({{ form.annee_exercice }})</option>
-            </TomSelect>
-            <div v-if="errors.formulaires_de_gouvernance" class="mt-2 text-danger">{{ getFieldErrors(errors.formulaires_de_gouvernance) }}</div>
-          </div>
-          <div class="">
-            <label class="form-label">Formulaires de perception</label>
-            <TomSelect v-model="idFormPerception" :options="{ placeholder: 'Selectionez un formulaire' }" class="w-full">
-              <option v-for="(form, index) in formulairesPerception" :key="index" :value="form.id">{{ form.libelle }} ({{ form.annee_exercice }})</option>
-            </TomSelect>
-            <div v-if="errors.formulaires_de_gouvernance" class="mt-2 text-danger">{{ getFieldErrors(errors.formulaires_de_gouvernance) }}</div>
-          </div>
-          <div class="">
-            <label class="form-label">Organisations</label>
-            <TomSelect v-model="payload.organisations" multiple :options="{ placeholder: 'Selectionez les organisations' }" class="w-full">
-              <option v-for="(organisation, index) in organisations" :key="index" :value="organisation.id">{{ organisation.nom }}</option>
-            </TomSelect>
-            <div v-if="errors.organisations" class="mt-2 text-danger">{{ getFieldErrors(errors.organisations) }}</div>
-          </div> -->
         </div>
       </ModalBody>
       <ModalFooter>

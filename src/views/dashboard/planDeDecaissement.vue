@@ -1,15 +1,15 @@
 <template>
-  <h2 class="mt-10 text-lg font-medium intro-y">Plan d'Action</h2>
+  <h2 class="mt-10 text-lg font-medium intro-y">Plan de décaissement</h2>
   <div class="grid grid-cols-12 gap-6 my-5">
     <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
       <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
         <div class="relative w-56 text-slate-500">
-          <input type="text" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
+          <input type="text" class="w-56 pr-10 form-control box" v-model="search" placeholder="Recherche..." />
           <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
         </div>
       </div>
       <div class="flex">
-        <button class="mr-2 shadow-md btn btn-primary" @click="showModalFiltre = true"><FilterIcon class="w-4 h-4 mr-3" />Filtrer le PA</button>
+        <button class="mr-2 shadow-md btn btn-primary" @click="showModalFiltre = true"><FilterIcon class="w-4 h-4 mr-3" />Filtrer le Plan de décaissement</button>
         <button class="btn btn-primary" title="Réinitialiser le filtre" @click="resetFilter()">
           <RefreshCwIcon class="w-5 h-5" />
         </button>
@@ -31,7 +31,7 @@
           </thead>
 
           <tbody>
-            <tr v-for="pta in dataNew" :key="pta.id" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+            <tr v-for="pta in filteredData" :key="pta.id" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
               <!-- <th scope="row" class=" p-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                   {{ pta.owner_nom }}
                    <pre>{{ pta.nom }}</pre>
@@ -47,11 +47,12 @@
                 </span>
                 <span v-if="pta.isTache" class="text-sm text-red-600"> {{ pta.code }}</span>
               </td>
-              <td>
-                <select v-if="pta.isTache" class="form-select form-select-sm mt-2" aria-label=".form-select-sm example" @change="togglesuivie(pta)">
-                  <option value="0">0%</option>
-                  <option value="50">50%</option>
-                  <option value="100">100%</option>
+              <td v-if="pta.isTache">
+                <!-- <pre>{{ pta }}</pre> -->
+                <select class="form-select form-select-sm mt-2" aria-label=".form-select-sm example" v-model="pta.poidsActuel" @change="togglesuivie(pta)">
+                  <option :value="0">0%</option>
+                  <option :value="50">50%</option>
+                  <option :value="100">100%</option>
                 </select>
                 <!-- <button
                     v-if="pta.isTache"
@@ -337,7 +338,7 @@
       </div>
     </div>
   </div>
-  <NoRecordsMessage class="col-span-12" v-if="!dataNew.length" title="Aucun plan d'action pour l'instant" description="Il semble qu'il n'y ait pas de plan d'action à afficher. Veuillez revenir plus tard." />
+  <NoRecordsMessage class="col-span-12" v-if="!dataNew.length" title="Aucun plan de décaissement pour l'instant" description="Il semble qu'il n'y ait pas de plan d'action à afficher.Veuillez ajouter des suivis financiers aux différentes activités." />
 
   <!-- Modal Register & Update -->
   <Modal backdrop="static" :show="showModalFiltre" @hidden="showModalFiltre = false">
@@ -351,7 +352,7 @@
           <div class="">
             <label class="form-label">Année</label>
             <TomSelect v-model="annees" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
-              <option v-for="(year, index) in years" :key="index" :value="year.nom">{{ year.nom }}</option>
+              <option v-for="(year, index) in years" :key="index" :value="year">{{ year }}</option>
             </TomSelect>
           </div>
         </div>
@@ -414,19 +415,23 @@
             </p>
           </div>
 
-          <!-- <div class="w-full mt-3">
-            <InputForm v-model="plan.trimestre" :min="1" :max="4" class="col-span-12" type="number" :required="true" :disabled="true" placeHolder="Sélectionnez le trimestre" label="Sélectionnez le trimestre" />
-            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurSuiviFinancier?.[index]?.trimestre">
-              {{ erreurSuiviFinancier[index].trimestre }}
+          <div class="w-full mt-3">
+            <label class="form-label">Année</label>
+            <TomSelect v-model="plan.annee" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+              <option v-for="(year, index) in years" :key="index" :value="year.nom">{{ year.nom }}</option>
+            </TomSelect>
+            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurSuiviFinancier?.[index]?.annee">
+              {{ erreurSuiviFinancier[index].annee }}
             </p>
-          </div> -->
+          </div>
 
+          <!-- 
           <div class="w-full mt-3">
             <InputForm v-model="plan.annee" :min="2000" class="col-span-12" type="number" :required="true" :disabled="true" placeHolder="Saisissez l'année" label="Saisissez l'année de décaissement" />
             <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurSuiviFinancier?.[index]?.annee">
               {{ erreurSuiviFinancier[index].annee }}
             </p>
-          </div>
+          </div> -->
 
           <button type="button" @click="removePlan(index)" class="mt-2 text-red-600 text-sm underline">Supprimer ce suivi</button>
         </div>
@@ -455,12 +460,16 @@ import { helper as $h } from "@/utils/helper";
 import NoRecordsMessage from "@/components/NoRecordsMessage.vue";
 import SuiviFinancierService from "@/services/modules/suiviFinancier.service";
 import InputForm from "@/components/news/InputForm.vue";
+import AuthService from "@/services/modules/auth.service";
 
 export default {
   props: ["ppm"],
   components: { VButton, NoRecordsMessage, InputForm },
   data() {
     return {
+      currentPages: 1,
+      search: "",
+      itemsPerPage: this.dataNew?.length + 1,
       isCreate: true,
       suiviFinancierPayload: {
         activiteId: null,
@@ -473,7 +482,6 @@ export default {
       loadingSuiviFinancier: false,
       erreurSuiviFinancier: null,
       suiviFinancier: [],
-      years: [],
       annees: "",
       tabletoggle: [],
       etattoggle: true,
@@ -512,12 +520,25 @@ export default {
       exporterSuiviPta: false,
       exporterSuiviRePpm: false,
       exporterSuiviRePta: false,
+      debutProgramme: "",
+      finProgramme: "",
     };
   },
   computed: {
     ...mapGetters("auths", { currentUser: "GET_AUTHENTICATE_USER" }),
     ...mapState({
       loading: (state) => state.loading,
+      years() {
+        let anneeDebut = parseInt(`${this.debutProgramme.split("-")[0]}`);
+        let anneeFin = parseInt(`${this.finProgramme.split("-")[0]}`);
+        let annees = [];
+        for (let annee = anneeDebut; annee <= anneeFin; annee++) {
+          if (annee <= new Date().getFullYear()) {
+            annees.push(annee);
+          }
+        }
+        return annees;
+      },
     }),
     dataNew() {
       const programme = [];
@@ -802,6 +823,22 @@ export default {
       this.fich.push(programme);
       return programme;
     },
+    filteredData() {
+      const keys = ["nom"];
+      const lowercasedSearch = this.search.toLowerCase();
+
+      if (this.search == "") {
+        return this.dataNew;
+      } else {
+        this.dataNew.filter((item) =>
+          keys.some((key) => {
+            const value = key.split(".").reduce((obj, keyPart) => obj?.[keyPart], item);
+            return value?.toString().toLowerCase().includes(lowercasedSearch);
+          })
+        );
+      }
+    },
+
     json_data() {
       const programme = [];
       if (this.ptab != undefined && this.ptab != null) {
@@ -1475,6 +1512,31 @@ export default {
     },
   },
   methods: {
+    // paginatedAndFilteredData() {
+    //   const { paginatedData, totalFilteredItems } = $h.filterData({
+    //     itemsPerPage: this.itemsPerPage,
+    //     search: this.search,
+    //     data: this.dataNew(),
+    //     currentPage: this.currentPages,
+    //     keys: ["nom"],
+    //   });
+
+    //   // Mettre à jour le total pour recalculer la pagination
+    //   this.totalItems = totalFilteredItems;
+
+    //   return paginatedData;
+    // },
+    async getcurrentUser() {
+      await AuthService.getCurrentUser()
+        .then((result) => {
+          this.debutProgramme = result.data.data.programme.debut;
+          this.finProgramme = result.data.data.programme.fin;
+        })
+        .catch((e) => {
+          console.error(e);
+          toast.error("Une erreur est survenue: Utilisateur connecté .");
+        });
+    },
     voirSuiviActivite(data) {
       this.$router.push({ name: "finances_suivi" });
     },
@@ -1529,6 +1591,9 @@ export default {
       const month = new Date().getMonth() + 1; // Les mois sont indexés à partir de 0
       return Math.ceil(month / 3); // Calcul du trimestre actuel
     },
+    resetFilter() {
+      this.filtreParAnnee(new Date().getFullYear());
+    },
 
     ouvrirModalSuiviFinancierActivite(item) {
       console.log(item.activiteId);
@@ -1550,7 +1615,6 @@ export default {
       let data = {};
 
       data = {
-        organisationId: this.$route.params.ongId,
         annee: datas,
       };
       this.getPta(data);
@@ -1599,10 +1663,10 @@ export default {
     togglesuivie(pta) {
       //this.dataNew;
 
-      this.redtoggle = false;
-      this.graytoggle = false;
+      //  this.redtoggle = false;
+      // this.graytoggle = false;
       //this.greentoggle=true;
-      this.translatetoggle = false;
+      // this.translatetoggle = false;
 
       //console.log(this.tabletoggle[id]);
 
@@ -1611,7 +1675,7 @@ export default {
         tacheId: pta.id,
       };
       //  console.log(id)
-      if (pta.poidsActuel > 0) {
+      if (pta.poidsActuel > 50) {
         this.tabletoggle[pta.id] = 0;
         TacheService.deleteSuivis(pta.id)
           .then((data) => {
@@ -1868,6 +1932,7 @@ export default {
     },
   },
   mounted() {
+    // alert("ok");
     this.getPermission();
 
     if (this.revisionVisible || this.ppmVisible || this.ptaVisible) {
@@ -1882,14 +1947,7 @@ export default {
         this.scopes = response.data.data;
       });
     }
-
-    var anneeActuelle = new Date().getFullYear() + 5;
-    let i = 0;
-    for (var annee = 2016; annee <= anneeActuelle; annee++) {
-      i++;
-      this.years.push({ nom: `${annee}` });
-    }
-    console.log(this.years);
+    this.getcurrentUser();
   },
 };
 </script>

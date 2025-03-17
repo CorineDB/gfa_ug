@@ -8,6 +8,8 @@ import Tabulator from "tabulator-tables";
 import DeleteButton from "@/components/news/DeleteButton.vue";
 import { toast } from "vue3-toastify";
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
+import { helper as $h } from "@/utils/helper";
+
 
 const payload = reactive({
   nom_du_fond: "",
@@ -101,6 +103,10 @@ const initTabulator = () => {
       {
         title: "Fond disponible",
         field: "fondDisponible",
+        formatter: (cell) => {
+          return `<span>${$h.formatCurrency(cell.getValue())}</span>`;
+           
+        },
       },
 
       {

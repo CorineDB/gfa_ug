@@ -14,18 +14,20 @@
     <!-- toast notification -->
     <!-- BEGIN: Breadcrumb -->
 
-    <nav aria-label="breadcrumb" class="hidden mr-auto -intro-x sm:flex">
-      <!-- <ol class="breadcrumb">
+
+    <Breadcrumb />
+    <!-- <nav aria-label="breadcrumb" class="hidden mr-auto -intro-x sm:flex">
+      <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="#">Application</a></li>
         <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
-      </ol> -->
-    </nav>
+      </ol>
+    </nav> -->
 
     <!-- BEGIN: Account Menu -->
 
-    <router-link to="/files"> <FolderPlusIcon class="w-6 h-6 mr-4" title="Ajouter des fichiers" /> </router-link>
+    <!-- <router-link to="/files"> <FolderPlusIcon class="w-6 h-6 mr-4" title="Ajouter des fichiers" /> </router-link> -->
 
-    <p class="px-2 font-medium">{{ currentUsers.nom }}</p>
+    <!-- <p class="px-2 font-medium">{{ currentUsers.nom }}</p> -->
     <Dropdown class="w-8 h-8 intro-x">
       <DropdownToggle tag="div" role="button" class="dropdown-toggle image-fit zoom-in">
         <div class="flex items-center justify-center w-8 h-8 bg-blue-400 rounded-full shadow-lg cursor-pointer">
@@ -71,6 +73,7 @@ import { useAuthStore } from "@/stores/modules/authentification";
 import AuthentificationService from "@/services/modules/auth.service";
 import { useRouter, useRoute } from "vue-router";
 import { API_BASE_URL } from "@/services/configs/environment";
+import Breadcrumb from "../Breadcrumb.vue";
 import { toast } from "vue3-toastify";
 const router = useRouter();
 const route = useRoute();
@@ -101,8 +104,8 @@ onMounted(() => {
 
   if (usersInfo) {
     // usersProfileImage.value = API_BASE_URL + usersInfo.users.profil
-    // currentUsers.nom = usersInfo.profil.nom
-    currentUsers.nom = "test";
+     currentUsers.nom = usersInfo.nom
+   // currentUsers.nom = "test";
     // currentUsers.prenom = usersInfo.users.prenom
     currentUsers.role = usersInfo.role[0].nom;
     //  + currentUsers.prenom[0]
