@@ -384,7 +384,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex w-full gap-2">
+  <div v-if="!modalForm" class="flex w-full gap-2">
     <section class="w-[30%] h-screen pr-1 overflow-y-auto border-r-2 pt-5">
       <AccordionGroup :selectedIndex="indexAccordion" class="space-y-1">
         <AccordionItem class="">
@@ -476,8 +476,46 @@ onMounted(() => {
       </TabGroup>
     </section>
   </div>
+
+  <div v-else class="w-full mt-4">
+    <form @submit.prevent="createForm">
+      <div class="flex gap-4">
+        <InputForm label="Libellé" class="w-full" :control="getFieldErrors(errors.libelle)" v-model="payload.libelle" />
+        <div class="w-full">
+          <div class="flex-1">
+            <!-- <pre>{{ annees }}</pre> -->
+            <label class="form-label">Année cible<span class="text-danger">*</span> </label>
+            <TomSelect v-model="payload.annee_exercice" name="annee_aggrer" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+              <option value=""></option>
+              <option v-for="annee in annees" :key="annee" :value="annee">{{ annee }}</option>
+            </TomSelect>
+          </div>
+          <!-- <label for="annee" class="form-label">Année</label>
+            <input id="annee" type="number" required v-model.number="payload.annee_exercice" class="form-control" placeholder="Année" /> -->
+          <div v-if="errors.annee_exercice" class="mt-2 text-danger">{{ getFieldErrors(errors.annee_exercice) }}</div>
+        </div>
+      </div>
+      <div>
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12 my-2" v-if="errors['factuel.options_de_reponse.0.point']">{{ extractMessage(errors["factuel.options_de_reponse.0.point"]) }}</p>
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12 my-2" v-if="errors['factuel.options_de_reponse.0.point']">{{ extractMessage(errors["factuel.options_de_reponse.0.point"]) }}</p>
+
+        <p class="mb-3">Options de réponses</p>
+        <ListOptionsResponse :options="previewOptionResponses.options_de_reponse" />
+      </div>
+      <div class="_max-h-[50vh] _h-[50vh] overflow-y-auto mt-4">
+        <p class="mb-3">Formulaire factuel</p>
+        <PreviewFactuelForm :types-gouvernance="previewTypesGouvernance.types_de_gouvernance" />
+      </div>
+
+      <div class="flex gap-2">
+        <button type="button" @click="resetErrors" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
+        <VButton :loading="isLoadingForm" label="Enregistrer" />
+      </div>
+    </form>
+  </div>
+
   <!-- BEGIN: Modal Content -->
-  <Modal backdrop="static" size="modal-xl" :show="modalForm" @hidden="modalForm = false">
+  <Modal backdrop="static" size="modal-xl" :show="modalForm === !modalForm" @hidden="modalForm = false">
     <ModalHeader>
       <h2 class="mr-auto text-base font-medium">Enregistrer le formulaire</h2>
     </ModalHeader>
@@ -535,7 +573,7 @@ onMounted(() => {
   </Modal>
 </template>
 
-<style >
+<style>
 .accordion .accordion-item .accordion-header .accordion-button:not(.collapsed) {
   background: rgb(var(--color-primary)) !important;
 }

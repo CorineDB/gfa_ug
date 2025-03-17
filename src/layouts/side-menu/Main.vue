@@ -1,5 +1,5 @@
 <template>
-  <div class="px-3 py-5 -mx-3 md:py-0 sm:-mx-8 sm:px-8">
+  <div class="_px-3 _py-5 _-mx-3 _md:py-0 _sm:-mx-8 _sm:px-8">
     <!-- <DarkModeSwitcher /> -->
     <!-- <MainColorSwitcher /> -->
     <MobileMenu v-if="!isToolsPerception" />
@@ -86,7 +86,7 @@
       </nav>
       <!-- END: Side Menu -->
       <!-- BEGIN: Content -->
-      <div class="pl-0 content" :class="[isToolsPerception ? '' : 'xl:pl-64 md:pl-32']">
+      <div class="pl-0 content overflow-hidden" :class="[isToolsPerception ? '' : 'xl:pl-64 md:pl-32']">
         <TopBar v-if="!isToolsPerception" />
         <router-view />
       </div>

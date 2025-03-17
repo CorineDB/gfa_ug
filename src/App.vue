@@ -1,10 +1,8 @@
 <template>
   <div class="overflow-hidden">
-    
-    <div class="overflow-scroll scrollbar-hide">
+    <div class="_overflow-scroll scrollbar-hidden">
       <router-view />
     </div>
-
   </div>
 </template>
 
