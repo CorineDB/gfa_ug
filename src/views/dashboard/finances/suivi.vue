@@ -427,7 +427,7 @@ const suiviFinancierActivite = () => {
 
         // Mettre à jour les messages d'erreurs dynamiquement
         if (error.response && error.response.data && error.response.data.errors.length > 0) {
-          erreurSuiviFinancier.value = error.response.data.errors;
+          erreurSuiviFinancier.value.value = error.response.data.errors;
           toast.error("Une erreur s'est produite dans le formulaire");
         } else {
           toast.error(error.response.data.message);
@@ -468,10 +468,8 @@ const filterSuiviFinancierActivite = async () => {
 const resetFilterModal = () => {
   isLoadingFilter.value = false;
   showModalFiltre.value = false;
-  filterPayload = {
-    trimestre: getCurrentQuarter(),
-    annee: new Date().getFullYear(),
-  };
+  filterPayload.trimestre = getCurrentQuarter();
+  filterPayload.annee = new Date().getFullYear();
 };
 
 onMounted(() => {
