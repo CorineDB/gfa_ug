@@ -11,6 +11,7 @@ const remove = (index) => {
 
 <template>
   <div class="w-full max-w-full mx-auto">
+    <!-- <pre>{{ indicateursArray }}</pre> -->
     <div v-if="indicateursArray.length > 0">
       <AccordionGroup :selectedIndex="null" class="grid gap-3 grid-cols-[repeat(auto-fill,_minmax(350px,_1fr))]">
         <AccordionItem v-for="(indicateur, index) in indicateursArray" :key="index" class="">
