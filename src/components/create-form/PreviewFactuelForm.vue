@@ -1,8 +1,24 @@
 <script setup>
 defineProps({
   typesGouvernance: Array,
+  catCustomKey: {
+    type: String,
+    default: null // Explicitly allow null
+  },
+  qCustomKey: {
+    type: String,
+    default: null // Explicitly allow null
+  }
 });
+
+
+const emit = defineEmits(["remove"]);
+const remove = (index) => {
+  emit("remove", index);
+};
+
 </script>
+
 <template>
   <!-- <div>
     <AccordionGroup>
@@ -37,7 +53,6 @@ defineProps({
     </AccordionGroup>
   </div> -->
 
-  <div>
     <div>
       <div v-for="(type, indexType) in typesGouvernance" :key="indexType">
         <!-- Type de gouvernance -->
@@ -46,20 +61,20 @@ defineProps({
           <ChevronDownIcon />
         </div>
         <div class="p-2 bg-white">
-          <div v-for="(principe, indexPrincipe) in type.principes_de_gouvernance" :key="indexPrincipe">
+          <div v-for="(principe, indexPrincipe) in (catCustomKey ? type[catCustomKey] : type.principes_de_gouvernance)" :key="indexPrincipe">
             <div class="text-lg !p-3 font-semibold bg-primary !text-white flex items-center justify-between">
               <p class="truncate">{{ principe.nom }}</p>
               <!-- <ChevronDownIcon /> -->
             </div>
             <div class="p-2 bg-white">
-              <div v-for="(critere, indexCritere) in principe.criteres_de_gouvernance" :key="indexCritere">
+              <div v-for="(critere, indexCritere) in (catCustomKey ? principe[catCustomKey] : principe.criteres_de_gouvernance)" :key="indexCritere">
                 <div class="text-lg !p-3 font-semibold bg-primary !text-white flex items-center justify-between">
                   <p class="truncate">{{ critere.nom }}</p>
                   <!-- <ChevronDownIcon /> -->
                 </div>
                 <div class="p-2 bg-white">
                   <div class="w-full space-y-2">
-                    <div v-for="(indicateur, indexIndicateur) in critere.indicateurs_de_gouvernance" :key="indexIndicateur" class="px-2 py-3 text-base font-normal text-black truncate transition-all bg-white border-l-2 border-yellow-200 rounded shadow">{{ indexIndicateur + 1 }} - {{ indicateur.nom }}</div>
+                    <div v-for="(indicateur, indexIndicateur) in (qCustomKey ? critere[qCustomKey] : critere.indicateurs_de_gouvernance)" :key="indexIndicateur" class="px-2 py-3 text-base font-normal text-black truncate transition-all bg-white border-l-2 border-yellow-200 rounded shadow">{{ indexIndicateur + 1 }} - {{ indicateur.nom }}</div>
                   </div>
                 </div>
               </div>
@@ -68,5 +83,4 @@ defineProps({
         </div>
       </div>
     </div>
-  </div>
 </template>

@@ -468,10 +468,8 @@ const filterSuiviFinancierActivite = async () => {
 const resetFilterModal = () => {
   isLoadingFilter.value = false;
   showModalFiltre.value = false;
-  filterPayload = {
-    trimestre: getCurrentQuarter(),
-    annee: new Date().getFullYear(),
-  };
+  filterPayload.trimestre = getCurrentQuarter();
+  filterPayload.annee = new Date().getFullYear();
 };
 
 onMounted(() => {
