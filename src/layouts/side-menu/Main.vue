@@ -89,6 +89,7 @@
       <div class="pl-0 content overflow-hidden" :class="[isToolsPerception ? '' : 'xl:pl-64 md:pl-32']">
         <TopBar v-if="!isToolsPerception" />
         <router-view />
+        <button v-show="showButton" @click="scrollToTop" class="fixed z-50 bottom-5 right-5 bg-primary text-white p-3 rounded-full shadow-lg hover:bg-pending transition-opacity duration-300">↑</button>
       </div>
       <!-- END: Content -->
     </div>
@@ -108,6 +109,23 @@ import SideMenuTooltip from "@/components/side-menu-tooltip/Main.vue";
 import { linkTo, nestedMenu, enter, leave } from "./index";
 import dom from "@left4code/tw-starter/dist/js/dom";
 import { API_BASE_URL } from "@/services/configs/environment";
+
+//back to top
+// back to top
+
+const showButton = ref(false);
+
+const handleScroll = () => {
+  showButton.value = window.scrollY > 300; // Affiche le bouton après 300px
+};
+
+const scrollToTop = () => {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+};
+
+onUnmounted(() => {
+  window.removeEventListener("scroll", handleScroll);
+});
 
 const route = useRoute();
 const router = useRouter();
@@ -142,6 +160,8 @@ const currentUsers = reactive({});
 const nomProgramme = ref("");
 
 onMounted(() => {
+  window.addEventListener("scroll", handleScroll);
+
   const usersInfo = JSON.parse(localStorage.getItem("authenticateUser"));
 
   if (usersInfo) {
