@@ -6,9 +6,9 @@
     <div class="flex mt-[4.7rem] md:mt-0 relative overflow-hidden">
       <!-- BEGIN: Side Menu -->
       <nav v-if="!isToolsPerception" class="fixed h-screen overflow-scroll side-nav navColor scrollbar-hidden">
-        <router-link :to="{ name: 'projets' }" tag="a" class="flex flex-wrap items-center justify-center mt-3 intro-x">
+        <router-link :to="{ name: 'projets' }" tag="a" class="flex flex-col items-center justify-center mt-3 intro-x">
           <h1 class="font-semibold text-white">{{ nomProgramme }}</h1>
-          <p>{{ currentUsers.role }}</p>
+          <p> {{ currentUsers.role }}</p>
           <!-- <img alt="Programme de redevabilité" class="w-[5rem] sm:w-[7rem]" :src="usersProfileImage" /> -->
         </router-link>
         <div class="my-6 side-nav__devider"></div>
@@ -97,7 +97,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, provide, ref, watch, reactive } from "vue";
+import { computed, onMounted, provide, ref, watch, reactive, onUnmounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { helper as $h } from "@/utils/helper";
 import { useSideMenuStore } from "@/stores/side-menu";
