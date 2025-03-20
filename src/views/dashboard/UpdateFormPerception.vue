@@ -75,14 +75,14 @@ const generateKey = (id) => {
 };
 
 const organiseGlobalFormPerceptionData = (submissions) => {
-  // const organisedData = { principes_de_gouvernance: [] };
+  const organisedData = { principes_de_gouvernance: [] };
 
   submissions.forEach((submission) => {
     // Trouver ou créer le principe de gouvernance
-    let principe = principesGouvernance.value.principes_de_gouvernance.find((p) => p.id === submission.principe);
+    let principe = organisedData.principes_de_gouvernance.find((p) => p.id === submission.principe);
     if (!principe) {
       principe = { id: submission.principe, questions_operationnelle: [] };
-      principesGouvernance.value.principes_de_gouvernance.push(principe);
+      organisedData.principes_de_gouvernance.push(principe);
     }
 
     // Ajouter l'indicateur de gouvernance s'il n'est pas déjà présent
@@ -91,8 +91,9 @@ const organiseGlobalFormPerceptionData = (submissions) => {
     }
   });
 
-  return principesGouvernance.value;
+  return organisedData;
 };
+
 const organisePreviewFormPerceptionData = (submissions) => {
   const organisedData = { principes_de_gouvernance: [] };
 
@@ -127,7 +128,8 @@ function organiseUpdateFormGlobal(principeCurrent) {
 function setKeyForUpdate(principeCurrent) {
   return principeCurrent.flatMap((principe) =>
     principe.questions_de_gouvernance.forEach((question) => {
-      uniqueKeys.set(question.question_operationnelle.id, true);
+      const key = generateKey(question.question_operationnelle.id + principe.categorieableId);
+      uniqueKeys.set(key, true);
     })
   );
 }
@@ -199,7 +201,8 @@ const getQuestion = (question) => {
 };
 
 const addNewIndicator = () => {
-  const key = generateKey(currentGlobalPerceptionFormData.indicateur);
+  
+  const key = generateKey(currentGlobalPerceptionFormData.indicateur + currentGlobalPerceptionFormData.principe);
 
   // Ajouter la soumission si la clé est absente
   if (!uniqueKeys.has(key)) {
@@ -218,13 +221,15 @@ const addNewIndicator = () => {
   }
 };
 const removeIndicator = (indicateur) => {
-  const key = generateKey(indicateur.id);
+
   // Trouver l'index de la soumission à supprimer
   const index = globalFormPerceptionData.value.findIndex((s) => s.indicateur === indicateur.id);
+  
   // Supprimer la soumission et sa clé si elle est trouvée
   if (index !== -1) {
     globalFormPerceptionData.value.splice(index, 1);
     previewFormPerceptionData.value.splice(index, 1);
+    const key = generateKey(index.indicateur + index.principe);
     uniqueKeys.delete(key);
     updateAllTypesGouvernance();
 
@@ -267,11 +272,11 @@ const getOneForm = async () => {
 const updateForm = async () => {
   isLoadingForm.value = true;
 
-  console.log(previewPrincipesGouvernance.principes_de_gouvernance);
+  console.log(previewPrincipesGouvernance.value.principes_de_gouvernance);
 
   payload.perception.options_de_reponse = previewOptionResponses.value.options_de_reponse;
 
-  payload.perception.principes_de_gouvernance = previewPrincipesGouvernance.value.principes_de_gouvernance;
+  payload.perception.principes_de_gouvernance = globalPrincipesGouvernance.value.principes_de_gouvernance;
 
   // console.log(payload);
 
