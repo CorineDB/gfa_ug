@@ -4,7 +4,7 @@ import { toast } from "vue3-toastify";
 import OptionsResponse from "@/components/create-form/OptionsResponse.vue";
 import PrincipeGouvernance from "@/components/create-form/PrincipeGouvernance.vue";
 import QuestionsOperationnel from "@/components/create-form/QuestionsOperationnel.vue";
-import PerceptionStructure from "@/components/create-form/PerceptionStructure.vue";
+import PerceptionStructureMultiple from "@/components/create-form/PerceptionStructureMultiple.vue";
 import ListAccordionQuestion from "@/components/create-form/ListAccordionQuestion.vue";
 import VButton from "@/components/news/VButton.vue";
 import InputForm from "@/components/news/InputForm.vue";
@@ -55,8 +55,6 @@ const isAvailable = reactive({
   indicateur: true,
 });
 
-
-
 const payload = reactive({
   libelle: "",
   annee_exercice: new Date().getFullYear(),
@@ -103,6 +101,7 @@ const organiseGlobalFormPerceptionData = (submissions) => {
 
   return principesGouvernance.value;
 };
+
 const organisePreviewFormPerceptionData = (submissions) => {
   const organisedData = { principes_de_gouvernance: [] };
 
@@ -129,12 +128,17 @@ const resetCurrentPreviewFactuelFormData = () => {
   for (const key in currentPreviewPerceptionFormData) {
     currentPreviewPerceptionFormData[key] = { id: "", nom: "" };
   }
+
+  currentPreviewPerceptionFormDataArray.value = [];
   // currentPreviewPerceptionFormData.indicateur = { id: "", nom: "" };
 };
 const resetCurrentGlobalFactuelFormData = () => {
   Object.keys(currentGlobalPerceptionFormData).forEach((key) => {
     currentGlobalPerceptionFormData[key] = "";
   });
+
+  currentGlobalPerceptionFormDataArray.value = [];
+
   // currentGlobalPerceptionFormData.indicateur = "";
 };
 const resetAllForm = () => {
@@ -163,35 +167,104 @@ const changeIndexAccordion = (index) => {
 const getPrincipe = (principe) => {
   changeIndexAccordion(1);
   currentGlobalPerceptionFormData.principe = principe.id;
+
+  currentGlobalPerceptionFormDataArray.value.forEach((item) => {
+    item.principe = currentGlobalPerceptionFormData.principe;
+  });
+
   currentPreviewPerceptionFormData.principe = { id: principe.id, nom: principe.nom };
+
+  currentPreviewPerceptionFormDataArray.value.forEach((item2) => {
+    item2.principe = currentPreviewPerceptionFormData.principe;
+  });
 };
 
+const currentGlobalPerceptionFormDataArray = ref([]);
+const currentPreviewPerceptionFormDataArray = ref([]);
+
 const getQuestion = (question) => {
-  changeIndexAccordion(2);
+  console.log("question", question);
+  // changeIndexAccordion(2);
   currentGlobalPerceptionFormData.indicateur = question.id;
+
+  let form = {
+    principe: "",
+    indicateur: question.id,
+  };
+
+  currentGlobalPerceptionFormDataArray.value.push(form);
+
+  console.log("currentGlobalPerceptionFormDataArray.value", currentGlobalPerceptionFormDataArray.value);
+
   currentPreviewPerceptionFormData.indicateur = { id: question.id, nom: question.nom };
+
+  let form2 = {
+    principe: {
+      id: "",
+      nom: "",
+    },
+    indicateur: {
+      id: question.id,
+      nom: question.nom,
+    },
+  };
+  currentPreviewPerceptionFormDataArray.value.push(form2);
+
+  console.log("currentPreviewPerceptionFormDataArray.value", currentPreviewPerceptionFormDataArray.value);
 };
 
 const addNewIndicator = () => {
-  const key = generateKey(currentGlobalPerceptionFormData.indicateur);
+  console.log("currentGlobalPerceptionFormDataArray.value", currentGlobalPerceptionFormDataArray.value);
 
-  // Ajouter la soumission si la clé est absente
-  if (!uniqueKeys.has(key)) {
-    globalFormPerceptionData.value.unshift({ ...currentGlobalPerceptionFormData });
-    previewFormPerceptionData.value.unshift(JSON.parse(JSON.stringify(currentPreviewPerceptionFormData)));
-    uniqueKeys.set(key, true);
-    localStorage.setItem("globalFormPerceptionData", JSON.stringify(globalFormPerceptionData.value));
-    localStorage.setItem("previewFormPerceptionData", JSON.stringify(previewFormPerceptionData.value));
-    // console.log("global:", globalFormFactuelData.value);
-    // console.log("preview:", previewFormFactuelData.value);
-    updateAllTypesGouvernance();
-    resetCurrentPreviewFactuelFormData();
-    resetCurrentGlobalFactuelFormData();
-    resetCurrentForm.value = !resetCurrentForm.value;
-    toast.success("Indicateur ajouté.");
-  } else {
-    toast.info("Indicateur exisant.");
-  }
+  console.log("currentPreviewPerceptionFormDataArray.value", currentPreviewPerceptionFormDataArray.value);
+
+  currentGlobalPerceptionFormDataArray.value.forEach((item, index) => {
+    const key = generateKey(item.indicateur);
+
+    if (!uniqueKeys.has(key)) {
+      globalFormPerceptionData.value.unshift({ ...item });
+
+      previewFormPerceptionData.value.unshift(JSON.parse(JSON.stringify(currentPreviewPerceptionFormDataArray.value[index])));
+
+      console.log("previewFormPerceptionData.value", previewFormPerceptionData.value);
+      uniqueKeys.set(key, true);
+      localStorage.setItem("globalFormPerceptionData", JSON.stringify(globalFormPerceptionData.value));
+      localStorage.setItem("previewFormPerceptionData", JSON.stringify(previewFormPerceptionData.value));
+
+      updateAllTypesGouvernance();
+
+      if (index === currentGlobalPerceptionFormDataArray.value.length - 1) {
+        resetCurrentPreviewFactuelFormData();
+        resetCurrentGlobalFactuelFormData();
+        resetCurrentForm.value = !resetCurrentForm.value;
+      }
+
+      toast.success("Indicateur ajouté.");
+    } else {
+      toast.info("Indicateur exisant.");
+    }
+  });
+
+  // const key = generateKey(currentGlobalPerceptionFormData.indicateur);
+
+  // // Ajouter la soumission si la clé est absente
+  // if (!uniqueKeys.has(key)) {
+  //   console.log("{ ...currentGlobalPerceptionFormData }", { ...currentGlobalPerceptionFormData });
+
+  //   globalFormPerceptionData.value.unshift({ ...currentGlobalPerceptionFormData });
+  //   previewFormPerceptionData.value.unshift(JSON.parse(JSON.stringify(currentPreviewPerceptionFormData)));
+  //   uniqueKeys.set(key, true);
+  //   localStorage.setItem("globalFormPerceptionData", JSON.stringify(globalFormPerceptionData.value));
+  //   localStorage.setItem("previewFormPerceptionData", JSON.stringify(previewFormPerceptionData.value));
+
+  //   updateAllTypesGouvernance();
+  //   resetCurrentPreviewFactuelFormData();
+  //   resetCurrentGlobalFactuelFormData();
+  //   resetCurrentForm.value = !resetCurrentForm.value;
+  //   toast.success("Indicateur ajouté.");
+  // } else {
+  //   toast.info("Indicateur exisant.");
+  // }
 };
 const removeIndicator = (indicateur) => {
   const key = generateKey(indicateur.id);
@@ -327,7 +400,7 @@ onMounted(() => {
         </TabList>
         <TabPanels class="mt-5">
           <TabPanel class="leading-relaxed">
-            <div v-if="currentPreviewPerceptionFormData.indicateur.nom !==''" class="flex items-end justify-end"><button @click="showDeleteForm = true" class="btn btn-outline-danger">Supprimer le formulaire</button></div>
+            <div v-if="currentPreviewPerceptionFormData.indicateur.nom !== ''" class="flex items-end justify-end"><button @click="showDeleteForm = true" class="btn btn-outline-danger">Supprimer le formulaire</button></div>
             <div class="flex flex-col gap-8">
               <div class="space-y-2">
                 <p class="text-lg font-medium">Liste des options de réponses</p>
@@ -335,7 +408,8 @@ onMounted(() => {
               </div>
               <div class="space-y-2">
                 <p class="text-lg font-medium">Ajouter des questions opérationnelles</p>
-                <PerceptionStructure :principe="currentPreviewPerceptionFormData.principe.nom" :indicateur="currentPreviewPerceptionFormData.indicateur.nom" />
+
+                <PerceptionStructureMultiple :principe="currentPreviewPerceptionFormData.principe.nom" :indicateurArray="currentPreviewPerceptionFormDataArray.length > 0 ? currentPreviewPerceptionFormDataArray : undefined" />
                 <button :disabled="!isCurrentFormValid" @click="addNewIndicator" class="my-4 text-sm btn btn-primary"><PlusIcon class="mr-1 size-4" />Ajouter</button>
               </div>
               <div class="space-y-2">
@@ -345,8 +419,6 @@ onMounted(() => {
                 </div>
                 <div class="flex justify-start py-2">
                   <button :disabled="!showForm" @click="previewForm" class="px-5 text-base btn btn-primary"><CheckIcon class="mr-1 size-5" />Prévisualiser le formumlaire</button>
-                
-
                 </div>
               </div>
             </div>
