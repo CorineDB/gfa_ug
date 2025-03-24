@@ -19,7 +19,7 @@
 
     <!-- BEGIN: Account Menu -->
 
-    <pre>{{ yearsStore.getYears }}</pre>
+    <!-- <pre>{{ yearsStore.getYears }}</pre> -->
 
     <Dropdown class="w-8 h-8 intro-x">
       <DropdownToggle tag="div" role="button" class="dropdown-toggle image-fit zoom-in">
