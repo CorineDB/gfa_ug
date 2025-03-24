@@ -18,6 +18,9 @@ import { getFieldErrors } from "../../../utils/helpers";
 import SyntheseService from "../../../services/modules/synthese.service";
 import AddObjectifEvaluation from "../../../components/news/AddObjectifEvaluation.vue";
 import verifyPermission from "../../../utils/verifyPermission";
+import { useYearsStore } from "@/stores/years";
+
+const yearsStore = useYearsStore();
 
 const router = useRouter();
 
@@ -77,6 +80,22 @@ const createData = async () => {
       console.error(e);
     });
 };
+
+const lien = ref("https://exemple.com");
+const copié = ref(false);
+
+const copierLien = async (lien) => {
+  try {
+    await navigator.clipboard.writeText(lien);
+    copié.value = true;
+    setTimeout(() => {
+      copié.value = false;
+    }, 2000);
+  } catch (err) {
+    console.error("Échec de la copie : ", err);
+  }
+};
+
 const getDatas = async () => {
   isLoadingData.value = true;
   await EnqueteDeColleteService.get()
@@ -174,8 +193,8 @@ const deleteData = async () => {
     })
     .catch((e) => {
       isLoading.value = false;
-      console.error(e);
-      toast.error("Une erreur est survenue, ressayer");
+      console.error("e", e);
+      toast.error(e.response.data.message);
     });
 };
 const getStatusText = (param) => {
@@ -308,7 +327,6 @@ onMounted(async () => {
     <TabPanels class="mt-5">
       <TabPanel>
         <div class="p-5 mt-5 intro-y">
-         
           <LoaderSnipper v-if="isLoadingData" />
           <div v-else class="grid grid-cols-12 gap-6 mt-5">
             <div v-for="(item, index) in datasSearch" :key="index" class="col-span-12 p-4 md:col-span-12 lg:col-span-4">
@@ -341,11 +359,6 @@ onMounted(async () => {
 
                 <!-- Description section with distinct styling -->
                 <div @click="gotoSoumissions(item)" class="w-full mt-5 text-center cursor-pointer lg:text-left">
-                  <!-- <div class="" v-if="item.description">
-              <p class="mb-3 text-base font-semibold text-primary">Description</p>
-              <p class="p-3 text-gray-600 rounded-lg shadow-sm bg-gray-50">{{ item.description }}</p>
-            </div> -->
-
                   <!-- Other details with iconized section headers -->
                   <div class="mt-5 space-y-4 text-gray-600">
                     <div class="flex items-center text-sm font-medium text-gray-700">
@@ -355,10 +368,7 @@ onMounted(async () => {
                       <CalendarIcon class="w-4 h-4 mr-2 text-primary" /> Période:
                       <span class="ml-2 font-semibold text-gray-900">{{ item.debut }} <span class="font-normal">au</span> {{ item.fin }}</span>
                     </div>
-                    <!-- <div class="flex items-center text-sm font-medium text-gray-700">
-                      <TargetIcon class="w-4 h-4 mr-2 text-primary" /> Objectif attendu:
-                      <span class="ml-2 font-semibold text-gray-900">{{ item.objectif_attendu }}</span>
-                    </div> -->
+
                     <div class="flex items-center text-sm font-medium text-gray-700">
                       <BarChart2Icon class="w-4 h-4 mr-2 text-primary" /> Total soumissions:
                       <span class="ml-2 font-semibold text-gray-900">{{ item.total_soumissions_de_perception + item.total_soumissions_factuel }}</span>
@@ -367,6 +377,12 @@ onMounted(async () => {
                       <ProgressBar :percent="item.pourcentage_evolution" />
                     </div>
                   </div>
+                </div>
+                <div v-if="item.formulaires_de_gouvernance[1].lien !== null" class="p-4 bg-gray-100 rounded-lg flex items-center space-x-4 mt-3">
+                  <pre>{{ item.formulaires_de_gouvernance[1].lien }}</pre>
+                  <a href="google.com" target="_blank" class="text-blue-600 underline"> google.com </a>
+                  <button @click="copierLien('google.com')" class="px-4 py-2 btn btn-primary text-white rounded-lg hover:bg-pending hover:text-primary transition" title="Cliquer pour copier le lien du formulaire de perception">Copier lien Perception</button>
+                  <span v-if="copié" class="text-green-600">Copié !</span>
                 </div>
               </div>
             </div>
@@ -378,7 +394,7 @@ onMounted(async () => {
           <div class="flex flex-col items-center w-full gap-8">
             <div class="flex justify-center w-full p-3">
               <div class="w-full max-w-full box">
-                <p class="p-3 text-lg font-medium">Résultats synthetique par année sqs</p>
+                <p class="p-3 text-lg font-medium">Résultats synthetique par année</p>
                 <div class="!w-[250px] p-3">
                   <label class="form-label">Organisation</label>
                   <TomSelect name="organisations" v-model="ongSelectedScore" @change="changeOrganisationScore" :options="{ placeholder: 'Selectionez une organisation' }">
@@ -441,11 +457,19 @@ onMounted(async () => {
               <input id="objectif" type="number" min="0.05" step="0.05" max="1" required v-model.number="payload.objectif_attendu" class="form-control" placeholder="Objectif" />
               <div v-if="errors.objectif_attendu" class="mt-2 text-danger">{{ getFieldErrors(errors.objectif_attendu) }}</div>
             </div> -->
-            <div class="">
+            <!-- <div class="">
               <label for="annee" class="form-label">Année<span class="text-danger">*</span> </label>
               <input id="annee" type="number" required v-model.number="payload.annee_exercice" class="form-control" placeholder="Année exercice" />
-              <div v-if="errors.annee_exercice" class="mt-2 text-danger">{{ getFieldErrors(errors.annee_exercice) }}</div>
+              <div v-if="errors.annee_exercice" class="mt-2 text-danger">{{ getFieldErrors(errors.annee_exercice) }}</div>            
+            </div> -->
+
+            <div class="w-full">
+              <label class="form-label">Année</label>
+              <TomSelect v-model="payload.annee_exercice" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+                <option v-for="(year, index) in yearsStore.getYears" :key="index" :value="year">{{ year }}</option>
+              </TomSelect>
             </div>
+            <div v-if="errors.annee_exercice" class="mt-2 text-danger">{{ getFieldErrors(errors.annee_exercice) }}</div>
           </div>
           <div class="flex w-full gap-4">
             <InputForm label="Début de l'enquete " v-model="payload.debut" type="date" :control="getFieldErrors(errors.debut)" />

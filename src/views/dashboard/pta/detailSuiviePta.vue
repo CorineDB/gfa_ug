@@ -5,6 +5,7 @@ import InputForm from "@/components/news/InputForm.vue";
 import Tabulator from "tabulator-tables";
 import DeleteButton from "@/components/news/DeleteButton.vue";
 import ActiviteService from "@/services/modules/activite.service";
+import { useYearsStore } from "@/stores/years";
 
 import { toast } from "vue3-toastify";
 
@@ -22,6 +23,8 @@ import { data } from "jquery";
 
 const router = useRouter();
 const route = useRoute();
+//Store years
+const yearsStore = useYearsStore();
 
 const idFormFactuel = ref("");
 const idFormPerception = ref("");
@@ -348,7 +351,18 @@ onMounted(async () => {
       <ModalBody>
         <div class="grid grid-cols-1 gap-4">
           <InputForm class="col-span-12" label="Montant consommé" v-model="payload.consommer" :control="getFieldErrors(errors.consommer)" />
-          <InputForm class="col-span-12" label="Année de décaissement" type="number" min="2000" v-model="payload.annee" :control="getFieldErrors(errors.entrepriseContact)" />
+          
+
+          <!-- <pre>{{ yearsStore.getYears }}</pre> -->
+          <div class="col-span-12">
+            <label class="form-label">Année</label>
+            <TomSelect v-model="payload.annee" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+              <option v-for="(year, index) in yearsStore.getYears" :key="index" :value="year">{{ year }}</option>
+            </TomSelect>
+          </div>
+          <div v-if="getFieldErrors(errors.annee)" class="mt-2 text-danger">{{ getFieldErrors(errors.annee) }}</div>
+
+          <!-- <InputForm class="col-span-12" label="Année de décaissement" type="number" min="2000" v-model="payload.annee" :control="getFieldErrors(errors.entrepriseContact)" /> -->
           <InputForm v-if="isCreate" class="col-span-12" type="file" @change="handleFileChange" required="required" placeHolder="choisir un fichier" label="Rapport" />
 
           <div class="col-span-12">

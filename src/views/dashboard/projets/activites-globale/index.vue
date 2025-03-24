@@ -114,8 +114,6 @@ export default {
       return paginatedData;
     },
     years() {
-      console.log("debut", `${this.debutProgramme.split("-")}`);
-      console.log("fin", `${this.finProgramme.split("-")}`);
       let anneeDebut = parseInt(`${this.debutProgramme.split("-")[0]}`);
       let anneeFin = parseInt(`${this.finProgramme.split("-")[0]}`);
       let annees = [];
@@ -579,38 +577,62 @@ export default {
 
     ouvrirModalPlanDeDecaissementActivite(item) {
       this.planDeDecaissement = [];
+      const newItem = {
+        activiteId: item.id,
+        trimestre: 1, // Trimestre actuel
+        annee: new Date().getFullYear(), // Set current year as default
+        budgetNational: 0,
+        pret: 0,
+        id: Date.now() + "-" + Math.random().toString(36).substr(2, 9),
+      };
+
+      console.log("newItem", newItem);
+
       this.planDeDecaissementPayload.activiteId = item.id;
       this.getListePlanDeDecaissement(this.planDeDecaissementPayload.activiteId);
-      this.planDeDecaissement.push(this.planDeDecaissementPayload);
+      this.planDeDecaissement.push(newItem);
+
+      console.log("this.planDeDecaissement", this.planDeDecaissement);
+
       this.showModalPlanDeDecaissement = true;
     },
 
     addPlan() {
-      this.planDeDecaissement.push(this.planDeDecaissementPayload);
+      const newItem = {
+        activiteId: this.planDeDecaissementPayload.activiteId,
+        trimestre: 1, // Trimestre actuel
+        annee: new Date().getFullYear(), // Set current year as default
+        budgetNational: 0,
+        pret: 0,
+        id: Date.now() + "-" + Math.random().toString(36).substr(2, 9),
+      };
+      this.planDeDecaissement.push(newItem);
     },
     removePlan(index) {
+      console.log("index", index);
       this.planDeDecaissement.splice(index, 1);
     },
 
     async planDeDecaissementActivite() {
       this.loadingPlanDeDecaissement = true;
 
+      let errorIndex = [];
+
       for (let index = 0; index < this.planDeDecaissement.length; index++) {
         // let status =  this.listePlanDeDecaissement.some(plan  => plan.annee ==  this.planDeDecaissement[index].annee && plan.trimestre == this.planDeDecaissement[index].trimestre );
 
         let plan = this.listePlanDeDecaissement.filter((plan) => plan.annee == this.planDeDecaissement[index].annee && plan.trimestre == this.planDeDecaissement[index].trimestre);
 
-        console.log("plan", plan);
-
         const action = plan.length > 0 ? PlanDeCaissement.update(plan[0].id, this.planDeDecaissement[index]) : this.storePlanDecaissement(this.planDeDecaissement[index]);
 
         try {
           await action;
-          toast.success("Plan de decaissement enrégistré avec succès");
+
+          toast.success(`Plan  de decaissement n° ${index + 1} enrégistré avec succès`);
+          errorIndex.push(index);
+
           if (index === this.planDeDecaissement.length - 1) {
             this.showModalPlanDeDecaissement = false;
-
-             
 
             setTimeout(() => {
               this.planDeDecaissement = [];
@@ -620,7 +642,7 @@ export default {
           // getDatas();
           // getDatasCadre();
           // resetForm();
-        } catch (e) {
+        } catch (error) {
           this.loadingPlanDeDecaissement = false;
 
           // Mettre à jour les messages d'erreurs dynamiquement
@@ -628,7 +650,7 @@ export default {
             this.erreurPlanDeDecaissement = error.response.data.errors;
             toast.error("Une erreur s'est produite dans votre formualaire");
           } else {
-            toast.error(error.response.data.message);
+            toast.error(`Plan ${index + 1} : ${error.response.data.message}`);
           }
         } finally {
           this.loadingPlanDeDecaissement = false;
@@ -636,37 +658,16 @@ export default {
         }
       }
 
-      // if(plan.length > 0){
-      //   PlanDeCaissement.update(plan[0].id, this.planDeDecaissement[index])
-      // }else {
-      //   this.storePlanDecaissement(this.planDeDecaissement[index])
-      // }
+      if (this.planDeDecaissement.length > 0) {
+        console.log("this.planDeDecaissement", this.planDeDecaissement);
 
-      // .then((response) => {
-      //   if (response.status == 200 || response.status == 201) {
-      //     this.showModalPlanDeDecaissement = false;
-      //     this.loadingPlanDeDecaissement = false;
-
-      //     toast.success("Plan de decaissement enrégistré avec succès");
-      //     if (index === this.planDeDecaissement.length - 1) {
-      //       this.planDeDecaissement = [];
-      //     }
-
-      //     this.loadSousComposantDetails();
-      //     //this.fetchProjets(this.programmeId);
-      //   }
-      // })
-      // .catch((error) => {
-      //   this.loadingPlanDeDecaissement = false;
-
-      //   // Mettre à jour les messages d'erreurs dynamiquement
-      //   if (error.response && error.response.data && error.response.data.errors.length > 0) {
-      //     this.erreurPlanDeDecaissement = error.response.data.errors;
-      //     toast.error("Une erreur s'est produite dans votre formualaire");
-      //   } else {
-      //     toast.error(error.response.data.message);
-      //   }
-      // });
+        if (errorIndex.length > 0) {
+          console.log("errorIndex", errorIndex);
+          errorIndex.forEach((item) => {
+            this.removePlan(item);
+          });
+        }
+      }
     },
   },
 
@@ -884,8 +885,10 @@ export default {
                   </div>
                 </div>
                 <div class="flex items-center mt-2" v-for="(plage, t) in item.durees" :key="t">
-                  <ClockIcon class="w-4 h-4 mr-2" />
-                  <div>
+                  <!-- v-if="item.durees.length > 1 && t > 0" -->
+                  <ClockIcon class="w-4 h-4 mr-2"   v-if=" t <  item.durees.length-1"/>
+                  <!-- -->
+                  <div  v-if=" t <  item.durees.length-1">
                     Plage de date {{ t + 1 }} : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(plage.debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(plage.fin) }}</span>
                   </div>
                 </div>
@@ -1061,7 +1064,7 @@ export default {
 
     <form @submit.prevent="planDeDecaissementActivite">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
-        <div v-for="(plan, index) in planDeDecaissement" :key="index" class="col-span-12 border-b pb-4 mb-4">
+        <div v-for="(plan, index) in planDeDecaissement" :key="plan.id" class="col-span-12 border-b pb-4 mb-4">
           <h3 class="text-sm font-medium mb-2">Plan {{ index + 1 }}</h3>
 
           <div class="col-span-12 mt-3">
@@ -1078,11 +1081,24 @@ export default {
           <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.annee">
             {{ erreurPlanDeDecaissement[index].annee }}
           </p> -->
+          <div class="col-span-12 mt-4">
+            <label class="form-label">Sélectionnez le trimestre</label>
+            <TomSelect v-model="plan.trimestre" :options="{ placeholder: 'Sélectionnez le trimestre' }" class="w-full">
+              <option :value="1">Trimestre 1</option>
+              <option :value="2">Trimestre 2</option>
+              <option :value="3">Trimestre 3</option>
+              <option :value="4">Trimestre 4</option>
+              <!-- <option v-for="(year, index) in years" :key="index" :value="year">{{ year }}</option> -->
+            </TomSelect>
+            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.trimestre">
+              {{ erreurPlanDeDecaissement[index].trimestre }}
+            </p>
+          </div>
 
-          <InputForm v-model="plan.trimestre" :min="1" :max="4" class="col-span-12 mt-4" type="number" :required="true" placeHolder="Sélectionnez le trimestre" label="Sélectionnez le trimestre" />
+          <!-- <InputForm v-model="plan.trimestre" :min="1" :max="4" class="col-span-12 mt-4" type="number" :required="true" placeHolder="Sélectionnez le trimestre" label="Sélectionnez le trimestre" />
           <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.trimestre">
             {{ erreurPlanDeDecaissement[index].trimestre }}
-          </p>
+          </p> -->
 
           <InputForm v-model="plan.budgetNational" :min="0" class="col-span-12 mt-4" type="number" :required="true" placeHolder="Saisissez le fond propre" label="Saisissez le fond propre" />
           <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.budgetNational">

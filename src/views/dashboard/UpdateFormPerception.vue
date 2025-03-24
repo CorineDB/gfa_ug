@@ -16,6 +16,9 @@ import ListOptionsResponse from "@/components/create-form/ListOptionsResponse.vu
 import DeleteButton from "@/components/news/DeleteButton.vue";
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
 import { useRoute, useRouter } from "vue-router";
+import { useYearsStore } from "@/stores/years";  
+
+const yearsStore = useYearsStore();
 
 const route = useRoute();
 const router = useRouter();
@@ -377,7 +380,7 @@ onMounted(async () => {
               <div v-if="!isLoadingOneForm" class="space-y-2">
                 <p class="text-lg font-medium">Liste des questions opérationnelles</p>
                 <div class="max-h-[25vh] h-[25vh] py-2 border-t overflow-y-auto">
-                  <pre>{{ previewFormPerceptionData }}</pre>
+                  <!-- <pre>{{ previewFormPerceptionData }}</pre> -->
                   <ListAccordionQuestion :indicateurs-array="previewFormPerceptionData" @remove="removeIndicator" />
                 </div>
                 <div class="flex justify-between py-2">
@@ -404,7 +407,10 @@ onMounted(async () => {
           <InputForm label="Libellé" class="w-full" v-model="payload.libelle" />
           <div class="w-full">
             <label for="annee" class="form-label">Année</label>
-            <input id="annee" type="number" required v-model.number="payload.annee_exercice" class="form-control" placeholder="Année" />
+            <!-- <input id="annee" type="number" required v-model.number="payload.annee_exercice" class="form-control" placeholder="Année" /> -->
+            <TomSelect v-model="payload.annee_exercice" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+              <option v-for="(year, index) in yearsStore.getYears" :key="index" :value="year">{{ year }}</option>
+            </TomSelect>
           </div>
         </div>
         <div>
@@ -413,7 +419,7 @@ onMounted(async () => {
         </div>
         <div class="max-h-[50vh] h-[50vh] overflow-y-auto">
           <p class="mb-3">Formulaire de perception</p>
-          <pre>{{ previewPrincipesGouvernance.principes_de_gouvernance }}</pre>
+          <!-- <pre>{{ previewPrincipesGouvernance.principes_de_gouvernance }}</pre> -->
           <PreviewPerceptionForm :principes="previewPrincipesGouvernance.principes_de_gouvernance" />
         </div>
       </ModalBody>

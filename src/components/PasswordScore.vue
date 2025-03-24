@@ -1,6 +1,6 @@
 <template>
   <div class="relative select-none">
-    <!-- <pre>{{ descriptions.length }}</pre> -->
+     
     <BaseProgressBar :value="score" :max="descriptions.length" :color="description.color" />
     <p class="_absolute mt-1 text-sm text-left">
       {{ description.label }}
