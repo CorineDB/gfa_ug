@@ -574,37 +574,7 @@ const props = defineProps({
 });
 const emit = defineEmits(["update-datas"]);
 
-const data2 = ref([
-  // {
-  //   id: 1,
-  //   resultat: "Résultat 1",
-  //   indices: "Indice 1",
-  //   indicateurs: "Indicateur 1",
-  //   description: "Description de l'indicateur 1",
-  //   reference: "Référence 1",
-  //   cibles: {
-  //     2024: "10%",
-  //     2025: "20%",
-  //     2026: "30%",
-  //     2027: "40%",
-  //     2028: "50%",
-  //     2029: "60%",
-  //     2030: "70%",
-  //     2031: "80%",
-  //     2032: "90%",
-  //     2033: "95%",
-  //     2034: "100%",
-  //     Total: "100%",
-  //   },
-  //   realisation: "Réalisation 1",
-  //   taux: "80%",
-  //   sources: "Source 1",
-  //   methode: "Méthode 1",
-  //   frequence: "Mensuelle",
-  //   responsable: "Équipe A",
-  // },
-  // Add more data rows as needed
-]);
+const data2 = ref([]);
 
 const generatePDF = () => {
   const doc = new jsPDF({ orientation: "landscape", format: "a0" });
@@ -620,14 +590,8 @@ const generatePDF = () => {
   props.data.forEach((resultat, index) => {
     if (resultat.indicateurs.length > 0) {
       resultat.indicateurs.forEach((indicateur) => {
-        console.log("resultat", resultat);
-
         let item = {};
 
-        console.log("resultat.indicateurs", resultat.indicateurs);
-
-        console.log("resultat.indicateurs.length > 0", resultat.indicateurs.length > 0);
-        console.log("indicateur", indicateur);
         item.id = indicateur.id;
         item.resultat = resultat.nom;
         item.indices = indicateur.code;
@@ -641,8 +605,6 @@ const generatePDF = () => {
     }
   });
 
-  console.log("data2.value", data2.value);
-
   autoTable(doc, {
     startY: 20, // Position du tableau
     head: [
@@ -652,7 +614,7 @@ const generatePDF = () => {
         { content: "Indicateurs", rowSpan: 1 },
         { content: "Description de l'indicateurs", rowSpan: 1 },
         { content: "Situation de référence", rowSpan: 1 },
-        // { content: "Cibles", colSpan: years.length },
+        { content: "Cibles", colSpan: years.length },
         // { content: "Réalisation", rowSpan: 2 },
         { content: "Taux de réalisation", rowSpan: 1 },
         { content: "Sources de données", rowSpan: 1 },
@@ -660,9 +622,9 @@ const generatePDF = () => {
         { content: "Fréquence de la collecte de données", rowSpan: 1 },
         { content: "Responsable", rowSpan: 1 },
       ],
-      // [...years.map((year) => ({ content: year }))],
+      [...years.map((year) => ({ content: year }))],
     ], // En-tête
-    body: data2.value.map((item) => [item.resultat, item.indices, item.indicateurs, item.description, item.reference]),
+    body: data2.value.map((item) => [item.resultat, item.indices, item.indicateurs, item.description, item.reference, ...years.map((year) => item.cibles[year])]),
     // ...years.map((year) => item.cibles[year]), item.realisation, item.taux, item.sources, item.methode, item.frequence, item.responsable]), // Contenu
     // didDrawPage: function (data) {
     //   // Add page number if needed

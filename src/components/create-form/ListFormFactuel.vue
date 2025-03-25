@@ -28,7 +28,17 @@ const getListForm = async () => {
   isLoading.value = true;
   try {
     const { data } = await FormulaireFactuel.get();
-    listForms.value = data.data;
+
+    console.log("!localStorage.getItem archive", !localStorage.getItem("archive"));
+
+    if (!localStorage.getItem("achive")) {
+      listForms.value = data.data;
+    } else {
+      console.log("localStorage.getItem archive", JSON.parse(localStorage.getItem("achive")));
+      listForms.value = data.data.filter((objA) => !JSON.parse(localStorage.getItem("achive")).some((objB) => objA.id === objB.id));
+    }
+
+    console.log("listForm", listForms.value);
   } catch (e) {
     toast.error("Erreur récupération liste des formulaires.");
     console.log(e);
@@ -114,7 +124,11 @@ const initTabulator = () => {
             handleDelete(cell.getData());
           });
 
-          container.append(previewButton, modifyButton, deleteButton);
+          const archiverButton = createButton("Archiver", "btn btn-outline-danger", () => {
+            handleArchiver(cell.getData());
+          });
+
+          container.append(previewButton, modifyButton, deleteButton, archiverButton);
 
           return container;
         },
@@ -122,6 +136,61 @@ const initTabulator = () => {
     ],
   });
 };
+
+const tabulator2 = ref(null);
+
+const initTabulator2 = () => {
+  tabulator.value = new Tabulator("#list-factuelArchive", {
+    data: listForms.value,
+    placeholder: "Aucune donnée disponible.",
+    headerHozAlign: "center",
+    layout: "fitColumns",
+    pagination: "local",
+    paginationSize: 10,
+    columns: [
+      {
+        title: "Libellé",
+        field: "libelle",
+        vertAlign: "middle",
+        hozAlign: "center",
+      },
+      {
+        title: "Année",
+        field: "annee_exercice",
+        vertAlign: "middle",
+        hozAlign: "center",
+      },
+      {
+        title: "Actions",
+        field: "actions",
+        vertAlign: "middle",
+        hozAlign: "center",
+
+        formatter: (cell) => {
+          const container = document.createElement("div");
+          container.className = "flex items-center justify-center gap-3";
+
+          const createButton = (label, className, onClick) => {
+            const button = document.createElement("button");
+            button.className = className;
+            button.innerText = label;
+            button.addEventListener("click", onClick);
+            return button;
+          };
+
+          const desarchiverButton = createButton("Désarchiver", "btn btn-outline-danger", () => {
+            handleDesarchiver(cell.getData());
+          });
+
+          container.append(desarchiverButton);
+
+          return container;
+        },
+      },
+    ],
+  });
+};
+
 const applyFilter = () => {
   if (tabulator.value) {
     const query = searchValue.value.toLowerCase();
@@ -142,6 +211,65 @@ const handleDelete = (params) => {
   showModalDelete.value = true;
 };
 
+const handleArchiver = (params) => {
+  let achive = [];
+  console.log(localStorage.getItem("achive"));
+  if (!localStorage.getItem("achive")) {
+    achive.push(params);
+    localStorage.setItem("achive", JSON.stringify(achive));
+  } else {
+    achive = JSON.parse(localStorage.getItem("achive"));
+    achive.push(params);
+    localStorage.setItem("achive", JSON.stringify(achive));
+  }
+
+  getListForm();
+
+  // idSelectedForm.value = params.id;
+  // nameSelect.value = params.libelle;
+  // showModal.value = true;
+
+  // let myindex = null;
+
+  // listForms.value.forEach((item, index) => {
+  //   if (JSON.stringify(item) === JSON.stringify(params)) {
+  //     myindex = index;
+  //   }
+  // });
+
+  // listForms.value.splice(myindex, 1);
+};
+
+const showModalArchive = ref(false);
+
+const openArchive = () => {
+  showModalArchive.value = true;
+  initTabulator2();
+};
+
+const handleDesarchiver = (params) => {
+  let achive = [];
+  let myindex = null;
+
+  achive = JSON.parse(localStorage.getItem("achive"));
+
+  achive.forEach((item, index) => {
+    if (JSON.stringify(item) === JSON.stringify(params)) {
+      myindex = index;
+    }
+  });
+
+  achive.splice(myindex, 1);
+
+  localStorage.setItem("achive", JSON.stringify(achive));
+
+  initTabulator2();
+
+  getListForm();
+
+
+};
+
 const handleModify = (params) => {
   router.push({ name: "update_form_factuel", params: { id: params.id } });
 };
@@ -158,6 +286,10 @@ const optionPreviewForm = computed(() => {
       point: option.point,
       libelle: option.libelle,
     }));
+});
+
+const archives = computed(() => {
+  return localStorage.getItem("achive") == null;
 });
 
 watch(
@@ -183,6 +315,8 @@ onMounted(() => {
           <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
         </div>
       </div>
+
+      <!-- <button class="btn btn-primary" v-if="!archives" @click="openArchive">Voir les archives</button> -->
     </div>
     <LoaderSnipper v-if="isLoading" />
     <div v-show="!isLoading" class="overflow-x-auto scrollbar-hidden">
@@ -227,6 +361,28 @@ onMounted(() => {
     <ModalFooter>
       <div class="flex gap-2">
         <button type="button" @click="showModal = false" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Retour</button>
+      </div>
+    </ModalFooter>
+  </Modal>
+  <!-- END: Modal Content -->
+
+  <!-- BEGIN: Modal Content -->
+  <Modal size="modal-xl" :show="showModalArchive" @hidden="showModalArchive = false">
+    <LoaderSnipper v-if="isLoading" />
+    <div v-else class="mb-5">
+      <ModalHeader>
+        <h2 class="mr-auto text-base font-medium">Formulaires Archivées</h2>
+      </ModalHeader>
+
+      <ModalBody class="space-y-5">
+        <div class="overflow-x-auto scrollbar-hidden">
+          <div id="list-factuelArchive" ref="list-factuelArchive" class="mt-5 table-report table-report--tabulator"></div>
+        </div>
+      </ModalBody>
+    </div>
+    <ModalFooter>
+      <div class="flex gap-2">
+        <button type="button" @click="showModalArchive = false" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Retour</button>
       </div>
     </ModalFooter>
   </Modal>

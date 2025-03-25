@@ -135,22 +135,25 @@
                 <span v-if="pta.isTache" class="text-sm text-red-600"> {{ pta.nom }}</span>
               </td>
               <!-- Fond propre -->
-              <td v-if="pta.bn != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
-                <span class="font-bold">{{ pta.bn == null || pta.bn == 0 ? 0 : $h.formatCurrency(pta.bn) }}</span>
+              <!-- v-if="pta.bn != ''" -->
+              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+                <span class="font-bold">{{ pta.bn == null || pta.bn == 0 ? 0 : $h.formatCurrency(pta.bn) }} </span>
               </td>
-              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300 font-bold" v-else>0</td>
+              <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300 font-bold" v-else>0</td> -->
 
               <!-- Montant financé -->
-              <td v-if="pta.pret" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <!-- v-if="pta.pret" -->
+              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span class="font-bold"> {{ pta.pret == null || pta.pret == 0 ? 0 : $h.formatCurrency(pta.pret) }}</span>
               </td>
-              <td v-else class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300 font-bold">0</td>
+              <!-- <td v-else class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300 font-bold">0</td> -->
 
               <!-- Dépenses -->
-              <td v-if="pta.depenses" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <!-- v-if="pta.depenses" -->
+              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span class="font-bold"> {{ pta.depenses == null || pta.depenses == 0 ? 0 : $h.formatCurrency(pta.depenses) }}</span>
               </td>
-              <td v-else class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300 font-bold">0</td>
+              <!-- <td v-else class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300 font-bold">0</td> -->
 
               <!-- Solde -->
               <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
@@ -164,11 +167,11 @@
               <td v-else class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">Non disponible</td>
 
               <!-- total budgetaire-->
-
-              <td v-if="pta.pret != '' || pta.bn != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <!-- v-if="pta.pret != '' || pta.bn != ''" -->
+              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span class="font-bold text-yellow-500"> {{ pta.pret + pta.bn == null || pta.pret + pta.bn == 0 ? 0 : $h.formatCurrency(pta.pret + pta.bn) }}</span>
               </td>
-              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+              <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
               <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span v-if="pta.poids != undefined" class="font-bold"> {{ pta.poids }} </span>
@@ -238,77 +241,90 @@
 
               <!-- fin planing -->
 
-              <td v-if="pta.t1Bn != undefined && pta.t1Bn != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <!-- v-if="pta.t1Bn != undefined && pta.t1Bn != ''" -->
+              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span class="font-bold"> {{ pta.t1Bn == null || pta.t1Bn == 0 ? 0 : $h.formatCurrency(pta.t1Bn) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA</span> -->
               </td>
-              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
-              <td v-if="pta.t1Pret != undefined && pta.t1Pret != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
+
+              <!-- v-if="pta.t1Pret != undefined && pta.t1Pret != ''" -->
+              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span class="font-bold"> {{ pta.t1Pret == null || pta.t1Pret == 0 ? 0 : $h.formatCurrency(pta.t1Pret) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA</span> -->
               </td>
-              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+              <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
-              <td v-if="pta.t1Pret != '' || pta.t1Bn != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <!-- v-if="pta.t1Pret != '' || pta.t1Bn != ''" -->
+              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span class="font-bold"> {{ pta.t1Pret + pta.t1Bn == null || pta.t1Pret + pta.t1Bn == 0 ? 0 : $h.formatCurrency(pta.t1Pret + pta.t1Bn) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA </span> -->
               </td>
-              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+              <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
-              <td v-if="pta.t2Bn != undefined && pta.t2Bn != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <!-- v-if="pta.t2Bn != undefined && pta.t2Bn != ''" -->
+              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span class="font-bold"> {{ pta.t2Bn == null || pta.t2Bn == 0 ? 0 : $h.formatCurrency(pta.t2Bn) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA</span> -->
               </td>
-              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+              <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
-              <td v-if="pta.t2Pret != undefined && pta.t2Pret != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <!-- v-if="pta.t2Pret != undefined && pta.t2Pret != ''" -->
+              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span class="font-bold"> {{ pta.t2Pret == null || pta.t2Pret == 0 ? 0 : $h.formatCurrency(pta.t2Pret) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA </span> -->
               </td>
-              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+              <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
-              <td v-if="pta.t2Pret != '' || pta.t2Bn != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <!--  v-if="pta.t2Pret != '' || pta.t2Bn != ''" -->
+              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span class="font-bold"> {{ pta.t2Pret + pta.t2Bn == null || pta.t2Pret + pta.t2Bn == 0 ? 0 : $h.formatCurrency(pta.t2Pret + pta.t2Bn) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA </span> -->
               </td>
-              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+              <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
-              <td v-if="pta.t3Bn != undefined && pta.t3Bn != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <!-- v-if="pta.t3Bn != undefined && pta.t3Bn != ''" -->
+              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span class="font-bold"> {{ pta.t3Bn == null || pta.t3Bn == 0 ? 0 : $h.formatCurrency(pta.t3Bn) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA</span> -->
               </td>
-              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+              <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
-              <td v-if="pta.t3Pret != undefined && pta.t3Pret != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <!--  v-if="pta.t3Pret != undefined && pta.t3Pret != ''"  -->
+              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span class="font-bold"> {{ pta.t3Pret == null || pta.t3Pret == 0 ? 0 : $h.formatCurrency(pta.t3Pret) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA</span> -->
               </td>
-              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+              <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
-              <td v-if="pta.t3Pret != '' || pta.t3Bn != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <!-- v-if="pta.t3Pret != '' || pta.t3Bn != ''" -->
+              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span class="font-bold"> {{ $h.formatCurrency(pta.t3Pret + pta.t3Bn) }} {{ pta.t3Pret + pta.t3Bn == null || pta.t3Pret + pta.t3Bn == 0 ? 0 : $h.formatCurrency(pta.t3Pret + pta.t3Bn) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA </span> -->
               </td>
-              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+              <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
-              <td v-if="pta.t4Bn != undefined && pta.t4Bn != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <!-- v-if="pta.t4Bn != undefined && pta.t4Bn != ''" -->
+              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span class="font-bold"> {{ pta.t4Bn == null || pta.t4Bn == 0 ? 0 : $h.formatCurrency(pta.t4Bn) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA</span> -->
               </td>
 
-              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+              <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
-              <td v-if="pta.t4Pret != undefined && pta.t4Pret != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <!--  -->
+              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span class="font-bold"> {{ pta.t4Pret == null || pta.t4Pret == 0 ? 0 : $h.formatCurrency(pta.t4Pret) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA</span> -->
               </td>
-              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+              <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
-              <td v-if="pta.t4Pret != '' || pta.t4Bn != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <!-- v-if="pta.t4Pret != '' || pta.t4Bn != ''" -->
+              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span v-if="pta.t4Pret != undefined && pta.t4Bn != undefined" class="font-bold"> {{ pta.t4Pret + pta.t4Bn == null || pta.t4Pret + pta.t4Bn == 0 ? 0 : $h.formatCurrency(pta.t4Pret + pta.t4Bn) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA </span> -->
               </td>
-              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+              <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
             </tr>
           </tbody>
         </table>
@@ -382,7 +398,7 @@
 
           <div class="w-full mt-3">
             <label class="form-label">Sélectionnez le trimestre</label>
-            <TomSelect v-model="suivi.trimestre" :options="{ placeholder: 'Selectionez le trimestre' }" class="w-full" @change="miseAjourTabSuivi(suivi.activiteId, suivi.trimestre, index)">
+            <TomSelect v-model="suivi.trimestre" :options="{ placeholder: 'Selectionez le trimestre' }" class="w-full" @change="miseAjourTabSuivi(suivi.trimestre)">
               <option value="1">Trimestre 1</option>
               <option value="2">Trimestre 2</option>
               <option value="3">Trimestre 3</option>
@@ -395,7 +411,7 @@
 
           <div class="col-span-12 mt-3">
             <label class="form-label">Année</label>
-            <TomSelect v-model="suivi.annee" :options="{ placeholder: 'Selectionez une année' }" class="w-full" @change="miseAjourTabSuivi(suivi.activiteId, suivi.annee, index)">
+            <TomSelect v-model="suivi.annee" :options="{ placeholder: 'Selectionez une année' }" class="w-full" @change="miseAjourTabSuivi(suivi.annee)">
               <option v-for="(year, index) in years" :key="index" :value="year">{{ year }}</option>
             </TomSelect>
             <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurSuiviFinancier?.[index]?.trimestre">
@@ -789,7 +805,7 @@ export default {
         }
 
         console.log("annees", annees);
-        
+
         return annees;
       },
     }),
@@ -1760,7 +1776,6 @@ export default {
   },
   methods: {
     removePlan(index) {
-      console.log("index", index);
       this.planDeDecaissement.splice(index, 1);
     },
     addPlan() {
@@ -1781,8 +1796,7 @@ export default {
       storePlanDecaissement: "planDeDecaissements/STORE_PLAN_DE_DECAISSEMENT",
     }),
     removeSuivi(index) {
-      this.planDeDecaissement.splice(index, 1);
-      this.tableauListeSuivi.splice(index, 1);
+      this.suiviFinancier.splice(index, 1);
     },
     async planDeDecaissementActivite() {
       this.loadingPlanDeDecaissement = true;
@@ -1883,7 +1897,7 @@ export default {
 
       await SuiviFinancierService.filtre(this.filterPayloadSuiviFinancier)
         .then((result) => {
-          this.listeSuivi = result.data.data;
+          this.listeSuivi = result.data.data.suiviFinanciers;
           console.log("this.listeSuivi", this.listeSuivi);
           this.isLoadingFilterSuiviFinancier = false;
           this.resetFilterModalSuivi();
@@ -1941,10 +1955,7 @@ export default {
       this.suiviFinancier = [];
       this.showModalSuiviFinancier = false;
     },
-    removeSuivi(index) {
-      console.log("index", index);
-      this.suiviFinancier.splice(index, 1);
-    },
+
     addSuivi() {
       const newItem = {
         activiteId: this.suiviFinancier[0].activiteId,
@@ -1956,33 +1967,20 @@ export default {
       };
       this.suiviFinancier.push(newItem);
 
-      let payLoad = {
-        trimestre: this.getCurrentQuarter(),
-        annee: new Date().getFullYear(),
-      };
+      // let payLoad = {
+      //   trimestre: this.getCurrentQuarter(),
+      //   annee: new Date().getFullYear(),
+      // };
 
-      console.log("this.suiviFinancierPayload.id", this.suiviFinancierPayload.id);
-
-      console.log("this.suiviFinancier.length - 1", this.suiviFinancier.length - 1);
-
-      this.filterSuiviFinancierActiviteParAnnee(this.suiviFinancier[0].activiteId, payLoad, this.suiviFinancier.length - 1);
+      // this.filterSuiviFinancierActiviteParAnnee(payLoad);
     },
-    async filterSuiviFinancierActiviteParAnnee(id, payload, index) {
-      console.log("index", index);
-
+    async filterSuiviFinancierActiviteParAnnee(payload) {
       this.loaderListeSuivi = true;
 
-      SuiviFinancier.getSuiviByActivite(id, payload)
+      SuiviFinancier.filtre(payload)
         .then((data) => {
           this.loaderListeSuivi = false;
-
-          console.log(data.data.data);
-
-          this.listeSuivi = data.data.data;
-
-          this.tableauListeSuivi[index] = this.listeSuivi;
-
-          console.log("this.tableauListeSuivi", this.tableauListeSuivi);
+          this.listeSuivi = data.data.data.suiviFinanciers;
         })
         .catch((error) => {
           this.loaderListeSuivi = false;
@@ -2005,13 +2003,8 @@ export default {
           //console.log(error);
         });
     },
-    miseAjourTabSuivi(id, payLoad, index) {
-      console.log("payLoad.length", payLoad.length);
-      console.log("index", index);
-
+    miseAjourTabSuivi(payLoad) {
       let taille = payLoad.length;
-
-      console.log("this.tableauListeSuivi[index]", this.tableauListeSuivi[index]);
 
       let form = {
         trimestre: taille < 2 ? payLoad : this.suiviFinancier[index].trimestre,
@@ -2020,7 +2013,7 @@ export default {
 
       console.log("form", form);
 
-      this.filterSuiviFinancierActiviteParAnnee(id, form, index);
+      this.filterSuiviFinancierActiviteParAnnee(form);
     },
 
     async suiviFinancierActivite() {
@@ -2028,22 +2021,22 @@ export default {
 
       let errorIndex = [];
 
-      console.log("this.suiviFinancier.length", this.suiviFinancier.length);
+      console.log("this.listeSuivi", this.listeSuivi);
 
       for (let index = 0; index < this.suiviFinancier.length; index++) {
-        console.log("this.tableauListeSuivi", this.tableauListeSuivi);
+        // let suivi = this.listeSuivi.filter((suivi) => suivi.annee == this.suiviFinancier[index].annee && suivi.trimestre == this.suiviFinancier[index].trimestre && suivi.activite.id == this.suiviFinancier[index].activiteId);
 
-        console.log("this.suiviFinancier[index]", this.suiviFinancier[index]);
+        // console.log("suivi", suivi);
 
-        let suivi = this.tableauListeSuivi.filter((suivi) => suivi.annee == this.suiviFinancier[index].annee && suivi.trimestre == this.suiviFinancier[index].trimestre);
+        let payload = this.suiviFinancier[index];
 
-        console.log("suivi", suivi);
+        delete payload.id;
 
-        console.log("suivi.length", suivi.length);
+        // console.log("payload", payload);
 
-        // console.log("suivi[0]?.id", suivi[0]?.id);
+        // const action = suivi.length > 0 ? SuiviFinancier.update(suivi[0]?.activite.id, this.suiviFinancier[index]) : SuiviFinancierService.create(payload);
 
-        const action = suivi.length > 0 ? SuiviFinancier.update(suivi[0]?.id, this.suiviFinancier[index]) : SuiviFinancierService.create(this.suiviFinancier[index]);
+        const action = SuiviFinancierService.create(payload);
 
         try {
           await action;
@@ -2128,6 +2121,8 @@ export default {
     },
 
     ouvrirModalSuiviFinancierActivite(item) {
+      this.suiviFinancier = [];
+
       const newItem = {
         activiteId: item.activiteId,
         trimestre: this.getCurrentQuarter(),
@@ -2143,7 +2138,7 @@ export default {
 
       console.log("item.id", item.activiteId);
 
-      this.filterSuiviFinancierActiviteParAnnee(item.activiteId, payLoad, 0);
+      this.filterSuiviFinancierActiviteParAnnee(payLoad);
 
       console.log(item.activiteId);
       this.suiviFinancierPayload.activiteId = item.activiteId;

@@ -54,8 +54,6 @@ const uniqueKeys = new Map();
 const globalData = localStorage.getItem("globalFormFactuelData");
 const previewData = localStorage.getItem("previewFormFactuelData");
 
-
-
 const extractMessage = function (errorArray) {
   return Array.isArray(errorArray) && errorArray.length > 0 ? errorArray[0] : "";
 };
@@ -395,7 +393,7 @@ onMounted(() => {
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <OptionsResponse :is-reset="resetOptions" v-model:previewOptionResponses="previewOptionResponses" v-model:globalOptionResponses="globalOptionResponses" />
+            <OptionsResponse :is-reset="resetOptions" :factuel="true" v-model:previewOptionResponses="previewOptionResponses" v-model:globalOptionResponses="globalOptionResponses" />
           </AccordionPanel>
         </AccordionItem>
 

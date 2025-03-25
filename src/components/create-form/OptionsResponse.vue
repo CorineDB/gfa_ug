@@ -16,6 +16,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  factuel: {
+    type: Boolean,
+    default: false,
+  },
   idForm: {
     type: String,
     default: "",
@@ -23,7 +27,7 @@ const props = defineProps({
 });
 
 // Reactive data structure
-const payload = reactive({ libelle: "", description: "" });
+const payload = reactive({ libelle: "", description: computed(() => (props.factuel ? "factuel" : "perception")) });
 const idSelect = ref("");
 const idChecked = ref([]);
 const nameSelect = ref("");
@@ -96,7 +100,7 @@ const handleEdit = (data) => {
   isCreate.value = false;
   idSelect.value = data.id;
   payload.libelle = data.libelle;
-  payload.description = data.description ?? "";
+  payload.description = computed(() => (props.factuel ? "factuel" : "perception"));
   showModalCreate.value = true;
 };
 
@@ -110,7 +114,7 @@ const handleDelete = (data) => {
 // UI related functions
 const resetForm = () => {
   payload.libelle = "";
-  payload.description = "";
+  payload.description = computed(() => (props.factuel ? "factuel" : "perception"));
   showModalCreate.value = false;
   errors.value = {};
 };
@@ -244,8 +248,47 @@ onMounted(async () => {
 
     <!-- Data List -->
     <ul v-if="!isLoadingData" class="overflow-y-auto listes max-h-[40vh]">
-      <li v-for="(data, index) in filterData" :key="data.id" class="flex items-center justify-between gap-2 px-1 py-1.5 text-base hover:bg-blue-100 list-data">
-        <div class="flex items-center gap-1">
+      <li v-for="(data, index) in filterData" :key="data.id">
+        <div v-if="factuel && data.description == 'factuel'" class="flex items-center justify-between gap-2 px-1 py-1.5 text-base hover:bg-blue-100 list-data">
+          <div class="flex items-center gap-1">
+            <div class="p-2 form-check">
+              <input :id="data.id" class="form-check-input" type="checkbox" :value="data.id" v-model="idChecked" />
+              <label class="form-check-label" :for="data.id">{{ data.libelle }}</label>
+            </div>
+            <div v-if="idChecked.includes(data.id)" class="flex items-center gap-1 transition-all">
+              <input type="number" min="0.05" max="1" step="0.05" name="point" :id="`${data.id}${index}`" :value="globalOptionResponses.options_de_reponse.find((option) => option.id === data.id)?.point || ''" @input="updateTemporyOption(data.id, $event.target.value)" class="w-[75px] form-control" />
+            </div>
+          </div>
+          <div v-if="!idChecked.includes(data.id)" class="flex items-center gap-1 space-x-1 transition-all opacity-0 container-buttons">
+            <button class="p-1.5 text-primary" @click="handleEdit(data)">
+              <Edit3Icon class="size-5" />
+            </button>
+            <button class="p-1.5 text-danger" @click="handleDelete(data)">
+              <TrashIcon class="size-5" />
+            </button>
+          </div>
+        </div>
+        <div v-else-if="!factuel && data.description == 'perception'" class="flex items-center justify-between gap-2 px-1 py-1.5 text-base hover:bg-blue-100 list-data">
+          <div class="flex items-center gap-1">
+            <div class="p-2 form-check">
+              <input :id="data.id" class="form-check-input" type="checkbox" :value="data.id" v-model="idChecked" />
+              <label class="form-check-label" :for="data.id">{{ data.libelle }}</label>
+            </div>
+            <div v-if="idChecked.includes(data.id)" class="flex items-center gap-1 transition-all">
+              <input type="number" min="0.05" max="1" step="0.05" name="point" :id="`${data.id}${index}`" :value="globalOptionResponses.options_de_reponse.find((option) => option.id === data.id)?.point || ''" @input="updateTemporyOption(data.id, $event.target.value)" class="w-[75px] form-control" />
+            </div>
+          </div>
+          <div v-if="!idChecked.includes(data.id)" class="flex items-center gap-1 space-x-1 transition-all opacity-0 container-buttons">
+            <button class="p-1.5 text-primary" @click="handleEdit(data)">
+              <Edit3Icon class="size-5" />
+            </button>
+            <button class="p-1.5 text-danger" @click="handleDelete(data)">
+              <TrashIcon class="size-5" />
+            </button>
+          </div>
+        </div>
+
+        <!-- <div class="flex items-center gap-1" v-else-if="!factuel && data.description == 'perception'">
           <div class="p-2 form-check">
             <input :id="data.id" class="form-check-input" type="checkbox" :value="data.id" v-model="idChecked" />
             <label class="form-check-label" :for="data.id">{{ data.libelle }}</label>
@@ -253,15 +296,7 @@ onMounted(async () => {
           <div v-if="idChecked.includes(data.id)" class="flex items-center gap-1 transition-all">
             <input type="number" min="0.05" max="1" step="0.05" name="point" :id="`${data.id}${index}`" :value="globalOptionResponses.options_de_reponse.find((option) => option.id === data.id)?.point || ''" @input="updateTemporyOption(data.id, $event.target.value)" class="w-[75px] form-control" />
           </div>
-        </div>
-        <div v-if="!idChecked.includes(data.id)" class="flex items-center gap-1 space-x-1 transition-all opacity-0 container-buttons">
-          <button class="p-1.5 text-primary" @click="handleEdit(data)">
-            <Edit3Icon class="size-5" />
-          </button>
-          <button class="p-1.5 text-danger" @click="handleDelete(data)">
-            <TrashIcon class="size-5" />
-          </button>
-        </div>
+        </div> -->
       </li>
     </ul>
     <LoaderData v-else />
@@ -276,13 +311,15 @@ onMounted(async () => {
           <div class="grid grid-cols-1 gap-4">
             <InputForm label="Libellé" v-model="payload.libelle" :control="getFieldErrors(errors.libelle)" />
 
-            <div class="flex-1">
+            <!-- <pre>{{ payload.description }}</pre> -->
+
+            <!-- <div class="flex-1">
               <label class="form-label" for="description">Description</label>
               <div class="">
                 <textarea name="description" class="form-control" id="description" v-model="payload.description" cols="30" rows="3"></textarea>
                 <div v-if="errors.description" class="mt-2 text-danger">{{ getFieldErrors(errors.description) }}</div>
               </div>
-            </div>
+            </div> -->
           </div>
         </ModalBody>
         <ModalFooter>
