@@ -366,7 +366,7 @@ const addNewIndicator = () => {
     resetCurrentForm.value = !resetCurrentForm.value;
     toast.success("Indicateur ajouté.");
   } else {
-    toast.info("Indicateur exisant.");
+    toast.info("Indicateur existant.");
   }
 };
 
@@ -723,7 +723,7 @@ onMounted(async () => {
           <template v-for="type_de_gouvernance in previewTypesGouvernance.types_de_gouvernance" :key="type_de_gouvernance.id">
             <tr class="bg-green-100">
               <td colspan="7" class="font-semibold">{{ type_de_gouvernance.nom }}</td>
-            </tr>            
+            </tr>          
             <template v-for="principe_de_gouvernance in type_de_gouvernance.principes_de_gouvernance" :key="principe_de_gouvernance.id">
               <template v-for="(critere_de_gouvernance, scIndex) in principe_de_gouvernance.criteres_de_gouvernance" :key="critere_de_gouvernance.id">
                 <template v-for="(indicateur_de_gouvernance, qIndex) in critere_de_gouvernance.indicateurs_de_gouvernance" :key="indicateur_de_gouvernance.id">
