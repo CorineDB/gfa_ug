@@ -18,6 +18,54 @@ import ExportationSynthesePerception from "../../components/news/ExportationSynt
 import TabulatorSynthesePerception from "../../components/news/TabulatorSynthesePerception.vue";
 import ExportationResultatSynthese from "../../components/news/ExportationResultatSynthese.vue";
 
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+
+//export pdf
+const generatePDF = () => {
+  const doc = new jsPDF({ orientation: "landscape", format: "a4" });
+  autoTable(doc, { html: "#my-table8", startY: 20 });
+
+  let finalY = doc.lastAutoTable.finalY + 10;
+
+  autoTable(doc, { html: "#my-table11", startY: finalY });
+
+  doc.text("FICHE RÉSULTATS SYNTHÉTIQUE", 10, 10);
+
+  doc.save("FICHE_RÉSULTATS_SYNTHÉTIQUE.pdf");
+};
+
+const generatePDF2 = () => {
+  const doc = new jsPDF({ orientation: "landscape", format: "a4" });
+  autoTable(doc, { html: "#my-table9", startY: 20 });
+
+  let finalY = doc.lastAutoTable.finalY + 10;
+
+  autoTable(doc, { html: "#my-table12", startY: finalY });
+
+  let finalY2 = doc.lastAutoTable.finalY + 10;
+
+  autoTable(doc, { html: "#my-table14", startY: finalY2 });
+
+  doc.text("FICHE SYNTHESE SCORE FACTUEL GOUVERNANCE", 10, 10);
+
+  doc.save("FICHE_SYNTHESE_SCORE_FACTUEL_GOUVERNANCE.pdf");
+};
+
+const generatePDF3 = () => {
+  const doc = new jsPDF({ orientation: "landscape", format: "a4" });
+
+  autoTable(doc, { html: "#my-table10", startY: 20 });
+
+  let finalY = doc.lastAutoTable.finalY + 10;
+
+  autoTable(doc, { html: "#my-table13", startY: finalY });
+
+  doc.text("FICHE SYNTHESE SCORE DE PERCEPTION GOUVERNANCE", 10, 10);
+
+  doc.save("FICHE_SYNTHESE_SCORE_DE_PERCEPTION_GOUVERNANCE.pdf");
+};
+
 const router = useRouter();
 const route = useRoute();
 const idEvaluation = route.params.e;
@@ -90,10 +138,11 @@ onMounted(async () => {
           <div class="w-full py-2 font-bold text-center text-white rounded bg-primary">FICHE RÉSULTATS SYNTHÉTIQUE</div>
           <div class="flex justify-end my-4 sm:flex-row sm:items-end xl:items-start">
             <div class="flex mt-5 sm:mt-0">
-              <ExportationResultatSynthese v-if="!isLoadingData && currentOrganisation?.profile_de_gouvernance" :org="currentOrganisation?.nom" :pointfocal="`${currentOrganisation?.nom_point_focal}  ${currentOrganisation?.prenom_point_focal}`" :dateevaluation="currentFactuel?.evaluatedAt" :datas="currentOrganisation?.profile_de_gouvernance" />
+              <ExportationResultatSynthese v-if="!isLoadingData && currentOrganisation?.profile_de_gouvernance" :org="currentOrganisation?.nom" :pointfocal="`${currentOrganisation?.nom_point_focal}  ${currentOrganisation?.prenom_point_focal}`" :dateevaluation="currentFactuel?.evaluatedAt" :datas="currentOrganisation?.profile_de_gouvernance" class="mr-3" />
+              <button @click="generatePDF" class="btn btn-primary text-left">Télécharger PDF</button>
             </div>
           </div>
-          <table class="w-full my-12 text-sm border-collapse table-fixed">
+          <table id="my-table8" class="w-full my-12 text-sm border-collapse table-fixed">
             <tbody>
               <tr class="border-b rounded-sm border-slate-300 bg-slate-300">
                 <td class="p-2 font-medium">Structure :</td>
@@ -121,7 +170,7 @@ onMounted(async () => {
               </tr>
             </tbody>
           </table>
-          <table class="w-full mb-12 border-collapse table-auto" cellpadding="4" cellspacing="0">
+          <table id="my-table11" class="w-full mb-12 border-collapse table-auto" cellpadding="4" cellspacing="0">
             <thead class="text-left bg-blue-900">
               <tr class="text-slate-800 bg-slate-300">
                 <th class="py-2 text-left border border-slate-900">Principes</th>
@@ -150,11 +199,12 @@ onMounted(async () => {
           <div class="w-full py-2 font-bold text-center text-white rounded bg-primary">FICHE SYNTHESE SCORE FACTUEL GOUVERNANCE</div>
           <div class="flex justify-end my-4 sm:flex-row sm:items-end xl:items-start">
             <div class="flex mt-5 sm:mt-0">
-              <ExportationSyntheseFactuel v-if="!isLoadingData && currentFactuel" :org="currentOrganisation?.nom" :pointfocal="`${currentOrganisation?.nom_point_focal}  ${currentOrganisation?.prenom_point_focal}`" :dateevaluation="currentFactuel?.evaluatedAt" :datas="currentFactuel" />
+              <ExportationSyntheseFactuel v-if="!isLoadingData && currentFactuel" :org="currentOrganisation?.nom" :pointfocal="`${currentOrganisation?.nom_point_focal}  ${currentOrganisation?.prenom_point_focal}`" :dateevaluation="currentFactuel?.evaluatedAt" :datas="currentFactuel" class="mr-3" />
+              <button @click="generatePDF2" class="btn btn-primary text-left">Télécharger PDF</button>
             </div>
           </div>
 
-          <table class="w-full mt-12 text-sm border-collapse table-fixed">
+          <table id="my-table9" class="w-full mt-12 text-sm border-collapse table-fixed">
             <tbody>
               <tr class="border-b rounded-sm border-slate-300 bg-slate-300">
                 <td class="p-2 font-medium">Structure :</td>
@@ -181,7 +231,7 @@ onMounted(async () => {
               </tr>
             </tbody>
           </table>
-          <table v-if="!isLoadingData && currentFactuel?.resultats" class="w-full max-w-screen-lg mt-12 text-sm border-collapse table-fixed">
+          <table id="my-table12" v-if="!isLoadingData && currentFactuel?.resultats" class="w-full max-w-screen-lg mt-12 text-sm border-collapse table-fixed">
             <tbody>
               <tr class="font-semibold border-slate-300 bg-slate-300">
                 <td class="p-2">Principe</td>
@@ -203,10 +253,11 @@ onMounted(async () => {
           <div class="w-full py-2 font-bold text-center text-white rounded bg-primary">FICHE SYNTHESE SCORE DE PERCEPTION GOUVERNANCE</div>
           <div class="flex justify-end my-4 sm:flex-row sm:items-end xl:items-start">
             <div class="flex mt-5 sm:mt-0">
-              <ExportationSynthesePerception v-if="!isLoadingData && currentPerception" :org="currentOrganisation?.nom" :pointfocal="`${currentOrganisation?.nom_point_focal}  ${currentOrganisation?.prenom_point_focal}`" :dateevaluation="currentPerception?.evaluatedAt" :current-perception="currentPerception" />
+              <ExportationSynthesePerception v-if="!isLoadingData && currentPerception" :org="currentOrganisation?.nom" :pointfocal="`${currentOrganisation?.nom_point_focal}  ${currentOrganisation?.prenom_point_focal}`" :dateevaluation="currentPerception?.evaluatedAt" :current-perception="currentPerception" class="mr-3" />
+              <button @click="generatePDF3" class="btn btn-primary text-left">Télécharger PDF</button>
             </div>
           </div>
-          <table class="w-full mt-12 text-sm border-collapse table-fixed">
+          <table id="my-table10" class="w-full mt-12 text-sm border-collapse table-fixed">
             <tbody>
               <tr class="border-b rounded-sm border-slate-300 bg-slate-300">
                 <td class="p-2 font-medium">Structure :</td>

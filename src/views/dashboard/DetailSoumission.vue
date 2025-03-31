@@ -9,6 +9,27 @@ import { computed } from "vue";
 import ProgressBar from "../../components/news/ProgressBar.vue";
 import ExportationDetailSoumissionPerception from "../../components/news/ExportationDetailSoumissionPerception.vue";
 import ExportationDetailSoumissionFactuel from "../../components/news/ExportationDetailSoumissionFactuel.vue";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+
+//generer pdf
+const generatePDF = () => {
+  const doc = new jsPDF({ orientation: "landscape", format: "a4" });
+  autoTable(doc, { html: "#my-tab2" });
+
+  doc.text("Détail Soumission", 10, 10);
+
+  doc.save("Détail Soumission");
+};
+
+const generatePDF2 = () => {
+  const doc = new jsPDF({ orientation: "landscape", format: "a4" });
+  autoTable(doc, { html: "#my-tab3" });
+
+  doc.text("Détail Soumission", 10, 10);
+
+  doc.save("Détail Soumission");
+};
 
 const route = useRoute();
 const router = useRouter();
@@ -61,11 +82,17 @@ onMounted(() => getSoumission());
       <div class="flex flex-wrap items-center justify-between col-span-12 mt-4 intro-y sm:flex-nowrap">
         <div class="flex items-center justify-between w-full">
           <button @click="goBack()" class="mr-2 shadow-md btn btn-outline-primary"><ArrowLeftIcon class="w-4 h-4 mr-3" />Retour</button>
-          <ExportationDetailSoumissionFactuel v-if="soumission?.type == 'factuel'" :filter-soumission="filterSoumission" />
-          <ExportationDetailSoumissionPerception v-else :filter-soumission="filterSoumission" :filter-options="filterOptions" />
+
+          <div class="flex items-center justify-center">
+            <ExportationDetailSoumissionFactuel v-if="soumission?.type == 'factuel'" :filter-soumission="filterSoumission" class="inline-block mr-3" />
+            <ExportationDetailSoumissionPerception v-else :filter-soumission="filterSoumission" :filter-options="filterOptions" class="mr-3" />
+            <button v-if="soumission?.type == 'factuel'" @click="generatePDF" class="btn btn-primary text-left">Télécharger PDF</button>
+            <button v-else @click="generatePDF2" class="btn btn-primary text-left">Télécharger PDF</button>
+          </div>
         </div>
       </div>
-      <table v-if="soumission?.type == 'factuel'" class="w-full my-10 border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
+
+      <table id="my-tab2" v-if="soumission?.type == 'factuel'" class="w-full my-10 border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
         <thead class="text-white bg-blue-900">
           <tr>
             <th class="py-3 border border-slate-900">Principes</th>
@@ -111,7 +138,7 @@ onMounted(() => getSoumission());
           </template>
         </tbody>
       </table>
-      <table v-else class="w-full my-12 border border-collapse table-auto border-slate-500" cellpadding="2" cellspacing="0">
+      <table v-else id="my-tab3" class="w-full my-12 border border-collapse table-auto border-slate-500" cellpadding="2" cellspacing="0">
         <thead class="text-left bg-gray-400">
           <tr class="font-semibold text-white bg-blue-900">
             <th class="py-2 text-center border border-slate-600">Principes</th>

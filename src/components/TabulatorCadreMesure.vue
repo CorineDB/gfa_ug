@@ -1,5 +1,5 @@
 <template>
-  <div v-if="verifyPermission('voir-un-indicateur')" class="flex justify-end my-1">
+  <div v-if="verifyPermission('voir-un-indicateur')" class="flex justify-end my-3">
     <ExportationIndicateur :data="data" :years="years" />
   </div>
 
@@ -19,7 +19,7 @@
         <div class="p-5 mt-2 intro-y">
           <div v-if="verifyPermission('voir-un-indicateur')" class="table-container">
             <div ref="tableWrapper" class="table-wrapper">
-              <table class="w-full max-w-full my-2 border-collapse editor_listing_table border-slate-500" cellpadding="6" cellspacing="0">
+              <table id="my-table" class="w-full max-w-full my-2 border-collapse editor_listing_table border-slate-500" cellpadding="6" cellspacing="0">
                 <thead class="text-white bg-primary">
                   <tr>
                     <th rowspan="2" class="py-3 sticky-header border !border-slate-800 min-w-[500px] sticky-column">Résultats escomptés</th>
@@ -578,59 +578,9 @@ const data2 = ref([]);
 
 const generatePDF = () => {
   const doc = new jsPDF({ orientation: "landscape", format: "a0" });
+  autoTable(doc, { html: "#my-table" });
 
   doc.text("Cadre logique", 10, 10);
-
-  let y = 20; // Position verticale dans le PDF
-
-  const years = ["2024", "2025", "2026", "2027", "2028", "2029", "2030", "2031", "2032", "2033", "2034", "Total"];
-
-  console.log("props.data", props.data);
-
-  props.data.forEach((resultat, index) => {
-    if (resultat.indicateurs.length > 0) {
-      resultat.indicateurs.forEach((indicateur) => {
-        let item = {};
-
-        item.id = indicateur.id;
-        item.resultat = resultat.nom;
-        item.indices = indicateur.code;
-        item.indicateurs = indicateur.nom;
-        item.description = indicateur.description;
-        item.reference = formatObject(indicateur.valeurDeBase);
-
-        data2.value.push(item);
-        // item.reference =
-      });
-    }
-  });
-
-  autoTable(doc, {
-    startY: 20, // Position du tableau
-    head: [
-      [
-        { content: "Résultats escomptés", rowSpan: 1 },
-        { content: "Indices", rowSpan: 1 },
-        { content: "Indicateurs", rowSpan: 1 },
-        { content: "Description de l'indicateurs", rowSpan: 1 },
-        { content: "Situation de référence", rowSpan: 1 },
-        { content: "Cibles", colSpan: years.length },
-        // { content: "Réalisation", rowSpan: 2 },
-        { content: "Taux de réalisation", rowSpan: 1 },
-        { content: "Sources de données", rowSpan: 1 },
-        { content: "Méthode de collecte des données", rowSpan: 1 },
-        { content: "Fréquence de la collecte de données", rowSpan: 1 },
-        { content: "Responsable", rowSpan: 1 },
-      ],
-      [...years.map((year) => ({ content: year }))],
-    ], // En-tête
-    body: data2.value.map((item) => [item.resultat, item.indices, item.indicateurs, item.description, item.reference, ...years.map((year) => item.cibles[year])]),
-    // ...years.map((year) => item.cibles[year]), item.realisation, item.taux, item.sources, item.methode, item.frequence, item.responsable]), // Contenu
-    // didDrawPage: function (data) {
-    //   // Add page number if needed
-    //   doc.text("Page " + doc.internal.getNumberOfPages(), data.settings.margin.left, doc.internal.pageSize.height - 10);
-    // },
-  });
 
   doc.save("cadre_logique.pdf");
 };

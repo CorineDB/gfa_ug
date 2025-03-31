@@ -10,6 +10,27 @@ import { computed } from "vue";
 import ExportationMarqueurPerception from "../../components/news/ExportationMarqueurPerception.vue";
 import TabulatorMarqueurPerception from "../../components/news/TabulatorMarqueurPerception.vue";
 import ExportationMarqueurFactuel from "../../components/news/ExportationMarqueurFactuel.vue";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+
+//export pdf
+const generatePDF = () => {
+  const doc = new jsPDF({ orientation: "landscape", format: "a0" });
+  autoTable(doc, { html: "#my-table6" });
+
+  doc.text("Marqueur Factuel", 10, 10);
+
+  doc.save("marqueur_factuel.pdf");
+};
+
+const generatePDF2 = () => {
+  const doc = new jsPDF({ orientation: "landscape", format: "a0" });
+  autoTable(doc, { html: "#my-table7" });
+
+  doc.text("Marqueur de perception", 10, 10);
+
+  doc.save("marqueur_perception.pdf");
+};
 
 const router = useRouter();
 const route = useRoute();
@@ -77,11 +98,12 @@ onMounted(async () => {
             <div class="w-full py-2 font-bold text-center text-white rounded bg-primary">FICHE SYNTHESE SCORE FACTUEL GOUVERNANCE</div>
             <div class="flex justify-end my-4 sm:flex-row sm:items-end xl:items-start">
               <div class="flex mt-5 sm:mt-0">
-                <ExportationMarqueurFactuel v-if="!isLoadingData && currentFactuel" :org="currentOrganisation?.nom" :pointfocal="`${currentOrganisation?.nom_point_focal}  ${currentOrganisation?.prenom_point_focal}`" :dateevaluation="currentFactuel?.evaluatedAt" :datas="currentFactuel" />
+                <ExportationMarqueurFactuel v-if="!isLoadingData && currentFactuel" :org="currentOrganisation?.nom" :pointfocal="`${currentOrganisation?.nom_point_focal}  ${currentOrganisation?.prenom_point_focal}`" :dateevaluation="currentFactuel?.evaluatedAt" :datas="currentFactuel" class="mr-3"/>
+                <button @click="generatePDF" class="btn btn-primary text-left">Télécharger PDF</button>
               </div>
             </div>
 
-            <table class="w-full mt-12 text-sm border-collapse table-fixed">
+            <table id="my-table6" class="w-full mt-12 text-sm border-collapse table-fixed">
               <tbody>
                 <tr class="border-b rounded-sm border-slate-300 bg-slate-300">
                   <td class="p-2 font-medium">Structure :</td>
@@ -117,9 +139,10 @@ onMounted(async () => {
             <div class="flex justify-end my-4 sm:flex-row sm:items-end xl:items-start">
               <div class="flex mt-5 sm:mt-0">
                 <ExportationMarqueurPerception v-if="!isLoadingData && currentPerception" :org="currentOrganisation?.nom" :pointfocal="`${currentOrganisation?.nom_point_focal}  ${currentOrganisation?.prenom_point_focal}`" :dateevaluation="currentPerception?.evaluatedAt" :datas="currentPerception" />
+                <button @click="generatePDF2" class="btn btn-primary text-left">Télécharger PDF</button>
               </div>
             </div>
-            <table class="w-full mt-12 text-sm border-collapse table-fixed">
+            <table id="my-table7" class="w-full mt-12 text-sm border-collapse table-fixed">
               <tbody>
                 <tr class="border-b rounded-sm border-slate-300 bg-slate-300">
                   <td class="p-2 font-medium">Structure :</td>

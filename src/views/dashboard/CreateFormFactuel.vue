@@ -453,7 +453,7 @@ onMounted(() => {
                 <ListOptionsResponse :options="previewOptionResponses.options_de_reponse" />
               </div>
               <div class="space-y-2">
-                <pre>{{ currentPreviewFactuelFormData.indicateur.nom }}</pre>
+                <!-- <pre>{{ currentPreviewFactuelFormData.indicateur.nom }}</pre> -->
                 <p class="text-lg font-medium">Ajouter des indicateurs</p>
                 <FactuelStructure :type="currentPreviewFactuelFormData.type.nom" :principe="currentPreviewFactuelFormData.principe.nom" :critere="currentPreviewFactuelFormData.critere.nom" :indicateur="currentPreviewFactuelFormData.indicateur.nom" />
                 <button :disabled="!isCurrentFormValid" @click="addNewIndicator" class="my-4 text-sm btn btn-primary"><PlusIcon class="mr-1 size-4" />Ajouter</button>

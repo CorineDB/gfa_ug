@@ -402,7 +402,7 @@ onMounted(async () => {
                     <option v-for="organisation in ongsProgramme" :key="organisation.id" :value="organisation.id">{{ organisation.nom }}</option>
                   </TomSelect>
                 </div>
-                <pre>{{ currentScore }}</pre>
+                <!-- <pre>{{ currentScore }}</pre> -->
                 <ChartProgressionByTime :chartData="currentScore" v-if="ongSelectedScore && !isLoadingDataScore" />
                 <div class="h-[600px] flex justify-center items-center" v-if="!ongSelectedScore && !isLoadingDataScore">
                   <p class="text-xl font-medium text-slate-600">Veuillez choisir une organisation pour afficher le graphique</p>
