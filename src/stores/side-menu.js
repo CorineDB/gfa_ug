@@ -96,12 +96,12 @@ export const useSideMenuStore = defineStore("sideMenu", {
     },
     creationFactuel: {
       icon: "SettingsIcon",
-      pageName: "create_form_factuel",
+      pageName: "Ajouter_un_formulaire_Factuel",
       title: "Création Formulaire Factuel",
     },
     creationPerception: {
       icon: "SettingsIcon",
-      pageName: "create_form_perception",
+      pageName: "Ajouter_un_formulaire_Perception",
       title: "Création Formulaire de Perception",
     },
     programmationEnquete: {

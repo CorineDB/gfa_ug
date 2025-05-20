@@ -49,7 +49,7 @@ const globalData = localStorage.getItem("globalFormFactuelData");
 const previewData = localStorage.getItem("previewFormFactuelData");
 
 const goBackToCreate = function () {
-  router.push({ name: "create_form_factuel" });
+  router.push({ name: "Ajouter_un_formulaire_Factuel" });
 };
 
 const isAvailable = reactive({
@@ -486,7 +486,7 @@ const updateForm = async () => {
     clearUniqueKeys();
     resetAllForm();
     modalForm.value = false;
-    router.push({ name: "create_form_factuel", query: { tab: 1 } });
+    router.push({ name: "Ajouter_un_formulaire_Factuel", query: { tab: 1 } });
   } catch (e) {
     toast.error(getAllErrorMessages(e));
     console.log(e);

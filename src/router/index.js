@@ -238,12 +238,12 @@ const routes = [
       },
       {
         path: "create-factuel",
-        name: "create_form_factuel",
+        name: "Ajouter_un_formulaire_Factuel",
         component: CreateFormFactuel,
       },
       {
         path: "create-perception",
-        name: "create_form_perception",
+        name: "Ajouter_un_formulaire_Perception",
         component: CreateFormPerception,
       },
       {

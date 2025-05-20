@@ -389,31 +389,11 @@ onMounted(() => {
       <AccordionGroup :selectedIndex="indexAccordion" class="space-y-1">
         <AccordionItem class="">
           <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
-            <p>Options de réponses</p>
+            <p>Type de gouvernance</p>
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <OptionsResponse :is-reset="resetOptions" :factuel="true" v-model:previewOptionResponses="previewOptionResponses" v-model:globalOptionResponses="globalOptionResponses" />
-          </AccordionPanel>
-        </AccordionItem>
-
-        <AccordionItem>
-          <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
-            <p>Indicateurs de gouvernance</p>
-            <ChevronDownIcon />
-          </Accordion>
-          <AccordionPanel class="p-2">
-            <IndicateurGouvernance :to-reset="resetCurrentForm" :is-available="isAvailable.indicateur" @selected="getIndicateur" />
-          </AccordionPanel>
-        </AccordionItem>
-
-        <AccordionItem class="">
-          <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
-            <p>Critères de gouvernance</p>
-            <ChevronDownIcon />
-          </Accordion>
-          <AccordionPanel class="p-2">
-            <CritereGouvernance :to-reset="false" :is-available="isAvailable.critere" @selected="getCritere" />
+            <TypeGouvernance :to-reset="false" :is-available="isAvailable.type" @selected="getType" />
           </AccordionPanel>
         </AccordionItem>
 
@@ -429,11 +409,31 @@ onMounted(() => {
 
         <AccordionItem class="">
           <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
-            <p>Type de gouvernance</p>
+            <p>Critères de gouvernance</p>
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <TypeGouvernance :to-reset="false" :is-available="isAvailable.type" @selected="getType" />
+            <CritereGouvernance :to-reset="false" :is-available="isAvailable.critere" @selected="getCritere" />
+          </AccordionPanel>
+        </AccordionItem>
+
+        <AccordionItem>
+          <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
+            <p>Indicateurs de gouvernance</p>
+            <ChevronDownIcon />
+          </Accordion>
+          <AccordionPanel class="p-2">
+            <IndicateurGouvernance :to-reset="resetCurrentForm" :is-available="isAvailable.indicateur" @selected="getIndicateur" />
+          </AccordionPanel>
+        </AccordionItem>
+
+        <AccordionItem class="">
+          <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
+            <p>Options de réponses</p>
+            <ChevronDownIcon />
+          </Accordion>
+          <AccordionPanel class="p-2">
+            <OptionsResponse :is-reset="resetOptions" :factuel="true" v-model:previewOptionResponses="previewOptionResponses" v-model:globalOptionResponses="globalOptionResponses" />
           </AccordionPanel>
         </AccordionItem>
       </AccordionGroup>
