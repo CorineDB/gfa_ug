@@ -61,12 +61,13 @@ const payload = reactive({
 
 const currentPreviewPerceptionFormData = reactive({
   principe: { id: "", nom: "" },
-  indicateur: { id: "", nom: "" },
+  indicateur: { id: "", nom: "", position: "" }
 });
 
 const currentGlobalPerceptionFormData = reactive({
   principe: "",
   indicateur: "",
+  position: ""
 });
 
 // Fonction pour générer une clé unique pour chaque soumission
@@ -121,6 +122,7 @@ function organiseUpdateFormGlobal(principeCurrent) {
     principe.questions_de_gouvernance.map((question) => ({
       principe: principe.categorieableId,
       indicateur: question.question_operationnelle.id,
+      position: 1, //question.position
     }))
   );
 }
@@ -169,7 +171,7 @@ const resetCurrentPreviewPerceptionFormData = () => {
       currentPreviewPerceptionFormData[key] = { id: "", nom: "" };
     }
   */
-  currentPreviewPerceptionFormData.indicateur = { id: "", nom: "" };
+  currentPreviewPerceptionFormData.indicateur = { id: "", nom: "", position: "" };
 };
 const resetCurrentGlobalPerceptionFormData = () => {
   /*
@@ -177,7 +179,9 @@ const resetCurrentGlobalPerceptionFormData = () => {
       currentGlobalPerceptionFormData[key] = "";
     });
   */
+  currentGlobalPerceptionFormData.principe = "";
   currentGlobalPerceptionFormData.indicateur = "";
+  currentGlobalPerceptionFormData.position = "";
 };
 const resetAllForm = () => {
   resetCurrentGlobalPerceptionFormData();
