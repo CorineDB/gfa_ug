@@ -15,6 +15,7 @@ const payload = reactive({
   note: "",
   // programmeId: "",
 });
+
 const tabulator = ref();
 const idSelect = ref("");
 const showModalCreate = ref(false);
@@ -40,6 +41,7 @@ const createData = async () => {
       toast.error("Vérifier les informations et ressayer.");
     });
 };
+
 const getDatas = async () => {
   isLoadingData.value = true;
   await OptionReponse.get()
@@ -54,6 +56,7 @@ const getDatas = async () => {
     });
   initTabulator();
 };
+
 const updateData = async () => {
   isLoading.value = true;
   await OptionReponse.update(idSelect.value, payload)
@@ -69,7 +72,9 @@ const updateData = async () => {
       toast.error("Vérifier les informations et ressayer.");
     });
 };
+
 const submitData = () => (isCreate.value ? createData() : updateData());
+
 const deleteData = async () => {
   isLoading.value = true;
   await OptionReponse.destroy(idSelect.value)
@@ -85,6 +90,7 @@ const deleteData = async () => {
       toast.error("Une erreur est survenue, ressayer");
     });
 };
+
 const getProgrammes = () => {
   TypeGouvernance.getAllProgrammes()
     .then((result) => {

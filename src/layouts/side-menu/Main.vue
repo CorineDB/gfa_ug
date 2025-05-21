@@ -8,7 +8,7 @@
       <nav v-if="!isToolsPerception" class="fixed h-screen overflow-scroll side-nav navColor scrollbar-hidden">
         <router-link :to="{ name: 'projets' }" tag="a" class="flex flex-col items-center justify-center mt-3 intro-x">
           <h1 class="font-semibold text-white">{{ nomProgramme }}</h1>
-          <p> {{ currentUsers.role }} dfsdf</p>
+          <p v-if="currentUsers.role == 'Unitee de gestion'">Unitée de gestion</p>
           <!-- <img alt="Programme de redevabilité" class="w-[5rem] sm:w-[7rem]" :src="usersProfileImage" /> -->
         </router-link>
         <div class="my-6 side-nav__devider"></div>

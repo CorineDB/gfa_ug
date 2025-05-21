@@ -22,22 +22,76 @@ import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 
 //export pdf
+// const generatePDF = () => {
+//   const doc = new jsPDF({ orientation: "landscape", format: "a4" });
+
+//   doc.text("FICHE RÉSULTATS SYNTHÉTIQUE", 10, 10);
+
+//   autoTable(doc, { html: "#my-table8", startY: 20 });
+
+//   let finalY = doc.lastAutoTable.finalY + 10;
+
+//   autoTable(doc, { html: "#my-table11", startY: finalY });
+
+//   doc.save("FICHE_RÉSULTATS_SYNTHÉTIQUE.pdf");
+// };
+
 const generatePDF = () => {
   const doc = new jsPDF({ orientation: "landscape", format: "a4" });
-  autoTable(doc, { html: "#my-table8", startY: 20 });
+
+  // Add title
+  doc.setFontSize(24); // Set font size for the title
+  const title = "FICHE RÉSULTATS SYNTHÉTIQUE";
+  const pageWidth = doc.internal.pageSize.width;
+  const textWidth = doc.getTextWidth(title);
+  const xOffset = (pageWidth - textWidth) / 2;
+  doc.text(title, xOffset, 20);
+
+  // Get current date and time
+  const now = new Date();
+  const dateStr = now.toLocaleDateString();
+  const timeStr = now.toLocaleTimeString();
+
+  // Add date and time to the top right corner
+  doc.setFontSize(12);
+  const dateTimeStr = `Générer le: ${dateStr} at ${timeStr}`;
+  const textXOffset = pageWidth - doc.getTextWidth(dateTimeStr) - 10;
+  doc.text(dateTimeStr, textXOffset, 10);
+
+  autoTable(doc, { html: "#my-table8", startY: 40 });
 
   let finalY = doc.lastAutoTable.finalY + 10;
 
   autoTable(doc, { html: "#my-table11", startY: finalY });
-
-  doc.text("FICHE RÉSULTATS SYNTHÉTIQUE", 10, 10);
 
   doc.save("FICHE_RÉSULTATS_SYNTHÉTIQUE.pdf");
 };
 
 const generatePDF2 = () => {
   const doc = new jsPDF({ orientation: "landscape", format: "a4" });
-  autoTable(doc, { html: "#my-table9", startY: 20 });
+
+  // Add title
+  doc.setFontSize(24); // Set font size for the title
+  const title = "FICHE SYNTHESE SCORE FACTUEL GOUVERNANCE";
+  const pageWidth = doc.internal.pageSize.width;
+  const textWidth = doc.getTextWidth(title);
+  const xOffset = (pageWidth - textWidth) / 2;
+  doc.text(title, xOffset, 20);
+
+  // Get current date and time
+  const now = new Date();
+  const dateStr = now.toLocaleDateString();
+  const timeStr = now.toLocaleTimeString();
+
+  // Add date and time to the top right corner
+  doc.setFontSize(12);
+  const dateTimeStr = `Générer le: ${dateStr} at ${timeStr}`;
+  const textXOffset = pageWidth - doc.getTextWidth(dateTimeStr) - 10;
+  doc.text(dateTimeStr, textXOffset, 10);
+
+  // doc.text("FICHE SYNTHESE SCORE FACTUEL GOUVERNANCE", 10, 10);
+
+  autoTable(doc, { html: "#my-table9", startY: 40 });
 
   let finalY = doc.lastAutoTable.finalY + 10;
 
@@ -47,21 +101,38 @@ const generatePDF2 = () => {
 
   autoTable(doc, { html: "#my-table14", startY: finalY2 });
 
-  doc.text("FICHE SYNTHESE SCORE FACTUEL GOUVERNANCE", 10, 10);
-
   doc.save("FICHE_SYNTHESE_SCORE_FACTUEL_GOUVERNANCE.pdf");
 };
 
 const generatePDF3 = () => {
   const doc = new jsPDF({ orientation: "landscape", format: "a4" });
 
-  autoTable(doc, { html: "#my-table10", startY: 20 });
+  // Add title
+  doc.setFontSize(24); // Set font size for the title
+const title = "FICHE SYNTHESE SCORE DE PERCEPTION GOUVERNANCE";
+const pageWidth = doc.internal.pageSize.width;
+const textWidth = doc.getTextWidth(title);
+const xOffset = (pageWidth - textWidth) / 2;
+doc.text(title, xOffset, 20);
+
+// Get current date and time
+const now = new Date();
+const dateStr = now.toLocaleDateString();
+const timeStr = now.toLocaleTimeString();
+
+// Add date and time to the top right corner
+doc.setFontSize(12);
+const dateTimeStr = `Générer le: ${dateStr} at ${timeStr}`;
+const textXOffset = pageWidth - doc.getTextWidth(dateTimeStr) - 10;
+doc.text(dateTimeStr, textXOffset, 10);
+
+  // doc.text("FICHE SYNTHESE SCORE DE PERCEPTION GOUVERNANCE", 10, 10);
+
+  autoTable(doc, { html: "#my-table10", startY: 40 });
 
   let finalY = doc.lastAutoTable.finalY + 10;
 
   autoTable(doc, { html: "#my-table13", startY: finalY });
-
-  doc.text("FICHE SYNTHESE SCORE DE PERCEPTION GOUVERNANCE", 10, 10);
 
   doc.save("FICHE_SYNTHESE_SCORE_DE_PERCEPTION_GOUVERNANCE.pdf");
 };
@@ -125,6 +196,11 @@ onMounted(async () => {
 
 <template>
   <div class="mt-5 intro-y _box">
+    <div class="flex justify-between my-4 items-center">
+      <h2 class="text-lg font-medium intro-y">Fiche de synthèse</h2>
+      <button class="btn btn-primary" @click="router.go(-1)">Retour <CornerDownLeftIcon class="w-4 h-4 ml-2" /></button>
+    </div>
+
     <TabGroup>
       <TabList class="space-x-4 font-bold uppercase nav-boxed-tabs">
         <Tab class="w-full py-2 bg-white" tag="button">Résultat Synthétique</Tab>

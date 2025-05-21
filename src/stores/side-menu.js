@@ -91,7 +91,7 @@ export const useSideMenuStore = defineStore("sideMenu", {
     outils: {
       icon: "FileTextIcon",
       pageName: "projets",
-      title: "Outils de collecte",
+      title: "Auto Evaluation Gouvernance",
       subMenu: [],
     },
     creationFactuel: {

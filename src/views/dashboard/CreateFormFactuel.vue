@@ -246,7 +246,7 @@ const getType = (type) => {
   currentPreviewFactuelFormData.type = { id: type.id, nom: type.nom };
 };
 const getPrincipe = (principe) => {
-  changeIndexAccordion(4);
+  changeIndexAccordion(2);
   currentGlobalFactuelFormData.principe = principe.id;
   currentPreviewFactuelFormData.principe = { id: principe.id, nom: principe.nom };
 };
@@ -256,7 +256,7 @@ const getCritere = (critere) => {
   currentPreviewFactuelFormData.critere = { id: critere.id, nom: critere.nom };
 };
 const getIndicateur = (indicateur) => {
-  changeIndexAccordion(2);
+  changeIndexAccordion(4);
   currentGlobalFactuelFormData.indicateur = indicateur.id;
   currentPreviewFactuelFormData.indicateur = { id: indicateur.id, nom: indicateur.nom };
 };

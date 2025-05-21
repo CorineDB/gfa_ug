@@ -154,6 +154,7 @@ const logout = () => {
   localStorage.removeItem("bsdInfo");
   localStorage.removeItem("access_token");
   localStorage.removeItem("authenticateUser");
+  localStorage.clear();
   toast.success("Vous êtes déconnecté");
   setTimeout(() => {
     router.push("/");

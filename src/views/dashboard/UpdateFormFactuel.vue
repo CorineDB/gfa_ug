@@ -695,7 +695,7 @@ onMounted(async () => {
                 <div class="flex justify-between py-2">
                   <button @click="goBackToCreate" class="px-5 text-base btn btn-primary"><ArrowLeftIcon class="mr-1 size-5" />Annuler les modifications</button>
 
-                  <button :disabled="!showForm" @click="updateForm" class="px-5 text-base btn btn-primary"><CheckIcon class="mr-1 size-5" />Modifier le formumlaire</button>
+                  <button :disabled="!showForm" @click="updateForm" class="px-5 text-base btn btn-primary"><CheckIcon class="mr-1 size-5" />Enregistrer les modifications</button>
 
                   <!-- <button :disabled="!showForm" @click="previewForm" class="px-5 text-base btn btn-primary"><CheckIcon class="mr-1 size-5" />Prévisualiser le formumlaire</button> -->
                 </div>

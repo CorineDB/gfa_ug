@@ -91,7 +91,7 @@ export const useSimpleMenuStore = defineStore("simpleMenu", {
     outils: {
       icon: "FileTextIcon",
       pageName: "projets",
-      title: "Outils de collecte",
+      title: "Auto Evaluation Gouvernance",
       subMenu: [],
     },
     creationFactuel: {

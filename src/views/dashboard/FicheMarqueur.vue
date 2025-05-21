@@ -15,19 +15,63 @@ import autoTable from "jspdf-autotable";
 
 //export pdf
 const generatePDF = () => {
-  const doc = new jsPDF({ orientation: "landscape", format: "a0" });
-  autoTable(doc, { html: "#my-table6" });
+  const doc = new jsPDF({ orientation: "landscape", format: "a4" });
 
-  doc.text("Marqueur Factuel", 10, 10);
+  // Add title
+  doc.setFontSize(24); // Set font size for the title
+  const title = "Marqueur Factuel";
+  const pageWidth = doc.internal.pageSize.width;
+  const textWidth = doc.getTextWidth(title);
+  const xOffset = (pageWidth - textWidth) / 2;
+  doc.text(title, xOffset, 20);
+
+  // Get current date and time
+  const now = new Date();
+  const dateStr = now.toLocaleDateString();
+  const timeStr = now.toLocaleTimeString();
+
+  // Add date and time to the top right corner
+  doc.setFontSize(12);
+  const dateTimeStr = `Générer le: ${dateStr} at ${timeStr}`;
+  const textXOffset = pageWidth - doc.getTextWidth(dateTimeStr) - 10;
+  doc.text(dateTimeStr, textXOffset, 10);
+
+  autoTable(doc, { html: "#my-table6", startY: 40 });
+
+  let finalY = doc.lastAutoTable.finalY + 10;
+
+  autoTable(doc, { html: "#tableauMarqueurFactuel", startY: finalY });
 
   doc.save("marqueur_factuel.pdf");
 };
 
 const generatePDF2 = () => {
-  const doc = new jsPDF({ orientation: "landscape", format: "a0" });
-  autoTable(doc, { html: "#my-table7" });
+  const doc = new jsPDF({ orientation: "landscape", format: "a4" });
 
-  doc.text("Marqueur de perception", 10, 10);
+  // Add title
+  doc.setFontSize(24); // Set font size for the title
+  const title = "Marqueur de perception";
+  const pageWidth = doc.internal.pageSize.width;
+  const textWidth = doc.getTextWidth(title);
+  const xOffset = (pageWidth - textWidth) / 2;
+  doc.text(title, xOffset, 20);
+
+  // Get current date and time
+  const now = new Date();
+  const dateStr = now.toLocaleDateString();
+  const timeStr = now.toLocaleTimeString();
+
+  // Add date and time to the top right corner
+  doc.setFontSize(12);
+  const dateTimeStr = `Générer le: ${dateStr} at ${timeStr}`;
+  const textXOffset = pageWidth - doc.getTextWidth(dateTimeStr) - 10;
+  doc.text(dateTimeStr, textXOffset, 10);
+
+  autoTable(doc, { html: "#my-table7", startY: 40 });
+
+  let finalY = doc.lastAutoTable.finalY + 10;
+
+  autoTable(doc, { html: "#tableauSynthesePerception", startY: finalY });
 
   doc.save("marqueur_perception.pdf");
 };
@@ -84,6 +128,10 @@ onMounted(async () => {
 </script>
 
 <template>
+  <div class="flex justify-between my-4 items-center">
+    <h2 class="text-lg font-medium intro-y">Marqueur de gouvernance</h2>
+    <button class="btn btn-primary" @click="router.go(-1)">Retour <CornerDownLeftIcon class="w-4 h-4 ml-2" /></button>
+  </div>
   <PreviewComponent class="mt-5 intro-y _box">
     <Preview>
       <TabGroup>
@@ -98,8 +146,8 @@ onMounted(async () => {
             <div class="w-full py-2 font-bold text-center text-white rounded bg-primary">FICHE SYNTHESE SCORE FACTUEL GOUVERNANCE</div>
             <div class="flex justify-end my-4 sm:flex-row sm:items-end xl:items-start">
               <div class="flex mt-5 sm:mt-0">
-                <ExportationMarqueurFactuel v-if="!isLoadingData && currentFactuel" :org="currentOrganisation?.nom" :pointfocal="`${currentOrganisation?.nom_point_focal}  ${currentOrganisation?.prenom_point_focal}`" :dateevaluation="currentFactuel?.evaluatedAt" :datas="currentFactuel" class="mr-3"/>
-                <button @click="generatePDF" class="btn btn-primary text-left">Télécharger PDF</button>
+                <ExportationMarqueurFactuel v-if="!isLoadingData && currentFactuel" :org="currentOrganisation?.nom" :pointfocal="`${currentOrganisation?.nom_point_focal}  ${currentOrganisation?.prenom_point_focal}`" :dateevaluation="currentFactuel?.evaluatedAt" :datas="currentFactuel" class="mr-3" />
+                <button @click="generatePDF" class=" ml-2 btn btn-primary text-left">Télécharger PDF</button>
               </div>
             </div>
 
@@ -139,7 +187,7 @@ onMounted(async () => {
             <div class="flex justify-end my-4 sm:flex-row sm:items-end xl:items-start">
               <div class="flex mt-5 sm:mt-0">
                 <ExportationMarqueurPerception v-if="!isLoadingData && currentPerception" :org="currentOrganisation?.nom" :pointfocal="`${currentOrganisation?.nom_point_focal}  ${currentOrganisation?.prenom_point_focal}`" :dateevaluation="currentPerception?.evaluatedAt" :datas="currentPerception" />
-                <button @click="generatePDF2" class="btn btn-primary text-left">Télécharger PDF</button>
+                <button @click="generatePDF2" class="ml-2 btn btn-primary text-left">Télécharger PDF</button>
               </div>
             </div>
             <table id="my-table7" class="w-full mt-12 text-sm border-collapse table-fixed">

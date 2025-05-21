@@ -222,6 +222,7 @@ const addNewIndicator = () => {
   console.log("currentPreviewPerceptionFormDataArray.value", currentPreviewPerceptionFormDataArray.value);
 
   currentGlobalPerceptionFormDataArray.value.forEach((item, index) => {
+    
     const key = generateKey(item.indicateur);
 
     if (!uniqueKeys.has(key)) {

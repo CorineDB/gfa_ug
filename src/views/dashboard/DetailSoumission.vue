@@ -15,18 +15,54 @@ import autoTable from "jspdf-autotable";
 //generer pdf
 const generatePDF = () => {
   const doc = new jsPDF({ orientation: "landscape", format: "a4" });
-  autoTable(doc, { html: "#my-tab2" });
 
-  doc.text("Détail Soumission", 10, 10);
+  doc.setFontSize(24); // Set font size for the title
+  const title = "Détail Soumission";
+  const pageWidth = doc.internal.pageSize.width;
+  const textWidth = doc.getTextWidth(title);
+  const xOffset = (pageWidth - textWidth) / 2;
+  doc.text(title, xOffset, 20);
+
+  // Get current date and time
+  const now = new Date();
+  const dateStr = now.toLocaleDateString();
+  const timeStr = now.toLocaleTimeString();
+
+  // Add date and time to the top right corner
+  doc.setFontSize(12);
+  const dateTimeStr = `Générer le: ${dateStr} at ${timeStr}`;
+  const textXOffset = pageWidth - doc.getTextWidth(dateTimeStr) - 10;
+  doc.text(dateTimeStr, textXOffset, 10);
+
+  autoTable(doc, { html: "#my-tab2", startY: 30 });
+
+  // doc.text("Détail Soumission", 10, 10);
 
   doc.save("Détail Soumission");
 };
 
 const generatePDF2 = () => {
   const doc = new jsPDF({ orientation: "landscape", format: "a4" });
-  autoTable(doc, { html: "#my-tab3" });
 
-  doc.text("Détail Soumission", 10, 10);
+  doc.setFontSize(24); // Set font size for the title
+  const title = "Détail Soumission";
+  const pageWidth = doc.internal.pageSize.width;
+  const textWidth = doc.getTextWidth(title);
+  const xOffset = (pageWidth - textWidth) / 2;
+  doc.text(title, xOffset, 20);
+
+  // Get current date and time
+  const now = new Date();
+  const dateStr = now.toLocaleDateString();
+  const timeStr = now.toLocaleTimeString();
+
+  // Add date and time to the top right corner
+  doc.setFontSize(12);
+  const dateTimeStr = `Générer le: ${dateStr} at ${timeStr}`;
+  const textXOffset = pageWidth - doc.getTextWidth(dateTimeStr) - 10;
+  doc.text(dateTimeStr, textXOffset, 10);
+
+  autoTable(doc, { html: "#my-tab3", startY: 30 });
 
   doc.save("Détail Soumission");
 };
