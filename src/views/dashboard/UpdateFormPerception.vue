@@ -270,7 +270,7 @@ const getOneForm = async () => {
 const updateForm = async () => {
   isLoadingForm.value = true;
 
-  console.log(previewPrincipesGouvernance.principes_de_gouvernance);
+   
 
   payload.perception.options_de_reponse = previewOptionResponses.value.options_de_reponse;
 
@@ -419,7 +419,7 @@ onMounted(async () => {
         </div>
         <div class="max-h-[50vh] h-[50vh] overflow-y-auto">
           <p class="mb-3">Formulaire de perception</p>
-          <!-- <pre>{{ previewPrincipesGouvernance.principes_de_gouvernance }}</pre> -->
+           
           <PreviewPerceptionForm :principes="previewPrincipesGouvernance.principes_de_gouvernance" />
         </div>
       </ModalBody>
