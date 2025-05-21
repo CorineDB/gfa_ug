@@ -78,14 +78,14 @@ const generateKey = (id) => {
 };
 
 const organiseGlobalFormPerceptionData = (submissions) => {
-  // const organisedData = { principes_de_gouvernance: [] };
+  const organisedData = { principes_de_gouvernance: [] };
 
   submissions.forEach((submission) => {
     // Trouver ou créer le principe de gouvernance
-    let principe = principesGouvernance.value.principes_de_gouvernance.find((p) => p.id === submission.principe);
+    let principe = organisedData.principes_de_gouvernance.find((p) => p.id === submission.principe);
     if (!principe) {
       principe = { id: submission.principe, questions_operationnelle: [] };
-      principesGouvernance.value.principes_de_gouvernance.push(principe);
+      organisedData.principes_de_gouvernance.push(principe);
     }
 
     // Ajouter l'indicateur de gouvernance s'il n'est pas déjà présent
@@ -94,8 +94,9 @@ const organiseGlobalFormPerceptionData = (submissions) => {
     }
   });
 
-  return principesGouvernance.value;
+  return organisedData;
 };
+
 const organisePreviewFormPerceptionData = (submissions) => {
   const organisedData = { principes_de_gouvernance: [] };
 
@@ -121,7 +122,7 @@ const organisePreviewFormPerceptionData = (submissions) => {
 function organiseUpdateFormGlobal(principeCurrent) {
   return principeCurrent.flatMap((principe) =>
     principe.questions_de_gouvernance.map((question) => ({
-      principe: principe.id,
+      principe: principe.categorieableId,
       indicateur: question.question_operationnelle.id,
     }))
   );
@@ -130,7 +131,8 @@ function organiseUpdateFormGlobal(principeCurrent) {
 function setKeyForUpdate(principeCurrent) {
   return principeCurrent.flatMap((principe) =>
     principe.questions_de_gouvernance.forEach((question) => {
-      uniqueKeys.set(question.question_operationnelle.id, true);
+      const key = generateKey(question.question_operationnelle.id + principe.categorieableId);
+      uniqueKeys.set(key, true);
     })
   );
 }
@@ -138,7 +140,7 @@ function organiseUpdateFormPreview(principeCurrent) {
   return principeCurrent.flatMap((principe) =>
     principe.questions_de_gouvernance.map((question) => ({
       principe: {
-        id: principe.id,
+        id: principe.categorieableId,
         nom: principe.nom,
       },
       indicateur: {
@@ -150,25 +152,39 @@ function organiseUpdateFormPreview(principeCurrent) {
 }
 
 function matchDataUpdateWithCurrentDatas(principeCurrent) {
+  
   globalFormPerceptionData.value = organiseUpdateFormGlobal(principeCurrent);
   previewFormPerceptionData.value = organiseUpdateFormPreview(principeCurrent);
+
+  localStorage.setItem("globalFormPerceptionData", JSON.stringify(globalFormPerceptionData.value));
+  localStorage.setItem("previewFormPerceptionData", JSON.stringify(previewFormPerceptionData.value));
+
   setKeyForUpdate(principeCurrent);
+
+  updateAllTypesGouvernance();
+  resetCurrentPreviewPerceptionFormData();
+  resetCurrentGlobalPerceptionFormData();
+  resetCurrentForm.value = !resetCurrentForm.value;
 }
-const resetCurrentPreviewFactuelFormData = () => {
-  for (const key in currentPreviewPerceptionFormData) {
-    currentPreviewPerceptionFormData[key] = { id: "", nom: "" };
-  }
-  // currentPreviewPerceptionFormData.indicateur = { id: "", nom: "" };
+const resetCurrentPreviewPerceptionFormData = () => {
+  /*
+    for (const key in currentPreviewPerceptionFormData) {
+      currentPreviewPerceptionFormData[key] = { id: "", nom: "" };
+    }
+  */
+  currentPreviewPerceptionFormData.indicateur = { id: "", nom: "" };
 };
-const resetCurrentGlobalFactuelFormData = () => {
-  Object.keys(currentGlobalPerceptionFormData).forEach((key) => {
-    currentGlobalPerceptionFormData[key] = "";
-  });
-  // currentGlobalPerceptionFormData.indicateur = "";
+const resetCurrentGlobalPerceptionFormData = () => {
+  /*
+    Object.keys(currentGlobalPerceptionFormData).forEach((key) => {
+      currentGlobalPerceptionFormData[key] = "";
+    });
+  */
+  currentGlobalPerceptionFormData.indicateur = "";
 };
 const resetAllForm = () => {
-  resetCurrentGlobalFactuelFormData();
-  resetCurrentPreviewFactuelFormData();
+  resetCurrentGlobalPerceptionFormData();
+  resetCurrentPreviewPerceptionFormData();
   resetOptions.value = !resetOptions.value;
   resetCurrentForm.value = !resetCurrentForm.value;
   globalOptionResponses.value.options_de_reponse = [];
@@ -181,6 +197,7 @@ const resetAllForm = () => {
 const updateAllTypesGouvernance = () => {
   globalPrincipesGouvernance.value = organiseGlobalFormPerceptionData(globalFormPerceptionData.value);
   previewPrincipesGouvernance.value = organisePreviewFormPerceptionData(previewFormPerceptionData.value);
+
   // console.log("GLOBAL", globalTypesGouvernance.value);
   // console.log("PREVIEW", previewTypesGouvernance.value);
 };
@@ -202,40 +219,91 @@ const getQuestion = (question) => {
 };
 
 const addNewIndicator = () => {
-  const key = generateKey(currentGlobalPerceptionFormData.indicateur);
+  
+  const key = generateKey(currentGlobalPerceptionFormData.indicateur + currentGlobalPerceptionFormData.principe);
 
   // Ajouter la soumission si la clé est absente
   if (!uniqueKeys.has(key)) {
     globalFormPerceptionData.value.unshift({ ...currentGlobalPerceptionFormData });
     previewFormPerceptionData.value.unshift(JSON.parse(JSON.stringify(currentPreviewPerceptionFormData)));
     uniqueKeys.set(key, true);
-    // console.log("global:", globalFormFactuelData.value);
-    // console.log("preview:", previewFormFactuelData.value);
+    localStorage.setItem("globalFormPerceptionData", JSON.stringify(globalFormPerceptionData.value));
+    localStorage.setItem("previewFormPerceptionData", JSON.stringify(previewFormPerceptionData.value));
+    
+    // console.log("global:", globalFormPerceptionData.value);
+    // console.log("preview:", previewFormPerceptionData.value);principe
     updateAllTypesGouvernance();
-    resetCurrentPreviewFactuelFormData();
-    resetCurrentGlobalFactuelFormData();
+    resetCurrentPreviewPerceptionFormData();
+    resetCurrentGlobalPerceptionFormData();
     resetCurrentForm.value = !resetCurrentForm.value;
-    toast.success("Indicateur ajouté.");
+    toast.success("Question operationnelle ajouté.");
   } else {
-    toast.info("Indicateur existant.");
+    toast.info("Question operationnelle existant.");
   }
 };
+
+const deplacerElement = (element, type = 'indicateur') => {
+  if(type == 'indicateur'){
+    globalFormPerceptionData.value.findIndex((s) => s.indicateur === element.id);
+  }
+  else if(type == 'critere'){
+    globalFormPerceptionData.value.findIndex((s) => s.critere === element.id);
+  }
+  else if(type == 'principe'){
+    globalFormPerceptionData.value.findIndex((s) => s.principe === element.id);
+  }
+  else if(type == 'type'){
+    globalFormPerceptionData.value.findIndex((s) => s.type === element.id);
+  }
+}
+
 const removeIndicator = (indicateur) => {
-  const key = generateKey(indicateur.id);
+  //const key = generateKey(indicateur.id);
   // Trouver l'index de la soumission à supprimer
   const index = globalFormPerceptionData.value.findIndex((s) => s.indicateur === indicateur.id);
+
   // Supprimer la soumission et sa clé si elle est trouvée
   if (index !== -1) {
     globalFormPerceptionData.value.splice(index, 1);
     previewFormPerceptionData.value.splice(index, 1);
+
+    const key = generateKey(index.indicateur + index.principe);
     uniqueKeys.delete(key);
     updateAllTypesGouvernance();
-
-    toast.success("Indicateur supprimé.");
-    // console.log("Nouvelle Global:", globalFormFactuelData.value);
-    // console.log("Nouvelle preview:", previewFormFactuelData.value);
+    localStorage.setItem("globalFormPerceptionData", JSON.stringify(globalFormPerceptionData.value));
+    localStorage.setItem("previewFormPerceptionData", JSON.stringify(previewFormPerceptionData.value));
+    toast.success("Question operationnelle supprimé.");
+    // console.log("Nouvelle Global:", globalFormPerceptionData.value);
+    // console.log("Nouvelle preview:", previewFormPerceptionData.value);
   }
 };
+
+const removeElement = (element, type = 'indicateur') => {
+  var index = -1;
+  if(type == 'critere'){
+    index = globalFormPerceptionData.value.findIndex((s) => s.critere === element.id);
+  }
+  else if(type == 'principe'){
+    index = globalFormPerceptionData.value.findIndex((s) => s.principe === element.id);
+  }
+  else if(type == 'type'){
+    index = globalFormPerceptionData.value.findIndex((s) => s.type === element.id);
+  }
+  
+  // Supprimer la soumission et sa clé si elle est trouvée
+  if (index !== -1) {
+    globalFormPerceptionData.value.splice(index, 1);
+    previewFormPerceptionData.value.splice(index, 1);
+    
+    updateAllTypesGouvernance();
+    localStorage.setItem("globalFormPerceptionData", JSON.stringify(globalFormPerceptionData.value));
+    localStorage.setItem("previewFormPerceptionData", JSON.stringify(previewFormPerceptionData.value));
+    toast.success(type + " supprimé.");
+    // console.log("Nouvelle Global:", globalFormPerceptionData.value);
+    // console.log("Nouvelle preview:", previewFormPerceptionData.value);
+  }
+};
+
 const clearUniqueKeys = () => {
   uniqueKeys.clear(); // Supprime toutes les clés de uniqueKeys
 };
@@ -270,11 +338,11 @@ const getOneForm = async () => {
 const updateForm = async () => {
   isLoadingForm.value = true;
 
-   
+  console.log(previewPrincipesGouvernance.value.principes_de_gouvernance);
 
   payload.perception.options_de_reponse = previewOptionResponses.value.options_de_reponse;
 
-  payload.perception.principes_de_gouvernance = previewPrincipesGouvernance.value.principes_de_gouvernance;
+  payload.perception.principes_de_gouvernance = globalPrincipesGouvernance.value.principes_de_gouvernance;
 
   // console.log(payload);
 
@@ -379,9 +447,49 @@ onMounted(async () => {
               </div>
               <div v-if="!isLoadingOneForm" class="space-y-2">
                 <p class="text-lg font-medium">Liste des questions opérationnelles</p>
-                <div class="max-h-[25vh] h-[25vh] py-2 border-t overflow-y-auto">
-                  <!-- <pre>{{ previewFormPerceptionData }}</pre> -->
-                  <ListAccordionQuestion :indicateurs-array="previewFormPerceptionData" @remove="removeIndicator" />
+                <div class="max-h-[75vh] h-[50vh] py-2 border-t overflow-y-auto">
+                  
+                  <!-- <ListAccordionQuestion :indicateurs-array="previewFormPerceptionData" @remove="removeIndicator" /> -->
+
+                  
+                  <table class="w-full my-10 border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
+                    <thead class="text-white bg-blue-900">
+                      <!-- First header row -->
+                      <tr>
+                        <th class="py-3 border border-slate-900">Principes</th>
+                        <th class="py-3 border border-slate-900">Indicateurs</th>
+                        <th class="py-3 border border-slate-900 max-w-[200px]">Actions</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      <template v-for="principe_de_gouvernance in previewPrincipesGouvernance.principes_de_gouvernance" :key="principe_de_gouvernance.id">
+                        <template v-for="(question_operationnelle, qIndex) in principe_de_gouvernance.questions_operationnelle" :key="question_operationnelle.id">
+                          <tr>
+                            <td class="font-semibold" v-if="qIndex === 0" :rowspan="principe_de_gouvernance.questions_operationnelle.length">
+                              {{ principe_de_gouvernance.nom }}
+                            </td>
+                                
+                            <td>
+                              {{ question_operationnelle.nom }}
+                            </td>
+                            
+                            <td>
+                              <div class="flex items-center">
+                                <button class="p-1.5 text-primary">
+                                  <Edit3Icon class="size-5" />
+                                </button>
+                                <button class="p-1.5 text-danger" @click="removeIndicator(question_operationnelle)">
+                                  <TrashIcon class="size-5" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        </template>
+                      </template>
+                    </tbody>
+                  </table>
+
                 </div>
                 <div class="flex justify-between py-2">
                   <button @click="goBackToCreate" class="px-5 text-base btn btn-primary"><ArrowLeftIcon class="mr-1 size-5" />Annuler les modifications</button>
@@ -396,6 +504,54 @@ onMounted(async () => {
       </TabGroup>
     </section>
   </div>
+
+  
+
+  <div v-if="!isLoadingOneForm" class="w-full">
+      <p class="text-lg font-medium">Prévisualisation du formulaire "{{ payload.libelle }}"</p>
+    
+      <table class="w-full my-10 border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
+        <thead class="text-white bg-blue-900">
+          <!-- First header row -->
+          <tr>
+            <th :rowspan="2" class="py-3 border border-slate-900">Principes</th>
+            <th :rowspan="2" class="py-3 border border-slate-900">Indicateurs</th>
+            <th :colspan="previewOptionResponses.options_de_reponse.length" class="py-3 border border-slate-900 text-center">
+              Réponses
+            </th>
+          </tr>
+          <!-- Second header row -->
+          <tr>
+            <template v-for="(option_de_reponse, idx) in previewOptionResponses.options_de_reponse" :key="option_de_reponse.id">
+              <th class="py-3 border border-slate-900 text-center">{{ option_de_reponse.libelle }}</th>
+            </template>
+          </tr>
+        </thead>
+
+        <tbody>
+          <template v-for="principe_de_gouvernance in previewPrincipesGouvernance.principes_de_gouvernance" :key="principe_de_gouvernance.id">
+            <template v-for="(question_operationnelle, qIndex) in principe_de_gouvernance.questions_operationnelle" :key="question_operationnelle.id">
+                  <tr>
+                    <td class="font-semibold" v-if="qIndex === 0" :rowspan="principe_de_gouvernance.questions_operationnelle.length">
+                      {{ principe_de_gouvernance.nom }}
+                    </td>
+                     
+                    <td>
+                      {{ question_operationnelle.nom }}
+                    </td>
+
+                    <template v-for="(option_de_reponse, optionIdx) in previewOptionResponses.options_de_reponse" :key="option_de_reponse.id">
+                      <td class="border border-slate-900 text-center">
+                        {{  }}
+                      </td>
+                    </template>
+                  </tr>
+          </template>
+          </template>
+        </tbody>
+      </table>
+  </div>
+  
   <!-- BEGIN: Modal Content -->
   <Modal backdrop="static" size="modal-xl" :show="modalForm" @hidden="modalForm = false">
     <ModalHeader>
@@ -419,7 +575,6 @@ onMounted(async () => {
         </div>
         <div class="max-h-[50vh] h-[50vh] overflow-y-auto">
           <p class="mb-3">Formulaire de perception</p>
-           
           <PreviewPerceptionForm :principes="previewPrincipesGouvernance.principes_de_gouvernance" />
         </div>
       </ModalBody>
@@ -445,5 +600,10 @@ onMounted(async () => {
 
 .Toastify__toast-container {
   z-index: 200000 !important;
+}
+table td {
+  border: 1px solid rgb(46, 46, 46);
+  padding-block: 8px;
+  padding-inline: 4px;
 }
 </style>

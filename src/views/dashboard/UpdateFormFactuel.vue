@@ -119,6 +119,7 @@ const organiseGlobalFormFactuelData = (submissions) => {
 
   return organisedData;
 };
+
 const organisePreviewFormFactuelData = (submissions) => {
   const organisedData = { types_de_gouvernance: [] };
 
@@ -250,7 +251,6 @@ function setKeyForUpdate(types) {
     type.categories_de_gouvernance.forEach((principe) => 
       principe.categories_de_gouvernance.forEach((critere) => 
         critere.questions_de_gouvernance.forEach((question) => {
-          
         const key = generateKey(question.indicateur_de_gouvernance.id + critere.categorieableId + principe.categorieableId + type.categorieableId);
 
           uniqueKeys.set(key, true);
@@ -369,7 +369,7 @@ const addNewIndicator = () => {
     resetCurrentForm.value = !resetCurrentForm.value;
     toast.success("Indicateur ajouté.");
   } else {
-    toast.info("Indicateur exisant.");
+    toast.info("Indicateur existant.");
   }
 };
 
@@ -393,12 +393,12 @@ const removeIndicator = (indicateur) => {
   // Trouver l'index de la soumission à supprimer
   const index = globalFormFactuelData.value.findIndex((s) => s.indicateur === indicateur.id);
 
-  const key = generateKey(index.indicateur + index.critere + index.principe + index.type);
-
   // Supprimer la soumission et sa clé si elle est trouvée
   if (index !== -1) {
     globalFormFactuelData.value.splice(index, 1);
     previewFormFactuelData.value.splice(index, 1);
+
+    const key = generateKey(index.indicateur + index.critere + index.principe + index.type);
     uniqueKeys.delete(key);
     updateAllTypesGouvernance();
     localStorage.setItem("globalFormFactuelData", JSON.stringify(globalFormFactuelData.value));
@@ -608,20 +608,13 @@ onMounted(async () => {
                         <th class="py-3 border border-slate-900">Principes</th>
                         <th class="py-3 border border-slate-900">Critères</th>
                         <th class="py-3 border border-slate-900">Indicateurs</th>
-                        <th class="py-3 border border-slate-900">
-                          Réponses <br/>(
-                          <template class="py-3 border border-slate-900" v-for="(options_de_reponse, idx) in previewOptionResponses.options_de_reponse" :key="options_de_reponse.id">
-                            {{ options_de_reponse.libelle }} {{ idx < (previewOptionResponses.options_de_reponse.length-1) ? ' / ' : '' }}
-                          </template>)
-                        </th>
-                        <th class="py-3 border border-slate-900">Source de <br/> validation</th>
                         <th class="py-3 border border-slate-900 max-w-[200px]">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       <template v-for="type_de_gouvernance in previewTypesGouvernance.types_de_gouvernance" :key="type_de_gouvernance.id">
                         <tr class="bg-green-100 list-data">
-                          <td colspan="5" class="font-semibold">{{ type_de_gouvernance.nom }}</td>
+                          <td colspan="3" class="font-semibold">{{ type_de_gouvernance.nom }}</td>
                           
                           <td class="items-center transition-all opacity-0 container-buttons">
                             <button class="p-1.5 text-primary">
@@ -663,8 +656,6 @@ onMounted(async () => {
                                   </div>
                                 </td>
                                 <td>{{ indicateur_de_gouvernance.nom }}</td>
-                                <td>{{ }}</td>
-                                <td>{{ }}</td>
                                 <td>
                                   <div class="flex items-center">
                                     <button class="p-1.5 text-primary">
@@ -695,7 +686,7 @@ onMounted(async () => {
                 <div class="flex justify-between py-2">
                   <button @click="goBackToCreate" class="px-5 text-base btn btn-primary"><ArrowLeftIcon class="mr-1 size-5" />Annuler les modifications</button>
 
-                  <button :disabled="!showForm" @click="updateForm" class="px-5 text-base btn btn-primary"><CheckIcon class="mr-1 size-5" />Enregistrer les modifications</button>
+                  <button :disabled="!showForm" :loading="isLoadingForm" @click="updateForm" class="px-5 text-base btn btn-primary"><CheckIcon class="mr-1 size-5" />Modifier le formumlaire</button>
 
                   <!-- <button :disabled="!showForm" @click="previewForm" class="px-5 text-base btn btn-primary"><CheckIcon class="mr-1 size-5" />Prévisualiser le formumlaire</button> -->
                 </div>
@@ -735,7 +726,7 @@ onMounted(async () => {
           <template v-for="type_de_gouvernance in previewTypesGouvernance.types_de_gouvernance" :key="type_de_gouvernance.id">
             <tr class="bg-green-100">
               <td colspan="7" class="font-semibold">{{ type_de_gouvernance.nom }}</td>
-            </tr>            
+            </tr>          
             <template v-for="principe_de_gouvernance in type_de_gouvernance.principes_de_gouvernance" :key="principe_de_gouvernance.id">
               <template v-for="(critere_de_gouvernance, scIndex) in principe_de_gouvernance.criteres_de_gouvernance" :key="critere_de_gouvernance.id">
                 <template v-for="(indicateur_de_gouvernance, qIndex) in critere_de_gouvernance.indicateurs_de_gouvernance" :key="indicateur_de_gouvernance.id">
