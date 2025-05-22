@@ -14,10 +14,11 @@ import { getAllErrorMessages } from "@/utils/gestion-error";
 import ListFormPerception from "@/components/create-form/ListFormPerception.vue";
 import ListOptionsResponse from "@/components/create-form/ListOptionsResponse.vue";
 import DeleteButton from "@/components/news/DeleteButton.vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { getFieldErrors } from "../../utils/helpers";
 
 const route = useRoute();
+const router = useRouter();
 const tabs = [
   {
     label: "FORMULAIRE DE PERCEPTION",
@@ -95,7 +96,9 @@ const organiseGlobalFormPerceptionData = (submissions) => {
 
     // Ajouter l'indicateur de gouvernance s'il n'est pas déjà présent
     if (!principe.questions_operationnelle.includes(submission.indicateur)) {
-      principe.questions_operationnelle.push(submission.indicateur);
+      
+      principe.questions_operationnelle.push({indicateur: submission.indicateur, key: submission.key});
+      //principe.questions_operationnelle.push(submission.indicateur);
     }
   });
 
@@ -116,7 +119,7 @@ const organisePreviewFormPerceptionData = (submissions) => {
     // Trouver ou créer l'indicateur de gouvernance
     let indicateur = principe.questions_operationnelle.find((i) => i.id === submission.indicateur.id);
     if (!indicateur) {
-      indicateur = { id: submission.indicateur.id, nom: submission.indicateur.nom };
+      indicateur = { id: submission.indicateur.id, nom: submission.indicateur.nom, key: submission.key };
       principe.questions_operationnelle.push(indicateur);
     }
   });
@@ -132,6 +135,7 @@ const resetCurrentPreviewFactuelFormData = () => {
   currentPreviewPerceptionFormDataArray.value = [];
   // currentPreviewPerceptionFormData.indicateur = { id: "", nom: "" };
 };
+
 const resetCurrentGlobalFactuelFormData = () => {
   Object.keys(currentGlobalPerceptionFormData).forEach((key) => {
     currentGlobalPerceptionFormData[key] = "";
@@ -168,14 +172,18 @@ const getPrincipe = (principe) => {
   changeIndexAccordion(1);
   currentGlobalPerceptionFormData.principe = principe.id;
 
+  console.log(currentGlobalPerceptionFormData);
+
   currentGlobalPerceptionFormDataArray.value.forEach((item) => {
     item.principe = currentGlobalPerceptionFormData.principe;
+    item.key = item.key + item.principe;
   });
 
   currentPreviewPerceptionFormData.principe = { id: principe.id, nom: principe.nom };
 
   currentPreviewPerceptionFormDataArray.value.forEach((item2) => {
     item2.principe = currentPreviewPerceptionFormData.principe;
+    item2.key = item2.key + item2.principe.id;
   });
 };
 
@@ -188,7 +196,8 @@ const getQuestion = (question) => {
   currentGlobalPerceptionFormData.indicateur = question.id;
 
   let form = {
-    principe: "",
+    key: question.id,
+    principe: currentGlobalPerceptionFormData?.principe,
     indicateur: question.id,
   };
 
@@ -199,7 +208,8 @@ const getQuestion = (question) => {
   currentPreviewPerceptionFormData.indicateur = { id: question.id, nom: question.nom };
 
   let form2 = {
-    principe: {
+    key: question.id,
+    principe: currentPreviewPerceptionFormData.principe ?? {
       id: "",
       nom: "",
     },
@@ -219,7 +229,7 @@ const addNewIndicator = () => {
   console.log("currentPreviewPerceptionFormDataArray.value", currentPreviewPerceptionFormDataArray.value);
 
   currentGlobalPerceptionFormDataArray.value.forEach((item, index) => {
-    const key = generateKey(item.indicateur);
+    const key = generateKey(item.indicateur + item.principe);
 
     if (!uniqueKeys.has(key)) {
       globalFormPerceptionData.value.unshift({ ...item });
@@ -244,32 +254,13 @@ const addNewIndicator = () => {
       toast.info("Indicateur exisant.");
     }
   });
-
-  // const key = generateKey(currentGlobalPerceptionFormData.indicateur);
-
-  // // Ajouter la soumission si la clé est absente
-  // if (!uniqueKeys.has(key)) {
-  //   console.log("{ ...currentGlobalPerceptionFormData }", { ...currentGlobalPerceptionFormData });
-
-  //   globalFormPerceptionData.value.unshift({ ...currentGlobalPerceptionFormData });
-  //   previewFormPerceptionData.value.unshift(JSON.parse(JSON.stringify(currentPreviewPerceptionFormData)));
-  //   uniqueKeys.set(key, true);
-  //   localStorage.setItem("globalFormPerceptionData", JSON.stringify(globalFormPerceptionData.value));
-  //   localStorage.setItem("previewFormPerceptionData", JSON.stringify(previewFormPerceptionData.value));
-
-  //   updateAllTypesGouvernance();
-  //   resetCurrentPreviewFactuelFormData();
-  //   resetCurrentGlobalFactuelFormData();
-  //   resetCurrentForm.value = !resetCurrentForm.value;
-  //   toast.success("Indicateur ajouté.");
-  // } else {
-  //   toast.info("Indicateur exisant.");
-  // }
 };
-const removeIndicator = (indicateur) => {
-  const key = generateKey(indicateur.id);
+
+const removeIndicator = (key) => {
+  //const key = generateKey(indicateur.id);
   // Trouver l'index de la soumission à supprimer
-  const index = globalFormPerceptionData.value.findIndex((s) => s.indicateur === indicateur.id);
+  //const index = globalFormPerceptionData.value.findIndex((s) => s.indicateur === indicateur.id);
+  const index = globalFormPerceptionData.value.findIndex((s) => s.key === key);
   // Supprimer la soumission et sa clé si elle est trouvée
   if (index !== -1) {
     globalFormPerceptionData.value.splice(index, 1);
@@ -294,6 +285,8 @@ const resetAllFormWithDataLocalStorage = () => {
   localStorage.removeItem("previewFormPerceptionData");
   localStorage.removeItem("previewOptionResponsesModel");
   localStorage.removeItem("globalOptionResponses");
+
+  updateAllTypesGouvernance();
   showDeleteForm.value = false;
   // toast.success("Formulaire supprimé.");
 };
@@ -341,6 +334,16 @@ const showForm = computed(() => {
   return globalFormPerceptionData.value.length > 0;
 });
 
+const goBackToFormList = function () {
+  resetAllFormWithDataLocalStorage();
+  router.push({ name: "create_form_perception" });
+};
+
+const comeBackToCreation = function () {
+  router.push({ name: "create_form_perception" });
+};
+
+
 onBeforeUnmount(() => {
   clearUniqueKeys();
 });
@@ -367,7 +370,8 @@ onMounted(() => {
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <OptionsResponse :reset-to="resetOptions" v-model:previewOptionResponses="previewOptionResponses" v-model:globalOptionResponses="globalOptionResponses" />
+            <OptionsResponse :reset-to="resetOptions" v-model:previewOptionResponses="previewOptionResponses"
+              v-model:globalOptionResponses="globalOptionResponses" />
           </AccordionPanel>
         </AccordionItem>
 
@@ -377,7 +381,8 @@ onMounted(() => {
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <QuestionsOperationnel :to-reset="resetCurrentForm" :is-available="isAvailable.indicateur" @selected="getQuestion" />
+            <QuestionsOperationnel :to-reset="resetCurrentForm" :is-available="isAvailable.indicateur"
+              @selected="getQuestion" />
           </AccordionPanel>
         </AccordionItem>
 
@@ -387,7 +392,8 @@ onMounted(() => {
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <PrincipeGouvernance :to-reset="resetCurrentForm" :is-available="isAvailable.principe" @selected="getPrincipe" />
+            <PrincipeGouvernance :to-reset="resetCurrentForm" :is-available="isAvailable.principe"
+              @selected="getPrincipe" />
           </AccordionPanel>
         </AccordionItem>
       </AccordionGroup>
@@ -396,11 +402,14 @@ onMounted(() => {
     <section class="w-[70%] pt-5">
       <TabGroup :selectedIndex="currentTab">
         <TabList class="nav-boxed-tabs">
-          <Tab @click="currentTab = tab.key" v-for="(tab, indexTab) in tabs" :key="indexTab" class="w-full py-2" tag="button">{{ tab.label }}</Tab>
+          <Tab @click="currentTab = tab.key" v-for="(tab, indexTab) in tabs" :key="indexTab" class="w-full py-2"
+            tag="button">{{ tab.label }}</Tab>
         </TabList>
         <TabPanels class="mt-5">
           <TabPanel class="leading-relaxed">
-            <div v-if="currentPreviewPerceptionFormData.indicateur.nom !== ''" class="flex items-end justify-end"><button @click="showDeleteForm = true" class="btn btn-outline-danger">Supprimer le formulaire</button></div>
+            <div v-if="currentPreviewPerceptionFormData.indicateur.nom !== ''" class="flex items-end justify-end">
+              <button @click="showDeleteForm = true" class="btn btn-outline-danger">Supprimer le formulaire</button>
+            </div>
             <div class="flex flex-col gap-8">
               <div class="space-y-2">
                 <p class="text-lg font-medium">Liste des options de réponses</p>
@@ -409,16 +418,80 @@ onMounted(() => {
               <div class="space-y-2">
                 <p class="text-lg font-medium">Ajouter des questions opérationnelles</p>
 
-                <PerceptionStructureMultiple :principe="currentPreviewPerceptionFormData.principe.nom" :indicateurArray="currentPreviewPerceptionFormDataArray.length > 0 ? currentPreviewPerceptionFormDataArray : undefined" />
-                <button :disabled="!isCurrentFormValid" @click="addNewIndicator" class="my-4 text-sm btn btn-primary"><PlusIcon class="mr-1 size-4" />Ajouter</button>
+                <PerceptionStructureMultiple :principe="currentPreviewPerceptionFormData.principe.nom"
+                  :indicateurArray="currentPreviewPerceptionFormDataArray.length > 0 ? currentPreviewPerceptionFormDataArray : undefined" />
+                <button :disabled="!isCurrentFormValid" @click="addNewIndicator" class="my-4 text-sm btn btn-primary">
+                  <PlusIcon class="mr-1 size-4" />Ajouter
+                </button>
               </div>
               <div class="space-y-2">
-                <p class="text-lg font-medium">Liste des questions opérationnelles</p>
-                <div class="max-h-[25vh] h-[25vh] py-2 border-t overflow-y-auto">
-                  <ListAccordionQuestion :indicateurs-array="previewFormPerceptionData" @remove="removeIndicator" />
+                <div class="flex justify-between items-center py-2">
+                  <p class="text-lg font-medium">Constitution du Formulaire </p>
+                  
+                  <div class="flex justify-spacely py-2"  v-if="previewPrincipesGouvernance?.principes_de_gouvernance?.length">
+                    <button :disabled="!showForm" @click="previewForm" class="mr-5 px-5 text-base btn btn-primary">
+                      <CheckIcon class="mr-1 size-5" />Enregistrer
+                    </button>
+                    <button :disabled="!showForm" @click="previewForm" class="px-5 text-base btn btn-primary">
+                      <EyeIcon class="mr-1 size-5" />Voir le formumlaire
+                    </button>
+                  </div>
                 </div>
-                <div class="flex justify-start py-2">
-                  <button :disabled="!showForm" @click="previewForm" class="px-5 text-base btn btn-primary"><CheckIcon class="mr-1 size-5" />Prévisualiser le formumlaire</button>
+                <div class="max-h-[75vh] py-2 border-t overflow-y-auto mb-10 mt-2">
+                  <table class="w-full border-collapse table-auto border-slate-500" cellpadding="10"
+                    cellspacing="0">
+                    <thead class="text-white bg-blue-900">
+                      <!-- First header row -->
+                      <tr>
+                        <th class="py-3 border border-slate-900">Principes</th>
+                        <th class="py-3 border border-slate-900">Indicateurs</th>
+                        <th class="py-3 border border-slate-900 max-w-[200px]">Actions</th>
+                      </tr>
+                    </thead>
+
+                    <tbody v-if="previewPrincipesGouvernance?.principes_de_gouvernance?.length">
+                      <template v-for="principe_de_gouvernance in previewPrincipesGouvernance.principes_de_gouvernance"
+                        :key="principe_de_gouvernance.id">
+                        <template
+                          v-for="(question_operationnelle, qIndex) in principe_de_gouvernance.questions_operationnelle"
+                          :key="question_operationnelle.id">
+                          <tr>
+                            <td class="font-semibold" v-if="qIndex === 0"
+                              :rowspan="principe_de_gouvernance.questions_operationnelle.length">
+                              {{ principe_de_gouvernance.nom }}
+                            </td>
+
+                            <td>
+                              {{ question_operationnelle.nom }}
+                            </td>
+
+                            <td>
+                              <div class="flex items-center">
+                                <button class="p-1.5 text-primary">
+                                  <Edit3Icon class="size-5" />
+                                </button>
+                                <button class="p-1.5 text-danger" @click="removeIndicator(question_operationnelle.key)">
+                                  <TrashIcon class="size-5" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        </template>
+                      </template>
+                    </tbody>
+                    <tbody v-else>
+                      <tr class="bg-transparent text-center">
+                        <td colspan="3" class="font-semibold">Constituer le formulaire de perception</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <!-- <div class="max-h-[25vh] h-[25vh] py-2 border-t overflow-y-auto">
+                  <ListAccordionQuestion :indicateurs-array="previewFormPerceptionData" @remove="removeIndicator" />
+                </div> -->
+                <div class="flex justify-between py-2 my-2 items-center">
+                  <button @click="goBackToFormList" class="px-5 text-base btn btn-danger"><ArrowLeftIcon class="mr-1 size-5" />Annuler la creation</button>
+                  <button @click="comeBackToCreation" class="px-5 text-base btn btn-primary"><RotateCcwIcon class="mr-1 size-5" />Revenir pour continuer la creation</button>
                 </div>
               </div>
             </div>
@@ -430,33 +503,89 @@ onMounted(() => {
       </TabGroup>
     </section>
   </div>
+
+  <div v-if="!isLoadingForm && previewPrincipesGouvernance?.principes_de_gouvernance?.length" class="w-full my-10">
+    <p class="text-lg font-medium">Prévisualisation du formulaire de perception</p>
+
+    <table class="w-full mt-5 border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
+      <thead class="text-white bg-blue-900">
+        <!-- First header row -->
+        <tr>
+          <th :rowspan="2" class="py-3 border border-slate-900">Principes</th>
+          <th :rowspan="2" class="py-3 border border-slate-900">Indicateurs</th>
+          <th :colspan="previewOptionResponses.options_de_reponse.length"
+            class="py-3 border border-slate-900 text-center">
+            Réponses
+          </th>
+        </tr>
+        <!-- Second header row -->
+        <tr>
+          <template v-for="(option_de_reponse, idx) in previewOptionResponses.options_de_reponse"
+            :key="option_de_reponse.id">
+            <th class="py-3 border border-slate-900 text-center">{{ option_de_reponse.libelle }}</th>
+          </template>
+        </tr>
+      </thead>
+
+      <tbody>
+        <template v-for="principe_de_gouvernance in previewPrincipesGouvernance.principes_de_gouvernance"
+          :key="principe_de_gouvernance.id">
+          <template v-for="(question_operationnelle, qIndex) in principe_de_gouvernance.questions_operationnelle"
+            :key="question_operationnelle.id">
+            <tr>
+              <td class="font-semibold" v-if="qIndex === 0"
+                :rowspan="principe_de_gouvernance.questions_operationnelle.length">
+                {{ principe_de_gouvernance.nom }}
+              </td>
+
+              <td>
+                {{ question_operationnelle.nom }}
+              </td>
+
+              <template v-for="(option_de_reponse, optionIdx) in previewOptionResponses.options_de_reponse"
+                :key="option_de_reponse.id">
+                <td class="border border-slate-900 text-center">
+                  {{ }}
+                </td>
+              </template>
+            </tr>
+          </template>
+        </template>
+      </tbody>
+    </table>
+  </div>
   <!-- BEGIN: Modal Content -->
-  <Modal backdrop="static" size="modal-xl" :show="modalForm" @hidden="modalForm = false">
+  <!-- size="modal-xl"  -->
+  <Modal backdrop="static" :show="modalForm" @hidden="modalForm = false">
     <ModalHeader>
       <h2 class="mr-auto text-base font-medium">Enregistrer le formulaire</h2>
     </ModalHeader>
     <form @submit.prevent="createForm">
       <ModalBody class="space-y-5">
-        <div class="flex gap-4">
-          <InputForm label="Libellé" class="w-full" :control="getFieldErrors(errors.libelle)" v-model="payload.libelle" />
+       <!--  <div class="flex gap-4"></div> -->
+        <div class="gap-4">
+          <InputForm label="Libellé" class="w-full mb-4" :control="getFieldErrors(errors.libelle)"
+            v-model="payload.libelle" />
           <div class="w-full">
             <label for="annee" class="form-label">Année<span class="text-danger">*</span> </label>
-            <input id="annee" type="number" required v-model.number="payload.annee_exercice" class="form-control" placeholder="Année" />
+            <input id="annee" type="number" required v-model.number="payload.annee_exercice" class="form-control"
+              placeholder="Année" />
             <div v-if="errors.annee_exercice" class="mt-2 text-danger">{{ getFieldErrors(errors.annee_exercice) }}</div>
           </div>
         </div>
         <div>
           <p class="mb-3">Options de réponses</p>
           <ListOptionsResponse :options="previewOptionResponses.options_de_reponse" />
-        </div>
+        </div><!-- 
         <div class="max-h-[50vh] h-[50vh] overflow-y-auto">
           <p class="mb-3">Formulaire de perception</p>
           <PreviewPerceptionForm :principes="previewPrincipesGouvernance.principes_de_gouvernance" />
-        </div>
+        </div> -->
       </ModalBody>
       <ModalFooter>
         <div class="flex gap-2">
-          <button type="button" @click="resetErrors" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
+          <button type="button" @click="resetErrors"
+            class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
           <VButton :loading="isLoadingForm" label="Enregistrer" />
         </div>
       </ModalFooter>
