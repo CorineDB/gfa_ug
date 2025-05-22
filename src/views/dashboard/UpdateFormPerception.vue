@@ -56,14 +56,14 @@ const isAvailable = reactive({
 });
 
 const goBackToCreate = function () {
-  resetAllFormWithDataLocalStorage();
-  router.push({ name: "create_form_perception" });
+  resetAllFormWithDataLocalStorage();/* 
+  router.push({ name: "create_form_perception" }); */
   router.push({ name: "Ajouter_un_formulaire_Perception" });
 };
 
 
-const comeBackToUpdate = function () {
-  router.push({ name: "create_form_perception" });
+const comeBackToUpdate = function () {/* 
+  router.push({ name: "create_form_perception" }); */
   router.push({ name: "Ajouter_un_formulaire_Perception" });
 };
 
@@ -225,19 +225,77 @@ const changeIndexAccordion = (index) => {
 const getPrincipe = (principe) => {
   changeIndexAccordion(1);
   currentGlobalPerceptionFormData.principe = principe.id;
+
+  console.log(currentGlobalPerceptionFormData);
+
+  currentGlobalPerceptionFormDataArray.value.forEach((item) => {
+    item.principe = currentGlobalPerceptionFormData.principe;
+    item.key = item.key + item.principe;
+  });
+
   currentPreviewPerceptionFormData.principe = { id: principe.id, nom: principe.nom };
+
+  currentPreviewPerceptionFormDataArray.value.forEach((item2) => {
+    item2.principe = currentPreviewPerceptionFormData.principe;
+    item2.key = item2.key + item2.principe.id;
+  });
 };
 
 const getQuestion = (question) => {
-  changeIndexAccordion(2);
+  console.log("question", question);
+  // changeIndexAccordion(2);
   currentGlobalPerceptionFormData.indicateur = question.id;
+
+  let form = {
+    key: question.id,
+    principe: currentGlobalPerceptionFormData?.principe,
+    indicateur: question.id,
+  };
+
+  currentGlobalPerceptionFormDataArray.value.push(form);
+
+  console.log("currentGlobalPerceptionFormDataArray.value", currentGlobalPerceptionFormDataArray.value);
+
   currentPreviewPerceptionFormData.indicateur = { id: question.id, nom: question.nom };
+
+  let form2 = {
+    key: question.id,
+    principe: currentPreviewPerceptionFormData.principe ?? {
+      id: "",
+      nom: "",
+    },
+    indicateur: {
+      id: question.id,
+      nom: question.nom,
+    },
+  };
+  currentPreviewPerceptionFormDataArray.value.push(form2);
+
+  console.log("currentPreviewPerceptionFormDataArray.value", currentPreviewPerceptionFormDataArray.value);
 };
+
+
+/*
+  const getPrincipe = (principe) => {
+    changeIndexAccordion(1);
+    currentGlobalPerceptionFormData.principe = principe.id;
+    currentPreviewPerceptionFormData.principe = { id: principe.id, nom: principe.nom };
+  };
+*/
+
+/* 
+  const getQuestion = (question) => {
+    changeIndexAccordion(2);
+    currentGlobalPerceptionFormData.indicateur = question.id;
+    currentPreviewPerceptionFormData.indicateur = { id: question.id, nom: question.nom };
+  };
+*/
 
 const addNewIndicator = () => {
   console.log("currentGlobalPerceptionFormDataArray.value", currentGlobalPerceptionFormDataArray.value);
 
   console.log("currentPreviewPerceptionFormDataArray.value", currentPreviewPerceptionFormDataArray.value);
+
 
   currentGlobalPerceptionFormDataArray.value.forEach((item, index) => {
     const key = generateKey(item.indicateur + item.principe);
@@ -255,8 +313,8 @@ const addNewIndicator = () => {
       updateAllTypesGouvernance();
 
       if (index === currentGlobalPerceptionFormDataArray.value.length - 1) {
-        resetCurrentPreviewFactuelFormData();
-        resetCurrentGlobalFactuelFormData();
+        resetCurrentPreviewPerceptionFormData();
+        resetCurrentGlobalPerceptionFormData();
         resetCurrentForm.value = !resetCurrentForm.value;
       }
 
@@ -267,7 +325,7 @@ const addNewIndicator = () => {
   });
   
   //currentGlobalPerceptionFormDataArray.value.forEach((item, index) => {
-    const key = generateKey(currentGlobalPerceptionFormData.indicateur + currentGlobalPerceptionFormData.principe);
+    //const key = generateKey(currentGlobalPerceptionFormData.indicateur + currentGlobalPerceptionFormData.principe);
 
     // Ajouter la soumission si la clé est absente
     /* if (!uniqueKeys.has(key)) {
@@ -588,10 +646,10 @@ onMounted(async () => {
     </section>
   </div>
 
-  <div v-if="!isLoadingOneForm" class="w-full">
+  <div v-if="!isLoadingOneForm" class="w-full my-10">
     <p class="text-lg font-medium">Prévisualisation du formulaire "{{ payload.libelle }}"</p>
 
-    <table class="w-full my-10 border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
+    <table class="w-full mt-5 border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
       <thead class="text-white bg-blue-900">
         <!-- First header row -->
         <tr>
@@ -640,14 +698,16 @@ onMounted(async () => {
   </div>
 
   <!-- BEGIN: Modal Content -->
-  <Modal backdrop="static" size="modal-xl" :show="modalForm" @hidden="modalForm = false">
+  <!-- size="modal-xl"  -->
+  <Modal backdrop="static" :show="modalForm" @hidden="modalForm = false">
     <ModalHeader>
       <h2 class="mr-auto text-base font-medium">Enregistrer le formulaire</h2>
     </ModalHeader>
     <form @submit.prevent="updateForm">
       <ModalBody class="space-y-5">
-        <div class="flex gap-4">
-          <InputForm label="Libellé" class="w-full" v-model="payload.libelle" />
+       <!--  <div class="flex gap-4"></div> -->
+        <div class="gap-4">
+          <InputForm label="Libellé" class="w-full mb-4" v-model="payload.libelle" />
           <div class="w-full">
             <label for="annee" class="form-label">Année</label>
             <!-- <input id="annee" type="number" required v-model.number="payload.annee_exercice" class="form-control" placeholder="Année" /> -->
@@ -659,11 +719,11 @@ onMounted(async () => {
         <div>
           <p class="mb-3">Options de réponses</p>
           <ListOptionsResponse :options="previewOptionResponses.options_de_reponse" />
-        </div>
+        </div><!-- 
         <div class="max-h-[50vh] h-[50vh] overflow-y-auto">
           <p class="mb-3">Formulaire de perception</p>
           <PreviewPerceptionForm :principes="previewPrincipesGouvernance.principes_de_gouvernance" />
-        </div>
+        </div> -->
       </ModalBody>
       <ModalFooter>
         <div class="flex gap-2">

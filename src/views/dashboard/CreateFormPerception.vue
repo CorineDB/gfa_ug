@@ -67,13 +67,16 @@ const payload = reactive({
 });
 
 const currentPreviewPerceptionFormData = reactive({
-  principe: { id: "", nom: "" },
-  indicateur: { id: "", nom: "" },
+  principe: { id: "", nom: "", position: 0 },
+  indicateur: { id: "", nom: "", position: 0},
+  key: "",
 });
 
 const currentGlobalPerceptionFormData = reactive({
   principe: "",
   indicateur: "",
+  key: "",
+  position: 0
 });
 
 const resetErrors = () => {
@@ -130,27 +133,31 @@ const organisePreviewFormPerceptionData = (submissions) => {
   return organisedData;
 };
 
-const resetCurrentPreviewFactuelFormData = () => {
-  for (const key in currentPreviewPerceptionFormData) {
-    currentPreviewPerceptionFormData[key] = { id: "", nom: "" };
-  }
+const resetCurrentPreviewPerceptionFormData = () => {
+  /* for (const key in currentPreviewPerceptionFormData) {
+    currentPreviewPerceptionFormData[key] = { id: "", nom: "" , position: 0 };
+  } */
+
+  currentPreviewPerceptionFormData.principe = { id: "", nom: "" , position: 0 };
+  currentPreviewPerceptionFormData.indicateur = { id: "", nom: "" , position: 0 };
+  currentPreviewPerceptionFormData.key = "";
 
   currentPreviewPerceptionFormDataArray.value = [];
-  // currentPreviewPerceptionFormData.indicateur = { id: "", nom: "" };
+
+  console.log(currentPreviewPerceptionFormData);
+  console.log(currentPreviewPerceptionFormDataArray.value);
 };
 
-const resetCurrentGlobalFactuelFormData = () => {
+const resetCurrentGlobalPerceptionFormData = () => {
   Object.keys(currentGlobalPerceptionFormData).forEach((key) => {
     currentGlobalPerceptionFormData[key] = "";
   });
 
   currentGlobalPerceptionFormDataArray.value = [];
-
-  // currentGlobalPerceptionFormData.indicateur = "";
 };
 const resetAllForm = () => {
-  resetCurrentGlobalFactuelFormData();
-  resetCurrentPreviewFactuelFormData();
+  resetCurrentGlobalPerceptionFormData();
+  resetCurrentPreviewPerceptionFormData();
   resetOptions.value = !resetOptions.value;
   resetCurrentForm.value = !resetCurrentForm.value;
   globalOptionResponses.value.options_de_reponse = [];
@@ -177,16 +184,24 @@ const getPrincipe = (principe) => {
 
   console.log(currentGlobalPerceptionFormData);
 
-  currentGlobalPerceptionFormDataArray.value.forEach((item) => {
+  
+  const counter = new Set(currentGlobalPerceptionFormDataArray.value.map(p => p.principe)).size;
+
+  console.log(counter);
+
+  currentGlobalPerceptionFormDataArray.value.forEach((item, index) => {
     item.principe = currentGlobalPerceptionFormData.principe;
-    item.key = item.key + item.principe;
+    item.key = item?.indicateur + item.principe;
+    item.position = currentGlobalPerceptionFormDataArray.value.length - index;
   });
 
-  currentPreviewPerceptionFormData.principe = { id: principe.id, nom: principe.nom };
+  currentPreviewPerceptionFormData.principe = { id: principe.id, nom: principe.nom, position: 1 };
 
-  currentPreviewPerceptionFormDataArray.value.forEach((item2) => {
+  currentPreviewPerceptionFormDataArray.value.forEach((item2, index) => {
     item2.principe = currentPreviewPerceptionFormData.principe;
-    item2.key = item2.key + item2.principe.id;
+    item2.key = item2?.indicateur?.id + item2.principe.id;
+    item2.key = key;
+    item2.position = currentPreviewPerceptionFormDataArray.value.length - index;
   });
 };
 
@@ -198,29 +213,35 @@ const getQuestion = (question) => {
   // changeIndexAccordion(2);
   currentGlobalPerceptionFormData.indicateur = question.id;
 
+  const key = currentGlobalPerceptionFormData?.principe != "" ? question.id + currentGlobalPerceptionFormData?.principe : currentGlobalPerceptionFormData?.indicateur;
+
   let form = {
-    key: question.id,
+    key: key,
     principe: currentGlobalPerceptionFormData?.principe,
     indicateur: question.id,
+    position: currentGlobalPerceptionFormDataArray.value.length + 1
   };
 
   currentGlobalPerceptionFormDataArray.value.push(form);
 
   console.log("currentGlobalPerceptionFormDataArray.value", currentGlobalPerceptionFormDataArray.value);
 
-  currentPreviewPerceptionFormData.indicateur = { id: question.id, nom: question.nom };
+  currentPreviewPerceptionFormData.indicateur = { id: question.id, nom: question.nom, position: 1 };
 
   let form2 = {
-    key: question.id,
+    key: key,
     principe: currentPreviewPerceptionFormData.principe ?? {
       id: "",
       nom: "",
+      position: 0
     },
     indicateur: {
       id: question.id,
       nom: question.nom,
+      position: currentPreviewPerceptionFormDataArray.value.length + 1
     },
   };
+
   currentPreviewPerceptionFormDataArray.value.push(form2);
 
   console.log("currentPreviewPerceptionFormDataArray.value", currentPreviewPerceptionFormDataArray.value);
@@ -247,8 +268,8 @@ const addNewIndicator = () => {
       updateAllTypesGouvernance();
 
       if (index === currentGlobalPerceptionFormDataArray.value.length - 1) {
-        resetCurrentPreviewFactuelFormData();
-        resetCurrentGlobalFactuelFormData();
+        resetCurrentPreviewPerceptionFormData();
+        resetCurrentGlobalPerceptionFormData();
         resetCurrentForm.value = !resetCurrentForm.value;
       }
 
@@ -331,6 +352,7 @@ const previewForm = () => {
 
 const isCurrentFormValid = computed(() => {
   return Object.values(currentPreviewPerceptionFormData).every((value) => value.id.trim() !== "");
+  return Object.values(currentPreviewPerceptionFormData).every((value) => value.id.trim() !== "");
 });
 
 const showForm = computed(() => {
@@ -339,11 +361,11 @@ const showForm = computed(() => {
 
 const goBackToFormList = function () {
   resetAllFormWithDataLocalStorage();
-  router.push({ name: "create_form_perception" });
+  router.push({ name: "Ajouter_un_formulaire_Perception" });
 };
 
 const comeBackToCreation = function () {
-  router.push({ name: "create_form_perception" });
+  router.push({ name: "Ajouter_un_formulaire_Perception" });
 };
 
 
