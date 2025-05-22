@@ -20,8 +20,12 @@ import FondsService from "@/services/modules/fond.service";
 const router = useRouter();
 
 const types = [
-  { label: "OSC", id: "osc" },
+  
   { label: "OSC FOSIR", id: "osc_fosir" },
+  { label: "OSC Partenaire", id: "osc_partenaire" },
+  { label: "Autre OSC", id: "autre_osc" },
+  { label: "Acteurs", id: "acteurs" },
+  { label: "Structures étatiques", id: "structure_etatique" },
 ];
 
 const steps = [
@@ -504,7 +508,7 @@ onMounted(() => {
                   </TomSelect>
                   <div v-if="errors.type" class="mt-2 text-danger">{{ getFieldErrors(errors.type) }}</div>
                 </div>
-                <div v-if="payload.type !== 'osc' && payload.type !== ''">
+                <div v-if="payload.type == 'osc_fosir' && payload.type !== ''">
                   <label class="form-label">Fonds <span class="text-danger">*</span> </label>
                   <TomSelect v-model="payload.fondId" :options="{ placeholder: 'Selectionez  un fond' }" class="w-full">
                     <option value=""></option>

@@ -16,6 +16,9 @@ import ListOptionsResponse from "@/components/create-form/ListOptionsResponse.vu
 import DeleteButton from "@/components/news/DeleteButton.vue";
 import { useRoute, useRouter } from "vue-router";
 import { getFieldErrors } from "../../utils/helpers";
+import { useYearsStore } from "@/stores/years";
+
+const yearsStore = useYearsStore();
 
 const route = useRoute();
 const router = useRouter();
@@ -568,8 +571,10 @@ onMounted(() => {
             v-model="payload.libelle" />
           <div class="w-full">
             <label for="annee" class="form-label">Année<span class="text-danger">*</span> </label>
-            <input id="annee" type="number" required v-model.number="payload.annee_exercice" class="form-control"
-              placeholder="Année" />
+            <TomSelect v-model="payload.annee_exercice" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+              <option v-for="(year, index) in yearsStore.getYears" :key="index" :value="year">{{ year }}</option>
+            </TomSelect>
+            <!-- <input id="annee" type="number" required v-model.number="payload.annee_exercice" class="form-control" placeholder="Année" /> -->
             <div v-if="errors.annee_exercice" class="mt-2 text-danger">{{ getFieldErrors(errors.annee_exercice) }}</div>
           </div>
         </div>

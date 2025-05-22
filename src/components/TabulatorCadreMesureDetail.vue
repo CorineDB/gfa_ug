@@ -4,7 +4,6 @@
   </div>
   <div class="table-container">
     <div ref="tableWrapper" class="table-wrapper">
-      
       <table class="w-full max-w-full my-2 border-collapse editor_listing_table border-slate-500" cellpadding="6" cellspacing="0">
         <thead class="text-white bg-blue-600">
           <tr>
@@ -126,14 +125,15 @@
     <form @submit.prevent="submitSuivi">
       <ModalBody>
         <div class="grid grid-cols-1 gap-5">
-          <!-- <div class="flex-1">
+          <div class="flex-1">
             <label class="form-label">Année de suivi</label>
             <TomSelect v-model.number="payloadSuivi.annee" name="annee_suivi" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
               <option value=""></option>
               <option v-for="annee in years" :key="annee" :value="annee">{{ annee }}</option>
             </TomSelect>
-          </div> -->
-          <InputForm label="Année de suivi" class="flex-1" v-model="payloadSuivi.annee" :control="getFieldErrors(errors.annee)" type="number" />
+          </div>
+          <div v-if="getFieldErrors(errors.annee)" class="mt-2 text-danger">{{ getFieldErrors(errors.annee) }}</div>
+          <!-- <InputForm label="Année de suivi" class="flex-1" v-model="payloadSuivi.annee" :control="getFieldErrors(errors.annee)" type="number" /> -->
           <div v-if="!isAgregerCurrentIndicateur" class="flex flex-wrap items-center justify-between gap-3">
             <InputForm label="Valeur cible" class="flex-1" v-model="payloadSuivi.valeurCible" :control="getFieldErrors(errors.valeurCible)" type="number" />
             <InputForm label="Valeur réalisée" class="flex-1" v-model="payloadSuivi.valeurRealise" :control="getFieldErrors(errors.valeurRealise)" type="number" />

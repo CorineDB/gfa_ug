@@ -91,17 +91,17 @@ export const useSimpleMenuStore = defineStore("simpleMenu", {
     outils: {
       icon: "FileTextIcon",
       pageName: "projets",
-      title: "Outils de collecte",
+      title: "Auto Evaluation Gouvernance",
       subMenu: [],
     },
     creationFactuel: {
       icon: "SettingsIcon",
-      pageName: "create_form_factuel",
+      pageName: "Ajouter_un_formulaire_Factuel",
       title: "Création Formulaire Factuel",
     },
     creationPerception: {
       icon: "SettingsIcon",
-      pageName: "create_form_perception",
+      pageName: "Ajouter_un_formulaire_Perception",
       title: "Création Formulaire de Perception",
     },
     programmationEnquete: {

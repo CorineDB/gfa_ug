@@ -297,7 +297,7 @@ onMounted(async () => {
 <template>
   <div class="flex justify-between mt-4 items-center">
     <h2 class="text-lg font-medium intro-y">Soumissions par organisations</h2>
-    <button class="btn btn-primary" @click="router.go(-1)">Retour <CornerDownLeftIcon class="w-4 h-4 ml-2" /></button>
+    <button class="btn btn-primary" @click="router.push({ name: 'Évaluations & Résulats' })">Retour <CornerDownLeftIcon class="w-4 h-4 ml-2" /></button>
   </div>
 
   <div class="grid grid-cols-12 gap-6 mt-1">
@@ -499,7 +499,7 @@ onMounted(async () => {
         <div class="flex flex-col items-center w-full gap-8">
           <div class="flex justify-center w-full p-3">
             <div class="w-full max-w-full box">
-              <p class="p-3 text-lg font-medium">Résultats synthetique par année fs</p>
+              <p class="p-3 text-lg font-medium">Résultats synthetique par année</p>
               <div class="!w-[250px] p-3">
                 <label class="form-label">Organisation</label>
                 <TomSelect name="organisations" v-model="ongSelectedScore" @change="changeOrganisationScore" :options="{ placeholder: 'Selectionez une organisation' }">

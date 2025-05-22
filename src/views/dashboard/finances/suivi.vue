@@ -13,6 +13,13 @@ import AuthService from "@/services/modules/auth.service";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { helper as $h } from "@/utils/helper";
+import SuiviFinancier from "@/services/modules/suiviFinancier.service";
+import ActiviteService from "@/services/modules/activite.service";
+import PlanDeCaissement from "@/services/modules/plan.decaissement.service";
+import PlanDeDecaissementService from "@/services/modules/plan.decaissement.service";
+
+// import SuiviFinancierService from "@/services/modules/suiviFinancier.service";
+// import SuiviFinancierService from "@/services/modules/suiviFinancier.service";
 
 // Ajout de plan de décaissement
 
@@ -56,38 +63,92 @@ const removePlanDeDecaissement = function (index) {
   planDeDecaissement.value.splice(index, 1);
 };
 
-const planDeDecaissementActivite = function () {
+const planDeDecaissementActivite = async function () {
   loadingPlanDeDecaissement.value = true;
 
-  console.log(planDeDecaissement.value);
+  let errorIndex = [];
 
   for (let index = 0; index < planDeDecaissement.value.length; index++) {
-    storePlanDecaissement(planDeDecaissement.value[index])
-      .then((response) => {
-        showModalPlanDeDecaissement.value = false;
-        loadingPlanDeDecaissement.value = false;
+    let plan = listePlanDeDecaissement.value.filter((plan) => plan.annee == planDeDecaissement.value[index].annee && plan.trimestre == planDeDecaissement.value[index].trimestre);
 
-        toast.success("Plan de decaissement enrégistré avec succès");
-        if (index === planDeDecaissement.value.length - 1) {
-          planDeDecaissement.value = [];
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-        loadingPlanDeDecaissement.value = false;
-        // Mettre à jour les messages d'erreurs dynamiquement
-        if (error.response && error.response.data && error.response.data.errors.length > 0) {
-          erreurPlanDeDecaissement.value = error.response.data.errors;
-          toast.error("Une erreur s'est produite dans votre formualaire");
-        } else {
-          toast.error(error.response.data.message);
-        }
-      });
+    const action = plan.length > 0 ? PlanDeCaissement.update(plan[0].id, planDeDecaissement.value[index]) : PlanDeDecaissementService.create(planDeDecaissement.value[index]);
+
+    try {
+      await action;
+
+      toast.success(`Plan  de decaissement n° ${index + 1} enrégistré avec succès`);
+
+      errorIndex.push(index);
+
+      if (index === planDeDecaissement.value.length - 1) {
+        showModalPlanDeDecaissement.value = false;
+
+        setTimeout(() => {
+          this.planDeDecaissement = [];
+        }, 500);
+      }
+    } catch (error) {
+      loadingPlanDeDecaissement.value = false;
+
+      // Mettre à jour les messages d'erreurs dynamiquement
+      if (error.response && error.response.data && error.response.data.errors.length > 0) {
+        erreurPlanDeDecaissement.value = error.response.data.errors;
+        toast.error("Une erreur s'est produite dans votre formualaire");
+      } else {
+        toast.error(`Plan ${index + 1} : ${error.response.data.message}`);
+      }
+    } finally {
+      loadingPlanDeDecaissement.value = false;
+      getListePlanDeDecaissement(planDeDecaissement.value[0].activiteId);
+    }
+
+    if (planDeDecaissement.value.length > 0) {
+      if (errorIndex.length > 0) {
+        errorIndex.forEach((item) => {
+          removePlan(item);
+        });
+      }
+    }
   }
+};
+
+const loaderListePlan = ref(false);
+
+const listePlanDeDecaissement = ref([]);
+
+const getListePlanDeDecaissement = (id) => {
+  loaderListePlan.value = true;
+
+  ActiviteService.plansDeDecaissement(id)
+    .then((data) => {
+      loaderListePlan.value = false;
+      //console.log(data.data.data);
+      listePlanDeDecaissement.value = data.data.data;
+
+      // console.log("listePlanDeDecaissement.value", listePlanDeDecaissement);
+    })
+    .catch((error) => {
+      loaderListePlan.value = false;
+      //console.log(error);
+    });
 };
 
 const ouvrirModalPlanDeDecaissementActivite = function (data) {
   console.log(data);
+
+  planDeDecaissement.value = [];
+
+  const newItem = {
+    activiteId: data.activite.id,
+    trimestre: this.getCurrentQuarter(),
+    annee: new Date().getFullYear(),
+    budgetNational: 0,
+    pret: 0,
+    id: Date.now() + "-" + Math.random().toString(36).substr(2, 9),
+  };
+
+  getListePlanDeDecaissement(data.activite.id);
+
   showModalPlanDeDecaissement.value = true;
   planDeDecaissementPayload.value.activiteId = data.activite.id;
   planDeDecaissement.value.push(planDeDecaissementPayload.value);
@@ -387,10 +448,72 @@ const openCreateModal = () => {
 //   return Math.ceil(month / 3); // Calcul du trimestre actuel
 // };
 
+const loaderListeSuivi = ref(false);
+const listeSuivi = ref([]);
+const tableauListeSuivi = ref([]);
+
+const filterSuiviFinancierActiviteParAnnee = async function (id, payload, index) {
+  loaderListeSuivi.value = true;
+
+  await SuiviFinancier.getSuiviByActivite(id, payload)
+    .then((data) => {
+      loaderListeSuivi.value = false;
+
+      console.log(data.data.data);
+
+      listeSuivi.value = data.data.data;
+
+      tableauListeSuivi.value[index] = listeSuivi.value;
+
+      console.log("tableauListeSuivi.value", tableauListeSuivi.value);
+    })
+    .catch((error) => {
+      loaderListeSuivi.value = false;
+      //console.log(error);
+    });
+};
+
+const miseAjourTabSuivi = function (id, payLoad, index) {
+  console.log("payLoad.length", payLoad.length);
+  console.log("index", index);
+
+  let taille = payLoad.length;
+
+  console.log("tableauListeSuivi[index]", tableauListeSuivi.value[index]);
+
+  let form = {
+    trimestre: taille < 2 ? payLoad : suiviFinancier.value[index].trimestre,
+    annee: taille > 1 ? payLoad : suiviFinancier.value[index].annee,
+  };
+
+  console.log("form", form);
+
+  filterSuiviFinancierActiviteParAnnee(id, form, index);
+};
+
 const ouvrirModalSuiviFinancierActivite = (item) => {
+  suiviFinancier.value = [];
+  console.log(item);
+  const newItem = {
+    activiteId: item.activite.id,
+    trimestre: getCurrentQuarter(),
+    annee: new Date().getFullYear(),
+    consommer: 0,
+    id: Date.now() + "-" + Math.random().toString(36).substr(2, 9),
+  };
+
+  let payLoad = {
+    trimestre: getCurrentQuarter(),
+    annee: new Date().getFullYear(),
+  };
+
+  console.log("item.id", item.activiteId);
+
+  filterSuiviFinancierActiviteParAnnee(item.activite.id, payLoad, 0);
+
   suiviFinancierPayload.activiteId = item.activite.id;
   suiviFinancierPayload.trimestre = getCurrentQuarter();
-  suiviFinancier.value.push(suiviFinancierPayload);
+  suiviFinancier.value.push(newItem);
   showModalSuiviFinancier.value = true;
 };
 
@@ -398,41 +521,118 @@ const resetModalSuiviFinancierActivite = (item) => {
   suiviFinancier.value = [];
   showModalSuiviFinancier.value = false;
 };
-
 const addPlan = () => {
-  // suiviFinancierPayload.type = parseInt(suiviFinancierPayload.type);
+  const newItem = {
+    activiteId: planDeDecaissementPayload.value.activiteId,
+    trimestre: 1, // Trimestre actuel
+    annee: new Date().getFullYear(), // Set current year as default
+    budgetNational: 0,
+    pret: 0,
+    id: Date.now() + "-" + Math.random().toString(36).substr(2, 9),
+  };
+  planDeDecaissement.value.push(newItem);
+};
 
-  suiviFinancier.value.push(suiviFinancierPayload);
+const addSuivi = function () {
+  const newItem = {
+    activiteId: suiviFinancier.value[0].activiteId,
+    trimestre: getCurrentQuarter(),
+    annee: new Date().getFullYear(),
+    consommer: 0,
+
+    id: Date.now() + "-" + Math.random().toString(36).substr(2, 9),
+  };
+  suiviFinancier.value.push(newItem);
+
+  let payLoad = {
+    trimestre: getCurrentQuarter(),
+    annee: new Date().getFullYear(),
+  };
+
+  console.log("suiviFinancierPayload.id", suiviFinancierPayload.id);
+
+  console.log("suiviFinancier.value.length - 1", suiviFinancier.value.length - 1);
+
+  filterSuiviFinancierActiviteParAnnee(suiviFinancier.value[0].activiteId, payLoad, suiviFinancier.value.length - 1);
 };
 
 const removePlan = (index) => {
   suiviFinancier.value.splice(index, 1);
 };
 
-const suiviFinancierActivite = () => {
+const removeSuivi = (index) => {
+  suiviFinancier.value.splice(index, 1);
+};
+
+const suiviFinancierActivite = async () => {
   loadingSuiviFinancier.value = true;
 
-  for (let index = 0; index < suiviFinancier.value.length; index++) {
-    SuiviFinancierService.create(suiviFinancier.value[index])
-      .then(() => {
-        loadingSuiviFinancier.value = false;
-        toast.success("Suivi Financier créer.");
-        resetModalSuiviFinancierActivite();
-        showModalSuiviFinancier.value = false;
-        getDatas();
-      })
-      .catch((error) => {
-        console.log(error);
-        loadingSuiviFinancier.value = false;
+  let errorIndex = [];
 
-        // Mettre à jour les messages d'erreurs dynamiquement
-        if (error.response && error.response.data && error.response.data.errors.length > 0) {
-          erreurSuiviFinancier.value.value = error.response.data.errors;
-          toast.error("Une erreur s'est produite dans le formulaire");
-        } else {
-          toast.error(error.response.data.message);
-        }
-      });
+  console.log("suiviFinancier.value.length", suiviFinancier.value.length);
+
+  for (let index = 0; index < suiviFinancier.value.length; index++) {
+    console.log("tableauListeSuivi.value", tableauListeSuivi.value);
+
+    console.log("suiviFinancier.value[index]", suiviFinancier.value[index]);
+
+    let suivi = tableauListeSuivi.value.filter((suivi) => suivi.annee == suiviFinancier.value[index].annee && suivi.trimestre == suiviFinancier.value[index].trimestre);
+
+    console.log("suivi", suivi);
+
+    console.log("suivi.length", suivi.length);
+
+    // console.log("suivi[0]?.id", suivi[0]?.id);
+
+    const action = suivi.length > 0 ? SuiviFinancier.update(suivi[0]?.id, suiviFinancier.value[index]) : SuiviFinancierService.create(suiviFinancier.value[index]);
+
+    try {
+      await action;
+
+      toast.success(`Suivi financier n° ${index + 1} enrégistré avec succès`);
+
+      errorIndex.push(index);
+
+      console.log("index === suiviFinancier.value.length - 1", index === suiviFinancier.value.length - 1);
+
+      if (index === suiviFinancier.value.length - 1) {
+        showModalSuiviFinancier = false;
+
+        setTimeout(() => {
+          planDeDecaissement = [];
+        }, 500);
+      }
+
+      // getDatas();
+      // getDatasCadre();
+      // resetForm();
+    } catch (error) {
+      console.log("error", error);
+
+      loadingSuiviFinancier.value = false;
+
+      // Mettre à jour les messages d'erreurs dynamiquement
+      if (error.response && error.response.data && error.response.data.errors.length > 0) {
+        erreurSuiviFinancier = error.response.data.errors;
+        toast.error("Une erreur s'est produite dans votre formualaire");
+      } else {
+        toast.error(`Suivi ${index + 1} : ${error.response.data.message}`);
+      }
+    } finally {
+      loadingSuiviFinancier.value = false;
+      // getListePlanDeDecaissement(suiviFinancier.value[0].activiteId);
+    }
+
+    if (suiviFinancier.value.length > 0) {
+      console.log("suiviFinancier.value", suiviFinancier.value);
+
+      if (errorIndex.length > 0) {
+        console.log("errorIndex", errorIndex);
+        errorIndex.forEach((item) => {
+          removeSuivi(item);
+        });
+      }
+    }
   }
 };
 
@@ -473,15 +673,8 @@ const resetFilterModal = () => {
 };
 
 onMounted(() => {
-  // var anneeActuelle = new Date().getFullYear() + 5;
-  // let i = 0;
-  // for (var annee = 2016; annee <= anneeActuelle; annee++) {
-  //   i++;
-  //   years.value.push({ nom: `${annee}` });
-  // }
-
   getDatas();
-  // getactivites(new Date().getFullYear());
+
   getcurrentUser();
 });
 </script>
@@ -648,18 +841,41 @@ onMounted(() => {
 
     <form @submit.prevent="planDeDecaissementActivite">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
-        <div v-for="(plan, index) in planDeDecaissement" :key="index" class="col-span-12 border-b pb-4 mb-4">
+        <div v-for="(plan, index) in planDeDecaissement" :key="plan.id" class="col-span-12 border-b pb-4 mb-4">
           <h3 class="text-sm font-medium mb-2">Plan {{ index + 1 }}</h3>
 
-          <InputForm v-model="plan.annee" :min="2000" class="col-span-12" type="number" :required="true" placeHolder="Saisissez l'année" label="Saisissez l'année de décaissement" />
+          <div class="col-span-12 mt-3">
+            <label class="form-label">Année</label>
+            <TomSelect v-model="plan.annee" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+              <option v-for="(year, index) in years" :key="index" :value="year">{{ year }}</option>
+            </TomSelect>
+            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurSuiviFinancier?.[index]?.trimestre">
+              {{ erreurPlanDeDecaissement[index].trimestre }}
+            </p>
+          </div>
+
+          <!-- <InputForm v-model="plan.annee" :min="2000" class="col-span-12" type="number" :required="true" placeHolder="Saisissez l'année" label="Saisissez l'année de décaissement" />
           <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.annee">
             {{ erreurPlanDeDecaissement[index].annee }}
-          </p>
+          </p> -->
 
-          <InputForm v-model="plan.trimestre" :min="1" :max="4" class="col-span-12" type="number" :required="true" placeHolder="Sélectionnez le trimestre" label="Sélectionnez le trimestre" />
+          <div class="w-full mt-3">
+            <label class="form-label">Sélectionnez le trimestre</label>
+            <TomSelect v-model="plan.trimestre" :options="{ placeholder: 'Selectionez le trimestre' }" class="w-full">
+              <option value="1">Trimestre 1</option>
+              <option value="2">Trimestre 2</option>
+              <option value="3">Trimestre 3</option>
+              <option value="4">Trimestre 4</option>
+            </TomSelect>
+            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurSuiviFinancier?.[index]?.trimestre">
+              {{ erreurPlanDeDecaissement[index].trimestre }}
+            </p>
+          </div>
+
+          <!-- <InputForm v-model="plan.trimestre" :min="1" :max="4" class="col-span-12" type="number" :required="true" placeHolder="Sélectionnez le trimestre" label="Sélectionnez le trimestre" />
           <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.trimestre">
             {{ erreurPlanDeDecaissement[index].trimestre }}
-          </p>
+          </p> -->
 
           <InputForm v-model="plan.budgetNational" :min="0" class="col-span-12" type="number" :required="true" placeHolder="Saisissez le fond propre" label="Saisissez le fond propre" />
           <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.budgetNational">
@@ -672,23 +888,30 @@ onMounted(() => {
           </p>
 
           <button type="button" @click="removePlan(index)" class="mt-2 text-red-600 text-sm underline">Supprimer ce plan</button>
-        </div>
 
-        <button type="button" @click="addPlan" class="col-span-12 btn btn-outline-primary">Ajouter un autre plan</button>
+          <div class="col-span-12" v-if="getPlageActivite">
+            <div class="flex items-center mt-2" v-for="(plage, t) in getPlageActivite.durees" :key="t">
+              <ClockIcon class="w-4 h-4 mr-2" />
+              <div>
+                Plage de date {{ getPlageActivite.durees.length + 1 }} : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(getPlageActivite.durees[getPlageActivite.durees.length - 1].debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(getPlageActivite.durees[getPlageActivite.durees.length - 1].fin) }}</span>
+              </div>
+            </div>
+          </div>
 
-        <div class="col-span-12" v-if="getPlageActivitePlan">
-          <div class="flex items-center mt-2">
+          <div v-if="getPlageProjet" class="flex items-center mt-2 col-span-12">
             <ClockIcon class="w-4 h-4 mr-2" />
             <div>
-              Durée de l'activité : Du <span class="px-1 font-bold"> {{ $h.reformatDate(getPlageActivitePlan.activite.debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(getPlageActivitePlan.activite.fin) }}</span>
+              Durée du projet : Du <span class="px-1 font-bold"> {{ $h.reformatDate(getPlageProjet.debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(getPlageProjet.fin) }}</span>
             </div>
           </div>
         </div>
+
+        <button type="button" @click="addPlan" class="col-span-12 btn btn-outline-primary">Ajouter un autre plan</button>
       </ModalBody>
       <ModalFooter>
         <div class="flex items-center justify-center">
           <button type="button" @click="showModalPlanDeDecaissement = false" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
-          <VButton class="inline-block" label="Enregistrer" :loading="loadingPlanDeDecaissement" :type="submit" />
+          <VButton class="inline-block" label="Enregistrer" :loading="loadingPlanDeDecaissement" :type="submit" :disabled="loaderListePlan" />
         </div>
       </ModalFooter>
     </form>
@@ -718,39 +941,60 @@ onMounted(() => {
     <form @submit.prevent="suiviFinancierActivite">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
         <pre>{{ suiviFinancier }}</pre>
-        <div v-for="(plan, index) in suiviFinancier" :key="index" class="col-span-12 border-b pb-4 mb-4">
+        <div v-for="(suivi, index) in suiviFinancier" :key="index" class="col-span-12 border-b pb-4 mb-4">
           <h3 class="text-sm font-medium mb-3">Plan {{ index + 1 }}</h3>
 
-
-
           <div class="">
-            <InputForm label="Consommé" v-model="plan.consommer" type="number" />
+            <InputForm label="Consommé" v-model="suivi.consommer" type="number" />
 
             <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurSuiviFinancier?.[index]?.consommer">
               {{ erreurSuiviFinancier[index].consommer }}
             </p>
           </div>
 
-          <div class="mt-5">
-            <InputForm v-model="plan.trimestre" :min="1" :max="4" class="col-span-12" type="number" :required="true" :disabled="true" placeHolder="Sélectionnez le trimestre" label="Sélectionnez le trimestre" />
+          <!-- <div class="mt-5">
+            <InputForm v-model="suivi.trimestre" :min="1" :max="4" class="col-span-12" type="number" :required="true" :disabled="true" placeHolder="Sélectionnez le trimestre" label="Sélectionnez le trimestre" />
+            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurSuiviFinancier?.[index]?.trimestre">
+              {{ erreurSuiviFinancier[index].trimestre }}
+            </p>
+          </div> -->
+
+          <div class="w-full mt-3">
+            <label class="form-label">Sélectionnez le trimestre</label>
+            <TomSelect v-model="suivi.trimestre" :options="{ placeholder: 'Selectionez le trimestre' }" class="w-full" @change="miseAjourTabSuivi(suivi.activiteId, suivi.trimestre, index)">
+              <option value="1">Trimestre 1</option>
+              <option value="2">Trimestre 2</option>
+              <option value="3">Trimestre 3</option>
+              <option value="4">Trimestre 4</option>
+            </TomSelect>
             <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurSuiviFinancier?.[index]?.trimestre">
               {{ erreurSuiviFinancier[index].trimestre }}
             </p>
           </div>
 
-          <div class="mt-5">
-            <InputForm v-model="plan.annee" :min="2000" class="col-span-12" type="number" :required="true" :disabled="true" placeHolder="Saisissez l'année" label="Saisissez l'année de décaissement" />
+          <!-- <div class="mt-5">
+            <InputForm v-model="suivi.annee" :min="2000" class="col-span-12" type="number" :required="true" :disabled="true" placeHolder="Saisissez l'année" label="Saisissez l'année de décaissement" />
             <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurSuiviFinancier?.[index]?.annee">
               {{ erreurSuiviFinancier[index].annee }}
+            </p>
+          </div> -->
+
+          <div class="col-span-12 mt-3">
+            <label class="form-label">Année</label>
+            <TomSelect v-model="suivi.annee" :options="{ placeholder: 'Selectionez une année' }" class="w-full" @change="miseAjourTabSuivi(suivi.activiteId, suivi.annee, index)">
+              <option v-for="(year, index) in years" :key="index" :value="year">{{ year }}</option>
+            </TomSelect>
+            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurSuiviFinancier?.[index]?.trimestre">
+              {{ erreurSuiviFinancier[index].trimestre }}
             </p>
           </div>
 
           <!-- <pre>getPlageActivite :{{ getPlageActivite.activite }}</pre> -->
 
-          <button type="button" @click="removePlan(index)" class="mt-2 text-red-600 text-sm underline">Supprimer ce suivi</button>
+          <button type="button" @click="removeSuivi(index)" class="mt-2 text-red-600 text-sm underline">Supprimer ce suivi</button>
         </div>
 
-        <button type="button" @click="addPlan" class="col-span-12 btn btn-outline-primary">Ajouter un autre suivi</button>
+        <button type="button" @click="addSuivi" class="col-span-12 btn btn-outline-primary">Ajouter un autre suivi</button>
 
         <div class="col-span-12" v-if="getPlageActivite">
           <div class="flex items-center mt-2">

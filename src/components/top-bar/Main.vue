@@ -1,5 +1,6 @@
 <template>
   <!-- BEGIN: Top Bar -->
+
   <div class="top-bar">
     <!-- toast notification -->
     <Notification refKey="successNotification" :options="{ duration: 3000 }" class="flex">
@@ -14,20 +15,12 @@
     <!-- toast notification -->
     <!-- BEGIN: Breadcrumb -->
 
-
     <Breadcrumb />
-    <!-- <nav aria-label="breadcrumb" class="hidden mr-auto -intro-x sm:flex">
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="#">Application</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
-      </ol>
-    </nav> -->
 
     <!-- BEGIN: Account Menu -->
 
-    <!-- <router-link to="/files"> <FolderPlusIcon class="w-6 h-6 mr-4" title="Ajouter des fichiers" /> </router-link> -->
+    <!-- <pre>{{ yearsStore.getYears }}</pre> -->
 
-    <!-- <p class="px-2 font-medium">{{ currentUsers.nom }}</p> -->
     <Dropdown class="w-8 h-8 intro-x">
       <DropdownToggle tag="div" role="button" class="dropdown-toggle image-fit zoom-in">
         <div class="flex items-center justify-center w-8 h-8 bg-blue-400 rounded-full shadow-lg cursor-pointer">
@@ -68,13 +61,52 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, provide } from "vue";
+import { ref, reactive, onMounted, provide, computed } from "vue";
 import { useAuthStore } from "@/stores/modules/authentification";
 import AuthentificationService from "@/services/modules/auth.service";
 import { useRouter, useRoute } from "vue-router";
 import { API_BASE_URL } from "@/services/configs/environment";
 import Breadcrumb from "../Breadcrumb.vue";
 import { toast } from "vue3-toastify";
+import AuthService from "@/services/modules/auth.service";
+import { useYearsStore } from "@/stores/years";
+
+//Store years
+const yearsStore = useYearsStore();
+const debutProgramme = ref("");
+const finProgramme = ref("");
+
+const getcurrentUser = async () => {
+  await AuthService.getCurrentUser()
+    .then((result) => {
+      debutProgramme.value = result.data.data.programme.debut;
+      finProgramme.value = result.data.data.programme.fin;
+
+      years();
+    })
+    .catch((e) => {
+      console.error(e);
+      toast.error("Une erreur est survenue: Utilisateur connecté .");
+    });
+};
+
+const years = () => {
+  let anneeDebut = parseInt(`${debutProgramme.value.split("-")[0]}`);
+  let anneeFin = parseInt(`${finProgramme.value.split("-")[0]}`);
+  let annees = [];
+  for (let annee = anneeDebut; annee <= anneeFin; annee++) {
+    if (annee <= new Date().getFullYear()) {
+      annees.push(annee);
+    }
+  }
+
+  // console.log("annees", annees);
+  yearsStore.setYears(annees);
+  console.log(yearsStore.getYears);
+  return annees;
+};
+
+//fin store years
 const router = useRouter();
 const route = useRoute();
 const searchDropdown = ref(false);
@@ -100,12 +132,14 @@ const usersProfileImage = ref("");
 onMounted(() => {
   const usersInfo = JSON.parse(localStorage.getItem("authenticateUser"));
 
+  getcurrentUser();
+
   // console.log('usersInfo' , usersInfo)
 
   if (usersInfo) {
     // usersProfileImage.value = API_BASE_URL + usersInfo.users.profil
-     currentUsers.nom = usersInfo.nom
-   // currentUsers.nom = "test";
+    currentUsers.nom = usersInfo.nom;
+    // currentUsers.nom = "test";
     // currentUsers.prenom = usersInfo.users.prenom
     currentUsers.role = usersInfo.role[0].nom;
     //  + currentUsers.prenom[0]
@@ -120,6 +154,7 @@ const logout = () => {
   localStorage.removeItem("bsdInfo");
   localStorage.removeItem("access_token");
   localStorage.removeItem("authenticateUser");
+  localStorage.clear();
   toast.success("Vous êtes déconnecté");
   setTimeout(() => {
     router.push("/");

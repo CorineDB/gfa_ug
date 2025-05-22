@@ -54,8 +54,6 @@ const uniqueKeys = new Map();
 const globalData = localStorage.getItem("globalFormFactuelData");
 const previewData = localStorage.getItem("previewFormFactuelData");
 
-
-
 const extractMessage = function (errorArray) {
   return Array.isArray(errorArray) && errorArray.length > 0 ? errorArray[0] : "";
 };
@@ -248,7 +246,7 @@ const getType = (type) => {
   currentPreviewFactuelFormData.type = { id: type.id, nom: type.nom };
 };
 const getPrincipe = (principe) => {
-  changeIndexAccordion(4);
+  changeIndexAccordion(2);
   currentGlobalFactuelFormData.principe = principe.id;
   currentPreviewFactuelFormData.principe = { id: principe.id, nom: principe.nom };
 };
@@ -258,7 +256,7 @@ const getCritere = (critere) => {
   currentPreviewFactuelFormData.critere = { id: critere.id, nom: critere.nom };
 };
 const getIndicateur = (indicateur) => {
-  changeIndexAccordion(2);
+  changeIndexAccordion(4);
   currentGlobalFactuelFormData.indicateur = indicateur.id;
   currentPreviewFactuelFormData.indicateur = { id: indicateur.id, nom: indicateur.nom };
 };
@@ -391,31 +389,11 @@ onMounted(() => {
       <AccordionGroup :selectedIndex="indexAccordion" class="space-y-1">
         <AccordionItem class="">
           <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
-            <p>Options de réponses</p>
+            <p>Type de gouvernance</p>
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <OptionsResponse :is-reset="resetOptions" v-model:previewOptionResponses="previewOptionResponses" v-model:globalOptionResponses="globalOptionResponses" />
-          </AccordionPanel>
-        </AccordionItem>
-
-        <AccordionItem>
-          <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
-            <p>Indicateurs de gouvernance</p>
-            <ChevronDownIcon />
-          </Accordion>
-          <AccordionPanel class="p-2">
-            <IndicateurGouvernance :to-reset="resetCurrentForm" :is-available="isAvailable.indicateur" @selected="getIndicateur" />
-          </AccordionPanel>
-        </AccordionItem>
-
-        <AccordionItem class="">
-          <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
-            <p>Critères de gouvernance</p>
-            <ChevronDownIcon />
-          </Accordion>
-          <AccordionPanel class="p-2">
-            <CritereGouvernance :to-reset="false" :is-available="isAvailable.critere" @selected="getCritere" />
+            <TypeGouvernance :to-reset="false" :is-available="isAvailable.type" @selected="getType" />
           </AccordionPanel>
         </AccordionItem>
 
@@ -431,11 +409,31 @@ onMounted(() => {
 
         <AccordionItem class="">
           <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
-            <p>Type de gouvernance</p>
+            <p>Critères de gouvernance</p>
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <TypeGouvernance :to-reset="false" :is-available="isAvailable.type" @selected="getType" />
+            <CritereGouvernance :to-reset="false" :is-available="isAvailable.critere" @selected="getCritere" />
+          </AccordionPanel>
+        </AccordionItem>
+
+        <AccordionItem>
+          <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
+            <p>Indicateurs de gouvernance</p>
+            <ChevronDownIcon />
+          </Accordion>
+          <AccordionPanel class="p-2">
+            <IndicateurGouvernance :to-reset="resetCurrentForm" :is-available="isAvailable.indicateur" @selected="getIndicateur" />
+          </AccordionPanel>
+        </AccordionItem>
+
+        <AccordionItem class="">
+          <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
+            <p>Options de réponses</p>
+            <ChevronDownIcon />
+          </Accordion>
+          <AccordionPanel class="p-2">
+            <OptionsResponse :is-reset="resetOptions" :factuel="true" v-model:previewOptionResponses="previewOptionResponses" v-model:globalOptionResponses="globalOptionResponses" />
           </AccordionPanel>
         </AccordionItem>
       </AccordionGroup>
@@ -455,7 +453,7 @@ onMounted(() => {
                 <ListOptionsResponse :options="previewOptionResponses.options_de_reponse" />
               </div>
               <div class="space-y-2">
-                <pre>{{ currentPreviewFactuelFormData.indicateur.nom }}</pre>
+                <!-- <pre>{{ currentPreviewFactuelFormData.indicateur.nom }}</pre> -->
                 <p class="text-lg font-medium">Ajouter des indicateurs</p>
                 <FactuelStructure :type="currentPreviewFactuelFormData.type.nom" :principe="currentPreviewFactuelFormData.principe.nom" :critere="currentPreviewFactuelFormData.critere.nom" :indicateur="currentPreviewFactuelFormData.indicateur.nom" />
                 <button :disabled="!isCurrentFormValid" @click="addNewIndicator" class="my-4 text-sm btn btn-primary"><PlusIcon class="mr-1 size-4" />Ajouter</button>

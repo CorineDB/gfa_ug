@@ -17,6 +17,9 @@ import ListOptionsResponse from "@/components/create-form/ListOptionsResponse.vu
 import DeleteButton from "@/components/news/DeleteButton.vue";
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
 import { useRoute, useRouter } from "vue-router";
+import { useYearsStore } from "@/stores/years";  
+
+const yearsStore = useYearsStore();
 
 const route = useRoute();
 const router = useRouter();
@@ -55,11 +58,13 @@ const isAvailable = reactive({
 const goBackToCreate = function () {
   resetAllFormWithDataLocalStorage();
   router.push({ name: "create_form_perception" });
+  router.push({ name: "Ajouter_un_formulaire_Perception" });
 };
 
 
 const comeBackToUpdate = function () {
   router.push({ name: "create_form_perception" });
+  router.push({ name: "Ajouter_un_formulaire_Perception" });
 };
 
 const payload = reactive({
@@ -405,7 +410,7 @@ const updateForm = async () => {
     clearUniqueKeys();
     resetAllForm();
     modalForm.value = false;
-    router.push({ name: "create_form_perception", query: { tab: 1 } });
+    router.push({ name: "Ajouter_un_formulaire_Perception", query: { tab: 1 } });
   } catch (e) {
     toast.error(getAllErrorMessages(e));
     console.log(e);
@@ -645,8 +650,10 @@ onMounted(async () => {
           <InputForm label="Libellé" class="w-full" v-model="payload.libelle" />
           <div class="w-full">
             <label for="annee" class="form-label">Année</label>
-            <input id="annee" type="number" required v-model.number="payload.annee_exercice" class="form-control"
-              placeholder="Année" />
+            <!-- <input id="annee" type="number" required v-model.number="payload.annee_exercice" class="form-control" placeholder="Année" /> -->
+            <TomSelect v-model="payload.annee_exercice" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+              <option v-for="(year, index) in yearsStore.getYears" :key="index" :value="year">{{ year }}</option>
+            </TomSelect>
           </div>
         </div>
         <div>

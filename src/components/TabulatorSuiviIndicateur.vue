@@ -1,10 +1,11 @@
 <template>
   <div class="flex justify-end my-1">
-    <ExportationSuiviIndicateur :datas="data" :years="years" />
+    <ExportationSuiviIndicateur :datas="data" :years="years" class="mr-3" />
+    <button @click="generatePDF" class="btn btn-primary text-left">Télécharger PDF</button>
   </div>
   <div class="overflow-x-auto table-container">
     <div ref="tableWrapper" class="table-wrapper">
-      <table class="w-full max-w-full my-10 bg-white border-collapse editor_listing_table border-slate-500" cellpadding="6" cellspacing="0">
+      <table id="my-table5" class="w-full max-w-full my-10 bg-white border-collapse editor_listing_table border-slate-500" cellpadding="6" cellspacing="0">
         <thead class="text-white border-white bg-primary">
           <tr>
             <th rowspan="2" class="py-3 border border-white min-w-[500px] sticky-column">Indicateurs</th>
@@ -115,6 +116,18 @@ import { toast } from "vue3-toastify";
 import { getAllErrorMessages } from "@/utils/gestion-error";
 import { findColorCadreMesure } from "../utils/findColorIndicator";
 import ExportationSuiviIndicateur from "./news/ExportationSuiviIndicateur.vue";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+
+//generer pdf
+const generatePDF = () => {
+  const doc = new jsPDF({ orientation: "landscape", format: "a0" });
+  autoTable(doc, { html: "#my-table5" });
+
+  doc.text("Suivi indicateur", 10, 10);
+
+  doc.save("suivi_indicateur.pdf");
+};
 
 const props = defineProps({
   data: Array,

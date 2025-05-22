@@ -135,26 +135,29 @@
                 <span v-if="pta.isTache" class="text-sm text-red-600"> {{ pta.nom }}</span>
               </td>
               <!-- Fond propre -->
-              <td v-if="pta.bn != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
-                <span class="font-bold"> {{ $h.formatCurrency(pta.bn) }} </span>
+              <!-- v-if="pta.bn != ''" -->
+              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+                <span class="font-bold">{{ pta.bn == null || pta.bn == 0 ? 0 : $h.formatCurrency(pta.bn) }} </span>
               </td>
-              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300 font-bold" v-else>0</td>
+              <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300 font-bold" v-else>0</td> -->
 
               <!-- Montant financé -->
-              <td v-if="pta.pret" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
-                <span class="font-bold"> {{ $h.formatCurrency(pta.pret) }} </span>
+              <!-- v-if="pta.pret" -->
+              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+                <span class="font-bold"> {{ pta.pret == null || pta.pret == 0 ? 0 : $h.formatCurrency(pta.pret) }}</span>
               </td>
-              <td v-else class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300 font-bold">0</td>
+              <!-- <td v-else class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300 font-bold">0</td> -->
 
               <!-- Dépenses -->
-              <td v-if="pta.depenses" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
-                <span class="font-bold"> {{ $h.formatCurrency(pta.depenses) }} </span>
+              <!-- v-if="pta.depenses" -->
+              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+                <span class="font-bold"> {{ pta.depenses == null || pta.depenses == 0 ? 0 : $h.formatCurrency(pta.depenses) }}</span>
               </td>
-              <td v-else class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300 font-bold">0</td>
+              <!-- <td v-else class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300 font-bold">0</td> -->
 
               <!-- Solde -->
               <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
-                <span class="font-bold text-yellow-500"> {{ $h.formatCurrency(pta.pret + pta.bn - pta.depenses) }}</span>
+                <span class="font-bold text-yellow-500"> {{ pta.pret + pta.bn - pta.depenses == null || pta.pret + pta.bn - pta.depenses == 0 ? 0 : $h.formatCurrency(pta.pret + pta.bn - pta.depenses) }} {{ pta.pret + pta.bn - pta.depenses == null || pta.pret + pta.bn - pta.depenses == 0 ? 0 : $h.formatCurrency(pta.pret + pta.bn - pta.depenses) }}</span>
               </td>
 
               <!-- tef -->
@@ -164,11 +167,11 @@
               <td v-else class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">Non disponible</td>
 
               <!-- total budgetaire-->
-
-              <td v-if="pta.pret != '' || pta.bn != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
-                <span class="font-bold text-yellow-500"> {{ $h.formatCurrency(pta.pret + pta.bn) }} </span>
+              <!-- v-if="pta.pret != '' || pta.bn != ''" -->
+              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+                <span class="font-bold text-yellow-500"> {{ pta.pret + pta.bn == null || pta.pret + pta.bn == 0 ? 0 : $h.formatCurrency(pta.pret + pta.bn) }}</span>
               </td>
-              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+              <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
               <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span v-if="pta.poids != undefined" class="font-bold"> {{ pta.poids }} </span>
@@ -238,77 +241,90 @@
 
               <!-- fin planing -->
 
-              <td v-if="pta.t1Bn != undefined && pta.t1Bn != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
-                <span class="font-bold"> {{ $h.formatCurrency(pta.t1Bn) }} </span>
+              <!-- v-if="pta.t1Bn != undefined && pta.t1Bn != ''" -->
+              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+                <span class="font-bold"> {{ pta.t1Bn == null || pta.t1Bn == 0 ? 0 : $h.formatCurrency(pta.t1Bn) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA</span> -->
               </td>
-              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
-              <td v-if="pta.t1Pret != undefined && pta.t1Pret != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
-                <span class="font-bold"> {{ $h.formatCurrency(pta.t1Pret) }} </span>
-                <!--  <span v-else class="font-bold" >0 FCFA</span> -->
-              </td>
-              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+              <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
-              <td v-if="pta.t1Pret != '' || pta.t1Bn != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
-                <span class="font-bold"> {{ $h.formatCurrency(pta.t1Pret + pta.t1Bn) }} </span>
+              <!-- v-if="pta.t1Pret != undefined && pta.t1Pret != ''" -->
+              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+                <span class="font-bold"> {{ pta.t1Pret == null || pta.t1Pret == 0 ? 0 : $h.formatCurrency(pta.t1Pret) }}</span>
+                <!--  <span v-else class="font-bold" >0 FCFA</span> -->
+              </td>
+              <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
+
+              <!-- v-if="pta.t1Pret != '' || pta.t1Bn != ''" -->
+              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+                <span class="font-bold"> {{ pta.t1Pret + pta.t1Bn == null || pta.t1Pret + pta.t1Bn == 0 ? 0 : $h.formatCurrency(pta.t1Pret + pta.t1Bn) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA </span> -->
               </td>
-              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+              <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
-              <td v-if="pta.t2Bn != undefined && pta.t2Bn != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
-                <span class="font-bold"> {{ $h.formatCurrency(pta.t2Bn) }} </span>
+              <!-- v-if="pta.t2Bn != undefined && pta.t2Bn != ''" -->
+              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+                <span class="font-bold"> {{ pta.t2Bn == null || pta.t2Bn == 0 ? 0 : $h.formatCurrency(pta.t2Bn) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA</span> -->
               </td>
-              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+              <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
-              <td v-if="pta.t2Pret != undefined && pta.t2Pret != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
-                <span class="font-bold"> {{ $h.formatCurrency(pta.t2Pret) }} </span>
+              <!-- v-if="pta.t2Pret != undefined && pta.t2Pret != ''" -->
+              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+                <span class="font-bold"> {{ pta.t2Pret == null || pta.t2Pret == 0 ? 0 : $h.formatCurrency(pta.t2Pret) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA </span> -->
               </td>
-              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+              <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
-              <td v-if="pta.t2Pret != '' || pta.t2Bn != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
-                <span class="font-bold"> {{ $h.formatCurrency(pta.t2Pret + pta.t2Bn) }} </span>
+              <!--  v-if="pta.t2Pret != '' || pta.t2Bn != ''" -->
+              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+                <span class="font-bold"> {{ pta.t2Pret + pta.t2Bn == null || pta.t2Pret + pta.t2Bn == 0 ? 0 : $h.formatCurrency(pta.t2Pret + pta.t2Bn) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA </span> -->
               </td>
-              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+              <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
-              <td v-if="pta.t3Bn != undefined && pta.t3Bn != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
-                <span class="font-bold"> {{ $h.formatCurrency(pta.t3Bn) }} </span>
+              <!-- v-if="pta.t3Bn != undefined && pta.t3Bn != ''" -->
+              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+                <span class="font-bold"> {{ pta.t3Bn == null || pta.t3Bn == 0 ? 0 : $h.formatCurrency(pta.t3Bn) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA</span> -->
               </td>
-              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+              <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
-              <td v-if="pta.t3Pret != undefined && pta.t3Pret != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
-                <span class="font-bold"> {{ $h.formatCurrency(pta.t3Pret) }} </span>
+              <!--  v-if="pta.t3Pret != undefined && pta.t3Pret != ''"  -->
+              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+                <span class="font-bold"> {{ pta.t3Pret == null || pta.t3Pret == 0 ? 0 : $h.formatCurrency(pta.t3Pret) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA</span> -->
               </td>
-              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+              <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
-              <td v-if="pta.t3Pret != '' || pta.t3Bn != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
-                <span class="font-bold"> {{ $h.formatCurrency(pta.t3Pret + pta.t3Bn) }} </span>
+              <!-- v-if="pta.t3Pret != '' || pta.t3Bn != ''" -->
+              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+                <span class="font-bold"> {{ $h.formatCurrency(pta.t3Pret + pta.t3Bn) }} {{ pta.t3Pret + pta.t3Bn == null || pta.t3Pret + pta.t3Bn == 0 ? 0 : $h.formatCurrency(pta.t3Pret + pta.t3Bn) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA </span> -->
               </td>
-              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+              <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
-              <td v-if="pta.t4Bn != undefined && pta.t4Bn != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
-                <span class="font-bold"> {{ $h.formatCurrency(pta.t4Bn) }} </span>
+              <!-- v-if="pta.t4Bn != undefined && pta.t4Bn != ''" -->
+              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+                <span class="font-bold"> {{ pta.t4Bn == null || pta.t4Bn == 0 ? 0 : $h.formatCurrency(pta.t4Bn) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA</span> -->
               </td>
 
-              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+              <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
-              <td v-if="pta.t4Pret != undefined && pta.t4Pret != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
-                <span class="font-bold"> {{ $h.formatCurrency(pta.t4Pret) }} </span>
+              <!--  -->
+              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+                <span class="font-bold"> {{ pta.t4Pret == null || pta.t4Pret == 0 ? 0 : $h.formatCurrency(pta.t4Pret) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA</span> -->
               </td>
-              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+              <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
-              <td v-if="pta.t4Pret != '' || pta.t4Bn != ''" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
-                <span v-if="pta.t4Pret != undefined && pta.t4Bn != undefined" class="font-bold"> {{ $h.formatCurrency(pta.t4Pret + pta.t4Bn) }} </span>
+              <!-- v-if="pta.t4Pret != '' || pta.t4Bn != ''" -->
+              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+                <span v-if="pta.t4Pret != undefined && pta.t4Bn != undefined" class="font-bold"> {{ pta.t4Pret + pta.t4Bn == null || pta.t4Pret + pta.t4Bn == 0 ? 0 : $h.formatCurrency(pta.t4Pret + pta.t4Bn) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA </span> -->
               </td>
-              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+              <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
             </tr>
           </tbody>
         </table>
@@ -359,28 +375,30 @@
 
     <form @submit.prevent="suiviFinancierActivite">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
-        <div v-for="(plan, index) in suiviFinancier" :key="index" class="col-span-12 border-b pb-4 mb-4">
+        <div v-for="(suivi, index) in suiviFinancier" :key="suivi.id" class="col-span-12 border-b pb-4 mb-4">
+          <!-- <pre>{{ suivi }}</pre> -->
+
           <h3 class="text-sm font-medium mb-2">Plan {{ index + 1 }}</h3>
 
           <div class="w-full">
-            <InputForm label="Consommé" v-model="plan.consommer" type="number" />
+            <InputForm label="Consommé" v-model="suivi.consommer" type="number" />
 
             <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurSuiviFinancier?.[index]?.consommer">
               {{ erreurSuiviFinancier[index].consommer }}
             </p>
           </div>
-
+          <!-- 
           <div class="w-full mt-3">
             <label class="form-label">Sources</label>
-            <TomSelect v-model="plan.type" :options="{ placeholder: 'Selectionez une source' }" class="w-full">
+            <TomSelect v-model="suivi.type" :options="{ placeholder: 'Selectionez une source' }" class="w-full">
               <option value="0">Fond propre</option>
               <option value="1">Budget Alloue</option>
             </TomSelect>
-          </div>
+          </div> -->
 
           <div class="w-full mt-3">
             <label class="form-label">Sélectionnez le trimestre</label>
-            <TomSelect v-model="plan.trimestre" :options="{ placeholder: 'Selectionez le trimestre' }" class="w-full">
+            <TomSelect v-model="suivi.trimestre" :options="{ placeholder: 'Selectionez le trimestre' }" class="w-full" @change="miseAjourTabSuivi(suivi.trimestre)">
               <option value="1">Trimestre 1</option>
               <option value="2">Trimestre 2</option>
               <option value="3">Trimestre 3</option>
@@ -393,37 +411,39 @@
 
           <div class="col-span-12 mt-3">
             <label class="form-label">Année</label>
-            <TomSelect v-model="plan.annee" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
-              <option v-for="(year, index) in years" :key="index" :value="year.nom">{{ year.nom }}</option>
+            <TomSelect v-model="suivi.annee" :options="{ placeholder: 'Selectionez une année' }" class="w-full" @change="miseAjourTabSuivi(suivi.annee)">
+              <option v-for="(year, index) in years" :key="index" :value="year">{{ year }}</option>
             </TomSelect>
             <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurSuiviFinancier?.[index]?.trimestre">
               {{ erreurSuiviFinancier[index].trimestre }}
             </p>
           </div>
 
-          <!-- <div class="w-full mt-3">
-            <InputForm v-model="plan.trimestre" :min="1" :max="4" class="col-span-12" type="number" :required="true" :disabled="true" placeHolder="Sélectionnez le trimestre" label="Sélectionnez le trimestre" />
-            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurSuiviFinancier?.[index]?.trimestre">
-              {{ erreurSuiviFinancier[index].trimestre }}
-            </p>
-          </div> -->
+          <button type="button" @click="removeSuivi(index)" class="mt-2 text-red-600 text-sm underline">Supprimer ce suivi</button>
 
-          <!-- <div class="w-full mt-3">
-            <InputForm v-model="plan.annee" :min="2000" class="col-span-12" type="number" :required="true" :disabled="true" placeHolder="Saisissez l'année" label="Saisissez l'année de décaissement" />
-            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurSuiviFinancier?.[index]?.annee">
-              {{ erreurSuiviFinancier[index].annee }}
-            </p>
-          </div> -->
+          <div class="col-span-12" v-if="getPlageActivite">
+            <div class="flex items-center mt-2" v-for="(plage, t) in getPlageActivite.durees" :key="t">
+              <ClockIcon class="w-4 h-4 mr-2" />
+              <div>
+                Plage de date {{ getPlageActivite.durees.length + 1 }} : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(getPlageActivite.durees[getPlageActivite.durees.length - 1].debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(getPlageActivite.durees[getPlageActivite.durees.length - 1].fin) }}</span>
+              </div>
+            </div>
+          </div>
 
-          <button type="button" @click="removePlan(index)" class="mt-2 text-red-600 text-sm underline">Supprimer ce suivi</button>
+          <div v-if="getPlageProjet" class="flex items-center mt-2 col-span-12">
+            <ClockIcon class="w-4 h-4 mr-2" />
+            <div>
+              Durée du projet : Du <span class="px-1 font-bold"> {{ $h.reformatDate(getPlageProjet.debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(getPlageProjet.fin) }}</span>
+            </div>
+          </div>
         </div>
 
-        <button type="button" @click="addPlan" class="col-span-12 btn btn-outline-primary">Ajouter un autre suivi</button>
+        <button type="button" @click="addSuivi" class="col-span-12 btn btn-outline-primary">Ajouter un autre suivi</button>
       </ModalBody>
       <ModalFooter>
         <div class="flex items-center justify-center">
           <button type="button" @click="resetModalSuiviFinancierActivite" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
-          <VButton class="inline-block" label="Enregistrer" :loading="loadingSuiviFinancier" :type="submit" />
+          <VButton class="inline-block" label="Enregistrer" :loading="loadingSuiviFinancier" :type="submit" :disabled="loaderListeSuivi" />
         </div>
       </ModalFooter>
     </form>
@@ -471,31 +491,6 @@
         <div class="flex flex-col sm:flex-row sm:items-end xl:items-start">
           <div></div>
           <div class="flex mt-5 sm:mt-0">
-            <!-- <button id="tabulator-print" class="w-1/2 mr-2 btn btn-outline-secondary sm:w-auto">
-              <PrinterIcon class="w-4 h-4 mr-2" /> Print
-            </button>
-            <Dropdown class="w-1/2 sm:w-auto">
-              <DropdownToggle class="w-full btn btn-outline-secondary sm:w-auto">
-                <FileTextIcon class="w-4 h-4 mr-2" /> Export
-                <ChevronDownIcon class="w-4 h-4 ml-auto sm:ml-2" />
-              </DropdownToggle>
-              <DropdownMenu class="w-40">
-                <DropdownContent>
-                  <DropdownItem>
-                    <FileTextIcon class="w-4 h-4 mr-2" /> Export CSV
-                  </DropdownItem>
-                  <DropdownItem>
-                    <FileTextIcon class="w-4 h-4 mr-2" /> Export JSON
-                  </DropdownItem>
-                  <DropdownItem>
-                    <FileTextIcon class="w-4 h-4 mr-2" /> Export XLSX
-                  </DropdownItem>
-                  <DropdownItem>
-                    <FileTextIcon class="w-4 h-4 mr-2" /> Export HTML
-                  </DropdownItem>
-                </DropdownContent>
-              </DropdownMenu>
-            </Dropdown> -->
             <button class="mr-2 shadow-md btn btn-primary" @click="openFilterModalSuiviFinancier"><FilterIcon class="w-4 h-4 mr-3" />Filtrer le suivi financier</button>
 
             <button class="btn btn-primary" title="Réinitialiser le filtre" @click="resetFilter()">
@@ -503,9 +498,7 @@
             </button>
           </div>
         </div>
-        <!-- <div class="overflow-x-auto scrollbar-hidden" v-if="!isLoadingData">
-      <div id="tabulator" class="mt-5 table-report table-report--tabulator"></div>
-    </div> -->
+
         <div class="col-span-12">
           <div class="border my-4 rounded-lg border-gray-300 shadow-md" v-if="!loadListeSuivi">
             <!-- suivi budgetaire  current -->
@@ -614,18 +607,41 @@
 
     <form @submit.prevent="planDeDecaissementActivite">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
-        <div v-for="(plan, index) in planDeDecaissement" :key="index" class="col-span-12 border-b pb-4 mb-4">
+        <div v-for="(plan, index) in planDeDecaissement" :key="plan.id" class="col-span-12 border-b pb-4 mb-4">
           <h3 class="text-sm font-medium mb-2">Plan {{ index + 1 }}</h3>
 
-          <InputForm v-model="plan.annee" :min="2000" class="col-span-12" type="number" :required="true" placeHolder="Saisissez l'année" label="Saisissez l'année de décaissement" />
+          <div class="col-span-12 mt-3">
+            <label class="form-label">Année</label>
+            <TomSelect v-model="plan.annee" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+              <option v-for="(year, index) in years" :key="index" :value="year">{{ year }}</option>
+            </TomSelect>
+            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurSuiviFinancier?.[index]?.trimestre">
+              {{ erreurPlanDeDecaissement[index].trimestre }}
+            </p>
+          </div>
+
+          <!-- <InputForm v-model="plan.annee" :min="2000" class="col-span-12" type="number" :required="true" placeHolder="Saisissez l'année" label="Saisissez l'année de décaissement" />
           <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.annee">
             {{ erreurPlanDeDecaissement[index].annee }}
-          </p>
+          </p> -->
 
-          <InputForm v-model="plan.trimestre" :min="1" :max="4" class="col-span-12" type="number" :required="true" placeHolder="Sélectionnez le trimestre" label="Sélectionnez le trimestre" />
+          <div class="w-full mt-3">
+            <label class="form-label">Sélectionnez le trimestre</label>
+            <TomSelect v-model="plan.trimestre" :options="{ placeholder: 'Selectionez le trimestre' }" class="w-full">
+              <option value="1">Trimestre 1</option>
+              <option value="2">Trimestre 2</option>
+              <option value="3">Trimestre 3</option>
+              <option value="4">Trimestre 4</option>
+            </TomSelect>
+            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurSuiviFinancier?.[index]?.trimestre">
+              {{ erreurPlanDeDecaissement[index].trimestre }}
+            </p>
+          </div>
+
+          <!-- <InputForm v-model="plan.trimestre" :min="1" :max="4" class="col-span-12" type="number" :required="true" placeHolder="Sélectionnez le trimestre" label="Sélectionnez le trimestre" />
           <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.trimestre">
             {{ erreurPlanDeDecaissement[index].trimestre }}
-          </p>
+          </p> -->
 
           <InputForm v-model="plan.budgetNational" :min="0" class="col-span-12" type="number" :required="true" placeHolder="Saisissez le fond propre" label="Saisissez le fond propre" />
           <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.budgetNational">
@@ -661,7 +677,7 @@
       <ModalFooter>
         <div class="flex items-center justify-center">
           <button type="button" @click="showModalPlanDeDecaissement = false" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
-          <VButton class="inline-block" label="Enregistrer" :loading="loadingPlanDeDecaissement" :type="submit" />
+          <VButton class="inline-block" label="Enregistrer" :loading="loadingPlanDeDecaissement" :type="submit" :disabled="loaderListePlan" />
         </div>
       </ModalFooter>
     </form>
@@ -682,12 +698,17 @@ import SuiviFinancierService from "@/services/modules/suiviFinancier.service";
 import InputForm from "@/components/news/InputForm.vue";
 import AuthService from "@/services/modules/auth.service";
 import PlanDeDecaissementService from "@/services/modules/plan.decaissement.service";
+import SuiviFinancier from "@/services/modules/suiviFinancier.service";
+import ActiviteService from "@/services/modules/activite.service";
+import PlanDecaissementComponent from "@/components/PlanDecaissement.vue";
+import PlanDeCaissement from "@/services/modules/plan.decaissement.service";
 
 export default {
   props: ["ppm"],
   components: { VButton, NoRecordsMessage, InputForm },
   data() {
     return {
+      listePlanDeDecaissement: [],
       planDeDecaissement: [],
       showModalPlanDeDecaissement: false,
       loadingPlanDeDecaissement: false,
@@ -713,7 +734,7 @@ export default {
         trimestre: 1, // Trimestre actuel
         annee: new Date().getFullYear(), // Set current year as default
         consommer: 0,
-        type: 0,
+        // type: 0,
       },
       voirSuiviModal: false,
       showModalSuiviFinancier: false,
@@ -761,6 +782,10 @@ export default {
       exporterSuiviRePta: false,
       debutProgramme: "",
       finProgramme: "",
+      tableauListeSuivi: [],
+      listeSuivi: [],
+      loaderListePlan: false,
+      loaderListeSuivi: false,
     };
   },
   computed: {
@@ -778,6 +803,9 @@ export default {
             annees.push(annee);
           }
         }
+
+        console.log("annees", annees);
+
         return annees;
       },
     }),
@@ -1747,54 +1775,104 @@ export default {
     // },
   },
   methods: {
+    removePlan(index) {
+      this.planDeDecaissement.splice(index, 1);
+    },
+    addPlan() {
+      const newItem = {
+        activiteId: this.planDeDecaissementPayload.activiteId,
+        trimestre: 1, // Trimestre actuel
+        annee: new Date().getFullYear(), // Set current year as default
+        budgetNational: 0,
+        pret: 0,
+        id: Date.now() + "-" + Math.random().toString(36).substr(2, 9),
+      };
+      this.planDeDecaissement.push(newItem);
+    },
     ...mapActions({
       // Mapping des actions pour le module activites
       prolongerDureeActivite: "activites/PROLONGER_DATE",
       // Mapping des actions pour le module planDeDecaissements
       storePlanDecaissement: "planDeDecaissements/STORE_PLAN_DE_DECAISSEMENT",
     }),
-    removePlan(index) {
-      this.planDeDecaissement.splice(index, 1);
+    removeSuivi(index) {
+      this.suiviFinancier.splice(index, 1);
     },
-    planDeDecaissementActivite() {
+    async planDeDecaissementActivite() {
       this.loadingPlanDeDecaissement = true;
 
-      // console.log(this.planDeDecaissement);
+      let errorIndex = [];
 
       for (let index = 0; index < this.planDeDecaissement.length; index++) {
-        this.storePlanDecaissement(this.planDeDecaissement[index])
-          .then((response) => {
-            if (response.status == 200 || response.status == 201) {
-              this.showModalPlanDeDecaissement = false;
-              this.loadingPlanDeDecaissement = false;
+        // let status =  this.listePlanDeDecaissement.some(plan  => plan.annee ==  this.planDeDecaissement[index].annee && plan.trimestre == this.planDeDecaissement[index].trimestre );
 
-              toast.success("Plan de decaissement enrégistré avec succès");
-              if (index === this.planDeDecaissement.length - 1) {
-                this.planDeDecaissement = [];
-              }
+        let plan = this.listePlanDeDecaissement.filter((plan) => plan.annee == this.planDeDecaissement[index].annee && plan.trimestre == this.planDeDecaissement[index].trimestre);
 
-              this.loadSousComposantDetails();
-              //this.fetchProjets(this.programmeId);
-            }
-          })
-          .catch((error) => {
-            this.loadingPlanDeDecaissement = false;
+        const action = plan.length > 0 ? PlanDeCaissement.update(plan[0].id, this.planDeDecaissement[index]) : this.storePlanDecaissement(this.planDeDecaissement[index]);
 
-            // Mettre à jour les messages d'erreurs dynamiquement
-            if (error.response && error.response.data && error.response.data.errors.length > 0) {
-              this.erreurPlanDeDecaissement = error.response.data.errors;
-              toast.error("Une erreur s'est produite dans votre formualaire");
-            } else {
-              toast.error(error.response.data.message);
-            }
+        try {
+          await action;
+
+          toast.success(`Plan  de decaissement n° ${index + 1} enrégistré avec succès`);
+
+          errorIndex.push(index);
+
+          if (index === this.planDeDecaissement.length - 1) {
+            this.showModalPlanDeDecaissement = false;
+
+            setTimeout(() => {
+              this.planDeDecaissement = [];
+            }, 500);
+          }
+
+          // getDatas();
+          // getDatasCadre();
+          // resetForm();
+        } catch (error) {
+          this.loadingPlanDeDecaissement = false;
+
+          // Mettre à jour les messages d'erreurs dynamiquement
+          if (error.response && error.response.data && error.response.data.errors.length > 0) {
+            this.erreurPlanDeDecaissement = error.response.data.errors;
+            toast.error("Une erreur s'est produite dans votre formualaire");
+          } else {
+            toast.error(`Plan ${index + 1} : ${error.response.data.message}`);
+          }
+        } finally {
+          this.loadingPlanDeDecaissement = false;
+          this.getListePlanDeDecaissement(this.planDeDecaissement[0].activiteId);
+        }
+      }
+
+      if (this.planDeDecaissement.length > 0) {
+        console.log("this.planDeDecaissement", this.planDeDecaissement);
+
+        if (errorIndex.length > 0) {
+          console.log("errorIndex", errorIndex);
+          errorIndex.forEach((item) => {
+            this.removePlan(item);
           });
+        }
       }
     },
     ouvrirModalPlanDeDecaissementActivite(data) {
       // console.log(data)
-      this.showModalPlanDeDecaissement = true;
+
+      const newItem = {
+        activiteId: data.activiteId,
+        trimestre: this.getCurrentQuarter(),
+        annee: new Date().getFullYear(),
+        budgetNational: 0,
+        pret: 0,
+        id: Date.now() + "-" + Math.random().toString(36).substr(2, 9),
+      };
+
+      console.log("data.id", data.activiteId);
+
+      this.getListePlanDeDecaissement(data.activiteId);
+
       this.planDeDecaissementPayload.activiteId = data.activiteId;
-      this.planDeDecaissement.push(this.planDeDecaissementPayload);
+      this.planDeDecaissement.push(newItem);
       this.showModalPlanDeDecaissement = true;
     },
     async getcurrentUser() {
@@ -1819,7 +1897,7 @@ export default {
 
       await SuiviFinancierService.filtre(this.filterPayloadSuiviFinancier)
         .then((result) => {
-          this.listeSuivi = result.data.data;
+          this.listeSuivi = result.data.data.suiviFinanciers;
           console.log("this.listeSuivi", this.listeSuivi);
           this.isLoadingFilterSuiviFinancier = false;
           this.resetFilterModalSuivi();
@@ -1877,44 +1955,164 @@ export default {
       this.suiviFinancier = [];
       this.showModalSuiviFinancier = false;
     },
-    removePlan(index) {
-      this.suiviFinancier.splice(index, 1);
+
+    addSuivi() {
+      const newItem = {
+        activiteId: this.suiviFinancier[0].activiteId,
+        trimestre: this.getCurrentQuarter(),
+        annee: new Date().getFullYear(),
+        consommer: 0,
+
+        id: Date.now() + "-" + Math.random().toString(36).substr(2, 9),
+      };
+      this.suiviFinancier.push(newItem);
+
+      // let payLoad = {
+      //   trimestre: this.getCurrentQuarter(),
+      //   annee: new Date().getFullYear(),
+      // };
+
+      // this.filterSuiviFinancierActiviteParAnnee(payLoad);
     },
-    addPlan() {
-      this.suiviFinancier.push(this.suiviFinancierPayload);
+    async filterSuiviFinancierActiviteParAnnee(payload) {
+      this.loaderListeSuivi = true;
+
+      SuiviFinancier.filtre(payload)
+        .then((data) => {
+          this.loaderListeSuivi = false;
+          this.listeSuivi = data.data.data.suiviFinanciers;
+        })
+        .catch((error) => {
+          this.loaderListeSuivi = false;
+          //console.log(error);
+        });
+    },
+    getListePlanDeDecaissement(id) {
+      this.loaderListePlan = true;
+
+      ActiviteService.plansDeDecaissement(id)
+        .then((data) => {
+          this.loaderListePlan = false;
+          //console.log(data.data.data);
+          this.listePlanDeDecaissement = data.data.data;
+
+          console.log("this.listePlanDeDecaissement", this.listePlanDeDecaissement);
+        })
+        .catch((error) => {
+          this.loaderListePlan = false;
+          //console.log(error);
+        });
+    },
+    miseAjourTabSuivi(payLoad) {
+      let taille = payLoad.length;
+
+      let form = {
+        trimestre: taille < 2 ? payLoad : this.suiviFinancier[index].trimestre,
+        annee: taille > 1 ? payLoad : this.suiviFinancier[index].annee,
+      };
+
+      console.log("form", form);
+
+      this.filterSuiviFinancierActiviteParAnnee(form);
     },
 
-    suiviFinancierActivite() {
+    async suiviFinancierActivite() {
       this.loadingSuiviFinancier = true;
 
+      let errorIndex = [];
+
+      console.log("this.listeSuivi", this.listeSuivi);
+
       for (let index = 0; index < this.suiviFinancier.length; index++) {
-        SuiviFinancierService.create(this.suiviFinancier[index])
-          .then(() => {
-            this.loadingSuiviFinancier = false;
-            toast.success("Suivi Financier créer.");
-            this.resetModalSuiviFinancierActivite();
+        // let suivi = this.listeSuivi.filter((suivi) => suivi.annee == this.suiviFinancier[index].annee && suivi.trimestre == this.suiviFinancier[index].trimestre && suivi.activite.id == this.suiviFinancier[index].activiteId);
+
+        // console.log("suivi", suivi);
+
+        let payload = this.suiviFinancier[index];
+
+        delete payload.id;
+
+        // console.log("payload", payload);
+
+        // const action = suivi.length > 0 ? SuiviFinancier.update(suivi[0]?.activite.id, this.suiviFinancier[index]) : SuiviFinancierService.create(payload);
+
+        const action = SuiviFinancierService.create(payload);
+
+        try {
+          await action;
+
+          toast.success(`Suivi financier n° ${index + 1} enrégistré avec succès`);
+
+          errorIndex.push(index);
+
+          console.log("index === this.suiviFinancier.length - 1", index === this.suiviFinancier.length - 1);
+
+          if (index === this.suiviFinancier.length - 1) {
             this.showModalSuiviFinancier = false;
-            // getDatas();
-          })
-          .catch((error) => {
-            console.log(error);
-            this.loadingSuiviFinancier = false;
 
-            if (error.response && error.response.data && error.response.data.errors) {
-              //alert("ok")
-              this.erreurSuiviFinancier = error.response.data.errors;
-              toast.error(error.response.data.message);
-            } else {
-              toast.error(error.message);
-            }
+            setTimeout(() => {
+              this.planDeDecaissement = [];
+            }, 500);
+          }
 
-            // Mettre à jour les messages d'erreurs dynamiquement
-            // if (error.response && error.response.data && error.response.data.errors) {
-            //   erreurSuiviFinancier = error.response.data.errors;
-            // } else {
-            //   toast.error(error.response.data.errors.message);
-            // }
-          });
+          // getDatas();
+          // getDatasCadre();
+          // resetForm();
+        } catch (error) {
+          console.log("error", error);
+
+          this.loadingSuiviFinancier = false;
+
+          // Mettre à jour les messages d'erreurs dynamiquement
+          if (error.response && error.response.data && error.response.data.errors.length > 0) {
+            this.erreurSuiviFinancier = error.response.data.errors;
+            toast.error("Une erreur s'est produite dans votre formualaire");
+          } else {
+            toast.error(`Suivi ${index + 1} : ${error.response.data.message}`);
+          }
+        } finally {
+          this.loadingSuiviFinancier = false;
+          // this.getListePlanDeDecaissement(this.suiviFinancier[0].activiteId);
+        }
+
+        if (this.suiviFinancier.length > 0) {
+          console.log("this.suiviFinancier", this.suiviFinancier);
+
+          if (errorIndex.length > 0) {
+            console.log("errorIndex", errorIndex);
+            errorIndex.forEach((item) => {
+              this.removeSuivi(item);
+            });
+          }
+        }
+
+        // SuiviFinancierService.create(this.suiviFinancier[index])
+        //   .then(() => {
+        //     this.loadingSuiviFinancier = false;
+        //     toast.success("Suivi Financier créer.");
+        //     this.resetModalSuiviFinancierActivite();
+        //     this.showModalSuiviFinancier = false;
+        //     // getDatas();
+        //   })
+        //   .catch((error) => {
+        //     console.log(error);
+        //     this.loadingSuiviFinancier = false;
+
+        //     if (error.response && error.response.data && error.response.data.errors) {
+        //       //alert("ok")
+        //       this.erreurSuiviFinancier = error.response.data.errors;
+        //       toast.error(error.response.data.message);
+        //     } else {
+        //       toast.error(error.message);
+        //     }
+
+        //     // Mettre à jour les messages d'erreurs dynamiquement
+        //     // if (error.response && error.response.data && error.response.data.errors) {
+        //     //   erreurSuiviFinancier = error.response.data.errors;
+        //     // } else {
+        //     //   toast.error(error.response.data.errors.message);
+        //     // }
+        //   });
       }
     },
     getCurrentQuarter() {
@@ -1923,10 +2121,29 @@ export default {
     },
 
     ouvrirModalSuiviFinancierActivite(item) {
+      this.suiviFinancier = [];
+
+      const newItem = {
+        activiteId: item.activiteId,
+        trimestre: this.getCurrentQuarter(),
+        annee: new Date().getFullYear(),
+        consommer: 0,
+        id: Date.now() + "-" + Math.random().toString(36).substr(2, 9),
+      };
+
+      let payLoad = {
+        trimestre: this.getCurrentQuarter(),
+        annee: new Date().getFullYear(),
+      };
+
+      console.log("item.id", item.activiteId);
+
+      this.filterSuiviFinancierActiviteParAnnee(payLoad);
+
       console.log(item.activiteId);
       this.suiviFinancierPayload.activiteId = item.activiteId;
       this.suiviFinancierPayload.trimestre = this.getCurrentQuarter();
-      this.suiviFinancier.push(this.suiviFinancierPayload);
+      this.suiviFinancier.push(newItem);
       this.showModalSuiviFinancier = true;
       this.isCreate = true;
     },
