@@ -94,6 +94,9 @@ const generateKey = (id) => {
   return `${id}`;
 };
 
+const currentGlobalPerceptionFormDataArray = ref([]);
+const currentPreviewPerceptionFormDataArray = ref([]);
+
 const organiseGlobalFormPerceptionData = (submissions) => {
   // const organisedData = { principes_de_gouvernance: [] };
 
@@ -160,6 +163,7 @@ const resetCurrentGlobalPerceptionFormData = () => {
 
   currentGlobalPerceptionFormDataArray.value = [];
 };
+
 const resetAllForm = () => {
   resetCurrentGlobalPerceptionFormData();
   resetCurrentPreviewPerceptionFormData();
@@ -206,9 +210,6 @@ const getPrincipe = (principe) => {
     item2.key = item2?.indicateur?.id + item2.principe.id;
   });
 };
-
-const currentGlobalPerceptionFormDataArray = ref([]);
-const currentPreviewPerceptionFormDataArray = ref([]);
 
 const getQuestion = (question) => {
   console.log("question", question);
@@ -305,6 +306,7 @@ const removeIndicator = (key) => {
 const clearUniqueKeys = () => {
   uniqueKeys.clear(); // Supprime toutes les clés de uniqueKeys
 };
+
 const resetAllFormWithDataLocalStorage = () => {
   resetAllForm();
   clearUniqueKeys();
@@ -322,6 +324,7 @@ const resetForm = () => {
   payload.libelle = "";
   modalForm.value = false;
 };
+
 const createForm = async () => {
   isLoadingForm.value = true;
   payload.perception.options_de_reponse = globalOptionResponses.value.options_de_reponse;
@@ -367,13 +370,12 @@ const showForm = computed(() => {
 
 const goBackToFormList = function () {
   resetAllFormWithDataLocalStorage();
-  router.push({ name: "Ajouter_un_formulaire_Perception" });
+  router.push({ name: "Ajouter_un_formulaire_Perception", query: { tab: 1 } });
 };
 
 const comeBackToCreation = function () {
-  router.push({ name: "Ajouter_un_formulaire_Perception" });
+  router.push({ name: "Ajouter_un_formulaire_Perception", query: { tab: 1 } });
 };
-
 
 onBeforeUnmount(() => {
   clearUniqueKeys();
@@ -587,6 +589,7 @@ onMounted(() => {
   </div>
   <!-- BEGIN: Modal Content -->
   <!-- size="modal-xl"  -->
+const modalForm = ref(false);
   <Modal backdrop="static" :show="modalForm" @hidden="modalForm = false">
     <ModalHeader>
       <h2 class="mr-auto text-base font-medium">Enregistrer le formulaire</h2>

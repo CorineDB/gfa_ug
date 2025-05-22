@@ -58,13 +58,13 @@ const isAvailable = reactive({
 const goBackToCreate = function () {
   resetAllFormWithDataLocalStorage();/* 
   router.push({ name: "create_form_perception" }); */
-  router.push({ name: "Ajouter_un_formulaire_Perception" });
+  router.push({ name: "Ajouter_un_formulaire_Perception", query: { tab: 1 } });
 };
 
 
 const comeBackToUpdate = function () {/* 
   router.push({ name: "create_form_perception" }); */
-  router.push({ name: "Ajouter_un_formulaire_Perception" });
+  router.push({ name: "Ajouter_un_formulaire_Perception", query: { tab: 1 } });
 };
 
 const payload = reactive({

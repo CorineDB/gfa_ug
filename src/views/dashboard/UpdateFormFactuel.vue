@@ -16,7 +16,7 @@ import { getAllErrorMessages } from "@/utils/gestion-error";
 import ListFormFactuel from "@/components/create-form/ListFormFactuel.vue";
 import ListOptionsResponse from "@/components/create-form/ListOptionsResponse.vue";
 import DeleteButton from "@/components/news/DeleteButton.vue";
-import { useYearsStore } from "@/stores/years";  
+import { useYearsStore } from "@/stores/years";
 
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
 import { useRoute, useRouter } from "vue-router";
@@ -47,6 +47,8 @@ const typesGouvernance = ref({ types_de_gouvernance: [] });
 const uniqueKeys = new Map();
 const globalData = localStorage.getItem("globalFormFactuelData");
 const previewData = localStorage.getItem("previewFormFactuelData");
+
+const previewFormulaire = ref(false);
 
 const goBackToCreate = function () {
   router.push({ name: "Ajouter_un_formulaire_Factuel" });
@@ -188,11 +190,11 @@ const flattenGovernanceData = (organisedData) => {
 
 
 function organiseUpdateFormGlobal(types) {
-  
+
   const submissions = [];
   types.forEach((type) =>
-    type.categories_de_gouvernance.forEach((principe) => 
-      principe.categories_de_gouvernance.forEach((critere) => 
+    type.categories_de_gouvernance.forEach((principe) =>
+      principe.categories_de_gouvernance.forEach((critere) =>
         critere.questions_de_gouvernance.forEach((question) => {
           submissions.push({
             type: type.categorieableId,
@@ -215,12 +217,12 @@ function organiseUpdateFormGlobal(types) {
 }
 
 function organiseUpdateFormPreview(types) {
-  
+
   const submissions = [];
 
   types.forEach((type) =>
-    type.categories_de_gouvernance.forEach((principe) => 
-      principe.categories_de_gouvernance.forEach((critere) => 
+    type.categories_de_gouvernance.forEach((principe) =>
+      principe.categories_de_gouvernance.forEach((critere) =>
         critere.questions_de_gouvernance.forEach((question) => {
           submissions.push({
             type: { id: type.categorieableId, nom: type.nom },
@@ -228,16 +230,16 @@ function organiseUpdateFormPreview(types) {
             critere: { id: critere.categorieableId, nom: critere.nom },
             indicateur: { id: question.indicateur_de_gouvernance.id, nom: question.indicateur_de_gouvernance.nom }
           });
-          
-            /* principe: {
-              id: principe.id,
-              nom: principe.nom,
-            },
-            indicateur: {
-              id: question.question_operationnelle.id,
-              nom: question.question_operationnelle.nom,
-            } */
-          }
+
+          /* principe: {
+            id: principe.id,
+            nom: principe.nom,
+          },
+          indicateur: {
+            id: question.question_operationnelle.id,
+            nom: question.question_operationnelle.nom,
+          } */
+        }
         )
       )
     )
@@ -246,12 +248,12 @@ function organiseUpdateFormPreview(types) {
 }
 
 function setKeyForUpdate(types) {
-  
+
   return types.forEach((type) =>
-    type.categories_de_gouvernance.forEach((principe) => 
-      principe.categories_de_gouvernance.forEach((critere) => 
+    type.categories_de_gouvernance.forEach((principe) =>
+      principe.categories_de_gouvernance.forEach((critere) =>
         critere.questions_de_gouvernance.forEach((question) => {
-        const key = generateKey(question.indicateur_de_gouvernance.id + critere.categorieableId + principe.categorieableId + type.categorieableId);
+          const key = generateKey(question.indicateur_de_gouvernance.id + critere.categorieableId + principe.categorieableId + type.categorieableId);
 
           uniqueKeys.set(key, true);
         })
@@ -267,7 +269,7 @@ function setKeyForUpdate(types) {
 }
 
 function matchDataUpdateWithCurrentDatas(typesCurrent) {
-  
+
   globalFormFactuelData.value = organiseUpdateFormGlobal(typesCurrent);
   previewFormFactuelData.value = organiseUpdateFormPreview(typesCurrent);
 
@@ -374,16 +376,16 @@ const addNewIndicator = () => {
 };
 
 const deplacerElement = (element, type = 'indicateur') => {
-  if(type == 'indicateur'){
+  if (type == 'indicateur') {
     globalFormFactuelData.value.findIndex((s) => s.indicateur === element.id);
   }
-  else if(type == 'critere'){
+  else if (type == 'critere') {
     globalFormFactuelData.value.findIndex((s) => s.critere === element.id);
   }
-  else if(type == 'principe'){
+  else if (type == 'principe') {
     globalFormFactuelData.value.findIndex((s) => s.principe === element.id);
   }
-  else if(type == 'type'){
+  else if (type == 'type') {
     globalFormFactuelData.value.findIndex((s) => s.type === element.id);
   }
 }
@@ -411,21 +413,21 @@ const removeIndicator = (indicateur) => {
 
 const removeElement = (element, type = 'indicateur') => {
   var index = -1;
-  if(type == 'critere'){
+  if (type == 'critere') {
     index = globalFormFactuelData.value.findIndex((s) => s.critere === element.id);
   }
-  else if(type == 'principe'){
+  else if (type == 'principe') {
     index = globalFormFactuelData.value.findIndex((s) => s.principe === element.id);
   }
-  else if(type == 'type'){
+  else if (type == 'type') {
     index = globalFormFactuelData.value.findIndex((s) => s.type === element.id);
   }
-  
+
   // Supprimer la soumission et sa clé si elle est trouvée
   if (index !== -1) {
     globalFormFactuelData.value.splice(index, 1);
     previewFormFactuelData.value.splice(index, 1);
-    
+
     updateAllTypesGouvernance();
     localStorage.setItem("globalFormFactuelData", JSON.stringify(globalFormFactuelData.value));
     localStorage.setItem("previewFormFactuelData", JSON.stringify(previewFormFactuelData.value));
@@ -510,6 +512,16 @@ const showForm = computed(() => {
   return globalFormFactuelData.value.length > 0;
 });
 
+const goBackToFormList = function () {
+  resetAllFormWithDataLocalStorage();
+  router.push({ name: "Ajouter_un_formulaire_Factuel", query: { tab: 1 } });
+};
+
+const comeBackToCreation = function () {
+  router.push({ name: "Ajouter_un_formulaire_Factuel", query: { tab: 1 } });
+};
+
+
 onBeforeUnmount(() => {
   clearUniqueKeys();
 });
@@ -522,7 +534,7 @@ onMounted(async () => {
 
 <template>
   <div class="flex w-full gap-2">
-    <section class="w-[30%] h-screen pr-1 overflow-y-auto border-r-2 pt-5">
+    <section class="w-[30%] max-h-[80%] pr-1 overflow-y-auto border-r-2 pt-5">
       <AccordionGroup :selectedIndex="indexAccordion" class="space-y-1">
         <AccordionItem class="">
           <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
@@ -530,7 +542,9 @@ onMounted(async () => {
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <OptionsResponse :is-reset="resetOptions" :is-update="true" :id-form="idForm" v-model:previewOptionResponses="previewOptionResponses" v-model:globalOptionResponses="globalOptionResponses" />
+            <OptionsResponse :is-reset="resetOptions" :is-update="true" :id-form="idForm"
+              v-model:previewOptionResponses="previewOptionResponses"
+              v-model:globalOptionResponses="globalOptionResponses" />
           </AccordionPanel>
         </AccordionItem>
 
@@ -540,7 +554,8 @@ onMounted(async () => {
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <IndicateurGouvernance :to-reset="resetCurrentForm" :is-available="isAvailable.indicateur" @selected="getIndicateur" />
+            <IndicateurGouvernance :to-reset="resetCurrentForm" :is-available="isAvailable.indicateur"
+              @selected="getIndicateur" />
           </AccordionPanel>
         </AccordionItem>
 
@@ -590,108 +605,14 @@ onMounted(async () => {
               </div>
               <div class="space-y-2">
                 <p class="text-lg font-medium">Ajouter des indicateurs</p>
-                <FactuelStructure :type="currentPreviewFactuelFormData.type.nom" :principe="currentPreviewFactuelFormData.principe.nom" :critere="currentPreviewFactuelFormData.critere.nom" :indicateur="currentPreviewFactuelFormData.indicateur.nom" />
-                <button :disabled="!isCurrentFormValid" @click="addNewIndicator" class="my-4 text-sm btn btn-primary"><PlusIcon class="mr-1 size-4" />Ajouter</button>
+                <FactuelStructure :type="currentPreviewFactuelFormData.type.nom"
+                  :principe="currentPreviewFactuelFormData.principe.nom"
+                  :critere="currentPreviewFactuelFormData.critere.nom"
+                  :indicateur="currentPreviewFactuelFormData.indicateur.nom" />
+                <button :disabled="!isCurrentFormValid" @click="addNewIndicator" class="my-4 text-sm btn btn-primary">
+                  <PlusIcon class="mr-1 size-4" />Ajouter
+                </button>
               </div>
-              <div v-if="!isLoadingOneForm" class="space-y-2">
-                <p class="text-lg font-medium">Liste des indicateurs</p>
-                
-                <!-- <div class="max-h-[25vh] h-[25vh] py-2 border-t overflow-y-auto">
-                  <ListAccordionIndicateur :indicateurs-array="previewFormFactuelData" @remove="removeIndicator" />
-                  <PreviewFactuelForm :types-gouvernance="previewTypesGouvernance.types_de_gouvernance" @remove="removeIndicator"  />
-                </div> -->
-                
-                <div class="max-h-[50vh] h-[50vh] overflow-y-auto">
-                  <table class="w-full border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
-                    <thead class="text-white bg-blue-900">
-                      <tr>
-                        <th class="py-3 border border-slate-900">Principes</th>
-                        <th class="py-3 border border-slate-900">Critères</th>
-                        <th class="py-3 border border-slate-900">Indicateurs</th>
-                        <th class="py-3 border border-slate-900 max-w-[200px]">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <template v-for="type_de_gouvernance in previewTypesGouvernance.types_de_gouvernance" :key="type_de_gouvernance.id">
-                        <tr class="bg-green-100 list-data">
-                          <td colspan="3" class="font-semibold">{{ type_de_gouvernance.nom }}</td>
-                          
-                          <td class="items-center transition-all opacity-0 container-buttons">
-                            <button class="p-1.5 text-primary">
-                              <Edit3Icon class="size-5" />
-                            </button>
-                            <button class="p-1.5 text-danger" @click="removeElement(type_de_gouvernance, 'type')">
-                              <TrashIcon class="size-5" />
-                            </button>
-                          </td>
-                        </tr>
-                        <template v-for="principe_de_gouvernance in type_de_gouvernance.principes_de_gouvernance" :key="principe_de_gouvernance.id">
-                          <template v-for="(critere_de_gouvernance, scIndex) in principe_de_gouvernance.criteres_de_gouvernance" :key="critere_de_gouvernance.id">
-                            <template v-for="(indicateur_de_gouvernance, qIndex) in critere_de_gouvernance.indicateurs_de_gouvernance" :key="indicateur_de_gouvernance.id">
-                              <tr>
-                                <!-- Première cellule de catégorie principale avec rowspan -->
-                                <td class="font-semibold text-center list-data" v-if="scIndex === 0 && qIndex === 0" :rowspan="principe_de_gouvernance.criteres_de_gouvernance.reduce((sum, sc) => sum + sc.indicateurs_de_gouvernance.length, 0)">
-                                  <div class="flex items-center gap-1">{{ principe_de_gouvernance.nom }}</div>
-                                  
-                                  <div class="items-center transition-all opacity-0 container-buttons">
-                                    <button class="p-1.5 text-primary">
-                                      <Edit3Icon class="size-5" />
-                                    </button>
-                                    <button class="p-1.5 text-danger" @click="removeElement(principe_de_gouvernance, 'principe')">
-                                      <TrashIcon class="size-5" />
-                                    </button>
-                                  </div>
-                                </td>
-                                <!-- Première cellule de sous-catégorie avec rowspan -->
-                                <td class="text-center list-data" v-if="qIndex === 0" :rowspan="critere_de_gouvernance.indicateurs_de_gouvernance.length">
-                                  <div class="flex items-center gap-1">{{ critere_de_gouvernance.nom }}</div>
-                                  
-                                  <div class="flex items-center transition-all opacity-0 container-buttons">
-                                    <button class="p-1.5 text-primary">
-                                      <Edit3Icon class="size-5" />
-                                    </button>
-                                    <button class="p-1.5 text-danger" @click="removeElement(critere_de_gouvernance, 'critere')">
-                                      <TrashIcon class="size-5" />
-                                    </button>
-                                  </div>
-                                </td>
-                                <td>{{ indicateur_de_gouvernance.nom }}</td>
-                                <td>
-                                  <div class="flex items-center">
-                                    <button class="p-1.5 text-primary">
-                                      <Edit3Icon class="size-5" />
-                                    </button>
-                                    <button class="p-1.5 text-danger" @click="removeIndicator(indicateur_de_gouvernance)">
-                                      <TrashIcon class="size-5" />
-                                    </button>
-                                  </div>
-
-                                  <!-- <button class="p-1 text-white btn btn-primary">
-                                    <Edit3Icon class="size-5" />
-                                  </button>
-                                  <button class="p-1 text-white btn btn-danger" @click="removeIndicator(question)">
-                                    <TrashIcon class="size-5" />
-                                  </button> -->
-                                </td>
-                              </tr>
-                            </template>
-                          </template>
-                          <!-- Ligne Score factuel après chaque catégorie principale -->
-                        </template>
-                      </template>
-                    </tbody>
-                  </table>
-                </div>
-                
-                <div class="flex justify-between py-2">
-                  <button @click="goBackToCreate" class="px-5 text-base btn btn-primary"><ArrowLeftIcon class="mr-1 size-5" />Annuler les modifications</button>
-
-                  <button :disabled="!showForm" :loading="isLoadingForm" @click="updateForm" class="px-5 text-base btn btn-primary"><CheckIcon class="mr-1 size-5" />Modifier le formumlaire</button>
-
-                  <!-- <button :disabled="!showForm" @click="previewForm" class="px-5 text-base btn btn-primary"><CheckIcon class="mr-1 size-5" />Prévisualiser le formumlaire</button> -->
-                </div>
-              </div>
-              <LoaderSnipper v-else />
             </div>
           </TabPanel>
         </TabPanels>
@@ -699,20 +620,138 @@ onMounted(async () => {
     </section>
   </div>
 
-  <div class="w-full">
-      <p class="text-lg font-medium">Prévisualisation du formulaire "{{ payload.libelle }}"</p>
-    
-      <table class="w-full my-10 border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
+  <div v-if="!isLoadingOneForm" class="space-y-2">
+    <div class="flex justify-between items-center py-2">
+      <p class="text-lg font-medium">Previsualisation du Formulaire </p>
+
+      <div class="flex justify-spacely py-2" v-if="previewTypesGouvernance?.types_de_gouvernance?.length">
+        <button :disabled="!showForm" @click="previewForm" class="mr-5 px-5 text-base btn btn-primary">
+          <CheckIcon class="mr-1 size-5" />Modifier
+        </button>
+        <button :disabled="!showForm" @click="previewFormulaire = true" class="px-5 text-base btn btn-primary">
+          <EyeIcon class="mr-1 size-5" />Voir le formumlaire
+        </button>
+      </div>
+    </div>
+    <div class="max-h-[80vh] py-2 border-t overflow-y-auto mb-10 my-2">
+      <table class="w-full border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
+        <thead class="text-white bg-blue-900">
+          <tr>
+            <th class="py-3 border border-slate-900">Principes</th>
+            <th class="py-3 border border-slate-900">Critères</th>
+            <th class="py-3 border border-slate-900">Indicateurs</th>
+            <th class="py-3 border border-slate-900 max-w-[200px]">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <template v-for="type_de_gouvernance in previewTypesGouvernance.types_de_gouvernance"
+            :key="type_de_gouvernance.id">
+            <tr class="bg-green-100 list-data">
+              <td colspan="3" class="font-semibold">{{ type_de_gouvernance.nom }}</td>
+
+              <td class="items-center transition-all opacity-0 container-buttons">
+                <button class="p-1.5 text-primary">
+                  <Edit3Icon class="size-5" />
+                </button>
+                <button class="p-1.5 text-danger" @click="removeElement(type_de_gouvernance, 'type')">
+                  <TrashIcon class="size-5" />
+                </button>
+              </td>
+            </tr>
+            <template v-for="principe_de_gouvernance in type_de_gouvernance.principes_de_gouvernance"
+              :key="principe_de_gouvernance.id">
+              <template v-for="(critere_de_gouvernance, scIndex) in principe_de_gouvernance.criteres_de_gouvernance"
+                :key="critere_de_gouvernance.id">
+                <template
+                  v-for="(indicateur_de_gouvernance, qIndex) in critere_de_gouvernance.indicateurs_de_gouvernance"
+                  :key="indicateur_de_gouvernance.id">
+                  <tr>
+                    <!-- Première cellule de catégorie principale avec rowspan -->
+                    <td class="font-semibold text-center list-data" v-if="scIndex === 0 && qIndex === 0"
+                      :rowspan="principe_de_gouvernance.criteres_de_gouvernance.reduce((sum, sc) => sum + sc.indicateurs_de_gouvernance.length, 0)">
+                      <div class="flex items-center gap-1">{{ principe_de_gouvernance.nom }}</div>
+
+                      <div class="items-center transition-all opacity-0 container-buttons">
+                        <button class="p-1.5 text-primary">
+                          <Edit3Icon class="size-5" />
+                        </button>
+                        <button class="p-1.5 text-danger" @click="removeElement(principe_de_gouvernance, 'principe')">
+                          <TrashIcon class="size-5" />
+                        </button>
+                      </div>
+                    </td>
+                    <!-- Première cellule de sous-catégorie avec rowspan -->
+                    <td class="text-center list-data" v-if="qIndex === 0"
+                      :rowspan="critere_de_gouvernance.indicateurs_de_gouvernance.length">
+                      <div class="flex items-center gap-1">{{ critere_de_gouvernance.nom }}</div>
+
+                      <div class="flex items-center transition-all opacity-0 container-buttons">
+                        <button class="p-1.5 text-primary">
+                          <Edit3Icon class="size-5" />
+                        </button>
+                        <button class="p-1.5 text-danger" @click="removeElement(critere_de_gouvernance, 'critere')">
+                          <TrashIcon class="size-5" />
+                        </button>
+                      </div>
+                    </td>
+                    <td>{{ indicateur_de_gouvernance.nom }}</td>
+                    <td>
+                      <div class="flex items-center">
+                        <button class="p-1.5 text-primary">
+                          <Edit3Icon class="size-5" />
+                        </button>
+                        <button class="p-1.5 text-danger" @click="removeIndicator(indicateur_de_gouvernance)">
+                          <TrashIcon class="size-5" />
+                        </button>
+                      </div>
+
+                      <!-- <button class="p-1 text-white btn btn-primary">
+                                    <Edit3Icon class="size-5" />
+                                  </button>
+                                  <button class="p-1 text-white btn btn-danger" @click="removeIndicator(question)">
+                                    <TrashIcon class="size-5" />
+                                  </button> -->
+                    </td>
+                  </tr>
+                </template>
+              </template>
+              <!-- Ligne Score factuel après chaque catégorie principale -->
+            </template>
+          </template>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="flex justify-between py-2 my-2 items-center">
+      <button @click="goBackToFormList" class="px-5 text-base btn btn-danger">
+        <ArrowLeftIcon class="mr-1 size-5" />Annuler
+      </button>
+      <button @click="comeBackToCreation" class="px-5 text-base btn btn-primary">
+        <RotateCcwIcon class="mr-1 size-5" />Revenir pour continuer
+      </button>
+    </div>
+  </div>
+
+  <LoaderSnipper v-else />
+  <Modal backdrop="static" :show="previewFormulaire" size="modal-xl" @hidden="previewFormulaire = false">
+
+    <ModalHeader>
+      <h2 class="mr-auto text-base font-medium">Formulaire factuel de gouvernance </h2>
+    </ModalHeader>
+    <ModalBody class="space-y-5">
+      <table class="w-full border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
         <thead class="text-white bg-blue-900">
           <tr>
             <th class="py-3 border border-slate-900">Principes</th>
             <th class="py-3 border border-slate-900">Critères</th>
             <th class="py-3 border border-slate-900">Indicateurs</th>
             <th class="py-3 border border-slate-900">
-              Réponses <br/>(
-              <template class="py-3 border border-slate-900" v-for="(options_de_reponse, idx) in previewOptionResponses.options_de_reponse" :key="options_de_reponse.id">
-                {{ options_de_reponse.libelle }} {{ idx < (previewOptionResponses.options_de_reponse.length-1) ? ' / ' : '' }}
-              </template>)
+              Réponses <br />(
+              <template class="py-3 border border-slate-900"
+                v-for="(options_de_reponse, idx) in previewOptionResponses.options_de_reponse"
+                :key="options_de_reponse.id">
+                {{ options_de_reponse.libelle }} {{ idx < (previewOptionResponses.options_de_reponse.length - 1) ? ' / '
+                  : '' }} </template>)
             </th>
             <th class="py-3 border border-slate-900">Source de validation</th><!-- 
             <th class="py-3 border border-slate-900">Réponses</th>
@@ -722,23 +761,29 @@ onMounted(async () => {
           </tr>
         </thead>
         <tbody>
-          
-          <template v-for="type_de_gouvernance in previewTypesGouvernance.types_de_gouvernance" :key="type_de_gouvernance.id">
+
+          <template v-for="type_de_gouvernance in previewTypesGouvernance.types_de_gouvernance"
+            :key="type_de_gouvernance.id">
             <tr class="bg-green-100">
               <td colspan="7" class="font-semibold">{{ type_de_gouvernance.nom }}</td>
-            </tr>          
-            <template v-for="principe_de_gouvernance in type_de_gouvernance.principes_de_gouvernance" :key="principe_de_gouvernance.id">
-              <template v-for="(critere_de_gouvernance, scIndex) in principe_de_gouvernance.criteres_de_gouvernance" :key="critere_de_gouvernance.id">
-                <template v-for="(indicateur_de_gouvernance, qIndex) in critere_de_gouvernance.indicateurs_de_gouvernance" :key="indicateur_de_gouvernance.id">
+            </tr>
+            <template v-for="principe_de_gouvernance in type_de_gouvernance.principes_de_gouvernance"
+              :key="principe_de_gouvernance.id">
+              <template v-for="(critere_de_gouvernance, scIndex) in principe_de_gouvernance.criteres_de_gouvernance"
+                :key="critere_de_gouvernance.id">
+                <template
+                  v-for="(indicateur_de_gouvernance, qIndex) in critere_de_gouvernance.indicateurs_de_gouvernance"
+                  :key="indicateur_de_gouvernance.id">
 
                   <tr>
                     <!-- Première cellule de catégorie principale avec rowspan -->
-                    <td class="font-semibold text-center" v-if="scIndex === 0 && qIndex === 0" :rowspan="principe_de_gouvernance.criteres_de_gouvernance.reduce((sum, sc) => sum + sc.indicateurs_de_gouvernance.length, 0)">
+                    <td class="font-semibold" v-if="scIndex === 0 && qIndex === 0"
+                      :rowspan="principe_de_gouvernance.criteres_de_gouvernance.reduce((sum, sc) => sum + sc.indicateurs_de_gouvernance.length, 0)">
                       {{ principe_de_gouvernance.nom }}
                     </td>
 
                     <!-- Première cellule de sous-catégorie avec rowspan -->
-                    <td class="text-center" v-if="qIndex === 0" :rowspan="critere_de_gouvernance.indicateurs_de_gouvernance.length">
+                    <td v-if="qIndex === 0" :rowspan="critere_de_gouvernance.indicateurs_de_gouvernance.length">
                       {{ critere_de_gouvernance.nom }}
                     </td>
                     <td>{{ indicateur_de_gouvernance.nom }}</td>
@@ -752,51 +797,27 @@ onMounted(async () => {
           </template>
         </tbody>
       </table>
-  </div>
-  <!-- BEGIN: Modal Content -->
-  <Modal backdrop="static" size="modal-xl" :show="modalForm" @hidden="modalForm = false">
-    <ModalHeader>
-      <h2 class="mr-auto text-base font-medium">Enregistrer le formulaire</h2>
-    </ModalHeader>
-    <form @submit.prevent="updateForm">
-      <ModalBody class="space-y-5">
-        <div class="flex gap-4">
-          <InputForm label="Libellé" class="w-full" v-model="payload.libelle" />
-          <div class="w-full">
-            <label for="annee" class="form-label">Année</label>
-            <TomSelect v-model="payload.annee_exercice" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
-              <option v-for="(year, index) in yearsStore.getYears" :key="index" :value="year">{{ year }}</option>
-            </TomSelect>
-            <!-- <input id="annee" type="number" required v-model.number="payload.annee_exercice" class="form-control" placeholder="Année" /> -->
-          </div>
-        </div>
-        <div>
-          <p class="mb-3">Options de réponses</p>
-          <ListOptionsResponse :options="previewOptionResponses.options_de_reponse" />
-        </div>
-        <div class="max-h-[50vh] h-[50vh] overflow-y-auto">
-          <p class="mb-3">Formulaire factuel</p>
-          <PreviewFactuelForm :types-gouvernance="previewTypesGouvernance.types_de_gouvernance" />
-        </div>
-      </ModalBody>
-      <ModalFooter>
-        <div class="flex gap-2">
-          <button type="button" @click="modalForm = false" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
-          <VButton :loading="isLoadingForm" label="Modifier" />
-        </div>
-      </ModalFooter>
-    </form>
+    </ModalBody>
+    <ModalFooter>
+      <div class="flex gap-2">
+        <button type="button" @click="previewFormulaire = false;"
+          class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Fermer</button>
+        <button type="button" @click="previewFormulaire = false; previewForm();"
+          class="w-full px-2 py-2 my-3 btn btn-primary">Modifier</button>
+      </div>
+    </ModalFooter>
   </Modal>
-  <!-- END: Modal Content -->
 </template>
 
 <style scoped>
 .accordion .accordion-item .accordion-header .accordion-button:not(.collapsed) {
   background: rgb(var(--color-primary)) !important;
 }
+
 .accordion .accordion-item:first-child {
   margin-top: 0 !important;
 }
+
 table td {
   border: 1px solid rgb(46, 46, 46);
   padding-block: 8px;
