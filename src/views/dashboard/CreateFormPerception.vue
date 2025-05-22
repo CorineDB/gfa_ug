@@ -75,8 +75,13 @@ const currentPreviewPerceptionFormData = reactive({
 const currentGlobalPerceptionFormData = reactive({
   principe: "",
   indicateur: "",
-  key: "",
-  position: 0
+  key: ""
+});
+
+const currentGlobalPerceptionFormData2 = reactive({
+  principe: { id: "", position: 0 },
+  indicateur: { id: "", position: 0 },
+  key: ""
 });
 
 const resetErrors = () => {
@@ -103,8 +108,8 @@ const organiseGlobalFormPerceptionData = (submissions) => {
     // Ajouter l'indicateur de gouvernance s'il n'est pas déjà présent
     if (!principe.questions_operationnelle.includes(submission.indicateur)) {
       
-      principe.questions_operationnelle.push({indicateur: submission.indicateur, key: submission.key});
-      //principe.questions_operationnelle.push(submission.indicateur);
+      //principe.questions_operationnelle.push({indicateur: submission.indicateur, position: submission.key});
+      principe.questions_operationnelle.push(submission.indicateur);
     }
   });
 
