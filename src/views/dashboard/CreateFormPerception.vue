@@ -118,14 +118,14 @@ const organisePreviewFormPerceptionData = (submissions) => {
     // Trouver ou créer le principe de gouvernance
     let principe = organisedData.principes_de_gouvernance.find((p) => p.id === submission.principe.id);
     if (!principe) {
-      principe = { id: submission.principe.id, nom: submission.principe.nom, questions_operationnelle: [] };
+      principe = { id: submission.principe.id, nom: submission.principe.nom, position: submission.principe.position, questions_operationnelle: [] };
       organisedData.principes_de_gouvernance.push(principe);
     }
 
     // Trouver ou créer l'indicateur de gouvernance
     let indicateur = principe.questions_operationnelle.find((i) => i.id === submission.indicateur.id);
     if (!indicateur) {
-      indicateur = { id: submission.indicateur.id, nom: submission.indicateur.nom, key: submission.key };
+      indicateur = { id: submission.indicateur.id, nom: submission.indicateur.nom, position: submission.indicateur.position, key: submission.key };
       principe.questions_operationnelle.push(indicateur);
     }
   });
@@ -182,26 +182,23 @@ const getPrincipe = (principe) => {
   changeIndexAccordion(1);
   currentGlobalPerceptionFormData.principe = principe.id;
 
-  console.log(currentGlobalPerceptionFormData);
+  const counter = new Set(
+    (globalFormPerceptionData.value || [])
+      .map(item => item.principe)
+      .filter(val => val !== null && val !== undefined && val !== "")
+  ).size;
 
-  
-  const counter = new Set(currentGlobalPerceptionFormDataArray.value.map(p => p.principe)).size;
-
-  console.log(counter);
-
-  currentGlobalPerceptionFormDataArray.value.forEach((item, index) => {
+  currentGlobalPerceptionFormDataArray.value.forEach((item) => {
     item.principe = currentGlobalPerceptionFormData.principe;
     item.key = item?.indicateur + item.principe;
-    item.position = currentGlobalPerceptionFormDataArray.value.length - index;
+    item.position = counter + 1;
   });
 
-  currentPreviewPerceptionFormData.principe = { id: principe.id, nom: principe.nom, position: 1 };
+  currentPreviewPerceptionFormData.principe = { id: principe.id, nom: principe.nom, position: counter + 1};
 
   currentPreviewPerceptionFormDataArray.value.forEach((item2, index) => {
     item2.principe = currentPreviewPerceptionFormData.principe;
     item2.key = item2?.indicateur?.id + item2.principe.id;
-    item2.key = key;
-    item2.position = currentPreviewPerceptionFormDataArray.value.length - index;
   });
 };
 
@@ -349,10 +346,13 @@ const previewForm = () => {
     toast.error("Ajouter au moins deux options de réponses.");
   }
 };
-
 const isCurrentFormValid = computed(() => {
-  return Object.values(currentPreviewPerceptionFormData).every((value) => value.id.trim() !== "");
-  return Object.values(currentPreviewPerceptionFormData).every((value) => value.id.trim() !== "");
+  return Object.values(currentPreviewPerceptionFormData).every((value) => {
+    if (typeof value === "object" && value !== null && "id" in value) {
+      return value.id.trim() !== "";
+    }
+    return true; // skip non-object or irrelevant values like "key"
+  });
 });
 
 const showForm = computed(() => {
@@ -475,19 +475,19 @@ onMounted(() => {
                     </thead>
 
                     <tbody v-if="previewPrincipesGouvernance?.principes_de_gouvernance?.length">
-                      <template v-for="principe_de_gouvernance in previewPrincipesGouvernance.principes_de_gouvernance"
+                      <template v-for="principe_de_gouvernance in [...previewPrincipesGouvernance.principes_de_gouvernance].reverse()"
                         :key="principe_de_gouvernance.id">
                         <template
-                          v-for="(question_operationnelle, qIndex) in principe_de_gouvernance.questions_operationnelle"
+                          v-for="(question_operationnelle, qIndex) in [...principe_de_gouvernance.questions_operationnelle].reverse()"
                           :key="question_operationnelle.id">
                           <tr>
                             <td class="font-semibold" v-if="qIndex === 0"
                               :rowspan="principe_de_gouvernance.questions_operationnelle.length">
-                              {{ principe_de_gouvernance.nom }}
+                              {{ principe_de_gouvernance.position }} - {{ principe_de_gouvernance.nom }}
                             </td>
 
                             <td>
-                              {{ question_operationnelle.nom }}
+                              {{ question_operationnelle.position }} - {{ question_operationnelle.nom }}
                             </td>
 
                             <td>
