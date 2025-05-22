@@ -275,9 +275,9 @@ const addNewIndicator = () => {
         resetCurrentForm.value = !resetCurrentForm.value;
       }
 
-      toast.success("Indicateur ajouté.");
+      toast.success("Question operationnelle ajouté.");
     } else {
-      toast.info("Indicateur exisant.");
+      toast.info("Question operationnelle deja ajouté.");
     }
   });
 };
@@ -296,11 +296,12 @@ const removeIndicator = (key) => {
     localStorage.setItem("globalFormPerceptionData", JSON.stringify(globalFormPerceptionData.value));
     localStorage.setItem("previewFormPerceptionData", JSON.stringify(previewFormPerceptionData.value));
 
-    toast.success("Indicateur supprimé.");
+    toast.success("Question operationnelle supprimé.");
     // console.log("Nouvelle Global:", globalFormFactuelData.value);
     // console.log("Nouvelle preview:", previewFormFactuelData.value);
   }
 };
+
 const clearUniqueKeys = () => {
   uniqueKeys.clear(); // Supprime toutes les clés de uniqueKeys
 };
@@ -474,7 +475,7 @@ onMounted(() => {
                       <!-- First header row -->
                       <tr>
                         <th class="py-3 border border-slate-900">Principes</th>
-                        <th class="py-3 border border-slate-900">Indicateurs</th>
+                        <th class="py-3 border border-slate-900">Questions opérationnelle</th>
                         <th class="py-3 border border-slate-900 max-w-[200px]">Actions</th>
                       </tr>
                     </thead>
@@ -542,7 +543,7 @@ onMounted(() => {
         <!-- First header row -->
         <tr>
           <th :rowspan="2" class="py-3 border border-slate-900">Principes</th>
-          <th :rowspan="2" class="py-3 border border-slate-900">Indicateurs</th>
+          <th :rowspan="2" class="py-3 border border-slate-900">Questions opérationnelle</th>
           <th :colspan="previewOptionResponses.options_de_reponse.length"
             class="py-3 border border-slate-900 text-center">
             Réponses

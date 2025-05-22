@@ -17,7 +17,7 @@ import ListOptionsResponse from "@/components/create-form/ListOptionsResponse.vu
 import DeleteButton from "@/components/news/DeleteButton.vue";
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
 import { useRoute, useRouter } from "vue-router";
-import { useYearsStore } from "@/stores/years";  
+import { useYearsStore } from "@/stores/years";
 
 const yearsStore = useYearsStore();
 
@@ -75,14 +75,21 @@ const payload = reactive({
 });
 
 const currentPreviewPerceptionFormData = reactive({
-  principe: { id: "", nom: "" },
-  indicateur: { id: "", nom: "", position: "" }
+  principe: { id: "", nom: "", position: 0 },
+  indicateur: { id: "", nom: "", position: 0 },
+  key: "",
 });
 
 const currentGlobalPerceptionFormData = reactive({
   principe: "",
   indicateur: "",
-  position: ""
+  key: ""
+});
+
+const currentGlobalPerceptionFormData2 = reactive({
+  principe: { id: "", position: 0 },
+  indicateur: { id: "", position: 0 },
+  key: ""
 });
 
 // Fonction pour générer une clé unique pour chaque soumission
@@ -186,18 +193,29 @@ const resetCurrentPreviewPerceptionFormData = () => {
       currentPreviewPerceptionFormData[key] = { id: "", nom: "" };
     }
   */
-  currentPreviewPerceptionFormData.indicateur = { id: "", nom: "", position: "" };
+
+  currentPreviewPerceptionFormData.principe = { id: "", nom: "", position: 0 };
+  currentPreviewPerceptionFormData.indicateur = { id: "", nom: "", position: 0 };
+  currentPreviewPerceptionFormData.key = "";
+
+  currentPreviewPerceptionFormDataArray.value = [];
 };
 const resetCurrentGlobalPerceptionFormData = () => {
+  Object.keys(currentGlobalPerceptionFormData).forEach((key) => {
+    currentGlobalPerceptionFormData[key] = "";
+  });
+
+  currentGlobalPerceptionFormDataArray.value = [];
   /*
     Object.keys(currentGlobalPerceptionFormData).forEach((key) => {
       currentGlobalPerceptionFormData[key] = "";
     });
   */
-  currentGlobalPerceptionFormData.principe = "";
+  /* currentGlobalPerceptionFormData.principe = "";
   currentGlobalPerceptionFormData.indicateur = "";
-  currentGlobalPerceptionFormData.position = "";
+  currentGlobalPerceptionFormData.position = ""; */
 };
+
 const resetAllForm = () => {
   resetCurrentGlobalPerceptionFormData();
   resetCurrentPreviewPerceptionFormData();
@@ -226,18 +244,23 @@ const getPrincipe = (principe) => {
   changeIndexAccordion(1);
   currentGlobalPerceptionFormData.principe = principe.id;
 
-  console.log(currentGlobalPerceptionFormData);
+  const counter = new Set(
+    (globalFormPerceptionData.value || [])
+      .map(item => item.principe)
+      .filter(val => val !== null && val !== undefined && val !== "")
+  ).size;
 
   currentGlobalPerceptionFormDataArray.value.forEach((item) => {
     item.principe = currentGlobalPerceptionFormData.principe;
-    item.key = item.key + item.principe;
+    item.key = item?.indicateur + item.principe;
+    item.position = counter + 1;
   });
 
-  currentPreviewPerceptionFormData.principe = { id: principe.id, nom: principe.nom };
+  currentPreviewPerceptionFormData.principe = { id: principe.id, nom: principe.nom, position: counter + 1 };
 
-  currentPreviewPerceptionFormDataArray.value.forEach((item2) => {
+  currentPreviewPerceptionFormDataArray.value.forEach((item2, index) => {
     item2.principe = currentPreviewPerceptionFormData.principe;
-    item2.key = item2.key + item2.principe.id;
+    item2.key = item2?.indicateur?.id + item2.principe.id;
   });
 };
 
@@ -246,34 +269,35 @@ const getQuestion = (question) => {
   // changeIndexAccordion(2);
   currentGlobalPerceptionFormData.indicateur = question.id;
 
+  const key = currentGlobalPerceptionFormData?.principe != "" ? question.id + currentGlobalPerceptionFormData?.principe : currentGlobalPerceptionFormData?.indicateur;
+
   let form = {
-    key: question.id,
+    key: key,
     principe: currentGlobalPerceptionFormData?.principe,
     indicateur: question.id,
+    position: currentGlobalPerceptionFormDataArray.value.length + 1
   };
 
   currentGlobalPerceptionFormDataArray.value.push(form);
 
-  console.log("currentGlobalPerceptionFormDataArray.value", currentGlobalPerceptionFormDataArray.value);
-
-  currentPreviewPerceptionFormData.indicateur = { id: question.id, nom: question.nom };
+  currentPreviewPerceptionFormData.indicateur = { id: question.id, nom: question.nom, position: 1 };
 
   let form2 = {
-    key: question.id,
+    key: key,
     principe: currentPreviewPerceptionFormData.principe ?? {
       id: "",
       nom: "",
+      position: 0
     },
     indicateur: {
       id: question.id,
       nom: question.nom,
+      position: currentPreviewPerceptionFormDataArray.value.length + 1
     },
   };
+
   currentPreviewPerceptionFormDataArray.value.push(form2);
-
-  console.log("currentPreviewPerceptionFormDataArray.value", currentPreviewPerceptionFormDataArray.value);
 };
-
 
 /*
   const getPrincipe = (principe) => {
@@ -318,33 +342,33 @@ const addNewIndicator = () => {
         resetCurrentForm.value = !resetCurrentForm.value;
       }
 
-      toast.success("Indicateur ajouté.");
-    } else {
-      toast.info("Indicateur exisant.");
-    }
-  });
-  
-  //currentGlobalPerceptionFormDataArray.value.forEach((item, index) => {
-    //const key = generateKey(currentGlobalPerceptionFormData.indicateur + currentGlobalPerceptionFormData.principe);
-
-    // Ajouter la soumission si la clé est absente
-    /* if (!uniqueKeys.has(key)) {
-      globalFormPerceptionData.value.unshift({ ...currentGlobalPerceptionFormData });
-      previewFormPerceptionData.value.unshift(JSON.parse(JSON.stringify(currentPreviewPerceptionFormData)));
-      uniqueKeys.set(key, true);
-      localStorage.setItem("globalFormPerceptionData", JSON.stringify(globalFormPerceptionData.value));
-      localStorage.setItem("previewFormPerceptionData", JSON.stringify(previewFormPerceptionData.value));
-
-      // console.log("global:", globalFormPerceptionData.value);
-      // console.log("preview:", previewFormPerceptionData.value);principe
-      updateAllTypesGouvernance();
-      resetCurrentPreviewPerceptionFormData();
-      resetCurrentGlobalPerceptionFormData();
-      resetCurrentForm.value = !resetCurrentForm.value;
       toast.success("Question operationnelle ajouté.");
     } else {
-      toast.info("Question operationnelle existant.");
-    } */
+      toast.info("Question operationnelle deja ajouté.");
+    }
+  });
+
+  //currentGlobalPerceptionFormDataArray.value.forEach((item, index) => {
+  //const key = generateKey(currentGlobalPerceptionFormData.indicateur + currentGlobalPerceptionFormData.principe);
+
+  // Ajouter la soumission si la clé est absente
+  /* if (!uniqueKeys.has(key)) {
+    globalFormPerceptionData.value.unshift({ ...currentGlobalPerceptionFormData });
+    previewFormPerceptionData.value.unshift(JSON.parse(JSON.stringify(currentPreviewPerceptionFormData)));
+    uniqueKeys.set(key, true);
+    localStorage.setItem("globalFormPerceptionData", JSON.stringify(globalFormPerceptionData.value));
+    localStorage.setItem("previewFormPerceptionData", JSON.stringify(previewFormPerceptionData.value));
+
+    // console.log("global:", globalFormPerceptionData.value);
+    // console.log("preview:", previewFormPerceptionData.value);principe
+    updateAllTypesGouvernance();
+    resetCurrentPreviewPerceptionFormData();
+    resetCurrentGlobalPerceptionFormData();
+    resetCurrentForm.value = !resetCurrentForm.value;
+    toast.success("Question operationnelle ajouté.");
+  } else {
+    toast.info("Question operationnelle existant.");
+  } */
   //});
 };
 
@@ -363,24 +387,21 @@ const deplacerElement = (element, type = 'indicateur') => {
   }
 }
 
-const removeIndicator = (indicateur) => {
-  //const key = generateKey(indicateur.id);
+const removeIndicator = (key) => {
   // Trouver l'index de la soumission à supprimer
-  const index = globalFormPerceptionData.value.findIndex((s) => s.indicateur === indicateur.id);
-
+  const index = globalFormPerceptionData.value.findIndex((s) => s.key === key);
   // Supprimer la soumission et sa clé si elle est trouvée
   if (index !== -1) {
     globalFormPerceptionData.value.splice(index, 1);
     previewFormPerceptionData.value.splice(index, 1);
-
-    const key = generateKey(index.indicateur + index.principe);
     uniqueKeys.delete(key);
     updateAllTypesGouvernance();
     localStorage.setItem("globalFormPerceptionData", JSON.stringify(globalFormPerceptionData.value));
     localStorage.setItem("previewFormPerceptionData", JSON.stringify(previewFormPerceptionData.value));
+
     toast.success("Question operationnelle supprimé.");
-    // console.log("Nouvelle Global:", globalFormPerceptionData.value);
-    // console.log("Nouvelle preview:", previewFormPerceptionData.value);
+    // console.log("Nouvelle Global:", globalFormFactuelData.value);
+    // console.log("Nouvelle preview:", previewFormFactuelData.value);
   }
 };
 
@@ -485,7 +506,12 @@ const previewForm = () => {
 };
 
 const isCurrentFormValid = computed(() => {
-  return Object.values(currentPreviewPerceptionFormData).every((value) => value.id.trim() !== "");
+  return Object.values(currentPreviewPerceptionFormData).every((value) => {
+    if (typeof value === "object" && value !== null && "id" in value) {
+      return value.id.trim() !== "";
+    }
+    return true; // skip non-object or irrelevant values like "key"
+  });
 });
 
 const showForm = computed(() => {
@@ -559,9 +585,8 @@ onMounted(async () => {
               <div class="space-y-2">
                 <p class="text-lg font-medium">Ajouter des questions opérationnelles</p>
                 <PerceptionStructureMultiple :principe="currentPreviewPerceptionFormData.principe.nom"
-                  :indicateurArray="currentPreviewPerceptionFormDataArray.length > 0 ? currentPreviewPerceptionFormDataArray : undefined"
-                  />
-                  <!-- :indicateur="currentPreviewPerceptionFormData.indicateur.nom" -->
+                  :indicateurArray="currentPreviewPerceptionFormDataArray.length > 0 ? currentPreviewPerceptionFormDataArray : undefined" />
+                <!-- :indicateur="currentPreviewPerceptionFormData.indicateur.nom" -->
                 <button :disabled="!isCurrentFormValid" @click="addNewIndicator" class="my-4 text-sm btn btn-primary">
                   <PlusIcon class="mr-1 size-4" />Ajouter
                 </button>
@@ -613,7 +638,7 @@ onMounted(async () => {
                                 <button class="p-1.5 text-primary">
                                   <Edit3Icon class="size-5" />
                                 </button>
-                                <button class="p-1.5 text-danger" @click="removeIndicator(question_operationnelle)">
+                                <button class="p-1.5 text-danger" @click="removeIndicator(question_operationnelle.key)">
                                   <TrashIcon class="size-5" />
                                 </button>
                               </div>
@@ -669,7 +694,7 @@ onMounted(async () => {
         </tr>
       </thead>
 
-      <tbody>
+      <tbody v-if="previewPrincipesGouvernance?.principes_de_gouvernance?.length">
         <template v-for="principe_de_gouvernance in previewPrincipesGouvernance.principes_de_gouvernance"
           :key="principe_de_gouvernance.id">
           <template v-for="(question_operationnelle, qIndex) in principe_de_gouvernance.questions_operationnelle"
@@ -694,6 +719,13 @@ onMounted(async () => {
           </template>
         </template>
       </tbody>
+
+      <tbody v-else>
+        <tr class="bg-transparent text-center">
+          <td :colspan="2 + previewOptionResponses.options_de_reponse.length" class="font-semibold">Constituer le
+            formulaire de perception</td>
+        </tr>
+      </tbody>
     </table>
   </div>
 
@@ -705,13 +737,14 @@ onMounted(async () => {
     </ModalHeader>
     <form @submit.prevent="updateForm">
       <ModalBody class="space-y-5">
-       <!--  <div class="flex gap-4"></div> -->
+        <!--  <div class="flex gap-4"></div> -->
         <div class="gap-4">
           <InputForm label="Libellé" class="w-full mb-4" v-model="payload.libelle" />
           <div class="w-full">
             <label for="annee" class="form-label">Année</label>
             <!-- <input id="annee" type="number" required v-model.number="payload.annee_exercice" class="form-control" placeholder="Année" /> -->
-            <TomSelect v-model="payload.annee_exercice" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+            <TomSelect v-model="payload.annee_exercice" :options="{ placeholder: 'Selectionez une année' }"
+              class="w-full">
               <option v-for="(year, index) in yearsStore.getYears" :key="index" :value="year">{{ year }}</option>
             </TomSelect>
           </div>
