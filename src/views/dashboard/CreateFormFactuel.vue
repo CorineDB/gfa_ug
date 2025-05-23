@@ -463,7 +463,7 @@ onMounted(() => {
                 <div class="max-h-[25vh] h-[25vh] py-2 border-t overflow-y-auto">
                   <ListAccordionIndicateur :indicateurs-array="previewFormFactuelData" @remove="removeIndicator" />
                 </div>
-                <div class="flex justify-start py-2">
+                <div class="flex justify-end py-2">
                   <button :disabled="!showForm" @click="previewForm" class="px-5 text-base btn btn-primary"><CheckIcon class="mr-1 size-5" />Prévisualiser le formumlaire</button>
                 </div>
               </div>

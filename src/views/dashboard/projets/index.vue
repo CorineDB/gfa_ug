@@ -23,10 +23,10 @@
       <ModalBody>
         <div class="grid grid-cols-1 gap-4">
           <InputForm label="Nom" v-model="payloadSites.nom" class="col-span-12" />
-          <InputForm label="Longitude" type="number" v-model="payloadSites.longitude" class="col-span-12" />
+          <InputForm label="Longitude" type="number" step="any" v-model="payloadSites.longitude" class="col-span-12" />
           <div v-if="errors.longitude" class="mt-2 text-danger">{{ getFieldErrors(errors.longitude) }}</div>
 
-          <InputForm label="Latitude" type="number" v-model.number="payloadSites.latitude" class="col-span-12" />
+          <InputForm label="Latitude" type="number" step="any" v-model.number="payloadSites.latitude" class="col-span-12" />
           <div v-if="errors.latitude" class="mt-2 text-danger">{{ getFieldErrors(errors.latitude) }}</div>
 
           <div class="col-span-12">
@@ -191,7 +191,7 @@
 
               <option v-for="(site, index) in sites" :key="index" :value="site.id">{{ site.nom }}</option>
             </TomSelect>
-            <button class="shadow-md btn btn-primary" @click="showModalCreate = true"><PlusIcon class="w-4 h-4 mr-3" /></button>
+            <button class="shadow-md btn btn-primary" type="button" @click="showModalCreate = true"><PlusIcon class="w-4 h-4 mr-3" /></button>
           </div>
         </div>
         <p class="text-red-500 text-[12px] mt-2 col-span-12" title="Ajouter un site" v-if="messageErreur.sites">{{ $h.extractContentFromArray(messageErreur.sites) }}</p>
