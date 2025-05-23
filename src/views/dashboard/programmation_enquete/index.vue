@@ -247,20 +247,28 @@ function fetchOrganisationsAndFormulaires() {
 }
 
 const handleEdit = (params) => {
+
+  console.log(params);
   fetchOrganisationsAndFormulaires();
+
   isCreate.value = false;
   idSelect.value = params.id;
   payload.intitule = params.intitule;
   payload.description = params.description ?? "";
   payload.annee_exercice = params.annee_exercice;
-  // payload.objectif_attendu = params.objectif_attendu;
   payload.debut = params.debut;
   payload.fin = params.fin;
-  idFormFactuel.value = params.formulaire_factuel_de_gouvernance;
-  idFormPerception.value = params.formulaire_perception_de_gouvernance;
+  
+  if (params.formulaire_factuel_de_gouvernance) {
+    idFormFactuel.value = params.formulaire_factuel_de_gouvernance;
+  }
+  if (params.formulaire_perception_de_gouvernance) {
+    idFormPerception.value = params.formulaire_perception_de_gouvernance;
+  }
   payload.organisations = params.organisations.map((ong) => ong.id);
   showModalCreate.value = true;
 };
+
 const handleDelete = (params) => {
   idSelect.value = params.id;
   deleteModalPreview.value = true;
