@@ -348,14 +348,69 @@ onMounted(() => {
       </ModalHeader>
 
       <ModalBody class="space-y-5">
-        <div>
+        <!-- <div>
           <p class="mb-3">Options de réponses</p>
           <ListOptionsResponse :options="optionPreviewForm" />
         </div>
         <div class="max-h-[50vh] h-[50vh] overflow-y-auto">
           <p class="mb-3">Formulaire</p>
           <PreviewDetailFactuelForm :datas="previewForm.categories_de_gouvernance" />
-        </div>
+        </div> -->
+        
+      <table class="w-full border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
+        <thead class="text-white bg-blue-900">
+          <tr>
+            <th class="py-3 border border-slate-900">Principes</th>
+            <th class="py-3 border border-slate-900">Critères</th>
+            <th class="py-3 border border-slate-900">Indicateurs</th>
+            <th class="py-3 border border-slate-900">
+              Réponses <br />(
+              <template class="py-3 border border-slate-900"
+                v-for="(options_de_reponse, idx) in previewForm.options_de_reponse"
+                :key="options_de_reponse.id">
+                {{ options_de_reponse.libelle }} {{ idx < (previewForm.options_de_reponse.length - 1) ? ' / '
+                  : '' }} </template>)
+            </th>
+            <th class="py-3 border border-slate-900">Source de validation</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <template v-for="type_de_gouvernance in previewForm.categories_de_gouvernance"
+            :key="type_de_gouvernance.id">
+            <tr class="bg-green-100">
+              <td colspan="7" class="font-semibold">{{ type_de_gouvernance.nom }}</td>
+            </tr>
+            <template v-for="principe_de_gouvernance in type_de_gouvernance.categories_de_gouvernance"
+              :key="principe_de_gouvernance.id">
+              <template v-for="(critere_de_gouvernance, scIndex) in principe_de_gouvernance.categories_de_gouvernance"
+                :key="critere_de_gouvernance.id">
+                <template
+                  v-for="(indicateur_de_gouvernance, qIndex) in critere_de_gouvernance.questions_de_gouvernance"
+                  :key="indicateur_de_gouvernance.id">
+
+                  <tr>
+                    <!-- Première cellule de catégorie principale avec rowspan -->
+                    <td class="font-semibold" v-if="scIndex === 0 && qIndex === 0"
+                      :rowspan="principe_de_gouvernance.categories_de_gouvernance.reduce((sum, sc) => sum + sc.questions_de_gouvernance.length, 0)">
+                      {{ principe_de_gouvernance.nom }}
+                    </td>
+
+                    <!-- Première cellule de sous-catégorie avec rowspan -->
+                    <td v-if="qIndex === 0" :rowspan="critere_de_gouvernance.questions_de_gouvernance.length">
+                      {{ critere_de_gouvernance.nom }}
+                    </td>
+                    <td>{{ indicateur_de_gouvernance.nom }}</td>
+                    <td>{{ }}</td>
+                    <td>{{ }}</td>
+                  </tr>
+                </template>
+              </template>
+              <!-- Ligne Score factuel après chaque catégorie principale -->
+            </template>
+          </template>
+        </tbody>
+      </table>
       </ModalBody>
     </div>
     <ModalFooter>

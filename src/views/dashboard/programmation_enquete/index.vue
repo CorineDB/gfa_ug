@@ -89,8 +89,21 @@ const evaluationSelected = ref({});
 const showModalObjectif = ref(false);
 
 const createData = async () => {
-  payload.formulaires_de_gouvernance = [idFormFactuel.value, idFormPerception.value];
+
+  let forms = [];
+
+  if( idFormFactuel.value !== null && idFormFactuel.value !== undefined && idFormFactuel.value !== ""){
+    forms = [...forms, idFormFactuel.value]
+  }
+
+  if( idFormPerception.value !== null && idFormPerception.value !== undefined && idFormPerception.value !== ""){
+    forms = [...forms, idFormPerception.value]
+  }
+
+  payload.formulaires_de_gouvernance = forms;
+  
   isLoading.value = true;
+  
   await EnqueteDeColleteService.create(payload)
     .then(() => {
       isLoading.value = false;
@@ -151,6 +164,7 @@ const getEvolutionByScore = async (id) => {
       e.response?.data?.message ? toast.error(e.response?.data?.message) : toast.error("Une erreur est survenue: Score.");
     });
 };
+
 const getFormsFactuel = async () => {
   await FormulaireFactuel.get()
     .then((result) => {
@@ -322,6 +336,14 @@ const datasSearch = computed(() => {
     return evaluation.intitule.toLowerCase().includes(searchTerm);
   });
 });
+
+const getFirstPerceptionForm = (item) => {
+  return item.formulaires_de_gouvernance.find(
+    f => f && f.type === "perception" && f.lien
+  );
+};
+
+
 onMounted(async () => {
   await getDatas();
   await getOrganisationsProgramme();
@@ -407,8 +429,8 @@ onMounted(async () => {
                     </div>
                   </div>
                 </div>
-                <div v-if="item.formulaires_de_gouvernance[1].lien !== null" class="p-4 bg-gray-100 rounded-lg flex items-center space-x-4 mt-3">
-                  <pre>{{ item.formulaires_de_gouvernance[1].lien }}</pre>
+                <div v-if="getFirstPerceptionForm(item)" class="p-4 bg-gray-100 rounded-lg flex items-center space-x-4 mt-3">
+                  <pre>{{ getFirstPerceptionForm(item).lien }}</pre>
                   <a href="google.com" target="_blank" class="text-blue-600 underline"> google.com </a>
                   <button @click="copierLien('google.com')" class="px-4 py-2 btn btn-primary text-white rounded-lg hover:bg-pending hover:text-primary transition" title="Cliquer pour copier le lien du formulaire de perception">Copier lien Perception</button>
                   <span v-if="copié" class="text-green-600">Copié !</span>
