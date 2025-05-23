@@ -113,7 +113,9 @@ const getEvaluation = async () => {
   await EvaluationService.findEvaluation(idEvaluation)
     .then((result) => {
       statistiques.value = result.data.data;
-      currentOrganisationsOptions.value = statistiques.value.options_de_reponse_stats[0].id;
+      console.log( statistiques.value);
+      currentOrganisationsOptions.value = statistiques.value.options_de_reponse_stats[0]?.id || null;
+
       changeOrganisationOptions();
       isLoadingStats.value = false;
     })
@@ -480,7 +482,7 @@ onMounted(async () => {
           </div>
         </div>
       </section>
-      <section v-if="statistiques?.options_de_reponse_stats">
+      <section v-if="statistiques?.formulaire_perception_de_gouvernance && statistiques?.options_de_reponse_stats">
         <p class="pb-4 mt-10 text-lg font-medium intro-y">Évolution des options de réponse de perception</p>
         <div class="py-4 mt-6 box">
           <div class="!w-[250px] p-3">
@@ -497,7 +499,7 @@ onMounted(async () => {
       </section>
       <div class="">
         <div class="flex flex-col items-center w-full gap-8">
-          <div class="flex justify-center w-full p-3">
+          <div v-if="statistiques?.formulaire_perception_de_gouvernance" class="flex justify-center w-full p-3">
             <div class="w-full max-w-full box">
               <p class="p-3 text-lg font-medium">Résultats synthetique par année</p>
               <div class="!w-[250px] p-3">
@@ -542,7 +544,7 @@ onMounted(async () => {
               </div>
             </div>
           </div>
-          <div class="flex justify-center w-full p-3">
+          <div v-if="statistiques?.formulaire_perception_de_gouvernance" class="flex justify-center w-full p-3">
             <div class="w-full max-w-full box">
               <p class="p-3 text-lg font-medium">Classement des organisations</p>
 
