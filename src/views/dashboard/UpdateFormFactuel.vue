@@ -498,7 +498,8 @@ const updateForm = async () => {
 };
 
 const previewForm = () => {
-  if (globalOptionResponses.value.options_de_reponse.length >= 2) modalForm.value = true;
+  console.log("click");
+  if (globalOptionResponses.value.options_de_reponse.length >= 2){ modalForm.value = true;}
   else {
     toast.error("Ajouter au moins deux options de réponses.");
   }
@@ -549,7 +550,9 @@ onMounted(async () => {
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <TypeGouvernance :to-reset="false" :is-available="isAvailable.type" @selected="getType" />
+            <OptionsResponse :is-reset="resetOptions" :factuel="true" :is-update="true" :id-form="idForm"
+              v-model:previewOptionResponses="previewOptionResponses"
+              v-model:globalOptionResponses="globalOptionResponses" />
           </AccordionPanel>
         </AccordionItem>
 
@@ -633,7 +636,7 @@ onMounted(async () => {
       <p class="text-lg font-medium">Previsualisation du Formulaire </p>
 
       <div class="flex justify-spacely py-2" v-if="previewTypesGouvernance?.types_de_gouvernance?.length">
-        <button :disabled="!showForm" @click="previewForm" class="mr-5 px-5 text-base btn btn-primary">
+        <button :disabled="!showForm" @click="previewForm()" class="mr-5 px-5 text-base btn btn-primary">
           <CheckIcon class="mr-1 size-5" />Modifier
         </button>
         <button :disabled="!showForm" @click="previewFormulaire = true" class="px-5 text-base btn btn-primary">
@@ -815,6 +818,41 @@ onMounted(async () => {
       </div>
     </ModalFooter>
   </Modal>
+
+<!-- BEGIN: Modal Content -->
+<!-- size="modal-xl"  -->
+<Modal backdrop="static" :show="modalForm" @hidden="modalForm = false">
+  <ModalHeader>
+    <h2 class="mr-auto text-base font-medium">Modifier le formulaire</h2>
+  </ModalHeader>
+  <form @submit.prevent="updateForm">
+    <ModalBody class="space-y-5">
+      <!--  <div class="flex gap-4"></div> -->
+      <div class="gap-4">
+        <InputForm label="Libellé" class="w-full mb-4" v-model="payload.libelle" />
+        <div class="w-full">
+          <label for="annee" class="form-label">Année</label>
+          <TomSelect v-model="payload.annee_exercice" :options="{ placeholder: 'Selectionez une année' }"
+            class="w-full">
+            <option v-for="(year, index) in yearsStore.getYears" :key="index" :value="year">{{ year }}</option>
+          </TomSelect>
+        </div>
+      </div>
+      <div>
+        <p class="mb-3">Options de réponses</p>
+        <ListOptionsResponse :options="previewOptionResponses.options_de_reponse" />
+      </div>
+    </ModalBody>
+    <ModalFooter>
+      <div class="flex gap-2">
+        <button type="button" @click="modalForm = false"
+          class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
+        <VButton :loading="isLoadingForm" label="Modifier" />
+      </div>
+    </ModalFooter>
+  </form>
+</Modal>
+<!-- END: Modal Content -->
 </template>
 
 <style scoped>
