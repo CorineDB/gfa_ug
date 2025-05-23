@@ -82,30 +82,36 @@ const changeCountry = function () {
   }
 };
 
-const filteredCommunes = function () {
+const filteredCommunes = computed(() => {
   if (!payload.departement) return [];
+
   selectedDepartementData.value = departements.value.find((dep) => dep.lib_dep === payload.departement);
   return selectedDepartementData.value ? selectedDepartementData.value.communes : [];
-};
-const filteredArrondissements = function () {
+});
+
+const filteredArrondissements = computed(() => {
   if (!payload.commune || !selectedDepartementData.value) return [];
   const communeData = selectedDepartementData.value.communes.find((com) => com.lib_com === payload.commune);
   return communeData ? communeData.arrondissements : [];
-};
-const filteredQuartiers = function () {
+});
+
+const filteredQuartiers = computed(() => {
   if (!payload.arrondissement) return [];
-  const arrondissementData = this.filteredArrondissements.find((arrond) => arrond.lib_arrond === payload.arrondissement);
+  const arrondissementData = filteredArrondissements.value.find((arrond) => arrond.lib_arrond === payload.arrondissement);
   return arrondissementData ? arrondissementData.quartiers : [];
-};
-const showCommune = function () {
+});
+
+const showCommune = computed(() => {
   return !payload.departement;
-};
-const showArrondissement = function () {
+});
+
+const showArrondissement = computed(() => {
   return !payload.commune;
-};
-const showQuatier = function () {
+});
+
+const showQuatier = computed(() => {
   return !payload.arrondissement;
-};
+});
 
 // const payload = reactive({
 //   nom: "",
@@ -364,8 +370,8 @@ onMounted(() => {
               </TomSelect>
               <div v-if="errors.departement" class="mt-2 text-danger">{{ getFieldErrors(errors.departement) }}</div>
             </div>
-          
-            <div class="mb-4" :class="[showCommune ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
+            <!-- <pre>{{ departements }}</pre> -->
+            <div class="mb-4" :class="[!showCommune ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
               <label class="form-label">Communes<span class="text-danger">*</span> </label>
               <TomSelect v-model="payload.commune" :options="{ placeholder: 'Sélectionner la commune' }" class="w-full" @change="updateArrondissements">
                 <option v-for="commune in filteredCommunes" :key="commune.lib_com" :value="commune.lib_com">
