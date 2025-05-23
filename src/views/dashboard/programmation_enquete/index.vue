@@ -495,7 +495,7 @@ onMounted(async () => {
             <div class="w-full">
               <label class="form-label">Année</label>
               <TomSelect v-model="payload.annee_exercice" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
-                <option v-for="(year, index) in yearsStore.getYears" :key="index" :value="year">{{ year }}</option>
+                <option v-for="(year, index) in annees" :key="index" :value="year">{{ year }}</option>
               </TomSelect>
             </div>
             <div v-if="errors.annee_exercice" class="mt-2 text-danger">{{ getFieldErrors(errors.annee_exercice) }}</div>

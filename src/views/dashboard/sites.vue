@@ -325,7 +325,7 @@ onMounted(() => {
   <!-- Modal Register & Update -->
   <Modal backdrop="static" :show="showModalCreate" @hidden="showModalCreate = false">
     <ModalHeader>
-      <h2 class="mr-auto text-base font-medium">{{ mode }} une Sites</h2>
+      <h2 class="mr-auto text-base font-medium">{{ mode }} un Site</h2>
     </ModalHeader>
     <form @submit.prevent="submitData">
       <ModalBody>
@@ -364,8 +364,8 @@ onMounted(() => {
               </TomSelect>
               <div v-if="errors.departement" class="mt-2 text-danger">{{ getFieldErrors(errors.departement) }}</div>
             </div>
-            <div>{{payload.departement}}</div>
-            <div class="mb-4" :class="[!showCommune ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
+          
+            <div class="mb-4" :class="[showCommune ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
               <label class="form-label">Communes<span class="text-danger">*</span> </label>
               <TomSelect v-model="payload.commune" :options="{ placeholder: 'Sélectionner la commune' }" class="w-full" @change="updateArrondissements">
                 <option v-for="commune in filteredCommunes" :key="commune.lib_com" :value="commune.lib_com">
