@@ -620,7 +620,7 @@ onMounted(async () => {
     </section>
   </div>
 
-  <div v-if="!isLoadingOneForm" class="space-y-2">
+  <div v-if="!isLoadingOneForm" class="space-y-2 mt-6">
     <div class="flex justify-between items-center py-2">
       <p class="text-lg font-medium">Previsualisation du Formulaire </p>
 
@@ -731,8 +731,8 @@ onMounted(async () => {
       </button>
     </div>
   </div>
-
   <LoaderSnipper v-else />
+  
   <Modal backdrop="static" :show="previewFormulaire" size="modal-xl" @hidden="previewFormulaire = false">
 
     <ModalHeader>

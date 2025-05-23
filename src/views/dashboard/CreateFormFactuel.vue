@@ -310,7 +310,7 @@ const getPrincipe = (principe) => {
 };
 
 const getPrincipes = (principe) => {
-  changeIndexAccordion(1);
+  changeIndexAccordion(2);
   currentGlobalFactuelFormData.principe = principe.id;
 
   let position = new Set(
@@ -349,7 +349,7 @@ const getCritere = (critere) => {
 };
 
 const getCriteres = (critere) => {
-  changeIndexAccordion(1);
+  changeIndexAccordion(3);
   currentGlobalFactuelFormData.critere = critere.id;
 
   let position = new Set(
@@ -390,7 +390,6 @@ const getIndicateur = (indicateur) => {
 
 const getIndicateurs = (indicateur) => {
   console.log("indicateur", indicateur);
-  // changeIndexAccordion(2);
   currentGlobalFactuelFormData.indicateur = indicateur.id;
 
   /* 
@@ -506,6 +505,8 @@ const addNewIndicator = () => {
     const indicateurKey = generateKey(item.indicateurKey + critereKey);
     const key = indicateurKey;
 
+    console.log("critereKey.value", critereKey)
+
     if (!uniqueKeys.has(key)) {
 
       item = {
@@ -525,13 +526,20 @@ const addNewIndicator = () => {
       preview.critere.key = critereKey;
       preview.indicateur.key = indicateurKey;
 
+
+      console.log("preview.critere.key", preview.critere.key)
+
       globalFormFactuelData.value.unshift({ ...item });
 
       //previewFormFactuelData.value.unshift(JSON.parse(JSON.stringify(currentPreviewFactuelFormDataArray.value[index])));
       previewFormFactuelData.value.unshift(JSON.parse(JSON.stringify(preview)));
 
       console.log("previewFormFactuelData.value", previewFormFactuelData.value);
+      console.log("critereKey.value", critereKey)
       uniqueKeys.set(key, true);
+      uniqueKeys.set(critereKey, true);
+      uniqueKeys.set(principeKey, true);
+      uniqueKeys.set(typeKey, true);
       localStorage.setItem("globalFormFactuelData", JSON.stringify(globalFormFactuelData.value));
       localStorage.setItem("previewFormFactuelData", JSON.stringify(previewFormFactuelData.value));
 
@@ -585,54 +593,60 @@ const resetAllFormWithDataLocalStorage = () => {
   // toast.success("Formulaire supprimé.");
 };
 
-/* const removeElement = (element, type = 'indicateur') => {
-  var index = -1;
-  if (type == 'critere') {
-    index = globalFormFactuelData.value.findIndex((s) => s.critere === element.id);
-  }
-  else if (type == 'principe') {
-    index = globalFormFactuelData.value.findIndex((s) => s.principe === element.id);
-  }
-  else if (type == 'type') {
-    index = globalFormFactuelData.value.findIndex((s) => s.type === element.id);
-  }
-
-  // Supprimer la soumission et sa clé si elle est trouvée
-  if (index !== -1) {
-    globalFormFactuelData.value.splice(index, 1);
-    previewFormFactuelData.value.splice(index, 1);
-
-    updateAllTypesGouvernance();
-    localStorage.setItem("globalFormFactuelData", JSON.stringify(globalFormFactuelData.value));
-    localStorage.setItem("previewFormFactuelData", JSON.stringify(previewFormFactuelData.value));
-    toast.success(type + " supprimé.");
-    // console.log("Nouvelle Global:", globalFormFactuelData.value);
-    // console.log("Nouvelle preview:", previewFormFactuelData.value);
-  }
-}; */
-
-
-
 const removeElement = (key, type = 'critere') => {
-  // Trouver l'index de la soumission à supprimer
+  console.log(key);
+  const typeKey = type + "Key";
 
-  // Remove all matching elements based on dynamic key
-  globalFormFactuelData.value = globalFormFactuelData.value.filter(
-    (s) => s[type + "Key"] !== key
-  );
+  // Remove from globalFormFactuelData
+  for (let i = globalFormFactuelData.value.length - 1; i >= 0; i--) {
+    if (globalFormFactuelData.value[i][typeKey] === key) {
+      globalFormFactuelData.value.splice(i, 1);
 
-  previewFormFactuelData.value = previewFormFactuelData.value.filter(
-    (s) => s[type + "Key"] !== key
-  );
+      if (uniqueKeys.has(globalFormFactuelData.value[i]?.[typeKey])) {
+        uniqueKeys.delete(globalFormFactuelData.value[i][typeKey]);
+      }
 
-  uniqueKeys.delete(key);
+      if (uniqueKeys.has(globalFormFactuelData.value[i]?.["indicateurKey"])) {
+        uniqueKeys.delete(globalFormFactuelData.value[i]["indicateurKey"]);
+      }
+
+      if (type == "principe") {
+        if (uniqueKeys.has(globalFormFactuelData.value[i]?.["critereKey"])) {
+          uniqueKeys.delete(globalFormFactuelData.value[i]["critereKey"]);
+        }
+      }
+
+      if (type == "type") {
+        if (uniqueKeys.has(globalFormFactuelData.value[i]?.["critereKey"])) {
+          uniqueKeys.delete(globalFormFactuelData.value[i]["critereKey"]);
+        }
+
+        if (uniqueKeys.has(globalFormFactuelData.value[i]?.["principeKey"])) {
+          uniqueKeys.delete(globalFormFactuelData.value[i]["principeKey"]);
+        }
+      }
+
+    }
+  }
+
+  // Remove from previewFormFactuelData
+  for (let i = previewFormFactuelData.value.length - 1; i >= 0; i--) {
+    console.log(previewFormFactuelData.value[i]);
+    if (previewFormFactuelData.value[i][type]["key"] === key) {
+      previewFormFactuelData.value.splice(i, 1);
+    }
+  }
+
+  // Recalculate and update
   updateAllTypesGouvernance();
+
+  // Persist to localStorage
   localStorage.setItem("globalFormFactuelData", JSON.stringify(globalFormFactuelData.value));
   localStorage.setItem("previewFormFactuelData", JSON.stringify(previewFormFactuelData.value));
 
-  toast.success(type + " supprimé.");
-
+  toast.success("Élément(s) supprimé(s).");
 };
+
 
 const showDeleteButton = computed(() => {
   if (localStorage.getItem("globalFormFactuelData") || localStorage.getItem("previewFormFactuelData") || localStorage.getItem("globalOptionResponses")) {
@@ -658,6 +672,7 @@ const createForm = async () => {
     clearUniqueKeys();
     errors.value = {};
     modalForm.value = false;
+    router.push({ name: "Ajouter_un_formulaire_Factuel", query: { tab: 1 } });
   } catch (e) {
     if (e.response && e.response.status === 422) {
       errors.value = e.response.data.errors;
@@ -829,10 +844,9 @@ onMounted(() => {
     </section>
   </div>
 
-
-  <div class="space-y-2">
+  <div v-if="!currentTab" class="space-y-2 mt-6">
     <div class="flex justify-between items-center py-2">
-      <p class="text-lg font-medium">Constitution du Formulaire </p>
+      <p class="text-lg font-medium">Previsualisation du formulaire factuel</p>
 
       <div class="flex justify-spacely py-2" v-if="previewTypesGouvernance?.types_de_gouvernance?.length">
         <button :disabled="!showForm" @click="previewForm" class="mr-5 px-5 text-base btn btn-primary">
@@ -856,7 +870,7 @@ onMounted(() => {
         </thead>
 
         <tbody v-if="previewTypesGouvernance?.types_de_gouvernance?.length">
-          <template v-for="type_de_gouvernance in previewTypesGouvernance.types_de_gouvernance"
+          <template v-for="type_de_gouvernance in previewTypesGouvernance.types_de_gouvernance.reverse()"
             :key="type_de_gouvernance.id">
             <tr class="bg-green-100 list-data">
               <td colspan="3" class="font-semibold">{{ type_de_gouvernance.nom }}</td>
@@ -870,12 +884,12 @@ onMounted(() => {
                 </button>
               </td>
             </tr>
-            <template v-for="principe_de_gouvernance in type_de_gouvernance.principes_de_gouvernance"
+            <template v-for="principe_de_gouvernance in type_de_gouvernance.principes_de_gouvernance.reverse()"
               :key="principe_de_gouvernance.id">
-              <template v-for="(critere_de_gouvernance, scIndex) in principe_de_gouvernance.criteres_de_gouvernance"
+              <template v-for="(critere_de_gouvernance, scIndex) in principe_de_gouvernance.criteres_de_gouvernance.reverse()"
                 :key="critere_de_gouvernance.id">
                 <template
-                  v-for="(indicateur_de_gouvernance, qIndex) in critere_de_gouvernance.indicateurs_de_gouvernance"
+                  v-for="(indicateur_de_gouvernance, qIndex) in critere_de_gouvernance.indicateurs_de_gouvernance.reverse()"
                   :key="indicateur_de_gouvernance.id">
                   <tr>
                     <!-- Première cellule de catégorie principale avec rowspan -->
@@ -928,7 +942,7 @@ onMounted(() => {
 
         <tbody v-else>
           <tr class="bg-transparent text-center">
-            <td colspan="4" class="font-semibold">Previsualisation du formulaire factuel</td>
+            <td colspan="4" class="font-semibold">Aucune donnee</td>
           </tr>
         </tbody>
       </table>
