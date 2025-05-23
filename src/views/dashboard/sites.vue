@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, reactive, ref } from "vue";
+import { computed, onMounted, onBeforeMount, reactive, ref } from "vue";
 import VButton from "@/components/news/VButton.vue";
 import InputForm from "@/components/news/InputForm.vue";
 import SiteService from "@/services/modules/site.service";
@@ -8,12 +8,110 @@ import Tabulator from "tabulator-tables";
 import DeleteButton from "@/components/news/DeleteButton.vue";
 import { toast } from "vue3-toastify";
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
+import contries from "@/pays.json";
+import decoupage from "@/decoupage_territorial_benin.json";
+
+onBeforeMount(() => {
+  pays.value = Object.values(contries);
+  departements.value = decoupage;
+});
+
+const getinitForm = () => {
+  return {
+    nom: "",
+    longitude: "",
+    latitude: "",
+    arrondissement: "",
+    commune: "",
+    departement: "",
+    pays: "",
+    quartier: "",
+  };
+};
+
+const selectedDepartementData = ref("");
+const departements = ref([]);
+const errors = ref({});
+const pays = ref([]);
+const indexBenin = ref(1);
+const isBenin = ref(false);
 
 const payload = reactive({
   nom: "",
   longitude: "",
   latitude: "",
+  arrondissement: "",
+  commune: "",
+  departement: "",
+  pays: "",
+  quartier: "",
 });
+
+const getFieldErrors = function (errors) {
+  if (!errors || !Array.isArray(errors)) return "";
+  return errors.join(", ");
+};
+
+const updateQuartiers = function () {
+  payload.quartier = "";
+};
+const updateArrondissements = function () {
+  payload.arrondissement = "";
+  payload.quartier = "";
+};
+
+const updateCommunes = function () {
+  payload.commune = "";
+  payload.arrondissement = "";
+  payload.quartier = "";
+};
+const changeCountry = function () {
+  if (payload.pays === "Bénin") {
+    indexBenin.value = -1;
+    isBenin.value = true;
+    updateCommunes();
+  } else {
+    indexBenin.value++;
+    if (indexBenin.value == 0) {
+      payload.quartier = "";
+      payload.arrondissement = "";
+      payload.commune = "";
+      payload.departement = "";
+    }
+    isBenin.value = false;
+  }
+};
+
+const filteredCommunes = function () {
+  if (!payload.departement) return [];
+  selectedDepartementData.value = departements.value.find((dep) => dep.lib_dep === payload.departement);
+  return selectedDepartementData.value ? selectedDepartementData.value.communes : [];
+};
+const filteredArrondissements = function () {
+  if (!payload.commune || !selectedDepartementData.value) return [];
+  const communeData = selectedDepartementData.value.communes.find((com) => com.lib_com === payload.commune);
+  return communeData ? communeData.arrondissements : [];
+};
+const filteredQuartiers = function () {
+  if (!payload.arrondissement) return [];
+  const arrondissementData = this.filteredArrondissements.find((arrond) => arrond.lib_arrond === payload.arrondissement);
+  return arrondissementData ? arrondissementData.quartiers : [];
+};
+const showCommune = function () {
+  return !payload.departement;
+};
+const showArrondissement = function () {
+  return !payload.commune;
+};
+const showQuatier = function () {
+  return !payload.arrondissement;
+};
+
+// const payload = reactive({
+//   nom: "",
+//   longitude: "",
+//   latitude: "",
+// });
 const tabulator = ref();
 const idSelect = ref("");
 const showModalCreate = ref(false);
@@ -150,7 +248,7 @@ const handleEdit = (params) => {
   idSelect.value = params.id;
   payload.nom = params.nom;
   payload.longitude = params.longitude;
-  payload.latitude = params.latitude
+  payload.latitude = params.latitude;
   showModalCreate.value = true;
 };
 const handleDelete = (params) => {
@@ -232,15 +330,76 @@ onMounted(() => {
     <form @submit.prevent="submitData">
       <ModalBody>
         <div class="grid grid-cols-1 gap-4">
-          <InputForm label="Nom" v-model="payload.nom" />
+          <!-- <InputForm label="Nom" v-model="payload.nom" />
           <InputForm label="Longitude" v-model="payload.longitude" />
-          <InputForm label="Latitude" v-model.number="payload.latitude" />
+          <InputForm label="Latitude" v-model.number="payload.latitude" /> -->
+
           <!-- <div class="">
             <label class="form-label">Programmes </label>
             <TomSelect v-model="payload.programmeId" :options="{ placeholder: 'Selectionez un programme' }" class="w-full">
               <option v-for="(programme, index) in programmes" :key="index" :value="programme.id">{{ programme.nom }}</option>
             </TomSelect>
           </div> -->
+          <InputForm label="Nom" v-model="payload.nom" class="col-span-12" />
+          <InputForm label="Longitude" type="number" step="any" v-model="payload.longitude" class="col-span-12" />
+          <div v-if="errors.longitude" class="mt-2 text-danger">{{ getFieldErrors(errors.longitude) }}</div>
+
+          <InputForm label="Latitude" type="number" step="any" v-model.number="payload.latitude" class="col-span-12" />
+          <div v-if="errors.latitude" class="mt-2 text-danger">{{ getFieldErrors(errors.latitude) }}</div>
+
+          <div class="col-span-12">
+            <label class="form-label">Pays<span class="text-danger">*</span> </label>
+            <TomSelect v-model="payload.pays" @change="changeCountry" :options="{ placeholder: 'Selectionez  un pays' }" class="w-full">
+              <option value=""></option>
+              <option v-for="(country, index) in pays" :key="index" :value="country">{{ country }}</option>
+            </TomSelect>
+            <div v-if="errors.pays" class="mt-2 text-danger">{{ getFieldErrors(errors.pays) }}</div>
+          </div>
+          <div v-if="isBenin" class="col-span-12">
+            <div class="w-full mb-4">
+              <label class="form-label">Départements<span class="text-danger">*</span> </label>
+              <TomSelect v-model="payload.departement" @change="updateCommunes" :options="{ placeholder: 'Selectionez un département' }" class="w-full">
+                <option value=""></option>
+                <option v-for="(dep, index) in departements" :key="index" :value="dep.lib_dep">{{ dep.lib_dep }}</option>
+              </TomSelect>
+              <div v-if="errors.departement" class="mt-2 text-danger">{{ getFieldErrors(errors.departement) }}</div>
+            </div>
+            <div>{{payload.departement}}</div>
+            <div class="mb-4" :class="[!showCommune ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
+              <label class="form-label">Communes<span class="text-danger">*</span> </label>
+              <TomSelect v-model="payload.commune" :options="{ placeholder: 'Sélectionner la commune' }" class="w-full" @change="updateArrondissements">
+                <option v-for="commune in filteredCommunes" :key="commune.lib_com" :value="commune.lib_com">
+                  {{ commune.lib_com }}
+                </option>
+              </TomSelect>
+              <div v-if="errors.commune" class="mt-2 text-danger">{{ getFieldErrors(errors.commune) }}</div>
+            </div>
+          </div>
+
+          <div v-if="isBenin" class="col-span-12">
+            <div class="w-full mb-4" :class="[!showArrondissement ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
+              <label class="form-label">Arrondissemnt<span class="text-danger">*</span> </label>
+              <TomSelect v-model="payload.arrondissement" @change="updateQuartiers" :options="{ placeholder: 'Selectionez  arrondissement' }" class="w-full">
+                <option v-for="(arrond, index) in filteredArrondissements" :key="index" :value="arrond.lib_arrond">{{ arrond.lib_arrond }}</option>
+              </TomSelect>
+              <div v-if="errors.arrondissement" class="mt-2 text-danger">{{ getFieldErrors(errors.arrondissement) }}</div>
+            </div>
+            <div class="w-full mb-4" :class="[!showQuatier ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
+              <label class="form-label">Quartier<span class="text-danger">*</span> </label>
+              <TomSelect v-model="payload.quartier" :options="{ placeholder: 'Sélectionner le quatier' }" class="w-full">
+                <option v-for="quart in filteredQuartiers" :key="quart.lib_quart" :value="quart.lib_quart">
+                  {{ quart.lib_quart }}
+                </option>
+              </TomSelect>
+              <div v-if="errors.quartier" class="mt-2 text-danger">{{ getFieldErrors(errors.quartier) }}</div>
+            </div>
+          </div>
+          <div v-if="!isBenin" class="col-span-12">
+            <InputForm :required="false" :optionel="false" label="Département" v-model="payload.departement" :control="getFieldErrors(errors.departement)" class="mb-4" />
+            <InputForm :required="false" :optionel="false" label="Commune" v-model="payload.commune" :control="getFieldErrors(errors.commune)" class="mb-4" />
+            <InputForm :required="false" :optionel="false" label="Arrondissement" v-model="payload.arrondissement" :control="getFieldErrors(errors.arrondissement)" class="mb-4" />
+            <InputForm :required="false" :optionel="false" label="Quartier" v-model="payload.quartier" :control="getFieldErrors(errors.quartier)" class="mb-4" />
+          </div>
         </div>
       </ModalBody>
       <ModalFooter>

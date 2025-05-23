@@ -19,7 +19,35 @@ import SyntheseService from "../../../services/modules/synthese.service";
 import AddObjectifEvaluation from "../../../components/news/AddObjectifEvaluation.vue";
 import verifyPermission from "../../../utils/verifyPermission";
 import { useYearsStore } from "@/stores/years";
+import AuthService from "@/services/modules/auth.service";
 
+const debutProgramme = ref("");
+const finProgramme = ref("");
+
+const annees = computed(() => {
+  let anneeDebut = parseInt(debutProgramme.value.split("-")[0], 10);
+  let anneeFin = parseInt(finProgramme.value.split("-")[0], 10);
+  let annees = [];
+  for (let annee = anneeDebut; annee <= anneeFin; annee++) {
+    annees.push(annee);
+  }
+  return annees;
+});
+
+const getcurrentUser = async () => {
+  await AuthService.getCurrentUser()
+    .then((result) => {
+      // responsablesForm.value.ug = result.data.data.profil.id;
+      // ugs.value.push({ id: result.data.data.profil.id, nom: result.data.data.profil.nom });
+      // idProgramme.value = result.data.data.programme.id;
+      debutProgramme.value = result.data.data.programme.debut;
+      finProgramme.value = result.data.data.programme.fin;
+    })
+    .catch((e) => {
+      console.error(e);
+      toast.error("Une erreur est survenue: Utilisateur connecté .");
+    });
+};
 const yearsStore = useYearsStore();
 
 const router = useRouter();
@@ -297,6 +325,7 @@ const datasSearch = computed(() => {
 onMounted(async () => {
   await getDatas();
   await getOrganisationsProgramme();
+  getcurrentUser();
   // ongSelectedScore.value = organisations.value[0].id;
   // changeOrganisationScore();
   // getFormsFactuel();
@@ -419,7 +448,7 @@ onMounted(async () => {
                   <label class="form-label">Année</label>
                   <TomSelect name="years" v-model="yearSelectedOng" :options="{ placeholder: 'Selectionez une organisation' }">
                     <option value=""></option>
-                    <option v-for="year in yearsCurrentScore" :key="year" :value="year">{{ year }}</option>
+                    <option v-for="year in annees" :key="year" :value="year">{{ year }}</option>
                   </TomSelect>
                 </div>
                 <ChartScroreByPrincipe v-if="currentScore[yearSelectedOng]?.length > 0" :datas="currentScore[yearSelectedOng]" />

@@ -49,6 +49,7 @@ const previewData = localStorage.getItem("previewFormPerceptionData");
 const currentGlobalPerceptionFormDataArray = ref([]);
 const currentPreviewPerceptionFormDataArray = ref([]);
 
+const previewFormulaire = ref(false);
 const isAvailable = reactive({
   option: true,
   principe: true,
@@ -58,13 +59,13 @@ const isAvailable = reactive({
 const goBackToCreate = function () {
   resetAllFormWithDataLocalStorage();/* 
   router.push({ name: "create_form_perception" }); */
-  router.push({ name: "Ajouter_un_formulaire_Perception" });
+  router.push({ name: "Ajouter_un_formulaire_Perception", query: { tab: 1 } });
 };
 
 
 const comeBackToUpdate = function () {/* 
   router.push({ name: "create_form_perception" }); */
-  router.push({ name: "Ajouter_un_formulaire_Perception" });
+  router.push({ name: "Ajouter_un_formulaire_Perception", query: { tab: 1 } });
 };
 
 const payload = reactive({
@@ -188,11 +189,6 @@ function matchDataUpdateWithCurrentDatas(principeCurrent) {
   resetCurrentForm.value = !resetCurrentForm.value;
 }
 const resetCurrentPreviewPerceptionFormData = () => {
-  /*
-    for (const key in currentPreviewPerceptionFormData) {
-      currentPreviewPerceptionFormData[key] = { id: "", nom: "" };
-    }
-  */
 
   currentPreviewPerceptionFormData.principe = { id: "", nom: "", position: 0 };
   currentPreviewPerceptionFormData.indicateur = { id: "", nom: "", position: 0 };
@@ -206,14 +202,6 @@ const resetCurrentGlobalPerceptionFormData = () => {
   });
 
   currentGlobalPerceptionFormDataArray.value = [];
-  /*
-    Object.keys(currentGlobalPerceptionFormData).forEach((key) => {
-      currentGlobalPerceptionFormData[key] = "";
-    });
-  */
-  /* currentGlobalPerceptionFormData.principe = "";
-  currentGlobalPerceptionFormData.indicateur = "";
-  currentGlobalPerceptionFormData.position = ""; */
 };
 
 const resetAllForm = () => {
@@ -299,22 +287,6 @@ const getQuestion = (question) => {
   currentPreviewPerceptionFormDataArray.value.push(form2);
 };
 
-/*
-  const getPrincipe = (principe) => {
-    changeIndexAccordion(1);
-    currentGlobalPerceptionFormData.principe = principe.id;
-    currentPreviewPerceptionFormData.principe = { id: principe.id, nom: principe.nom };
-  };
-*/
-
-/* 
-  const getQuestion = (question) => {
-    changeIndexAccordion(2);
-    currentGlobalPerceptionFormData.indicateur = question.id;
-    currentPreviewPerceptionFormData.indicateur = { id: question.id, nom: question.nom };
-  };
-*/
-
 const addNewIndicator = () => {
   console.log("currentGlobalPerceptionFormDataArray.value", currentGlobalPerceptionFormDataArray.value);
 
@@ -347,29 +319,6 @@ const addNewIndicator = () => {
       toast.info("Question operationnelle deja ajouté.");
     }
   });
-
-  //currentGlobalPerceptionFormDataArray.value.forEach((item, index) => {
-  //const key = generateKey(currentGlobalPerceptionFormData.indicateur + currentGlobalPerceptionFormData.principe);
-
-  // Ajouter la soumission si la clé est absente
-  /* if (!uniqueKeys.has(key)) {
-    globalFormPerceptionData.value.unshift({ ...currentGlobalPerceptionFormData });
-    previewFormPerceptionData.value.unshift(JSON.parse(JSON.stringify(currentPreviewPerceptionFormData)));
-    uniqueKeys.set(key, true);
-    localStorage.setItem("globalFormPerceptionData", JSON.stringify(globalFormPerceptionData.value));
-    localStorage.setItem("previewFormPerceptionData", JSON.stringify(previewFormPerceptionData.value));
-
-    // console.log("global:", globalFormPerceptionData.value);
-    // console.log("preview:", previewFormPerceptionData.value);principe
-    updateAllTypesGouvernance();
-    resetCurrentPreviewPerceptionFormData();
-    resetCurrentGlobalPerceptionFormData();
-    resetCurrentForm.value = !resetCurrentForm.value;
-    toast.success("Question operationnelle ajouté.");
-  } else {
-    toast.info("Question operationnelle existant.");
-  } */
-  //});
 };
 
 const deplacerElement = (element, type = 'indicateur') => {
@@ -405,30 +354,36 @@ const removeIndicator = (key) => {
   }
 };
 
-const removeElement = (element, type = 'indicateur') => {
-  var index = -1;
-  if (type == 'critere') {
-    index = globalFormPerceptionData.value.findIndex((s) => s.critere === element.id);
-  }
-  else if (type == 'principe') {
-    index = globalFormPerceptionData.value.findIndex((s) => s.principe === element.id);
-  }
-  else if (type == 'type') {
-    index = globalFormPerceptionData.value.findIndex((s) => s.type === element.id);
+const removeElement = (key) => {
+
+  key = globalFormPerceptionData.value.find((s) => s.key === key)['principe'];
+
+  // Remove from globalFormPerceptionData
+  for (let i = globalFormPerceptionData.value.length - 1; i >= 0; i--) {
+    if (globalFormPerceptionData.value[i]["principe"] === key) {
+      globalFormPerceptionData.value.splice(i, 1);
+
+      if (uniqueKeys.has(globalFormPerceptionData.value[i]?.["key"])) {
+        uniqueKeys.delete(globalFormPerceptionData.value[i]["key"]);
+      }
+    }
   }
 
-  // Supprimer la soumission et sa clé si elle est trouvée
-  if (index !== -1) {
-    globalFormPerceptionData.value.splice(index, 1);
-    previewFormPerceptionData.value.splice(index, 1);
-
-    updateAllTypesGouvernance();
-    localStorage.setItem("globalFormPerceptionData", JSON.stringify(globalFormPerceptionData.value));
-    localStorage.setItem("previewFormPerceptionData", JSON.stringify(previewFormPerceptionData.value));
-    toast.success(type + " supprimé.");
-    // console.log("Nouvelle Global:", globalFormPerceptionData.value);
-    // console.log("Nouvelle preview:", previewFormPerceptionData.value);
+  // Remove from previewFormPerceptionData
+  for (let i = previewFormPerceptionData.value.length - 1; i >= 0; i--) {
+    if (previewFormPerceptionData.value[i]["principe"]["id"] === key) {
+      previewFormPerceptionData.value.splice(i, 1);
+    }
   }
+
+  // Recalculate and update
+  updateAllTypesGouvernance();
+
+  // Persist to localStorage
+  localStorage.setItem("globalFormPerceptionData", JSON.stringify(globalFormPerceptionData.value));
+  localStorage.setItem("previewFormPerceptionData", JSON.stringify(previewFormPerceptionData.value));
+
+  toast.success("Principe supprimé.");
 };
 
 const clearUniqueKeys = () => {
@@ -591,79 +546,6 @@ onMounted(async () => {
                   <PlusIcon class="mr-1 size-4" />Ajouter
                 </button>
               </div>
-
-              <div class="space-y-2" v-if="!isLoadingOneForm">
-                <div class="flex justify-between items-center py-2">
-                  <p class="text-lg font-medium">Modification du Formulaire </p>
-
-                  <div class="flex justify-spacely py-2"
-                    v-if="previewPrincipesGouvernance?.principes_de_gouvernance?.length">
-                    <button :disabled="!showForm" @click="previewForm" class="mr-5 px-5 text-base btn btn-primary">
-                      <CheckIcon class="mr-1 size-5" />Modifier
-                    </button>
-                    <button :disabled="!showForm" @click="previewForm" class="px-5 text-base btn btn-primary">
-                      <EyeIcon class="mr-1 size-5" />Voir le formumlaire
-                    </button>
-                  </div>
-                </div>
-                <div class="max-h-[75vh] py-2 border-t overflow-y-auto mb-10 mt-2">
-                  <table class="w-full border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
-                    <thead class="text-white bg-blue-900">
-                      <!-- First header row -->
-                      <tr>
-                        <th class="py-3 border border-slate-900">Principes</th>
-                        <th class="py-3 border border-slate-900">Indicateurs</th>
-                        <th class="py-3 border border-slate-900 max-w-[200px]">Actions</th>
-                      </tr>
-                    </thead>
-
-                    <tbody v-if="previewPrincipesGouvernance?.principes_de_gouvernance?.length">
-                      <template v-for="principe_de_gouvernance in previewPrincipesGouvernance.principes_de_gouvernance"
-                        :key="principe_de_gouvernance.id">
-                        <template
-                          v-for="(question_operationnelle, qIndex) in principe_de_gouvernance.questions_operationnelle"
-                          :key="question_operationnelle.id">
-                          <tr>
-                            <td class="font-semibold" v-if="qIndex === 0"
-                              :rowspan="principe_de_gouvernance.questions_operationnelle.length">
-                              {{ principe_de_gouvernance.nom }}
-                            </td>
-
-                            <td>
-                              {{ question_operationnelle.nom }}
-                            </td>
-
-                            <td>
-                              <div class="flex items-center">
-                                <button class="p-1.5 text-primary">
-                                  <Edit3Icon class="size-5" />
-                                </button>
-                                <button class="p-1.5 text-danger" @click="removeIndicator(question_operationnelle.key)">
-                                  <TrashIcon class="size-5" />
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        </template>
-                      </template>
-                    </tbody>
-                    <tbody v-else>
-                      <tr class="bg-transparent text-center">
-                        <td colspan="3" class="font-semibold">Constituer le formulaire de perception</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-                <div class="flex justify-between py-2 my-2 items-center">
-                  <button @click="goBackToCreate" class="px-5 text-base btn btn-danger">
-                    <ArrowLeftIcon class="mr-1 size-5" />Annuler la modification
-                  </button>
-                  <button @click="comeBackToUpdate" class="px-5 text-base btn btn-primary">
-                    <RotateCcwIcon class="mr-1 size-5" />Revenir pour continuer la modification
-                  </button>
-                </div>
-              </div>
-              <LoaderSnipper v-else />
             </div>
           </TabPanel>
         </TabPanels>
@@ -671,69 +553,185 @@ onMounted(async () => {
     </section>
   </div>
 
-  <div v-if="!isLoadingOneForm" class="w-full my-10">
-    <p class="text-lg font-medium">Prévisualisation du formulaire "{{ payload.libelle }}"</p>
 
-    <table class="w-full mt-5 border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
-      <thead class="text-white bg-blue-900">
-        <!-- First header row -->
-        <tr>
-          <th :rowspan="2" class="py-3 border border-slate-900">Principes</th>
-          <th :rowspan="2" class="py-3 border border-slate-900">Indicateurs</th>
-          <th :colspan="previewOptionResponses.options_de_reponse.length"
-            class="py-3 border border-slate-900 text-center">
-            Réponses
-          </th>
-        </tr>
-        <!-- Second header row -->
-        <tr>
-          <template v-for="(option_de_reponse, idx) in previewOptionResponses.options_de_reponse"
-            :key="option_de_reponse.id">
-            <th class="py-3 border border-slate-900 text-center">{{ option_de_reponse.libelle }}</th>
-          </template>
-        </tr>
-      </thead>
+  <div class="space-y-2 mt-6" v-if="!isLoadingOneForm">
+    <div class="flex justify-between items-center py-2">
+      <p class="text-lg font-medium">Modification du Formulaire </p>
 
-      <tbody v-if="previewPrincipesGouvernance?.principes_de_gouvernance?.length">
-        <template v-for="principe_de_gouvernance in previewPrincipesGouvernance.principes_de_gouvernance"
-          :key="principe_de_gouvernance.id">
-          <template v-for="(question_operationnelle, qIndex) in principe_de_gouvernance.questions_operationnelle"
-            :key="question_operationnelle.id">
-            <tr>
-              <td class="font-semibold" v-if="qIndex === 0"
-                :rowspan="principe_de_gouvernance.questions_operationnelle.length">
-                {{ principe_de_gouvernance.nom }}
-              </td>
+      <div class="flex justify-spacely py-2" v-if="previewPrincipesGouvernance?.principes_de_gouvernance?.length">
+        <button :disabled="!showForm" @click="previewForm" class="mr-5 px-5 text-base btn btn-primary">
+          <CheckIcon class="mr-1 size-5" />Modifier
+        </button>
+        <button :disabled="!showForm" @click="previewFormulaire = true" class="px-5 text-base btn btn-primary">
+          <EyeIcon class="mr-1 size-5" />Voir le formumlaire
+        </button>
+      </div>
+    </div>
+    <div class="max-h-[75vh] py-2 border-t overflow-y-auto mb-10 mt-2">
+      <table class="w-full border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
+        <thead class="text-white bg-blue-900">
+          <!-- First header row -->
+          <tr>
+            <th class="py-3 border border-slate-900">Principes</th>
+            <th class="py-3 border border-slate-900">Indicateurs</th>
+            <th class="py-3 border border-slate-900 max-w-[200px]">Actions</th>
+          </tr>
+        </thead>
 
-              <td>
-                {{ question_operationnelle.nom }}
-              </td>
+        <tbody v-if="previewPrincipesGouvernance?.principes_de_gouvernance?.length">
+          <template v-for="principe_de_gouvernance in previewPrincipesGouvernance.principes_de_gouvernance"
+            :key="principe_de_gouvernance.id">
+            <template v-for="(question_operationnelle, qIndex) in principe_de_gouvernance.questions_operationnelle"
+              :key="question_operationnelle.id">
+              <tr>
+                <td class="font-semibold list-data" v-if="qIndex === 0"
+                  :rowspan="principe_de_gouvernance.questions_operationnelle.length">
 
-              <template v-for="(option_de_reponse, optionIdx) in previewOptionResponses.options_de_reponse"
-                :key="option_de_reponse.id">
-                <td class="border border-slate-900 text-center">
-                  {{ }}
+                  <div class="flex items-start gap-1">{{
+                    principe_de_gouvernance.nom }}</div>
+
+                  <div class="items-end transition-all opacity-0 container-buttons">
+                    <button class="p-1.5 text-primary">
+                      <Edit3Icon class="size-5" />
+                    </button>
+                    <button class="p-1.5 text-danger" @click="removeElement(question_operationnelle.key, 'principe')">
+                      <TrashIcon class="size-5" />
+                    </button>
+                  </div>
+
                 </td>
-              </template>
-            </tr>
-          </template>
-        </template>
-      </tbody>
 
-      <tbody v-else>
-        <tr class="bg-transparent text-center">
-          <td :colspan="2 + previewOptionResponses.options_de_reponse.length" class="font-semibold">Constituer le
-            formulaire de perception</td>
-        </tr>
-      </tbody>
-    </table>
+                <td>
+                  {{ question_operationnelle.nom }}
+                </td>
+
+                <td>
+                  <div class="flex items-center">
+                    <button class="p-1.5 text-primary">
+                      <Edit3Icon class="size-5" />
+                    </button>
+                    <button class="p-1.5 text-danger" @click="removeIndicator(question_operationnelle.key)">
+                      <TrashIcon class="size-5" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </template>
+          </template>
+        </tbody>
+        <tbody v-else>
+          <tr class="bg-transparent text-center">
+            <td colspan="3" class="font-semibold">Constituer le formulaire de perception</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="flex justify-between py-2 my-2 items-center">
+      <button @click="goBackToCreate" class="px-5 text-base btn btn-danger">
+        <ArrowLeftIcon class="mr-1 size-5" />Annuler la modification
+      </button>
+      <button @click="comeBackToUpdate" class="px-5 text-base btn btn-primary">
+        <RotateCcwIcon class="mr-1 size-5" />Revenir pour continuer la modification
+      </button>
+    </div>
   </div>
+  <LoaderSnipper v-else />
+
+  <Modal backdrop="static" :show="previewFormulaire" size="modal-xl" @hidden="previewFormulaire = false">
+
+    <ModalHeader>
+      <h2 class="mr-auto text-base font-medium">Formulaire de perception de gouvernance </h2>
+    </ModalHeader>
+    <ModalBody class="space-y-5">
+
+      <table class="w-full  border-collapse table-auto border-slate-500 " border="1" cellspacing="0" cellpadding="8"
+        style="border-collapse: collapse; font-family: Arial, sans-serif;">
+        <tr>
+          <td rowspan="3"><strong>Vous êtes :</strong></td>
+          <td style="background-color: white; color: black;">Membre du Conseil d'administration</td>
+        </tr>
+        <tr>
+          <td>Membre de l'association</td>
+        </tr>
+        <tr>
+          <td>Employé de l'association</td>
+        </tr>
+
+        <tr>
+          <td rowspan="1"></td>
+          <td>Partenaires</td>
+        </tr>
+      </table>
+
+      <table class="w-full mt-5 border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
+        <thead class="text-white bg-blue-900">
+          <!-- First header row -->
+          <tr>
+            <th :rowspan="2" class="py-3 border border-slate-900">Principes</th>
+            <th :rowspan="2" class="py-3 border border-slate-900">Indicateurs</th>
+            <th :colspan="previewOptionResponses.options_de_reponse.length"
+              class="py-3 border border-slate-900 text-center">
+              Réponses
+            </th>
+          </tr>
+          <!-- Second header row -->
+          <tr>
+            <template v-for="(option_de_reponse, idx) in previewOptionResponses.options_de_reponse"
+              :key="option_de_reponse.id">
+              <th class="py-3 border border-slate-900 text-center">{{ option_de_reponse.libelle }}</th>
+            </template>
+          </tr>
+        </thead>
+
+        <tbody v-if="previewPrincipesGouvernance?.principes_de_gouvernance?.length">
+          <template v-for="principe_de_gouvernance in previewPrincipesGouvernance.principes_de_gouvernance"
+            :key="principe_de_gouvernance.id">
+            <template v-for="(question_operationnelle, qIndex) in principe_de_gouvernance.questions_operationnelle"
+              :key="question_operationnelle.id">
+              <tr>
+                <td class="font-semibold" v-if="qIndex === 0"
+                  :rowspan="principe_de_gouvernance.questions_operationnelle.length">
+                  {{ principe_de_gouvernance.nom }}
+                </td>
+
+                <td>
+                  {{ question_operationnelle.nom }}
+                </td>
+
+                <template v-for="(option_de_reponse, optionIdx) in previewOptionResponses.options_de_reponse"
+                  :key="option_de_reponse.id">
+                  <td class="border border-slate-900 text-center">
+                    {{ }}
+                  </td>
+                </template>
+              </tr>
+            </template>
+          </template>
+        </tbody>
+
+        <tbody v-else>
+          <tr class="bg-transparent text-center">
+            <td :colspan="2 + previewOptionResponses.options_de_reponse.length" class="font-semibold">Constituer le
+              formulaire de perception</td>
+          </tr>
+        </tbody>
+      </table>
+    </ModalBody>
+    <ModalFooter>
+      <div class="flex gap-2">
+        <button type="button" @click="previewFormulaire = false;"
+          class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Fermer</button>
+        <button type="button" @click="previewFormulaire = false; previewForm();"
+          class="w-full px-2 py-2 my-3 btn btn-primary">Modifier</button>
+      </div>
+    </ModalFooter>
+  </Modal>
 
   <!-- BEGIN: Modal Content -->
   <!-- size="modal-xl"  -->
   <Modal backdrop="static" :show="modalForm" @hidden="modalForm = false">
     <ModalHeader>
-      <h2 class="mr-auto text-base font-medium">Enregistrer le formulaire</h2>
+      <h2 class="mr-auto text-base font-medium">Modifier le formulaire</h2>
     </ModalHeader>
     <form @submit.prevent="updateForm">
       <ModalBody class="space-y-5">

@@ -147,6 +147,11 @@ export const useSideMenuStore = defineStore("sideMenu", {
       pageName: "Roles",
       title: "Rôles et permissions",
     },
+    sites:{
+      icon: "LinkIcon",
+      pageName: "Sites",
+      title: "Sites",
+    },
     menu: [],
      
   }),
@@ -248,6 +253,9 @@ export const useSideMenuStore = defineStore("sideMenu", {
         }
         if (this.tabPermission.some((permission) => permission.slug === "voir-un-fond")) {
           this.parametre.subMenu.push(this.fonds);
+        }
+        if (this.tabPermission.some((permission) => permission.slug === "voir-un-site")) {
+          this.parametre.subMenu.push(this.sites);
         }
         if (this.tabPermission.some((permission) => permission.slug === "voir-un-role" && permission.slug === "voir-une-permission")) {
           this.parametre.subMenu.push(this.roles);
