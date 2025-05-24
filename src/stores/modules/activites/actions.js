@@ -73,6 +73,12 @@ export default {
 
         return { data, status };
     },
+    async CHANGER_STATUT({ commit }, { statut, id }) {
+
+        const { data, status } = await ActiviteService.changerStatut(id, statut);
+
+        return { data, status };
+    },
 
     async DESTROY_ACTIVITE({ commit }, idActivite) {
         const { data, status } = await ActiviteService.destroy(idActivite);

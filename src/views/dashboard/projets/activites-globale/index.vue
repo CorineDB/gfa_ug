@@ -31,6 +31,7 @@ export default {
 
   data() {
     return {
+      loaderStatut: false,
       loaderListePlan: false,
       listePlanDeDecaissement: [],
       search: "",
@@ -213,6 +214,8 @@ export default {
     ...mapActions({
       // Mapping des actions pour le module activites
       prolongerDureeActivite: "activites/PROLONGER_DATE",
+      changerStatutActivite: "activites/CHANGER_STATUT",
+
       // Mapping des actions pour le module planDeDecaissements
       storePlanDecaissement: "planDeDecaissements/STORE_PLAN_DE_DECAISSEMENT",
     }),
@@ -575,6 +578,39 @@ export default {
         });
     },
 
+    changerStatut(item) {
+      this.loaderStatut = true;
+
+      const nouveauStatut = item.statut === 0 ? 2 : 0;
+
+      const payLoad = {
+        statut: nouveauStatut,
+      };
+
+      this.changerStatutActivite({ status: payLoad, id: item.id })
+        .then((response) => {
+          this.loaderStatut = false;
+          if (response.status == 200 || response.status == 201) {
+            toast.success("Statut changer  avec succès");
+
+            this.loadSousComposantDetails();
+            //this.fetchProjets(this.programmeId);
+          }
+        })
+        .catch((error) => {
+          this.loaderStatut = false;
+
+          console.log(error);
+          toast.error(error.response.data.message);
+
+          // Mettre à jour les messages d'erreurs dynamiquement
+          if (error.response && error.response.data && error.response.data.errors) {
+            this.erreurProlongation = error.response.data.errors;
+            toast.error("Une erreur s'est produite");
+          }
+        });
+    },
+
     ouvrirModalPlanDeDecaissementActivite(item) {
       this.planDeDecaissement = [];
       const newItem = {
@@ -820,6 +856,7 @@ export default {
       <div v-if="!isLoadingData" class="grid grid-cols-12 gap-6 mt-5">
         <NoRecordsMessage class="col-span-12" v-if="!paginatedAndFilteredData.length" title="Aucune activité trouvée" description="Il semble qu'il n'y ait pas d'activités à afficher. Veuillez en créer un." />
         <div v-else v-for="(item, index) in paginatedAndFilteredData" :key="index" class="col-span-12 p-4 md:col-span-6 lg:col-span-4">
+          <pre>{{ item }}</pre>
           <div v-if="verifyPermission('voir-une-activite')" class="p-5 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-105 hover:bg-gray-50">
             <div class="relative flex items-start pt-5">
               <div class="flex flex-col items-center w-full lg:flex-row">
@@ -839,6 +876,9 @@ export default {
                   <DropdownContent>
                     <DropdownItem v-if="verifyPermission('modifier-une-activite')" @click="modifierActivite(item)"> <Edit2Icon class="w-4 h-4 mr-2" /> Modifier </DropdownItem>
                     <DropdownItem v-if="verifyPermission('prolonger-une-activite')" @click="ouvrirModalProlongerActivite(item)"> <CalendarIcon class="w-4 h-4 mr-2" /> Prolonger </DropdownItem>
+                    <DropdownItem title="cliquer pour marquer l'activité comme terminer" v-if="verifyPermission('modifier-une-activite') && item.statut == '0'" @click="changerStatut(item)"> <CalendarIcon class="w-4 h-4 mr-2" /> Terminer </DropdownItem>
+                    <DropdownItem title="cliquer pour démarré l'activité" v-else-if="verifyPermission('modifier-une-activite') && (item.statut !== 0)" @click="changerStatut(item)"> <CalendarIcon class="w-4 h-4 mr-2" /> Démarrer </DropdownItem>
+
                     <DropdownItem v-if="verifyPermission('creer-un-plan-de-decaissement')" @click="ouvrirModalPlanDeDecaissementActivite(item)"> <CalendarIcon class="w-4 h-4 mr-2" /> Plan de decaissement </DropdownItem>
 
                     <!-- <a v-if="verifyPermission('prolonger-un-projet')" class="flex items-center mr-auto text-primary" href="javascript:;" @click="ouvrirModalProlongerProjet(item)" title="Prolonger la date du projet"> <CalendarIcon class="w-4 h-4 mr-1" /><span class="hidden sm:block"> Étendre </span></a> -->
@@ -886,9 +926,9 @@ export default {
                 </div>
                 <div class="flex items-center mt-2" v-for="(plage, t) in item.durees" :key="t">
                   <!-- v-if="item.durees.length > 1 && t > 0" -->
-                  <ClockIcon class="w-4 h-4 mr-2"   v-if=" t <  item.durees.length-1"/>
+                  <ClockIcon class="w-4 h-4 mr-2" v-if="t < item.durees.length - 1" />
                   <!-- -->
-                  <div  v-if=" t <  item.durees.length-1">
+                  <div v-if="t < item.durees.length - 1">
                     Plage de date {{ t + 1 }} : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(plage.debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(plage.fin) }}</span>
                   </div>
                 </div>
