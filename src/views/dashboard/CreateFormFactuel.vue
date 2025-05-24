@@ -390,6 +390,7 @@ const getIndicateur = (indicateur) => {
 
 const getIndicateurs = (indicateur) => {
   console.log("indicateur", indicateur);
+  changeIndexAccordion(4);
   currentGlobalFactuelFormData.indicateur = indicateur.id;
 
   /* 

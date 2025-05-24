@@ -479,10 +479,10 @@ export default {
                   <span class="ml-2 font-semibold text-gray-900">{{ item.budgetNational }}</span>
                 </div>
 
-                <div class="flex items-center text-sm font-medium text-gray-700">
+                <!-- <div class="flex items-center text-sm font-medium text-gray-700">
                   <GlobeIcon class="w-4 h-4 mr-2 text-primary" /> Taux d'exécution physique:
                   <span class="ml-2 font-semibold text-gray-900">{{ item.tep }}</span>
-                </div>
+                </div> -->
 
                 <div class="flex items-center text-sm font-medium text-gray-700">
                   <CheckSquareIcon class="w-4 h-4 mr-2 text-primary" /> Statut:
@@ -602,7 +602,7 @@ export default {
         <InputForm v-model="formData.poids" class="col-span-12" type="number" required="required" placeHolder="Poids de l'activité " label="Poids" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.poids">{{ messageErreur.poids }}</p>
 
-        <InputForm v-model="formData.pret" class="col-span-12" type="number" required="required" placeHolder="Montant financé" label="Montant financé" />
+        <InputForm v-model="formData.pret" class="col-span-12" type="number" required="required" placeHolder="Subvention" label="Subvention" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pret">{{ messageErreur.pret }}</p>
 
         <InputForm v-model="formData.debut" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de début" label="Début de l'activité" />

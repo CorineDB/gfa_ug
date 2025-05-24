@@ -10,6 +10,14 @@
       </div>
       <div class="flex">
         <button class="mr-2 shadow-md btn btn-primary" @click="showModalFiltre = true"><FilterIcon class="w-4 h-4 mr-3" />Filtrer le PA</button>
+        <!-- v-if="!isLoadingData && currentOrganisation?.profile_de_gouvernance" :org="currentOrganisation?.nom" :pointfocal="`${currentOrganisation?.nom_point_focal}  ${currentOrganisation?.prenom_point_focal}`" :dateevaluation="currentFactuel?.evaluatedAt" -->
+        <!-- <ExportationResultatSynthese :datas="dataNew" class="mr-3" /> -->
+        <download-excel :data="json_data" class="btn btn-primary">
+          Télécharger Excel
+          <!-- <DownloadIcon class="w-4 h-4" /> -->
+        </download-excel>
+
+        <DownloadPDFButton :tableIds="['ptaTable34']" pageName="Plan d'action" format="a0" />
       </div>
     </div>
   </div>
@@ -69,10 +77,10 @@
       </div>
 
       <div class="absolute shadow-md left-[370px] sm:rounded-lg">
-        <table class="w-full overflow-auto text-sm text-left text-gray-500 dark:text-gray-400">
+        <table id="ptaTable34" class="w-full overflow-auto text-sm text-left text-gray-500 dark:text-gray-400">
           <thead class="sticky top-0 text-xs border bg-blue-200 text-gray-700 uppercase _z-20 _bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr class="">
-              <th scope="col" rowspan="3" class="px-6 py-3 border dark:bg-gray-800 border-gray-300 whitespace-nowrap">OutComes / OutPut / activiés / Taches</th>
+              <th scope="col" rowspan="3" class="px-6 py-3 border dark:bg-gray-800 border-gray-300 whitespace-nowrap">OutCome / OutPut / activiés / Taches</th>
               <th scope="col" colspan="6" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Montant projet XOF</th>
               <!-- <th scope="col" colspan="3" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Montant budgetisé XOF</th> -->
               <th scope="col" rowspan="2" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Poids</th>
@@ -92,7 +100,7 @@
 
             <tr class="bg-blue-100">
               <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Fond propres</th>
-              <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Montant financé</th>
+              <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Subvention</th>
               <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Dépenses</th>
               <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Solde</th>
               <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Taux d'exécution financière</th>
@@ -111,25 +119,25 @@
               <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">NOVEMBRE</th>
               <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">DECEMBRE</th>
               <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Fond propres</th>
-              <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Montant financé XOF</th>
+              <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Subvention XOF</th>
               <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">TOTAL</th>
               <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Fond propres</th>
-              <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Montant financé XOF</th>
+              <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Subvention XOF</th>
               <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">TOTAL</th>
               <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Fond propres</th>
-              <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Montant financé XOF</th>
+              <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Subvention XOF</th>
               <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">TOTAL</th>
               <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Fond propres</th>
-              <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Montant financé XOF</th>
+              <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Subvention XOF</th>
               <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">TOTAL</th>
             </tr>
           </thead>
 
           <tbody>
             <tr v-for="pta in dataNew" :key="pta.id" class="bg-white border-b dark:bg-gray-800 dark:border-gray-300">
-              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300 uppercase">
                 <span v-if="pta.isProjet" class="text-lg font-bold">projet: {{ pta.nom }}</span>
-                <span v-if="pta.isComposante" class="text-sm text-blue-500">OutComes: {{ pta.nom }}</span>
+                <span v-if="pta.isComposante" class="text-sm text-blue-500">OutCome: {{ pta.nom }}</span>
                 <span v-if="pta.isSC" class="text-sm text-yellow-600"> <span class="text-sm text-yellow-600" v-if="pta.code != 0">OutPut:</span> {{ pta.nom }}</span>
                 <span v-if="pta.isActivite" class="text-sm text-green-600 shadow bg-gradient-to-br from-yellow-400 to-yellow-600">Activite: {{ pta.nom }}</span>
                 <span v-if="pta.isTache" class="text-sm text-red-600"> {{ pta.nom }}</span>
@@ -141,7 +149,7 @@
               </td>
               <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300 font-bold" v-else>0</td> -->
 
-              <!-- Montant financé -->
+              <!-- Subvention -->
               <!-- v-if="pta.pret" -->
               <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span class="font-bold"> {{ pta.pret == null || pta.pret == 0 ? 0 : $h.formatCurrency(pta.pret) }}</span>
@@ -331,6 +339,278 @@
       </div>
     </div>
   </div>
+
+  <table v-show="false == true" id="ptaTable34" class="w-full overflow-auto text-sm text-left text-gray-500 dark:text-gray-400">
+    <thead class="sticky top-0 text-xs border bg-blue-200 text-gray-700 uppercase _z-20 _bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+      <tr class="">
+        <th scope="col" rowspan="2" class="px-6 py-3 border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Code PTBA</th>
+
+        <th scope="col" rowspan="3" class="px-6 py-3 border dark:bg-gray-800 border-gray-300 whitespace-nowrap">OutCome / OutPut / activiés / Taches</th>
+        <th scope="col" colspan="6" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Montant projet XOF</th>
+        <!-- <th scope="col" colspan="3" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Montant budgetisé XOF</th> -->
+        <th scope="col" rowspan="2" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Poids</th>
+        <th v-if="statutActuel" scope="col" rowspan="2" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">poids actuel</th>
+
+        <!-- <th scope="col" rowspan="2" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">STRUCTURE ASSOCIER</th> -->
+        <th scope="col" rowspan="2" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">STRUCTURE RESPONSABLE</th>
+        <th scope="col" colspan="12" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">PLANING</th>
+        <th scope="col" colspan="3" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">TRIMESTRE 1</th>
+
+        <th scope="col" colspan="3" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">TRIMESTRE 2</th>
+
+        <th scope="col" colspan="3" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">TRIMESTRE 3</th>
+
+        <th scope="col" colspan="3" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">TRIMESTRE 4</th>
+      </tr>
+
+      <tr class="bg-blue-100">
+        <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Fond propres</th>
+        <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Subvention</th>
+        <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Dépenses</th>
+        <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Solde</th>
+        <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Taux d'exécution financière</th>
+        <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">TOTAL</th>
+
+        <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">JAV</th>
+        <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">FEV</th>
+        <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">MARS</th>
+        <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">AVRIL</th>
+        <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">MAI</th>
+        <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">JUIN</th>
+        <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">JUILLET</th>
+        <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">AOUT</th>
+        <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">SEPTEMBRE</th>
+        <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">OCTOBRE</th>
+        <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">NOVEMBRE</th>
+        <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">DECEMBRE</th>
+        <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Fond propres</th>
+        <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Subvention XOF</th>
+        <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">TOTAL</th>
+        <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Fond propres</th>
+        <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Subvention XOF</th>
+        <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">TOTAL</th>
+        <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Fond propres</th>
+        <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Subvention XOF</th>
+        <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">TOTAL</th>
+        <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Fond propres</th>
+        <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Subvention XOF</th>
+        <th scope="col" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">TOTAL</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr v-for="pta in dataNew" :key="pta.id" class="bg-white border-b dark:bg-gray-800 dark:border-gray-300">
+        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+          <span v-if="pta.isProjet" class="text-lg font-bold"> {{ pta.code }}</span>
+          <span v-if="pta.isComposante" class="text-sm text-blue-500"> {{ pta.code }}</span>
+          <span v-if="pta.isSC && pta.code != 0" class="text-sm text-yellow-600"> {{ pta.code }}</span>
+          <span v-if="pta.isActivite" class="text-sm text-green-600">
+            <!-- <pre>{{ pta }}</pre> -->
+            {{ pta.code }}
+          </span>
+          <span v-if="pta.isTache" class="text-sm text-red-600"> {{ pta.code }}</span>
+        </td>
+        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300 uppercase">
+          <span v-if="pta.isProjet" class="text-lg font-bold">projet: {{ pta.nom }}</span>
+          <span v-if="pta.isComposante" class="text-sm text-blue-500">OutCome: {{ pta.nom }}</span>
+          <span v-if="pta.isSC" class="text-sm text-yellow-600"> <span class="text-sm text-yellow-600" v-if="pta.code != 0">OutPut:</span> {{ pta.nom }}</span>
+          <span v-if="pta.isActivite" class="text-sm text-green-600 shadow bg-gradient-to-br from-yellow-400 to-yellow-600">Activite: {{ pta.nom }}</span>
+          <span v-if="pta.isTache" class="text-sm text-red-600"> {{ pta.nom }}</span>
+        </td>
+        <!-- Fond propre -->
+        <!-- v-if="pta.bn != ''" -->
+        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+          <span class="font-bold">{{ pta.bn == null || pta.bn == 0 ? 0 : $h.formatCurrency(pta.bn) }} </span>
+        </td>
+        <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300 font-bold" v-else>0</td> -->
+
+        <!-- Subvention -->
+        <!-- v-if="pta.pret" -->
+        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+          <span class="font-bold"> {{ pta.pret == null || pta.pret == 0 ? 0 : $h.formatCurrency(pta.pret) }}</span>
+        </td>
+        <!-- <td v-else class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300 font-bold">0</td> -->
+
+        <!-- Dépenses -->
+        <!-- v-if="pta.depenses" -->
+        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+          <span class="font-bold"> {{ pta.depenses == null || pta.depenses == 0 ? 0 : $h.formatCurrency(pta.depenses) }}</span>
+        </td>
+        <!-- <td v-else class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300 font-bold">0</td> -->
+
+        <!-- Solde -->
+        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+          <span class="font-bold text-yellow-500"> {{ pta.pret + pta.bn - pta.depenses == null || pta.pret + pta.bn - pta.depenses == 0 ? 0 : $h.formatCurrency(pta.pret + pta.bn - pta.depenses) }} {{ pta.pret + pta.bn - pta.depenses == null || pta.pret + pta.bn - pta.depenses == 0 ? 0 : $h.formatCurrency(pta.pret + pta.bn - pta.depenses) }}</span>
+        </td>
+
+        <!-- tef -->
+        <td v-if="pta.pret + pta.bn > 0" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+          <span class="font-bold text-yellow-500"> {{ ((pta.depenses / (pta.pret + pta.bn)) * 100).toFixed(2) }} %</span>
+        </td>
+        <td v-else class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">Non disponible</td>
+
+        <!-- total budgetaire-->
+        <!-- v-if="pta.pret != '' || pta.bn != ''" -->
+        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+          <span class="font-bold text-yellow-500"> {{ pta.pret + pta.bn == null || pta.pret + pta.bn == 0 ? 0 : $h.formatCurrency(pta.pret + pta.bn) }}</span>
+        </td>
+        <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
+
+        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+          <span v-if="pta.poids != undefined" class="font-bold"> {{ pta.poids }} </span>
+          <!--  <span v-else class="font-bold" >0 FCFA</span> -->
+        </td>
+
+        <td v-if="statutActuel" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+          <span v-if="pta.poidsActuel != undefined" class="font-bold text-green-500"> {{ pta.poidsActuel }} </span>
+          <!--  <span v-else class="font-bold" >0 FCFA</span> -->
+        </td>
+
+        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+          <span v-if="pta.structureResponsable != undefined" class="font-bold"> {{ pta.structureResponsable }} </span>
+          <!--  <span v-else class="font-bold" >0 FCFA</span> -->
+        </td>
+
+        <!--  Planing vrai activité-->
+
+        <td v-if="pta.planing != undefined && pta.planing.janvier != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
+        <td v-else-if="pta.planingt != undefined && pta.planingt.janvier != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
+        <td class="relative p-2 border shadow whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+
+        <td v-if="pta.planing != undefined && pta.planing.fevrier != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
+        <td v-else-if="pta.planingt != undefined && pta.planingt.fevrier != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
+        <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+
+        <td v-if="pta.planing != undefined && pta.planing.mars != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
+        <td v-else-if="pta.planingt != undefined && pta.planingt.mars != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
+        <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+
+        <td v-if="pta.planing != undefined && pta.planing.avril != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
+        <td v-else-if="pta.planingt != undefined && pta.planingt.avril != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
+        <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+
+        <td v-if="pta.planing != undefined && pta.planing.mai != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
+        <td v-else-if="pta.planingt != undefined && pta.planingt.mai != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
+        <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+
+        <td v-if="pta.planing != undefined && pta.planing.juin != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
+        <td v-else-if="pta.planingt != undefined && pta.planingt.juin != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
+        <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+
+        <td v-if="pta.planing != undefined && pta.planing.juillet != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
+        <td v-else-if="pta.planingt != undefined && pta.planingt.juillet != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
+
+        <td class="relative p-2 border whitespace-nowrap dark:bg-yellow-800 dark:border-gray-300" v-else></td>
+
+        <td v-if="pta.planing != undefined && pta.planing.aout != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
+        <td v-else-if="pta.planingt != undefined && pta.planingt.aout != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
+        <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+
+        <td v-if="pta.planing != undefined && pta.planing.septembre != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
+        <td v-else-if="pta.planingt != undefined && pta.planingt.septembre != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
+        <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+
+        <td v-if="pta.planing != undefined && pta.planing.octobre != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
+        <td v-else-if="pta.planingt != undefined && pta.planingt.octobre != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
+        <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+
+        <td v-if="pta.planing != undefined && pta.planing.novembre != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
+        <td v-else-if="pta.planingt != undefined && pta.planingt.novembre != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
+        <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+
+        <td v-if="pta.planing != undefined && pta.planing.decembre != ''" class="p-2 bg-blue-500 border border-l-0 border-r-0"></td>
+        <td v-else-if="pta.planingt != undefined && pta.planingt.decembre != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
+        <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+
+        <!-- fin planing -->
+
+        <!-- v-if="pta.t1Bn != undefined && pta.t1Bn != ''" -->
+        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+          <span class="font-bold"> {{ pta.t1Bn == null || pta.t1Bn == 0 ? 0 : $h.formatCurrency(pta.t1Bn) }}</span>
+          <!--  <span v-else class="font-bold" >0 FCFA</span> -->
+        </td>
+        <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
+
+        <!-- v-if="pta.t1Pret != undefined && pta.t1Pret != ''" -->
+        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+          <span class="font-bold"> {{ pta.t1Pret == null || pta.t1Pret == 0 ? 0 : $h.formatCurrency(pta.t1Pret) }}</span>
+          <!--  <span v-else class="font-bold" >0 FCFA</span> -->
+        </td>
+        <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
+
+        <!-- v-if="pta.t1Pret != '' || pta.t1Bn != ''" -->
+        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+          <span class="font-bold"> {{ pta.t1Pret + pta.t1Bn == null || pta.t1Pret + pta.t1Bn == 0 ? 0 : $h.formatCurrency(pta.t1Pret + pta.t1Bn) }}</span>
+          <!--  <span v-else class="font-bold" >0 FCFA </span> -->
+        </td>
+        <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
+
+        <!-- v-if="pta.t2Bn != undefined && pta.t2Bn != ''" -->
+        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+          <span class="font-bold"> {{ pta.t2Bn == null || pta.t2Bn == 0 ? 0 : $h.formatCurrency(pta.t2Bn) }}</span>
+          <!--  <span v-else class="font-bold" >0 FCFA</span> -->
+        </td>
+        <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
+
+        <!-- v-if="pta.t2Pret != undefined && pta.t2Pret != ''" -->
+        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+          <span class="font-bold"> {{ pta.t2Pret == null || pta.t2Pret == 0 ? 0 : $h.formatCurrency(pta.t2Pret) }}</span>
+          <!--  <span v-else class="font-bold" >0 FCFA </span> -->
+        </td>
+        <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
+
+        <!--  v-if="pta.t2Pret != '' || pta.t2Bn != ''" -->
+        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+          <span class="font-bold"> {{ pta.t2Pret + pta.t2Bn == null || pta.t2Pret + pta.t2Bn == 0 ? 0 : $h.formatCurrency(pta.t2Pret + pta.t2Bn) }}</span>
+          <!--  <span v-else class="font-bold" >0 FCFA </span> -->
+        </td>
+        <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
+
+        <!-- v-if="pta.t3Bn != undefined && pta.t3Bn != ''" -->
+        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+          <span class="font-bold"> {{ pta.t3Bn == null || pta.t3Bn == 0 ? 0 : $h.formatCurrency(pta.t3Bn) }}</span>
+          <!--  <span v-else class="font-bold" >0 FCFA</span> -->
+        </td>
+        <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
+
+        <!--  v-if="pta.t3Pret != undefined && pta.t3Pret != ''"  -->
+        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+          <span class="font-bold"> {{ pta.t3Pret == null || pta.t3Pret == 0 ? 0 : $h.formatCurrency(pta.t3Pret) }}</span>
+          <!--  <span v-else class="font-bold" >0 FCFA</span> -->
+        </td>
+        <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
+
+        <!-- v-if="pta.t3Pret != '' || pta.t3Bn != ''" -->
+        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+          <span class="font-bold"> {{ $h.formatCurrency(pta.t3Pret + pta.t3Bn) }} {{ pta.t3Pret + pta.t3Bn == null || pta.t3Pret + pta.t3Bn == 0 ? 0 : $h.formatCurrency(pta.t3Pret + pta.t3Bn) }}</span>
+          <!--  <span v-else class="font-bold" >0 FCFA </span> -->
+        </td>
+        <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
+
+        <!-- v-if="pta.t4Bn != undefined && pta.t4Bn != ''" -->
+        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+          <span class="font-bold"> {{ pta.t4Bn == null || pta.t4Bn == 0 ? 0 : $h.formatCurrency(pta.t4Bn) }}</span>
+          <!--  <span v-else class="font-bold" >0 FCFA</span> -->
+        </td>
+
+        <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
+
+        <!--  -->
+        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+          <span class="font-bold"> {{ pta.t4Pret == null || pta.t4Pret == 0 ? 0 : $h.formatCurrency(pta.t4Pret) }}</span>
+          <!--  <span v-else class="font-bold" >0 FCFA</span> -->
+        </td>
+        <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
+
+        <!-- v-if="pta.t4Pret != '' || pta.t4Bn != ''" -->
+        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+          <span v-if="pta.t4Pret != undefined && pta.t4Bn != undefined" class="font-bold"> {{ pta.t4Pret + pta.t4Bn == null || pta.t4Pret + pta.t4Bn == 0 ? 0 : $h.formatCurrency(pta.t4Pret + pta.t4Bn) }}</span>
+          <!--  <span v-else class="font-bold" >0 FCFA </span> -->
+        </td>
+        <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
+      </tr>
+    </tbody>
+  </table>
   <NoRecordsMessage class="col-span-12" v-if="!dataNew.length" title="Aucun plan d'action n'est disponible pour le moment. Veuillez en établir un." />
 
   <!-- Modal Register & Update -->
@@ -648,7 +928,7 @@
             {{ erreurPlanDeDecaissement[index].budgetNational }}
           </p>
 
-          <InputForm v-model="plan.pret" :min="0" class="col-span-12" type="number" :required="true" placeHolder="Saisissez le montant financé" label="Saisissez le montant financé" />
+          <InputForm v-model="plan.pret" :min="0" class="col-span-12" type="number" :required="true" placeHolder="Saisissez la subvention" label="Saisissez la subvention" />
           <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.pret">
             {{ erreurPlanDeDecaissement[index].pret }}
           </p>
@@ -702,10 +982,12 @@ import SuiviFinancier from "@/services/modules/suiviFinancier.service";
 import ActiviteService from "@/services/modules/activite.service";
 import PlanDecaissementComponent from "@/components/PlanDecaissement.vue";
 import PlanDeCaissement from "@/services/modules/plan.decaissement.service";
+import DownloadPDFButton from "../../../components/DownloadPDFButton.vue";
+import ExportationResultatSynthese from "@/components/news/ExportationResultatSynthese.vue";
 
 export default {
   props: ["ppm"],
-  components: { VButton, NoRecordsMessage, InputForm },
+  components: { VButton, NoRecordsMessage, InputForm, DownloadPDFButton, ExportationResultatSynthese },
   data() {
     return {
       listePlanDeDecaissement: [],
@@ -1096,7 +1378,7 @@ export default {
       const programme = [];
       if (this.ptab != undefined && this.ptab != null) {
         this.ptab.forEach((element) => {
-          const bailleur = element.bailleur;
+          // const bailleur = element.bailleur;
           const bn = element.budgetNational;
           const pret = element.pret;
 
@@ -1117,7 +1399,7 @@ export default {
           let structureResponsable = "";
           let structureAssocie = "";
 
-          programme.push({ bailleur, nom: element.nom, code: element.code, poids, poidsActuel, bn, pret, t1Pret, t1Bn, t2Pret, t2Bn, t3Pret, t3Bn, t4Bn, t4Pret, tBn, tPret, total, structureResponsable, structureAssocie });
+          programme.push({ nom: element.nom, code: element.code, poids, poidsActuel, bn, pret, t1Pret, t1Bn, t2Pret, t2Bn, t3Pret, t3Bn, t4Bn, t4Pret, tBn, tPret, total, structureResponsable, structureAssocie });
           element.composantes.forEach((composante) => {
             const bn = composante.budgetNational;
             const pret = composante.pret;
@@ -2500,5 +2782,11 @@ input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
+table td {
+  border: 1px solid rgb(46, 46, 46);
+  padding-block: 0px;
+  padding-inline: 0px;
 }
 </style>

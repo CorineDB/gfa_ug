@@ -129,7 +129,7 @@
         <InputForm v-model="formData.budgetNational" class="col-span-12" type="text" :required="true" placeHolder="Ex : 100000" label="Fond Propre" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.budgetNational">{{ $h.extractContentFromArray(messageErreur.budgetNational) }}</p>
 
-        <InputForm v-model="formData.pret" class="col-span-12" type="text" :required="true" placeHolder="Ex : 100000" label="Montant financé" />
+        <InputForm v-model="formData.pret" class="col-span-12" type="text" :required="true" placeHolder="Ex : 100000" label="Subvention" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pret">{{ $h.extractContentFromArray(messageErreur.pret) }}</p>
 
         <div class="col-span-12" v-if="!isUpdate">
@@ -274,7 +274,7 @@
           <div class="ml-2 italic font-bold">Fcfa</div>
         </div>
         <div class="flex items-center">
-          <LinkIcon class="w-4 h-4 mr-2" /> Montant financé: {{ item.pret == null || item.pret == 0 ? 0 : $h.formatCurrency(item.pret) }}
+          <LinkIcon class="w-4 h-4 mr-2" /> Subvention: {{ item.pret == null || item.pret == 0 ? 0 : $h.formatCurrency(item.pret) }}
           <div class="ml-2 italic font-bold">Fcfa</div>
         </div>
         <div v-if="item.owner !== null" class="flex items-center">

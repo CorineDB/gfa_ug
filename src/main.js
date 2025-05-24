@@ -16,6 +16,8 @@ import "vue3-toastify/dist/index.css";
 import { surveyPlugin } from "survey-vue3-ui";
 import permissionPlugin from "./plugins/verify-permission";
 import permissionDirective from "./utils/permissionsDirective";
+import JsonExcel from "vue-json-excel3";
+
 //import { Vue3SimpleHtml2pdf } from "vue3-simple-html2pdf";
 
 const app = createApp(App)
@@ -32,5 +34,6 @@ const app = createApp(App)
 globalComponents(app);
 utils(app);
 app.component("v-select", vSelect);
+app.component("downloadExcel", JsonExcel);
 app.directive("permission", permissionDirective);
 app.mount("#app");

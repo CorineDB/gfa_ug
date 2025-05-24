@@ -18,6 +18,7 @@ import DeleteButton from "@/components/news/DeleteButton.vue";
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
 import { useRoute, useRouter } from "vue-router";
 import { useYearsStore } from "@/stores/years";
+import AuthService from "@/services/modules/auth.service";
 
 const yearsStore = useYearsStore();
 
@@ -46,6 +47,32 @@ const uniqueKeys = new Map();
 const globalData = localStorage.getItem("globalFormPerceptionData");
 const previewData = localStorage.getItem("previewFormPerceptionData");
 
+const debutProgramme = ref("");
+const finProgramme = ref("");
+
+const annees = computed(() => {
+  let anneeDebut = parseInt(debutProgramme.value.split("-")[0], 10);
+  let anneeFin = parseInt(finProgramme.value.split("-")[0], 10);
+  let annees = [];
+  for (let annee = anneeDebut; annee <= anneeFin; annee++) {
+    annees.push(annee);
+  }
+  return annees;
+});
+
+const getcurrentUser = async () => {
+  await AuthService.getCurrentUser()
+    .then((result) => {
+     
+      debutProgramme.value = result.data.data.programme.debut;
+      finProgramme.value = result.data.data.programme.fin;
+    })
+    .catch((e) => {
+      console.error(e);
+      toast.error("Une erreur est survenue: Utilisateur connecté .");
+    });
+};
+
 const currentGlobalPerceptionFormDataArray = ref([]);
 const currentPreviewPerceptionFormDataArray = ref([]);
 
@@ -57,13 +84,13 @@ const isAvailable = reactive({
 });
 
 const goBackToCreate = function () {
-  resetAllFormWithDataLocalStorage();/* 
+  resetAllFormWithDataLocalStorage(); /* 
   router.push({ name: "create_form_perception" }); */
   router.push({ name: "Ajouter_un_formulaire_Perception", query: { tab: 1 } });
 };
 
-
-const comeBackToUpdate = function () {/* 
+const comeBackToUpdate = function () {
+  /* 
   router.push({ name: "create_form_perception" }); */
   router.push({ name: "Ajouter_un_formulaire_Perception", query: { tab: 1 } });
 };
@@ -84,13 +111,13 @@ const currentPreviewPerceptionFormData = reactive({
 const currentGlobalPerceptionFormData = reactive({
   principe: "",
   indicateur: "",
-  key: ""
+  key: "",
 });
 
 const currentGlobalPerceptionFormData2 = reactive({
   principe: { id: "", position: 0 },
   indicateur: { id: "", position: 0 },
-  key: ""
+  key: "",
 });
 
 // Fonction pour générer une clé unique pour chaque soumission
@@ -174,7 +201,6 @@ function organiseUpdateFormPreview(principeCurrent) {
 }
 
 function matchDataUpdateWithCurrentDatas(principeCurrent) {
-
   globalFormPerceptionData.value = organiseUpdateFormGlobal(principeCurrent);
   previewFormPerceptionData.value = organiseUpdateFormPreview(principeCurrent);
 
@@ -189,7 +215,6 @@ function matchDataUpdateWithCurrentDatas(principeCurrent) {
   resetCurrentForm.value = !resetCurrentForm.value;
 }
 const resetCurrentPreviewPerceptionFormData = () => {
-
   currentPreviewPerceptionFormData.principe = { id: "", nom: "", position: 0 };
   currentPreviewPerceptionFormData.indicateur = { id: "", nom: "", position: 0 };
   currentPreviewPerceptionFormData.key = "";
@@ -232,11 +257,7 @@ const getPrincipe = (principe) => {
   changeIndexAccordion(1);
   currentGlobalPerceptionFormData.principe = principe.id;
 
-  const counter = new Set(
-    (globalFormPerceptionData.value || [])
-      .map(item => item.principe)
-      .filter(val => val !== null && val !== undefined && val !== "")
-  ).size;
+  const counter = new Set((globalFormPerceptionData.value || []).map((item) => item.principe).filter((val) => val !== null && val !== undefined && val !== "")).size;
 
   currentGlobalPerceptionFormDataArray.value.forEach((item) => {
     item.principe = currentGlobalPerceptionFormData.principe;
@@ -263,7 +284,7 @@ const getQuestion = (question) => {
     key: key,
     principe: currentGlobalPerceptionFormData?.principe,
     indicateur: question.id,
-    position: currentGlobalPerceptionFormDataArray.value.length + 1
+    position: currentGlobalPerceptionFormDataArray.value.length + 1,
   };
 
   currentGlobalPerceptionFormDataArray.value.push(form);
@@ -275,12 +296,12 @@ const getQuestion = (question) => {
     principe: currentPreviewPerceptionFormData.principe ?? {
       id: "",
       nom: "",
-      position: 0
+      position: 0,
     },
     indicateur: {
       id: question.id,
       nom: question.nom,
-      position: currentPreviewPerceptionFormDataArray.value.length + 1
+      position: currentPreviewPerceptionFormDataArray.value.length + 1,
     },
   };
 
@@ -291,7 +312,6 @@ const addNewIndicator = () => {
   console.log("currentGlobalPerceptionFormDataArray.value", currentGlobalPerceptionFormDataArray.value);
 
   console.log("currentPreviewPerceptionFormDataArray.value", currentPreviewPerceptionFormDataArray.value);
-
 
   currentGlobalPerceptionFormDataArray.value.forEach((item, index) => {
     const key = generateKey(item.indicateur + item.principe);
@@ -321,20 +341,17 @@ const addNewIndicator = () => {
   });
 };
 
-const deplacerElement = (element, type = 'indicateur') => {
-  if (type == 'indicateur') {
+const deplacerElement = (element, type = "indicateur") => {
+  if (type == "indicateur") {
     globalFormPerceptionData.value.findIndex((s) => s.indicateur === element.id);
-  }
-  else if (type == 'critere') {
+  } else if (type == "critere") {
     globalFormPerceptionData.value.findIndex((s) => s.critere === element.id);
-  }
-  else if (type == 'principe') {
+  } else if (type == "principe") {
     globalFormPerceptionData.value.findIndex((s) => s.principe === element.id);
-  }
-  else if (type == 'type') {
+  } else if (type == "type") {
     globalFormPerceptionData.value.findIndex((s) => s.type === element.id);
   }
-}
+};
 
 const removeIndicator = (key) => {
   // Trouver l'index de la soumission à supprimer
@@ -355,8 +372,7 @@ const removeIndicator = (key) => {
 };
 
 const removeElement = (key) => {
-
-  key = globalFormPerceptionData.value.find((s) => s.key === key)['principe'];
+  key = globalFormPerceptionData.value.find((s) => s.key === key)["principe"];
 
   // Remove from globalFormPerceptionData
   for (let i = globalFormPerceptionData.value.length - 1; i >= 0; i--) {
@@ -480,12 +496,13 @@ onBeforeUnmount(() => {
 onMounted(async () => {
   await getOneForm();
   updateAllTypesGouvernance();
+  getcurrentUser()
 });
 </script>
 
 <template>
   <div class="flex w-full gap-2">
-    <section class="w-[30%] h-screen pr-1 overflow-y-auto border-r-2 pt-5">
+    <section class="w-[30%] _h-screen pr-1 overflow-y-auto border-r-2 pt-5">
       <AccordionGroup :selectedIndex="indexAccordion" class="space-y-1">
         <AccordionItem class="">
           <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
@@ -493,9 +510,7 @@ onMounted(async () => {
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <OptionsResponse :reset-to="resetOptions" :is-update="true" :id-form="idForm"
-              v-model:previewOptionResponses="previewOptionResponses"
-              v-model:globalOptionResponses="globalOptionResponses" />
+            <OptionsResponse :reset-to="resetOptions" :is-update="true" :id-form="idForm" v-model:previewOptionResponses="previewOptionResponses" v-model:globalOptionResponses="globalOptionResponses" />
           </AccordionPanel>
         </AccordionItem>
 
@@ -505,8 +520,7 @@ onMounted(async () => {
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <QuestionsOperationnel :to-reset="resetCurrentForm" :is-available="isAvailable.indicateur"
-              @selected="getQuestion" />
+            <QuestionsOperationnel :to-reset="resetCurrentForm" :is-available="isAvailable.indicateur" @selected="getQuestion" />
           </AccordionPanel>
         </AccordionItem>
 
@@ -516,8 +530,7 @@ onMounted(async () => {
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <PrincipeGouvernance :to-reset="resetCurrentForm" :is-available="isAvailable.principe"
-              @selected="getPrincipe" />
+            <PrincipeGouvernance :to-reset="resetCurrentForm" :is-available="isAvailable.principe" @selected="getPrincipe" />
           </AccordionPanel>
         </AccordionItem>
       </AccordionGroup>
@@ -539,12 +552,9 @@ onMounted(async () => {
               <!-- <pre>{{ currentForm }}</pre> -->
               <div class="space-y-2">
                 <p class="text-lg font-medium">Ajouter des questions opérationnelles</p>
-                <PerceptionStructureMultiple :principe="currentPreviewPerceptionFormData.principe.nom"
-                  :indicateurArray="currentPreviewPerceptionFormDataArray.length > 0 ? currentPreviewPerceptionFormDataArray : undefined" />
+                <PerceptionStructureMultiple :principe="currentPreviewPerceptionFormData.principe.nom" :indicateurArray="currentPreviewPerceptionFormDataArray.length > 0 ? currentPreviewPerceptionFormDataArray : undefined" />
                 <!-- :indicateur="currentPreviewPerceptionFormData.indicateur.nom" -->
-                <button :disabled="!isCurrentFormValid" @click="addNewIndicator" class="my-4 text-sm btn btn-primary">
-                  <PlusIcon class="mr-1 size-4" />Ajouter
-                </button>
+                <button :disabled="!isCurrentFormValid" @click="addNewIndicator" class="my-4 text-sm btn btn-primary"><PlusIcon class="mr-1 size-4" />Ajouter</button>
               </div>
             </div>
           </TabPanel>
@@ -553,18 +563,13 @@ onMounted(async () => {
     </section>
   </div>
 
-
   <div class="space-y-2 mt-6" v-if="!isLoadingOneForm">
     <div class="flex justify-between items-center py-2">
-      <p class="text-lg font-medium">Modification du Formulaire </p>
+      <p class="text-lg font-medium">Modification du Formulaire</p>
 
       <div class="flex justify-spacely py-2" v-if="previewPrincipesGouvernance?.principes_de_gouvernance?.length">
-        <button :disabled="!showForm" @click="previewForm" class="mr-5 px-5 text-base btn btn-primary">
-          <CheckIcon class="mr-1 size-5" />Modifier
-        </button>
-        <button :disabled="!showForm" @click="previewFormulaire = true" class="px-5 text-base btn btn-primary">
-          <EyeIcon class="mr-1 size-5" />Voir le formumlaire
-        </button>
+        <button :disabled="!showForm" @click="previewForm" class="mr-5 px-5 text-base btn btn-primary"><CheckIcon class="mr-1 size-5" />Modifier</button>
+        <button :disabled="!showForm" @click="previewFormulaire = true" class="px-5 text-base btn btn-primary"><EyeIcon class="mr-1 size-5" />Voir le formumlaire</button>
       </div>
     </div>
     <div class="max-h-[75vh] py-2 border-t overflow-y-auto mb-10 mt-2">
@@ -579,16 +584,11 @@ onMounted(async () => {
         </thead>
 
         <tbody v-if="previewPrincipesGouvernance?.principes_de_gouvernance?.length">
-          <template v-for="principe_de_gouvernance in previewPrincipesGouvernance.principes_de_gouvernance"
-            :key="principe_de_gouvernance.id">
-            <template v-for="(question_operationnelle, qIndex) in principe_de_gouvernance.questions_operationnelle"
-              :key="question_operationnelle.id">
+          <template v-for="principe_de_gouvernance in previewPrincipesGouvernance.principes_de_gouvernance" :key="principe_de_gouvernance.id">
+            <template v-for="(question_operationnelle, qIndex) in principe_de_gouvernance.questions_operationnelle" :key="question_operationnelle.id">
               <tr>
-                <td class="font-semibold list-data" v-if="qIndex === 0"
-                  :rowspan="principe_de_gouvernance.questions_operationnelle.length">
-
-                  <div class="flex items-start gap-1">{{
-                    principe_de_gouvernance.nom }}</div>
+                <td class="font-semibold list-data" v-if="qIndex === 0" :rowspan="principe_de_gouvernance.questions_operationnelle.length">
+                  <div class="flex items-start gap-1">{{ principe_de_gouvernance.nom }}</div>
 
                   <div class="items-end transition-all opacity-0 container-buttons">
                     <button class="p-1.5 text-primary">
@@ -598,7 +598,6 @@ onMounted(async () => {
                       <TrashIcon class="size-5" />
                     </button>
                   </div>
-
                 </td>
 
                 <td>
@@ -627,28 +626,21 @@ onMounted(async () => {
       </table>
     </div>
     <div class="flex justify-between py-2 my-2 items-center">
-      <button @click="goBackToCreate" class="px-5 text-base btn btn-danger">
-        <ArrowLeftIcon class="mr-1 size-5" />Annuler la modification
-      </button>
-      <button @click="comeBackToUpdate" class="px-5 text-base btn btn-primary">
-        <RotateCcwIcon class="mr-1 size-5" />Revenir pour continuer la modification
-      </button>
+      <button @click="goBackToCreate" class="px-5 text-base btn btn-danger"><ArrowLeftIcon class="mr-1 size-5" />Annuler la modification</button>
+      <button @click="comeBackToUpdate" class="px-5 text-base btn btn-primary"><RotateCcwIcon class="mr-1 size-5" />Revenir pour continuer la modification</button>
     </div>
   </div>
   <LoaderSnipper v-else />
 
   <Modal backdrop="static" :show="previewFormulaire" size="modal-xl" @hidden="previewFormulaire = false">
-
     <ModalHeader>
-      <h2 class="mr-auto text-base font-medium">Formulaire de perception de gouvernance </h2>
+      <h2 class="mr-auto text-base font-medium">Formulaire de perception de gouvernance</h2>
     </ModalHeader>
     <ModalBody class="space-y-5">
-
-      <table class="w-full  border-collapse table-auto border-slate-500 " border="1" cellspacing="0" cellpadding="8"
-        style="border-collapse: collapse; font-family: Arial, sans-serif;">
+      <table class="w-full border-collapse table-auto border-slate-500" border="1" cellspacing="0" cellpadding="8" style="border-collapse: collapse; font-family: Arial, sans-serif">
         <tr>
           <td rowspan="3"><strong>Vous êtes :</strong></td>
-          <td style="background-color: white; color: black;">Membre du Conseil d'administration</td>
+          <td style="background-color: white; color: black">Membre du Conseil d'administration</td>
         </tr>
         <tr>
           <td>Membre de l'association</td>
@@ -669,28 +661,21 @@ onMounted(async () => {
           <tr>
             <th :rowspan="2" class="py-3 border border-slate-900">Principes</th>
             <th :rowspan="2" class="py-3 border border-slate-900">Indicateurs</th>
-            <th :colspan="previewOptionResponses.options_de_reponse.length"
-              class="py-3 border border-slate-900 text-center">
-              Réponses
-            </th>
+            <th :colspan="previewOptionResponses.options_de_reponse.length" class="py-3 border border-slate-900 text-center">Réponses</th>
           </tr>
           <!-- Second header row -->
           <tr>
-            <template v-for="(option_de_reponse, idx) in previewOptionResponses.options_de_reponse"
-              :key="option_de_reponse.id">
+            <template v-for="(option_de_reponse, idx) in previewOptionResponses.options_de_reponse" :key="option_de_reponse.id">
               <th class="py-3 border border-slate-900 text-center">{{ option_de_reponse.libelle }}</th>
             </template>
           </tr>
         </thead>
 
         <tbody v-if="previewPrincipesGouvernance?.principes_de_gouvernance?.length">
-          <template v-for="principe_de_gouvernance in previewPrincipesGouvernance.principes_de_gouvernance"
-            :key="principe_de_gouvernance.id">
-            <template v-for="(question_operationnelle, qIndex) in principe_de_gouvernance.questions_operationnelle"
-              :key="question_operationnelle.id">
+          <template v-for="principe_de_gouvernance in previewPrincipesGouvernance.principes_de_gouvernance" :key="principe_de_gouvernance.id">
+            <template v-for="(question_operationnelle, qIndex) in principe_de_gouvernance.questions_operationnelle" :key="question_operationnelle.id">
               <tr>
-                <td class="font-semibold" v-if="qIndex === 0"
-                  :rowspan="principe_de_gouvernance.questions_operationnelle.length">
+                <td class="font-semibold" v-if="qIndex === 0" :rowspan="principe_de_gouvernance.questions_operationnelle.length">
                   {{ principe_de_gouvernance.nom }}
                 </td>
 
@@ -698,10 +683,9 @@ onMounted(async () => {
                   {{ question_operationnelle.nom }}
                 </td>
 
-                <template v-for="(option_de_reponse, optionIdx) in previewOptionResponses.options_de_reponse"
-                  :key="option_de_reponse.id">
+                <template v-for="(option_de_reponse, optionIdx) in previewOptionResponses.options_de_reponse" :key="option_de_reponse.id">
                   <td class="border border-slate-900 text-center">
-                    {{ }}
+                    {{}}
                   </td>
                 </template>
               </tr>
@@ -711,18 +695,24 @@ onMounted(async () => {
 
         <tbody v-else>
           <tr class="bg-transparent text-center">
-            <td :colspan="2 + previewOptionResponses.options_de_reponse.length" class="font-semibold">Constituer le
-              formulaire de perception</td>
+            <td :colspan="2 + previewOptionResponses.options_de_reponse.length" class="font-semibold">Constituer le formulaire de perception</td>
           </tr>
         </tbody>
       </table>
     </ModalBody>
     <ModalFooter>
       <div class="flex gap-2">
-        <button type="button" @click="previewFormulaire = false;"
-          class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Fermer</button>
-        <button type="button" @click="previewFormulaire = false; previewForm();"
-          class="w-full px-2 py-2 my-3 btn btn-primary">Modifier</button>
+        <button type="button" @click="previewFormulaire = false" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Fermer</button>
+        <button
+          type="button"
+          @click="
+            previewFormulaire = false;
+            previewForm();
+          "
+          class="w-full px-2 py-2 my-3 btn btn-primary"
+        >
+          Modifier
+        </button>
       </div>
     </ModalFooter>
   </Modal>
@@ -741,16 +731,16 @@ onMounted(async () => {
           <div class="w-full">
             <label for="annee" class="form-label">Année</label>
             <!-- <input id="annee" type="number" required v-model.number="payload.annee_exercice" class="form-control" placeholder="Année" /> -->
-            <TomSelect v-model="payload.annee_exercice" :options="{ placeholder: 'Selectionez une année' }"
-              class="w-full">
-              <option v-for="(year, index) in yearsStore.getYears" :key="index" :value="year">{{ year }}</option>
+            <TomSelect v-model="payload.annee_exercice" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+              <option v-for="(year, index) in annees" :key="index" :value="year">{{ year }}</option>
             </TomSelect>
           </div>
         </div>
         <div>
           <p class="mb-3">Options de réponses</p>
           <ListOptionsResponse :options="previewOptionResponses.options_de_reponse" />
-        </div><!-- 
+        </div>
+        <!-- 
         <div class="max-h-[50vh] h-[50vh] overflow-y-auto">
           <p class="mb-3">Formulaire de perception</p>
           <PreviewPerceptionForm :principes="previewPrincipesGouvernance.principes_de_gouvernance" />
@@ -758,8 +748,7 @@ onMounted(async () => {
       </ModalBody>
       <ModalFooter>
         <div class="flex gap-2">
-          <button type="button" @click="modalForm = false"
-            class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
+          <button type="button" @click="modalForm = false" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
           <VButton :loading="isLoadingForm" label="Modifier" />
         </div>
       </ModalFooter>

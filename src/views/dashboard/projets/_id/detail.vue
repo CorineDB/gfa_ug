@@ -9,7 +9,7 @@
       </div>
       <div class="">
         <p class="text-sm text-gray-600">
-          Manager: <span class="font-medium text-primary">{{ graphiqueData?.projet_manager ?? "" }}</span>
+          Manager : <span class="font-medium text-primary">{{ graphiqueData?.projet_manager ?? "" }}</span>
         </p>
       </div>
     </div>

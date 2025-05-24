@@ -17,6 +17,8 @@ import ListFormFactuel from "@/components/create-form/ListFormFactuel.vue";
 import ListOptionsResponse from "@/components/create-form/ListOptionsResponse.vue";
 import DeleteButton from "@/components/news/DeleteButton.vue";
 import { useYearsStore } from "@/stores/years";
+import AuthService from "@/services/modules/auth.service";
+
 
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
 import { useRoute, useRouter } from "vue-router";
@@ -52,6 +54,34 @@ const previewFormulaire = ref(false);
 
 const goBackToCreate = function () {
   router.push({ name: "Ajouter_un_formulaire_Factuel" });
+};
+
+const debutProgramme = ref("");
+const finProgramme = ref("");
+
+const annees = computed(() => {
+  let anneeDebut = parseInt(debutProgramme.value.split("-")[0], 10);
+  let anneeFin = parseInt(finProgramme.value.split("-")[0], 10);
+  let annees = [];
+  for (let annee = anneeDebut; annee <= anneeFin; annee++) {
+    annees.push(annee);
+  }
+  return annees;
+});
+
+const getcurrentUser = async () => {
+  await AuthService.getCurrentUser()
+    .then((result) => {
+      // responsablesForm.value.ug = result.data.data.profil.id;
+      // ugs.value.push({ id: result.data.data.profil.id, nom: result.data.data.profil.nom });
+      // idProgramme.value = result.data.data.programme.id;
+      debutProgramme.value = result.data.data.programme.debut;
+      finProgramme.value = result.data.data.programme.fin;
+    })
+    .catch((e) => {
+      console.error(e);
+      toast.error("Une erreur est survenue: Utilisateur connecté .");
+    });
 };
 
 const isAvailable = reactive({
@@ -530,6 +560,7 @@ onBeforeUnmount(() => {
 onMounted(async () => {
   await getOneForm();
   updateAllTypesGouvernance();
+  getcurrentUser()
 });
 </script>
 
@@ -834,7 +865,7 @@ onMounted(async () => {
           <label for="annee" class="form-label">Année</label>
           <TomSelect v-model="payload.annee_exercice" :options="{ placeholder: 'Selectionez une année' }"
             class="w-full">
-            <option v-for="(year, index) in yearsStore.getYears" :key="index" :value="year">{{ year }}</option>
+            <option v-for="(year, index) in annees" :key="index" :value="year">{{ year }}</option>
           </TomSelect>
         </div>
       </div>
