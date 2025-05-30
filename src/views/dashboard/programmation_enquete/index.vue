@@ -6,8 +6,14 @@ import Tabulator from "tabulator-tables";
 import DeleteButton from "@/components/news/DeleteButton.vue";
 import { toast } from "vue3-toastify";
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
-import EnqueteDeColleteService from "@/services/modules/enqueteDeCollecte.service";
-import FormulaireFactuel from "@/services/modules/formFactuel.service";
+import EvaluationService from "@/services/modules/enquetes_de_gouvernance/evaluation.gouvernance.service";
+import ResultatSyntheseService from "@/services/modules/enquetes_de_gouvernance/synthese.service";
+
+/*import EnqueteDeColleteService from "@/services/modules/enqueteDeCollecte.service";
+import FormulaireFactuel from "@/services/modules/formFactuel.service";*/
+import FormulaireFactuel from "@/services/modules/enquetes_de_gouvernance/formFactuel.service";
+import FormulaireDePerception from "@/services/modules/enquetes_de_gouvernance/formPerception.service";
+
 import { useRouter } from "vue-router";
 import OngService from "@/services/modules/ong.service";
 import { getAllErrorMessages } from "@/utils/gestion-error";
@@ -104,7 +110,7 @@ const createData = async () => {
   
   isLoading.value = true;
   
-  await EnqueteDeColleteService.create(payload)
+  await EvaluationService.create(payload)
     .then(() => {
       isLoading.value = false;
       getDatas();
@@ -139,7 +145,7 @@ const copierLien = async (lien) => {
 
 const getDatas = async () => {
   isLoadingData.value = true;
-  await EnqueteDeColleteService.get()
+  await EvaluationService.get()
     .then((result) => {
       datas.value = result.data.data;
       isLoadingData.value = false;
@@ -153,7 +159,7 @@ const getDatas = async () => {
 
 const getEvolutionByScore = async (id) => {
   isLoadingDataScore.value = true;
-  await SyntheseService.getEvolutionByScrore(id)
+  await ResultatSyntheseService.getEvolutionByScore(id)
     .then((result) => {
       datasScore.value = result.data.data;
       currentScore.value = datasScore.value[0]?.scores;
@@ -175,7 +181,7 @@ const getFormsFactuel = async () => {
     });
 };
 const getFormsPerception = async () => {
-  await FormulaireFactuel.get("perception")
+  await FormulaireDePerception.get()
     .then((result) => {
       formulairesPerception.value = result.data.data;
     })
@@ -193,7 +199,8 @@ const getOrganisations = async () => {
     });
 };
 const getOrganisationsProgramme = async () => {
-  await OngService.programmeOng()
+  await OngService.programmeEvaluationsOrganisations()
+  //await OngService.programmeOng()
     .then((result) => {
       ongsProgramme.value = result.data.data;
     })
@@ -205,7 +212,7 @@ const getOrganisationsProgramme = async () => {
 const updateData = async () => {
   isLoading.value = true;
   payload.formulaires_de_gouvernance = [idFormFactuel.value, idFormPerception.value];
-  await EnqueteDeColleteService.update(idSelect.value, payload)
+  await EvaluationService.update(idSelect.value, payload)
     .then(() => {
       getDatas();
       resetForm();
@@ -226,7 +233,7 @@ const updateData = async () => {
 const submitData = () => (isCreate.value ? createData() : updateData());
 const deleteData = async () => {
   isLoading.value = true;
-  await EnqueteDeColleteService.destroy(idSelect.value)
+  await EvaluationService.destroy(idSelect.value)
     .then(() => {
       deleteModalPreview.value = false;
       isLoading.value = false;
@@ -535,7 +542,7 @@ onMounted(async () => {
             <InputForm label="Fin de l'enquete " v-model="payload.fin" type="date" :control="getFieldErrors(errors.fin)" />
           </div>
           <div class="">
-            <label class="form-label">Formulaires Factue <span class="text-danger">*</span> l </label>
+            <label class="form-label">Formulaires Factuel <span class="text-danger">*</span> </label>
             <TomSelect v-model="idFormFactuel" :options="{ placeholder: 'Selectionez un formulaire' }" class="w-full">
               <option v-for="(form, index) in formulairesFactuel" :key="index" :value="form.id">{{ form.libelle }} ({{ form.annee_exercice }})</option>
             </TomSelect>

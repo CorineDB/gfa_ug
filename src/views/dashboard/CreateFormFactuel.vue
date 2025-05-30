@@ -1,17 +1,21 @@
 <script setup>
 import { onBeforeUnmount, reactive, ref, computed, onMounted, watch } from "vue";
 import { toast } from "vue3-toastify";
-import OptionsResponse from "@/components/create-form/OptionsResponse.vue";
+//import OptionsResponse from "@/components/create-form/OptionsResponse.vue";
+import OptionsResponseFactuel from "@/components/create-form/OptionsResponseFactuel.vue";
 import TypeGouvernance from "@/components/create-form/TypeGouvernance.vue";
-import PrincipeGouvernance from "@/components/create-form/PrincipeGouvernance.vue";
-import CritereGouvernance from "@/components/create-form/CritereGouvernance.vue";
+import PrincipeDeGouvernanceFactuel from "@/components/create-form/PrincipeDeGouvernanceFactuel.vue";
+import CritereDeGouvernanceFactuel from "@/components/create-form/CritereDeGouvernanceFactuel.vue";
 import IndicateurGouvernance from "@/components/create-form/IndicateurGouvernance.vue";
 import FactuelStructure from "@/components/create-form/FactuelStructure.vue";
 import MultipleFactuelStructure from "@/components/create-form/MultipleFactuelStructure.vue";
 import ListAccordionIndicateur from "@/components/create-form/ListAccordionIndicateur.vue";
 import VButton from "@/components/news/VButton.vue";
 import InputForm from "@/components/news/InputForm.vue";
-import FormulaireFactuel from "@/services/modules/formFactuel.service";
+//import FormulaireFactuel from "@/services/modules/formFactuel.service";
+
+import FormulaireFactuel from "@/services/modules/enquetes_de_gouvernance/formFactuel.service";
+
 import PreviewFactuelForm from "@/components/create-form/PreviewFactuelForm.vue";
 import { getAllErrorMessages } from "@/utils/gestion-error";
 import ListFormFactuel from "@/components/create-form/ListFormFactuel.vue";
@@ -770,7 +774,7 @@ onMounted(() => {
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <PrincipeGouvernance :to-reset="false" :is-available="isAvailable.principe" @selected="getPrincipes" />
+            <PrincipeDeGouvernanceFactuel :to-reset="false" :is-available="isAvailable.principe" @selected="getPrincipes" />
           </AccordionPanel>
         </AccordionItem>
 
@@ -780,7 +784,7 @@ onMounted(() => {
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <CritereGouvernance :to-reset="false" :is-available="isAvailable.critere" @selected="getCriteres" />
+            <CritereDeGouvernanceFactuel :to-reset="false" :is-available="isAvailable.critere" @selected="getCriteres" />
           </AccordionPanel>
         </AccordionItem>
 
@@ -801,7 +805,7 @@ onMounted(() => {
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <OptionsResponse :is-reset="resetOptions" :factuel="true"
+            <OptionsResponseFactuel :is-reset="resetOptions"
               v-model:previewOptionResponses="previewOptionResponses"
               v-model:globalOptionResponses="globalOptionResponses" />
           </AccordionPanel>
@@ -871,7 +875,7 @@ onMounted(() => {
         </thead>
 
         <tbody v-if="previewTypesGouvernance?.types_de_gouvernance?.length">
-          <template v-for="type_de_gouvernance in previewTypesGouvernance.types_de_gouvernance.reverse()"
+          <template v-for="type_de_gouvernance in previewTypesGouvernance.types_de_gouvernance"
             :key="type_de_gouvernance.id">
             <tr class="bg-green-100 list-data">
               <td colspan="3" class="font-semibold">{{ type_de_gouvernance.nom }}</td>
@@ -885,12 +889,12 @@ onMounted(() => {
                 </button>
               </td>
             </tr>
-            <template v-for="principe_de_gouvernance in type_de_gouvernance.principes_de_gouvernance.reverse()"
+            <template v-for="principe_de_gouvernance in type_de_gouvernance.principes_de_gouvernance"
               :key="principe_de_gouvernance.id">
-              <template v-for="(critere_de_gouvernance, scIndex) in principe_de_gouvernance.criteres_de_gouvernance.reverse()"
+              <template v-for="(critere_de_gouvernance, scIndex) in principe_de_gouvernance.criteres_de_gouvernance"
                 :key="critere_de_gouvernance.id">
                 <template
-                  v-for="(indicateur_de_gouvernance, qIndex) in critere_de_gouvernance.indicateurs_de_gouvernance.reverse()"
+                  v-for="(indicateur_de_gouvernance, qIndex) in critere_de_gouvernance.indicateurs_de_gouvernance"
                   :key="indicateur_de_gouvernance.id">
                   <tr>
                     <!-- Première cellule de catégorie principale avec rowspan -->

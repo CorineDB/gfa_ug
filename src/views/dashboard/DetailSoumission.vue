@@ -3,7 +3,8 @@ import { onMounted } from "vue";
 import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { toast } from "vue3-toastify";
-import EvaluationService from "../../services/modules/evaluation.gouvernance.service";
+//import EvaluationService from "../../services/modules/evaluation.gouvernance.service";
+import EvaluationService from "@/services/modules/enquetes_de_gouvernance/evaluation.gouvernance.service";
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
 import { computed } from "vue";
 import ProgressBar from "../../components/news/ProgressBar.vue";
@@ -71,15 +72,16 @@ const route = useRoute();
 const router = useRouter();
 const idEvaluation = route.params.e;
 const idSoumission = route.params.s;
+const type = route.query.type;
 const isLoading = ref(true);
 const soumission = ref({});
 const filterSoumission = ref([]);
 
 const getSoumission = async () => {
-  await EvaluationService.getOneSoumissionsEvaluation(idEvaluation, idSoumission)
+  await EvaluationService.getOneSoumissionsEvaluation(idEvaluation, idSoumission, type)
     .then((result) => {
       soumission.value = result.data.data;
-      filterSoumission.value = soumission.value?.formulaire_de_gouvernance?.categories_de_gouvernance;
+      filterSoumission.value = soumission.value?.categories_de_gouvernance;
       isLoading.value = false;
     })
     .catch((e) => {
@@ -94,7 +96,7 @@ const goBack = () => {
   // router.back();
 };
 
-const filterOptions = computed(() => soumission.value?.formulaire_de_gouvernance?.options_de_reponse);
+const filterOptions = computed(() => soumission.value?.options_de_reponse);
 
 onMounted(() => getSoumission());
 </script>
@@ -120,15 +122,15 @@ onMounted(() => getSoumission());
           <button @click="goBack()" class="mr-2 shadow-md btn btn-outline-primary"><ArrowLeftIcon class="w-4 h-4 mr-3" />Retour</button>
 
           <div class="flex items-center justify-center">
-            <ExportationDetailSoumissionFactuel v-if="soumission?.type == 'factuel'" :filter-soumission="filterSoumission" class="inline-block mr-3" />
+            <ExportationDetailSoumissionFactuel v-if="type == 'factuel'" :filter-soumission="filterSoumission" class="inline-block mr-3" />
             <ExportationDetailSoumissionPerception v-else :filter-soumission="filterSoumission" :filter-options="filterOptions" class="mr-3" />
-            <button v-if="soumission?.type == 'factuel'" @click="generatePDF" class="btn btn-primary text-left">Télécharger PDF</button>
+            <button v-if="type == 'factuel'" @click="generatePDF" class="btn btn-primary text-left">Télécharger PDF</button>
             <button v-else @click="generatePDF2" class="btn btn-primary text-left">Télécharger PDF</button>
           </div>
         </div>
       </div>
 
-      <table id="my-tab2" v-if="soumission?.type == 'factuel'" class="w-full my-10 border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
+      <table id="my-tab2" v-if="type == 'factuel'" class="w-full my-10 border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
         <thead class="text-white bg-blue-900">
           <tr>
             <th class="py-3 border border-slate-900">Principes</th>
@@ -164,7 +166,12 @@ onMounted(() => getSoumission());
                     <td class="text-center">{{ question.reponse_de_la_collecte?.point }}</td>
                     <td class="text-center">{{ question.reponse_de_la_collecte?.sourceDeVerification }}</td>
                     <td class="flex flex-wrap gap-1.5">
-                      <a v-for="(preuve, index) in question.reponse_de_la_collecte?.preuves ?? []" class="p-1 text-xs underline btn-outline-primary" :key="index" :href="preuve.url" target="_blank" rel="noopener noreferrer">Preuve {{ index + 1 }}</a>
+                      <template v-if="question.reponse_de_la_collecte?.isPreuveRequired">
+                        <a v-for="(preuve, index) in question.reponse_de_la_collecte?.preuves ?? []" class="p-1 text-xs underline btn-outline-primary" :key="index" :href="preuve.url" target="_blank" rel="noopener noreferrer">Preuve {{ index + 1 }}</a>
+                      </template>
+                      <template v-else>
+                        Preuve pas requise
+                      </template>
                     </td>
                   </tr>
                 </template>

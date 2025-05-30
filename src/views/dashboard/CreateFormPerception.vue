@@ -1,14 +1,20 @@
 <script setup>
 import { onBeforeUnmount, reactive, ref, computed, onMounted, watch } from "vue";
 import { toast } from "vue3-toastify";
-import OptionsResponse from "@/components/create-form/OptionsResponse.vue";
 import PrincipeGouvernance from "@/components/create-form/PrincipeGouvernance.vue";
-import QuestionsOperationnel from "@/components/create-form/QuestionsOperationnel.vue";
 import PerceptionStructureMultiple from "@/components/create-form/PerceptionStructureMultiple.vue";
+
+//import OptionsResponse from "@/components/create-form/OptionsResponse.vue";
+import OptionsResponsePerception from "@/components/create-form/OptionsResponsePerception.vue";
+import PrincipeDeGouvernancPerception from "@/components/create-form/PrincipeDeGouvernancPerception.vue";
+
+import QuestionsOperationnel from "@/components/create-form/QuestionsOperationnel.vue";
+
 import ListAccordionQuestion from "@/components/create-form/ListAccordionQuestion.vue";
 import VButton from "@/components/news/VButton.vue";
 import InputForm from "@/components/news/InputForm.vue";
-import FormulaireFactuel from "@/services/modules/formFactuel.service";
+//import FormulaireFactuel from "@/services/modules/formFactuel.service";
+import FormulaireDePerception from "@/services/modules/enquetes_de_gouvernance/formPerception.service";
 import PreviewPerceptionForm from "@/components/create-form/PreviewPerceptionForm.vue";
 import { getAllErrorMessages } from "@/utils/gestion-error";
 import ListFormPerception from "@/components/create-form/ListFormPerception.vue";
@@ -392,7 +398,7 @@ const createForm = async () => {
   isLoadingForm.value = true;
   payload.perception.options_de_reponse = globalOptionResponses.value.options_de_reponse;
   try {
-    await FormulaireFactuel.create(payload);
+    await FormulaireDePerception.create(payload);
     toast.success(`Formulaire créé avec succès.`);
     fetchListForms.value = !fetchListForms.value;
     // resetForm();
@@ -490,7 +496,7 @@ onMounted(() => {
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <OptionsResponse :reset-to="resetOptions" v-model:previewOptionResponses="previewOptionResponses"
+            <OptionsResponsePerception :reset-to="resetOptions" v-model:previewOptionResponses="previewOptionResponses"
               v-model:globalOptionResponses="globalOptionResponses" />
           </AccordionPanel>
         </AccordionItem>
@@ -508,11 +514,11 @@ onMounted(() => {
 
         <AccordionItem>
           <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
-            <p>Principe de gouvernance</p>
+            <p>Principes de gouvernance</p>
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <PrincipeGouvernance :to-reset="resetCurrentForm" :is-available="isAvailable.principe"
+            <PrincipeDeGouvernancPerception :to-reset="resetCurrentForm" :is-available="isAvailable.principe"
               @selected="getPrincipe" />
           </AccordionPanel>
         </AccordionItem>

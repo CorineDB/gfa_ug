@@ -2,7 +2,9 @@
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import VButton from "@/components/news/VButton.vue";
 import InputForm from "@/components/news/InputForm.vue";
-import TypeGouvernaceService from "@/services/modules/typeGouvernance.service";
+//import TypeGouvernaceService from "@/services/modules/typeGouvernance.service";
+import TypeGouvernaceFactuelService from "@/services/modules/enquetes_de_gouvernance/typeGouvernance.service";
+
 import DeleteButton from "@/components/news/DeleteButton.vue";
 import { toast } from "vue3-toastify";
 import LoaderData from "./LoaderData.vue";
@@ -39,7 +41,7 @@ function choiceOption(data) {
 const getDatas = async () => {
   try {
     isLoadingData.value = true;
-    const { data } = await TypeGouvernaceService.get();
+    const { data } = await TypeGouvernaceFactuelService.get();
     datas.value = data.data;
   } catch (e) {
     toast.error("Erreur lors de la récupération des données.");
@@ -51,7 +53,7 @@ const getDatas = async () => {
 // Submit data (create or update)
 const submitData = async () => {
   isLoading.value = true;
-  const action = isCreate.value ? TypeGouvernaceService.create(payload) : TypeGouvernaceService.update(idSelect.value, payload);
+  const action = isCreate.value ? TypeGouvernaceFactuelService.create(payload) : TypeGouvernaceFactuelService.update(idSelect.value, payload);
   try {
     await action;
     toast.success(`Type de gouvernance ${isCreate.value ? "crée" : "modifié"} avec succès.`);
@@ -72,7 +74,7 @@ const submitData = async () => {
 const deleteData = async () => {
   try {
     isLoading.value = true;
-    await TypeGouvernaceService.destroy(idSelect.value);
+    await TypeGouvernaceFactuelService.destroy(idSelect.value);
     toast.success("Type de gouvernance supprimé avec succès.");
     getDatas();
   } catch (e) {

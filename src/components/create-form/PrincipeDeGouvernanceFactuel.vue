@@ -2,7 +2,9 @@
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import VButton from "@/components/news/VButton.vue";
 import InputForm from "@/components/news/InputForm.vue";
-import CritereGouvernance from "@/services/modules/critereGouvernance.service";
+//import PrincipeGouvernance from "@/services/modules/principeGouvernance.service";
+import PrincipeGouvernanceFactuelService from "@/services/modules/enquetes_de_gouvernance/principeGouvernanceFactuel.service";
+
 import DeleteButton from "@/components/news/DeleteButton.vue";
 import { toast } from "vue3-toastify";
 import LoaderData from "./LoaderData.vue";
@@ -33,14 +35,13 @@ const errors = ref({});
 
 function choiceOption(data) {
   emit("selected", data);
-  search.value = "";
 }
 
 // Fetch data
 const getDatas = async () => {
   try {
     isLoadingData.value = true;
-    const { data } = await CritereGouvernance.get();
+    const { data } = await PrincipeGouvernanceFactuelService.get();
     datas.value = data.data;
   } catch (e) {
     toast.error("Erreur lors de la récupération des données.");
@@ -52,10 +53,10 @@ const getDatas = async () => {
 // Submit data (create or update)
 const submitData = async () => {
   isLoading.value = true;
-  const action = isCreate.value ? CritereGouvernance.create(payload) : CritereGouvernance.update(idSelect.value, payload);
+  const action = isCreate.value ? PrincipeGouvernanceFactuelService.create(payload) : PrincipeGouvernanceFactuelService.update(idSelect.value, payload);
   try {
     await action;
-    toast.success(`Critère ${isCreate.value ? "crée" : "modifié"} avec succès.`);
+    toast.success(`Principe ${isCreate.value ? "crée" : "modifié"} avec succès.`);
     getDatas();
     resetForm();
   } catch (e) {
@@ -73,8 +74,8 @@ const submitData = async () => {
 const deleteData = async () => {
   try {
     isLoading.value = true;
-    await CritereGouvernance.destroy(idSelect.value);
-    toast.success("Critère supprimé avec succès.");
+    await PrincipeGouvernanceFactuelService.destroy(idSelect.value);
+    toast.success("Principe supprimé avec succès.");
     getDatas();
   } catch (e) {
     console.error(e);
@@ -119,6 +120,7 @@ const cancelDelete = () => {
 };
 const closeModal = () => (showModalCreate.value = false);
 const closeDeleteModal = () => (deleteModalPreview.value = false);
+
 const modeText = computed(() => (isCreate.value ? "Ajouter" : "Modifier"));
 const filterData = computed(() => datas.value.filter((data) => data.nom.toLowerCase().includes(search.value.toLowerCase())));
 
@@ -138,8 +140,8 @@ onMounted(getDatas);
     <!-- Button to open modal -->
     <div class="flex items-center justify-between gap-2 mb-4">
       <!-- <div class="form-check form-switch">
-        <input id="critere" class="form-check-input" type="checkbox" v-model="isEditOrDelete" />
-        <label class="form-check-label" for="critere">Modifier/Supprimer</label>
+        <input id="principe" class="form-check-input" type="checkbox" v-model="isEditOrDelete" />
+        <label class="form-check-label" for="principe">Modifier/Supprimer</label>
       </div> -->
       <input type="text" class="form-control form-control-sm max-w-[300px]" placeholder="Rechercher..." v-model="search" />
       <button class="text-sm btn btn-primary" @click="getDatas"><RotateCcwIcon class="mr-1 size-4" /></button>
@@ -150,7 +152,7 @@ onMounted(getDatas);
     <ul v-if="!isLoadingData" class="overflow-y-auto max-h-[40vh]">
       <li v-for="data in filterData" :key="data.id" class="flex items-center justify-between gap-2 px-1 py-1.5 text-base hover:bg-blue-100 list-data">
         <div class="p-2 form-check">
-          <input :id="data.id" class="form-check-input" @change="choiceOption(data)" type="radio" name="critere" :value="data.id" v-model="idChecked" />
+          <input :id="data.id" class="form-check-input" @change="choiceOption(data)" type="radio" name="principe" :value="data.id" v-model="idChecked" />
           <label class="form-check-label" :for="data.id">{{ data.nom }}</label>
         </div>
         <div v-if="data.id !== idChecked" class="flex items-center gap-1 space-x-1 transition-all opacity-0 container-buttons">
@@ -168,7 +170,7 @@ onMounted(getDatas);
     <!-- Modal for creating/updating -->
     <Modal backdrop="static" :show="showModalCreate" @hidden="closeModal">
       <ModalHeader>
-        <h2 class="mr-auto text-base font-medium">{{ modeText }} un critère de gouvernance</h2>
+        <h2 class="mr-auto text-base font-medium">{{ modeText }} un principe de gouvernance</h2>
       </ModalHeader>
       <form @submit.prevent="submitData">
         <ModalBody>

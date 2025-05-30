@@ -5,14 +5,18 @@ import InputForm from "@/components/news/InputForm.vue";
 import DeleteButton from "@/components/news/DeleteButton.vue";
 import { toast } from "vue3-toastify";
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
-import EnqueteDeColleteService from "@/services/modules/enqueteDeCollecte.service";
-import EvaluationService from "@/services/modules/evaluation.gouvernance.service";
+//import EnqueteDeColleteService from "@/services/modules/enqueteDeCollecte.service";
+//import EvaluationService from "@/services/modules/evaluation.gouvernance.service";
+
+import EvaluationService from "@/services/modules/enquetes_de_gouvernance/evaluation.gouvernance.service";
+import ResultatSyntheseService from "@/services/modules/enquetes_de_gouvernance/synthese.service";
+
 import { useRouter, useRoute } from "vue-router";
 import ActionsMener from "../../../components/news/ActionsMener.vue";
 import ProgressBar from "../../../components/news/ProgressBar.vue";
 import ChartPerceptionOption from "../../../components/news/ChartPerceptionOption.vue";
 import { data } from "jquery";
-import SyntheseService from "../../../services/modules/synthese.service";
+//import SyntheseService from "../../../services/modules/synthese.service";
 import ChartProgressionByTime from "../../../components/news/ChartProgressionByTime.vue";
 import ChartScroreByPrincipe from "../../../components/news/ChartScroreByPrincipe.vue";
 import ChartScroreByPrincipeObjectif from "../../../components/news/ChartScroreByPrincipeObjectif.vue";
@@ -52,7 +56,7 @@ const ongClassements = ref({});
 
 const createData = async () => {
   isLoading.value = true;
-  await EnqueteDeColleteService.create(payload)
+  await EvaluationService.create(payload)
     .then(() => {
       isLoading.value = false;
       getDatas();
@@ -72,6 +76,7 @@ const getDatas = async () => {
     .then((result) => {
       datas.value = result.data.data;
       isLoadingData.value = false;
+      console.log(datas.value);
     })
     .catch((e) => {
       console.error(e);
@@ -94,7 +99,7 @@ const getClassement = async () => {
 
 const resultatSynthese = async () => {
   isLoadingResultat.value = true;
-  await SyntheseService.resustatSyntheseEvaluation(idEvaluation)
+  await ResultatSyntheseService.resustatSyntheseEvaluation(idEvaluation)
     .then((result) => {
       resultatsSynthese.value = result.data.data;
       ongSelectedScore.value = resultatsSynthese.value[0].id;
@@ -128,7 +133,7 @@ const getEvaluation = async () => {
 
 const updateData = async () => {
   isLoading.value = true;
-  await EnqueteDeColleteService.update(idSelect.value, payload)
+  await EvaluationService.update(idSelect.value, payload)
     .then(() => {
       isLoading.value = false;
       getDatas();
@@ -224,9 +229,9 @@ const goToPageSynthese = () => {
 const goToPageSyntheseWithOng = (ong) => {
   router.push({ name: "FicheSynthese", params: { e: idEvaluation }, query: { ong } });
 };
-const goToPageSoumission = (Idsoumission) => {
+const goToPageSoumission = (Idsoumission, type = factuel) => {
   showModalOrganisation.value = false;
-  router.push({ name: "soumission", params: { e: idEvaluation, s: Idsoumission } });
+  router.push({ name: "soumission", params: { e: idEvaluation, s: Idsoumission }, query: { type: type } });
 };
 const goToPageMarqueur = (Idsoumission) => {
   router.push({ name: "FicheMarqueur", params: { e: idEvaluation } });
@@ -458,14 +463,14 @@ onMounted(async () => {
                 <div class="ml-2 font-bold">{{ ong?.perception ? ong.perception.length : 0 }}</div>
               </div>
               <div class="mt-4">
-                <p>Évolution soumissions</p>
+                <p>Évolution soumissions</p> 
                 <ProgressBar :percent="getPercentEvolutionOng(ong.id)" />
               </div>
             </div>
 
             <div class="flex flex-col items-end justify-end w-full border-t border-slate-200/60 dark:border-darkmode-400">
               <div class="flex items-center justify-end w-full border-t border-slate-200/60 dark:border-darkmode-400">
-                <button v-if="ong.factuel && ong.factuel[0].statut && ong.factuel && ong.factuel[0].pourcentage_evolution >= 100" @click.self="goToPageSyntheseWithOng(ong.id)" class="flex items-center justify-center w-full gap-2 py-2.5 flex-1 text-base font-medium bg-outline-primary">Fiche de synthèse <ArrowRightIcon class="ml-2 size-5" /></button>
+                <button v-if="ong.factuel && ong.factuel[0]?.statut && ong.factuel && ong.factuel[0]?.pourcentage_evolution >= 100" @click.self="goToPageSyntheseWithOng(ong.id)" class="flex items-center justify-center w-full gap-2 py-2.5 flex-1 text-base font-medium bg-outline-primary">Fiche de synthèse <ArrowRightIcon class="ml-2 size-5" /></button>
                 <button v-else class="w-full gap-2 py-[22px]"></button>
                 <!-- <button class="flex items-center justify-center w-full gap-2 py-2.5 text-base font-medium bg-outline-primary">Marqueur de gouvernance <ArrowRightIcon class="ml-2 size-5" /></button> -->
               </div>
@@ -613,8 +618,9 @@ onMounted(async () => {
           </TabList>
           <TabPanels class="mt-5">
             <TabPanel class="max-h-[80vh] overflow-y-auto">
-              <div class="flex flex-col gap-2" v-if="currentOrganisation?.factuel">
-                <div @click="goToPageSoumission(soumission.id)" v-for="(soumission, index) in currentOrganisation.factuel" :key="index" class="flex items-center justify-between w-full gap-2 px-2 py-3 text-base font-medium text-black truncate transition-all bg-white border border-l-4 rounded shadow-md cursor-pointer border-primary">
+              
+              <div class="flex flex-col gap-2" v-if="currentOrganisation?.factuel && currentOrganisation?.factuel.length">
+                <div @click="goToPageSoumission(soumission.id, 'factuel')" v-for="(soumission, index) in currentOrganisation.factuel" :key="index" class="flex items-center justify-between w-full gap-2 px-2 py-3 text-base font-medium text-black truncate transition-all bg-white border border-l-4 rounded shadow-md cursor-pointer border-primary">
                   <p>
                     Soumission n° {{ index + 1 }} ( {{ soumission.created_at }}) <span :class="[soumission.statut ? 'bg-green-500' : 'bg-yellow-500']" class="px-2 py-1 mr-1 text-xs text-white rounded-full">{{ soumission.statut ? "Terminé" : "En cours" }}</span>
                   </p>
@@ -628,12 +634,12 @@ onMounted(async () => {
                 </div>
               </div>
               <div v-else class="text-lg text-center">
-                <p>Liste de soumissions vide.</p>
+                <p>Aucune soumission factuelle disponible.</p>
               </div>
             </TabPanel>
             <TabPanel class="max-h-[80vh] overflow-y-auto">
-              <div class="flex flex-col gap-2" v-if="currentOrganisation?.perception">
-                <div @click="goToPageSoumission(soumission.id)" v-for="(soumission, index) in currentOrganisation.perception" :key="index" class="flex items-center justify-between w-full gap-2 px-2 py-3 text-base font-medium text-black truncate transition-all bg-white border border-l-4 rounded shadow-md cursor-pointer border-primary">
+              <div class="flex flex-col gap-2" v-if="currentOrganisation?.perception && currentOrganisation?.perception.length">
+                <div @click="goToPageSoumission(soumission.id, 'perception')" v-for="(soumission, index) in currentOrganisation.perception" :key="index" class="flex items-center justify-between w-full gap-2 px-2 py-3 text-base font-medium text-black truncate transition-all bg-white border border-l-4 rounded shadow-md cursor-pointer border-primary">
                   <p>
                     Soumission n° {{ index + 1 }} ( {{ soumission.created_at }}) <span :class="[soumission.statut ? 'bg-green-500' : 'bg-yellow-500']" class="px-2 py-1 mr-1 text-xs text-white rounded-full">{{ soumission.statut ? "Terminé" : "En cours" }}</span>
                   </p>
@@ -648,7 +654,7 @@ onMounted(async () => {
                 </div>
               </div>
               <div v-else class="text-lg text-center">
-                <p>Liste de soumissions vide.</p>
+                <p>Aucune soumission de perception disponible.</p>
               </div>
             </TabPanel>
           </TabPanels>

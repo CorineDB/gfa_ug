@@ -3,7 +3,7 @@ import { computed, onMounted, reactive, ref, watch } from "vue";
 import VButton from "@/components/news/VButton.vue";
 import InputForm from "@/components/news/InputForm.vue";
 //import PrincipeGouvernance from "@/services/modules/principeGouvernance.service";
-import PrincipeGouvernanceFactuelService from "@/services/modules/enquetes_de_gouvernance/principeGouvernanceFactuel.service";
+import PrincipeDeGouvernanceDePerception from "@/services/modules/enquetes_de_gouvernance/principeGouvernanceDePerception.service";
 
 import DeleteButton from "@/components/news/DeleteButton.vue";
 import { toast } from "vue3-toastify";
@@ -41,7 +41,7 @@ function choiceOption(data) {
 const getDatas = async () => {
   try {
     isLoadingData.value = true;
-    const { data } = await PrincipeGouvernanceFactuelService.get();
+    const { data } = await PrincipeDeGouvernanceDePerception.get();
     datas.value = data.data;
   } catch (e) {
     toast.error("Erreur lors de la récupération des données.");
@@ -53,7 +53,7 @@ const getDatas = async () => {
 // Submit data (create or update)
 const submitData = async () => {
   isLoading.value = true;
-  const action = isCreate.value ? PrincipeGouvernanceFactuelService.create(payload) : PrincipeGouvernanceFactuelService.update(idSelect.value, payload);
+  const action = isCreate.value ? PrincipeDeGouvernanceDePerception.create(payload) : PrincipeDeGouvernanceDePerception.update(idSelect.value, payload);
   try {
     await action;
     toast.success(`Principe ${isCreate.value ? "crée" : "modifié"} avec succès.`);
@@ -74,7 +74,7 @@ const submitData = async () => {
 const deleteData = async () => {
   try {
     isLoading.value = true;
-    await PrincipeGouvernanceFactuelService.destroy(idSelect.value);
+    await PrincipeDeGouvernanceDePerception.destroy(idSelect.value);
     toast.success("Principe supprimé avec succès.");
     getDatas();
   } catch (e) {

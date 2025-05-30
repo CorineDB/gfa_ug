@@ -3,7 +3,8 @@ import { ref, watch, computed, onMounted } from "vue";
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
 import Tabulator from "tabulator-tables";
 import { toast } from "vue3-toastify";
-import FormulaireFactuel from "@/services/modules/formFactuel.service";
+//import FormulaireDePerception from "@/services/modules/formFactuel.service";
+import FormulaireDePerception from "@/services/modules/enquetes_de_gouvernance/formPerception.service";
 import PreviewDetailPerceptionForm from "@/components/create-form/PreviewDetailPerceptionForm.vue";
 import DeleteButton from "@/components/news/DeleteButton.vue";
 import ListOptionsResponse from "@/components/create-form/ListOptionsResponse.vue";
@@ -28,7 +29,7 @@ const search = ref("");
 const getListForm = async () => {
   isLoading.value = true;
   try {
-    const { data } = await FormulaireFactuel.get("perception");
+    const { data } = await FormulaireDePerception.get();
     listForms.value = data.data;
   } catch (e) {
     toast.error("Erreur récupération liste des formulaires.");
@@ -41,7 +42,7 @@ const getListForm = async () => {
 const getOneForm = async () => {
   isLoadingOneForm.value = true;
   try {
-    const { data } = await FormulaireFactuel.getOne(idSelectedForm.value);
+    const { data } = await FormulaireDePerception.getOne(idSelectedForm.value);
     previewForm.value = data.data;
   } catch (e) {
     toast.error("Erreur récupération du  formulaire.");
@@ -53,7 +54,7 @@ const getOneForm = async () => {
 const deleteOneForm = async () => {
   isLoadingOneForm.value = true;
   try {
-    await FormulaireFactuel.destroy(idSelectedForm.value);
+    await FormulaireDePerception.destroy(idSelectedForm.value);
     showModalDelete.value = false;
     toast.success("Formulaire supprimé.");
     getListForm();

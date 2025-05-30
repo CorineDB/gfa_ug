@@ -1,16 +1,23 @@
 <script setup>
 import { onBeforeUnmount, reactive, ref, computed, onMounted } from "vue";
 import { toast } from "vue3-toastify";
-import OptionsResponse from "@/components/create-form/OptionsResponse.vue";
+/*import OptionsResponse from "@/components/create-form/OptionsResponse.vue";
 import TypeGouvernance from "@/components/create-form/TypeGouvernance.vue";
 import PrincipeGouvernance from "@/components/create-form/PrincipeGouvernance.vue";
-import CritereGouvernance from "@/components/create-form/CritereGouvernance.vue";
+import CritereGouvernance from "@/components/create-form/CritereGouvernance.vue";*/
+
+import OptionsResponseFactuel from "@/components/create-form/OptionsResponseFactuel.vue";
+import TypeGouvernance from "@/components/create-form/TypeGouvernance.vue";
+import PrincipeDeGouvernanceFactuel from "@/components/create-form/PrincipeDeGouvernanceFactuel.vue";
+import CritereDeGouvernanceFactuel from "@/components/create-form/CritereDeGouvernanceFactuel.vue";
+
 import IndicateurGouvernance from "@/components/create-form/IndicateurGouvernance.vue";
 import FactuelStructure from "@/components/create-form/FactuelStructure.vue";
 import ListAccordionIndicateur from "@/components/create-form/ListAccordionIndicateur.vue";
 import VButton from "@/components/news/VButton.vue";
 import InputForm from "@/components/news/InputForm.vue";
-import FormulaireFactuel from "@/services/modules/formFactuel.service";
+//import FormulaireFactuel from "@/services/modules/formFactuel.service";
+import FormulaireFactuel from "@/services/modules/enquetes_de_gouvernance/formFactuel.service";
 import PreviewFactuelForm from "@/components/create-form/PreviewFactuelForm.vue";
 import { getAllErrorMessages } from "@/utils/gestion-error";
 import ListFormFactuel from "@/components/create-form/ListFormFactuel.vue";
@@ -581,19 +588,17 @@ onMounted(async () => {
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <OptionsResponse :is-reset="resetOptions" :factuel="true" :is-update="true" :id-form="idForm"
-              v-model:previewOptionResponses="previewOptionResponses"
-              v-model:globalOptionResponses="globalOptionResponses" />
+            <TypeGouvernance :to-reset="false" :is-available="isAvailable.type" @selected="getType" />
           </AccordionPanel>
         </AccordionItem>
-
+        
         <AccordionItem class="">
           <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
             <p>Principe de gouvernance</p>
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <PrincipeGouvernance :to-reset="false" :is-available="isAvailable.principe" @selected="getPrincipe" />
+            <PrincipeDeGouvernanceFactuel :to-reset="false" :is-available="isAvailable.principe" @selected="getPrincipe" />
           </AccordionPanel>
         </AccordionItem>
 
@@ -603,7 +608,7 @@ onMounted(async () => {
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <CritereGouvernance :to-reset="false" :is-available="isAvailable.critere" @selected="getCritere" />
+            <CritereDeGouvernanceFactuel :to-reset="false" :is-available="isAvailable.critere" @selected="getCritere" />
           </AccordionPanel>
         </AccordionItem>
 
@@ -624,7 +629,7 @@ onMounted(async () => {
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <OptionsResponse :is-reset="resetOptions" :is-update="true" :id-form="idForm"
+            <OptionsResponseFactuel :is-reset="resetOptions" :is-update="true" :id-form="idForm"
               v-model:previewOptionResponses="previewOptionResponses"
               v-model:globalOptionResponses="globalOptionResponses" />
           </AccordionPanel>

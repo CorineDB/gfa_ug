@@ -15,6 +15,12 @@ const OngService = {
     return ApiService.get("gfa/programmes/evaluations-organisations/null", slug);
   },
 
+  programmeEvaluationsOrganisations(slug) {
+    return ApiService.get("gfa/programmes/evaluations-organisations-stats/null", slug);
+  },
+
+  
+
   find(id) {
     return ApiService.get(`gfa/organisations/${id}`);
   },

@@ -2,7 +2,8 @@
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import VButton from "@/components/news/VButton.vue";
 import InputForm from "@/components/news/InputForm.vue";
-import QuestionOperationnelle from "@/services/modules/questionOperationnelle.service";
+//import QuestionOperationnelle from "@/services/modules/questionOperationnelle.service";
+import QuestionOperationnelle from "@/services/modules/enquetes_de_gouvernance/questionOperationnelle.service";
 import DeleteButton from "@/components/news/DeleteButton.vue";
 import { toast } from "vue3-toastify";
 import LoaderData from "./LoaderData.vue";
