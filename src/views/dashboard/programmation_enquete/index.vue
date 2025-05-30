@@ -21,7 +21,7 @@ import ChartProgressionByTime from "../../../components/news/ChartProgressionByT
 import ProgressBar from "../../../components/news/ProgressBar.vue";
 import ChartScroreByPrincipe from "../../../components/news/ChartScroreByPrincipe.vue";
 import { getFieldErrors } from "../../../utils/helpers";
-import SyntheseService from "../../../services/modules/synthese.service";
+//import SyntheseService from "../../../services/modules/synthese.service";
 import AddObjectifEvaluation from "../../../components/news/AddObjectifEvaluation.vue";
 import verifyPermission from "../../../utils/verifyPermission";
 import { useYearsStore } from "@/stores/years";
@@ -67,7 +67,11 @@ const payload = reactive({
   annee_exercice: new Date().getFullYear(),
   debut: "",
   fin: "",
-  formulaires_de_gouvernance: [],
+  //formulaires_de_gouvernance: [],
+  formulaires_de_gouvernance: {
+    "factuel": "",
+    "perception": ""
+  },
   organisations: [],
 });
 
@@ -99,14 +103,18 @@ const createData = async () => {
   let forms = [];
 
   if( idFormFactuel.value !== null && idFormFactuel.value !== undefined && idFormFactuel.value !== ""){
-    forms = [...forms, idFormFactuel.value]
+    //forms = [...forms, idFormFactuel.value]
+    forms["factuel"] =  idFormFactuel.value;
   }
 
   if( idFormPerception.value !== null && idFormPerception.value !== undefined && idFormPerception.value !== ""){
-    forms = [...forms, idFormPerception.value]
+    //forms = [...forms, idFormPerception.value]
+    forms["perception"] =  idFormPerception.value;
   }
 
   payload.formulaires_de_gouvernance = forms;
+
+  console.log(payload);
   
   isLoading.value = true;
   

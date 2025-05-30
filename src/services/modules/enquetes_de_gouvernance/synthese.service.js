@@ -10,11 +10,7 @@ const ResultatSyntheseService = {
     return ApiService.get(`gfa/enquete-de-gouvernance/evaluations-de-gouvernance/${idEvaluation}/fiches-de-synthese
 `);
   },
-
-  getForEvaluation(idEvaluation) {
-    return ApiService.get(`gfa/enquete-de-gouvernance/evaluations-de-gouvernance/${idEvaluation}/fiches-de-synthese
-`);
-  },
+  
   getOngClassement(idEvaluation) {
     return ApiService.get(`gfa/enquete-de-gouvernance/evaluations-de-gouvernance/${idEvaluation}/fiches-de-synthese-with-organisations-classement
 `);

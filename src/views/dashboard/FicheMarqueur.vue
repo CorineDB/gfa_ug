@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, ref } from "vue";
-import SyntheseService from "@/services/modules/synthese.service";
+//import SyntheseService from "@/services/modules/synthese.service";
+import ResultatSyntheseService from "@/services/modules/enquetes_de_gouvernance/synthese.service";
 import { toast } from "vue3-toastify";
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
 import { useRoute, useRouter } from "vue-router";
@@ -89,11 +90,11 @@ const isLoadingData = ref(false);
 
 const getDataCollection = async () => {
   isLoadingData.value = true;
-  await SyntheseService.getForEvaluation(idEvaluation)
+  await ResultatSyntheseService.getForEvaluation(idEvaluation)
     .then((result) => {
       dataForAllOrganisation.value = result.data.data;
-      datasFactuel.value = dataForAllOrganisation.value.analyse_factuel;
-      datasPerception.value = dataForAllOrganisation.value.analyse_perception;
+      datasFactuel.value = dataForAllOrganisation.value.factuel;
+      datasPerception.value = dataForAllOrganisation.value.perception;
       isLoadingData.value = false;
     })
     .catch((e) => {
