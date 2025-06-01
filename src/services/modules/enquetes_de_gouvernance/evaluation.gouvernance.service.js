@@ -3,7 +3,7 @@ import { param } from "jquery";
 
 const EvaluationService = {
   query(type, params) {
-    return ApiService.query("gfa/enquete-de-gouvernance/evaluations-de-gouvernance/", {
+    return ApiService.query("gfa/enquete-de-gouvernance/evaluations-de-gouvernance", {
       params: params,
     });
   },
@@ -84,7 +84,7 @@ const EvaluationService = {
   },
 
   create(params) {
-    return ApiService.post("gfa/enquete-de-gouvernance/evaluations-de-gouvernance/", params);
+    return ApiService.post("gfa/enquete-de-gouvernance/evaluations-de-gouvernance", params);
   },
 
   addParticipantPerception(evaluation, payload) {
@@ -92,7 +92,7 @@ const EvaluationService = {
   },
 
   update(slug, params) {
-    return ApiService.update("gfa/enquete-de-gouvernance/evaluations-de-gouvernance/", slug, params);
+    return ApiService.update("gfa/enquete-de-gouvernance/evaluations-de-gouvernance", slug, params);
   },
 
   destroy(slug) {

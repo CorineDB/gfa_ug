@@ -105,16 +105,18 @@ const createData = async () => {
   if( idFormFactuel.value !== null && idFormFactuel.value !== undefined && idFormFactuel.value !== ""){
     //forms = [...forms, idFormFactuel.value]
     forms["factuel"] =  idFormFactuel.value;
+    payload.formulaires_de_gouvernance["factuel"] = forms["factuel"];
   }
 
   if( idFormPerception.value !== null && idFormPerception.value !== undefined && idFormPerception.value !== ""){
-    //forms = [...forms, idFormPerception.value]
     forms["perception"] =  idFormPerception.value;
+    payload.formulaires_de_gouvernance["perception"] = forms["perception"];
   }
 
-  payload.formulaires_de_gouvernance = forms;
+  //payload.formulaires_de_gouvernance = forms;
 
   console.log(payload);
+  console.log(payload.formulaires_de_gouvernance);
   
   isLoading.value = true;
   
@@ -218,8 +220,18 @@ const getOrganisationsProgramme = async () => {
 };
 
 const updateData = async () => {
+  
+
+  if( idFormFactuel.value !== null && idFormFactuel.value !== undefined && idFormFactuel.value !== ""){
+    payload.formulaires_de_gouvernance["factuel"] = idFormFactuel.value;
+  }
+
+  if( idFormPerception.value !== null && idFormPerception.value !== undefined && idFormPerception.value !== ""){
+    payload.formulaires_de_gouvernance["perception"] = idFormPerception.value;
+  }
+
   isLoading.value = true;
-  payload.formulaires_de_gouvernance = [idFormFactuel.value, idFormPerception.value];
+  //payload.formulaires_de_gouvernance = [idFormFactuel.value, idFormPerception.value];
   await EvaluationService.update(idSelect.value, payload)
     .then(() => {
       getDatas();
@@ -238,6 +250,7 @@ const updateData = async () => {
       isLoading.value = false;
     });
 };
+//const submitData = () => console.log("Submit data");
 const submitData = () => (isCreate.value ? createData() : updateData());
 const deleteData = async () => {
   isLoading.value = true;
@@ -305,8 +318,8 @@ const handleEdit = (params) => {
   if (params.formulaire_factuel_de_gouvernance) {
     idFormFactuel.value = params.formulaire_factuel_de_gouvernance;
   }
-  if (params.formulaire_perception_de_gouvernance) {
-    idFormPerception.value = params.formulaire_perception_de_gouvernance;
+  if (params.formulaire_de_perception_de_gouvernance) {
+    idFormPerception.value = params.formulaire_de_perception_de_gouvernance;
   }
   payload.organisations = params.organisations.map((ong) => ong.id);
   showModalCreate.value = true;
