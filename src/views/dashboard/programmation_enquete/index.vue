@@ -68,10 +68,7 @@ const payload = reactive({
   debut: "",
   fin: "",
   //formulaires_de_gouvernance: [],
-  formulaires_de_gouvernance: {
-    "factuel": "",
-    "perception": ""
-  },
+  formulaires_de_gouvernance: {},
   organisations: [],
 });
 
@@ -577,7 +574,7 @@ onMounted(async () => {
             <div v-if="errors.formulaires_de_gouvernance" class="mt-2 text-danger">{{ getFieldErrors(errors.formulaires_de_gouvernance) }}</div>
           </div>
           <div class="">
-            <label class="form-label">Organisations <span class="text-danger">*</span> <span class="text-danger">*</span> </label>
+            <label class="form-label">Organisations <span class="text-danger">*</span> </label>
             <TomSelect v-model="payload.organisations" multiple :options="{ placeholder: 'Selectionez les organisations' }" class="w-full">
               <option v-for="(organisation, index) in organisations" :key="index" :value="organisation.id">{{ organisation.nom }}</option>
             </TomSelect>
