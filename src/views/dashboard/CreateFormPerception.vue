@@ -743,15 +743,15 @@ onMounted(() => {
         <div class="gap-4">
           <InputForm label="Libellé" class="w-full mb-4" :control="getFieldErrors(errors.libelle)"
             v-model="payload.libelle" />
-          <div class="w-full">
+          <!-- <div class="w-full">
             <label for="annee" class="form-label">Année<span class="text-danger">*</span> </label>
             <TomSelect v-model="payload.annee_exercice" :options="{ placeholder: 'Selectionez une année' }"
               class="w-full">
               <option v-for="(year, index) in annees" :key="index" :value="year">{{ year }}</option>
             </TomSelect>
-            <!-- <input id="annee" type="number" required v-model.number="payload.annee_exercice" class="form-control" placeholder="Année" /> -->
+            <-- <input id="annee" type="number" required v-model.number="payload.annee_exercice" class="form-control" placeholder="Année" /> ->
             <div v-if="errors.annee_exercice" class="mt-2 text-danger">{{ getFieldErrors(errors.annee_exercice) }}</div>
-          </div>
+          </div> -->
         </div>
         <div>
           <p class="mb-3">Options de réponses</p>

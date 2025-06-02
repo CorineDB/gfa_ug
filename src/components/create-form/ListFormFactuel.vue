@@ -78,7 +78,7 @@ const initTabulator = () => {
   tabulator.value = new Tabulator("#list-factuel", {
     data: listForms.value,
     placeholder: "Aucune donnée disponible.",
-    headerHozAlign: "center",
+    headerHozAlign: "left",
     layout: "fitColumns",
     pagination: "local",
     paginationSize: 10,
@@ -87,19 +87,19 @@ const initTabulator = () => {
         title: "Libellé",
         field: "libelle",
         vertAlign: "middle",
-        hozAlign: "center",
-      },
+        hozAlign: "left",
+      },/* 
       {
         title: "Année",
         field: "annee_exercice",
         vertAlign: "middle",
         hozAlign: "center",
-      },
+      }, */
       {
         title: "Actions",
         field: "actions",
         vertAlign: "middle",
-        hozAlign: "center",
+        hozAlign: "left",
 
         formatter: (cell) => {
           const container = document.createElement("div");
@@ -144,7 +144,7 @@ const initTabulator2 = () => {
   tabulator.value = new Tabulator("#list-factuelArchive", {
     data: listForms.value,
     placeholder: "Aucune donnée disponible.",
-    headerHozAlign: "center",
+    headerHozAlign: "left",
     layout: "fitColumns",
     pagination: "local",
     paginationSize: 10,
@@ -153,19 +153,19 @@ const initTabulator2 = () => {
         title: "Libellé",
         field: "libelle",
         vertAlign: "middle",
-        hozAlign: "center",
-      },
+        hozAlign: "left",
+      },/* 
       {
         title: "Année",
         field: "annee_exercice",
         vertAlign: "middle",
         hozAlign: "center",
-      },
+      }, */
       {
         title: "Actions",
         field: "actions",
         vertAlign: "middle",
-        hozAlign: "center",
+        hozAlign: "left",
 
         formatter: (cell) => {
           const container = document.createElement("div");
