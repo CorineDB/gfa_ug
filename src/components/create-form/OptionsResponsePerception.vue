@@ -195,9 +195,36 @@ watch(
   }
 );
 
+
+function fixerOptionsDeReponse(){
+  idChecked.value =
+  datas.value.map((item) => {
+    if(item.libelle.toLowerCase() == 'Ne peux répondre'){
+      updateTemporyOption(item.id, 0);
+    }
+    else if(item.libelle.toLowerCase() == 'Pas du tout'){
+      updateTemporyOption(item.id, 0);
+    }
+    else if(item.libelle.toLowerCase() == 'faiblement'){
+      updateTemporyOption(item.id, 0.25);
+    }
+    else if(item.libelle.toLowerCase() == 'moyennement'){
+      updateTemporyOption(item.id, 0.5);
+    }
+    else if(item.libelle.toLowerCase() == 'dans une grande mesure'){
+      updateTemporyOption(item.id, 0.75);
+    }
+    else if(item.libelle.toLowerCase() == 'totalement'){
+      updateTemporyOption(item.id, 1);
+    }
+    return item.id;
+  });
+}
+
 // Fetch data on component mount
 onMounted(async () => {
   await getDatas();
+  fixerOptionsDeReponse();
   if (previewData && globalData && !props.isUpdate) {
     setTimeout(() => {
       globalOptionResponses.value = JSON.parse(globalData);

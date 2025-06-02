@@ -727,6 +727,7 @@ const selectTab = function (tab) {
 
 onBeforeUnmount(() => {
   clearUniqueKeys();
+  resetAllFormWithDataLocalStorage();
 });
 
 watch(() => {
@@ -745,6 +746,9 @@ onMounted(() => {
   if (globalData && previewData) {
     globalFormFactuelData.value = JSON.parse(globalData);
     previewFormFactuelData.value = JSON.parse(previewData);
+
+    previewOptionResponsesModel.value = JSON.parse(localStorage.getItem("previewOptionResponsesModel"))
+
     // previewOptionResponsesModel.value = JSON.parse(localStorage.getItem("previewOptionResponsesModel"));
     // globalOptionResponses.value = JSON.parse(localStorage.getItem("globalOptionResponses"));
   }

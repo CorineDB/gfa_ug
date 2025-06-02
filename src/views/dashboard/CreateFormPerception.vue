@@ -469,6 +469,7 @@ watch(() => {
 
 onBeforeUnmount(() => {
   clearUniqueKeys();
+  resetAllFormWithDataLocalStorage();
 });
 
 onMounted(() => {
