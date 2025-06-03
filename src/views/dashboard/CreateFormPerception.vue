@@ -322,42 +322,94 @@ const addNewIndicator = () => {
 };
 
 const removeElement = (key) => {
-  console.log(key);
 
-  key = globalFormPerceptionData.value.find((s) => s.key === key)['principe'];
+  key = globalFormPerceptionData.value.find((s) => s.key === key);
+  if (key) {
+    key = key['principe'];
+    // Remove from globalFormPerceptionData
+    for (let i = globalFormPerceptionData.value.length - 1; i >= 0; i--) {
+      if (globalFormPerceptionData.value[i]["principe"] === key) {
+        globalFormPerceptionData.value.splice(i, 1);
 
-  // Remove from globalFormPerceptionData
-  for (let i = globalFormPerceptionData.value.length - 1; i >= 0; i--) {
-    if (globalFormPerceptionData.value[i]["principe"] === key) {
-      globalFormPerceptionData.value.splice(i, 1);
-
-      // Remove key from unique se
-      if (uniqueKeys.has(globalFormPerceptionData.value[i]?.["key"])) {
-        uniqueKeys.delete(globalFormPerceptionData.value[i]["key"]);
+        // Remove key from unique se
+        if (uniqueKeys.has(globalFormPerceptionData.value[i]?.["key"])) {
+          uniqueKeys.delete(globalFormPerceptionData.value[i]["key"]);
+        }
       }
     }
-  }
 
-  // Remove from previewFormPerceptionData
-  for (let i = previewFormPerceptionData.value.length - 1; i >= 0; i--) {
-    if (previewFormPerceptionData.value[i]["principe"]["id"] === key) {
-      previewFormPerceptionData.value.splice(i, 1);
+    // Remove from previewFormPerceptionData
+    for (let i = previewFormPerceptionData.value.length - 1; i >= 0; i--) {
+      if (previewFormPerceptionData.value[i]["principe"]["id"] === key) {
+        previewFormPerceptionData.value.splice(i, 1);
+      }
     }
+
+    // Recalculate and update
+    updateAllTypesGouvernance();
+
+    // Persist to localStorage
+    localStorage.setItem("globalFormPerceptionData", JSON.stringify(globalFormPerceptionData.value));
+    localStorage.setItem("previewFormPerceptionData", JSON.stringify(previewFormPerceptionData.value));
+
+    toast.success("Principe supprimé.");
   }
+  else {
+    Object.keys(currentGlobalPerceptionFormData).forEach((key) => {
+      currentGlobalPerceptionFormData[key] = "";
+    });
 
-  // Recalculate and update
-  updateAllTypesGouvernance();
-
-  // Persist to localStorage
-  localStorage.setItem("globalFormPerceptionData", JSON.stringify(globalFormPerceptionData.value));
-  localStorage.setItem("previewFormPerceptionData", JSON.stringify(previewFormPerceptionData.value));
-
-  toast.success("Principe supprimé.");
+    currentPreviewPerceptionFormData.principe = { id: "", nom: "", position: 0 };
+    currentPreviewPerceptionFormData.indicateur = { id: "", nom: "", position: 0 };
+    currentPreviewPerceptionFormData.key = "";
+  }
 };
 
-const removeIndicator = (key) => {
+const updateTemporyPrincipe = (key, position) => {
+
+  key = globalFormPerceptionData.value.find((s) => s.key === key);
+  if (key) {
+    key = key['principe'];
+    // Remove from globalFormPerceptionData
+    for (let i = globalFormPerceptionData.value.length - 1; i >= 0; i--) {
+      if (globalFormPerceptionData.value[i]["principe"] === key) {
+
+      }
+    }
+
+    // Remove from previewFormPerceptionData
+    for (let i = previewFormPerceptionData.value.length - 1; i >= 0; i--) {
+      if (previewFormPerceptionData.value[i]["principe"]["id"] === key) {
+
+      }
+    }
+
+    // Recalculate and update
+    updateAllTypesGouvernance();
+
+    // Persist to localStorage
+    localStorage.setItem("globalFormPerceptionData", JSON.stringify(globalFormPerceptionData.value));
+    localStorage.setItem("previewFormPerceptionData", JSON.stringify(previewFormPerceptionData.value));
+  }
+  else {
+
+    currentPreviewPerceptionFormData.principe.position = position;
+
+    currentPreviewPerceptionFormDataArray.value = currentPreviewPerceptionFormDataArray.value.map((item, index) => {
+      if (item.principe.id == key) {
+        item.principe.position = position;
+      }
+      return item;
+    });
+
+  }
+};
+
+
+const updateTemporyQuestions = (key, position) => {
+
   const index = globalFormPerceptionData.value.findIndex((s) => s.key === key);
-  // Supprimer la soumission et sa clé si elle est trouvée
+
   if (index !== -1) {
     globalFormPerceptionData.value.splice(index, 1);
     previewFormPerceptionData.value.splice(index, 1);
@@ -367,8 +419,48 @@ const removeIndicator = (key) => {
     localStorage.setItem("previewFormPerceptionData", JSON.stringify(previewFormPerceptionData.value));
 
     toast.success("Question operationnelle supprimé.");
-    // console.log("Nouvelle Global:", globalFormFactuelData.value);
-    // console.log("Nouvelle preview:", previewFormFactuelData.value);
+  }
+  else {
+
+    currentPreviewPerceptionFormDataArray.value = currentPreviewPerceptionFormDataArray.value.map((item, index) => {
+      if (item.key == key) {
+        item.indicateur.position = position;
+      }
+      return item;
+    });
+
+    currentGlobalPerceptionFormDataArray.value = currentGlobalPerceptionFormDataArray.value.map((item, index) => {
+      if (item.key == key) {
+        item.position = position;
+      }
+      return item;
+    });
+
+  }
+};
+const removeIndicator = (key) => {
+  const index = globalFormPerceptionData.value.findIndex((s) => s.key === key);
+
+  if (index !== -1) {
+    globalFormPerceptionData.value.splice(index, 1);
+    previewFormPerceptionData.value.splice(index, 1);
+    uniqueKeys.delete(key);
+    updateAllTypesGouvernance();
+    localStorage.setItem("globalFormPerceptionData", JSON.stringify(globalFormPerceptionData.value));
+    localStorage.setItem("previewFormPerceptionData", JSON.stringify(previewFormPerceptionData.value));
+
+    toast.success("Question operationnelle supprimé.");
+  }
+  else {
+    const indice = currentPreviewPerceptionFormDataArray.value.findIndex((s) => s.key === key);
+
+    if (indice !== -1) {
+      currentGlobalPerceptionFormDataArray.value.splice(indice, 1);
+      currentPreviewPerceptionFormDataArray.value.splice(indice, 1);
+      uniqueKeys.delete(key);
+
+      toast.success("Supprimé.");
+    }
   }
 };
 
@@ -547,7 +639,9 @@ onMounted(() => {
               <div class="space-y-2">
                 <p class="text-lg font-medium">Ajouter des questions opérationnelles</p>
 
-                <PerceptionStructureMultiple :principe="currentPreviewPerceptionFormData.principe.nom"
+                <PerceptionStructureMultiple @deleteQuestion="removeIndicator" @deletePrincipe="removeElement"
+                  @editPositionPrincipe="updateTemporyPrincipe" @editPositionQuestion="updateTemporyQuestions"
+                  :principe="currentPreviewPerceptionFormData.principe"
                   :indicateurArray="currentPreviewPerceptionFormDataArray.length > 0 ? currentPreviewPerceptionFormDataArray : undefined" />
                 <button :disabled="!isCurrentFormValid" @click="addNewIndicator" class="my-4 text-sm btn btn-primary">
                   <PlusIcon class="mr-1 size-4" />Ajouter
@@ -601,12 +695,20 @@ onMounted(() => {
                     principe_de_gouvernance.nom }}</div>
 
                   <div class="items-center transition-all opacity-0 container-buttons">
-                    <button class="p-1.5 text-primary">
-                      <Edit3Icon class="size-5" />
-                    </button>
-                    <button class="p-1.5 text-danger" @click="removeElement(question_operationnelle.key, 'principe')">
-                      <TrashIcon class="size-5" />
-                    </button>
+
+                    <div v-if="canEditPrincipe">
+                      <input type="number" min="1" step="1" name="position" :value="principe.position"
+                        @keyup.enter="updateTemporyPrincipe(principe.id, $event.target.value)"
+                        class="w-2/5 form-control" />
+                    </div>
+                    <div v-else>
+                      <button class="p-1.5 text-primary">
+                        <Edit3Icon class="size-5" />
+                      </button>
+                      <button class="p-1.5 text-danger" @click="removeElement(question_operationnelle.key, 'principe')">
+                        <TrashIcon class="size-5" />
+                      </button>
+                    </div>
                   </div>
 
                 </td>
