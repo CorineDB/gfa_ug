@@ -19,6 +19,10 @@ const TachesService = {
     return ApiService.post(`gfa/taches/${slug}/ajouterDuree`, params);
     //return ApiService.post(`gfa/taches/ajouterDuree/${slug}`, params);
   },
+  editDuree(slug, dureeId, params) {
+    return ApiService.post(`gfa/taches/${slug}/modifierDuree/${dureeId}`, params);
+  },
+  
   suiviTache(params) {
     return ApiService.post(`gfa/suivis`, params);
   },

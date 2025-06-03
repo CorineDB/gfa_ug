@@ -42,6 +42,9 @@ const ActiviteService = {
     prolonger(slug, params) {
       return ApiService.post(`gfa/activites/${slug}/ajouterDuree`, params);
     },
+    editDuree(slug, dureeId, params) {
+      return ApiService.post(`gfa/activites/${slug}/modifierDuree/${dureeId}`, params);
+    },
     changerStatut(slug, params) {
       console.log("params", params);
       return ApiService.post(`gfa/activites/${slug}/changeStatut`, params);
