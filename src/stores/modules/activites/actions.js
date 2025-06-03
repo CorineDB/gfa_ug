@@ -75,6 +75,7 @@ export default {
     },
     async CHANGER_STATUT({ commit }, { statut, id }) {
 
+        console.log(statut, id);
         const { data, status } = await ActiviteService.changerStatut(id, statut);
 
         return { data, status };

@@ -20,7 +20,7 @@ const TachesService = {
     //return ApiService.post(`gfa/taches/ajouterDuree/${slug}`, params);
   },
   suiviTache(params) {
-    return ApiService.post(`suivis`, params);
+    return ApiService.post(`gfa/suivis`, params);
   },
   mySuivis(slug) {
     return ApiService.get(`gfa/taches/${slug}/suivis`);

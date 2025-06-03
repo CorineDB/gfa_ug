@@ -290,7 +290,7 @@
         <div class="flex items-center mt-2">
           <CheckSquareIcon class="w-4 h-4 mr-2" /> Statut :
           <span class="p-1 pl-2 text-white bg-black rounded-md shadow-md" v-if="item.statut == -2"> Non validé </span>
-          <span class="p-1 pl-2 text-white bg-green-500 rounded-md shadow-md" v-else-if="item.statut == -1"> Validé </span>
+          <span class="p-1 pl-2 text-white bg-green-500 rounded-md shadow-md" v-else-if="item.statut == -1"> Pas démarré </span>
           <span class="p-1 pl-1 text-white bg-yellow-500 rounded-md shadow-md" v-else-if="item.statut == 0"> En cours </span>
           <span class="p-1 pl-1 text-white bg-red-500 rounded-md shadow-md" v-else-if="item.statut == 1"> En retard </span>
           <span class="pl-2" v-else-if="item.statut == 2">Terminé</span>

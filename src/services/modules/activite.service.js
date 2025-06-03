@@ -43,7 +43,8 @@ const ActiviteService = {
       return ApiService.post(`gfa/activites/${slug}/ajouterDuree`, params);
     },
     changerStatut(slug, params) {
-      return ApiService.post(`gfa/activites/${slug}/changerStatut`, params);
+      console.log("params", params);
+      return ApiService.post(`gfa/activites/${slug}/changeStatut`, params);
     },
 
     composante(slug) {

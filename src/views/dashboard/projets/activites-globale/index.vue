@@ -578,16 +578,16 @@ export default {
         });
     },
 
-    changerStatut(item) {
+    changerStatut(item, statut = 2) {
       this.loaderStatut = true;
 
-      const nouveauStatut = item.statut === 0 ? 2 : 0;
+      const nouveauStatut = statut;//item.statut === 0 ? 2 : 0;
 
       const payLoad = {
         statut: nouveauStatut,
       };
 
-      this.changerStatutActivite({ status: payLoad, id: item.id })
+      this.changerStatutActivite({ statut: payLoad, id: item.id })
         .then((response) => {
           this.loaderStatut = false;
           if (response.status == 200 || response.status == 201) {
@@ -876,8 +876,10 @@ export default {
                   <DropdownContent>
                     <DropdownItem v-if="verifyPermission('modifier-une-activite')" @click="modifierActivite(item)"> <Edit2Icon class="w-4 h-4 mr-2" /> Modifier </DropdownItem>
                     <DropdownItem v-if="verifyPermission('prolonger-une-activite')" @click="ouvrirModalProlongerActivite(item)"> <CalendarIcon class="w-4 h-4 mr-2" /> Prolonger </DropdownItem>
-                    <DropdownItem title="cliquer pour marquer l'activité comme terminer" v-if="verifyPermission('modifier-une-activite') && item.statut == '0'" @click="changerStatut(item)"> <CalendarIcon class="w-4 h-4 mr-2" /> Terminer </DropdownItem>
-                    <DropdownItem title="cliquer pour démarré l'activité" v-else-if="verifyPermission('modifier-une-activite') && (item.statut !== 0)" @click="changerStatut(item)"> <CalendarIcon class="w-4 h-4 mr-2" /> Démarrer </DropdownItem>
+                    <DropdownItem title="cliquer pour marquer l'activité comme terminer" v-if="verifyPermission('modifier-une-activite') && item.statut == 0" @click="changerStatut(item, 2)"> <CalendarIcon class="w-4 h-4 mr-2" /> Terminer </DropdownItem>
+                    <DropdownItem title="cliquer pour marquer l'activité comme pas démarré" v-if="verifyPermission('modifier-une-activite') && item.statut == 0" @click="changerStatut(item, -1)"> <CalendarIcon class="w-4 h-4 mr-2" /> Pas Démarrer </DropdownItem>
+
+                    <DropdownItem title="cliquer pour démarré l'activité" v-else-if="verifyPermission('modifier-une-activite') && (item.statut !== 0)" @click="changerStatut(item, 0)"> <CalendarIcon class="w-4 h-4 mr-2" /> Démarrer </DropdownItem>
 
                     <DropdownItem v-if="verifyPermission('creer-un-plan-de-decaissement')" @click="ouvrirModalPlanDeDecaissementActivite(item)"> <CalendarIcon class="w-4 h-4 mr-2" /> Plan de decaissement </DropdownItem>
 
@@ -913,7 +915,7 @@ export default {
                 <div class="flex items-center text-sm font-medium text-gray-700">
                   <CheckSquareIcon class="w-4 h-4 mr-2 text-primary" /> Statut:
                   <span v-if="item.statut == -2" class="ml-2 text-gray-900">Non validé</span>
-                  <span v-else-if="item.statut == -1" class="ml-2 text-gray-900">Validé</span>
+                  <span v-else-if="item.statut == -1" class="ml-2 text-gray-900">Pas démarré</span>
                   <span v-else-if="item.statut == 0" class="ml-2 text-gray-900">En cours</span>
                   <span v-else-if="item.statut == 1" class="ml-2 text-gray-900">En retard</span>
                   <span v-else-if="item.statut == 2" class="ml-2 text-gray-900">Terminé</span>

@@ -40,11 +40,18 @@
                 <span v-if="pta.isTache" class="text-sm text-red-600"> {{ pta.code }}</span>
               </td>
               <td>
+              <select class="form-select form-select-sm mt-2 w-5/6" aria-label=".form-select-sm example" v-if="pta.isTache" v-model="progressByPtaId[pta.id]" @change="togglesuivie(pta)">
+                <option :value="0">0%</option>
+                <option :value="50">50%</option>
+                <option :value="100">100%</option>
+              </select>
+              <!-- 
                 <select v-if="pta.isTache" class="form-select form-select-sm mt-2 w-5/6" aria-label=".form-select-sm example" @change="togglesuivie(pta)" v-model="poidsActuel">
-                  <option value="0">0%</option>
-                  <option value="50">50%</option>
-                  <option value="100">100%</option>
+                  <option :value="0">0%</option>
+                  <option :value="50">50%</option>
+                  <option :value="100">100%</option>
                 </select>
+              -->
               </td>
             </tr>
           </tbody>
@@ -438,6 +445,7 @@ export default {
       exporterSuiviRePta: false,
       debutProgramme: "",
       finProgramme: "",
+      progressByPtaId: {}  // e.g. { 1: 50, 2: 100 }
     };
   },
   computed: {
@@ -728,6 +736,7 @@ export default {
                     }
                   }
 
+                  this.progressByPtaId[tache.id] = tache.tep ?? 0;
                   programme.push({ bailleur, id: tache.id, nom: tache.nom, code: tache.code, poids, poidsActuel, isTache: true, bn, pret, t1Pret, t1Bn, t2Pret, t2Bn, t3Pret, t3Bn, t4Bn, t4Pret, planingt });
                 });
               });
@@ -1536,9 +1545,10 @@ export default {
 
       //console.log(this.tabletoggle[id]);
 
+      //this.progressByPtaId[pta.id] = this.progressByPtaId[pta.id];
       // this.chargement = true;
       var form = {
-        poidsActuel: this.poidsActuel,
+        poidsActuel: this.progressByPtaId[pta.id],//this.poidsActuel,
         tacheId: pta.id,
       };
 
@@ -1847,6 +1857,7 @@ export default {
       });
     }
     this.getcurrentUser();
+
   },
 };
 </script>

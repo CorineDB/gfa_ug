@@ -528,7 +528,7 @@ export default {
             <div class="flex items-center mt-2">
               <CheckSquareIcon class="w-4 h-4 mr-2" /> Statut :
               <span class="px-2 py-1 m-5 text-xs text-white rounded bg-primary/80" v-if="item.statut == -2"> Non validé </span>
-              <span class="px-2 py-1 m-5 text-xs text-white rounded bg-success/80" v-else-if="item.statut == -1"> Validé </span>
+              <span class="px-2 py-1 m-5 text-xs text-white rounded bg-success/80" v-else-if="item.statut == -1"> Pas démarré </span>
               <span class="px-2 py-1 m-5 text-xs text-white rounded bg-pending/80" v-else-if="item.statut == 0"> En cours </span>
               <span class="px-2 py-1 m-5 text-xs text-white rounded bg-danger/80" v-else-if="item.statut == 1"> En retard </span>
               <span class="pl-2" v-else-if="item.statut == 2">Terminé</span>
