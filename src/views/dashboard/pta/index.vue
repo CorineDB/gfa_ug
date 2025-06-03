@@ -64,8 +64,8 @@
                 </span>
                 <span v-if="pta.isTache" class="text-sm text-red-600"> {{ pta.code }}</span>
               </td>
-              <td>
-                <select v-if="pta.isTache" class="form-select form-select-sm" aria-label=".form-select-sm example" v-model="pta.poidsActuel" @change="togglesuivie(pta)">
+              <td>                
+                <select class="form-select form-select-sm" aria-label=".form-select-sm example" v-if="pta.isTache" v-model="tabletoggle[pta.id]" @change="togglesuivie(pta)">
                   <option :value="0">0%</option>
                   <option :value="50">50%</option>
                   <option :value="100">100%</option>
@@ -1364,6 +1364,7 @@ export default {
                     }
                   }
 
+                  this.tabletoggle[tache.id] = tache.tep ?? 0;
                   programme.push({ bailleur, id: tache.id, nom: tache.nom, code: tache.code, poids, poidsActuel, isTache: true, bn, pret, t1Pret, t1Bn, t2Pret, t2Bn, t3Pret, t3Bn, t4Bn, t4Pret, planingt });
                 });
               });
@@ -2505,7 +2506,7 @@ export default {
     togglesuivie(pta) {
       //this.dataNew;
 
-      this.redtoggle = false;
+      /* this.redtoggle = false;
       this.graytoggle = false;
       //this.greentoggle=true;
       this.translatetoggle = false;
@@ -2513,11 +2514,9 @@ export default {
       //console.log(this.tabletoggle[id]);
 
       this.chargement = true;
-      var form = {
-        tacheId: pta.id,
-      };
+
       //  console.log(id)
-      if (pta.poidsActuel > 0) {
+      /* if (pta.poidsActuel > 0) {
         this.tabletoggle[pta.id] = 0;
         TacheService.deleteSuivis(pta.id)
           .then((data) => {
@@ -2539,8 +2538,14 @@ export default {
               //console.log('dernier message', error.message);
             }
           });
-      } else {
-        this.tabletoggle[pta.id] = 1;
+      } else { */
+        
+        var form = {
+          tacheId: pta.id,
+          poidsActuel: this.tabletoggle[pta.id],
+        };
+
+        //this.tabletoggle[pta.id] = 1;
 
         TacheService.suiviTache(form)
           .then((data) => {
@@ -2556,13 +2561,13 @@ export default {
               this.$toast.error(message);
             } else if (error.request) {
               // Demande effectuée mais aucune réponse n'est reçue du serveur.
-              //console.log(error.request);
+              console.log(error.request);
             } else {
               // Une erreur s'est produite lors de la configuration de la demande
-              //console.log('dernier message', error.message);
+              console.log('dernier message', error.message);
             }
           });
-      }
+      //}
       this.chargement = false;
     },
     // exportToExcel() {
