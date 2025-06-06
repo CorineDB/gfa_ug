@@ -199,25 +199,30 @@ watch(
 function fixerOptionsDeReponse(){
   idChecked.value =
   datas.value.map((item) => {
-    if(item.libelle.toLowerCase() == 'Ne peux répondre'){
-      updateTemporyOption(item.id, 0);
+    if(item.libelle.toLowerCase() == 'ne peux répondre'){
+      updateTemporyOption(item.id,0);
+      return item.id;
     }
-    else if(item.libelle.toLowerCase() == 'Pas du tout'){
-      updateTemporyOption(item.id, 0);
+    else if(item.libelle.toLowerCase() == 'pas du tout'){
+      updateTemporyOption(item.id,0);
+      return item.id;
     }
     else if(item.libelle.toLowerCase() == 'faiblement'){
       updateTemporyOption(item.id, 0.25);
+      return item.id;
     }
     else if(item.libelle.toLowerCase() == 'moyennement'){
       updateTemporyOption(item.id, 0.5);
+      return item.id;
     }
     else if(item.libelle.toLowerCase() == 'dans une grande mesure'){
       updateTemporyOption(item.id, 0.75);
+      return item.id;
     }
     else if(item.libelle.toLowerCase() == 'totalement'){
       updateTemporyOption(item.id, 1);
+      return item.id;
     }
-    return item.id;
   });
 }
 
@@ -284,7 +289,7 @@ onMounted(async () => {
               <label class="form-check-label" :for="data.id">{{ data.libelle }}</label>
             </div>
             <div v-if="idChecked.includes(data.id)" class="flex items-center gap-1 transition-all">
-              <input type="number" min="0.05" max="1" step="0.05" name="point" :id="`${data.id}${index}`" :value="globalOptionResponses.options_de_reponse.find((option) => option.id === data.id)?.point || ''" @input="updateTemporyOption(data.id, $event.target.value)" class="w-[75px] form-control" />
+              <input type="number" min="0" max="1" step="0.25" name="point" :id="`${data.id}${index}`" :value="globalOptionResponses.options_de_reponse.find((option) => option.id === data.id)?.point || ''" @input="updateTemporyOption(data.id, $event.target.value)" class="w-[75px] form-control" />
             </div>
           </div>
           <div v-if="!idChecked.includes(data.id)" class="flex items-center gap-1 space-x-1 transition-all opacity-0 container-buttons">

@@ -151,8 +151,6 @@ const cancelDelete = () => {
   showModalDelete.value = false;
 };
 
-
-
 const optionPreviewForm = computed(() => {
   if (previewForm.value.options_de_reponse)
     return previewForm.value.options_de_reponse.map((option) => ({
@@ -201,14 +199,53 @@ onMounted(() => {
       </ModalHeader>
 
       <ModalBody class="space-y-5">
-        <div>
-          <p class="mb-3">Options de réponses</p>
-          <ListOptionsResponse :options="optionPreviewForm" />
-        </div>
-        <div class="max-h-[50vh] h-[50vh] overflow-y-auto">
-          <p class="mb-3">Formulaire</p>
-          <PreviewDetailPerceptionForm :datas="previewForm.categories_de_gouvernance" />
-        </div>
+        
+        <table class="w-full mt-5 border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
+          <thead class="text-white bg-blue-900">
+            <!-- First header row -->
+            <tr>
+              <th :rowspan="2" class="py-3 border border-slate-900">Principes</th>
+              <th :rowspan="2" class="py-3 border border-slate-900">Questions opérationnelle</th>
+              <th :colspan="previewForm?.options_de_reponse?.length ?? 6"
+                class="py-3 border border-slate-900 text-center">
+                Réponses
+              </th>
+            </tr>
+            <!-- Second header row -->
+            <tr>
+              <template v-for="(option_de_reponse, idx) in previewForm.options_de_reponse"
+                :key="option_de_reponse.id">
+                <th class="py-3 border border-slate-900 text-center">{{ option_de_reponse.libelle }}</th>
+              </template>
+            </tr>
+          </thead>
+
+          <tbody>
+            <template v-for="principe_de_gouvernance in previewForm.categories_de_gouvernance"
+              :key="principe_de_gouvernance.id">
+              <template v-for="(question, qIndex) in principe_de_gouvernance.questions_de_gouvernance"
+                :key="question.id">
+                <tr>
+                  <td class="font-semibold" v-if="qIndex === 0"
+                    :rowspan="principe_de_gouvernance.questions_de_gouvernance.length">
+                    {{ principe_de_gouvernance.position }} - {{ principe_de_gouvernance.nom }}
+                  </td>
+
+                  <td>
+                    {{ question.position }} - {{ question.question_operationnelle.nom }}
+                  </td>
+
+                  <template v-for="(option_de_reponse, optionIdx) in previewForm.options_de_reponse"
+                    :key="option_de_reponse.id">
+                    <td class="border border-slate-900 text-center">
+                      {{ }}
+                    </td>
+                  </template>
+                </tr>
+              </template>
+            </template>
+          </tbody>
+        </table>
       </ModalBody>
     </div>
     <ModalFooter>

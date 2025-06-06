@@ -60,6 +60,8 @@ const uniqueKeys = new Map();
 const globalData = localStorage.getItem("globalFormPerceptionData");
 const previewData = localStorage.getItem("previewFormPerceptionData");
 
+const canEditQuestion = ref([]);
+const canEditPrincipe = ref([]);
 
 const debutProgramme = ref("");
 const finProgramme = ref("");
@@ -140,17 +142,23 @@ const organiseGlobalFormPerceptionData = (submissions) => {
 
   submissions.forEach((submission) => {
     // Trouver ou créer le principe de gouvernance
-    let principe = principesGouvernance.value.principes_de_gouvernance.find((p) => p.id === submission.principe);
+    //let principe = principesGouvernance.value.principes_de_gouvernance.find((p) => p.id === submission.principe.id);
+
+    let principe = principesGouvernance.value.principes_de_gouvernance.find((p) => p.id === submission.principe.id);
     if (!principe) {
-      principe = { id: submission.principe, questions_operationnelle: [] };
+      //principe = { id: submission.principe, questions_operationnelle: [] };
+      principe = { id: submission.principe.id, position: submission.principe.position, questions_operationnelle: [] };
       principesGouvernance.value.principes_de_gouvernance.push(principe);
     }
 
     // Ajouter l'indicateur de gouvernance s'il n'est pas déjà présent
-    if (!principe.questions_operationnelle.includes(submission.indicateur)) {
+    //if (!principe.questions_operationnelle.includes(submission.indicateur)) {
+      
+    let indicateur = principe.questions_operationnelle.find((i) => i.id === submission.indicateur.id);
+    if (!indicateur) {
 
-      //principe.questions_operationnelle.push({indicateur: submission.indicateur, position: submission.key});
-      principe.questions_operationnelle.push(submission.indicateur);
+      principe.questions_operationnelle.push({id: submission.indicateur.id, position: submission.indicateur.position});
+      //principe.questions_operationnelle.push(submission.indicateur);
     }
   });
 
@@ -215,7 +223,8 @@ const resetAllForm = () => {
 };
 
 const updateAllTypesGouvernance = () => {
-  globalPrincipesGouvernance.value = organiseGlobalFormPerceptionData(globalFormPerceptionData.value);
+  //globalPrincipesGouvernance.value = organiseGlobalFormPerceptionData(globalFormPerceptionData.value);
+  globalPrincipesGouvernance.value = organiseGlobalFormPerceptionData(previewFormPerceptionData.value);
   previewPrincipesGouvernance.value = organisePreviewFormPerceptionData(previewFormPerceptionData.value);
   // console.log("GLOBAL", globalTypesGouvernance.value);
   // console.log("PREVIEW", previewTypesGouvernance.value);
@@ -285,6 +294,10 @@ const getQuestion = (question) => {
 
   currentPreviewPerceptionFormDataArray.value.push(form2);
 
+  currentPreviewPerceptionFormDataArray.value.sort((a, b) => {
+    return a.principe.position - b.principe.position || a.indicateur.position - b.indicateur.position;
+  });
+
   console.log("currentPreviewPerceptionFormDataArray.value", currentPreviewPerceptionFormDataArray.value);
 };
 
@@ -301,8 +314,16 @@ const addNewIndicator = () => {
 
       previewFormPerceptionData.value.unshift(JSON.parse(JSON.stringify(currentPreviewPerceptionFormDataArray.value[index])));
 
-      console.log("previewFormPerceptionData.value", previewFormPerceptionData.value);
       uniqueKeys.set(key, true);
+
+      // ✅ Sort after unshift
+      globalFormPerceptionData.value.sort((a, b) => a.position ?? 0 - b.position ?? 0);
+      //previewFormPerceptionData.value.sort((a, b) => a.position ?? 0 - b.position ?? 0)
+
+      previewFormPerceptionData.value.sort((a, b) => {
+        return a.principe.position - b.principe.position || a.indicateur.position - b.indicateur.position;
+      });
+
       localStorage.setItem("globalFormPerceptionData", JSON.stringify(globalFormPerceptionData.value));
       localStorage.setItem("previewFormPerceptionData", JSON.stringify(previewFormPerceptionData.value));
 
@@ -338,12 +359,19 @@ const removeElement = (key) => {
       }
     }
 
+    // ✅ Sort after unshift
+    globalFormPerceptionData.value.sort((a, b) => a.position ?? 0 - b.position ?? 0);
+
     // Remove from previewFormPerceptionData
     for (let i = previewFormPerceptionData.value.length - 1; i >= 0; i--) {
       if (previewFormPerceptionData.value[i]["principe"]["id"] === key) {
         previewFormPerceptionData.value.splice(i, 1);
       }
     }
+
+    previewFormPerceptionData.value.sort((a, b) => {
+        return a.principe.position - b.principe.position || a.indicateur.position - b.indicateur.position;
+      });
 
     // Recalculate and update
     updateAllTypesGouvernance();
@@ -365,24 +393,18 @@ const removeElement = (key) => {
   }
 };
 
-const updateTemporyPrincipe = (key, position) => {
+const updateTemporyPrincipe = (id, position, isCurrent = false) => {
 
-  key = globalFormPerceptionData.value.find((s) => s.key === key);
-  if (key) {
-    key = key['principe'];
-    // Remove from globalFormPerceptionData
-    for (let i = globalFormPerceptionData.value.length - 1; i >= 0; i--) {
-      if (globalFormPerceptionData.value[i]["principe"] === key) {
-
+  if (isCurrent == false) {
+    // Update position from previewFormPerceptionData
+    previewFormPerceptionData.value = previewFormPerceptionData.value.map((item) => {
+      if (item.principe.id == id) {
+        item.principe.position = position;
       }
-    }
-
-    // Remove from previewFormPerceptionData
-    for (let i = previewFormPerceptionData.value.length - 1; i >= 0; i--) {
-      if (previewFormPerceptionData.value[i]["principe"]["id"] === key) {
-
-      }
-    }
+      return item;
+    }).sort((a, b) => {
+      return a.principe.position - b.principe.position || a.indicateur.position - b.indicateur.position;
+    });
 
     // Recalculate and update
     updateAllTypesGouvernance();
@@ -395,49 +417,70 @@ const updateTemporyPrincipe = (key, position) => {
 
     currentPreviewPerceptionFormData.principe.position = position;
 
-    currentPreviewPerceptionFormDataArray.value = currentPreviewPerceptionFormDataArray.value.map((item, index) => {
-      if (item.principe.id == key) {
+    currentPreviewPerceptionFormDataArray.value = currentPreviewPerceptionFormDataArray.value.map((item) => {
+      if (item.principe.id == id) {
         item.principe.position = position;
       }
       return item;
+    }).sort((a, b) => {
+      return a.principe.position - b.principe.position || a.indicateur.position - b.indicateur.position;
     });
 
   }
 };
 
+const updateTemporyQuestions = (key, position, isCurrent = false) => {
 
-const updateTemporyQuestions = (key, position) => {
+  if (!isCurrent) {
 
-  const index = globalFormPerceptionData.value.findIndex((s) => s.key === key);
-
-  if (index !== -1) {
-    globalFormPerceptionData.value.splice(index, 1);
-    previewFormPerceptionData.value.splice(index, 1);
-    uniqueKeys.delete(key);
-    updateAllTypesGouvernance();
-    localStorage.setItem("globalFormPerceptionData", JSON.stringify(globalFormPerceptionData.value));
-    localStorage.setItem("previewFormPerceptionData", JSON.stringify(previewFormPerceptionData.value));
-
-    toast.success("Question operationnelle supprimé.");
-  }
-  else {
-
-    currentPreviewPerceptionFormDataArray.value = currentPreviewPerceptionFormDataArray.value.map((item, index) => {
+    previewFormPerceptionData.value = previewFormPerceptionData.value.map((item) => {
       if (item.key == key) {
         item.indicateur.position = position;
       }
       return item;
+    }).sort((a, b) => {
+      return a.principe.position - b.principe.position || a.indicateur.position - b.indicateur.position;
     });
 
-    currentGlobalPerceptionFormDataArray.value = currentGlobalPerceptionFormDataArray.value.map((item, index) => {
+    globalFormPerceptionData.value = globalFormPerceptionData.value.map((item) => {
       if (item.key == key) {
         item.position = position;
       }
       return item;
+    }).sort((a, b) => {
+      return a.position - b.position;
+    });
+
+    updateAllTypesGouvernance();
+    
+    localStorage.setItem("globalFormPerceptionData", JSON.stringify(globalFormPerceptionData.value));
+    localStorage.setItem("previewFormPerceptionData", JSON.stringify(previewFormPerceptionData.value));
+
+    toast.success("Question operationnelle update.");
+  }
+  else {
+
+    currentPreviewPerceptionFormDataArray.value = currentPreviewPerceptionFormDataArray.value.map((item) => {
+      if (item.key == key) {
+        item.indicateur.position = position;
+      }
+      return item;
+    }).sort((a, b) => {
+      return a.principe.position - b.principe.position || a.indicateur.position - b.indicateur.position;
+    });
+
+    currentGlobalPerceptionFormDataArray.value = currentGlobalPerceptionFormDataArray.value.map((item) => {
+      if (item.key == key) {
+        item.position = position;
+      }
+      return item;
+    }).sort((a, b) => {
+      return a.position - b.position;
     });
 
   }
 };
+
 const removeIndicator = (key) => {
   const index = globalFormPerceptionData.value.findIndex((s) => s.key === key);
 
@@ -445,6 +488,14 @@ const removeIndicator = (key) => {
     globalFormPerceptionData.value.splice(index, 1);
     previewFormPerceptionData.value.splice(index, 1);
     uniqueKeys.delete(key);
+
+    // ✅ Sort after unshift
+    globalFormPerceptionData.value.sort((a, b) => a.position ?? 0 - b.position ?? 0);
+
+    previewFormPerceptionData.value.sort((a, b) => {
+        return a.principe.position - b.principe.position || a.indicateur.position - b.indicateur.position;
+      });
+
     updateAllTypesGouvernance();
     localStorage.setItem("globalFormPerceptionData", JSON.stringify(globalFormPerceptionData.value));
     localStorage.setItem("previewFormPerceptionData", JSON.stringify(previewFormPerceptionData.value));
@@ -459,10 +510,37 @@ const removeIndicator = (key) => {
       currentPreviewPerceptionFormDataArray.value.splice(indice, 1);
       uniqueKeys.delete(key);
 
+      // ✅ Sort after unshift
+      currentGlobalPerceptionFormDataArray.value.sort((a, b) => a.position ?? 0 - b.position ?? 0);
+
+      currentPreviewPerceptionFormDataArray.value.sort((a, b) => {
+          return a.principe.position - b.principe.position || a.indicateur.position - b.indicateur.position;
+        });
+
       toast.success("Supprimé.");
     }
   }
 };
+
+
+function editPrincipe(id) {
+  canEditPrincipe.value[id] = true;
+}
+
+// Handle edit action
+const handleEdit = (key) => {
+  canEditQuestion.value[key] = true;
+};
+
+function editTemporyPrincipe(id, position) {
+  updateTemporyPrincipe(id, position, false);
+  canEditPrincipe.value[id] = false;
+}
+
+function editTemporyQuestion(key, position) {
+  updateTemporyQuestions(key, position, false)
+  canEditQuestion.value[key] = false;
+}
 
 const clearUniqueKeys = () => {
   uniqueKeys.clear(); // Supprime toutes les clés de uniqueKeys
@@ -682,10 +760,10 @@ onMounted(() => {
 
         <tbody v-if="previewPrincipesGouvernance?.principes_de_gouvernance?.length">
           <template
-            v-for="principe_de_gouvernance in [...previewPrincipesGouvernance.principes_de_gouvernance].reverse()"
+            v-for="principe_de_gouvernance in [...previewPrincipesGouvernance.principes_de_gouvernance]"
             :key="principe_de_gouvernance.id">
             <template
-              v-for="(question_operationnelle, qIndex) in [...principe_de_gouvernance.questions_operationnelle].reverse()"
+              v-for="(question_operationnelle, qIndex) in [...principe_de_gouvernance.questions_operationnelle]"
               :key="question_operationnelle.id">
               <tr>
                 <td class="font-semibold list-data" v-if="qIndex === 0"
@@ -695,15 +773,14 @@ onMounted(() => {
                     principe_de_gouvernance.nom }}</div>
 
                   <div class="items-center transition-all opacity-0 container-buttons">
-
-                    <div v-if="canEditPrincipe">
-                      <input type="number" min="1" step="1" name="position" :value="principe.position"
-                        @keyup.enter="updateTemporyPrincipe(principe.id, $event.target.value)"
+                    <div v-if="canEditPrincipe[principe_de_gouvernance.id]">
+                      <input type="number" min="1" step="1" name="position" :value="principe_de_gouvernance.position"
+                        @keyup.enter="editTemporyPrincipe(principe_de_gouvernance.id, $event.target.value)"
                         class="w-2/5 form-control" />
                     </div>
                     <div v-else>
                       <button class="p-1.5 text-primary">
-                        <Edit3Icon class="size-5" />
+                        <Edit3Icon class="size-5" @click="editPrincipe(principe_de_gouvernance.id)"/>
                       </button>
                       <button class="p-1.5 text-danger" @click="removeElement(question_operationnelle.key, 'principe')">
                         <TrashIcon class="size-5" />
@@ -719,12 +796,19 @@ onMounted(() => {
 
                 <td>
                   <div class="flex items-center">
+                    <div v-if="canEditQuestion[question_operationnelle.key]">
+                      <input type="number" min="1" step="1" name="position" :value="question_operationnelle.position"
+                        @keyup.enter="editTemporyQuestion(question_operationnelle.key, $event.target.value)"
+                        class="w-2/5 form-control" />
+                    </div>
+                    <div v-else>
                     <button class="p-1.5 text-primary">
-                      <Edit3Icon class="size-5" />
+                      <Edit3Icon class="size-5" @click="handleEdit(question_operationnelle.key)"/>
                     </button>
                     <button class="p-1.5 text-danger" @click="removeIndicator(question_operationnelle.key)">
                       <TrashIcon class="size-5" />
                     </button>
+                    </div>
                   </div>
                 </td>
               </tr>
@@ -805,11 +889,11 @@ onMounted(() => {
               <tr>
                 <td class="font-semibold" v-if="qIndex === 0"
                   :rowspan="principe_de_gouvernance.questions_operationnelle.length">
-                  {{ principe_de_gouvernance.nom }}
+                  {{ principe_de_gouvernance.position }} - {{ principe_de_gouvernance.nom }}
                 </td>
 
                 <td>
-                  {{ question_operationnelle.nom }}
+                  {{ question_operationnelle.position }} - {{ question_operationnelle.nom }}
                 </td>
 
                 <template v-for="(option_de_reponse, optionIdx) in previewOptionResponses.options_de_reponse"

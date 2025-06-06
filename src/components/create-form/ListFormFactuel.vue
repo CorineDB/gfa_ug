@@ -380,7 +380,7 @@ onMounted(() => {
           <template v-for="type_de_gouvernance in previewForm.categories_de_gouvernance"
             :key="type_de_gouvernance.id">
             <tr class="bg-green-100">
-              <td colspan="7" class="font-semibold">{{ type_de_gouvernance.nom }}</td>
+              <td colspan="7" class="font-semibold">{{ type_de_gouvernance.position }} - {{ type_de_gouvernance.nom }}</td>
             </tr>
             <template v-for="principe_de_gouvernance in type_de_gouvernance.categories_de_gouvernance"
               :key="principe_de_gouvernance.id">
@@ -394,14 +394,14 @@ onMounted(() => {
                     <!-- Première cellule de catégorie principale avec rowspan -->
                     <td class="font-semibold" v-if="scIndex === 0 && qIndex === 0"
                       :rowspan="principe_de_gouvernance.categories_de_gouvernance.reduce((sum, sc) => sum + sc.questions_de_gouvernance.length, 0)">
-                      {{ principe_de_gouvernance.nom }}
+                      {{ principe_de_gouvernance.position }} - {{ principe_de_gouvernance.nom }}
                     </td>
 
                     <!-- Première cellule de sous-catégorie avec rowspan -->
                     <td v-if="qIndex === 0" :rowspan="critere_de_gouvernance.questions_de_gouvernance.length">
-                      {{ critere_de_gouvernance.nom }}
+                      {{ critere_de_gouvernance.position }} - {{ critere_de_gouvernance.nom }}
                     </td>
-                    <td>{{ indicateur_de_gouvernance.nom }}</td>
+                    <td>{{ indicateur_de_gouvernance.position }} - {{ indicateur_de_gouvernance.nom }}</td>
                     <td>{{ }}</td>
                     <td>{{ }}</td>
                   </tr>

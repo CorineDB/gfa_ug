@@ -63,6 +63,11 @@ const goBackToCreate = function () {
   router.push({ name: "Ajouter_un_formulaire_Factuel" });
 };
 
+const canEditType = ref([]);
+const canEditPrincipe = ref([]);
+const canEditCritere = ref([]);
+const canEditIndicateur = ref([]);
+
 const debutProgramme = ref("");
 const finProgramme = ref("");
 
@@ -108,10 +113,10 @@ const payload = reactive({
 });
 
 const currentPreviewFactuelFormData = reactive({
-  type: { id: "", nom: "" },
-  principe: { id: "", nom: "" },
-  critere: { id: "", nom: "" },
-  indicateur: { id: "", nom: "" },
+  type: { id: "", nom: "", key: "", position: 0 },
+  principe: { id: "", nom: "", key: "", position: 0 },
+  critere: { id: "", nom: "", key: "", position: 0 },
+  indicateur: { id: "", nom: "", key: "", position: 0 },
 });
 
 const currentGlobalFactuelFormData = reactive({
@@ -119,6 +124,14 @@ const currentGlobalFactuelFormData = reactive({
   principe: "",
   critere: "",
   indicateur: "",
+  typeKey: "",
+  principeKey: "",
+  critereKey: "",
+  indicateurKey: "",
+  typePosition: "",
+  principePosition: "",
+  criterePosition: "",
+  indicateurPosition: ""
 });
 
 // Fonction pour générer une clé unique pour chaque soumission
@@ -132,21 +145,21 @@ const organiseGlobalFormFactuelData = (submissions) => {
     // Trouver ou créer le type de gouvernance
     let type = organisedData.types_de_gouvernance.find((t) => t.id === submission.type);
     if (!type) {
-      type = { id: submission.type, principes_de_gouvernance: [] };
+      type = { id: submission.type, position: submission.typePosition, principes_de_gouvernance: [] };
       organisedData.types_de_gouvernance.push(type);
     }
 
     // Trouver ou créer le principe de gouvernance
     let principe = type.principes_de_gouvernance.find((p) => p.id === submission.principe);
     if (!principe) {
-      principe = { id: submission.principe, criteres_de_gouvernance: [] };
+      principe = { id: submission.principe, position: submission.principePosition, criteres_de_gouvernance: [] };
       type.principes_de_gouvernance.push(principe);
     }
 
     // Trouver ou créer le critère de gouvernance
     let critere = principe.criteres_de_gouvernance.find((c) => c.id === submission.critere);
     if (!critere) {
-      critere = { id: submission.critere, indicateurs_de_gouvernance: [] };
+      critere = { id: submission.critere, position: submission.criterePosition, indicateurs_de_gouvernance: [] };
       principe.criteres_de_gouvernance.push(critere);
     }
 
@@ -166,7 +179,7 @@ const organisePreviewFormFactuelData = (submissions) => {
     // Trouver ou créer le type de gouvernance
     let type = organisedData.types_de_gouvernance.find((t) => t.id === submission.type.id);
     if (!type) {
-      type = { id: submission.type.id, nom: submission.type.nom, principes_de_gouvernance: [] };
+      type = { id: submission.type.id, nom: submission.type.nom, position: submission.type.position, principes_de_gouvernance: [] };
       organisedData.types_de_gouvernance.push(type);
     }
 
@@ -176,7 +189,7 @@ const organisePreviewFormFactuelData = (submissions) => {
     // Trouver ou créer le principe de gouvernance
     let principe = type.principes_de_gouvernance.find((p) => p.id === submission.principe.id);
     if (!principe) {
-      principe = { id: submission.principe.id, nom: submission.principe.nom, criteres_de_gouvernance: [] };
+      principe = { id: submission.principe.id, nom: submission.principe.nom, position: submission.principe.position, criteres_de_gouvernance: [] };
       type.principes_de_gouvernance.push(principe);
     }
 
@@ -186,7 +199,7 @@ const organisePreviewFormFactuelData = (submissions) => {
     // Trouver ou créer le critère de gouvernance
     let critere = principe.criteres_de_gouvernance.find((c) => c.id === submission.critere.id);
     if (!critere) {
-      critere = { id: submission.critere.id, nom: submission.critere.nom, indicateurs_de_gouvernance: [] };
+      critere = { id: submission.critere.id, nom: submission.critere.nom, position: submission.critere.position, indicateurs_de_gouvernance: [] };
       principe.criteres_de_gouvernance.push(critere);
     }
 
@@ -196,7 +209,7 @@ const organisePreviewFormFactuelData = (submissions) => {
     // Trouver ou créer l'indicateur de gouvernance
     let indicateur = critere.indicateurs_de_gouvernance.find((i) => i.id === submission.indicateur.id);
     if (!indicateur) {
-      indicateur = { id: submission.indicateur.id, nom: submission.indicateur.nom };
+      indicateur = { id: submission.indicateur.id, nom: submission.indicateur.nom, position: submission.indicateur.position };
       critere.indicateurs_de_gouvernance.push(indicateur);
     }
   });
@@ -237,7 +250,19 @@ function organiseUpdateFormGlobal(types) {
             type: type.categorieableId,
             principe: principe.categorieableId,
             critere: critere.categorieableId,
-            indicateur: question.indicateur_de_gouvernance.id
+            indicateur: question.indicateur_de_gouvernance.id,
+
+            typePosition: type.position,
+            typeKey: type.position + type.categorieableId,
+
+            principePosition: principe.position,
+            principeKey: principe.position + principe.categorieableId + (type.position + type.categorieableId),
+
+            criterePosition: critere.position,
+            critereKey: critere.position + critere.categorieableId + (principe.position + principe.categorieableId + (type.position + type.categorieableId)),
+
+            indicateurPosition: question.position,
+            indicateurKey: question.position + question.indicateur_de_gouvernance.id + (critere.position + critere.categorieableId + (principe.position + principe.categorieableId + (type.position + type.categorieableId))),
           });
         })
       )
@@ -261,23 +286,19 @@ function organiseUpdateFormPreview(types) {
     type.categories_de_gouvernance.forEach((principe) =>
       principe.categories_de_gouvernance.forEach((critere) =>
         critere.questions_de_gouvernance.forEach((question) => {
-          submissions.push({
-            type: { id: type.categorieableId, nom: type.nom },
-            principe: { id: principe.categorieableId, nom: principe.nom },
-            critere: { id: critere.categorieableId, nom: critere.nom },
-            indicateur: { id: question.indicateur_de_gouvernance.id, nom: question.indicateur_de_gouvernance.nom }
-          });
 
-          /* principe: {
-            id: principe.id,
-            nom: principe.nom,
-          },
-          indicateur: {
-            id: question.question_operationnelle.id,
-            nom: question.question_operationnelle.nom,
-          } */
-        }
-        )
+          const typeKey = type.position + type.categorieableId;
+          const principeKey = principe.position + principe.categorieableId + typeKey;
+          const critereKey = critere.position + critere.categorieableId + principeKey;
+          const indicateurKey = question.position + question.indicateur_de_gouvernance.id + critereKey;
+
+          submissions.push({
+            type: { id: type.categorieableId, nom: type.nom, position: type.position, key: typeKey },
+            principe: { id: principe.categorieableId, nom: principe.nom, position: principe.position, key: principeKey },
+            critere: { id: critere.categorieableId, nom: critere.nom, position: critere.position, key: critereKey },
+            indicateur: { id: question.indicateur_de_gouvernance.id, nom: question.indicateur_de_gouvernance.nom, position: question.position, key: indicateurKey }
+          });
+        })
       )
     )
   );
@@ -286,16 +307,31 @@ function organiseUpdateFormPreview(types) {
 
 function setKeyForUpdate(types) {
 
-  return types.forEach((type) =>
-    type.categories_de_gouvernance.forEach((principe) =>
-      principe.categories_de_gouvernance.forEach((critere) =>
-        critere.questions_de_gouvernance.forEach((question) => {
-          const key = generateKey(question.indicateur_de_gouvernance.id + critere.categorieableId + principe.categorieableId + type.categorieableId);
+  return types.forEach((type) => {
 
-          uniqueKeys.set(key, true);
+    const typeKey = generateKey(type.position + type.categorieableId);
+
+    uniqueKeys.set(typeKey, true);
+
+    type.categories_de_gouvernance.forEach((principe) => {
+
+      const principeKey = generateKey(principe.position + principe.categorieableId + typeKey);
+      uniqueKeys.set(principeKey, true);
+
+      principe.categories_de_gouvernance.forEach((critere) => {
+        const critereKey = critere.position + critere.categorieableId + principeKey;
+        uniqueKeys.set(critereKey, true);
+
+        critere.questions_de_gouvernance.forEach((question) => {
+
+          const indicateurKey = question.position + question.indicateur_de_gouvernance.id + critereKey;
+          uniqueKeys.set(indicateurKey, true);
         })
+      }
       )
+    }
     )
+  }
   );
 
   return principeCurrent.flatMap((principe) =>
@@ -326,7 +362,7 @@ const resetCurrentPreviewFactuelFormData = () => {
   // for (const key in currentPreviewFactuelFormData) {
   //   currentPreviewFactuelFormData[key] = { id: "", nom: "" };
   // }
-  currentPreviewFactuelFormData.indicateur = { id: "", nom: "" };
+  currentPreviewFactuelFormData.indicateur = { id: "", nom: "", key: "", position: 0 };
 };
 
 const resetCurrentGlobalFactuelFormData = () => {
@@ -367,37 +403,198 @@ const changeIndexAccordion = (index) => {
 const getType = (type) => {
   changeIndexAccordion(1);
   currentGlobalFactuelFormData.type = type.id;
-  currentPreviewFactuelFormData.type = { id: type.id, nom: type.nom };
+  //currentPreviewFactuelFormData.type = { id: type.id, nom: type.nom };
+
+  let position = new Set(
+    (globalFormFactuelData.value || [])
+      .map(item => item.type)
+      .filter(val => val !== null && val !== undefined && val !== "")
+  ).size;
+
+  position = position + 1;
+
+  currentGlobalFactuelFormData.typeKey = position + type.id;
+
+  currentPreviewFactuelFormData.type = { id: type.id, nom: type.nom, key: currentGlobalFactuelFormData.typeKey, position: position };
+
+
+  /* 
+    currentGlobalFactuelFormDataArray.value.forEach((item) => {
+      item.type = currentGlobalFactuelFormData.type;
+      item.typeKey = currentGlobalFactuelFormData.typeKey;
+      item.typePosition = currentGlobalFactuelFormData.typePosition;
+    });
+
+    currentPreviewFactuelFormDataArray.value.forEach((item2, index) => {
+      item2.type = currentPreviewFactuelFormData.type;
+    }); 
+  */
+
 };
 const getPrincipe = (principe) => {
   changeIndexAccordion(2);
   currentGlobalFactuelFormData.principe = principe.id;
-  currentPreviewFactuelFormData.principe = { id: principe.id, nom: principe.nom };
+  //currentPreviewFactuelFormData.principe = { id: principe.id, nom: principe.nom };
+
+  let donnee = (globalFormFactuelData.value || [])
+    .filter(item => item.type === currentGlobalFactuelFormData.type)
+    .map(item => item.principe)
+    .filter(val => val !== null && val !== undefined && val !== "");
+
+  let position = new Set(donnee).size;
+
+  position = position + 1;
+
+  let key = position + principe.id;
+
+  if (currentGlobalFactuelFormData.typeKey != "") {
+    key = key + currentGlobalFactuelFormData.typeKey;
+  }
+
+  currentGlobalFactuelFormData.principeKey = key;
+
+  currentPreviewFactuelFormData.principe = { id: principe.id, nom: principe.nom, key: currentGlobalFactuelFormData.principeKey, position: position };
+
+  /*
+    currentGlobalFactuelFormDataArray.value.forEach((item) => {
+      item.principe = currentGlobalFactuelFormData.principe;
+      item.principeKey = currentGlobalFactuelFormData.principeKey;
+    });
+
+    currentPreviewFactuelFormDataArray.value.forEach((item2, index) => {
+      item2.principe = currentPreviewFactuelFormData.principe;
+    });
+  */
 };
 
 const getCritere = (critere) => {
   changeIndexAccordion(3);
   currentGlobalFactuelFormData.critere = critere.id;
-  currentPreviewFactuelFormData.critere = { id: critere.id, nom: critere.nom };
+  //currentPreviewFactuelFormData.critere = { id: critere.id, nom: critere.nom };
+
+  let donnee = (globalFormFactuelData.value || [])
+    .filter(item => item.principe === currentGlobalFactuelFormData.principe)
+    .map(item => item.critere)
+    .filter(val => val !== null && val !== undefined && val !== "");
+
+  let position = new Set(donnee).size;
+
+  position = position + 1;
+
+  let key = position + critere.id;
+
+  if (currentGlobalFactuelFormData.principeKey != "") {
+    key = key + currentGlobalFactuelFormData.principeKey;
+  }
+
+  currentGlobalFactuelFormData.critereKey = key;
+
+  currentPreviewFactuelFormData.critere = { id: critere.id, nom: critere.nom, key: currentGlobalFactuelFormData.critereKey, position: position };
+
+  /*
+    currentGlobalFactuelFormDataArray.value.forEach((item) => {
+      item.critere = currentGlobalFactuelFormData.critere;
+      item.critereKey = currentGlobalFactuelFormData.critereKey;
+      item.principePosition = currentGlobalFactuelFormData.principePosition;
+    });
+
+    currentPreviewFactuelFormDataArray.value.forEach((item2, index) => {
+      item2.critere = currentPreviewFactuelFormData.critere;
+    });
+  */
 };
 
 const getIndicateur = (indicateur) => {
   changeIndexAccordion(4);
   currentGlobalFactuelFormData.indicateur = indicateur.id;
-  currentPreviewFactuelFormData.indicateur = { id: indicateur.id, nom: indicateur.nom };
+  //currentPreviewFactuelFormData.indicateur = { id: indicateur.id, nom: indicateur.nom };
+
+  let donnee = (globalFormFactuelData.value || [])
+    .filter(item => item.critere === currentGlobalFactuelFormData.critere)
+    .map(item => item.indicateur)
+    .filter(val => val !== null && val !== undefined && val !== "");
+
+  let position = new Set(donnee).size;
+
+  position = position + 1;
+
+  const typeKey = currentGlobalFactuelFormData?.typeKey != "" ? currentGlobalFactuelFormData?.typeKey : "";
+  const principeKey = currentGlobalFactuelFormData?.principeKey != "" ? currentGlobalFactuelFormData?.principeKey : "";
+  const critereKey = currentGlobalFactuelFormData?.critereKey != "" ? currentGlobalFactuelFormData?.critereKey : "";
+
+  const key = position + currentGlobalFactuelFormData?.indicateur;
+
+  currentGlobalFactuelFormData.indicateurKey = key;
+
+  currentPreviewFactuelFormData.indicateur = { id: indicateur.id, nom: indicateur.nom, key: key, position: position };
+
+  /*
+  const form = {
+    type: currentGlobalFactuelFormData?.type,
+    typeKey: typeKey,
+    principe: currentGlobalFactuelFormData?.principe,
+    principeKey: principeKey,
+    critere: currentGlobalFactuelFormData?.critere,
+    critereKey: critereKey,
+    indicateur: indicateur.id,
+    indicateurKey: key,
+    indicateurPosition: position
+  };
+
+  const form2 = {
+    type: currentPreviewFactuelFormData.type ?? {
+      id: "",
+      nom: "",
+      key: "",
+      position: 0
+    },
+    principe: currentPreviewFactuelFormData.principe ?? {
+      id: "",
+      nom: "",
+      key: "",
+      position: 0
+    },
+    critere: currentPreviewFactuelFormData.critere ?? {
+      id: "",
+      nom: "",
+      key: key,
+      position: 0
+    },
+    indicateur: currentPreviewFactuelFormData.indicateur
+  };
+
+  currentGlobalFactuelFormDataArray.value.push(form);
+
+  currentPreviewFactuelFormDataArray.value.push(form2);
+  */
 };
 
 const addNewIndicator = () => {
   //const key = generateKey(currentGlobalFactuelFormData.indicateur);
 
-  const key = generateKey(currentGlobalFactuelFormData.indicateur + currentGlobalFactuelFormData.critere + currentGlobalFactuelFormData.principe + currentGlobalFactuelFormData.type);
-
+  const key = generateKey(currentGlobalFactuelFormData.indicateurKey + currentGlobalFactuelFormData.critereKey);
+  const critereKey = generateKey(currentGlobalFactuelFormData.critereKey + currentGlobalFactuelFormData.principeKey);
+  const principeKey = generateKey(currentGlobalFactuelFormData.principeKey + currentGlobalFactuelFormData.typeKey);
+  const typeKey = generateKey(currentGlobalFactuelFormData.typeKey);
 
   // Ajouter la soumission si la clé est absente
   if (!uniqueKeys.has(key)) {
     globalFormFactuelData.value.unshift({ ...currentGlobalFactuelFormData });
     previewFormFactuelData.value.unshift(JSON.parse(JSON.stringify(currentPreviewFactuelFormData)));
     uniqueKeys.set(key, true);
+    uniqueKeys.set(critereKey, true);
+    uniqueKeys.set(principeKey, true);
+    uniqueKeys.set(typeKey, true);
+
+    // ✅ Sort after unshift
+    globalFormFactuelData.value.sort((a, b) => {
+      return a.typePosition - b.typePosition || a.principePosition - b.principePosition || a.criterePosition - b.criterePosition || a.indicateurPosition - b.indicateurPosition;
+    });
+
+    previewFormFactuelData.value.sort((a, b) => {
+      return a.type.position - b.type.position || a.principe.position - b.principe.position || a.critere.position - b.critere.position || a.indicateur.position - b.indicateur.position;
+    });
+
     localStorage.setItem("globalFormFactuelData", JSON.stringify(globalFormFactuelData.value));
     localStorage.setItem("previewFormFactuelData", JSON.stringify(previewFormFactuelData.value));
     // console.log("global:", globalFormFactuelData.value);
@@ -412,32 +609,18 @@ const addNewIndicator = () => {
   }
 };
 
-const deplacerElement = (element, type = 'indicateur') => {
-  if (type == 'indicateur') {
-    globalFormFactuelData.value.findIndex((s) => s.indicateur === element.id);
-  }
-  else if (type == 'critere') {
-    globalFormFactuelData.value.findIndex((s) => s.critere === element.id);
-  }
-  else if (type == 'principe') {
-    globalFormFactuelData.value.findIndex((s) => s.principe === element.id);
-  }
-  else if (type == 'type') {
-    globalFormFactuelData.value.findIndex((s) => s.type === element.id);
-  }
-}
-
-const removeIndicator = (indicateur) => {
+const removeIndicator = (key) => {
+  console.log("remove key", key);
+  
   //const key = generateKey(indicateur.id);
   // Trouver l'index de la soumission à supprimer
-  const index = globalFormFactuelData.value.findIndex((s) => s.indicateur === indicateur.id);
+  const index = globalFormFactuelData.value.findIndex((s) => s.indicateurKey === key);
 
   // Supprimer la soumission et sa clé si elle est trouvée
   if (index !== -1) {
     globalFormFactuelData.value.splice(index, 1);
     previewFormFactuelData.value.splice(index, 1);
 
-    const key = generateKey(index.indicateur + index.critere + index.principe + index.type);
     uniqueKeys.delete(key);
     updateAllTypesGouvernance();
     localStorage.setItem("globalFormFactuelData", JSON.stringify(globalFormFactuelData.value));
@@ -446,31 +629,191 @@ const removeIndicator = (indicateur) => {
     // console.log("Nouvelle Global:", globalFormFactuelData.value);
     // console.log("Nouvelle preview:", previewFormFactuelData.value);
   }
+  else {
+    currentGlobalFactuelFormData.indicateur = "";
+    currentGlobalFactuelFormData.indicateurKey = "";
+    currentGlobalFactuelFormData.indicateurPosition = 0;
+    currentPreviewFactuelFormData.indicateur = { id: "", nom: "", key: "", position: 0 };
+  }
 };
 
-const removeElement = (element, type = 'indicateur') => {
-  var index = -1;
-  if (type == 'critere') {
-    index = globalFormFactuelData.value.findIndex((s) => s.critere === element.id);
-  }
-  else if (type == 'principe') {
-    index = globalFormFactuelData.value.findIndex((s) => s.principe === element.id);
-  }
-  else if (type == 'type') {
-    index = globalFormFactuelData.value.findIndex((s) => s.type === element.id);
-  }
+const removeElement = (key, type = 'critere', isCurrent = false) => {
 
-  // Supprimer la soumission et sa clé si elle est trouvée
-  if (index !== -1) {
-    globalFormFactuelData.value.splice(index, 1);
-    previewFormFactuelData.value.splice(index, 1);
+  if (!isCurrent) {
+    var index = -1;
+    if (type == 'critere') {
+      index = globalFormFactuelData.value.findIndex((s) => s.critereKey === key);
+    }
+    else if (type == 'principe') {
+      index = globalFormFactuelData.value.findIndex((s) => s.principeKey === key);
+    }
+    else if (type == 'type') {
+      index = globalFormFactuelData.value.findIndex((s) => s.typeKey === key);
+    }
+
+    // Supprimer la soumission et sa clé si elle est trouvée
+    if (index !== -1) {
+      globalFormFactuelData.value.splice(index, 1);
+      previewFormFactuelData.value.splice(index, 1);
+
+      updateAllTypesGouvernance();
+      localStorage.setItem("globalFormFactuelData", JSON.stringify(globalFormFactuelData.value));
+      localStorage.setItem("previewFormFactuelData", JSON.stringify(previewFormFactuelData.value));
+      toast.success(type + " supprimé.");
+      // console.log("Nouvelle Global:", globalFormFactuelData.value);
+      // console.log("Nouvelle preview:", previewFormFactuelData.value);
+    }
+  }
+  else {
+    currentGlobalFactuelFormData[type] = "";
+    currentGlobalFactuelFormData[type + 'Key'] = "";
+    currentGlobalFactuelFormData[type + 'Position'] = 0;
+    currentPreviewFactuelFormData[type] = { id: "", nom: "", key: "", position: 0 };
+  }
+};
+
+
+const updateTemporyIndicateurs = (key, position, isCurrent = false) => {
+
+  if (!isCurrent) {
+
+    previewFormFactuelData.value = previewFormFactuelData.value.map((item) => {
+      if (item.indicateur.key == key) {
+        item.indicateur.position = position;
+      }
+      return item;
+    }).sort((a, b) => {
+      return a.type.position - b.type.position || a.principe.position - b.principe.position || a.critere.position - b.critere.position || a.indicateur.position - b.indicateur.position;
+    });
+
+    globalFormFactuelData.value = globalFormFactuelData.value.map((item) => {
+      if (item.indicateur.key == key) {
+        item.position = position;
+      }
+      return item;
+    }).sort((a, b) => {
+      return a.typePosition - b.typePosition || a.principePosition - b.principePosition || a.criterePosition - b.criterePosition || a.indicateurPosition - b.indicateurPosition;
+    });
 
     updateAllTypesGouvernance();
+
     localStorage.setItem("globalFormFactuelData", JSON.stringify(globalFormFactuelData.value));
     localStorage.setItem("previewFormFactuelData", JSON.stringify(previewFormFactuelData.value));
-    toast.success(type + " supprimé.");
-    // console.log("Nouvelle Global:", globalFormFactuelData.value);
-    // console.log("Nouvelle preview:", previewFormFactuelData.value);
+
+    toast.success("Question operationnelle update.");
+  }
+  else {
+
+    currentPreviewFactuelFormData.indicateur.position = position;
+
+    currentGlobalFactuelFormData.indicateurPosition = position;
+  }
+};
+
+const updateTemporyElement = (key, position, isCurrent = false, type = 'critere') => {
+
+  if (isCurrent == false) {
+    // Update position from globalFormFactuelData
+    globalFormFactuelData.value = globalFormFactuelData.value.map((item) => {
+      if (type == 'type') {
+        if (item.typeKey == key) {
+          item.typePosition = position;
+        }
+      }
+      else if (type == 'principe') {
+        if (item.principeKey == key) {
+          item.principePosition = position;
+        }
+      }
+      else if (type == 'critere') {
+        if (item.critereKey == key) {
+          item.criterePosition = position;
+        }
+      }
+
+      return item;
+    }).sort((a, b) => {
+      return a.typePosition - b.typePosition || a.principePosition - b.principePosition || a.criterePosition - b.criterePosition || a.indicateurPosition - b.indicateurPosition;
+    });
+
+    // Update position from previewFormFactuelData
+    previewFormFactuelData.value = previewFormFactuelData.value.map((item) => {
+      if (type == 'type') {
+        if (item.type.key == key) {
+          item.type.position = position;
+        }
+      }
+      else if (type == 'principe') {
+        if (item.principe.key == key) {
+          item.principe.position = position;
+        }
+      }
+      else if (type == 'critere') {
+        if (item.critere.key == key) {
+          item.critere.position = position;
+        }
+      }
+
+      return item;
+    }).sort((a, b) => {
+      return a.type.position - b.type.position || a.principe.position - b.principe.position || a.critere.position - b.critere.position || a.indicateur.position - b.indicateur.position;
+    });
+
+    // Recalculate and update
+    updateAllTypesGouvernance();
+
+    // Persist to localStorage
+    localStorage.setItem("globalFormFactuelData", JSON.stringify(globalFormFactuelData.value));
+    localStorage.setItem("previewFormFactuelData", JSON.stringify(previewFormFactuelData.value));
+
+    if (type == 'type') {
+      canEditType.value[key] = false;
+    }
+    else if (type == 'principe') {
+      canEditPrincipe.value[key] = false;
+    }
+    else if (type == 'critere') {
+      canEditCritere.value[key] = false;
+    }
+    console.log(type);
+  }
+  else {
+
+    if (type == 'type') {
+      currentPreviewFactuelFormData.type.position = position;
+      currentGlobalFactuelFormData.typePosition = position;
+    }
+    else if (type == 'principe') {
+      currentPreviewFactuelFormData.principe.position = position;
+      currentGlobalFactuelFormData.principePosition = position;
+    }
+    else if (type == 'critere') {
+      currentPreviewFactuelFormData.critere.position = position;
+      currentGlobalFactuelFormData.criterePosition = position;
+    }
+  }
+};
+
+function editTemporyIndicateur(key, position) {
+  updateTemporyIndicateurs(key, position, false)
+  canEditIndicateur.value[key] = false;
+}
+
+// Handle edit action
+const handleEdit = (key) => {
+  canEditIndicateur.value[key] = true;
+};
+
+// Handle edit action
+const handleEditElement = (key, type = 'critere') => {
+  if (type == 'type') {
+    canEditType.value[key] = true;
+  }
+  else if (type == 'principe') {
+    canEditPrincipe.value[key] = true;
+  }
+  else if (type == 'critere') {
+    canEditCritere.value[key] = true;
   }
 };
 
@@ -536,7 +879,7 @@ const updateForm = async () => {
 
 const previewForm = () => {
   console.log("click");
-  if (globalOptionResponses.value.options_de_reponse.length >= 2){ modalForm.value = true;}
+  if (globalOptionResponses.value.options_de_reponse.length >= 2) { modalForm.value = true; }
   else {
     toast.error("Ajouter au moins deux options de réponses.");
   }
@@ -575,13 +918,13 @@ onMounted(async () => {
   <div class="flex w-full gap-2">
     <section class="w-[30%] max-h-[80%] pr-1 overflow-y-auto border-r-2 pt-5">
       <AccordionGroup :selectedIndex="indexAccordion" class="space-y-1">
-        
 
-      
 
-       
 
-       
+
+
+
+
         <AccordionItem class="">
           <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
             <p>Type de gouvernance</p>
@@ -591,14 +934,15 @@ onMounted(async () => {
             <TypeGouvernance :to-reset="false" :is-available="isAvailable.type" @selected="getType" />
           </AccordionPanel>
         </AccordionItem>
-        
+
         <AccordionItem class="">
           <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
             <p>Principe de gouvernance</p>
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <PrincipeDeGouvernanceFactuel :to-reset="false" :is-available="isAvailable.principe" @selected="getPrincipe" />
+            <PrincipeDeGouvernanceFactuel :to-reset="false" :is-available="isAvailable.principe"
+              @selected="getPrincipe" />
           </AccordionPanel>
         </AccordionItem>
 
@@ -652,10 +996,12 @@ onMounted(async () => {
               </div>
               <div class="space-y-2">
                 <p class="text-lg font-medium">Ajouter des indicateurs</p>
-                <FactuelStructure :type="currentPreviewFactuelFormData.type.nom"
-                  :principe="currentPreviewFactuelFormData.principe.nom"
-                  :critere="currentPreviewFactuelFormData.critere.nom"
-                  :indicateur="currentPreviewFactuelFormData.indicateur.nom" />
+                <FactuelStructure :type="currentPreviewFactuelFormData.type"
+                  :principe="currentPreviewFactuelFormData.principe" :critere="currentPreviewFactuelFormData.critere"
+                  :indicateur="currentPreviewFactuelFormData.indicateur" @deleteIndicateur="removeIndicator"
+                  @deletePrincipe="removeElement" @deleteType="removeElement"
+                  @updatePositionIndicateur="updateTemporyIndicateurs" @deleteCritere="removeElement"
+                  @updateTemporyElement="updateTemporyElement" />
                 <button :disabled="!isCurrentFormValid" @click="addNewIndicator" class="my-4 text-sm btn btn-primary">
                   <PlusIcon class="mr-1 size-4" />Ajouter
                 </button>
@@ -681,6 +1027,137 @@ onMounted(async () => {
       </div>
     </div>
     <div class="max-h-[80vh] py-2 border-t overflow-y-auto mb-10 my-2">
+      
+      <table class="w-full border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
+        <thead class="text-white bg-blue-900">
+          <tr>
+            <th class="py-3 border border-slate-900">Principes</th>
+            <th class="py-3 border border-slate-900">Critères</th>
+            <th class="py-3 border border-slate-900">Indicateurs</th>
+            <th class="py-3 border border-slate-900 max-w-[200px]">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody v-if="previewTypesGouvernance?.types_de_gouvernance?.length">
+          <template v-for="type_de_gouvernance in previewTypesGouvernance.types_de_gouvernance"
+            :key="type_de_gouvernance.id">
+            <tr class="bg-green-100 list-data">
+              <td colspan="3" class="font-semibold">{{ type_de_gouvernance.position }} - {{ type_de_gouvernance.nom }}
+              </td>
+
+              <td class="items-center transition-all opacity-0 container-buttons">
+
+                <template v-if="canEditType[type_de_gouvernance.key]">
+                  <input type="number" min="1" step="1" name="position" :value="type_de_gouvernance.position"
+                    @keyup.enter="updateTemporyElement(type_de_gouvernance.key, $event.target.value, false, 'type')"
+                    class="w-2/5 form-control" />
+                </template>
+                <template v-else>
+                  <button class="p-1.5 text-primary" @click="handleEditElement(type_de_gouvernance.key, 'type')">
+
+                    <Edit3Icon class="size-5" />
+                  </button>
+                  <button class="p-1.5 text-danger" @click="removeElement(type_de_gouvernance.key, 'type', false)">
+                    <TrashIcon class="size-5" />
+                  </button>
+                </template>
+              </td>
+            </tr>
+            <template v-for="principe_de_gouvernance in type_de_gouvernance.principes_de_gouvernance"
+              :key="principe_de_gouvernance.id">
+              <template v-for="(critere_de_gouvernance, scIndex) in principe_de_gouvernance.criteres_de_gouvernance"
+                :key="critere_de_gouvernance.id">
+                <template
+                  v-for="(indicateur_de_gouvernance, qIndex) in critere_de_gouvernance.indicateurs_de_gouvernance"
+                  :key="indicateur_de_gouvernance.id">
+                  <tr>
+                    <!-- Première cellule de catégorie principale avec rowspan -->
+                    <td class="font-semibold list-data" v-if="scIndex === 0 && qIndex === 0"
+                      :rowspan="principe_de_gouvernance.criteres_de_gouvernance.reduce((sum, sc) => sum + sc.indicateurs_de_gouvernance.length, 0)">
+                      <div class="flex items-center gap-1">{{ principe_de_gouvernance.position }} - {{
+                        principe_de_gouvernance.nom }}</div>
+
+                      <div class="items-center transition-all opacity-0 container-buttons">
+
+                        <template v-if="canEditCritere[principe_de_gouvernance.key]">
+                          <input type="number" min="1" step="1" name="position"
+                            :value="principe_de_gouvernance.position"
+                            @keyup.enter="updateTemporyElement(principe_de_gouvernance.key, $event.target.value, false, 'principe')"
+                            class="w-2/5 form-control" />
+                        </template>
+                        <template v-else>
+                          <button class="p-1.5 text-primary"
+                            @click="handleEditElement(principe_de_gouvernance.key, 'principe')">
+
+                            <Edit3Icon class="size-5" />
+                          </button>
+                          <button class="p-1.5 text-danger"
+                            @click="removeElement(principe_de_gouvernance.key, 'principe', false)">
+                            <TrashIcon class="size-5" />
+                          </button>
+                        </template>
+                      </div>
+                    </td>
+                    <!-- Première cellule de sous-catégorie avec rowspan -->
+                    <td class="list-data" v-if="qIndex === 0"
+                      :rowspan="critere_de_gouvernance.indicateurs_de_gouvernance.length">
+                      <div class="flex items-center gap-1">{{ critere_de_gouvernance.position }} - {{
+                        critere_de_gouvernance.nom }}</div>
+
+                      <div class="flex items-center transition-all opacity-0 container-buttons">
+
+                        <template v-if="canEditCritere[critere_de_gouvernance.key]">
+                          <input type="number" min="1" step="1" name="position" :value="critere_de_gouvernance.position"
+                            @keyup.enter="updateTemporyElement(critere_de_gouvernance.key, $event.target.value, false, 'critere')"
+                            class="w-2/5 form-control" />
+                        </template>
+                        <template v-else>
+                          <button class="p-1.5 text-primary"
+                            @click="handleEditElement(critere_de_gouvernance.key, 'critere')">
+                            <Edit3Icon class="size-5" />
+                          </button>
+                          <button class="p-1.5 text-danger"
+                            @click="removeElement(critere_de_gouvernance.key, 'critere', false)">
+                            <TrashIcon class="size-5" />
+                          </button>
+                        </template>
+                      </div>
+                    </td>
+                    <td>{{ indicateur_de_gouvernance.position }} - {{ indicateur_de_gouvernance.nom }}</td>
+                    <td>
+                      <div class="flex items-center">
+
+                        <template v-if="canEditIndicateur[indicateur_de_gouvernance.key]">
+                          <input type="number" min="1" step="1" name="position"
+                            :value="indicateur_de_gouvernance.position"
+                            @keyup.enter="editTemporyIndicateur(indicateur_de_gouvernance.key, $event.target.value)"
+                            class="w-2/5 form-control" />
+                        </template>
+                        <template v-else>
+                          <button class="p-1.5 text-primary" @click="handleEdit(indicateur_de_gouvernance.key)">
+                            <Edit3Icon class="size-5" />
+                          </button>
+                          <button class="p-1.5 text-danger" @click="removeIndicator(indicateur_de_gouvernance.key)">
+                            <TrashIcon class="size-5" />
+                          </button>
+                        </template>
+                      </div>
+                    </td>
+                  </tr>
+                </template>
+              </template>
+              <!-- Ligne Score factuel après chaque catégorie principale -->
+            </template>
+          </template>
+        </tbody>
+
+        <tbody v-else>
+          <tr class="bg-transparent text-center">
+            <td colspan="4" class="font-semibold">Aucune donnee</td>
+          </tr>
+        </tbody>
+      </table>
+
       <table class="w-full border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
         <thead class="text-white bg-blue-900">
           <tr>
@@ -694,13 +1171,14 @@ onMounted(async () => {
           <template v-for="type_de_gouvernance in previewTypesGouvernance.types_de_gouvernance"
             :key="type_de_gouvernance.id">
             <tr class="bg-green-100 list-data">
-              <td colspan="3" class="font-semibold">{{ type_de_gouvernance.nom }}</td>
+              <td colspan="3" class="font-semibold">{{ type_de_gouvernance.position }} - {{ type_de_gouvernance.nom }}
+              </td>
 
               <td class="items-center transition-all opacity-0 container-buttons">
                 <button class="p-1.5 text-primary">
                   <Edit3Icon class="size-5" />
                 </button>
-                <button class="p-1.5 text-danger" @click="removeElement(type_de_gouvernance, 'type')">
+                <button class="p-1.5 text-danger" @click="removeElement(type_de_gouvernance.key, 'type')">
                   <TrashIcon class="size-5" />
                 </button>
               </td>
@@ -716,13 +1194,14 @@ onMounted(async () => {
                     <!-- Première cellule de catégorie principale avec rowspan -->
                     <td class="font-semibold text-center list-data" v-if="scIndex === 0 && qIndex === 0"
                       :rowspan="principe_de_gouvernance.criteres_de_gouvernance.reduce((sum, sc) => sum + sc.indicateurs_de_gouvernance.length, 0)">
-                      <div class="flex items-center gap-1">{{ principe_de_gouvernance.nom }}</div>
+                      <div class="flex items-center gap-1">{{ principe_de_gouvernance.position }} - {{
+                        principe_de_gouvernance.nom }}</div>
 
                       <div class="items-center transition-all opacity-0 container-buttons">
                         <button class="p-1.5 text-primary">
                           <Edit3Icon class="size-5" />
                         </button>
-                        <button class="p-1.5 text-danger" @click="removeElement(principe_de_gouvernance, 'principe')">
+                        <button class="p-1.5 text-danger" @click="removeElement(principe_de_gouvernance.key, 'principe')">
                           <TrashIcon class="size-5" />
                         </button>
                       </div>
@@ -730,24 +1209,25 @@ onMounted(async () => {
                     <!-- Première cellule de sous-catégorie avec rowspan -->
                     <td class="text-center list-data" v-if="qIndex === 0"
                       :rowspan="critere_de_gouvernance.indicateurs_de_gouvernance.length">
-                      <div class="flex items-center gap-1">{{ critere_de_gouvernance.nom }}</div>
+                      <div class="flex items-center gap-1">{{ critere_de_gouvernance.position }} - {{
+                        critere_de_gouvernance.nom }}</div>
 
                       <div class="flex items-center transition-all opacity-0 container-buttons">
                         <button class="p-1.5 text-primary">
                           <Edit3Icon class="size-5" />
                         </button>
-                        <button class="p-1.5 text-danger" @click="removeElement(critere_de_gouvernance, 'critere')">
+                        <button class="p-1.5 text-danger" @click="removeElement(critere_de_gouvernance.key, 'critere', false)">
                           <TrashIcon class="size-5" />
                         </button>
                       </div>
                     </td>
-                    <td>{{ indicateur_de_gouvernance.nom }}</td>
+                    <td>{{ indicateur_de_gouvernance.position }} - {{ indicateur_de_gouvernance.nom }}</td>
                     <td>
                       <div class="flex items-center">
                         <button class="p-1.5 text-primary">
                           <Edit3Icon class="size-5" />
                         </button>
-                        <button class="p-1.5 text-danger" @click="removeIndicator(indicateur_de_gouvernance)">
+                        <button class="p-1.5 text-danger" @click="removeIndicator(indicateur_de_gouvernance.key)">
                           <TrashIcon class="size-5" />
                         </button>
                       </div>
@@ -779,7 +1259,7 @@ onMounted(async () => {
     </div>
   </div>
   <LoaderSnipper v-else />
-  
+
   <Modal backdrop="static" :show="previewFormulaire" size="modal-xl" @hidden="previewFormulaire = false">
 
     <ModalHeader>
@@ -812,7 +1292,8 @@ onMounted(async () => {
           <template v-for="type_de_gouvernance in previewTypesGouvernance.types_de_gouvernance"
             :key="type_de_gouvernance.id">
             <tr class="bg-green-100">
-              <td colspan="7" class="font-semibold">{{ type_de_gouvernance.nom }}</td>
+              <td colspan="7" class="font-semibold">{{ type_de_gouvernance.position }} - {{ type_de_gouvernance.nom }}
+              </td>
             </tr>
             <template v-for="principe_de_gouvernance in type_de_gouvernance.principes_de_gouvernance"
               :key="principe_de_gouvernance.id">
@@ -826,14 +1307,14 @@ onMounted(async () => {
                     <!-- Première cellule de catégorie principale avec rowspan -->
                     <td class="font-semibold" v-if="scIndex === 0 && qIndex === 0"
                       :rowspan="principe_de_gouvernance.criteres_de_gouvernance.reduce((sum, sc) => sum + sc.indicateurs_de_gouvernance.length, 0)">
-                      {{ principe_de_gouvernance.nom }}
+                      {{ principe_de_gouvernance.position }} - {{ principe_de_gouvernance.nom }}
                     </td>
 
                     <!-- Première cellule de sous-catégorie avec rowspan -->
                     <td v-if="qIndex === 0" :rowspan="critere_de_gouvernance.indicateurs_de_gouvernance.length">
-                      {{ critere_de_gouvernance.nom }}
+                      {{ critere_de_gouvernance.position }} - {{ critere_de_gouvernance.nom }}
                     </td>
-                    <td>{{ indicateur_de_gouvernance.nom }}</td>
+                    <td>{{ indicateur_de_gouvernance.position }} - {{ indicateur_de_gouvernance.nom }}</td>
                     <td>{{ }}</td>
                     <td>{{ }}</td>
                   </tr>
@@ -855,40 +1336,40 @@ onMounted(async () => {
     </ModalFooter>
   </Modal>
 
-<!-- BEGIN: Modal Content -->
-<!-- size="modal-xl"  -->
-<Modal backdrop="static" :show="modalForm" @hidden="modalForm = false">
-  <ModalHeader>
-    <h2 class="mr-auto text-base font-medium">Modifier le formulaire</h2>
-  </ModalHeader>
-  <form @submit.prevent="updateForm">
-    <ModalBody class="space-y-5">
-      <!--  <div class="flex gap-4"></div> -->
-      <div class="gap-4">
-        <InputForm label="Libellé" class="w-full mb-4" v-model="payload.libelle" />
-        <div class="w-full">
-          <label for="annee" class="form-label">Année</label>
-          <TomSelect v-model="payload.annee_exercice" :options="{ placeholder: 'Selectionez une année' }"
-            class="w-full">
-            <option v-for="(year, index) in annees" :key="index" :value="year">{{ year }}</option>
-          </TomSelect>
+  <!-- BEGIN: Modal Content -->
+  <!-- size="modal-xl"  -->
+  <Modal backdrop="static" :show="modalForm" @hidden="modalForm = false">
+    <ModalHeader>
+      <h2 class="mr-auto text-base font-medium">Modifier le formulaire</h2>
+    </ModalHeader>
+    <form @submit.prevent="updateForm">
+      <ModalBody class="space-y-5">
+        <!--  <div class="flex gap-4"></div> -->
+        <div class="gap-4">
+          <InputForm label="Libellé" class="w-full mb-4" v-model="payload.libelle" />
+          <div class="w-full">
+            <label for="annee" class="form-label">Année</label>
+            <TomSelect v-model="payload.annee_exercice" :options="{ placeholder: 'Selectionez une année' }"
+              class="w-full">
+              <option v-for="(year, index) in annees" :key="index" :value="year">{{ year }}</option>
+            </TomSelect>
+          </div>
         </div>
-      </div>
-      <div>
-        <p class="mb-3">Options de réponses</p>
-        <ListOptionsResponse :options="previewOptionResponses.options_de_reponse" />
-      </div>
-    </ModalBody>
-    <ModalFooter>
-      <div class="flex gap-2">
-        <button type="button" @click="modalForm = false"
-          class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
-        <VButton :loading="isLoadingForm" label="Modifier" />
-      </div>
-    </ModalFooter>
-  </form>
-</Modal>
-<!-- END: Modal Content -->
+        <div>
+          <p class="mb-3">Options de réponses</p>
+          <ListOptionsResponse :options="previewOptionResponses.options_de_reponse" />
+        </div>
+      </ModalBody>
+      <ModalFooter>
+        <div class="flex gap-2">
+          <button type="button" @click="modalForm = false"
+            class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
+          <VButton :loading="isLoadingForm" label="Modifier" />
+        </div>
+      </ModalFooter>
+    </form>
+  </Modal>
+  <!-- END: Modal Content -->
 </template>
 
 <style scoped>
