@@ -13,6 +13,14 @@ import Tabulator from "tabulator-tables";
 import InputForm from "@/components/news/InputForm.vue";
 import VButton from "@/components/news/VButton.vue";
 import { toast } from "vue3-toastify";
+import { getCurrentInstance } from "vue" 
+
+//vérifier le num
+
+// const isValid = computed(() => {
+   
+//    return proxy.$isValidPhoneNumber(currentPhone.value, "BJ");
+//  });
 
 export default {
   components: {
@@ -22,6 +30,7 @@ export default {
 
   data() {
     return {
+      proxy: getCurrentInstance(), 
       ajoutLoading: false,
       programmes: [],
       savedInput: [],
@@ -133,7 +142,9 @@ export default {
       programme: (state) => state.programmes.programme,
     }),
     //importation des variables du module auths
-
+    isValid(){
+      return this.$isValidPhoneNumber(this.formData.contact, 'BJ');
+    },
     ...mapGetters({
       hasErrors: "GET_ERREURS",
       isLoading: "IS_LOADING",
@@ -777,8 +788,35 @@ export default {
       <h2 v-else class="mr-auto text-base font-medium">Modifier une organisation</h2>
     </ModalHeader>
     <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
+
       <InputForm v-model="formData.nom" class="col-span-12" type="text" required="required" placeHolder="Nom de l'organisation" label="Nom" />
-      <InputForm v-model="formData.contact" class="col-span-12" type="number" required="required" placeHolder="Contact" label="Téléphone" />
+      <!-- <InputForm v-model="formData.contact" class="col-span-12" type="number" required="required" placeHolder="Contact" label="Téléphone" /> -->
+      <div>
+        <InputForm
+          label="Numéro de téléphone"
+          v-model="formData.contact"
+          maxlength="13"
+          placeholder="+229xxxxxxxxxx"
+          type="text"
+          class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all duration-200 text-gray-700 placeholder-gray-400"
+        />
+        
+        <!-- Message de validation avec animation -->
+        <div class="mt-4 min-h-[1.5rem]">
+          <p v-if="isValid" class="flex items-center text-green-600 font-medium text-sm animate-pulse">
+            <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+            </svg>
+            Numéro valide
+          </p>
+          <p v-else-if="formData.contact && formData.contact.length > 0" class="flex items-center text-red-500 font-medium text-sm">
+            <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+            </svg>
+            Numéro invalide
+          </p>
+        </div>
+      </div>
       <InputForm v-model="formData.email" class="col-span-12" type="email" required="required" placeHolder="Entrer le mail de l'organisation" label="E-mail" />
       <InputForm v-model="formData.code" class="col-span-12" type="number" required="required" placeHolder="Ex : 2" label="Code" />
       <InputForm v-model="formData.sigle" class="col-span-12" type="text" required="required" placeHolder="Ex : APF" label="Sigle" />
@@ -806,8 +844,9 @@ export default {
       </div>
     </ModalFooter>
   </Modal>
+
   <div class="flex flex-col items-center mt-8 intro-y sm:flex-row">
-    <h2 class="mr-auto text-lg font-medium">Organisation</h2>
+    <h2 class="mr-auto text-lg font-medium">Organisation test</h2>
     <div class="flex w-full mt-4 sm:w-auto sm:mt-0">
       <button class="mr-2 shadow-md btn btn-primary" @click="(showModal = true), (labels = 'Ajouter')">Ajouter une organisation</button>
     </div>

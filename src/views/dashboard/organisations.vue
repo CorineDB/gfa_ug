@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onBeforeMount, onMounted, reactive, ref, watch } from "vue";
+import { computed, onBeforeMount, onMounted, reactive, ref, watch, getCurrentInstance } from "vue";
 import VButton from "@/components/news/VButton.vue";
 import InputForm from "@/components/news/InputForm.vue";
 import OngService from "@/services/modules/ong.service.js";
@@ -16,11 +16,20 @@ import { secteursActivites } from "../../utils/constants";
 import AlertErrorOng from "../../components/news/AlertErrorOng.vue";
 import verifyPermission from "../../utils/verifyPermission";
 import FondsService from "@/services/modules/fond.service";
+//vérifier numéro de téléphone
+const { proxy } = getCurrentInstance();
+
+const isValid1 = computed(() => {
+  return proxy.$isValidPhoneNumber(payload.contact, "BJ");
+});
+
+const isValid2 = computed(() => {
+  return proxy.$isValidPhoneNumber(payload.contact_point_focal, "BJ");
+});
 
 const router = useRouter();
 
 const types = [
-  
   { label: "OSC FOSIR", id: "osc_fosir" },
   { label: "OSC Partenaire", id: "osc_partenaire" },
   { label: "Autre OSC", id: "autre_osc" },
@@ -235,6 +244,15 @@ const submitData = async () => {
     }
   }
   try {
+    if (isValid1.value) {
+      toast.error("Le numéro de contact de l'organisation n'est pas valide");
+      return;
+    }
+
+    if (isValid2.value) {
+      toast.error("Le numéro de contact du point focal n'est pas valide");
+      return;
+    }
     await action;
     toast.success(`Organisation ${isCreate.value ? "créee" : "modifiée"} avec succès.`);
     getDatas();
@@ -486,7 +504,26 @@ onMounted(() => {
               </div>
               <div class="grid grid-cols-2 gap-4">
                 <InputForm :required="false" :optionel="false" label="Sigle" v-model="payload.sigle" :control="getFieldErrors(errors.sigle)" />
-                <InputForm :required="false" label="Contact" v-model.number="payload.contact" :control="getFieldErrors(errors.contact)" />
+                <!-- <InputForm :required="false" label="Contact" v-model.number="payload.contact" :control="getFieldErrors(errors.contact)" /> -->
+                <div>
+                  <InputForm :control="getFieldErrors(errors.contact)" :required="false" label="Contact" v-model="payload.contact" maxlength="13" placeholder="+229xxxxxxxxxx" type="text" />
+
+                  <!-- Message de validation avec animation -->
+                  <div class="mt-4 min-h-[1.5rem]">
+                    <p v-if="isValid1" class="flex items-center text-green-600 font-medium text-sm animate-pulse">
+                      <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                      </svg>
+                      Numéro valide
+                    </p>
+                    <p v-else-if="payload.contact && payload.contact.length > 0" class="flex items-center text-red-500 font-medium text-sm">
+                      <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                      </svg>
+                      Numéro invalide
+                    </p>
+                  </div>
+                </div>
               </div>
               <div class="grid grid-cols-2 gap-4">
                 <InputForm :required="false" :optionel="false" label="Code" :control="getFieldErrors(errors.code)" v-model.number="payload.code" type="number" />
@@ -598,6 +635,25 @@ onMounted(() => {
                 <InputForm label="Prénom point focal" :optionel="false" :control="getFieldErrors(errors.prenom_point_focal)" v-model="payload.prenom_point_focal" />
               </div>
               <InputForm label="Contact point focal" :optionel="false" :control="getFieldErrors(errors.contact_point_focal)" v-model="payload.contact_point_focal" />
+              <div>
+                <InputForm :optionel="false" :control="getFieldErrors(errors.contact_point_focal)" :required="false" label="Contact point focal" v-model.number="payload.contact_point_focal" maxlength="13" placeholder="+229xxxxxxxxxx" type="text" />
+
+                <!-- Message de validation avec animation -->
+                <div class="mt-4 min-h-[1.5rem]">
+                  <p v-if="isValid2" class="flex items-center text-green-600 font-medium text-sm animate-pulse">
+                    <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    Numéro valide
+                  </p>
+                  <p v-else-if="payload.contact_point_focal && payload.contact_point_focal.length > 0" class="flex items-center text-red-500 font-medium text-sm">
+                    <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                    </svg>
+                    Numéro invalide
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
           <div class="flex justify-end gap-3 py-4">

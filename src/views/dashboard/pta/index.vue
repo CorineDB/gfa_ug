@@ -77,7 +77,7 @@
       </div>
 
       <div class="absolute shadow-md left-[370px] sm:rounded-lg">
-        <table id="ptaTable34" class="w-full overflow-auto text-sm text-left text-gray-500 dark:text-gray-400">
+        <table class="w-full overflow-auto text-sm text-left text-gray-500 dark:text-gray-400">
           <thead class="sticky top-0 text-xs border bg-blue-200 text-gray-700 uppercase _z-20 _bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr class="">
               <th scope="col" rowspan="3" class="px-6 py-3 border dark:bg-gray-800 border-gray-300 whitespace-nowrap">OutCome / OutPut / activiés / Taches</th>

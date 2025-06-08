@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref ,getCurrentInstance } from "vue";
 import VButton from "@/components/news/VButton.vue";
 import InputForm from "@/components/news/InputForm.vue";
 import Tabulator from "tabulator-tables";
@@ -21,6 +21,15 @@ import SyntheseService from "../../../services/modules/synthese.service";
 import { helper as $h } from "@/utils/helper";
 import { data } from "jquery";
 import pagination from "@/components/news/pagination.vue";
+
+//vérifier numéro de téléphone
+const { proxy } = getCurrentInstance();
+const currentPhone = ref("");
+
+const isValid = computed(() => {
+  return proxy.$isValidPhoneNumber(payload.entrepriseContact, "BJ");
+});
+
 
 // Pagination :
 const datas = ref([]);
@@ -166,6 +175,14 @@ const createData = async () => {
 
   // payload.formulaires_de_gouvernance = [idFormFactuel.value, idFormPerception.value];
   isLoading.value = true;
+
+  if(!isValid.value) {
+    toast.error("Numéro de téléphone invalide");
+    isLoading.value = false;
+    return;
+  }
+
+
   await AuditService.create(payload)
     .then(() => {
       isLoading.value = false;
@@ -215,6 +232,13 @@ const getDatas = async () => {
 const updateData = async () => {
   isLoading.value = true;
   payload.formulaires_de_gouvernance = [idFormFactuel.value, idFormPerception.value];
+
+ if(!isValid.value) {
+    toast.error("Numéro de téléphone invalide");
+    isLoading.value = false;
+    return;
+  }
+
   await AuditService.update(idSelect.value, payload)
     .then(() => {
       getDatas();
@@ -350,35 +374,35 @@ onMounted(async () => {
   <div class="p-5 mt-5 intro-y">
     <LoaderSnipper v-if="isLoadingData" />
     <div v-else class="overflow-x-auto mt-5">
-      <table class="table mt-5">
-        <thead class="table-light">
+      <table class="w-full text-left table-auto min-w-max">
+        <thead class="bg-gray-100 text-gray-700 text-sm">
           <tr>
-            <th class="whitespace-nowrap">#</th>
-            <th class="whitespace-nowrap">Projets</th>
-            <th class="whitespace-nowrap">Prestataire</th>
-            <th class="whitespace-nowrap">Contact</th>
-            <th class="whitespace-nowrap">Exercice audité</th>
-            <th class="whitespace-nowrap">Date de transmission</th>
-            <th class="whitespace-nowrap">Etat d'avancement</th>
-            <th class="whitespace-nowrap">Catégorie</th>
-            <th class="whitespace-nowrap">Statut du projet</th>
-            <th class="whitespace-nowrap">Date creation</th>
-            <th class="whitespace-nowrap">Actions</th>
+            <th class="p-4 border-b border-slate-300 bg-slate-50">#</th>
+            <th class="p-4 border-b border-slate-300 bg-slate-50">Projets</th>
+            <th class="p-4 border-b border-slate-300 bg-slate-50">Prestataire</th>
+            <th class="p-4 border-b border-slate-300 bg-slate-50">Contact</th>
+            <th class="p-4 border-b border-slate-300 bg-slate-50">Exercice audité</th>
+            <th class="p-4 border-b border-slate-300 bg-slate-50">Date de transmission</th>
+            <th class="p-4 border-b border-slate-300 bg-slate-50">Etat d'avancement</th>
+            <th class="p-4 border-b border-slate-300 bg-slate-50">Catégorie</th>
+            <th class="p-4 border-b border-slate-300 bg-slate-50">Statut du projet</th>
+            <th class="p-4 border-b border-slate-300 bg-slate-50">Date creation</th>
+            <th class="p-4 border-b border-slate-300 bg-slate-50">Actions</th>
           </tr>
         </thead>
-        <tbody>
-          <tr v-for="(data, index) in paginatedAndFilteredData" :key="index">
-            <td>{{ index + 1 }}</td>
-            <td>{{ data.projet.nom }}</td>
-            <td>{{ data.entreprise }}</td>
+        <tbody class="text-sm divide-y divide-gray-200 bg-white">
+          <tr v-for="(data, index) in paginatedAndFilteredData" :key="index"  class="hover:bg-gray-50">
+            <td class="p-4 border-b border-slate-200" >{{ index + 1 }}</td>
+            <td class="p-4 border-b border-slate-200" >{{ data.projet.nom }}</td>
+            <td class="p-4 border-b border-slate-200" >{{ data.entreprise }}</td>
 
-            <td>{{ data.entrepriseContact }}</td>
-            <td>{{ data.annee }}</td>
+            <td class="p-4 border-b border-slate-200" >{{ data.entrepriseContact }}</td>
+            <td class="p-4 border-b border-slate-200" >{{ data.annee }}</td>
             
-            <td>{{ data.dateDeTransmission }}</td>
-            <td>{{ data.etat }}</td>
-            <td>{{ data.categorie }}</td>
-            <td>
+            <td class="p-4 border-b border-slate-200" >{{ data.dateDeTransmission }}</td>
+            <td class="p-4 border-b border-slate-200" >{{ data.etat }}</td>
+            <td class="p-4 border-b border-slate-200" >{{ data.categorie }}</td>
+            <td class="p-4 border-b border-slate-200" >
               <span v-if="data.statut == 1">Terminer</span>
               <span v-if="data.statut == 0">En cours</span>
               <span v-if="data.statut == -1">En attente</span>
@@ -388,8 +412,8 @@ onMounted(async () => {
 
             
 
-            <td>{{ data.created_at }}</td>
-            <td class="_flex space-x-2">
+            <td class="p-4 border-b border-slate-200">{{ data.created_at }}</td>
+            <td class="p-4 border-b border-slate-200">
               <span @click="handleEdit(data)" class="text-blue-500 cursor-pointer">
                 <EditIcon />
               </span>
@@ -433,8 +457,36 @@ onMounted(async () => {
           <InputForm class="col-span-12" label="Prestataire" v-model="payload.entreprise" :control="getFieldErrors(errors.entreprise)" />
           <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.entreprise">{{ $h.extractContentFromArray(messageErreur.entreprise) }}</p>
 
-          <InputForm class="col-span-12" label="Contact" type="number" v-model="payload.entrepriseContact" :control="getFieldErrors(errors.entrepriseContact)" />
+          <!-- <InputForm class="col-span-12" label="Contact" type="number" v-model="payload.entrepriseContact" :control="getFieldErrors(errors.entrepriseContact)" /> -->
+
+          <div class="col-span-12">
+                  <InputForm
+                    label="Contact"
+                    :control="getFieldErrors(errors.entrepriseContact)"
+                    v-model="payload.entrepriseContact"
+                    maxlength="13"
+                    placeholder="+229xxxxxxxxxx"
+                    type="text"
+                  />
+                  
+                  <!-- Message de validation avec animation -->
+                  <div class="mt-4 _min-h-[1.5rem]">
+                    <p v-if="isValid" class="flex items-center text-green-600 font-medium text-sm animate-pulse">
+                      <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                      </svg>
+                      Numéro valide
+                    </p>
+                    <p v-else-if="payload.entrepriseContact && payload.entrepriseContact.length > 0" class="flex items-center text-red-500 font-medium text-sm">
+                      <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                      </svg>
+                      Numéro invalide
+                    </p>
+                  </div>
+          </div>
           <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.entrepriseContact">{{ $h.extractContentFromArray(messageErreur.entrepriseContact) }}</p>
+
 
           <InputForm class="col-span-12" label="Excercice audité" type="text" v-model="payload.annee" :control="getFieldErrors(errors.annee)" />
           <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.annee">{{ $h.extractContentFromArray(messageErreur.annee) }}</p>
