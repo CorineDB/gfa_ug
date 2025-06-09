@@ -720,9 +720,12 @@ export default {
       OngService.get()
         .then((data) => {
           const datas = data.data.data;
-          this.ongs = datas;
+        
+        this.ongs =  datas.filter( ong => ong.type !== "autre_osc")
 
-          // this.disabled();
+          console.log("this.ongs", this.ongs);
+
+           
         })
         .catch((error) => {
           // this.disabled();

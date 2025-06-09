@@ -24,20 +24,20 @@
           <thead class="sticky top-0 z-20 text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr style="height: 82px" class="">
               <!-- <th rowspan="2" class=" w-24 px-6 py-3 border dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">Bailleurs</th> -->
-              <th scope="col" rowspan="2" class="px-6 py-3 border dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">Code PTBA</th>
-              <th scope="col" rowspan="2" class="px-6 py-3 text-center border dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">Etat des taches</th>
+              <th scope="col" rowspan="2" class="p-4 border-b border-slate-200">Code PTBA</th>
+              <th scope="col" rowspan="2" class="p-4 border-b border-slate-200">Etat des taches</th>
             </tr>
             <tr></tr>
           </thead>
 
-          <tbody>
-            <tr v-for="pta in filteredData" :key="pta.id" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+          <tbody class="text-sm divide-y divide-gray-200 bg-white">
+            <tr v-for="pta in filteredData" :key="pta.id" class="hover:bg-gray-50">
               <!-- <th scope="row" class=" p-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                   {{ pta.owner_nom }}
                    <pre>{{ pta.nom }}</pre>
                 </th> -->
 
-              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
+              <td class="p-4 border-b border-slate-200 whitespace-nowrap">
                 <span v-if="pta.isProjet" class="text-lg font-bold"> {{ pta.code }}</span>
                 <span v-if="pta.isComposante" class="text-sm text-blue-500"> {{ pta.code }}</span>
                 <span v-if="pta.isSC && pta.code != 0" class="text-sm text-yellow-600"> {{ pta.code }}</span>
@@ -47,7 +47,7 @@
                 </span>
                 <span v-if="pta.isTache" class="text-sm text-red-600"> {{ pta.code }}</span>
               </td>
-              <td v-if="pta.isTache">
+              <td v-if="pta.isTache" class="p-4 border-b border-slate-200">
                 <!-- <pre>{{ pta }}</pre> -->
                 <select class="form-select form-select-sm mt-2" aria-label=".form-select-sm example" v-model="pta.poidsActuel" @change="togglesuivie(pta)">
                   <option :value="0">0%</option>
@@ -108,9 +108,9 @@
             </tr>
           </thead>
 
-          <tbody>
-            <tr v-for="pta in dataNew" :key="pta.id" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
+          <tbody class="text-sm divide-y divide-gray-200 bg-white">
+            <tr v-for="pta in dataNew" :key="pta.id" class="hover:bg-gray-50">
+              <td class="p-4 border-b border-slate-200 whitespace-nowrap">
                 <span v-if="pta.isProjet" class="text-lg font-bold">projet: {{ pta.nom }}</span>
                 <span v-if="pta.isComposante" class="text-sm text-blue-500">OutComes: {{ pta.nom }}</span>
                 <span v-if="pta.isSC" class="text-sm text-yellow-600"> <span class="text-sm text-yellow-600" v-if="pta.code != 0">OutPut:</span> {{ pta.nom }}</span>
@@ -122,70 +122,70 @@
               <!-- fin planing -->
 
               <!-- v-if="pta.t1Bn != undefined && pta.t1Bn != ''" -->
-              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <td class="p-4 border-b border-slate-200">
                 <span class="font-bold"> {{ pta.t1Bn == null || pta.t1Bn == 0 ? 0 : $h.formatCurrency(pta.t1Bn) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA</span> -->
               </td>
               <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
               <!-- v-if="pta.t1Pret != undefined && pta.t1Pret != ''" -->
-              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <td class="p-4 border-b border-slate-200">
                 <span class="font-bold"> {{ pta.t1Pret == null || pta.t1Pret == 0 ? 0 : $h.formatCurrency(pta.t1Pret) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA</span> -->
               </td>
               <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
               <!-- v-if="pta.t1Pret != '' || pta.t1Bn != ''" -->
-              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <td class="p-4 border-b border-slate-200">
                 <span class="font-bold"> {{ pta.t1Pret + pta.t1Bn == null || pta.t1Pret + pta.t1Bn == 0 ? 0 : $h.formatCurrency(pta.t1Pret + pta.t1Bn) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA </span> -->
               </td>
               <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
               <!-- v-if="pta.t2Bn != undefined && pta.t2Bn != ''" -->
-              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <td class="p-4 border-b border-slate-200">
                 <span class="font-bold"> {{ pta.t2Bn == null || pta.t2Bn == 0 ? 0 : $h.formatCurrency(pta.t2Bn) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA</span> -->
               </td>
               <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
               <!-- v-if="pta.t2Pret != undefined && pta.t2Pret != ''" -->
-              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <td class="p-4 border-b border-slate-200">
                 <span class="font-bold"> {{ pta.t2Pret == null || pta.t2Pret == 0 ? 0 : $h.formatCurrency(pta.t2Pret) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA </span> -->
               </td>
               <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
               <!--  v-if="pta.t2Pret != '' || pta.t2Bn != ''" -->
-              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <td class="p-4 border-b border-slate-200">
                 <span class="font-bold"> {{ pta.t2Pret + pta.t2Bn == null || pta.t2Pret + pta.t2Bn == 0 ? 0 : $h.formatCurrency(pta.t2Pret + pta.t2Bn) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA </span> -->
               </td>
               <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
               <!-- v-if="pta.t3Bn != undefined && pta.t3Bn != ''" -->
-              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <td class="p-4 border-b border-slate-200">
                 <span class="font-bold"> {{ pta.t3Bn == null || pta.t3Bn == 0 ? 0 : $h.formatCurrency(pta.t3Bn) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA</span> -->
               </td>
               <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
               <!--  v-if="pta.t3Pret != undefined && pta.t3Pret != ''"  -->
-              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <td class="p-4 border-b border-slate-200">
                 <span class="font-bold"> {{ pta.t3Pret == null || pta.t3Pret == 0 ? 0 : $h.formatCurrency(pta.t3Pret) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA</span> -->
               </td>
               <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
               <!-- v-if="pta.t3Pret != '' || pta.t3Bn != ''" -->
-              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <td class="p-4 border-b border-slate-200">
                 <span class="font-bold"> {{ $h.formatCurrency(pta.t3Pret + pta.t3Bn) }} {{ pta.t3Pret + pta.t3Bn == null || pta.t3Pret + pta.t3Bn == 0 ? 0 : $h.formatCurrency(pta.t3Pret + pta.t3Bn) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA </span> -->
               </td>
               <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
               <!-- v-if="pta.t4Bn != undefined && pta.t4Bn != ''" -->
-              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <td class="p-4 border-b border-slate-200">
                 <span class="font-bold"> {{ pta.t4Bn == null || pta.t4Bn == 0 ? 0 : $h.formatCurrency(pta.t4Bn) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA</span> -->
               </td>
@@ -193,14 +193,14 @@
               <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
               <!--  -->
-              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <td class="p-4 border-b border-slate-200">
                 <span class="font-bold"> {{ pta.t4Pret == null || pta.t4Pret == 0 ? 0 : $h.formatCurrency(pta.t4Pret) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA</span> -->
               </td>
               <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
               <!-- v-if="pta.t4Pret != '' || pta.t4Bn != ''" -->
-              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <td class="p-4 border-b border-slate-200">
                 <span v-if="pta.t4Pret != undefined && pta.t4Bn != undefined" class="font-bold"> {{ pta.t4Pret + pta.t4Bn == null || pta.t4Pret + pta.t4Bn == 0 ? 0 : $h.formatCurrency(pta.t4Pret + pta.t4Bn) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA </span> -->
               </td>

@@ -244,12 +244,12 @@ const submitData = async () => {
     }
   }
   try {
-    if (isValid1.value) {
+    if (!isValid1.value) {
       toast.error("Le numéro de contact de l'organisation n'est pas valide");
       return;
     }
 
-    if (isValid2.value) {
+    if (!isValid2.value) {
       toast.error("Le numéro de contact du point focal n'est pas valide");
       return;
     }
@@ -634,9 +634,8 @@ onMounted(() => {
                 <InputForm label="Nom point focal" :optionel="false" :control="getFieldErrors(errors.nom_point_focal)" v-model="payload.nom_point_focal" />
                 <InputForm label="Prénom point focal" :optionel="false" :control="getFieldErrors(errors.prenom_point_focal)" v-model="payload.prenom_point_focal" />
               </div>
-              <InputForm label="Contact point focal" :optionel="false" :control="getFieldErrors(errors.contact_point_focal)" v-model="payload.contact_point_focal" />
               <div>
-                <InputForm :optionel="false" :control="getFieldErrors(errors.contact_point_focal)" :required="false" label="Contact point focal" v-model.number="payload.contact_point_focal" maxlength="13" placeholder="+229xxxxxxxxxx" type="text" />
+                <InputForm :optionel="false" :control="getFieldErrors(errors.contact_point_focal)" :required="false" label="Contact point focal" v-model="payload.contact_point_focal" maxlength="13" placeholder="+229xxxxxxxxxx" type="text" />
 
                 <!-- Message de validation avec animation -->
                 <div class="mt-4 min-h-[1.5rem]">
