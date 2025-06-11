@@ -3,10 +3,19 @@ import VButton from "@/components/news/VButton.vue";
 import InputForm from "@/components/news/InputForm.vue";
 import { onMounted, reactive } from "vue";
 import EvaluationService from "@/services/modules/evaluation.gouvernance.service";
-import { ref } from "vue";
+import { ref, getCurrentInstance } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { toast } from "vue3-toastify";
 import { computed } from "vue";
+
+//vérifier numéro de téléphone
+const { proxy } = getCurrentInstance();
+const currentPhone = ref("");
+
+const isValid = computed(() => {
+   
+  return proxy.$isValidPhoneNumber(currentPhone.value, "BJ");
+});
 
 const route = useRoute();
 const router = useRouter();
@@ -15,6 +24,7 @@ const options = [
   { label: "Adresse Email", id: "email" },
   { label: "Numéro de téléphone", id: "contact" },
 ];
+
 const payload = reactive({
   organisationId: "",
   participants: {
@@ -26,7 +36,7 @@ const payload = reactive({
 const idEvaluation = route.query.e;
 const currentOption = ref(options[0].id);
 const currentEmail = ref("");
-const currentPhone = ref("");
+
 const isLoading = ref(false);
 
 const addEmail = () => {
@@ -41,7 +51,8 @@ const addEmail = () => {
 };
 
 const addPhone = () => {
-  if (currentPhone.value) {
+  console.log(currentPhone.value && isValid.value);
+  if (currentPhone.value && isValid.value) {
     if (!payload.participants.phone.includes(currentPhone.value)) {
       payload.participants.phone.unshift(currentPhone.value);
       currentPhone.value = "";
@@ -114,11 +125,32 @@ onMounted(() => {
           </form>
           <form v-show="payload.participants.type_de_contact === options[1].id" @submit.prevent="addPhone">
             <div class="flex items-end gap-4">
-              <InputForm class="" label="Numéro de téléphone" pattern="\d{1,8}" maxlength="8" v-model.number="currentPhone" type="number" />
-              <!-- <div class="">
-                <label for="Numéro de téléphone" class="form-label">Numéro de téléphone</label>
-                <input id="Numéro de téléphone" type="number" pattern="\d{1,8}" maxlength="8" required v-model.number="currentPhone" class="form-control" placeholder="Numéro de téléphone" />
-              </div> -->
+              <div >
+                  <InputForm
+                    label="Numéro de téléphone"
+                    v-model="currentPhone"
+                    maxlength="13"
+                    placeholder="+229xxxxxxxxxx"
+                    type="text"
+                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all duration-200 text-gray-700 placeholder-gray-400"
+                  />
+                  
+                  <!-- Message de validation avec animation -->
+                  <div class="mt-4 min-h-[1.5rem]">
+                    <p v-if="isValid" class="flex items-center text-green-600 font-medium text-sm animate-pulse">
+                      <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                      </svg>
+                      Numéro valide
+                    </p>
+                    <p v-else-if="currentPhone && currentPhone.length > 0" class="flex items-center text-red-500 font-medium text-sm">
+                      <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                      </svg>
+                      Numéro invalide
+                    </p>
+                  </div>
+              </div>
               <button class="btn btn-primary"><PlusIcon class="w-4 h-4 mr-3" />Ajouter</button>
             </div>
           </form>

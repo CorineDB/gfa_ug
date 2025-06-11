@@ -17,6 +17,7 @@ import { surveyPlugin } from "survey-vue3-ui";
 import permissionPlugin from "./plugins/verify-permission";
 import permissionDirective from "./utils/permissionsDirective";
 import JsonExcel from "vue-json-excel3";
+import phoneValidator from './plugins/phoneValidator';
 
 //import { Vue3SimpleHtml2pdf } from "vue3-simple-html2pdf";
 
@@ -29,7 +30,8 @@ const app = createApp(App)
     autoClose: 3000,
   })
   .use(surveyPlugin)
-  .use(permissionPlugin);
+  .use(permissionPlugin)
+  .use(phoneValidator);
 
 globalComponents(app);
 utils(app);

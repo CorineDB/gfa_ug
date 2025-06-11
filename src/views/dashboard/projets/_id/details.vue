@@ -386,11 +386,11 @@ const getStringValueOfStatutCode = (statut) => {
   return data;
 };
 
-function extractProperties(array, properties) {
-  if (array.length) {
-    return array.map((item) => properties.map((prop) => item[prop])).flat();
-  }
-}
+// function extractProperties(array, properties) {
+//   if (array.length) {
+//     return array.map((item) => properties.map((prop) => item[prop])).flat();
+//   }
+// }
 
 const annees = computed(() => {
   let anneeDebut = parseInt(debutProgramme.value.split("-")[0], 10);
@@ -492,6 +492,20 @@ const polygon = ref({
 const myIcon = ref(null);
 const initialMap = ref(null);
 const markerLatLng = ref([47.31322, -1.319482]);
+
+// Fonction pour extraire les propriétés sous forme de tableau
+const extractProperties = (data) => {
+  if (!data || typeof data !== 'object') {
+    return [0, 0, 0]; // valeurs par défaut
+  }
+  
+  // Retourner dans l'ordre : effectue, enRetard, enCours
+  return [
+    data.effectue || 0,
+    data.enRetard || 0, 
+    data.enCours || 0
+  ];
+}
 
 //console.log("projetId", route.params.id);
 

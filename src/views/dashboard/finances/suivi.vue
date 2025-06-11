@@ -43,7 +43,7 @@ const storePlanDecaissement = async (payload) => {
 
 const erreurPlanDeDecaissement = ref(null);
 //const planDeDecaissement = ref([]);
-planDeDecaissement = ref([]);
+const planDeDecaissement = ref([]);
 const loadingPlanDeDecaissement = ref(false);
 const showModalPlanDeDecaissement = ref(false);
 
@@ -212,11 +212,11 @@ const getPlageActivite = computed(() => {
 });
 
 //const showModalSuiviFinancier = ref(false);
-showModalSuiviFinancier = ref(false);
+const showModalSuiviFinancier = ref(false);
 //const loadingSuiviFinancier = ref(false);
-loadingSuiviFinancier = ref(false);
+const loadingSuiviFinancier = ref(false);
 //const erreurSuiviFinancier = ref(null);
-erreurSuiviFinancier = ref(null);
+const erreurSuiviFinancier = ref(null);
 
 const payload = reactive({
   consommer: "",
@@ -737,9 +737,9 @@ onMounted(() => {
                     <th scope="col" rowspan="2" class="py-3 px-6 border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">Activités</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody class="text-sm divide-y divide-gray-200 bg-white">
                   <tr style="height: 49px" v-for="(suivi, index) in datas.suiviFinanciers" :key="index" class="bg-white border-b hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
-                    <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
+                    <td class="p-4 border-b border-slate-200">
                       <span class="font-bold">{{ suivi?.activite?.codePta }}-{{ suivi?.activite?.nom }}</span>
                     </td>
                   </tr>
@@ -747,7 +747,7 @@ onMounted(() => {
               </table>
             </div>
 
-            <div class="absolute shadow-md perso left-[220px] sm:rounded-lg">
+            <div class="absolute shadow-md perso left-[295px] sm:rounded-lg">
               <table class="w-full overflow-auto text-sm text-left text-gray-500 dark:text-gray-400">
                 <thead class="sticky top-0 text-xs text-gray-700 uppercase _z-20 bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                   <tr>
@@ -773,48 +773,48 @@ onMounted(() => {
                     <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">TEF</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody class="text-sm divide-y divide-gray-200 bg-white">
                   <tr v-for="(suivi, index) in datas.suiviFinanciers" :key="index" class="bg-white border-b hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
-                    <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
+                    <td class="p-4 border-b border-slate-200">
                       <span class="font-bold">{{ suivi.annee }}</span>
                     </td>
-                    <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
+                    <td class="p-4 border-b border-slate-200">
                       <span class="font-bold">{{ suivi.trimestre }}</span>
                     </td>
-                    <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
+                    <td class="p-4 border-b border-slate-200">
                       <span class="font-bold">{{ suivi.periode.budget == null || suivi.periode.budget == 0 ? 0 : $h.formatCurrency(suivi.periode.budget) }}</span>
                     </td>
-                    <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
+                    <td class="p-4 border-b border-slate-200">
                       <span class="font-bold">{{ suivi.periode.consommer == null || suivi.periode.consommer == 0 ? 0 : $h.formatCurrency(suivi.periode.consommer) }}</span>
                     </td>
-                    <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
+                    <td class="p-4 border-b border-slate-200">
                       <span class="font-bold">{{ suivi.periode.disponible == null || suivi.periode.disponible == 0 ? 0 : $h.formatCurrency(suivi.periode.disponible) }}</span>
                     </td>
-                    <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
+                    <td class="p-4 border-b border-slate-200">
                       <span class="font-bold">{{ suivi.periode.pourcentage }}</span>
                     </td>
-                    <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
+                    <td class="p-4 border-b border-slate-200">
                       <span class="font-bold">{{ suivi.exercice.budget == null || suivi.exercice.budget == 0 ? 0 : $h.formatCurrency(suivi.exercice.budget) }}</span>
                     </td>
-                    <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
+                    <td class="p-4 border-b border-slate-200">
                       <span class="font-bold">{{ suivi.exercice.consommer == null || suivi.exercice.consommer == 0 ? 0 : $h.formatCurrency(suivi.exercice.consommer) }}</span>
                     </td>
-                    <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
+                    <td class="p-4 border-b border-slate-200">
                       <span class="font-bold">{{ suivi.exercice.disponible == null || suivi.exercice.disponible == 0 ? 0 : $h.formatCurrency(suivi.exercice.disponible) }}</span>
                     </td>
-                    <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
+                    <td class="p-4 border-b border-slate-200">
                       <span class="font-bold">{{ suivi.exercice.pourcentage }}</span>
                     </td>
-                    <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
+                    <td class="p-4 border-b border-slate-200">
                       <span class="font-bold">{{ suivi.cumul.budget == null || suivi.cumul.budget == 0 ? 0 : $h.formatCurrency(suivi.cumul.budget) }}</span>
                     </td>
-                    <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
+                    <td class="p-4 border-b border-slate-200">
                       <span class="font-bold">{{ suivi.cumul.consommer == null || suivi.cumul.consommer == 0 ? 0 : $h.formatCurrency(suivi.cumul.consommer) }}</span>
                     </td>
-                    <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
+                    <td class="p-4 border-b border-slate-200">
                       <span class="font-bold">{{ suivi.cumul.disponible == null || suivi.cumul.disponible == 0 ? 0 : $h.formatCurrency(suivi.cumul.disponible) }}</span>
                     </td>
-                    <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
+                    <td class="p-4 border-b border-slate-200">
                       <span class="font-bold">{{ suivi.cumul.pourcentage }}</span>
                     </td>
                     <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700 text-center">

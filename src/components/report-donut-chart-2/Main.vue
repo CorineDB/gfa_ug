@@ -1,5 +1,5 @@
 <template>
-  <Chart type="doughnut" :width="width" :height="height" :data="data" :options="options" />
+  <Chart type="doughnut" :width="width" :height="height" :data="data" :activite="activite" :options="options" />
 </template>
 
 <script setup>

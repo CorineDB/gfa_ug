@@ -210,6 +210,7 @@ const getOrganisationsProgramme = async () => {
   //await OngService.programmeOng()
     .then((result) => {
       ongsProgramme.value = result.data.data;
+      ongsProgramme.value = ongsProgramme.value.filter(ong => ong.type !== "osc_fosir" && ong.tyype !== "acteurs")
     })
     .catch((e) => {
       toast.error(getAllErrorMessages(e));
