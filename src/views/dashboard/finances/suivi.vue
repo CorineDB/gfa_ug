@@ -43,7 +43,7 @@ const storePlanDecaissement = async (payload) => {
 
 const erreurPlanDeDecaissement = ref(null);
 //const planDeDecaissement = ref([]);
-const planDeDecaissement = ref([]);
+let planDeDecaissement = ref([]);
 const loadingPlanDeDecaissement = ref(false);
 const showModalPlanDeDecaissement = ref(false);
 
@@ -212,11 +212,11 @@ const getPlageActivite = computed(() => {
 });
 
 //const showModalSuiviFinancier = ref(false);
-const showModalSuiviFinancier = ref(false);
+let showModalSuiviFinancier = ref(false);
 //const loadingSuiviFinancier = ref(false);
-const loadingSuiviFinancier = ref(false);
+let loadingSuiviFinancier = ref(false);
 //const erreurSuiviFinancier = ref(null);
-const erreurSuiviFinancier = ref(null);
+let erreurSuiviFinancier = ref(null);
 
 const payload = reactive({
   consommer: "",
