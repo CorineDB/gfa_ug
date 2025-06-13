@@ -301,8 +301,8 @@ const handleEdit = (data) => {
   payload.email = data.user.email;
   payload.code = data.code;
   payload.sigle = data.sigle;
-  payload.contact = Number(data.user.contact);
-  payload.contact_point_focal = Number(data.contact_point_focal);
+  payload.contact = data.user.contact;
+  payload.contact_point_focal = data.contact_point_focal;
   payload.nom_point_focal = data.nom_point_focal;
   payload.prenom_point_focal = data.prenom_point_focal;
   payload.fondId = data.fondId ?? "";

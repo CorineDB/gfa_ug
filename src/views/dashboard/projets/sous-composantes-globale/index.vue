@@ -509,8 +509,6 @@ export default {
             </div>
 
             <div class="flex items-center">
-              <pre>{{ item.pret }} Pret</pre>
-
               <LinkIcon class="w-4 h-4 mr-2" /> Subvention: {{ item.pret == null || item.pret == 0 ? 0 :  $h.formatCurrency(item.pret ) }}
               <div class="ml-2 italic font-bold">Fcfa</div>
             </div>

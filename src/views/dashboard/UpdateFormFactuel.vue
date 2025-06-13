@@ -1346,14 +1346,14 @@ onMounted(async () => {
       <ModalBody class="space-y-5">
         <!--  <div class="flex gap-4"></div> -->
         <div class="gap-4">
-          <InputForm label="Libellé" class="w-full mb-4" v-model="payload.libelle" />
+          <InputForm label="Libellé" class="w-full mb-4" v-model="payload.libelle" /><!-- 
           <div class="w-full">
             <label for="annee" class="form-label">Année</label>
             <TomSelect v-model="payload.annee_exercice" :options="{ placeholder: 'Selectionez une année' }"
               class="w-full">
               <option v-for="(year, index) in annees" :key="index" :value="year">{{ year }}</option>
             </TomSelect>
-          </div>
+          </div> -->
         </div>
         <div>
           <p class="mb-3">Options de réponses</p>

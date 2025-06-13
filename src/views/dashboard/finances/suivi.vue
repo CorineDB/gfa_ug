@@ -853,7 +853,7 @@ onMounted(() => {
             <TomSelect v-model="plan.annee" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
               <option v-for="(year, index) in years" :key="index" :value="year">{{ year }}</option>
             </TomSelect>
-            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurSuiviFinancier?.[index]?.trimestre">
+            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.trimestre">
               {{ erreurPlanDeDecaissement[index].trimestre }}
             </p>
           </div>
@@ -871,7 +871,7 @@ onMounted(() => {
               <option value="3">Trimestre 3</option>
               <option value="4">Trimestre 4</option>
             </TomSelect>
-            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurSuiviFinancier?.[index]?.trimestre">
+            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.trimestre">
               {{ erreurPlanDeDecaissement[index].trimestre }}
             </p>
           </div>
@@ -897,7 +897,7 @@ onMounted(() => {
             <div class="flex items-center mt-2" v-for="(plage, t) in getPlageActivite.durees" :key="t">
               <ClockIcon class="w-4 h-4 mr-2" />
               <div>
-                Plage de date {{ getPlageActivite.durees.length + 1 }} : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(getPlageActivite.durees[getPlageActivite.durees.length - 1].debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(getPlageActivite.durees[getPlageActivite.durees.length - 1].fin) }}</span>
+                Plage de date {{ t + 1 }} : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(getPlageActivite.durees[getPlageActivite.durees.length - 1].debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(getPlageActivite.durees[getPlageActivite.durees.length - 1].fin) }}</span>
               </div>
             </div>
           </div>
@@ -944,7 +944,7 @@ onMounted(() => {
 
     <form @submit.prevent="suiviFinancierActivite">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
-        <pre>{{ suiviFinancier }}</pre>
+      
         <div v-for="(suivi, index) in suiviFinancier" :key="index" class="col-span-12 border-b pb-4 mb-4">
           <h3 class="text-sm font-medium mb-3">Plan {{ index + 1 }}</h3>
 

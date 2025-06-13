@@ -55,24 +55,7 @@
 
             <div class="col-span-6">
               <label for="regular-form-1" class="form-label">Contact</label>
-              <div>
-                <input id="regular-form-1" type="text" required v-model="formData.contact" class="form-control" placeholder="Contact" />
-                <!-- Message de validation avec animation -->
-                <div class="mt-4 min-h-[1.5rem]">
-                  <p v-if="isValid" class="flex items-center text-green-600 font-medium text-sm animate-pulse">
-                    <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                    </svg>
-                    Numéro valide
-                  </p>
-                  <p v-else-if="formData.contact && formData.contact.length > 0" class="flex items-center text-red-500 font-medium text-sm">
-                    <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-                    </svg>
-                    Numéro invalide
-                  </p>
-                </div>
-              </div>
+              <input id="regular-form-1" type="text" required v-model="formData.contact" class="form-control" placeholder="Contact" />
               <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.contact">{{ messageErreur.contact }}</p>
             </div>
 
@@ -89,7 +72,7 @@
                   <TomSelect v-model="formData.roles" multiple :options="{ placeholder: 'Selectionez les roles' }" class="w-11/12 pr-3">
                     <option v-for="(role, index) in roles" :key="index" :value="role.id">{{ role.nom }}</option>
                   </TomSelect>
-                  <button type="button" @click="openCreateModal" class="btn w-10 h-10 btn-primary mr-1 mb-2">
+                  <button @click="openCreateModal" class="btn w-10 h-10 btn-primary mr-1 mb-2">
                     <PlusIcon class="w-5 h-5" />
                   </button>
                 </div>
@@ -114,15 +97,18 @@
         <input type="text" class="search__input form-control border-transparent" v-model="searchs" placeholder="Recherche..." />
         <SearchIcon class="search__icon dark:text-slate-500" />
       </div>
-      <button @click="addUsers" class="btn btn-primary flex space-x-2 items-center">
-        <PlusSquareIcon />
-        <span class="uppercase font-semibold"> ajouter</span>
-      </button>
+      <div class="flex items-center space-x-2">
+        <button @click="addUsers" class="btn btn-primary flex space-x-2 items-center">
+          <PlusSquareIcon />
+          <span class="uppercase font-semibold"> ajouter</span>
+        </button>
+        <DownloadPDFButton :tableIds="['userOIN']" pageName="Utilisateurs" format="a4" />
+      </div>
     </div>
     <!-- END: Modal Toggle -->
 
-    <div class="overflow-x-auto mt-5">
-      <table  class="w-full text-left table-auto min-w-max">
+    <div class="overflow-x-auto mt-5">        
+      <table id="userOIN" class="w-full mt-5 text-left table-auto min-w-max">
         <thead class="bg-gray-100 text-gray-700 text-sm">
           <tr>
             <th class="p-4 border-b border-slate-300 bg-slate-50">#</th>
@@ -136,63 +122,46 @@
             <th class="p-4 border-b border-slate-300 bg-slate-50">Actions</th>
           </tr>
         </thead>
+        <tbody>
+          <tr v-for="(data, index) in resultQuery" :key="index">
+            <td>{{ index + 1 }}</td>
+            <td>{{ data.nom }}</td>
+            <td>{{ data.prenom }}</td>
 
-        <tbody class="text-sm divide-y divide-gray-200 bg-white">
-          <tr
-            v-for="(data, index) in resultQuery"
-            :key="index"
-            class="hover:bg-gray-50"
-          >
-            <td class="p-4 border-b border-slate-200">{{ index + 1 }}</td>
-            <td class="p-4 border-b border-slate-200">{{ data.nom }}</td>
-            <td class="p-4 border-b border-slate-200">{{ data.prenom }}</td>
-            <td class="p-4 border-b border-slate-200">{{ data.email }}</td>
-            <td class="p-4 border-b border-slate-200">{{ data.contact }}</td>
+            <td>{{ data.email }}</td>
+            <td>{{ data.contact }}</td>
+            
 
-            <td
-              class="p-4 border-b border-slate-200"
-              :class="data.poste ? 'text-gray-800' : 'text-gray-400 italic'"
+            <td :class="data.poste ? 'text-gray-800' : 'text-gray-400 italic'"
             >
-              {{ data.poste ?? "Non défini" }}
+              {{ data.poste ?? "N/D" }}
             </td>
 
-            <td class="p-4 border-b border-slate-200">
-              <div class="flex flex-wrap gap-1 w-48">
-                <span
-                  v-for="(role, index) in data.roles"
-                  :key="index"
-                  class="bg-blue-500 text-white rounded-full px-2 py-0.5 text-xs"
-                >
+            <td>
+            
+              <div class="flex flex-wrap gap-1">
+                <span v-for="(role, index) in data.roles" :key="index" class="bg-primary text-white rounded-md px-2 py-1 text-xs">
                   {{ role.nom }}
                 </span>
               </div>
             </td>
 
-            <td class="p-4 border-b border-slate-200">{{ data.created_at }}</td>
+            <td>{{ data.created_at }}</td>
+            <!-- v-if="$h.getPermission('write.utilisateur')" -->
+            <td class="flex space-x-2 items-center">
+              <Tippy tag="a" href="javascript:;" class="tooltip" content="cliquez pour modifier">
+                <span @click="openUpdateModal(data)" class="text-blue-500 cursor-pointer">
+                  <EditIcon />
+                </span>
+              </Tippy>
 
-            <td class="p-4 border-b border-slate-200">
-              <div class="flex gap-2 items-center">
-                <Tippy tag="a" href="javascript:;" class="tooltip" content="Modifier">
-                  <span
-                    @click="openUpdateModal(data)"
-                    class="text-blue-600 hover:text-blue-800 transition cursor-pointer"
-                  >
-                    <EditIcon />
-                  </span>
-                </Tippy>
-
-                <Tippy tag="a" href="javascript:;" class="tooltip" content="Supprimer">
-                  <Trash2Icon
-                    class="text-red-500 hover:text-red-700 transition cursor-pointer"
-                    @click="supprimer(index, data)"
-                  />
-                </Tippy>
-              </div>
+              <Tippy tag="a" href="javascript:;" class="tooltip" content="cliquez pour modifier">
+                <Trash2Icon class="text-red-500 cursor-pointer" @click="supprimer(index, data)" />
+              </Tippy>
             </td>
           </tr>
         </tbody>
       </table>
-
       <div class="flex justify-center mt-4" v-if="totalPages() > 1">
         <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-l-md px-4 py-2 m-1 focus:outline-none" :disabled="currentPage === 1" @click="currentPage--">Previous</button>
         <template v-if="totalPages() <= 7">
@@ -304,36 +273,8 @@
 
           <div>
             <label for="regular-form-1" class="form-label">Contact</label>
-            <!-- <input id="regular-form-1" type="number" v-model="formEdit.contact" class="form-control" placeholder="Contact" /> -->
-            <div>
-              <!-- <InputForm
-                    label="Numéro de téléphone"
-                    v-model="currentPhone"
-                    maxlength="13"
-                    placeholder="+229xxxxxxxxxx"
-                    type="text"
-                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all duration-200 text-gray-700 placeholder-gray-400"
-                  /> -->
-              <input id="regular-form-1" type="text" v-model="formEdit.contact" class="form-control" placeholder="Contact" />
-
-              <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.contact">{{ messageErreur.contact }}</p>
-
-              <!-- Message de validation avec animation -->
-              <div class="mt-4 min-h-[1.5rem]">
-                <p v-if="isValid1" class="flex items-center text-green-600 font-medium text-sm animate-pulse">
-                  <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                  </svg>
-                  Numéro valide
-                </p>
-                <p v-else-if="formEdit.contact && formEdit.contact.length > 0" class="flex items-center text-red-500 font-medium text-sm">
-                  <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-                  </svg>
-                  Numéro invalide
-                </p>
-              </div>
-            </div>
+            <input id="regular-form-1" type="number" v-model="formEdit.contact" class="form-control" placeholder="Contact" />
+            <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.contact">{{ messageErreur.contact }}</p>
           </div>
 
           <div>
@@ -363,35 +304,14 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, provide, computed, getCurrentInstance } from "vue";
+import { ref, reactive, onMounted, provide, computed } from "vue";
 import UsersService from "../../services/modules/user.service";
 import RoleService from "@/services/modules/roles.permissions.service";
 import { helper as $h } from "@/utils/helper";
 import { toast } from "vue3-toastify";
 import VButton from "@/components/news/VButton.vue";
 import InputForm from "@/components/news/InputForm.vue";
-
-const formData = reactive({
-  nom: "",
-  prenom: "",
-  password: "demo1234",
-  email: "@gmail.com",
-  contact: "",
-  poste: "",
-  roles: [],
-});
-
-//vérifier numéro de téléphone
-const { proxy } = getCurrentInstance();
-const currentPhone = ref("");
-
-const isValid = computed(() => {
-  return proxy.$isValidPhoneNumber(formData.contact, "BJ");
-});
-
-const isValid1 = computed(() => {
-  return proxy.$isValidPhoneNumber(formEdit.contact, "BJ");
-});
+import DownloadPDFButton from "@/components/DownloadPDFButton.vue";
 
 // Modfier un utilisateur
 const updateModal = ref(false);
@@ -496,13 +416,6 @@ const isLoading = ref(false);
 const submitUpdateData = function () {
   isLoading.value = true;
   console.log(formData);
-
-  if (isValid1.value === false) {
-    isLoading.value = false;
-    toast.error("Numéro de téléphone invalide");
-    return;
-  }
-
   UsersService.update(userId.value, formEdit)
     .then((data) => {
       toast.success("Utilisateur modifié avec succès");
@@ -542,6 +455,16 @@ const isUpdate = ref(false);
   entrepriseNom:'',
   entrepriseContact:''
 }) */
+
+const formData = reactive({
+  nom: "",
+  prenom: "",
+  password: "demo1234",
+  email: "@gmail.com",
+  contact: "",
+  poste: "",
+  roles: [],
+});
 
 const message = reactive({
   type: "success",
@@ -658,12 +581,6 @@ const storeUser = function () {
   if (chargement.value == false) {
     chargement.value = true;
     console.log(formData);
-
-    if (isValid1.value === false) {
-      toast.error("Numéro de téléphone invalide");
-      chargement.value = false;
-      return;
-    }
     UsersService.addUsers(formData)
       .then((data) => {
         message.type = "success";

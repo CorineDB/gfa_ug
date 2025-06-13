@@ -1000,7 +1000,7 @@ export default {
               </p>
 
               <div class="mt-5 space-y-3 text-gray-600">
-                <pre>{{ item.budgetNational }}</pre>
+                
                 <div class="flex items-center">
                   <LinkIcon class="w-4 h-4 mr-2" /> Fonds propre: {{ item.budgetNational == null || item.budgetNational
                     == 0 ? 0 : $h.formatCurrency(item.budgetNational) }}
@@ -1034,9 +1034,9 @@ export default {
                   </div>
                 </div>
                 <div class="flex items-center mt-2" v-for="(plage, t) in item.durees" :key="t">
-                  <!-- v-if="item.durees.length > 1 && t > 0" -->
+                  
                   <ClockIcon class="w-4 h-4 mr-2" v-if="t <= item.durees.length - 1" />
-                  <!-- -->
+                  
                   <div v-if="t <= item.durees.length - 1">
                     Plage de date {{ t + 1 }} : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(plage.debut)
                       }}</span> au <span class="font-bold"> {{ $h.reformatDate(plage.fin) }}</span>
@@ -1207,10 +1207,9 @@ export default {
           <div class="flex items-center mt-2" v-for="(plage, t) in getPlageActivite.durees" :key="t">
             <ClockIcon class="w-4 h-4 mr-2" />
             <div>
-              Plage de date {{ getPlageActivite.durees.length + 1 }} : Du <span class="pr-1 font-bold"> {{
-                $h.reformatDate(getPlageActivite.durees[getPlageActivite.durees.length - 1].debut) }}</span> au <span
-                class="font-bold"> {{ $h.reformatDate(getPlageActivite.durees[getPlageActivite.durees.length - 1].fin)
-                }}</span>
+              Plage de date {{ t + 1 }} : Du <span class="pr-1 font-bold"> {{
+                $h.reformatDate(plage.debut) }}</span> au 
+                <span class="font-bold"> {{ $h.reformatDate(plage.fin) }} </span>
             </div>
           </div>
         </div>
@@ -1295,9 +1294,9 @@ export default {
             <div class="flex items-center mt-2" v-for="(plage, t) in getPlageActivite.durees" :key="t">
               <ClockIcon class="w-4 h-4 mr-2" />
               <div>
-                Plage de date {{ getPlageActivite.durees.length + 1 }} : Du <span class="pr-1 font-bold"> {{
-                  $h.reformatDate(getPlageActivite.durees[getPlageActivite.durees.length - 1].debut) }}</span> au <span
-                  class="font-bold"> {{ $h.reformatDate(getPlageActivite.durees[getPlageActivite.durees.length - 1].fin)
+                Plage de date {{ t + 1 }} : Du <span class="pr-1 font-bold"> {{
+                  $h.reformatDate(plage.debut) }}</span> au <span
+                  class="font-bold"> {{ $h.reformatDate(plage.fin)
                   }}</span>
               </div>
             </div>
