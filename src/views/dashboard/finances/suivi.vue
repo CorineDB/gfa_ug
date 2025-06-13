@@ -730,7 +730,7 @@ onMounted(() => {
         <!-- suivi budgetaire  current -->
         <div class="current">
           <div class="overflow-y-auto overflow-x-auto flex relative shadow-md sm:rounded-lg">
-            <div style="width: 20%; position: sticky; left: 0; background: transparent; z-index: 1; margin-right: 1%">
+            <div style="width: 35%; position: sticky; left: 0; background: transparent; z-index: 1; margin-right: 1%">
               <table class="top-0 left-0 block w-full text-sm text-left table-fixed border-collaspe table1">
                 <thead class="sticky top-0 z-20 text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                   <tr style="height: 82px">
@@ -747,7 +747,7 @@ onMounted(() => {
               </table>
             </div>
 
-            <div class="absolute shadow-md perso left-[295px] sm:rounded-lg">
+            <div class="absolute shadow-md perso left-80 sm:rounded-lg">
               <table class="w-full overflow-auto text-sm text-left text-gray-500 dark:text-gray-400">
                 <thead class="sticky top-0 text-xs text-gray-700 uppercase _z-20 bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                   <tr>
