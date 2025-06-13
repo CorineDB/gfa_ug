@@ -521,7 +521,7 @@ const ouvrirModalSuiviFinancierActivite = (item) => {
   showModalSuiviFinancier.value = true;
 };
 
-const resetModalSuiviFinancierActivite = (item) => {
+const resetModalSuiviFinancierActivite = () => {
   suiviFinancier.value = [];
   showModalSuiviFinancier.value = false;
 };

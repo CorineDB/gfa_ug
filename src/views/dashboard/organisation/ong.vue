@@ -162,15 +162,17 @@ export default {
       console.log(this.showDeleteModal);
     },
     modifierOrganisation(data) {
+      console.log(data);
       this.ongsId = data.id;
       this.labels = "Modifier";
       this.showModal = true;
       this.update = true;
+      /* 
       this.formData.nom = data.nom;
       this.formData.contact = data.user.contact;
       this.formData.email = data.user.email;
       this.formData.sigle = data.sigle;
-      this.formData.code = data.code;
+      this.formData.code = data.code; */
       // this.formData.programmeId = data.projet.programmeId;
     },
     clearObjectValues(obj) {
