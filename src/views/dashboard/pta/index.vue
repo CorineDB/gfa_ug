@@ -24,21 +24,39 @@
   <!-- <pre>{{ dataNew }}</pre> -->
   <div v-if="currentPage && ptaVisible" class="current">
     <div style="max-height: 80vh" class="relative flex overflow-y-auto">
-      <div style="width: 33.33%; position: sticky; left: 0; background: transparent; z-index: 1; margin-right: 1%">
+      <div style="position: sticky; left: 0; background: transparent; z-index: 1; margin-right: 1%">
         <table class="top-0 left-0 block w-full text-sm text-left table-fixed border-collaspe table1">
           <thead class="sticky top-0 z-20 text-xs border bg-blue-200 text-gray-700 uppercase _bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr style="height: 82px" class="">
               <!-- <th rowspan="2" class=" w-24 px-6 py-3 border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Bailleurs</th> -->
-              <th scope="col" rowspan="2" class="px-6 py-3 border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Actions</th>
 
               <th scope="col" rowspan="2" class="px-6 py-3 border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Code PTBA</th>
               <th scope="col" rowspan="2" class="px-6 py-3 text-center border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Etat des taches</th>
+              <th scope="col" rowspan="2" class="px-6 py-3 border dark:bg-gray-800 border-gray-300 whitespace-nowrap">Actions</th>
             </tr>
             <tr></tr>
           </thead>
 
           <tbody>
-            <tr v-for="pta in dataNew" :key="pta.id" class="bg-white border-b dark:bg-gray-800 dark:border-gray-300">
+            <tr v-for="pta in dataNew" :key="pta.id" style="height: 52px; max-height: 52px;" class="bg-white border-b dark:bg-gray-800 dark:border-gray-300">
+
+              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+                <span v-if="pta.isProjet" class="text-lg font-bold"> {{ pta.code }}</span>
+                <span v-if="pta.isComposante" class="text-sm text-blue-500"> {{ pta.code }}</span>
+                <span v-if="pta.isSC && pta.code != 0" class="text-sm text-yellow-600"> {{ pta.code }}</span>
+                <span v-if="pta.isActivite" class="text-sm text-green-600">
+                  <!-- <pre>{{ pta }}</pre> -->
+                  {{ pta.code }}
+                </span>
+                <span v-if="pta.isTache" class="text-sm text-red-600"> {{ pta.code }}</span>
+              </td>
+              <td class="px-3 py-1">                
+                <select class="form-select" aria-label=".form-select-sm example" v-if="pta.isTache" v-model="tabletoggle[pta.id]" @change="togglesuivie(pta)">
+                  <option :value="0">0%</option>
+                  <option :value="50">50%</option>
+                  <option :value="100">100%</option>
+                </select>
+              </td>
               <td class="border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300 text-center">
                 <button v-if="pta.isActivite" @click="ouvrirModalPlanDeDecaissementActivite(pta)" title="Ajouter un plan de décaissement" class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-xs p-1 mr-2">
                   <DollarSignIcon class="w-4 h-4" />
@@ -53,30 +71,12 @@
 
                 <!-- <button v-if="pta.isActivite" @click="handleDelete(pta)" class="text-white bg-red-500 hover:bg-red-600 font-medium rounded-lg text-xs px-4 py-2">Supprimer</button> -->
               </td>
-
-              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
-                <span v-if="pta.isProjet" class="text-lg font-bold"> {{ pta.code }}</span>
-                <span v-if="pta.isComposante" class="text-sm text-blue-500"> {{ pta.code }}</span>
-                <span v-if="pta.isSC && pta.code != 0" class="text-sm text-yellow-600"> {{ pta.code }}</span>
-                <span v-if="pta.isActivite" class="text-sm text-green-600">
-                  <!-- <pre>{{ pta }}</pre> -->
-                  {{ pta.code }}
-                </span>
-                <span v-if="pta.isTache" class="text-sm text-red-600"> {{ pta.code }}</span>
-              </td>
-              <td>                
-                <select class="form-select form-select-sm" aria-label=".form-select-sm example" v-if="pta.isTache" v-model="tabletoggle[pta.id]" @change="togglesuivie(pta)">
-                  <option :value="0">0%</option>
-                  <option :value="50">50%</option>
-                  <option :value="100">100%</option>
-                </select>
-              </td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <div class="absolute shadow-md left-[370px] sm:rounded-lg">
+      <div class="absolute shadow-md left-[23rem] sm:rounded-lg">
         <table class="w-full overflow-auto text-sm text-left text-gray-500 dark:text-gray-400">
           <thead class="sticky top-0 text-xs border bg-blue-200 text-gray-700 uppercase _z-20 _bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr class="">
@@ -134,7 +134,7 @@
           </thead>
 
           <tbody>
-            <tr v-for="pta in dataNew" :key="pta.id" class="bg-white border-b dark:bg-gray-800 dark:border-gray-300">
+            <tr v-for="pta in dataNew" :key="pta.id" style="height: 52px; max-height: 52px;" class="bg-white border-b dark:bg-gray-800 dark:border-gray-300">
               <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300 uppercase">
                 <span v-if="pta.isProjet" class="text-lg font-bold">projet: {{ pta.nom }}</span>
                 <span v-if="pta.isComposante" class="text-sm text-blue-500">OutCome: {{ pta.nom }}</span>
@@ -890,7 +890,7 @@
         <div v-for="(plan, index) in planDeDecaissement" :key="plan.id" class="col-span-12 border-b pb-4 mb-4">
           <h3 class="text-sm font-medium mb-2">Plan {{ index + 1 }}</h3>
 
-          <div class="col-span-12 mt-3">
+          <div class="col-span-12 mt-4">
             <label class="form-label">Année</label>
             <TomSelect v-model="plan.annee" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
               <option v-for="(year, index) in years" :key="index" :value="year">{{ year }}</option>
@@ -905,7 +905,7 @@
             {{ erreurPlanDeDecaissement[index].annee }}
           </p> -->
 
-          <div class="w-full mt-3">
+          <div class="w-full mt-4">
             <label class="form-label">Sélectionnez le trimestre</label>
             <TomSelect v-model="plan.trimestre" :options="{ placeholder: 'Selectionez le trimestre' }" class="w-full">
               <option value="1">Trimestre 1</option>
@@ -923,12 +923,12 @@
             {{ erreurPlanDeDecaissement[index].trimestre }}
           </p> -->
 
-          <InputForm v-model="plan.budgetNational" :min="0" class="col-span-12" type="number" :required="true" placeHolder="Saisissez le fond propre" label="Saisissez le fond propre" />
+          <InputForm v-model="plan.budgetNational" :min="0" class="col-span-12 mt-4" type="number" :required="true" placeHolder="Saisissez le fond propre" label="Saisissez le fond propre" />
           <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.budgetNational">
             {{ erreurPlanDeDecaissement[index].budgetNational }}
           </p>
 
-          <InputForm v-model="plan.pret" :min="0" class="col-span-12" type="number" :required="true" placeHolder="Saisissez la subvention" label="Saisissez la subvention" />
+          <InputForm v-model="plan.pret" :min="0" class="col-span-12 mt-4" type="number" :required="true" placeHolder="Saisissez la subvention" label="Saisissez la subvention" />
           <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.pret">
             {{ erreurPlanDeDecaissement[index].pret }}
           </p>
