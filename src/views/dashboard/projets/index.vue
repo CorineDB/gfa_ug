@@ -100,22 +100,22 @@
 
     <form @submit.prevent="sendForm">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
-        <InputForm v-model="formData.nom" class="col-span-12" type="text" :required="true" placeHolder="Nom du projet" label="Nom" />
+        <InputForm v-model="formData.nom" class="col-span-12 mt-4" type="text" :required="true" placeHolder="Nom du projet" label="Nom" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nom">{{ $h.extractContentFromArray(messageErreur.nom) }}</p>
 
-        <InputForm v-model="formData.couleur" class="col-span-12" type="color" :required="true" placeHolder="Couleur" label="Couleur" />
+        <InputForm v-model="formData.couleur" class="col-span-12 mt-4" type="color" :required="true" placeHolder="Couleur" label="Couleur" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.couleur">{{ $h.extractContentFromArray(messageErreur.couleur) }}</p>
 
-        <InputForm v-model="formData.debut" class="col-span-12" type="date" :required="true" placeHolder="Entrer la date de début" label="Début du projet" />
+        <InputForm v-model="formData.debut" class="col-span-12 mt-4" type="date" :required="true" placeHolder="Entrer la date de début" label="Début du projet" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.debut">{{ $h.extractContentFromArray(messageErreur.debut) }}</p>
 
-        <InputForm v-model="formData.fin" class="col-span-12" type="date" :required="true" placeHolder="Entrer la date de fin" label="Fin du projet" />
+        <InputForm v-model="formData.fin" class="col-span-12 mt-4" type="date" :required="true" placeHolder="Entrer la date de fin" label="Fin du projet" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.fin">{{ $h.extractContentFromArray(messageErreur.fin) }}</p>
-
-        <InputForm v-model="formData.nombreEmploie" class="col-span-12" type="number" placeHolder="Ex : 10" label="Nombre d'employé" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nombreEmploie">{{ $h.extractContentFromArray(messageErreur.nombreEmploie) }}</p>
-
-        <div class="col-span-12">
+        <!-- 
+          <InputForm v-model="formData.nombreEmploie" class="col-span-12" type="number" placeHolder="Ex : 10" label="Nombre d'employé" />
+          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nombreEmploie">{{ $h.extractContentFromArray(messageErreur.nombreEmploie) }}</p>
+        -->
+        <div class="col-span-12 mt-4">
           <label class="form-label">Pays<span class="text-danger">*</span> </label>
           <TomSelect v-model="formData.pays" :options="{ placeholder: 'Selectionez  un pays' }" class="w-full">
             <option value=""></option>
@@ -126,13 +126,13 @@
 
         <!-- <InputForm v-model="formData.pays" class="col-span-12" type="text" placeHolder="Ex : Bénin" label="Pays" /> -->
 
-        <InputForm v-model="formData.budgetNational" class="col-span-12" type="text" :required="true" placeHolder="Ex : 100000" label="Fond Propre" />
+        <InputForm v-model="formData.budgetNational" class="col-span-12 mt-4" type="text" :required="true" placeHolder="Ex : 100000" label="Fond Propre" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.budgetNational">{{ $h.extractContentFromArray(messageErreur.budgetNational) }}</p>
 
-        <InputForm v-model="formData.pret" class="col-span-12" type="text" :required="true" placeHolder="Ex : 100000" label="Subvention" />
+        <InputForm v-model="formData.pret" class="col-span-12 mt-4" type="text" :required="true" placeHolder="Ex : 100000" label="Subvention" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pret">{{ $h.extractContentFromArray(messageErreur.pret) }}</p>
 
-        <div class="col-span-12" v-if="!isUpdate">
+        <div class="col-span-12 mt-4" v-if="!isUpdate">
           <label class="block my-3 font-bold text-gray-700">Images de couverture</label>
           <input type="file" ref="fileInput" @change="handleFileChange" placeHolder="choisir une image" accept="image/*" class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
           <div class="col-span-12 flex items-center justify-start" v-if="imagePreview">
@@ -145,7 +145,7 @@
         </div>
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.image">{{ $h.extractContentFromArray(messageErreur.image) }}</p>
 
-        <div class="col-span-12" v-if="!isUpdate">
+        <div class="col-span-12 mt-4" v-if="!isUpdate">
           <label class="block my-3 font-bold text-gray-700">Pièces jointes</label>
           <input name="fichier" ref="fileInput2" class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Choisir un fichier ou plusieurs" type="file" multiple @change="handleFileChange2" />
           <div class="col-span-12 mt-4">
@@ -159,7 +159,7 @@
         </div>
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.fichier">{{ $h.extractContentFromArray(messageErreur.fichier) }}</p>
 
-        <div class="col-span-12">
+        <div class="col-span-12 mt-4">
           <label>Organisation*</label>
           <div class="mt-2">
             <TomSelect
@@ -176,7 +176,7 @@
         </div>
         <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.organisationId">{{ $h.extractContentFromArray(messageErreur.organisationId) }}</p>
 
-        <div class="col-span-12">
+        <div class="col-span-12 mt-4">
           <label>Sites*</label>
           <div class="mt-2 flex">
             <TomSelect
@@ -486,11 +486,10 @@ export default {
         debut: "",
         fin: "",
         pays: "",
-        pret: "",
-
+        pret: 0,
         organisationId: "",
-        nombreEmploie: Number,
-        budgetNational: Number,
+        nombreEmploie: 0,
+        budgetNational: 0,
       },
       sitesId: [],
       dropzoneMultipleRef: null,
@@ -1026,7 +1025,7 @@ export default {
       this.sitesId = projet.sites.map((site) => site.id);
       this.formData.sites = this.sitesId;
       this.formData.organisationId = projet.owner.id;
-      this.formData.nombreEmploie = projet.nombreEmploie;
+      this.formData.nombreEmploie = 0;
       this.formData.budgetNational = projet.budgetNational;
 
       // if (projet.sites.length > 0)
