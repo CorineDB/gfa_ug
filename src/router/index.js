@@ -410,11 +410,11 @@ const routes = [
         name: "resultat_collecte",
         component: FicheResultat,
       },
-      // {
-      //   path: "indicateurs",
-      //   name: "Indicateurs",
-      //   component: indicateurs,
-      // },
+      {
+        path: "test-indicateurs",
+        name: "TestIndicateurs",
+        component: indicateurs,
+      },
       {
         path: "suiviIndicateurs",
         name: "SuiviIndicateurs",

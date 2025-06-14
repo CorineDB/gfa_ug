@@ -137,14 +137,14 @@
                   <div class="flex flex-wrap items-center justify-between gap-3">
                     <div class="flex-1">
                       <label class="form-label">Année de base</label>
-                      <TomSelect v-model="payload.anneeDeBase" name="annee_suivi" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+                      <TomSelect v-model="payload.anneeDeBase" :required="false" name="annee_suivi" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
                         <option value=""></option>
                         <option v-for="annee in annees" :key="annee" :value="annee">{{ annee }}</option>
                       </TomSelect>
                       <div v-if="errors.anneeDeBase" class="mt-2 text-danger">{{ getFieldErrors(errors.anneeDeBase) }}</div>
                     </div>
 
-                    <InputForm v-if="!payload.agreger" class="flex-1" label="Valeur de base" :required="false" :control="getFieldErrors(errors.valeurDeBase)" v-model="payloadNotAgreger.valeurDeBase" type="number" />
+                    <InputForm v-if="!payload.agreger" class="flex-1" label="Valeur de base" :required="false" :control="getFieldErrors(errors.valeurDeBase)" v-model="payloadNotAgreger.valeurDeBase" />
                   </div>
 
                   <div class="flex flex-wrap items-center justify-between gap-3">
@@ -263,7 +263,6 @@
                   <div class="flex-1">
                     <label class="form-label">UG <span class="text-danger">*</span> </label>
                     <TomSelect v-model="responsablesForm.ug" name="ug" :options="{ placeholder: 'Selectionez un UG' }" class="w-full">
-                      <option value=""></option>
                       <option v-for="(ug, index) in ugs" :key="index" :value="ug.id">{{ ug.nom }}</option>
                     </TomSelect>
                     <div v-if="errors['responsables.ug']" class="mt-2 text-danger">{{ getFieldErrors(errors["responsables.ug"]) }}</div>

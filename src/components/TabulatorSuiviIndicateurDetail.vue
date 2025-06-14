@@ -4,59 +4,160 @@
   </div>
   <div class="overflow-x-auto table-container">
     <div ref="tableWrapper" class="table-wrapper">
-      <table class="w-full max-w-full my-10 bg-white border-collapse editor_listing_table border-slate-500" cellpadding="6" cellspacing="0">
-        <thead class="text-white border-white bg-primary">
-          <tr>
-            <th rowspan="2" class="py-3 border border-white min-w-[500px] sticky-column">Indicateurs</th>
-            <!-- <th class="py-3 border border-white min-w-[80px]">Indice</th> -->
-            <th rowspan="2" class="py-3 border border-white min-w-[280px] sticky-column-second">Auteur</th>
-            <th rowspan="2" class="py-3 border border-white min-w-[80px]">Trimestre</th>
-            <th rowspan="2" class="py-3 border border-white min-w-[80px]">Cumul</th>
-            <th :colspan="years.length + 1" class="py-3 border border-white min-w-[70px]">Cibles</th>
-            <th :colspan="years.length + 1" class="py-3 border border-white min-w-[70px]">Réalisation</th>
-            <th rowspan="2" class="py-3 border border-white min-w-[180px]">Taux de realisation</th>
-            <!-- <th class="py-3 border border-white min-w-[280px]">Source de données</th>
-                <th class="py-3 border border-white min-w-[180px]">Fréquence de la collecte de données</th>
-                <th class="py-3 border border-white min-w-[280px]">Méthode de collecte</th> -->
-            <th rowspan="2" class="py-3 border border-white min-w-[120px]">Date de suivie</th>
-            <!-- <th class="py-3 border border-white min-w-[120px]">Responsables</th> -->
-          </tr>
-          <tr>
-            <th v-for="(year, index) in years" :key="index" class="py-3 border border-white min-w-[70px]">{{ year }}</th>
-            <th class="py-3 border border-white min-w-[100px]">Total</th>
-            <th v-for="(year, index) in years" :key="index" class="py-3 border border-white min-w-[70px]">{{ year }}</th>
-            <th class="py-3 border border-white min-w-[100px]">Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          <template v-for="(indicateur, j) in data" :key="indicateur.id">
-            <tr>
-              <td class="font-semibold sticky-column">
-                {{ indicateur.indicateur.nom }}
-              </td>
-              <!-- <td class="font-semibold">Ind {{ indicateur.indicateur.code }}</td> -->
-              <td class="sticky-column-second">{{ indicateur.auteur.nom }}</td>
-              <td class="text-center">{{ indicateur.trimestre }}</td>
-              <td class="">{{ indicateur.cumul.join(", ") }}</td>
-              <td v-for="(year, index) in years" :key="index">
-                <span v-html="formatObject(indicateur.indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeurCible)"></span>
-              </td>
-              <td v-html="formatObject(indicateur.indicateur.valeurCibleTotal)"></td>
 
-              <td v-for="(year, index) in years" :key="index">
-                <span v-html="formatObject(indicateur.indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeur_realiser)"></span>
-              </td>
-              <td v-html="formatObject(indicateur.indicateur.valeurRealiserTotal)"></td>
-              <td v-html="formatObject(indicateur.indicateur.taux_realisation)"></td>
-              <!-- <td class="">{{ indicateur.sources_de_donnee }}</td>
-                  <td class="">{{ indicateur.indicateur.frequence_de_la_collecte }}</td>
-                  <td class="">{{ indicateur.indicateur.methode_de_la_collecte }}</td> -->
-              <td class="text-center">{{ formatDateOnly(indicateur.dateSuivie) }}</td>
-              <!-- <td class="">{{ indicateur.indicateur.ug_responsable ? indicateur.indicateur.ug_responsable.nom : "" }}</td> -->
-            </tr>
-          </template>
-        </tbody>
-      </table>
+      <table id="my-table" class="w-full max-w-full my-2 border-collapse editor_listing_table border-slate-500" cellpadding="6" cellspacing="0">
+                <thead class="text-white bg-primary">
+                  <tr>
+                    <th rowspan="2" class="py-3 sticky-header border !border-slate-800 min-w-[500px] sticky-column">Résultats escomptés</th>
+                    <th rowspan="2" class="py-3 sticky-header border !border-slate-800 min-w-[80px] sticky-column-second">Indice</th>
+                    <th rowspan="2" class="py-3 !z-[1] sticky-header border !border-slate-800 min-w-[500px]">Indicateurs</th>
+                    <th rowspan="2" class="py-3 !z-[1] sticky-header border !border-slate-800 min-w-[300px]">Description de l'indicateur</th>
+                    <th rowspan="2" class="py-3 !z-[1] sticky-header border !border-slate-800 min-w-[100px]">Situation de référence</th>
+                    <th :colspan="years.length + 1" class="py-3 !z-[1] sticky-header border !border-slate-800 min-w-[70px]">Cibles</th>
+                    <th :colspan="years.length + 1" class="py-3 !z-[1] sticky-header border !border-slate-800 min-w-[70px]">Réalisation</th>
+                    <th rowspan="2" class="py-3 sticky-header !z-[1] border !border-slate-800 min-w-[150px]">Taux de réalisation</th>
+                    <th rowspan="2" class="py-3 sticky-header !z-[1] border !border-slate-800 min-w-[150px]">Sources de données</th>
+                    <th rowspan="2" class="py-3 sticky-header !z-[1] border !border-slate-800 min-w-[150px]">Méthode de collecte des données</th>
+                    <th rowspan="2" class="py-3 sticky-header !z-[1] border !border-slate-800 min-w-[150px]">Fréquence de la collecte de données</th>
+                    <th rowspan="2" class="py-3 sticky-header !z-[1] border !border-slate-800 min-w-[150px]">Responsable</th>
+                  </tr>
+                  <tr>
+                    <th v-for="(year, index) in years" :key="index" class="py-3 !z-[1] sticky top-0 sticky-header border !border-slate-800 min-w-[70px]">{{ year }}</th>
+                    <th class="py-3 border !border-slate-800 min-w-[100px] sticky-header !z-[1] sticky top-0">Total</th>
+                    <th v-for="(year, index) in years" :key="index" class="py-3 !z-[1] sticky-header border !border-slate-800 min-w-[70px] sticky top-0">{{ year }}</th>
+                    <th class="py-3 border !border-slate-800 min-w-[100px] sticky-header !z-[1] sticky top-0">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <template v-for="(result, i) in data" :key="result.id">
+                    <tr class="uppercase" v-if="result.indicateurs && result.indicateurs.length > 0" :class="[result.type == 'produit' ? 'text-black' : 'text-white']" :style="{ 'background-color': findColorCadreMesure(result.type) }">
+                      <td :colspan="13 + years.length * 2" class="font-semibold">{{ result.type }} {{ result.indice }}</td>
+                    </tr>
+                    <template v-for="(indicateur, j) in result.indicateurs" :key="indicateur.id">
+                      <tr>
+                        <!-- Première colonne fixe -->
+                        <td class="font-semibold sticky-column" v-if="j === 0" :rowspan="result.indicateurs.length" style="left: 0">
+                          {{ result.nom }}
+                        </td>
+
+                        <!-- Deuxième colonne fixe -->
+                        <td class="font-semibold sticky-column-second" style="left: 500px">Ind {{ indicateur.code }}</td>
+
+                        <!-- Troisième colonne fixe -->
+                        <td class="">
+                          {{ indicateur.nom }}
+                        </td>
+
+                        <!-- Colonnes restantes -->
+                        <td>{{ indicateur.description ?? "" }}</td>
+                        <td v-html="formatObject(indicateur.valeurDeBase)"></td>
+                        <td v-for="(year, index) in years" :key="index">
+                          <span v-html="formatObject(indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeurCible)"></span>
+                        </td>
+                        <td v-html="formatObject(indicateur.valeurCibleTotal)"></td>
+                        <td v-for="(year, index) in years" :key="index">
+                          <span v-html="formatObject(indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeur_realiser)"></span>
+                        </td>
+                        <td v-html="formatObject(indicateur.valeurRealiserTotal)"></td>
+                        <td v-html="formatObject(indicateur.taux_realisation)"></td>
+                        <td>{{ indicateur.sources_de_donnee }}</td>
+                        <td>{{ indicateur.methode_de_la_collecte }}</td>
+                        <td>{{ indicateur.frequence_de_la_collecte }}</td>
+                        <td>
+                          <span v-html="formatResponsable(indicateur.organisations_responsable)"></span><br />
+                          {{ indicateur.ug_responsable?.nom ?? "" }}
+                          {{}}
+                        </td>
+                      </tr>
+                    </template>
+                    <template v-for="(result, i) in result.categories" :key="result.id">
+                      <tr class="uppercase" v-if="result.indicateurs && result.indicateurs.length > 0" :class="[result.type == 'produit' ? 'text-black' : 'text-white']" :style="{ 'background-color': findColorCadreMesure(result.type) }">
+                        <td :colspan="13 + years.length * 2" class="font-semibold">{{ result.type }} {{ result.indice }}</td>
+                      </tr>
+                      <template v-for="(indicateur, j) in result.indicateurs" :key="indicateur.id">
+                        <tr>
+                          <!-- Première colonne fixe -->
+                          <td class="font-semibold sticky-column" v-if="j === 0" :rowspan="result.indicateurs.length" style="left: 0">
+                            {{ result.nom }}
+                          </td>
+
+                          <!-- Deuxième colonne fixe -->
+                          <td class="font-semibold sticky-column-second" style="left: 500px">Ind {{ indicateur.code }}</td>
+
+                          <!-- Troisième colonne fixe -->
+                          <td class="">
+                            {{ indicateur.nom }}
+                          </td>
+
+                          <!-- Colonnes restantes -->
+                          <td>{{ indicateur.description ?? "" }}</td>
+                          <td v-html="formatObject(indicateur.valeurDeBase)"></td>
+                          <td v-for="(year, index) in years" :key="index">
+                            <span v-html="formatObject(indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeurCible)"></span>
+                          </td>
+                          <td v-html="formatObject(indicateur.valeurCibleTotal)"></td>
+                          <td v-for="(year, index) in years" :key="index">
+                            <span v-html="formatObject(indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeur_realiser)"></span>
+                          </td>
+                          <td v-html="formatObject(indicateur.valeurRealiserTotal)"></td>
+                          <td v-html="formatObject(indicateur.taux_realisation)"></td>
+                          <td>{{ indicateur.sources_de_donnee }}</td>
+                          <td>{{ indicateur.methode_de_la_collecte }}</td>
+                          <td>{{ indicateur.frequence_de_la_collecte }}</td>
+                          <td>
+                            <span v-html="formatResponsable(indicateur.organisations_responsable)"></span><br />
+                            {{ indicateur.ug_responsable?.nom ?? "" }}
+                            {{}}
+                          </td>
+                        </tr>
+                      </template>
+                      <template v-for="(result, i) in result.categories" :key="result.id">
+                        <tr class="uppercase" v-if="result.indicateurs && result.indicateurs.length > 0" :class="[result.type == 'produit' ? 'text-black' : 'text-white']" :style="{ 'background-color': findColorCadreMesure(result.type) }">
+                          <td :colspan="13 + years.length * 2" class="font-semibold">{{ result.type }} {{ result.indice }}</td>
+                        </tr>
+                        <template v-for="(indicateur, j) in result.indicateurs" :key="indicateur.id">
+                          <tr>
+                            <!-- Première colonne fixe -->
+                            <td class="font-semibold sticky-column" v-if="j === 0" :rowspan="result.indicateurs.length" style="left: 0">
+                              {{ result.nom }}
+                            </td>
+
+                            <!-- Deuxième colonne fixe -->
+                            <td class="font-semibold sticky-column-second" style="left: 500px">Ind {{ indicateur.code }}</td>
+
+                            <!-- Troisième colonne fixe -->
+                            <td class="">
+                              {{ indicateur.nom }}
+                            </td>
+
+                            <!-- Colonnes restantes -->
+                            <td>{{ indicateur.description ?? "" }}</td>
+                            <td v-html="formatObject(indicateur.valeurDeBase)"></td>
+                            <td v-for="(year, index) in years" :key="index">
+                              <span v-html="formatObject(indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeurCible)"></span>
+                            </td>
+                            <td v-html="formatObject(indicateur.valeurCibleTotal)"></td>
+                            <td v-for="(year, index) in years" :key="index">
+                              <span v-html="formatObject(indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeur_realiser)"></span>
+                            </td>
+                            <td v-html="formatObject(indicateur.valeurRealiserTotal)"></td>
+                            <td v-html="formatObject(indicateur.taux_realisation)"></td>
+                            <td>{{ indicateur.sources_de_donnee }}</td>
+                            <td>{{ indicateur.methode_de_la_collecte }}</td>
+                            <td>{{ indicateur.frequence_de_la_collecte }}</td>
+                            <td>
+                              <span v-html="formatResponsable(indicateur.organisations_responsable)"></span><br />
+                              {{ indicateur.ug_responsable?.nom ?? "" }}
+                              {{}}
+                            </td>
+                          </tr>
+                        </template>
+                      </template>
+                    </template>
+                  </template>
+                </tbody>
+              </table>
+
     </div>
   </div>
 
@@ -242,7 +343,7 @@ table td {
   max-height: calc(75vh - 20px); /* Ajustez selon vos besoins */
 }
 .sticky-header {
-  background-color: #ddd !important;
+  background-color: rgb(15 52 96) !important;
 }
 .sticky-heade {
   position: sticky;
@@ -258,7 +359,7 @@ table td {
 .editor_listing_table thead th {
   position: sticky; /* Garde l'en-tête en haut */
   top: 0; /* Positionnement par rapport au haut */
-  background-color: rgb(15 52 96);
+  background-color: #ffffff; /* Assure un fond blanc pour l'en-tête */
   z-index: 10; /* Évite que les lignes passent par-dessus */
   box-shadow: 0 2px 2px -1px rgba(0, 0, 0); /* Optionnel : effet d'ombre pour séparation visuelle */
 }
@@ -267,23 +368,23 @@ table td {
 .sticky-column {
   position: sticky;
   left: 0;
-  background-color: rgb(15 52 96);
-  z-index: 15 !important;
+  background-color: #ffffff;
+  z-index: 5;
   border-right: 1px solid #ccc;
 }
 
 .sticky-column-second {
   position: sticky;
   left: 500px; /* Ajuster selon vos besoins */
-  background-color: rgb(15 52 96);
-  z-index: 15 !important;
+  background-color: #ffffff;
+  z-index: 5;
   border-right: 1px solid #ccc;
 }
 
 .sticky-column-third {
   position: sticky;
   left: 580px; /* Ajuster selon vos besoins */
-  background-color: rgb(15 52 96);
+  background-color: #ffffff;
   z-index: 5;
   border-right: 1px solid #ccc;
 }
@@ -294,3 +395,4 @@ table td {
   border: 1px solid #ddd; /* Bordures légères */
 }
 </style>
+

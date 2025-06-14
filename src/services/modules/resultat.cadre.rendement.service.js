@@ -10,6 +10,11 @@ const ResultatCadreRendementService = {
   get(slug) {
     return ApiService.get("gfa/resultats-cadre-de-rendement", slug);
   },
+
+  mesureRendementProjet(projetId) {
+    return ApiService.get(`gfa/projets/${projetId}/mesure-rendement`);
+  },
+
   getCadreRendement(id) {
     return ApiService.get(`gfa/programmes/${id}/cadre-de-mesure-rendement`);
   },

@@ -8,9 +8,9 @@
       <table id="my-table5" class="w-full max-w-full my-10 bg-white border-collapse editor_listing_table border-slate-500" cellpadding="6" cellspacing="0">
         <thead class="text-white border-white bg-primary">
           <tr>
-            <th rowspan="2" class="py-3 border border-white min-w-[500px] sticky-column">Indicateurs</th>
+            <th rowspan="2" class="py-3 border border-white min-w-[300px] sticky-column">Indicateurs</th>
             <!-- <th class="py-3 border border-white min-w-[80px]">Indice</th> -->
-            <th rowspan="2" class="py-3 border border-white min-w-[280px] sticky-column-second">Auteur</th>
+            <th rowspan="2" class="py-3 border border-white min-w-[90px] sticky-column">Auteur</th>
             <th rowspan="2" class="py-3 border border-white min-w-[80px]">Trimestre</th>
             <th rowspan="2" class="py-3 border border-white min-w-[80px]">Cumul</th>
             <th :colspan="years.length + 1" class="py-3 border border-white min-w-[70px]">Cibles</th>
@@ -19,7 +19,7 @@
             <!-- <th class="py-3 border border-white min-w-[280px]">Source de données</th>
                 <th class="py-3 border border-white min-w-[180px]">Fréquence de la collecte de données</th>
                 <th class="py-3 border border-white min-w-[280px]">Méthode de collecte</th> -->
-            <th rowspan="2" class="py-3 border border-white min-w-[120px]">Date de suivie</th>
+            <th rowspan="2" class="py-3 border border-white min-w-[70px]">Date de suivie</th>
             <!-- <th class="py-3 border border-white min-w-[120px]">Responsables</th> -->
           </tr>
           <tr>

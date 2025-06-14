@@ -69,12 +69,12 @@
                         <td v-for="(year, index) in years" :key="index">
                           <span v-html="formatObject(indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeurCible)"></span>
                         </td>
-                        <td></td>
+                        <td v-html="formatObject(indicateur.valeurCibleTotal)"></td>
                         <td v-for="(year, index) in years" :key="index">
                           <span v-html="formatObject(indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeur_realiser)"></span>
                         </td>
-                        <td></td>
-                        <td></td>
+                        <td v-html="formatObject(indicateur.valeurRealiserTotal)"></td>
+                        <td v-html="formatObject(indicateur.taux_realisation)"></td>
                         <td>{{ indicateur.sources_de_donnee }}</td>
                         <td>{{ indicateur.methode_de_la_collecte }}</td>
                         <td>{{ indicateur.frequence_de_la_collecte }}</td>
@@ -118,12 +118,12 @@
                           <td v-for="(year, index) in years" :key="index">
                             <span v-html="formatObject(indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeurCible)"></span>
                           </td>
-                          <td></td>
+                          <td v-html="formatObject(indicateur.valeurCibleTotal)"></td>
                           <td v-for="(year, index) in years" :key="index">
                             <span v-html="formatObject(indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeur_realiser)"></span>
                           </td>
-                          <td></td>
-                          <td></td>
+                          <td v-html="formatObject(indicateur.valeurRealiserTotal)"></td>
+                          <td v-html="formatObject(indicateur.taux_realisation)"></td>
                           <td>{{ indicateur.sources_de_donnee }}</td>
                           <td>{{ indicateur.methode_de_la_collecte }}</td>
                           <td>{{ indicateur.frequence_de_la_collecte }}</td>
@@ -167,12 +167,12 @@
                             <td v-for="(year, index) in years" :key="index">
                               <span v-html="formatObject(indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeurCible)"></span>
                             </td>
-                            <td></td>
+                            <td v-html="formatObject(indicateur.valeurCibleTotal)"></td>
                             <td v-for="(year, index) in years" :key="index">
                               <span v-html="formatObject(indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeur_realiser)"></span>
                             </td>
-                            <td></td>
-                            <td></td>
+                            <td v-html="formatObject(indicateur.valeurRealiserTotal)"></td>
+                            <td v-html="formatObject(indicateur.taux_realisation)"></td>
                             <td>{{ indicateur.sources_de_donnee }}</td>
                             <td>{{ indicateur.methode_de_la_collecte }}</td>
                             <td>{{ indicateur.frequence_de_la_collecte }}</td>

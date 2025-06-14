@@ -252,8 +252,9 @@
     <section class="p-6 bg-white rounded-md shadow-md">
       <h2 class="text-lg font-semibold text-gray-700">Suivi Indicateurs</h2>
       <div class="mt-4 overflow-x-auto">
-        <TabulatorSuiviIndicateurDetail v-if="suivis.length > 0" :data="suivis" :years="annees" />
-        <p v-else>Pas de suivi disponible pour l'instant</p>
+        <!-- <TabulatorSuiviIndicateurDetail :data="suivis" :years="annees" /> -->
+        <TabulatorSuiviIndicateur :data="dataAvailable" :years="annees" />
+        <!-- <p v-else>Pas de suivi disponible pour l'instant</p> -->
       </div>
     </section>
   </div>
@@ -279,6 +280,8 @@ import IndicateursService from "@/services/modules/indicateur.service";
 import AuthService from "@/services/modules/auth.service";
 import ChartJauge from "../../../../components/news/ChartJauge.vue";
 import Tabulator from "tabulator-tables";
+import ResultatCadreRendementService from "@/services/modules/resultat.cadre.rendement.service";
+import TabulatorSuiviIndicateur from "@/components/TabulatorSuiviIndicateur.vue";
 
 const tabulator = ref();
 const filterStatut = ref(0);
@@ -430,11 +433,54 @@ const idProgramme = ref("");
 const debutProgramme = ref("");
 const finProgramme = ref("");
 
+const search = ref("");
+const currentPage = ref(1);
+const itemsPerPage = 20;
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++;
+  }
+};
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
+  }
+};
+const goToPage = (page) => {
+  currentPage.value = page;
+};
+
+// Calculer le nombre total de pages
+const totalPages = computed(() => Math.ceil(suivis.value ? suivis.value.length / itemsPerPage : 0));
+
+// Obtenir les éléments de la page actuelle
+const paginatedData = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+  if (suivis.value) return suivis.value.slice(start, end);
+});
+
+const datasSearch = computed(() => {
+  return suivis.value.filter((suivi) => {
+    const searchTerm = search.value.toLowerCase();
+    return suivi.indicateur.nom.toLowerCase().includes(searchTerm) || suivi.auteur.nom.toLowerCase().includes(searchTerm);
+  });
+});
+
+const dataAvailable = computed(() => {
+  if (search.value.length > 0) return datasSearch.value;
+  else return paginatedData.value;
+});
+
 // Fetch data
 const getDatasCadre = async () => {
   //isLoadingDataCadre.value = true;
   try {
-    const { data } = await IndicateursService.getCadreRendement(idProgramme.value);
+    console.log(graphiqueData.value);
+    //const { data } = await ResultatCadreRendementService.mesureRendementProjet(route.params.id);
+
+    const { data } = await IndicateursService.getAllSuivis();
     suivis.value = data.data;
   } catch (e) {
     // toast.error("Erreur lors de la récupération des données.");
