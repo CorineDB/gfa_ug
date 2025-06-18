@@ -699,7 +699,7 @@ onMounted(() => {
       <ModalFooter>
         <div class="flex gap-2">
           <button type="button" @click="resetFormSuivi" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
-          <VButton :loading="isLoading" label="Enrégistrer" />
+          <VButton :loading="isLoading" :label="isCreate ? 'Enrégistrer' : 'Modifier'" />
         </div>
       </ModalFooter>
     </form>
