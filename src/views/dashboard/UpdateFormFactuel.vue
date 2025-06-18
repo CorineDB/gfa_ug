@@ -919,12 +919,6 @@ onMounted(async () => {
     <section class="w-[30%] max-h-[80%] pr-1 overflow-y-auto border-r-2 pt-5">
       <AccordionGroup :selectedIndex="indexAccordion" class="space-y-1">
 
-
-
-
-
-
-
         <AccordionItem class="">
           <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
             <p>Type de gouvernance</p>
@@ -1158,7 +1152,7 @@ onMounted(async () => {
         </tbody>
       </table>
 
-      <table class="w-full border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
+      <!-- <table class="w-full border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
         <thead class="text-white bg-blue-900">
           <tr>
             <th class="py-3 border border-slate-900">Principes</th>
@@ -1191,7 +1185,7 @@ onMounted(async () => {
                   v-for="(indicateur_de_gouvernance, qIndex) in critere_de_gouvernance.indicateurs_de_gouvernance"
                   :key="indicateur_de_gouvernance.id">
                   <tr>
-                    <!-- Première cellule de catégorie principale avec rowspan -->
+                    Première cellule de catégorie principale avec rowspan
                     <td class="font-semibold text-center list-data" v-if="scIndex === 0 && qIndex === 0"
                       :rowspan="principe_de_gouvernance.criteres_de_gouvernance.reduce((sum, sc) => sum + sc.indicateurs_de_gouvernance.length, 0)">
                       <div class="flex items-center gap-1">{{ principe_de_gouvernance.position }} - {{
@@ -1206,7 +1200,7 @@ onMounted(async () => {
                         </button>
                       </div>
                     </td>
-                    <!-- Première cellule de sous-catégorie avec rowspan -->
+                    Première cellule de sous-catégorie avec rowspan
                     <td class="text-center list-data" v-if="qIndex === 0"
                       :rowspan="critere_de_gouvernance.indicateurs_de_gouvernance.length">
                       <div class="flex items-center gap-1">{{ critere_de_gouvernance.position }} - {{
@@ -1232,21 +1226,21 @@ onMounted(async () => {
                         </button>
                       </div>
 
-                      <!-- <button class="p-1 text-white btn btn-primary">
+                      <button class="p-1 text-white btn btn-primary">
                                     <Edit3Icon class="size-5" />
                                   </button>
                                   <button class="p-1 text-white btn btn-danger" @click="removeIndicator(question)">
                                     <TrashIcon class="size-5" />
-                                  </button> -->
+                                  </button>
                     </td>
                   </tr>
                 </template>
               </template>
-              <!-- Ligne Score factuel après chaque catégorie principale -->
+              Ligne Score factuel après chaque catégorie principale
             </template>
           </template>
         </tbody>
-      </table>
+      </table> -->
     </div>
 
     <div class="flex justify-between py-2 my-2 items-center">

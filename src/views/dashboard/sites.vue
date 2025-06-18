@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, onBeforeMount, reactive, ref } from "vue";
+import { computed, onMounted, onBeforeMount, reactive, ref, nextTick } from "vue";
 import VButton from "@/components/news/VButton.vue";
 import InputForm from "@/components/news/InputForm.vue";
 import SiteService from "@/services/modules/site.service";
@@ -10,6 +10,55 @@ import { toast } from "vue3-toastify";
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
 import contries from "@/pays.json";
 import decoupage from "@/decoupage_territorial_benin.json";
+// 1. Remplacer les imports au début du fichier
+import { LMap, LTileLayer, LMarker, LPolygon, LPopup } from "@vue-leaflet/vue-leaflet";
+import "leaflet/dist/leaflet.css";
+
+// 2. Remplacer les variables Google Maps par celles de Leaflet
+const map = ref(null);
+const showMapModal = ref(false);
+const markerLatLng = ref([6.3703, 2.3912]); // [lat, lng] format pour Leaflet
+
+// 3. Remplacer les fonctions Google Maps
+const updateCoordinates = (lat, lng) => {
+  payload.latitude = lat.toFixed(6);
+  payload.longitude = lng.toFixed(6);
+  markerLatLng.value = [lat, lng];
+};
+
+const onMapClick = (event) => {
+  const { lat, lng } = event.latlng;
+  updateCoordinates(lat, lng);
+};
+
+const onMarkerDragEnd = (event) => {
+  const { lat, lng } = event.target.getLatLng();
+  updateCoordinates(lat, lng);
+};
+
+const openMapModal = () => {
+  showMapModal.value = true;
+  // Initialiser la position du marker si des coordonnées existent
+  if (payload.latitude && payload.longitude) {
+    markerLatLng.value = [parseFloat(payload.latitude), parseFloat(payload.longitude)];
+  }
+};
+
+const closeMapModal = () => {
+  showMapModal.value = false;
+};
+
+const centerMapOnCoordinates = () => {
+  if (!payload.latitude || !payload.longitude) return;
+
+  const lat = parseFloat(payload.latitude);
+  const lng = parseFloat(payload.longitude);
+
+  if (isNaN(lat) || isNaN(lng)) return;
+
+  markerLatLng.value = [lat, lng];
+  // Le centrage se fera automatiquement via la réactivité de Vue
+};
 
 onBeforeMount(() => {
   pays.value = Object.values(contries);
@@ -35,6 +84,11 @@ const errors = ref({});
 const pays = ref([]);
 const indexBenin = ref(1);
 const isBenin = ref(false);
+
+// Google Maps variables
+
+const mapContainer = ref(null);
+const marker = ref(null);
 
 const payload = reactive({
   nom: "",
@@ -113,11 +167,6 @@ const showQuatier = computed(() => {
   return !payload.arrondissement;
 });
 
-// const payload = reactive({
-//   nom: "",
-//   longitude: "",
-//   latitude: "",
-// });
 const tabulator = ref();
 const idSelect = ref("");
 const showModalCreate = ref(false);
@@ -143,20 +192,72 @@ const createData = async () => {
       toast.error("Vérifier les informations et ressayer.");
     });
 };
+
+const allPosition = ref([]);
+
+const nomPositions = ref([]);
+
+async function reverseGeocode(lat, lon) {
+  const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
+  const response = await fetch(url, {
+    headers: {
+      "User-Agent": "TonNomOuApp/1.0", // recommandé par Nominatim
+    },
+  });
+  const data = await response.json();
+  return data.display_name;
+}
+
+async function fetchAllAdresses(sites) {
+  const results = await Promise.allSettled(
+    sites.map(async (site) => {
+      try {
+        const address = await reverseGeocode(site.lat, site.lon);
+        isLoadingData.value = false;
+        return { ...site, address };
+      } catch (e) {
+        return { ...site, address: "Erreur ou non trouvé" };
+        isLoadingData.value = false;
+      }
+    })
+  );
+
+  nomPositions.value = results.map((result) => result.value || result.reason);
+
+  datas.value.forEach((item) => {
+    item.adresse = nomPositions.value.find((pos) => pos.lat === parseFloat(item.latitude) && pos.lon === parseFloat(item.longitude))?.address || "Adresse non trouvée";
+  });
+
+  initTabulator();
+
+  console.log(datas.value);
+
+  return datas.value;
+}
+
 const getDatas = async () => {
   isLoadingData.value = true;
   await SiteService.get()
     .then((result) => {
       datas.value = result.data.data;
-      isLoadingData.value = false;
+       
+      result.data.data.forEach((item) => {
+        const position = {
+          lat: parseFloat(item.latitude),
+          lon: parseFloat(item.longitude),
+        };
+        allPosition.value.push(position);
+      });
+
+      fetchAllAdresses(allPosition.value);
     })
     .catch((e) => {
       console.error(e);
-      isLoadingData.value = false;
+      
       toast.error("Une erreur est survenue: Liste des type des options.");
     });
-  initTabulator();
 };
+
 const updateData = async () => {
   isLoading.value = true;
   await SiteService.update(idSelect.value, payload)
@@ -172,7 +273,9 @@ const updateData = async () => {
       toast.error("Vérifier les informations et ressayer.");
     });
 };
+
 const submitData = () => (isCreate.value ? createData() : updateData());
+
 const deleteData = async () => {
   isLoading.value = true;
   await SiteService.destroy(idSelect.value)
@@ -188,6 +291,7 @@ const deleteData = async () => {
       toast.error("Une erreur est survenue, ressayer");
     });
 };
+
 const getProgrammes = () => {
   TypeGouvernance.getAllProgrammes()
     .then((result) => {
@@ -198,6 +302,7 @@ const getProgrammes = () => {
       toast.error("Une erreur est survenue: Liste des Programmes.");
     });
 };
+
 const initTabulator = () => {
   tabulator.value = new Tabulator("#tabulator", {
     data: datas.value,
@@ -215,6 +320,12 @@ const initTabulator = () => {
       {
         title: "Latitude",
         field: "latitude",
+        hozAlign: "center",
+        width: 200,
+      },
+      {
+        title: "Adresse",
+        field: "adresse",
         hozAlign: "center",
         width: 200,
       },
@@ -249,31 +360,38 @@ const initTabulator = () => {
     ],
   });
 };
+
 const handleEdit = (params) => {
   isCreate.value = false;
   idSelect.value = params.id;
   payload.nom = params.nom;
   payload.longitude = params.longitude;
   payload.latitude = params.latitude;
+  payload.arrondissement = params.arrondissement || "";
+  payload.commune = params.commune || "";
+  payload.departement = params.departement || "";
+  payload.pays = params.pays || "";
+  payload.quartier = params.quartier || "";
   showModalCreate.value = true;
 };
+
 const handleDelete = (params) => {
   idSelect.value = params.id;
   deleteModalPreview.value = true;
 };
+
 const cancelSelect = () => {
   deleteModalPreview.value = false;
   idSelect.value = "";
 };
+
 const resetForm = () => {
-  payload.libelle = "";
-  payload.description = "";
-  payload.note = "";
-  // payload.programmeId = "";
+  Object.assign(payload, getinitForm());
   showModalCreate.value = false;
 };
+
 const openCreateModal = () => {
-  // payload.programmeId = "";
+  Object.assign(payload, getinitForm());
   showModalCreate.value = isCreate.value = true;
 };
 
@@ -336,70 +454,90 @@ onMounted(() => {
     <form @submit.prevent="submitData">
       <ModalBody>
         <div class="grid grid-cols-1 gap-4">
-          <!-- <InputForm label="Nom" v-model="payload.nom" />
-          <InputForm label="Longitude" v-model="payload.longitude" />
-          <InputForm label="Latitude" v-model.number="payload.latitude" /> -->
-
-          <!-- <div class="">
-            <label class="form-label">Programmes </label>
-            <TomSelect v-model="payload.programmeId" :options="{ placeholder: 'Selectionez un programme' }" class="w-full">
-              <option v-for="(programme, index) in programmes" :key="index" :value="programme.id">{{ programme.nom }}</option>
-            </TomSelect>
-          </div> -->
           <InputForm label="Nom" v-model="payload.nom" class="col-span-12" />
-          <InputForm label="Longitude" type="number" step="any" v-model="payload.longitude" class="col-span-12" />
-          <div v-if="errors.longitude" class="mt-2 text-danger">{{ getFieldErrors(errors.longitude) }}</div>
 
-          <InputForm label="Latitude" type="number" step="any" v-model.number="payload.latitude" class="col-span-12" />
-          <div v-if="errors.latitude" class="mt-2 text-danger">{{ getFieldErrors(errors.latitude) }}</div>
+          <!-- Coordonnées avec bouton pour ouvrir la carte -->
+          <div class="grid grid-cols-2 gap-4 col-span-12">
+            <div>
+              <InputForm label="Longitude" type="number" step="any" v-model="payload.longitude" />
+              <div v-if="errors.longitude" class="mt-2 text-danger">{{ getFieldErrors(errors.longitude) }}</div>
+            </div>
+            <div>
+              <InputForm label="Latitude" type="number" step="any" v-model.number="payload.latitude" />
+              <div v-if="errors.latitude" class="mt-2 text-danger">{{ getFieldErrors(errors.latitude) }}</div>
+            </div>
+          </div>
+
+          <!-- Boutons pour la carte -->
+          <div class="flex gap-2 col-span-12">
+            <button type="button" @click="openMapModal" class="flex items-center px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              Sélectionner sur la carte
+            </button>
+            <button type="button" @click="centerMapOnCoordinates" class="flex items-center px-4 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300" :disabled="!payload.latitude || !payload.longitude">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
+              </svg>
+              Centrer sur coordonnées
+            </button>
+          </div>
 
           <div class="col-span-12">
             <label class="form-label">Pays<span class="text-danger">*</span> </label>
-            <TomSelect v-model="payload.pays" @change="changeCountry" :options="{ placeholder: 'Selectionez  un pays' }" class="w-full">
-              <option value=""></option>
+            <select v-model="payload.pays" @change="changeCountry" class="form-select w-full">
+              <option value="">Selectionez un pays</option>
               <option v-for="(country, index) in pays" :key="index" :value="country">{{ country }}</option>
-            </TomSelect>
+            </select>
             <div v-if="errors.pays" class="mt-2 text-danger">{{ getFieldErrors(errors.pays) }}</div>
           </div>
+
           <div v-if="isBenin" class="col-span-12">
             <div class="w-full mb-4">
               <label class="form-label">Départements<span class="text-danger">*</span> </label>
-              <TomSelect v-model="payload.departement" @change="updateCommunes" :options="{ placeholder: 'Selectionez un département' }" class="w-full">
-                <option value=""></option>
+              <select v-model="payload.departement" @change="updateCommunes" class="form-select w-full">
+                <option value="">Selectionez un département</option>
                 <option v-for="(dep, index) in departements" :key="index" :value="dep.lib_dep">{{ dep.lib_dep }}</option>
-              </TomSelect>
+              </select>
               <div v-if="errors.departement" class="mt-2 text-danger">{{ getFieldErrors(errors.departement) }}</div>
             </div>
-            <!-- <pre>{{ departements }}</pre> -->
+
             <div class="mb-4" :class="[!showCommune ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
               <label class="form-label">Communes<span class="text-danger">*</span> </label>
-              <TomSelect v-model="payload.commune" :options="{ placeholder: 'Sélectionner la commune' }" class="w-full" @change="updateArrondissements">
+              <select v-model="payload.commune" @change="updateArrondissements" class="form-select w-full">
+                <option value="">Sélectionner la commune</option>
                 <option v-for="commune in filteredCommunes" :key="commune.lib_com" :value="commune.lib_com">
                   {{ commune.lib_com }}
                 </option>
-              </TomSelect>
+              </select>
               <div v-if="errors.commune" class="mt-2 text-danger">{{ getFieldErrors(errors.commune) }}</div>
             </div>
           </div>
 
           <div v-if="isBenin" class="col-span-12">
             <div class="w-full mb-4" :class="[!showArrondissement ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
-              <label class="form-label">Arrondissemnt<span class="text-danger">*</span> </label>
-              <TomSelect v-model="payload.arrondissement" @change="updateQuartiers" :options="{ placeholder: 'Selectionez  arrondissement' }" class="w-full">
+              <label class="form-label">Arrondissement<span class="text-danger">*</span> </label>
+              <select v-model="payload.arrondissement" @change="updateQuartiers" class="form-select w-full">
+                <option value="">Selectionez arrondissement</option>
                 <option v-for="(arrond, index) in filteredArrondissements" :key="index" :value="arrond.lib_arrond">{{ arrond.lib_arrond }}</option>
-              </TomSelect>
+              </select>
               <div v-if="errors.arrondissement" class="mt-2 text-danger">{{ getFieldErrors(errors.arrondissement) }}</div>
             </div>
+
             <div class="w-full mb-4" :class="[!showQuatier ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
               <label class="form-label">Quartier<span class="text-danger">*</span> </label>
-              <TomSelect v-model="payload.quartier" :options="{ placeholder: 'Sélectionner le quatier' }" class="w-full">
+              <select v-model="payload.quartier" class="form-select w-full">
+                <option value="">Sélectionner le quartier</option>
                 <option v-for="quart in filteredQuartiers" :key="quart.lib_quart" :value="quart.lib_quart">
                   {{ quart.lib_quart }}
                 </option>
-              </TomSelect>
+              </select>
               <div v-if="errors.quartier" class="mt-2 text-danger">{{ getFieldErrors(errors.quartier) }}</div>
             </div>
           </div>
+
           <div v-if="!isBenin" class="col-span-12">
             <InputForm :required="false" :optionel="false" label="Département" v-model="payload.departement" :control="getFieldErrors(errors.departement)" class="mb-4" />
             <InputForm :required="false" :optionel="false" label="Commune" v-model="payload.commune" :control="getFieldErrors(errors.commune)" class="mb-4" />
@@ -416,7 +554,44 @@ onMounted(() => {
       </ModalFooter>
     </form>
   </Modal>
-  <!-- End Modal -->
+
+  <!-- Modal Leaflet Maps  -->
+  <Modal :show="showMapModal" @hidden="closeMapModal" size="xl">
+    <ModalHeader>
+      <h2 class="mr-auto text-base font-medium">Sélectionner la position sur la carte</h2>
+    </ModalHeader>
+    <ModalBody>
+      <div class="mb-4">
+        <p class="text-sm text-gray-600 mb-2">Cliquez sur la carte ou faites glisser le marqueur pour sélectionner la position.</p>
+        <div class="flex gap-4 text-sm">
+          <span><strong>Latitude:</strong> {{ payload.latitude || "Non définie" }}</span>
+          <span><strong>Longitude:</strong> {{ payload.longitude || "Non définie" }}</span>
+        </div>
+      </div>
+
+      <!-- Carte Leaflet -->
+      <div class="w-full h-96 rounded-lg border border-gray-300" style="min-height: 400px">
+        <LMap ref="map" :zoom="13" :center="markerLatLng" @click="onMapClick" style="height: 100%; width: 100%">
+          <LTileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='&amp;copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors' />
+          <LMarker :lat-lng="markerLatLng" :draggable="true" @dragend="onMarkerDragEnd">
+            <LPopup>
+              <div>
+                <p><strong>Position sélectionnée</strong></p>
+                <p>Lat: {{ markerLatLng[0].toFixed(6) }}</p>
+                <p>Lng: {{ markerLatLng[1].toFixed(6) }}</p>
+              </div>
+            </LPopup>
+          </LMarker>
+        </LMap>
+      </div>
+    </ModalBody>
+    <ModalFooter>
+      <div class="flex gap-2">
+        <button type="button" @click="closeMapModal" class="px-4 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300">Annuler</button>
+        <button type="button" @click="closeMapModal" class="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600">Confirmer la sélection</button>
+      </div>
+    </ModalFooter>
+  </Modal>
 
   <!-- Modal Delete -->
   <Modal :show="deleteModalPreview" @hidden="deleteModalPreview = false">
@@ -432,5 +607,4 @@ onMounted(() => {
       </div>
     </ModalBody>
   </Modal>
-  <!-- End Modal -->
 </template>

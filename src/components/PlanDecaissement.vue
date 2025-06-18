@@ -355,7 +355,7 @@ export default {
       </div>
       <div v-if="verifyPermission('creer-un-plan-de-decaissement')" class="flex mt-4 sm:mt-0">
         <button class="mr-2 shadow-md btn btn-primary" @click="addPlanDeDecaissement()">
-          <PlusIcon class="w-4 h-4 mr-3" />Ajouter un plan de décaissement
+          <PlusIcon class="w-4 h-4 mr-3" />Ajouter un plan de décaissement 
         </button>
       </div>
     </div>
@@ -476,6 +476,9 @@ v-if="verifyPermission('voir-un-plan-de-decaissement')" -->
             <option v-for="(element, index) in activites" :key="index" :value="element.id">{{ element.nom }}</option>
           </TomSelect>
         </div>
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.activiteId">{{
+            messageErreur.activiteId
+            }}</p>
         <!-- <InputForm v-model="formData.annee" class="col-span-12" type="date" required="required" placeHolder="Annee de base" label="Année de base" /> -->
 
         <div class="col-span-12 mt-3">
@@ -483,8 +486,9 @@ v-if="verifyPermission('voir-un-plan-de-decaissement')" -->
           <TomSelect v-model="formData.annee" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
             <option v-for="(year, index) in years" :key="index" :value="year">{{ year }}</option>
           </TomSelect>
-          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.annee">{{ messageErreur.annee }}</p>
         </div>
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.annee">{{ messageErreur.annee }}</p>
+
 
         <div class="col-span-12 mt-3">
 
@@ -502,10 +506,11 @@ v-if="verifyPermission('voir-un-plan-de-decaissement')" -->
               <option value="4">Trimestre 4</option>
             </TomSelect>
           </div>
-          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.trimestre">{{
+        
+        </div>
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.trimestre">{{
             messageErreur.trimestre
             }}</p>
-        </div>
         <!-- <InputForm v-model="formData.annee" :min="2000" class="col-span-12" type="number" :required="true" placeHolder="Saisissez l'année" label="Saisissez l'année de décaissement" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.annee">{{ messageErreur.annee }}</p> -->
 

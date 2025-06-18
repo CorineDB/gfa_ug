@@ -23,13 +23,95 @@
       <ModalBody>
         <div class="grid grid-cols-1 gap-4">
           <InputForm label="Nom" v-model="payloadSites.nom" class="col-span-12" />
-          <InputForm label="Longitude" type="number" step="any" v-model="payloadSites.longitude" class="col-span-12" />
+          <!-- <InputForm label="Longitude" type="number" step="any" v-model="payloadSites.longitude" class="col-span-12" />
           <div v-if="errors.longitude" class="mt-2 text-danger">{{ getFieldErrors(errors.longitude) }}</div>
 
           <InputForm label="Latitude" type="number" step="any" v-model.number="payloadSites.latitude" class="col-span-12" />
-          <div v-if="errors.latitude" class="mt-2 text-danger">{{ getFieldErrors(errors.latitude) }}</div>
+          <div v-if="errors.latitude" class="mt-2 text-danger">{{ getFieldErrors(errors.latitude) }}</div> -->
+
+          <!-- Coordonnées avec bouton pour ouvrir la carte -->
+          <div class="grid grid-cols-2 gap-4 col-span-12">
+            <div>
+              <InputForm label="Longitude" type="number" step="any" v-model="payloadSites.longitude" />
+              <div v-if="errors.longitude" class="mt-2 text-danger">{{ getFieldErrors(errors.longitude) }}</div>
+            </div>
+            <div>
+              <InputForm label="Latitude" type="number" step="any" v-model.number="payloadSites.latitude" />
+              <div v-if="errors.latitude" class="mt-2 text-danger">{{ getFieldErrors(errors.latitude) }}</div>
+            </div>
+          </div>
+
+          <!-- Boutons pour la carte -->
+          <div class="flex gap-2 col-span-12">
+            <button type="button" @click="openMapModal" class="flex items-center px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              Sélectionner sur la carte
+            </button>
+            <button type="button" @click="centerMapOnCoordinates" class="flex items-center px-4 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300" :disabled="!payloadSites.latitude || !payloadSites.longitude">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
+              </svg>
+              Centrer sur coordonnées
+            </button>
+          </div>
 
           <div class="col-span-12">
+            <label class="form-label">Pays<span class="text-danger">*</span> </label>
+            <select v-model="payloadSites.pays" @change="changeCountry" class="form-select w-full">
+              <option value="">Selectionez un pays</option>
+              <option v-for="(country, index) in pays" :key="index" :value="country">{{ country }}</option>
+            </select>
+            <div v-if="errors.pays" class="mt-2 text-danger">{{ getFieldErrors(errors.pays) }}</div>
+          </div>
+
+          <div v-if="isBenin" class="col-span-12">
+            <div class="w-full mb-4">
+              <label class="form-label">Départements<span class="text-danger">*</span> </label>
+              <select v-model="payloadSites.departement" @change="updateCommunes" class="form-select w-full">
+                <option value="">Selectionez un département</option>
+                <option v-for="(dep, index) in departements" :key="index" :value="dep.lib_dep">{{ dep.lib_dep }}</option>
+              </select>
+              <div v-if="errors.departement" class="mt-2 text-danger">{{ getFieldErrors(errors.departement) }}</div>
+            </div>
+
+            <div class="mb-4" :class="[!showCommune ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
+              <label class="form-label">Communes<span class="text-danger">*</span> </label>
+              <select v-model="payloadSites.commune" @change="updateArrondissements" class="form-select w-full">
+                <option value="">Sélectionner la commune</option>
+                <option v-for="commune in filteredCommunes" :key="commune.lib_com" :value="commune.lib_com">
+                  {{ commune.lib_com }}
+                </option>
+              </select>
+              <div v-if="errors.commune" class="mt-2 text-danger">{{ getFieldErrors(errors.commune) }}</div>
+            </div>
+          </div>
+
+          <div v-if="isBenin" class="col-span-12">
+            <div class="w-full mb-4" :class="[!showArrondissement ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
+              <label class="form-label">Arrondissement<span class="text-danger">*</span> </label>
+              <select v-model="payloadSites.arrondissement" @change="updateQuartiers" class="form-select w-full">
+                <option value="">Selectionez arrondissement</option>
+                <option v-for="(arrond, index) in filteredArrondissements" :key="index" :value="arrond.lib_arrond">{{ arrond.lib_arrond }}</option>
+              </select>
+              <div v-if="errors.arrondissement" class="mt-2 text-danger">{{ getFieldErrors(errors.arrondissement) }}</div>
+            </div>
+
+            <div class="w-full mb-4" :class="[!showQuatier ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
+              <label class="form-label">Quartier<span class="text-danger">*</span> </label>
+              <select v-model="payloadSites.quartier" class="form-select w-full">
+                <option value="">Sélectionner le quartier</option>
+                <option v-for="quart in filteredQuartiers" :key="quart.lib_quart" :value="quart.lib_quart">
+                  {{ quart.lib_quart }}
+                </option>
+              </select>
+              <div v-if="errors.quartier" class="mt-2 text-danger">{{ getFieldErrors(errors.quartier) }}</div>
+            </div>
+          </div>
+
+          <!-- <div class="col-span-12">
             <label class="form-label">Pays<span class="text-danger">*</span> </label>
             <TomSelect v-model="payloadSites.pays" @change="changeCountry" :options="{ placeholder: 'Selectionez  un pays' }" class="w-full">
               <option value=""></option>
@@ -74,7 +156,8 @@
               </TomSelect>
               <div v-if="errors.quartier" class="mt-2 text-danger">{{ getFieldErrors(errors.quartier) }}</div>
             </div>
-          </div>
+          </div> -->
+
           <div v-if="!isBenin" class="col-span-12">
             <InputForm :required="false" :optionel="false" label="Département" v-model="payloadSites.departement" :control="getFieldErrors(errors.departement)" class="mb-4" />
             <InputForm :required="false" :optionel="false" label="Commune" v-model="payloadSites.commune" :control="getFieldErrors(errors.commune)" class="mb-4" />
@@ -243,6 +326,45 @@
       </div>
     </ModalBody>
   </Modal>
+
+  <!-- Modal Leaflet Maps  -->
+  <Modal :show="showMapModal" @hidden="closeMapModal" size="xl">
+    <ModalHeader>
+      <h2 class="mr-auto text-base font-medium">Sélectionner la position sur la carte</h2>
+    </ModalHeader>
+    <ModalBody>
+      <div class="mb-4">
+        <p class="text-sm text-gray-600 mb-2">Cliquez sur la carte ou faites glisser le marqueur pour sélectionner la position.</p>
+        <div class="flex gap-4 text-sm">
+          <span><strong>Latitude:</strong> {{ payloadSites.latitude || "Non définie" }}</span>
+          <span><strong>Longitude:</strong> {{ payloadSites.longitude || "Non définie" }}</span>
+        </div>
+      </div>
+
+      <!-- Carte Leaflet -->
+      <div class="w-full h-96 rounded-lg border border-gray-300" style="min-height: 400px">
+        <LMap ref="map" :zoom="13" :center="markerLatLng" @click="onMapClick" style="height: 100%; width: 100%">
+          <LTileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='&amp;copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors' />
+          <LMarker :lat-lng="markerLatLng" :draggable="true" @dragend="onMarkerDragEnd">
+            <LPopup>
+              <div>
+                <p><strong>Position sélectionnée</strong></p>
+                <p>Lat: {{ markerLatLng[0].toFixed(6) }}</p>
+                <p>Lng: {{ markerLatLng[1].toFixed(6) }}</p>
+              </div>
+            </LPopup>
+          </LMarker>
+        </LMap>
+      </div>
+    </ModalBody>
+    <ModalFooter>
+      <div class="flex gap-2">
+        <button type="button" @click="closeMapModal" class="px-4 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300">Annuler</button>
+        <button type="button" @click="closeMapModal" class="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600">Confirmer la sélection</button>
+      </div>
+    </ModalFooter>
+  </Modal>
+
   <LoaderSnipper v-if="isLoadingProjets" />
   <NoRecordsMessage class="col-span-12" v-if="!paginatedAndFilteredData.length" title="Aucun projet trouvé" description="Il semble qu'il n'y ait pas de projet à afficher. Veuillez en créer un." />
 
@@ -367,6 +489,9 @@ export default {
   components: { LoaderSnipper, NoRecordsMessage, InputForm, VButton, LMap, LTileLayer, LMarker, LPolygon, LPopup, pagination },
   data() {
     return {
+      markerLatLng: [6.3703, 2.3912],
+      showMapModal: false,
+      map: null,
       selectedDepartementData: "",
       departements: [],
       errors: {},
@@ -577,6 +702,61 @@ export default {
         quartier: "",
       };
     },
+
+    onMapClick(event) {
+      const { lat, lng } = event.latlng;
+      this.updateCoordinates(lat, lng);
+    },
+    resetForm() {
+      Object.assign(this.payloadSites, this.getinitForm());
+      this.showModalCreate = false;
+    },
+
+    onMarkerDragEnd(event) {
+      const { lat, lng } = event.target.getLatLng();
+      this.updateCoordinates(lat, lng);
+    },
+
+    openMapModal() {
+      this.showMapModal = true;
+      // Initialiser la position du marker si des coordonnées existent
+      if (this.payloadSites.latitude && this.payloadSites.longitude) {
+        this.markerLatLng = [parseFloat(this.payloadSites.latitude), parseFloat(this.payloadSites.longitude)];
+      }
+    },
+
+    closeMapModal() {
+      this.showMapModal = false;
+    },
+
+    centerMapOnCoordinates() {
+      if (!this.payloadSites.latitude || !this.payloadSites.longitude) return;
+
+      const lat = parseFloat(this.payloadSites.latitude);
+      const lng = parseFloat(this.payloadSites.longitude);
+
+      if (isNaN(lat) || isNaN(lng)) return;
+
+      this.markerLatLng = [lat, lng];
+      // Le centrage se fera automatiquement via la réactivité de Vue
+    },
+    updateCoordinates(lat, lng) {
+      this.payloadSites.latitude = lat.toFixed(6);
+      this.payloadSites.longitude = lng.toFixed(6);
+      this.markerLatLng = [lat, lng];
+    },
+    getinitForm() {
+      return {
+        nom: "",
+        longitude: "",
+        latitude: "",
+        arrondissement: "",
+        commune: "",
+        departement: "",
+        pays: "",
+        quartier: "",
+      };
+    },
     resetPayload() {
       this.payloadSites = this.getinitForm;
     },
@@ -618,13 +798,7 @@ export default {
         this.isBenin = false;
       }
     },
-    resetFormSites() {
-      this.payloadSites.libelle = "";
-      this.payloadSites.description = "";
-      this.payloadSites.note = "";
-      // payload.programmeId = "";
-      this.showModalCreate = false;
-    },
+     
     async createData() {
       this.payloadSites.longitude = this.payloadSites.longitude + "";
       this.payloadSites.latitude = this.payloadSites.latitude + "";
@@ -719,12 +893,10 @@ export default {
       OngService.get()
         .then((data) => {
           const datas = data.data.data;
-        
-        this.ongs =  datas.filter( ong => ong.type !== "autre_osc")
+
+          this.ongs = datas.filter((ong) => ong.type !== "autre_osc");
 
           console.log("this.ongs", this.ongs);
-
-           
         })
         .catch((error) => {
           // this.disabled();

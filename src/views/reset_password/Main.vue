@@ -130,21 +130,15 @@ const ressetPassword = async () => {
     chargement.value = true;
     try {
       const result = await resetPassword.create(payload);
-      if (result.data.statut == "success") {
-        console.log("Season 1");
+      chargement.value = false;
+      toast.success("Mot de passe modifié avec succès");
+      setTimeout(() => {
         router.push({ name: "login" });
-        chargement.value = false;
-        toast.success("Mot de passe modifier veuillez vous connecter");
-      }
-      // showFormSuccess.value = true;
-      // } else {
-      //   console.log("Season 2");
-      //   showFormError.value = true;
-      //   chargement.value = false;
-      //   errorMessageForm.value = result.data.data?.message || "Une erreur est survenue.";
-      // }
+      }, 1000);
+      
+     
+     
     } catch (error) {
-      console.log("Season 3");
       chargement.value = false;
       showFormError.value = true;
       if (error.response && error.response.status === 422) {

@@ -134,6 +134,11 @@ const initTabulator = () => {
         },
       },
       {
+        title: "Type",
+        field: "type",
+        maxWidth: 130,
+      },
+      {
         title: "Contact",
         field: "user",
         minWidth: 150,
@@ -163,6 +168,7 @@ const initTabulator = () => {
             return button;
           };
 
+          
           const viewPta = createButton("Plan d'action", "btn btn-pending", () => {
             goToPta(cell.getData());
           });
@@ -175,7 +181,12 @@ const initTabulator = () => {
             handleDelete(cell.getData());
           });
 
-          container.append(viewPta, modifyButton, deleteButton);
+          if(cell.getData().projet !== null){
+            container.append(viewPta);
+            
+          }
+
+          container.append( modifyButton, deleteButton);
 
           return container;
         },
@@ -473,8 +484,8 @@ onMounted(() => {
       <div class="flex flex-col sm:flex-row sm:items-end xl:items-start">
         <div></div>
       </div>
-      <div class="overflow-x-auto _scrollbar-hidden">
-        <div id="tabulator" ref="tableRef" class="mt-5 overflow-x-auto _table-report _table-report--tabulator"></div>
+      <div class="overflow-scroll">
+        <div id="tabulator" ref="tableRef" class="mt-5 overflow-scroll"></div>
       </div>
     </div>
     <LoaderSnipper v-if="isLoadingData" />
