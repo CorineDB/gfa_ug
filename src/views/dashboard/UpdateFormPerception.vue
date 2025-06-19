@@ -821,9 +821,15 @@ onMounted(async () => {
       </table>
     </div>
     <div class="flex justify-between py-2 my-2 items-center">
-      <button @click="goBackToCreate" class="px-5 text-base btn btn-danger">
-        <ArrowLeftIcon class="mr-1 size-5" />Annuler la modification
-      </button>
+      <div class="flex justify-between py-2 my-2 items-center">
+        <button @click="goBackToCreate" class="px-5 mr-4 text-base btn btn-danger">
+          <ArrowLeftIcon class="mr-1 size-5" />Annuler la modification
+        </button>
+        <button @click="resetAllFormWithDataLocalStorage" class="px-5 text-base btn btn-outline-danger">
+          <TrashIcon class="mr-1 size-5" />Vider
+        </button>
+      </div>
+
       <button @click="comeBackToUpdate" class="px-5 text-base btn btn-primary">
         <RotateCcwIcon class="mr-1 size-5" />Revenir pour continuer la modification
       </button>
