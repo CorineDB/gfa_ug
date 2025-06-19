@@ -2384,33 +2384,7 @@ export default {
           }
         }
 
-        // SuiviFinancierService.create(this.suiviFinancier[index])
-        //   .then(() => {
-        //     this.loadingSuiviFinancier = false;
-        //     toast.success("Suivi Financier créer.");
-        //     this.resetModalSuiviFinancierActivite();
-        //     this.showModalSuiviFinancier = false;
-        //     // getDatas();
-        //   })
-        //   .catch((error) => {
-        //     console.log(error);
-        //     this.loadingSuiviFinancier = false;
-
-        //     if (error.response && error.response.data && error.response.data.errors) {
-        //       //alert("ok")
-        //       this.erreurSuiviFinancier = error.response.data.errors;
-        //       toast.error(error.response.data.message);
-        //     } else {
-        //       toast.error(error.message);
-        //     }
-
-        //     // Mettre à jour les messages d'erreurs dynamiquement
-        //     // if (error.response && error.response.data && error.response.data.errors) {
-        //     //   erreurSuiviFinancier = error.response.data.errors;
-        //     // } else {
-        //     //   toast.error(error.response.data.errors.message);
-        //     // }
-        //   });
+         
       }
     },
     getCurrentQuarter() {
@@ -2471,13 +2445,13 @@ export default {
       TacheService.suiviTache(form)
         .then((data) => {
           // this.doSuiviOld = false
-          //this.$toast.success('Operation éffectué avec succès')
+          toast.success('Operation éffectué avec succès')
         })
         .catch((error) => {
           if (error.response) {
             // Requête effectuée mais le serveur a répondu par une erreur.
             const message = error.response.data.message;
-            this.$toast.error(message);
+            toast.error(message);
           } else if (error.request) {
             // Demande effectuée mais aucune réponse n'est reçue du serveur.
             //console.log(error.request);
@@ -2504,61 +2478,26 @@ export default {
       }
     },
     togglesuivie(pta) {
-      //this.dataNew;
-
-      /* this.redtoggle = false;
-      this.graytoggle = false;
-      //this.greentoggle=true;
-      this.translatetoggle = false;
-
-      //console.log(this.tabletoggle[id]);
-
-      this.chargement = true;
-
-      //  console.log(id)
-      /* if (pta.poidsActuel > 0) {
-        this.tabletoggle[pta.id] = 0;
-        TacheService.deleteSuivis(pta.id)
-          .then((data) => {
-            // this.doSuiviOld = false
-            // this.dataNew;
-            this.$toast.success("suivie supprimé avec succès");
-            // window.location.reload();
-          })
-          .catch((error) => {
-            if (error.response) {
-              // Requête effectuée mais le serveur a répondu par une erreur.
-              const message = error.response.data.message;
-              this.$toast.error(message);
-            } else if (error.request) {
-              // Demande effectuée mais aucune réponse n'est reçue du serveur.
-              //console.log(error.request);
-            } else {
-              // Une erreur s'est produite lors de la configuration de la demande
-              //console.log('dernier message', error.message);
-            }
-          });
-      } else { */
+       
         
         var form = {
           tacheId: pta.id,
           poidsActuel: this.tabletoggle[pta.id],
         };
 
-        //this.tabletoggle[pta.id] = 1;
+        
 
         TacheService.suiviTache(form)
           .then((data) => {
-            // this.doSuiviOld = false
-            // this.dataNew;
-            this.$toast.success("suivie éffectué avec succès");
-            // window.location.reload();
+           
+            toast.success("suivie éffectué avec succès");
+             
           })
           .catch((error) => {
             if (error.response) {
               // Requête effectuée mais le serveur a répondu par une erreur.
               const message = error.response.data.message;
-              this.$toast.error(message);
+              toast.error(message);
             } else if (error.request) {
               // Demande effectuée mais aucune réponse n'est reçue du serveur.
               console.log(error.request);
@@ -2697,7 +2636,7 @@ export default {
           this.disabled();
         })
         .catch((e) => {
-          this.$toast.error(e);
+          toast.error(e);
           this.disabled();
         });
     },
@@ -2724,7 +2663,7 @@ export default {
           this.disabled();
         })
         .catch((e) => {
-          this.$toast.error(e);
+          toast.error(e);
           this.disabled();
         });
     },
@@ -2762,7 +2701,7 @@ export default {
         })
         .catch((e) => {
           this.chargement = false;
-          this.$toast.error(e);
+          toast.error(e);
           this.disabled();
         });
     },
@@ -2773,7 +2712,7 @@ export default {
           this.bailleurs = data.data.data;
         })
         .catch((e) => {
-          this.$toast.error(e);
+          toast.error(e);
         });
     },
   },
