@@ -153,7 +153,7 @@
 
               <!-- v-if="pta.t3Pret != '' || pta.t3Bn != ''" -->
               <td class="p-4 border-b border-slate-200">
-                <span class="font-bold"> {{ $h.formatCurrency(pta.t3Pret + pta.t3Bn) }} {{ pta.t3Pret + pta.t3Bn == null || pta.t3Pret + pta.t3Bn == 0 ? 0 : $h.formatCurrency(pta.t3Pret + pta.t3Bn) }}</span>
+                <span class="font-bold"> {{ pta.t3Pret + pta.t3Bn == null || pta.t3Pret + pta.t3Bn == 0 ? 0 : $h.formatCurrency(pta.t3Pret + pta.t3Bn) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA </span> -->
               </td>
               <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->

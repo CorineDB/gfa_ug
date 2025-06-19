@@ -13,7 +13,7 @@
     </div>
 
     <LoaderSnipper v-if="isLoadingDataCadre" />
-    <TabulatorSuiviIndicateur v-else :data="dataAvailable" :years="annees" />
+    <TabulatorSuiviIndicateur v-else :data="dataAvailable" :years="annees" :isDataLoading="isLoadingDataCadre"/>
     <div v-if="!isLoadingDataCadre" class="flex justify-center gap-3 my-8">
       <button @click="prevPage" :disabled="currentPage === 1" class="px-4 py-3 btn btn-outline-primary"><ChevronsLeftIcon class="size-5" /></button>
       <div class="flex items-center justify-center gap-3 overflow-x-auto scroll-pagination custom-scroll">

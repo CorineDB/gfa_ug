@@ -253,7 +253,7 @@
       <h2 class="text-lg font-semibold text-gray-700">Suivi Indicateurs</h2>
       <div class="mt-4 overflow-x-auto">
         <!-- <TabulatorSuiviIndicateurDetail :data="suivis" :years="annees" /> -->
-        <TabulatorSuiviIndicateur :data="dataAvailable" :years="annees" />
+        <TabulatorSuiviIndicateur :data="dataAvailable" :years="annees" :isDataLoading="isLoadingDataCadre" @refreshData="getDatasCadre"/>
         <!-- <p v-else>Pas de suivi disponible pour l'instant</p> -->
       </div>
     </section>
@@ -284,6 +284,7 @@ import ResultatCadreRendementService from "@/services/modules/resultat.cadre.ren
 import TabulatorSuiviIndicateur from "@/components/TabulatorSuiviIndicateur.vue";
 
 const tabulator = ref();
+const isLoadingDataCadre = ref(false);
 const filterStatut = ref(0);
 const initTabulator = () => {
   tabulator.value = new Tabulator("#activity", {
@@ -475,17 +476,16 @@ const dataAvailable = computed(() => {
 
 // Fetch data
 const getDatasCadre = async () => {
-  //isLoadingDataCadre.value = true;
+  isLoadingDataCadre.value = true;
   try {
     console.log(graphiqueData.value);
     //const { data } = await ResultatCadreRendementService.mesureRendementProjet(route.params.id);
 
     const { data } = await IndicateursService.getAllSuivis();
     suivis.value = data.data;
+    isLoadingDataCadre.value = false;
   } catch (e) {
-    // toast.error("Erreur lors de la récupération des données.");
-  } finally {
-    // isLoadingDataCadre.value = false;
+    toast.error("Erreur lors de la récupération des données.");
   }
 };
 

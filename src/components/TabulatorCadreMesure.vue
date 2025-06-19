@@ -742,7 +742,11 @@ const submitUpdate = async () => {
   }
 };
 const submitStructure = async () => {
-  if (!payloadStructure.responsables.organisations.length || !payloadStructure.responsables.ug.length) return toast.error("Veuillez choisir au moins une structure");
+  console.log(payloadStructure.responsables.organisations.length);
+  console.log(payloadStructure.responsables.ug.length);
+  console.log(payloadStructure.responsables.organisations.length || payloadStructure.responsables.ug.length);
+  console.log(payloadStructure.responsables.organisations.length && payloadStructure.responsables.ug.length);
+  if (!payloadStructure.responsables.organisations.length && !payloadStructure.responsables.ug.length) return toast.error("Veuillez choisir au moins une structure");
   isLoading.value = true;
   const action = IndicateursService.addStructure(idSelect.value, payloadStructure);
   try {
