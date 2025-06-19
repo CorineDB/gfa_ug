@@ -236,6 +236,7 @@ function formatObject(obj) {
 
 const submitSuivi = async () => {
   payloadSuivi.trimestre = Number(payloadSuivi.trimestre);
+  payloadSuivi.annee = Number(payloadSuivi.annee);
   if (optionsSuivi[0].id == suiviOption.value) {
     delete payloadSuivi.trimestre;
   } else {
@@ -254,9 +255,8 @@ const submitSuivi = async () => {
   try {
     await action;
     toast.success(`Suivi Ajouté avec succès.`);
-    resetFormSuivi();
-    showModalSuivi.value = false;
     isLoading.value = false;
+    await resetFormSuivi();
     emit("refreshData", data);
   } catch (e) {
     console.log(e);
@@ -269,7 +269,7 @@ const closeModal = () => (showModalSuivi.value = false);
 
 const handleSuivi = (data) => {
   console.log(data);
-  valeurCible.value = data.indicateur.valeursCible.filter((valeurCible) => valeurCible.annee === payloadSuivi.annee).map((v) => v.valeurCible);
+  valeurCible.value = data.indicateur.valeursCible.filter((valeurCible) => valeurCible.annee === Number(payloadSuivi.annee)).map((v) => v.valeurCible);
   isAgregerCurrentIndicateur.value = data.indicateur.agreger;
   if(isAgregerCurrentIndicateur.value == false){
     Object.keys(valeurCible.value[0]).forEach((key) => {
@@ -277,6 +277,8 @@ const handleSuivi = (data) => {
     });
   }
 
+  payloadSuivi.annee = `${new Date().getFullYear()}`;
+  
   payloadSuivi.indicateurId = data.indicateur.id;
   valueKeysIndicateurSuivi.value = data.indicateur.value_keys;
   resetValues();
@@ -286,16 +288,16 @@ const handleSuivi = (data) => {
 const resetValues = () => {
   valeurCible.value = valueKeysIndicateurSuivi.value.map((item) => ({
     keyId: item.id,
-    value: "",
+    value: valeurCible.value[0][item.key] ?? "",
   }));
   valeurRealise.value = valueKeysIndicateurSuivi.value.map((item) => ({
     keyId: item.id,
-    value: "",
+    value: valeurRealise.value[item.key] ?? "",
   }));
 };
 
 
-const resetFormSuivi = () => {
+const resetFormSuivi = async () => {
   if (isAgregerCurrentIndicateur.value) {
     resetValues();
   }
