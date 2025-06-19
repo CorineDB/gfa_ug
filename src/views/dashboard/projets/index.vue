@@ -1473,27 +1473,30 @@ export default {
   },
 
   watch: {
-    sites: function (sites) {
-      // Ajouter des marqueurs à partir de `addressPoints`
-      this.sites.forEach((site, index) => {
-        const latitude = parseFloat(site.latitude);
-        const longitude = parseFloat(site.longitude);
+  sites: function (sites) {
+  this.sites.forEach((site, index) => {
+    const latitude = parseFloat(site.latitude);
+    const longitude = parseFloat(site.longitude);
 
-        L.marker([latitude, longitude], { icon: this.myIcon })
-          .bindPopup(
-            `
+    // On filtre les projets qui ont un nom non vide
+    const projetsAvecNom = site.projets.filter(project => project.nom && project.nom.trim() !== "");
+
+    // Si aucun projet avec nom, ne pas ajouter ce marqueur
+    if (projetsAvecNom.length === 0) return;
+
+    L.marker([latitude, longitude], { icon: this.myIcon })
+      .bindPopup(`
         <b>${site.nom}</b><br>
         Arrondissement: ${site.arrondissement}<br>
         Commune: ${site.commune}<br>
         Département: ${site.departement}<br>
         <b>Projects:</b><br>
         <ul>
-          ${site.projets.map((project) => `<li>${project.nom}</li>`).join("")}
+          ${projetsAvecNom.map(project => `<li>${project.nom}</li>`).join("")}
         </ul>
-      `
-          )
-          .addTo(this.initialMap);
-      });
+      `)
+      .addTo(this.initialMap);
+  });
       /*
       // Créer un groupe de marqueurs
 
