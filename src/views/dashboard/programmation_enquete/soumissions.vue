@@ -487,7 +487,7 @@ onMounted(async () => {
           </div>
         </div>
       </section>
-      <section v-if="statistiques?.formulaire_perception_de_gouvernance && statistiques?.options_de_reponse_stats">
+      <section v-if="statistiques?.formulaire_de_perception_de_gouvernance && statistiques?.options_de_reponse_stats">
         <p class="pb-4 mt-10 text-lg font-medium intro-y">Évolution des options de réponse de perception</p>
         <div class="py-4 mt-6 box">
           <div class="!w-[250px] p-3">
@@ -504,7 +504,7 @@ onMounted(async () => {
       </section>
       <div class="">
         <div class="flex flex-col items-center w-full gap-8">
-          <div v-if="statistiques?.formulaire_perception_de_gouvernance" class="flex justify-center w-full p-3">
+          <div v-if="statistiques?.formulaire_de_perception_de_gouvernance" class="flex justify-center w-full p-3">
             <div class="w-full max-w-full box">
               <p class="p-3 text-lg font-medium">Résultats synthetique par année</p>
               <div class="!w-[250px] p-3">
@@ -523,33 +523,8 @@ onMounted(async () => {
               </div>
             </div>
           </div>
-          <div class="flex justify-center w-full p-3">
-            <div class="w-full max-w-full box">
-              <p class="p-3 text-lg font-medium">Score des indices par principe</p>
-              <div class="!w-[250px] p-3">
-                <label class="form-label">Année</label>
-                <TomSelect name="years" v-model="yearSelectedOng" :options="{ placeholder: 'Selectionez une organisation' }">
-                  <option value=""></option>
-                  <option v-for="year in yearsCurrentScore" :key="year" :value="year">{{ year }}</option>
-                </TomSelect>
-              </div>
-              <ChartScroreByPrincipe v-if="currentScore?.scores[yearSelectedOng]?.length > 0" :datas="currentScore?.scores[yearSelectedOng]" />
-              <div v-else class="h-[600px] flex justify-center items-center">
-                <p class="text-xl font-medium text-slate-600">Aucune données disponible</p>
-              </div>
-            </div>
-          </div>
-          <div class="flex justify-center w-full p-3">
-            <div class="w-full max-w-full box">
-              <p class="p-3 text-lg font-medium">Score des indices par principe vs Objectifs attendus</p>
-
-              <ChartScroreByPrincipeObjectif v-if="statistiques.objectif_attendu && currentScore?.scores[yearSelectedOng]?.length > 0" :datas="currentScore?.scores[yearSelectedOng]" :objectifs="statistiques.objectif_attendu" />
-              <div v-else class="h-[600px] flex justify-center items-center">
-                <p class="text-xl font-medium text-slate-600">Aucune données disponible</p>
-              </div>
-            </div>
-          </div>
-          <div v-if="statistiques?.formulaire_perception_de_gouvernance" class="flex justify-center w-full p-3">
+          
+          <div v-if="statistiques?.formulaire_de_perception_de_gouvernance" class="flex justify-center w-full p-3">
             <div class="w-full max-w-full box">
               <p class="p-3 text-lg font-medium">Classement des organisations</p>
 
@@ -613,11 +588,11 @@ onMounted(async () => {
       <div class="grid grid-cols-1 gap-4">
         <TabGroup>
           <TabList class="nav-boxed-tabs">
-            <Tab class="w-full py-2" tag="button">Soumissions Factuelles</Tab>
-            <Tab class="w-full py-2" tag="button">Soumissions de Perception </Tab>
+            <Tab  v-if="statistiques?.formulaire_factuel_de_gouvernance" class="w-full py-2" tag="button">Soumissions Factuelles</Tab>
+            <Tab v-if="statistiques?.formulaire_de_perception_de_gouvernance" class="w-full py-2" tag="button">Soumissions de Perception </Tab>
           </TabList>
           <TabPanels class="mt-5">
-            <TabPanel class="max-h-[80vh] overflow-y-auto">
+            <TabPanel  v-if="statistiques?.formulaire_factuel_de_gouvernance" class="max-h-[80vh] overflow-y-auto">
               
               <div class="flex flex-col gap-2" v-if="currentOrganisation?.factuel && currentOrganisation?.factuel.length">
                 <div @click="goToPageSoumission(soumission.id, 'factuel')" v-for="(soumission, index) in currentOrganisation.factuel" :key="index" class="flex items-center justify-between w-full gap-2 px-2 py-3 text-base font-medium text-black truncate transition-all bg-white border border-l-4 rounded shadow-md cursor-pointer border-primary">
@@ -637,7 +612,7 @@ onMounted(async () => {
                 <p>Aucune soumission factuelle disponible.</p>
               </div>
             </TabPanel>
-            <TabPanel class="max-h-[80vh] overflow-y-auto">
+            <TabPanel v-if="statistiques?.formulaire_de_perception_de_gouvernance" class="max-h-[80vh] overflow-y-auto">
               <div class="flex flex-col gap-2" v-if="currentOrganisation?.perception && currentOrganisation?.perception.length">
                 <div @click="goToPageSoumission(soumission.id, 'perception')" v-for="(soumission, index) in currentOrganisation.perception" :key="index" class="flex items-center justify-between w-full gap-2 px-2 py-3 text-base font-medium text-black truncate transition-all bg-white border border-l-4 rounded shadow-md cursor-pointer border-primary">
                   <p>

@@ -543,6 +543,14 @@ import ChartDetailIndicateur from "./news/ChartDetailIndicateur.vue";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 
+const emit = defineEmits(["refreshData", "update-datas"]);
+
+
+const getCurrentQuarter = function () {
+  const month = new Date().getMonth() + 1; // Les mois sont indexés à partir de 0
+  return Math.ceil(month / 3); // Calcul du trimestre actuel
+}
+
 const props = defineProps({
   data: Array,
   years: Array,
@@ -572,7 +580,6 @@ const props = defineProps({
     default: [],
   },
 });
-const emit = defineEmits(["update-datas"]);
 
 const data2 = ref([]);
 
@@ -633,8 +640,8 @@ const payloadUpdate = reactive({
   // valeurDeBase: [],
 });
 const payloadSuivi = reactive({
-  annee: "",
-  trimestre: "",
+  annee: `${new Date().getFullYear()}`,
+  trimestre: `${getCurrentQuarter()}`,
   valeurCible: "",
   valeurRealise: "",
   commmentaire: "",
@@ -669,11 +676,11 @@ const updateValueRealiser = (keyId, newValue) => {
 const resetValues = () => {
   valeurCible.value = valueKeysIndicateurSuivi.value.map((item) => ({
     keyId: item.id,
-    value: "",
+    value: valeurCible.value[0][item.key] ?? "",
   }));
   valeurRealise.value = valueKeysIndicateurSuivi.value.map((item) => ({
     keyId: item.id,
-    value: "",
+    value: valeurRealise.value[item.key] ?? "",
   }));
 };
 
@@ -695,13 +702,23 @@ const resetFormAddYearCible = () => {
   showModalYearCible.value = false;
   errors.value = {};
 };
-const resetFormSuivi = () => {
+const resetFormSuivi = async () => {
   if (isAgregerCurrentIndicateur.value) {
     resetValues();
   }
   Object.keys(payloadSuivi).forEach((key) => {
     payloadSuivi[key] = "";
   });
+
+  payloadSuivi['annee'] = `${new Date().getFullYear()}`;
+  payloadSuivi['trimestre'] = `${getCurrentQuarter()}`;
+  payloadSuivi['valeurCible'] = "";
+  payloadSuivi['valeurRealise'] = "";
+  payloadSuivi['commentaire'] = "";
+  payloadSuivi['dateSuivie'] = "";
+  payloadSuivi['indicateurId'] = "";
+  payloadSuivi['sources_de_donnee'] = "";
+
   showModalSuivi.value = false;
   errors.value = {};
 };
@@ -713,7 +730,8 @@ const submitData = async () => {
     await action;
     toast.success(`Suivi Ajouté avec succès.`);
     // getDatas();
-    resetFormSuivi();
+    await resetFormSuivi();
+    emit("refreshData");
   } catch (e) {
     toast.error(getAllErrorMessages(e));
   } finally {
@@ -742,7 +760,11 @@ const submitUpdate = async () => {
   }
 };
 const submitStructure = async () => {
-  if (!payloadStructure.responsables.organisations.length || !payloadStructure.responsables.ug.length) return toast.error("Veuillez choisir au moins une structure");
+  console.log(payloadStructure.responsables.organisations.length);
+  console.log(payloadStructure.responsables.ug.length);
+  console.log(payloadStructure.responsables.organisations.length || payloadStructure.responsables.ug.length);
+  console.log(payloadStructure.responsables.organisations.length && payloadStructure.responsables.ug.length);
+  if (!payloadStructure.responsables.organisations.length && !payloadStructure.responsables.ug.length) return toast.error("Veuillez choisir au moins une structure");
   isLoading.value = true;
   const action = IndicateursService.addStructure(idSelect.value, payloadStructure);
   try {
@@ -789,6 +811,7 @@ const submitYearCible = async () => {
 const submitSuivi = async () => {
   isLoading.value = true;
   payloadSuivi.trimestre = Number(payloadSuivi.trimestre);
+  payloadSuivi.annee = Number(payloadSuivi.annee);
   if (optionsSuivi[0].id == suiviOption.value) {
     delete payloadSuivi.trimestre;
   } else {
@@ -805,8 +828,9 @@ const submitSuivi = async () => {
     await action;
     toast.success(`Suivi Ajouté avec succès.`);
     // getDatas();
-    resetFormSuivi();
-    showModalSuivi.value = false;
+    await resetFormSuivi();
+    
+    emit("refreshData");
   } catch (e) {
     if (e.response && e.response.status === 422) {
       errors.value = e.response.data.errors;
@@ -845,18 +869,26 @@ const handleEdit = (data) => {
   payloadUpdate.nom = data.nom;
   payloadUpdate.indice = data.indice.toString();
   payloadUpdate.description = data.description ?? "";
-  payloadUpdate.frequence_de_la_collecte = data.frequence_de_la_collecte;
-  payloadUpdate.methode_de_la_collecte = data.methode_de_la_collecte;
-  payloadUpdate.sources_de_donnee = data.sources_de_donnee;
+  payloadUpdate.frequence_de_la_collecte = data.frequence_de_la_collecte ?? "";
+  payloadUpdate.methode_de_la_collecte = data.methode_de_la_collecte ?? "";
+  payloadUpdate.sources_de_donnee = data.sources_de_donnee ?? "";
   // payloadUpdate.type_de_variable = data.type_de_variable;
-  payloadUpdate.uniteeMesureId = data.unitee_mesure.id;
-  payloadUpdate.anneeDeBase = data.anneeDeBase.toString();
-  payloadUpdate.categorieId = data.categorieId;
+  payloadUpdate.uniteeMesureId = data.unitee_mesure.id ?? "";
+  payloadUpdate.anneeDeBase = data.anneeDeBase ?? ""  //.toString();
+  payloadUpdate.categorieId = data.categorieId ?? "";
   // payloadUpdate.sites = data.sites;
   showModalEdit.value = true;
 };
 const handleSuivi = (data) => {
+  
+  valeurCible.value = data.valeursCible.filter((valeurCible) => valeurCible.annee === Number(payloadSuivi.annee)).map((v) => v.valeurCible);
   isAgregerCurrentIndicateur.value = data.agreger;
+  if(isAgregerCurrentIndicateur.value == false){
+    Object.keys(valeurCible.value[0]).forEach((key) => {
+      payloadSuivi.valeurCible = valeurCible.value[0][key];
+    });
+  }
+
   payloadSuivi.indicateurId = data.id;
   valueKeysIndicateurSuivi.value = data.value_keys;
   resetValues();
