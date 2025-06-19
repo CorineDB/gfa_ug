@@ -125,9 +125,9 @@ const createData = async () => {
   await SuiviFinancier.create(payload)
     .then(() => {
       isLoading.value = false;
-      getDatas();
       resetForm();
       toast.success("Suivi créer.");
+      getDatas();
     })
     .catch((e) => {
       isLoading.value = false;
@@ -160,9 +160,9 @@ const updateData = async () => {
   await SuiviFinancier.update(idSelect.value, payload)
     .then(() => {
       isLoading.value = false;
-      getDatas();
       resetForm();
       toast.success("Suivi modifiée.");
+      getDatas();
     })
     .catch((e) => {
       isLoading.value = false;
@@ -183,7 +183,7 @@ const deleteData = async () => {
     .then(() => {
       deleteModalPreview.value = false;
       isLoading.value = false;
-      toast.success("Type de gouvernance supprimé");
+      toast.success("Suivi financier supprimé");
       getDatas();
     })
     .catch((e) => {
@@ -261,6 +261,7 @@ const applyFilter = () => {
   }
 };
 const handleEdit = (params) => {
+  console.log(params);
   isCreate.value = false;
   idSelect.value = params.id;
   //payload.activiteId = params.id;
