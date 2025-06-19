@@ -514,6 +514,7 @@ const addNewIndicator = () => {
 */
 
 // Stocke les derniers index utilisés pour chaque clé parent
+const lastTypeIndexGlobal = new Map();
 const lastPrincipeIndexByType = new Map();
 const lastCritereIndexByPrincipe = new Map();
 const lastIndicateurIndexByCritere = new Map();
@@ -521,7 +522,7 @@ const lastIndicateurIndexByCritere = new Map();
 const makeUniqueKey = (baseKey, parentKey, map, allKeys) => {
   // Récupérer le dernier index utilisé pour ce parent
   let index = map.get(parentKey) ?? -1;
-  
+
   // Incrémenter pour avoir le prochain index
   index++;
   let key = `${baseKey}_${index}`;
@@ -535,7 +536,7 @@ const makeUniqueKey = (baseKey, parentKey, map, allKeys) => {
   // Sauvegarder le nouvel index pour ce parent
   map.set(parentKey, index);
   return key;
-};     
+};
 
 const addNewIndicator = () => {
   const sessionKeys = new Set();
@@ -545,7 +546,7 @@ const addNewIndicator = () => {
 
     // 1. Générer typeKey normalement
     const typeKeyBase = generateKey(item.typeKey);
-    const typeKey = makeUniqueKey(typeKeyBase, "GLOBAL", new Map(), allKeys); // pas besoin de Map ici si type unique
+    const typeKey = makeUniqueKey(typeKeyBase, "GLOBAL", lastTypeIndexGlobal, allKeys);
     sessionKeys.add(typeKey);
 
     // 2. Générer principeKey unique par typeKey
@@ -589,21 +590,11 @@ const addNewIndicator = () => {
 
       // Tri par position
       globalFormFactuelData.value.sort((a, b) => {
-        return (
-          a.typePosition - b.typePosition ||
-          a.principePosition - b.principePosition ||
-          a.criterePosition - b.criterePosition ||
-          a.indicateurPosition - b.indicateurPosition
-        );
+        return a.typePosition - b.typePosition || a.principePosition - b.principePosition || a.criterePosition - b.criterePosition || a.indicateurPosition - b.indicateurPosition;
       });
 
       previewFormFactuelData.value.sort((a, b) => {
-        return (
-          a.type.position - b.type.position ||
-          a.principe.position - b.principe.position ||
-          a.critere.position - b.critere.position ||
-          a.indicateur.position - b.indicateur.position
-        );
+        return a.type.position - b.type.position || a.principe.position - b.principe.position || a.critere.position - b.critere.position || a.indicateur.position - b.indicateur.position;
       });
 
       // Sauvegarde
@@ -632,11 +623,6 @@ const addNewIndicator = () => {
   console.log("currentGlobalFactuelFormDataArray.value", currentGlobalFactuelFormDataArray.value);
   console.log("currentPreviewFactuelFormDataArray.value", currentPreviewFactuelFormDataArray.value);
 };
-
-
- 
-
-   
 
 const removeIndicator = (key) => {
   // Trouver l'index de la soumission à supprimer
@@ -1051,8 +1037,6 @@ watch(() => {
 });
 
 onMounted(() => {
-  
-
   if (route.query.tab) currentTab.value = Number(route.query.tab);
 
   if (globalData && previewData) {
@@ -1112,7 +1096,7 @@ onMounted(() => {
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <IndicateurGouvernance :to-reset="resetCurrentForm"  :is-available="isAvailable.indicateur" @selected="getIndicateurs"  :monTableau="previewFormFactuelData" />
+            <IndicateurGouvernance :to-reset="resetCurrentForm" :is-available="isAvailable.indicateur" @selected="getIndicateurs" :monTableau="previewFormFactuelData" />
           </AccordionPanel>
         </AccordionItem>
 
