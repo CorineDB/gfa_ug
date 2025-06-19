@@ -170,7 +170,7 @@ onMounted(() => getSoumission());
                         <a v-for="(preuve, index) in question.reponse_de_la_collecte?.preuves ?? []" class="p-1 text-xs underline btn-outline-primary" :key="index" :href="preuve.url" target="_blank" rel="noopener noreferrer">Preuve {{ index + 1 }}</a>
                       </template>
                       <template v-else>
-                        Preuve pas requise
+                        Pas de preuve
                       </template>
                     </td>
                   </tr>

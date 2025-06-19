@@ -545,7 +545,7 @@ const hasInvalidResponsesForCritere = (critere) => {
         <div class="flex items-center">
           <div class="text-lg font-medium">Formulaire factuel</div>
         </div>
-        <div class="mt-3">Formulaire factuel déjà remplir. Merci</div>
+        <div class="mt-3">Formulaire factuel déjà remplit. Merci</div>
       </Alert>
     </div>
   </div>

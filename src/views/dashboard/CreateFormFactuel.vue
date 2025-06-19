@@ -1154,7 +1154,7 @@ onMounted(() => {
       <table class="w-full border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
         <thead class="text-white bg-blue-900">
           <tr>
-            <th class="py-3 border border-slate-900">Principes jk</th>
+            <th class="py-3 border border-slate-900">Principes</th>
             <th class="py-3 border border-slate-900">Critères</th>
             <th class="py-3 border border-slate-900">Indicateurs</th>
             <th class="py-3 border border-slate-900 max-w-[200px]">Actions</th>
