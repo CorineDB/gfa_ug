@@ -137,7 +137,7 @@ const currentGlobalFactuelFormData = reactive({
   typePosition: "",
   principePosition: "",
   criterePosition: "",
-  indicateurPosition: ""
+  indicateurPosition: "",
 });
 
 const resetErrors = () => {
@@ -157,7 +157,7 @@ const organiseGlobalFormFactuelData = (submissions) => {
   submissions.forEach((submission) => {
     // Trouver ou créer le type de gouvernance
     //let type = typesGouvernance.value.types_de_gouvernance.find((t) => t.id === submission.type);
-    
+
     let type = typesGouvernance.value.types_de_gouvernance.find((p) => p.id === submission.type.id);
 
     if (!type) {
@@ -182,11 +182,10 @@ const organiseGlobalFormFactuelData = (submissions) => {
 
     // Ajouter l'indicateur de gouvernance s'il n'est pas déjà présent
     //if (!critere.indicateurs_de_gouvernance.includes(submission.indicateur)) {
-      
+
     let indicateur = critere.indicateurs_de_gouvernance.find((i) => i.id === submission.indicateur.id);
     if (!indicateur) {
-
-      critere.indicateurs_de_gouvernance.push({id: submission.indicateur.id, position: submission.indicateur.position});
+      critere.indicateurs_de_gouvernance.push({ id: submission.indicateur.id, position: submission.indicateur.position });
 
       //critere.indicateurs_de_gouvernance.push(submission.indicateur);
     }
@@ -243,12 +242,14 @@ const organisePreviewFormFactuelData = (submissions) => {
 const resetCurrentPreviewFactuelFormData = () => {
   // for (const key in currentPreviewFactuelFormData) {
   //   currentPreviewFactuelFormData[key] = { id: "", nom: "" };
-  // }  
+  // }
 
   currentPreviewFactuelFormData.principe = { id: "", nom: "", key: "", position: 0 };
   currentPreviewFactuelFormData.critere = { id: "", nom: "", key: "", position: 0 };
   currentPreviewFactuelFormData.indicateur = { id: "", nom: "", key: "", position: 0 };
   currentPreviewFactuelFormData.type = { id: "", nom: "", key: "", position: 0 };
+
+  console.log(currentPreviewFactuelFormDataArray.value);
 
   currentPreviewFactuelFormDataArray.value = [];
 };
@@ -300,11 +301,7 @@ const getTypes = (type) => {
   changeIndexAccordion(1);
   currentGlobalFactuelFormData.type = type.id;
 
-  let position = new Set(
-    (globalFormFactuelData.value || [])
-      .map(item => item.type)
-      .filter(val => val !== null && val !== undefined && val !== "")
-  ).size;
+  let position = new Set((globalFormFactuelData.value || []).map((item) => item.type).filter((val) => val !== null && val !== undefined && val !== "")).size;
 
   position = position + 1;
 
@@ -335,9 +332,9 @@ const getPrincipes = (principe) => {
 
   let position = new Set(
     (globalFormFactuelData.value || [])
-      .filter(val => val.type == currentGlobalFactuelFormData.type)
-      .map(item => item.principe)
-      .filter(val => val !== null && val !== undefined && val !== "")
+      .filter((val) => val.type == currentGlobalFactuelFormData.type)
+      .map((item) => item.principe)
+      .filter((val) => val !== null && val !== undefined && val !== "")
   ).size;
 
   position = position + 1;
@@ -374,9 +371,9 @@ const getCriteres = (critere) => {
 
   let position = new Set(
     (globalFormFactuelData.value || [])
-      .filter(val => val.principe == currentGlobalFactuelFormData.principe)
-      .map(item => item.critere)
-      .filter(val => val !== null && val !== undefined && val !== "")
+      .filter((val) => val.principe == currentGlobalFactuelFormData.principe)
+      .map((item) => item.critere)
+      .filter((val) => val !== null && val !== undefined && val !== "")
   ).size;
 
   position = position + 1;
@@ -409,8 +406,7 @@ const getIndicateur = (indicateur) => {
 };
 
 const getIndicateurs = (indicateur) => {
-  console.log("indicateur", indicateur);
-  changeIndexAccordion(4);
+  // changeIndexAccordion(4);
   currentGlobalFactuelFormData.indicateur = indicateur.id;
 
   /* 
@@ -421,9 +417,9 @@ const getIndicateurs = (indicateur) => {
   */
 
   let donnee = (currentGlobalFactuelFormDataArray.value || [])
-    .filter(item => item.critere === currentGlobalFactuelFormData.critere)
-    .map(item => item.indicateur)
-    .filter(val => val !== null && val !== undefined && val !== "");
+    .filter((item) => item.critere === currentGlobalFactuelFormData.critere)
+    .map((item) => item.indicateur)
+    .filter((val) => val !== null && val !== undefined && val !== "");
 
   console.log("donnee");
   console.log(donnee);
@@ -457,7 +453,7 @@ const getIndicateurs = (indicateur) => {
     critereKey: critereKey,
     indicateur: indicateur.id,
     indicateurKey: key,
-    indicateurPosition: position
+    indicateurPosition: position,
   };
 
   currentGlobalFactuelFormDataArray.value.push(form);
@@ -471,21 +467,21 @@ const getIndicateurs = (indicateur) => {
       id: "",
       nom: "",
       key: "",
-      position: 0
+      position: 0,
     },
     principe: currentPreviewFactuelFormData.principe ?? {
       id: "",
       nom: "",
       key: "",
-      position: 0
+      position: 0,
     },
     critere: currentPreviewFactuelFormData.critere ?? {
       id: "",
       nom: "",
       key: key,
-      position: 0
+      position: 0,
     },
-    indicateur: currentPreviewFactuelFormData.indicateur
+    indicateur: currentPreviewFactuelFormData.indicateur,
   };
 
   currentPreviewFactuelFormDataArray.value.push(form2);
@@ -518,7 +514,6 @@ const addNewIndicator = () => {
 */
 
 const addNewIndicator = () => {
-
   currentGlobalFactuelFormDataArray.value.forEach((item, index) => {
     const typeKey = generateKey(item.typeKey);
     const principeKey = generateKey(item.principeKey + typeKey);
@@ -526,10 +521,9 @@ const addNewIndicator = () => {
     const indicateurKey = generateKey(item.indicateurKey + critereKey);
     const key = indicateurKey;
 
-    console.log("critereKey.value", critereKey)
+    console.log("critereKey.value", critereKey);
 
     if (!uniqueKeys.has(key)) {
-
       item = {
         ...item,
         typeKey: typeKey,
@@ -547,8 +541,7 @@ const addNewIndicator = () => {
       preview.critere.key = critereKey;
       preview.indicateur.key = indicateurKey;
 
-
-      console.log("preview.critere.key", preview.critere.key)
+      console.log("preview.critere.key", preview.critere.key);
 
       globalFormFactuelData.value.unshift({ ...item });
 
@@ -556,12 +549,12 @@ const addNewIndicator = () => {
       previewFormFactuelData.value.unshift(JSON.parse(JSON.stringify(preview)));
 
       console.log("previewFormFactuelData.value", previewFormFactuelData.value);
-      console.log("critereKey.value", critereKey)
+      console.log("critereKey.value", critereKey);
       uniqueKeys.set(key, true);
       uniqueKeys.set(critereKey, true);
       uniqueKeys.set(principeKey, true);
       uniqueKeys.set(typeKey, true);
-      
+
       // ✅ Sort after unshift
       globalFormFactuelData.value.sort((a, b) => {
         return a.typePosition - b.typePosition || a.principePosition - b.principePosition || a.criterePosition - b.criterePosition || a.indicateurPosition - b.indicateurPosition;
@@ -570,7 +563,7 @@ const addNewIndicator = () => {
       previewFormFactuelData.value.sort((a, b) => {
         return a.type.position - b.type.position || a.principe.position - b.principe.position || a.critere.position - b.critere.position || a.indicateur.position - b.indicateur.position;
       });
-      
+
       localStorage.setItem("globalFormFactuelData", JSON.stringify(globalFormFactuelData.value));
       localStorage.setItem("previewFormFactuelData", JSON.stringify(previewFormFactuelData.value));
 
@@ -593,7 +586,6 @@ const addNewIndicator = () => {
 };
 
 const removeIndicator = (key) => {
-
   // Trouver l'index de la soumission à supprimer
   const index = globalFormFactuelData.value.findIndex((s) => s.indicateurKey === key);
   // Supprimer la soumission et sa clé si elle est trouvée
@@ -606,8 +598,7 @@ const removeIndicator = (key) => {
     localStorage.setItem("previewFormFactuelData", JSON.stringify(previewFormFactuelData.value));
 
     toast.success("Indicateur supprimé.");
-  }
-  else {
+  } else {
     const indice = currentPreviewFactuelFormDataArray.value.findIndex((s) => s.indicateur.key === key);
 
     if (indice !== -1) {
@@ -630,7 +621,7 @@ const removeIndicator = (key) => {
 };
 
 function editTemporyIndicateur(key, position) {
-  updateTemporyIndicateurs(key, position, false)
+  updateTemporyIndicateurs(key, position, false);
   canEditIndicateur.value[key] = false;
 }
 
@@ -639,54 +630,53 @@ const handleEdit = (key) => {
   canEditIndicateur.value[key] = true;
 };
 
-const updateTemporyElement = (key, position, isCurrent = false, type = 'critere') => {
-
+const updateTemporyElement = (key, position, isCurrent = false, type = "critere") => {
   if (isCurrent == false) {
     // Update position from globalFormFactuelData
-    globalFormFactuelData.value = globalFormFactuelData.value.map((item) => {
-      if (type == 'type') {
-        if (item.typeKey == key) {
-          item.typePosition = position;
+    globalFormFactuelData.value = globalFormFactuelData.value
+      .map((item) => {
+        if (type == "type") {
+          if (item.typeKey == key) {
+            item.typePosition = position;
+          }
+        } else if (type == "principe") {
+          if (item.principeKey == key) {
+            item.principePosition = position;
+          }
+        } else if (type == "critere") {
+          if (item.critereKey == key) {
+            item.criterePosition = position;
+          }
         }
-      }
-      else if (type == 'principe') {
-        if (item.principeKey == key) {
-          item.principePosition = position;
-        }
-      }
-      else if (type == 'critere') {
-        if (item.critereKey == key) {
-          item.criterePosition = position;
-        }
-      }
 
-      return item;
-    }).sort((a, b) => {
-      return a.typePosition - b.typePosition || a.principePosition - b.principePosition || a.criterePosition - b.criterePosition || a.indicateurPosition - b.indicateurPosition;
-    });
+        return item;
+      })
+      .sort((a, b) => {
+        return a.typePosition - b.typePosition || a.principePosition - b.principePosition || a.criterePosition - b.criterePosition || a.indicateurPosition - b.indicateurPosition;
+      });
 
     // Update position from previewFormFactuelData
-    previewFormFactuelData.value = previewFormFactuelData.value.map((item) => {
-      if (type == 'type') {
-        if (item.type.key == key) {
-          item.type.position = position;
+    previewFormFactuelData.value = previewFormFactuelData.value
+      .map((item) => {
+        if (type == "type") {
+          if (item.type.key == key) {
+            item.type.position = position;
+          }
+        } else if (type == "principe") {
+          if (item.principe.key == key) {
+            item.principe.position = position;
+          }
+        } else if (type == "critere") {
+          if (item.critere.key == key) {
+            item.critere.position = position;
+          }
         }
-      }
-      else if (type == 'principe') {
-        if (item.principe.key == key) {
-          item.principe.position = position;
-        }
-      }
-      else if (type == 'critere') {
-        if (item.critere.key == key) {
-          item.critere.position = position;
-        }
-      }
 
-      return item;
-    }).sort((a, b) => {
-      return a.type.position - b.type.position || a.principe.position - b.principe.position || a.critere.position - b.critere.position || a.indicateur.position - b.indicateur.position;
-    });
+        return item;
+      })
+      .sort((a, b) => {
+        return a.type.position - b.type.position || a.principe.position - b.principe.position || a.critere.position - b.critere.position || a.indicateur.position - b.indicateur.position;
+      });
 
     // Recalculate and update
     updateAllTypesGouvernance();
@@ -695,113 +685,106 @@ const updateTemporyElement = (key, position, isCurrent = false, type = 'critere'
     localStorage.setItem("globalFormFactuelData", JSON.stringify(globalFormFactuelData.value));
     localStorage.setItem("previewFormFactuelData", JSON.stringify(previewFormFactuelData.value));
 
-    if (type == 'type') {
+    if (type == "type") {
       canEditType.value[key] = false;
-    }
-    else if (type == 'principe') {
+    } else if (type == "principe") {
       canEditPrincipe.value[key] = false;
-    }
-    else if (type == 'critere') {
+    } else if (type == "critere") {
       canEditCritere.value[key] = false;
     }
     console.log(type);
-  }
-  else {
-
-    if (type == 'type') {
+  } else {
+    if (type == "type") {
       currentPreviewFactuelFormData.type.position = position;
       currentGlobalFactuelFormData.typePosition = position;
-    }
-    else if (type == 'principe') {
+    } else if (type == "principe") {
       currentPreviewFactuelFormData.principe.position = position;
       currentGlobalFactuelFormData.principePosition = position;
-    }
-    else if (type == 'critere') {
+    } else if (type == "critere") {
       currentPreviewFactuelFormData.critere.position = position;
       currentGlobalFactuelFormData.criterePosition = position;
     }
 
-    currentGlobalFactuelFormDataArray.value = currentGlobalFactuelFormDataArray.value.map((item) => {
-      if (type == 'type') {
-        if (item.typeKey == key) {
-          item.typePosition = position;
+    currentGlobalFactuelFormDataArray.value = currentGlobalFactuelFormDataArray.value
+      .map((item) => {
+        if (type == "type") {
+          if (item.typeKey == key) {
+            item.typePosition = position;
+          }
+        } else if (type == "principe") {
+          if (item.principeKey == key) {
+            item.principePosition = position;
+          }
+        } else if (type == "critere") {
+          if (item.critereKey == key) {
+            item.criterePosition = position;
+          }
         }
-      }
-      else if (type == 'principe') {
-        if (item.principeKey == key) {
-          item.principePosition = position;
-        }
-      }
-      else if (type == 'critere') {
-        if (item.critereKey == key) {
-          item.criterePosition = position;
-        }
-      }
 
-      return item;
-    }).sort((a, b) => {
-      return a.typePosition - b.typePosition || a.principePosition - b.principePosition || a.criterePosition - b.criterePosition || a.indicateurPosition - b.indicateurPosition;
-    });
+        return item;
+      })
+      .sort((a, b) => {
+        return a.typePosition - b.typePosition || a.principePosition - b.principePosition || a.criterePosition - b.criterePosition || a.indicateurPosition - b.indicateurPosition;
+      });
 
-    currentPreviewFactuelFormDataArray.value = currentPreviewFactuelFormDataArray.value.map((item) => {
-      if (type == 'type') {
-        if (item.type.key == key) {
-          item.type.position = position;
+    currentPreviewFactuelFormDataArray.value = currentPreviewFactuelFormDataArray.value
+      .map((item) => {
+        if (type == "type") {
+          if (item.type.key == key) {
+            item.type.position = position;
+          }
+        } else if (type == "principe") {
+          if (item.principe.key == key) {
+            item.principe.position = position;
+          }
+        } else if (type == "critere") {
+          if (item.critere.key == key) {
+            item.critere.position = position;
+          }
         }
-      }
-      else if (type == 'principe') {
-        if (item.principe.key == key) {
-          item.principe.position = position;
-        }
-      }
-      else if (type == 'critere') {
-        if (item.critere.key == key) {
-          item.critere.position = position;
-        }
-      }
 
-      return item;
-    }).sort((a, b) => {
-      return a.type.position - b.type.position || a.principe.position - b.principe.position || a.critere.position - b.critere.position || a.indicateur.position - b.indicateur.position;
-    });
-
+        return item;
+      })
+      .sort((a, b) => {
+        return a.type.position - b.type.position || a.principe.position - b.principe.position || a.critere.position - b.critere.position || a.indicateur.position - b.indicateur.position;
+      });
   }
 };
 
 // Handle edit action
-const handleEditElement = (key, type = 'critere') => {
-  if (type == 'type') {
+const handleEditElement = (key, type = "critere") => {
+  if (type == "type") {
     canEditType.value[key] = true;
-  }
-  else if (type == 'principe') {
+  } else if (type == "principe") {
     canEditPrincipe.value[key] = true;
-  }
-  else if (type == 'critere') {
+  } else if (type == "critere") {
     canEditCritere.value[key] = true;
   }
 };
 
 const updateTemporyIndicateurs = (key, position, isCurrent = false) => {
-
   if (!isCurrent) {
+    previewFormFactuelData.value = previewFormFactuelData.value
+      .map((item) => {
+        if (item.indicateur.key == key) {
+          item.indicateur.position = position;
+        }
+        return item;
+      })
+      .sort((a, b) => {
+        return a.type.position - b.type.position || a.principe.position - b.principe.position || a.critere.position - b.critere.position || a.indicateur.position - b.indicateur.position;
+      });
 
-    previewFormFactuelData.value = previewFormFactuelData.value.map((item) => {
-      if (item.indicateur.key == key) {
-        item.indicateur.position = position;
-      }
-      return item;
-    }).sort((a, b) => {
-      return a.type.position - b.type.position || a.principe.position - b.principe.position || a.critere.position - b.critere.position || a.indicateur.position - b.indicateur.position;
-    });
-
-    globalFormFactuelData.value = globalFormFactuelData.value.map((item) => {
-      if (item.indicateur.key == key) {
-        item.position = position;
-      }
-      return item;
-    }).sort((a, b) => {
-      return a.typePosition - b.typePosition || a.principePosition - b.principePosition || a.criterePosition - b.criterePosition || a.indicateurPosition - b.indicateurPosition;
-    });
+    globalFormFactuelData.value = globalFormFactuelData.value
+      .map((item) => {
+        if (item.indicateur.key == key) {
+          item.position = position;
+        }
+        return item;
+      })
+      .sort((a, b) => {
+        return a.typePosition - b.typePosition || a.principePosition - b.principePosition || a.criterePosition - b.criterePosition || a.indicateurPosition - b.indicateurPosition;
+      });
 
     updateAllTypesGouvernance();
 
@@ -809,27 +792,28 @@ const updateTemporyIndicateurs = (key, position, isCurrent = false) => {
     localStorage.setItem("previewFormFactuelData", JSON.stringify(previewFormFactuelData.value));
 
     toast.success("Question operationnelle update.");
-  }
-  else {
+  } else {
+    currentPreviewFactuelFormDataArray.value = currentPreviewFactuelFormDataArray.value
+      .map((item) => {
+        if (item.indicateur.key == key) {
+          item.indicateur.position = position;
+        }
+        return item;
+      })
+      .sort((a, b) => {
+        return a.type.position - b.type.position || a.principe.position - b.principe.position || a.critere.position - b.critere.position || a.indicateur.position - b.indicateur.position;
+      });
 
-    currentPreviewFactuelFormDataArray.value = currentPreviewFactuelFormDataArray.value.map((item) => {
-      if (item.indicateur.key == key) {
-        item.indicateur.position = position;
-      }
-      return item;
-    }).sort((a, b) => {
-      return a.type.position - b.type.position || a.principe.position - b.principe.position || a.critere.position - b.critere.position || a.indicateur.position - b.indicateur.position;
-    });
-
-    currentGlobalFactuelFormDataArray.value = currentGlobalFactuelFormDataArray.value.map((item) => {
-      if (item.indicateur.key == key) {
-        item.position = position;
-      }
-      return item;
-    }).sort((a, b) => {
-      return a.typePosition - b.typePosition || a.principePosition - b.principePosition || a.criterePosition - b.criterePosition || a.indicateurPosition - b.indicateurPosition;
-    });
-
+    currentGlobalFactuelFormDataArray.value = currentGlobalFactuelFormDataArray.value
+      .map((item) => {
+        if (item.indicateur.key == key) {
+          item.position = position;
+        }
+        return item;
+      })
+      .sort((a, b) => {
+        return a.typePosition - b.typePosition || a.principePosition - b.principePosition || a.criterePosition - b.criterePosition || a.indicateurPosition - b.indicateurPosition;
+      });
   }
 };
 
@@ -849,19 +833,15 @@ const resetAllFormWithDataLocalStorage = () => {
   // toast.success("Formulaire supprimé.");
 };
 
-const updateElement = (key, type = 'critere', isCurrent = false) => {
-
+const updateElement = (key, type = "critere", isCurrent = false) => {
   if (!isCurrent) {
     console.log(key);
     const typeKey = type + "Key";
-  }
-  else {
-
+  } else {
   }
 };
 
-const removeElement = (key, type = 'critere', isCurrent = false) => {
-
+const removeElement = (key, type = "critere", isCurrent = false) => {
   if (!isCurrent) {
     console.log(key);
     const typeKey = type + "Key";
@@ -894,7 +874,6 @@ const removeElement = (key, type = 'critere', isCurrent = false) => {
             uniqueKeys.delete(globalFormFactuelData.value[i]["principeKey"]);
           }
         }
-
       }
     }
 
@@ -905,7 +884,6 @@ const removeElement = (key, type = 'critere', isCurrent = false) => {
 
     // Remove from previewFormFactuelData
     for (let i = previewFormFactuelData.value.length - 1; i >= 0; i--) {
-
       if (previewFormFactuelData.value[i][type]["key"] === key) {
         previewFormFactuelData.value.splice(i, 1);
       }
@@ -923,9 +901,7 @@ const removeElement = (key, type = 'critere', isCurrent = false) => {
     localStorage.setItem("previewFormFactuelData", JSON.stringify(previewFormFactuelData.value));
 
     toast.success("Élément(s) supprimé(s).");
-
-  }
-  else {
+  } else {
     Object.keys(currentGlobalFactuelFormData).forEach((key) => {
       currentGlobalFactuelFormData[key] = "";
     });
@@ -933,7 +909,6 @@ const removeElement = (key, type = 'critere', isCurrent = false) => {
     currentPreviewFactuelFormData[type] = { id: "", nom: "", key: "", position: 0 };
   }
 };
-
 
 const showDeleteButton = computed(() => {
   if (localStorage.getItem("globalFormFactuelData") || localStorage.getItem("previewFormFactuelData") || localStorage.getItem("globalOptionResponses")) {
@@ -998,14 +973,13 @@ const comeBackToCreation = function () {
 };
 
 const selectTab = function (tab) {
-  currentTab.value = tab
+  currentTab.value = tab;
   if (tab) {
     router.push({ name: "Ajouter_un_formulaire_Factuel", query: { tab: tab } });
-  }
-  else {
+  } else {
     router.push({ name: "Ajouter_un_formulaire_Factuel" });
   }
-}
+};
 
 onBeforeUnmount(() => {
   clearUniqueKeys();
@@ -1013,21 +987,26 @@ onBeforeUnmount(() => {
 });
 
 watch(() => {
-  console.log(route.query.tab)
-  console.log(currentTab.value)
+  console.log(route.query.tab);
+  console.log(currentTab.value);
   if (route.query.tab) {
     currentTab.value = Number(route.query.tab);
+  } else {
+    currentTab.value = 0;
   }
-  else { currentTab.value = 0 }
-  console.log(currentTab.value)
+  console.log(currentTab.value);
 });
 
 onMounted(() => {
+  
+
   if (route.query.tab) currentTab.value = Number(route.query.tab);
 
   if (globalData && previewData) {
     globalFormFactuelData.value = JSON.parse(globalData);
     previewFormFactuelData.value = JSON.parse(previewData);
+
+    console.log("previewTypesGouvernance.value", previewFormFactuelData.value);
 
     //previewOptionResponsesModel.value = JSON.parse(localStorage.getItem("previewOptionResponsesModel"))
 
@@ -1041,16 +1020,16 @@ onMounted(() => {
 
 <template>
   <div class="flex w-full gap-2">
-    <section v-if="!currentTab" class=" max-h-[50%] pr-1 overflow-y-auto border-r-2 pt-5"
-      :class="currentTab ? 'w-0' : 'w-[30%]'">
+    <section v-if="!currentTab" class="max-h-[50%] pr-1 overflow-y-auto border-r-2 pt-5" :class="currentTab ? 'w-0' : 'w-[30%]'">
       <AccordionGroup :selectedIndex="indexAccordion" class="space-y-1">
         <AccordionItem class="">
           <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
             <p>Type de gouvernance</p>
             <ChevronDownIcon />
           </Accordion>
+
           <AccordionPanel class="p-2">
-            <TypeGouvernance :to-reset="false" :is-available="isAvailable.type" @selected="getTypes" />
+            <TypeGouvernance :to-reset="resetCurrentForm" :is-available="isAvailable.type" @selected="getTypes" />
           </AccordionPanel>
         </AccordionItem>
 
@@ -1060,8 +1039,7 @@ onMounted(() => {
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <PrincipeDeGouvernanceFactuel :to-reset="false" :is-available="isAvailable.principe"
-              @selected="getPrincipes" />
+            <PrincipeDeGouvernanceFactuel :to-reset="resetCurrentForm" :is-available="isAvailable.principe" @selected="getPrincipes" />
           </AccordionPanel>
         </AccordionItem>
 
@@ -1071,8 +1049,7 @@ onMounted(() => {
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <CritereDeGouvernanceFactuel :to-reset="false" :is-available="isAvailable.critere"
-              @selected="getCriteres" />
+            <CritereDeGouvernanceFactuel :to-reset="resetCurrentForm" :is-available="isAvailable.critere" @selected="getCriteres" />
           </AccordionPanel>
         </AccordionItem>
 
@@ -1082,8 +1059,7 @@ onMounted(() => {
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <IndicateurGouvernance :to-reset="resetCurrentForm" :is-available="isAvailable.indicateur"
-              @selected="getIndicateurs" />
+            <IndicateurGouvernance :to-reset="resetCurrentForm"  :is-available="isAvailable.indicateur" @selected="getIndicateurs"  :monTableau="previewFormFactuelData" />
           </AccordionPanel>
         </AccordionItem>
 
@@ -1093,8 +1069,7 @@ onMounted(() => {
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <OptionsResponseFactuel :is-reset="resetOptions" v-model:previewOptionResponses="previewOptionResponses"
-              v-model:globalOptionResponses="globalOptionResponses" />
+            <OptionsResponseFactuel :is-reset="resetOptions" v-model:previewOptionResponses="previewOptionResponses" v-model:globalOptionResponses="globalOptionResponses" />
           </AccordionPanel>
         </AccordionItem>
       </AccordionGroup>
@@ -1103,30 +1078,21 @@ onMounted(() => {
     <section class="w-[70%] max-h-[50%] pt-5" :class="{ 'w-full': currentTab }">
       <TabGroup :selectedIndex="currentTab">
         <TabList class="nav-boxed-tabs">
-          <Tab @click="selectTab(tab.key)" v-for="(tab, indexTab) in tabs" :key="indexTab" class="w-full py-2"
-            tag="button">{{ tab.label }}</Tab>
+          <Tab @click="selectTab(tab.key)" v-for="(tab, indexTab) in tabs" :key="indexTab" class="w-full py-2" tag="button">{{ tab.label }}</Tab>
         </TabList>
         <TabPanels class="mt-5">
           <TabPanel class="leading-relaxed">
-            <div v-if="currentPreviewFactuelFormData.indicateur.nom !== ''" class="flex items-end justify-end"><button
-                @click="showDeleteForm = true" class="btn btn-outline-danger">Supprimer le formulaire</button></div>
+            <div v-if="currentPreviewFactuelFormData.indicateur.nom !== ''" class="flex items-end justify-end"><button @click="showDeleteForm = true" class="btn btn-outline-danger">Supprimer le formulaire</button></div>
             <div class="flex flex-col gap-8">
               <div class="space-y-2">
                 <p class="text-lg font-medium">Liste des options de réponses</p>
                 <ListOptionsResponse :options="previewOptionResponses.options_de_reponse" />
               </div>
               <div class="space-y-2">
-                <!-- <pre>{{ currentPreviewFactuelFormData.indicateur.nom }}</pre> -->
                 <p class="text-lg font-medium">Ajouter des indicateurs</p>
-                <MultipleFactuelStructure :type="currentPreviewFactuelFormData.type"
-                  :principe="currentPreviewFactuelFormData.principe" :critere="currentPreviewFactuelFormData.critere"
-                  @deleteIndicateur="removeIndicator" @deletePrincipe="removeElement" @deleteType="removeElement"
-                  @updatePositionIndicateur="updateTemporyIndicateurs" @deleteCritere="removeElement"
-                  @updateTemporyElement="updateTemporyElement"
-                  :indicateurArray="currentPreviewFactuelFormDataArray.length > 0 ? currentPreviewFactuelFormDataArray : []" />
-                <button :disabled="!isCurrentFormValid" @click="addNewIndicator" class="my-4 text-sm btn btn-primary">
-                  <PlusIcon class="mr-1 size-4" />Ajouter
-                </button>
+
+                <MultipleFactuelStructure :type="currentPreviewFactuelFormData.type" :principe="currentPreviewFactuelFormData.principe" :critere="currentPreviewFactuelFormData.critere" @deleteIndicateur="removeIndicator" @deletePrincipe="removeElement" @deleteType="removeElement" @updatePositionIndicateur="updateTemporyIndicateurs" @deleteCritere="removeElement" @updateTemporyElement="updateTemporyElement" :indicateurArray="currentPreviewFactuelFormDataArray.length > 0 ? currentPreviewFactuelFormDataArray : []" />
+                <button :disabled="!isCurrentFormValid" @click="addNewIndicator" class="my-4 text-sm btn btn-primary"><PlusIcon class="mr-1 size-4" />Ajouter</button>
               </div>
             </div>
           </TabPanel>
@@ -1143,20 +1109,15 @@ onMounted(() => {
       <p class="text-lg font-medium">Previsualisation du formulaire factuel</p>
 
       <div class="flex justify-spacely py-2" v-if="previewTypesGouvernance?.types_de_gouvernance?.length">
-        <button :disabled="!showForm" @click="previewForm" class="mr-5 px-5 text-base btn btn-primary">
-          <CheckIcon class="mr-1 size-5" />Enregistrer
-        </button>
-        <button :disabled="!showForm" @click="previewFormulaire = true" class="px-5 text-base btn btn-primary">
-          <EyeIcon class="mr-1 size-5" />Voir le formumlaire
-        </button>
+        <button :disabled="!showForm" @click="previewForm" class="mr-5 px-5 text-base btn btn-primary"><CheckIcon class="mr-1 size-5" />Enregistrer</button>
+        <button :disabled="!showForm" @click="previewFormulaire = true" class="px-5 text-base btn btn-primary"><EyeIcon class="mr-1 size-5" />Voir le formumlaire</button>
       </div>
     </div>
     <div class="max-h-[80vh] py-2 border-t overflow-y-auto mb-10 my-2">
-
       <table class="w-full border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
         <thead class="text-white bg-blue-900">
           <tr>
-            <th class="py-3 border border-slate-900">Principes</th>
+            <th class="py-3 border border-slate-900">Principes jk</th>
             <th class="py-3 border border-slate-900">Critères</th>
             <th class="py-3 border border-slate-900">Indicateurs</th>
             <th class="py-3 border border-slate-900 max-w-[200px]">Actions</th>
@@ -1164,22 +1125,16 @@ onMounted(() => {
         </thead>
 
         <tbody v-if="previewTypesGouvernance?.types_de_gouvernance?.length">
-          <template v-for="type_de_gouvernance in previewTypesGouvernance.types_de_gouvernance"
-            :key="type_de_gouvernance.id">
+          <template v-for="type_de_gouvernance in previewTypesGouvernance.types_de_gouvernance" :key="type_de_gouvernance.id">
             <tr class="bg-green-100 list-data">
-              <td colspan="3" class="font-semibold">{{ type_de_gouvernance.position }} - {{ type_de_gouvernance.nom }}
-              </td>
+              <td colspan="3" class="font-semibold">{{ type_de_gouvernance.position }} - {{ type_de_gouvernance.nom }}</td>
 
               <td class="items-center transition-all opacity-0 container-buttons">
-
                 <div v-if="canEditType[type_de_gouvernance.key]">
-                  <input type="number" min="1" step="1" name="position" :value="type_de_gouvernance.position"
-                    @keyup.enter="updateTemporyElement(type_de_gouvernance.key, $event.target.value, false, 'type')"
-                    class="w-2/5 form-control" />
+                  <input type="number" min="1" step="1" name="position" :value="type_de_gouvernance.position" @keyup.enter="updateTemporyElement(type_de_gouvernance.key, $event.target.value, false, 'type')" class="w-2/5 form-control" />
                 </div>
                 <div v-else>
                   <button class="p-1.5 text-primary" @click="handleEditElement(type_de_gouvernance.key, 'type')">
-
                     <Edit3Icon class="size-5" />
                   </button>
                   <button class="p-1.5 text-danger" @click="removeElement(type_de_gouvernance.key, 'type')">
@@ -1188,61 +1143,41 @@ onMounted(() => {
                 </div>
               </td>
             </tr>
-            <template v-for="principe_de_gouvernance in type_de_gouvernance.principes_de_gouvernance"
-              :key="principe_de_gouvernance.id">
-              <template v-for="(critere_de_gouvernance, scIndex) in principe_de_gouvernance.criteres_de_gouvernance"
-                :key="critere_de_gouvernance.id">
-                <template
-                  v-for="(indicateur_de_gouvernance, qIndex) in critere_de_gouvernance.indicateurs_de_gouvernance"
-                  :key="indicateur_de_gouvernance.id">
+            <template v-for="principe_de_gouvernance in type_de_gouvernance.principes_de_gouvernance" :key="principe_de_gouvernance.id">
+              <template v-for="(critere_de_gouvernance, scIndex) in principe_de_gouvernance.criteres_de_gouvernance" :key="critere_de_gouvernance.id">
+                <template v-for="(indicateur_de_gouvernance, qIndex) in critere_de_gouvernance.indicateurs_de_gouvernance" :key="indicateur_de_gouvernance.id">
                   <tr>
                     <!-- Première cellule de catégorie principale avec rowspan -->
-                    <td class="font-semibold list-data" v-if="scIndex === 0 && qIndex === 0"
-                      :rowspan="principe_de_gouvernance.criteres_de_gouvernance.reduce((sum, sc) => sum + sc.indicateurs_de_gouvernance.length, 0)">
-                      <div class="flex items-center gap-1">{{ principe_de_gouvernance.position }} - {{
-                        principe_de_gouvernance.nom }}</div>
+                    <td class="font-semibold list-data" v-if="scIndex === 0 && qIndex === 0" :rowspan="principe_de_gouvernance.criteres_de_gouvernance.reduce((sum, sc) => sum + sc.indicateurs_de_gouvernance.length, 0)">
+                      <div class="flex items-center gap-1">{{ principe_de_gouvernance.position }} - {{ principe_de_gouvernance.nom }}</div>
 
                       <div class="items-center transition-all opacity-0 container-buttons">
-
                         <div v-if="canEditCritere[principe_de_gouvernance.key]">
-                          <input type="number" min="1" step="1" name="position"
-                            :value="principe_de_gouvernance.position"
-                            @keyup.enter="updateTemporyElement(principe_de_gouvernance.key, $event.target.value, false, 'principe')"
-                            class="w-2/5 form-control" />
+                          <input type="number" min="1" step="1" name="position" :value="principe_de_gouvernance.position" @keyup.enter="updateTemporyElement(principe_de_gouvernance.key, $event.target.value, false, 'principe')" class="w-2/5 form-control" />
                         </div>
                         <div v-else>
-                          <button class="p-1.5 text-primary"
-                            @click="handleEditElement(principe_de_gouvernance.key, 'principe')">
-
+                          <button class="p-1.5 text-primary" @click="handleEditElement(principe_de_gouvernance.key, 'principe')">
                             <Edit3Icon class="size-5" />
                           </button>
-                          <button class="p-1.5 text-danger"
-                            @click="removeElement(principe_de_gouvernance.key, 'principe')">
+                          <button class="p-1.5 text-danger" @click="removeElement(principe_de_gouvernance.key, 'principe')">
                             <TrashIcon class="size-5" />
                           </button>
                         </div>
                       </div>
                     </td>
                     <!-- Première cellule de sous-catégorie avec rowspan -->
-                    <td class="list-data" v-if="qIndex === 0"
-                      :rowspan="critere_de_gouvernance.indicateurs_de_gouvernance.length">
-                      <div class="flex items-center gap-1">{{ critere_de_gouvernance.position }} - {{
-                        critere_de_gouvernance.nom }}</div>
+                    <td class="list-data" v-if="qIndex === 0" :rowspan="critere_de_gouvernance.indicateurs_de_gouvernance.length">
+                      <div class="flex items-center gap-1">{{ critere_de_gouvernance.position }} - {{ critere_de_gouvernance.nom }}</div>
 
                       <div class="flex items-center transition-all opacity-0 container-buttons">
-
                         <div v-if="canEditCritere[critere_de_gouvernance.key]">
-                          <input type="number" min="1" step="1" name="position" :value="critere_de_gouvernance.position"
-                            @keyup.enter="updateTemporyElement(critere_de_gouvernance.key, $event.target.value, false, 'critere')"
-                            class="w-2/5 form-control" />
+                          <input type="number" min="1" step="1" name="position" :value="critere_de_gouvernance.position" @keyup.enter="updateTemporyElement(critere_de_gouvernance.key, $event.target.value, false, 'critere')" class="w-2/5 form-control" />
                         </div>
                         <div v-else>
-                          <button class="p-1.5 text-primary"
-                            @click="handleEditElement(critere_de_gouvernance.key, 'critere')">
+                          <button class="p-1.5 text-primary" @click="handleEditElement(critere_de_gouvernance.key, 'critere')">
                             <Edit3Icon class="size-5" />
                           </button>
-                          <button class="p-1.5 text-danger"
-                            @click="removeElement(critere_de_gouvernance.key, 'critere')">
+                          <button class="p-1.5 text-danger" @click="removeElement(critere_de_gouvernance.key, 'critere')">
                             <TrashIcon class="size-5" />
                           </button>
                         </div>
@@ -1251,12 +1186,8 @@ onMounted(() => {
                     <td>{{ indicateur_de_gouvernance.position }} - {{ indicateur_de_gouvernance.nom }}</td>
                     <td>
                       <div class="flex items-center">
-
                         <div v-if="canEditIndicateur[indicateur_de_gouvernance.key]">
-                          <input type="number" min="1" step="1" name="position"
-                            :value="indicateur_de_gouvernance.position"
-                            @keyup.enter="editTemporyIndicateur(indicateur_de_gouvernance.key, $event.target.value)"
-                            class="w-2/5 form-control" />
+                          <input type="number" min="1" step="1" name="position" :value="indicateur_de_gouvernance.position" @keyup.enter="editTemporyIndicateur(indicateur_de_gouvernance.key, $event.target.value)" class="w-2/5 form-control" />
                         </div>
                         <div v-else>
                           <button class="p-1.5 text-primary" @click="handleEdit(indicateur_de_gouvernance.key)">
@@ -1284,18 +1215,13 @@ onMounted(() => {
       </table>
     </div>
     <div class="flex justify-between py-2 my-2 items-center">
-      <button @click="goBackToFormList" class="px-5 text-base btn btn-danger">
-        <ArrowLeftIcon class="mr-1 size-5" />Annuler
-      </button>
-      <button @click="comeBackToCreation" class="px-5 text-base btn btn-primary">
-        <RotateCcwIcon class="mr-1 size-5" />Revenir pour continuer
-      </button>
+      <button @click="goBackToFormList" class="px-5 text-base btn btn-danger"><ArrowLeftIcon class="mr-1 size-5" />Annuler</button>
+      <button @click="comeBackToCreation" class="px-5 text-base btn btn-primary"><RotateCcwIcon class="mr-1 size-5" />Revenir pour continuer</button>
     </div>
   </div>
   <Modal backdrop="static" :show="previewFormulaire" size="modal-xl" @hidden="previewFormulaire = false">
-
     <ModalHeader>
-      <h2 class="mr-auto text-base font-medium">Formulaire factuel de gouvernance </h2>
+      <h2 class="mr-auto text-base font-medium">Formulaire factuel de gouvernance</h2>
     </ModalHeader>
     <ModalBody class="space-y-5">
       <table class="w-full border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
@@ -1305,14 +1231,10 @@ onMounted(() => {
             <th class="py-3 border border-slate-900">Critères</th>
             <th class="py-3 border border-slate-900">Indicateurs</th>
             <th class="py-3 border border-slate-900">
-              Réponses <br />(
-              <template class="py-3 border border-slate-900"
-                v-for="(options_de_reponse, idx) in previewOptionResponses.options_de_reponse"
-                :key="options_de_reponse.id">
-                {{ options_de_reponse.libelle }} {{ idx < (previewOptionResponses.options_de_reponse.length - 1) ? ' / '
-                  : '' }} </template>)
+              Réponses <br />( <template class="py-3 border border-slate-900" v-for="(options_de_reponse, idx) in previewOptionResponses.options_de_reponse" :key="options_de_reponse.id"> {{ options_de_reponse.libelle }} {{ idx < previewOptionResponses.options_de_reponse.length - 1 ? " / " : "" }} </template>)
             </th>
-            <th class="py-3 border border-slate-900">Source de validation</th><!-- 
+            <th class="py-3 border border-slate-900">Source de validation</th>
+            <!-- 
             <th class="py-3 border border-slate-900">Réponses</th>
             <th class="py-3 border border-slate-900">Note</th>
             <th class="py-3 border border-slate-900">Source de validation</th>
@@ -1320,35 +1242,24 @@ onMounted(() => {
           </tr>
         </thead>
         <tbody>
-
-          <template v-for="type_de_gouvernance in previewTypesGouvernance.types_de_gouvernance"
-            :key="type_de_gouvernance.id">
+          <template v-for="type_de_gouvernance in previewTypesGouvernance.types_de_gouvernance" :key="type_de_gouvernance.id">
             <tr class="bg-green-100">
               <td colspan="7" class="font-semibold">{{ type_de_gouvernance.nom }}</td>
             </tr>
-            <template v-for="principe_de_gouvernance in type_de_gouvernance.principes_de_gouvernance"
-              :key="principe_de_gouvernance.id">
-              <template v-for="(critere_de_gouvernance, scIndex) in principe_de_gouvernance.criteres_de_gouvernance"
-                :key="critere_de_gouvernance.id">
-                <template
-                  v-for="(indicateur_de_gouvernance, qIndex) in critere_de_gouvernance.indicateurs_de_gouvernance"
-                  :key="indicateur_de_gouvernance.id">
-
+            <template v-for="principe_de_gouvernance in type_de_gouvernance.principes_de_gouvernance" :key="principe_de_gouvernance.id">
+              <template v-for="(critere_de_gouvernance, scIndex) in principe_de_gouvernance.criteres_de_gouvernance" :key="critere_de_gouvernance.id">
+                <template v-for="(indicateur_de_gouvernance, qIndex) in critere_de_gouvernance.indicateurs_de_gouvernance" :key="indicateur_de_gouvernance.id">
                   <tr>
                     <!-- Première cellule de catégorie principale avec rowspan -->
-                    <td class="font-semibold text-center" v-if="scIndex === 0 && qIndex === 0"
-                      :rowspan="principe_de_gouvernance.criteres_de_gouvernance.reduce((sum, sc) => sum + sc.indicateurs_de_gouvernance.length, 0)">
-                      {{ principe_de_gouvernance.position }} {{ principe_de_gouvernance.nom }}
-                    </td>
+                    <td class="font-semibold text-center" v-if="scIndex === 0 && qIndex === 0" :rowspan="principe_de_gouvernance.criteres_de_gouvernance.reduce((sum, sc) => sum + sc.indicateurs_de_gouvernance.length, 0)">{{ principe_de_gouvernance.position }} {{ principe_de_gouvernance.nom }}</td>
 
                     <!-- Première cellule de sous-catégorie avec rowspan -->
-                    <td class="text-center" v-if="qIndex === 0"
-                      :rowspan="critere_de_gouvernance.indicateurs_de_gouvernance.length">
+                    <td class="text-center" v-if="qIndex === 0" :rowspan="critere_de_gouvernance.indicateurs_de_gouvernance.length">
                       {{ critere_de_gouvernance.nom }}
                     </td>
                     <td>{{ indicateur_de_gouvernance.position }} - {{ indicateur_de_gouvernance.nom }}</td>
-                    <td>{{ }}</td>
-                    <td>{{ }}</td>
+                    <td>{{}}</td>
+                    <td>{{}}</td>
                   </tr>
                 </template>
               </template>
@@ -1360,10 +1271,17 @@ onMounted(() => {
     </ModalBody>
     <ModalFooter>
       <div class="flex gap-2">
-        <button type="button" @click="previewFormulaire = false;"
-          class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Fermer</button>
-        <button type="button" @click="previewFormulaire = false; previewForm();"
-          class="w-full px-2 py-2 my-3 btn btn-primary">Enregistrer</button>
+        <button type="button" @click="previewFormulaire = false" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Fermer</button>
+        <button
+          type="button"
+          @click="
+            previewFormulaire = false;
+            previewForm();
+          "
+          class="w-full px-2 py-2 my-3 btn btn-primary"
+        >
+          Enregistrer
+        </button>
       </div>
     </ModalFooter>
   </Modal>
@@ -1377,8 +1295,7 @@ onMounted(() => {
       <ModalBody class="space-y-5">
         <!--  <div class="flex gap-4"></div> -->
         <div class="gap-4">
-          <InputForm label="Libellé" class="w-full mb-4" :control="getFieldErrors(errors.libelle)"
-            v-model="payload.libelle" />
+          <InputForm label="Libellé" class="w-full mb-4" :control="getFieldErrors(errors.libelle)" v-model="payload.libelle" />
           <!-- <div class="w-full">
             <label for="annee" class="form-label">Année<span class="text-danger">*</span> </label>
             <TomSelect v-model="payload.annee_exercice" :options="{ placeholder: 'Selectionez une année' }"
@@ -1390,19 +1307,18 @@ onMounted(() => {
           </div> -->
 
           <div>
-            <p class="text-red-500 text-[12px] -mt-2 col-span-12 my-2"
-              v-if="errors['factuel.options_de_reponse.0.point']">
-              {{ extractMessage(errors["factuel.options_de_reponse.0.point"]) }}</p>
-            <p class="text-red-500 text-[12px] -mt-2 col-span-12 my-2"
-              v-if="errors['factuel.options_de_reponse.0.point']">
-              {{ extractMessage(errors["factuel.options_de_reponse.0.point"]) }}</p>
+            <p class="text-red-500 text-[12px] -mt-2 col-span-12 my-2" v-if="errors['factuel.options_de_reponse.0.point']">
+              {{ extractMessage(errors["factuel.options_de_reponse.0.point"]) }}
+            </p>
+            <p class="text-red-500 text-[12px] -mt-2 col-span-12 my-2" v-if="errors['factuel.options_de_reponse.0.point']">
+              {{ extractMessage(errors["factuel.options_de_reponse.0.point"]) }}
+            </p>
           </div>
         </div>
       </ModalBody>
       <ModalFooter>
         <div class="flex gap-2">
-          <button type="button" @click="resetErrors"
-            class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
+          <button type="button" @click="resetErrors" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
           <VButton :loading="isLoadingForm" label="Enregistrer" />
         </div>
       </ModalFooter>
