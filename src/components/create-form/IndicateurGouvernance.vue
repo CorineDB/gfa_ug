@@ -2,7 +2,6 @@
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import VButton from "@/components/news/VButton.vue";
 import InputForm from "@/components/news/InputForm.vue";
-//import IndicateurGouvernance from "@/services/modules/indicateurGouvernance.service";
 import IndicateurDeGouvernanceFactuel from "@/services/modules/enquetes_de_gouvernance/indicateurGouvernance.service";
 import DeleteButton from "@/components/news/DeleteButton.vue";
 import { toast } from "vue3-toastify";
@@ -13,14 +12,31 @@ import { getFieldErrors } from "../../utils/helpers";
 const props = defineProps({
   isAvailable: Boolean,
   toReset: Boolean,
+  monTableau: {
+    type: Array,
+    default: () => [],
+  },
 });
+
+// Extraction des ID à exclure
+const idsExclus = computed(() =>
+  props.monTableau.map(e => e.indicateur?.id)
+)
+
+// Liste filtrée
+const datasFiltrees = computed(() =>
+  filterData.value.filter(item => !idsExclus.value.includes(item.id))
+)
+
+ 
 
 const emit = defineEmits(["selected"]);
 
 // Reactive data structure
 const payload = reactive({ nom: "", description: "", type: "factuel" });
 const idSelect = ref("");
-const idChecked = ref("");
+// CHANGEMENT: Remplacer idChecked par selectedIds (tableau)
+const selectedIds = ref([]);
 const nameSelect = ref("");
 const search = ref("");
 const showModalCreate = ref(false);
@@ -32,8 +48,26 @@ const isEditOrDelete = ref(false);
 const datas = ref([]);
 const errors = ref({});
 
+// CHANGEMENT: Nouvelle fonction pour gérer les sélections multiples
 function choiceOption(data) {
-  emit("selected", data);
+  const index = selectedIds.value.indexOf(data.id);
+  if (index > -1) {
+    // Si déjà sélectionné, le retirer
+    selectedIds.value.splice(index, 1);
+  } else {
+    // Sinon l'ajouter
+    selectedIds.value.push(data.id);
+  }
+  
+  // Émettre les données sélectionnées
+  let selectedData = datas.value.filter(item => selectedIds.value.includes(item.id));
+  selectedData = selectedData[selectedData.length - 1] || {}; // Prendre le dernier élément sélectionné ou un objet vide si aucun
+  emit("selected", selectedData);
+}
+
+// CHANGEMENT: Fonction pour vérifier si un item est sélectionné
+function isSelected(id) {
+  return selectedIds.value.includes(id);
 }
 
 // Fetch data
@@ -108,25 +142,29 @@ const resetForm = () => {
   showModalCreate.value = false;
   errors.value = {};
 };
+
 const openCreateModal = () => {
   resetForm();
   isCreate.value = true;
   showModalCreate.value = true;
 };
+
 const cancelDelete = () => {
   idSelect.value = "";
   deleteModalPreview.value = false;
 };
+
 const closeModal = () => (showModalCreate.value = false);
 const closeDeleteModal = () => (deleteModalPreview.value = false);
 
 const modeText = computed(() => (isCreate.value ? "Ajouter" : "Modifier"));
 const filterData = computed(() => datas.value.filter((data) => data.nom.toLowerCase().includes(search.value.toLowerCase())));
 
+// CHANGEMENT: Watch pour reset les sélections
 watch(
   () => props.toReset,
   () => {
-    idChecked.value = "";
+    selectedIds.value = [];
   }
 );
 
@@ -138,23 +176,27 @@ onMounted(getDatas);
   <div :class="[isAvailable ? '' : 'opacity-50 pointer-events-none']">
     <!-- Button to open modal -->
     <div class="flex items-center justify-between gap-2 mb-4">
-      <!-- <div class="form-check form-switch">
-        <input id="indicateur" class="form-check-input" type="checkbox" v-model="isEditOrDelete" />
-        <label class="form-check-label" for="indicateur">Modifier/Supprimer</label>
-      </div> -->
       <input type="text" class="form-control form-control-sm max-w-[300px]" placeholder="Rechercher..." v-model="search" />
       <button class="text-sm btn btn-primary" @click="getDatas"><RotateCcwIcon class="mr-1 size-4" /></button>
       <button class="text-sm btn btn-primary" @click="openCreateModal"><PlusIcon class="mr-1 size-4" />Ajouter</button>
     </div>
 
-    <!-- Data List -->
+    <!-- Data List avec sélection multiple -->
     <ul v-if="!isLoadingData" class="overflow-y-auto max-h-[40vh]">
-      <li v-for="data in filterData" :key="data.id" class="flex items-center justify-between gap-2 px-1 py-1.5 text-base hover:bg-blue-100 list-data">
+      <li v-for="data in datasFiltrees" :key="data.id" class="flex items-center justify-between gap-2 px-1 py-1.5 text-base hover:bg-blue-100 list-data">
         <div class="p-2 form-check">
-          <input :id="data.id" @change="choiceOption(data)" class="form-check-input" type="radio" name="indicateur" :value="data.id" v-model="idChecked" />
+          <!-- CHANGEMENT: Utiliser :checked au lieu de v-model -->
+          <input
+            :id="data.id"
+            @change="choiceOption(data)"
+            class="form-check-input"
+            type="checkbox"
+            :checked="isSelected(data.id)"
+          />
           <label class="form-check-label" :for="data.id">{{ data.nom }}</label>
         </div>
-        <div v-if="data.id !== idChecked" class="flex items-center gap-1 space-x-1 transition-all opacity-0 container-buttons">
+        <!-- CHANGEMENT: Modifier la condition pour utiliser isSelected -->
+        <div v-if="!isSelected(data.id)" class="flex items-center gap-1 space-x-1 transition-all opacity-0 container-buttons">
           <button class="p-1.5 text-primary" @click="handleEdit(data)">
             <Edit3Icon class="size-5" />
           </button>
@@ -164,6 +206,7 @@ onMounted(getDatas);
         </div>
       </li>
     </ul>
+
     <LoaderData v-else />
 
     <!-- Modal for creating/updating -->
