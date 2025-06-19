@@ -5,7 +5,7 @@
     <MobileMenu v-if="!isToolsPerception" />
     <div class="flex mt-[4.7rem] md:mt-0 relative overflow-hidden">
       <!-- BEGIN: Side Menu -->
-      <nav v-if="!isToolsPerception" class="fixed h-screen overflow-scroll side-nav navColor scrollbar-hidden">
+      <nav v-if="!isToolsPerception" class="fixed h-screen overflow-scroll side-nav navColor _scrollbar-hidden">
         <router-link :to="{ name: 'projets' }" tag="a" class="flex flex-col items-center justify-center mt-3 intro-x">
           <h1 class="font-semibold text-white">{{ nomProgramme }}</h1>
           <p >{{currentUsers.role}}</p>
