@@ -1487,7 +1487,6 @@ export default {
     L.marker([latitude, longitude], { icon: this.myIcon })
       .bindPopup(`
         <b>${site.nom}</b><br>
-        // Arrondissement: ${site.arrondissement}<br>
         Commune: ${site.commune}<br>
         Département: ${site.departement}<br>
         <b>Projects:</b><br>
