@@ -49,7 +49,7 @@
 
           <DropdownDivider class="border-white/[0.08]" />
           <DropdownItem class="dropdown-item hover:bg-white/5">
-            <span class="flex items-center space-x-2 cursor-pointer" @click="logout"> <ToggleRightIcon class="w-4 h-4 mr-2" /> Se déconnecter</span>
+            <span class="flex items-center space-x-2 cursor-pointer" @click="logout"> <ToggleRightIcon class="w-4 h-4 mr-2" /> Se jdéconnecter</span>
           </DropdownItem>
         </DropdownContent>
       </DropdownMenu>
@@ -70,11 +70,43 @@ import Breadcrumb from "../Breadcrumb.vue";
 import { toast } from "vue3-toastify";
 import AuthService from "@/services/modules/auth.service";
 import { useYearsStore } from "@/stores/years";
+import { onBeforeUnmount } from "vue";
 
 //Store years
 const yearsStore = useYearsStore();
 const debutProgramme = ref("");
 const finProgramme = ref("");
+
+
+
+
+let inactivityTimer;
+
+const resetInactivityTimer = () => {
+  clearTimeout(inactivityTimer);
+  inactivityTimer = setTimeout(() => {
+    toast.info("Déconnexion automatique après inactivité.");
+    logout();
+  }, 30* 60 * 1000); // 30 minutes
+};
+
+// Événements utilisateurs à écouter
+const userEvents = ["mousemove", "keydown", "click", "touchstart"];
+
+const setupInactivityListeners = () => {
+  userEvents.forEach((event) =>
+    window.addEventListener(event, resetInactivityTimer)
+  );
+  resetInactivityTimer(); // Lancer le timer au départ
+};
+
+const removeInactivityListeners = () => {
+  userEvents.forEach((event) =>
+    window.removeEventListener(event, resetInactivityTimer)
+  );
+  clearTimeout(inactivityTimer);
+};
+
 
 const getcurrentUser = async () => {
   await AuthService.getCurrentUser()
@@ -130,6 +162,8 @@ const message = reactive({
 const usersProfileImage = ref("");
 
 onMounted(() => {
+    setupInactivityListeners(); // ⬅️ Ajouté ici
+
   const usersInfo = JSON.parse(localStorage.getItem("authenticateUser"));
 
   getcurrentUser();
@@ -148,6 +182,9 @@ onMounted(() => {
     initiale.value = storeInitial;
     currentUsers.initiale = initiale.value;
   }
+});
+onBeforeUnmount(() => {
+  removeInactivityListeners();
 });
 
 const logout = () => {
