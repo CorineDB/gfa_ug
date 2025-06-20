@@ -1456,7 +1456,7 @@ export default {
       }).addTo(this.initialMap);
 
       // Ajouter des marqueurs individuels
-      L.marker([6.3561, 2.39182], { icon: this.myIcon }).bindPopup(`GFA Redevabilite`).addTo(this.initialMap);
+      // L.marker([6.3561, 2.39182], { icon: this.myIcon }).bindPopup(`GFA Redevabilite`).addTo(this.initialMap);
     },
   },
   beforeMount() {
