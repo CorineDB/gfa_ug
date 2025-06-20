@@ -542,7 +542,7 @@ onMounted(() => {
               <div class="grid grid-cols-2 gap-4">
                 <InputForm :required="false" :optionel="false" label="Code" :control="getFieldErrors(errors.code)" v-model.number="payload.code" type="number" />
                 <div>
-                  <label class="form-label">Secteur d'activité <span class="text-danger">*</span> </label>
+                  <label class="form-label">Domaine D'intervention <span class="text-danger">*</span> </label>
                   <TomSelect v-model="payload.secteurActivite" :options="{ placeholder: 'Selectionez  un secteur' }" class="w-full">
                     <option value=""></option>
                     <option v-for="(secteur, index) in secteursActivites" :key="index" :value="secteur">{{ secteur }}</option>

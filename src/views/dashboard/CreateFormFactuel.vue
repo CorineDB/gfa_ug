@@ -1154,7 +1154,7 @@ onMounted(() => {
       <table class="w-full border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
         <thead class="text-white bg-blue-900">
           <tr>
-            <th class="py-3 border border-slate-900">Principes jk</th>
+            <th class="py-3 border border-slate-900">Principes</th>
             <th class="py-3 border border-slate-900">Critères</th>
             <th class="py-3 border border-slate-900">Indicateurs</th>
             <th class="py-3 border border-slate-900 max-w-[200px]">Actions</th>
@@ -1251,9 +1251,19 @@ onMounted(() => {
         </tbody>
       </table>
     </div>
-    <div class="flex justify-between py-2 my-2 items-center">
-      <button @click="goBackToFormList" class="px-5 text-base btn btn-danger"><ArrowLeftIcon class="mr-1 size-5" />Annuler</button>
-      <button @click="comeBackToCreation" class="px-5 text-base btn btn-primary"><RotateCcwIcon class="mr-1 size-5" />Revenir pour continuer</button>
+    <div class="flex justify-between py-2 my-2 items-center">      
+      <div class="flex justify-between ">
+        <button @click="goBackToFormList" class="px-5 mr-4 text-base btn btn-danger">
+          <ArrowLeftIcon class="mr-1 size-5" />Annuler
+        </button>
+        <button @click="resetAllFormWithDataLocalStorage" class="px-5 text-base btn btn-outline-danger">
+          <TrashIcon class="mr-1 size-5" />Vider
+        </button>
+      </div>
+
+      <button @click="comeBackToCreation" class="px-5 text-base btn btn-primary">
+        <RotateCcwIcon class="mr-1 size-5" />Revenir pour continuer
+      </button>
     </div>
   </div>
   <Modal backdrop="static" :show="previewFormulaire" size="modal-xl" @hidden="previewFormulaire = false">
