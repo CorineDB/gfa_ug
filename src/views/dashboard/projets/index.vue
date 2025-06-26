@@ -175,7 +175,7 @@
     </form>
   </Modal>
   <!-- End Modal -->
-  <Modal backdrop="static" :show="showModal" @hidden="showModal = false">
+  <Modal size="modal-xl" backdrop="static" :show="showModal" @hidden="showModal = false">
     <ModalHeader>
       <h2 v-if="!isUpdate" class="mr-auto text-base font-medium">Ajouter un projet</h2>
       <h2 v-else class="mr-auto text-base font-medium">Modifier un projet</h2>
@@ -183,108 +183,75 @@
 
     <form @submit.prevent="sendForm">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
-        <InputForm v-model="formData.nom" class="col-span-12 mt-4" type="text" :required="true" placeHolder="Nom du projet" label="Nom" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nom">{{ $h.extractContentFromArray(messageErreur.nom) }}</p>
+        <InputForm v-model="formData.nom" class="col-span-12 md:col-span-6 mt-4" type="text" :required="true" placeHolder="Nom du projet" label="Nom" />
+        <InputForm v-model="formData.couleur" class="col-span-12 md:col-span-6 mt-4" type="color" :required="true" placeHolder="Couleur" label="Couleur" />
 
-        <InputForm v-model="formData.couleur" class="col-span-12 mt-4" type="color" :required="true" placeHolder="Couleur" label="Couleur" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.couleur">{{ $h.extractContentFromArray(messageErreur.couleur) }}</p>
+        <InputForm v-model="formData.debut" class="col-span-12 md:col-span-6 mt-4" type="date" :required="true" placeHolder="Entrer la date de début" label="Début du projet" />
+        <InputForm v-model="formData.fin" class="col-span-12 md:col-span-6 mt-4" type="date" :required="true" placeHolder="Entrer la date de fin" label="Fin du projet" />
 
-        <InputForm v-model="formData.debut" class="col-span-12 mt-4" type="date" :required="true" placeHolder="Entrer la date de début" label="Début du projet" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.debut">{{ $h.extractContentFromArray(messageErreur.debut) }}</p>
-
-        <InputForm v-model="formData.fin" class="col-span-12 mt-4" type="date" :required="true" placeHolder="Entrer la date de fin" label="Fin du projet" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.fin">{{ $h.extractContentFromArray(messageErreur.fin) }}</p>
-        <!-- 
-          <InputForm v-model="formData.nombreEmploie" class="col-span-12" type="number" placeHolder="Ex : 10" label="Nombre d'employé" />
-          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nombreEmploie">{{ $h.extractContentFromArray(messageErreur.nombreEmploie) }}</p>
-        -->
-        <div class="col-span-12 mt-4">
-          <label class="form-label">Pays<span class="text-danger">*</span> </label>
-          <TomSelect v-model="formData.pays" :options="{ placeholder: 'Selectionez  un pays' }" class="w-full">
+        <div class="col-span-12 md:col-span-6 mt-4">
+          <label class="form-label">Pays<span class="text-danger">*</span></label>
+          <TomSelect v-model="formData.pays" :options="{ placeholder: 'Sélectionnez un pays' }" class="w-full">
             <option value=""></option>
             <option v-for="(country, index) in pays" :key="index" :value="country">{{ country }}</option>
           </TomSelect>
         </div>
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pays">{{ $h.extractContentFromArray(messageErreur.pays) }}</p>
 
-        <!-- <InputForm v-model="formData.pays" class="col-span-12" type="text" placeHolder="Ex : Bénin" label="Pays" /> -->
+        <InputForm v-model="formData.budgetNational" class="col-span-12 md:col-span-6 mt-4" type="text" :required="true" placeHolder="Ex : 100000" label="Fond Propre" />
+        <InputForm v-model="formData.pret" class="col-span-12 md:col-span-6 mt-4" type="text" :required="true" placeHolder="Ex : 100000" label="Subvention" />
 
-        <InputForm v-model="formData.budgetNational" class="col-span-12 mt-4" type="text" :required="true" placeHolder="Ex : 100000" label="Fond Propre" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.budgetNational">{{ $h.extractContentFromArray(messageErreur.budgetNational) }}</p>
-
-        <InputForm v-model="formData.pret" class="col-span-12 mt-4" type="text" :required="true" placeHolder="Ex : 100000" label="Subvention" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pret">{{ $h.extractContentFromArray(messageErreur.pret) }}</p>
-
-        <div class="col-span-12 mt-4" v-if="!isUpdate">
-          <label class="block my-3 font-bold text-gray-700">Images de couverture</label>
-          <input type="file" ref="fileInput" @change="handleFileChange" placeHolder="choisir une image" accept="image/*" class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-          <div class="col-span-12 flex items-center justify-start" v-if="imagePreview">
-            <div class="mr-3">
-              <h3 class="block my-3 font-bold">Prévisualisation de l'image :</h3>
-              <img :src="imagePreview" alt="Prévisualisation" width="200" />
-            </div>
-            <button type="button" class="text-red-500 hover:text-red-700 font-semibold text-sm" @click="clearFiles(index)">Supprimer</button>
-          </div>
-        </div>
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.image">{{ $h.extractContentFromArray(messageErreur.image) }}</p>
-
-        <div class="col-span-12 mt-4" v-if="!isUpdate">
-          <label class="block my-3 font-bold text-gray-700">Pièces jointes</label>
-          <input name="fichier" ref="fileInput2" class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Choisir un fichier ou plusieurs" type="file" multiple @change="handleFileChange2" />
-          <div class="col-span-12 mt-4">
-            <ul v-if="files.length > 0" class="bg-gray-100 rounded-lg shadow-md p-4 space-y-2">
-              <li v-for="(file, index) in files" :key="index" class="flex items-center justify-between p-2 bg-white rounded-lg shadow-sm hover:bg-gray-50">
-                <span class="text-gray-700 font-medium word-break">{{ file.name }}</span>
-                <button type="button" class="text-red-500 hover:text-red-700 font-semibold text-sm" @click="removeFile(index)">Supprimer</button>
-              </li>
-            </ul>
-          </div>
-        </div>
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.fichier">{{ $h.extractContentFromArray(messageErreur.fichier) }}</p>
-
-        <div class="col-span-12 mt-4">
+        <div class="col-span-12 md:col-span-6 mt-4">
           <label>Organisation*</label>
-          <div class="mt-2">
-            <TomSelect
-              v-model="formData.organisationId"
-              :options="{
-                placeholder: 'Veuillez associé une organisation au programme',
-              }"
-              class="w-full"
-            >
-              <option value="">Choisir une organisation</option>
-              <option v-for="(org, index) in ongs" :key="index" :value="org.id">{{ org.nom }}</option>
-            </TomSelect>
-          </div>
+          <TomSelect
+            v-model="formData.organisationId"
+            :options="{ placeholder: 'Veuillez associer une organisation' }"
+            class="w-full"
+          >
+            <option value="">Choisir une organisation</option>
+            <option v-for="(org, index) in ongs" :key="index" :value="org.id">{{ org.nom }}</option>
+          </TomSelect>
         </div>
-        <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.organisationId">{{ $h.extractContentFromArray(messageErreur.organisationId) }}</p>
 
-        <div class="col-span-12 mt-4">
+        <div class="col-span-12 md:col-span-6 mt-4">
           <label>Sites*</label>
           <div class="mt-2 flex">
             <TomSelect
               v-model="sitesId"
               multiple
-              :options="{
-                placeholder: 'Veuillez associé des sites',
-              }"
+              :options="{ placeholder: 'Veuillez associer des sites' }"
               class="w-11/12 mr-2"
             >
               <option value="">Choisir un site</option>
-
               <option v-for="(site, index) in sites" :key="index" :value="site.id">{{ site.nom }}</option>
             </TomSelect>
-            <button class="shadow-md btn btn-primary" type="button" @click="showModalCreate = true"><PlusIcon class="w-4 h-4 mr-3" /></button>
+            <button class="shadow-md btn btn-primary" type="button" @click="showModalCreate = true">
+              <PlusIcon class="w-4 h-4 mr-3" />
+            </button>
           </div>
         </div>
-        <p class="text-red-500 text-[12px] mt-2 col-span-12" title="Ajouter un site" v-if="messageErreur.sites">{{ $h.extractContentFromArray(messageErreur.sites) }}</p>
 
-        <!-- Choix de fichier -->
-        <!-- <div class="relative col-span-12">
-        <label for="modal-form-1" class="font-medium form-label">Fichier(s)</label>
-        <div ref="dropzoneElement" class="dropzone z-50 min-h-[200px] w-full"></div>
-      </div> -->
+        <!-- Fichiers et images en plein largeur -->
+        <div class="col-span-12 md:col-span-6 mt-4" v-if="!isUpdate">
+          <label class="block my-3 font-bold text-gray-700">Images de couverture</label>
+          <input type="file" ref="fileInput" @change="handleFileChange" accept="image/*" class="block w-full ..." />
+          <div v-if="imagePreview" class="flex items-center mt-3">
+            <img :src="imagePreview" alt="Prévisualisation" width="200" />
+            <button type="button" class="ml-4 text-red-500" @click="clearFiles(index)">Supprimer</button>
+          </div>
+        </div>
+
+        <div class="col-span-12 md:col-span-6 mt-4" v-if="!isUpdate">
+          <label class="block my-3 font-bold text-gray-700">Pièces jointes</label>
+          <input name="fichier" ref="fileInput2" type="file" multiple class="block w-full ..." @change="handleFileChange2" />
+          <ul v-if="files.length > 0" class="mt-3 space-y-2">
+            <li v-for="(file, index) in files" :key="index" class="flex justify-between bg-white p-2 shadow">
+              <span>{{ file.name }}</span>
+              <button type="button" class="text-red-500" @click="removeFile(index)">Supprimer</button>
+            </li>
+          </ul>
+        </div>
       </ModalBody>
+
       <ModalFooter>
         <div class="flex items-center justify-center">
           <button type="button" @click="showModal = false" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>

@@ -20,7 +20,7 @@ const emit = defineEmits(["selected"]);
 // Reactive data structure
 const payload = reactive({ nom: "", description: "", type: "perception" });
 const idSelect = ref("");
-const idChecked = ref("");
+const idsChecked = ref([]); // Changé de idChecked à idsChecked pour les choix multiples
 const nameSelect = ref("");
 const search = ref("");
 const showModalCreate = ref(false);
@@ -32,8 +32,28 @@ const isEditOrDelete = ref(false);
 const datas = ref([]);
 const errors = ref({});
 
-function choiceOption(data) {
-  emit("selected", data);
+// Fonction modifiée pour gérer les choix multiples
+function choiceOption(data, isChecked) {
+  if (isChecked) {
+    // Ajouter l'élément s'il n'est pas déjà présent
+    if (!idsChecked.value.includes(data.id)) {
+      idsChecked.value.push(data.id);
+    }
+  } else {
+    // Retirer l'élément
+    idsChecked.value = idsChecked.value.filter(id => id !== data.id);
+  }
+  
+  // Émettre la liste des éléments sélectionnés
+  let selectedItems = datas.value.filter(item => idsChecked.value.includes(item.id));
+  selectedItems = selectedItems[selectedItems.length - 1] || {}; // Prendre le dernier élément sélectionné ou un objet vide si aucun
+  // emit("selected", selectedData);
+  emit("selected", selectedItems);
+}
+
+// Fonction pour vérifier si un élément est sélectionné
+function isItemChecked(id) {
+  return idsChecked.value.includes(id);
 }
 
 // Fetch data
@@ -108,25 +128,50 @@ const resetForm = () => {
   showModalCreate.value = false;
   errors.value = {};
 };
+
 const openCreateModal = () => {
   resetForm();
   isCreate.value = true;
   showModalCreate.value = true;
 };
+
 const cancelDelete = () => {
   idSelect.value = "";
   deleteModalPreview.value = false;
 };
+
 const closeModal = () => (showModalCreate.value = false);
 const closeDeleteModal = () => (deleteModalPreview.value = false);
 
 const modeText = computed(() => (isCreate.value ? "Ajouter" : "Modifier"));
 const filterData = computed(() => datas.value.filter((data) => data.nom.toLowerCase().includes(search.value.toLowerCase())));
 
+// Fonction pour sélectionner/désélectionner tous les éléments
+const selectAll = () => {
+  if (idsChecked.value.length === filterData.value.length) {
+    // Désélectionner tout
+    idsChecked.value = [];
+  } else {
+    // Sélectionner tout
+    idsChecked.value = filterData.value.map(item => item.id);
+  }
+  const selectedItems = datas.value.filter(item => idsChecked.value.includes(item.id));
+  emit("selected", selectedItems);
+};
+
+// Computed pour le statut "tout sélectionné"
+const isAllSelected = computed(() => {
+  return filterData.value.length > 0 && idsChecked.value.length === filterData.value.length;
+});
+
+const isPartiallySelected = computed(() => {
+  return idsChecked.value.length > 0 && idsChecked.value.length < filterData.value.length;
+});
+
 watch(
   () => props.toReset,
   () => {
-    idChecked.value = "";
+    idsChecked.value = []; // Réinitialiser le tableau
   }
 );
 
@@ -138,23 +183,45 @@ onMounted(getDatas);
   <div :class="[isAvailable ? '' : 'opacity-50 pointer-events-none']">
     <!-- Button to open modal -->
     <div class="flex items-center justify-between gap-2 mb-4">
-      <!-- <div class="form-check form-switch">
-        <input id="question" class="form-check-input" type="checkbox" v-model="isEditOrDelete" />
-        <label class="form-check-label" for="question">Modifier/Supprimer</label>
-      </div> -->
       <input type="text" class="form-control form-control-sm max-w-[300px]" placeholder="Rechercher..." v-model="search" />
-      <button class="text-sm btn btn-primary" @click="getDatas"><RotateCcwIcon class="mr-1 size-4" /></button>
-      <button class="text-sm btn btn-primary" @click="openCreateModal"><PlusIcon class="mr-1 size-4" />Ajouter</button>
+      <div class="flex gap-2">
+        <button 
+          class="text-sm btn btn-outline-primary" 
+          @click="selectAll"
+          :class="{ 'btn-warning': isPartiallySelected, 'btn-success': isAllSelected }"
+        >
+          {{ isAllSelected ? 'Désélectionner tout' : 'Sélectionner tout' }}
+        </button>
+        <button class="text-sm btn btn-primary" @click="getDatas">
+          <RotateCcwIcon class="mr-1 size-4" />
+        </button>
+        <button class="text-sm btn btn-primary" @click="openCreateModal">
+          <PlusIcon class="mr-1 size-4" />Ajouter
+        </button>
+      </div>
+    </div>
+
+    <!-- Affichage du nombre d'éléments sélectionnés -->
+    <div v-if="idsChecked.length > 0" class="mb-3 p-2 bg-blue-50 border border-blue-200 rounded">
+      <span class="text-sm text-blue-700">
+        {{ idsChecked.length }} élément{{ idsChecked.length > 1 ? 's' : '' }} sélectionné{{ idsChecked.length > 1 ? 's' : '' }}
+      </span>
     </div>
 
     <!-- Data List -->
     <ul v-if="!isLoadingData" class="overflow-y-auto max-h-[40vh]">
       <li v-for="(data, index) in filterData" :key="data.id" class="flex items-center justify-between gap-2 px-1 py-1.5 text-base hover:bg-blue-100 list-data">
         <div class="p-2 form-check">
-          <input :id="`${data.id}${index}`" @change="choiceOption(data)" class="form-check-input" type="radio" name="question" :value="data.id" v-model="idChecked" />
+          <input 
+            :id="`${data.id}${index}`" 
+            @change="choiceOption(data, $event.target.checked)" 
+            class="form-check-input" 
+            type="checkbox"
+            :checked="isItemChecked(data.id)"
+          />
           <label class="form-check-label" :for="`${data.id}${index}`">{{ data.nom }}</label>
         </div>
-        <div v-if="data.id !== idChecked" class="flex items-center gap-1 space-x-1 transition-all opacity-0 container-buttons">
+        <div v-if="!isItemChecked(data.id)" class="flex items-center gap-1 space-x-1 transition-all opacity-0 container-buttons">
           <button class="p-1.5 text-primary" @click="handleEdit(data)">
             <Edit3Icon class="size-5" />
           </button>

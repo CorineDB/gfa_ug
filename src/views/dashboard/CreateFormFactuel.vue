@@ -513,116 +513,239 @@ const addNewIndicator = () => {
 };
 */
 
-// Stocke les derniers index utilisés pour chaque clé parent
-const lastTypeIndexGlobal = new Map();
-const lastPrincipeIndexByType = new Map();
-const lastCritereIndexByPrincipe = new Map();
-const lastIndicateurIndexByCritere = new Map();
-
-const makeUniqueKey = (baseKey, parentKey, map, allKeys) => {
-  // Récupérer le dernier index utilisé pour ce parent
-  let index = map.get(parentKey) ?? -1;
-
-  // Incrémenter pour avoir le prochain index
-  index++;
-  let key = `${baseKey}_${index}`;
-
-  // Continuer à incrémenter tant que la clé existe
-  while (allKeys.has(key)) {
-    index++;
-    key = `${baseKey}_${index}`;
-  }
-
-  // Sauvegarder le nouvel index pour ce parent
-  map.set(parentKey, index);
-  return key;
-};
-
 const addNewIndicator = () => {
-  const sessionKeys = new Set();
 
-  currentGlobalFactuelFormDataArray.value.forEach((item, index) => {
-    const allKeys = new Set([...uniqueKeys.keys(), ...sessionKeys]);
+currentGlobalFactuelFormDataArray.value.forEach((item, index) => {
+  const typeKey = generateKey(item.typeKey);
+  const principeKey = generateKey(item.principeKey + typeKey);
+  const critereKey = generateKey(item.critereKey + principeKey);
+  const indicateurKey = generateKey(item.indicateurKey + critereKey);
+  const key = indicateurKey;
 
-    // 1. Générer typeKey normalement
-    const typeKeyBase = generateKey(item.typeKey);
-    const typeKey = makeUniqueKey(typeKeyBase, "GLOBAL", lastTypeIndexGlobal, allKeys);
-    sessionKeys.add(typeKey);
+  console.log("critereKey.value", critereKey)
 
-    // 2. Générer principeKey unique par typeKey
-    const principeKeyBase = generateKey(item.principeKey + typeKey);
-    const principeKey = makeUniqueKey(principeKeyBase, typeKey, lastPrincipeIndexByType, allKeys);
-    sessionKeys.add(principeKey);
+  if (!uniqueKeys.has(key)) {
 
-    // 3. Générer critereKey unique par principeKey
-    const critereKeyBase = generateKey(item.critereKey + principeKey);
-    const critereKey = makeUniqueKey(critereKeyBase, principeKey, lastCritereIndexByPrincipe, allKeys);
-    sessionKeys.add(critereKey);
+    item = {
+      ...item,
+      typeKey: typeKey,
+      principeKey: principeKey,
+      critereKey: critereKey,
+      indicateurKey: indicateurKey,
+    };
 
-    // 4. Générer indicateurKey unique par critereKey
-    const indicateurKeyBase = generateKey(item.indicateurKey + critereKey);
-    const indicateurKey = makeUniqueKey(indicateurKeyBase, critereKey, lastIndicateurIndexByCritere, allKeys);
-    sessionKeys.add(indicateurKey);
+    const preview = {
+      ...currentPreviewFactuelFormDataArray.value[index],
+    };
 
-    const key = indicateurKey;
+    preview.type.key = typeKey;
+    preview.principe.key = principeKey;
+    preview.critere.key = critereKey;
+    preview.indicateur.key = indicateurKey;
 
-    if (!uniqueKeys.has(key)) {
-      // Mettre à jour l'objet
-      item = {
-        ...item,
-        typeKey,
-        principeKey,
-        critereKey,
-        indicateurKey,
-      };
 
-      const preview = {
-        ...currentPreviewFactuelFormDataArray.value[index],
-      };
+    console.log("preview.critere.key", preview.critere.key)
 
-      preview.type.key = typeKey;
-      preview.principe.key = principeKey;
-      preview.critere.key = critereKey;
-      preview.indicateur.key = indicateurKey;
+    globalFormFactuelData.value.unshift({ ...item });
 
-      globalFormFactuelData.value.unshift({ ...item });
-      previewFormFactuelData.value.unshift(JSON.parse(JSON.stringify(preview)));
+    //previewFormFactuelData.value.unshift(JSON.parse(JSON.stringify(currentPreviewFactuelFormDataArray.value[index])));
+    previewFormFactuelData.value.unshift(JSON.parse(JSON.stringify(preview)));
 
-      // Tri par position
-      globalFormFactuelData.value.sort((a, b) => {
-        return a.typePosition - b.typePosition || a.principePosition - b.principePosition || a.criterePosition - b.criterePosition || a.indicateurPosition - b.indicateurPosition;
-      });
-
-      previewFormFactuelData.value.sort((a, b) => {
-        return a.type.position - b.type.position || a.principe.position - b.principe.position || a.critere.position - b.critere.position || a.indicateur.position - b.indicateur.position;
-      });
-
-      // Sauvegarde
-      localStorage.setItem("globalFormFactuelData", JSON.stringify(globalFormFactuelData.value));
-      localStorage.setItem("previewFormFactuelData", JSON.stringify(previewFormFactuelData.value));
-
-      updateAllTypesGouvernance();
-
-      if (index === currentGlobalFactuelFormDataArray.value.length - 1) {
-        resetCurrentPreviewFactuelFormData();
-        resetCurrentGlobalFactuelFormData();
-        resetCurrentForm.value = !resetCurrentForm.value;
-      }
-
-      toast.success("Indicateur ajouté.");
-    } else {
-      toast.info("Indicateur déjà ajouté.");
-    }
-  });
-
-  // Ajoute toutes les clés générées dans la session à uniqueKeys
-  for (const key of sessionKeys) {
+    console.log("previewFormFactuelData.value", previewFormFactuelData.value);
+    console.log("critereKey.value", critereKey)
     uniqueKeys.set(key, true);
-  }
+    uniqueKeys.set(critereKey, true);
+    uniqueKeys.set(principeKey, true);
+    uniqueKeys.set(typeKey, true);
+    
+    // ✅ Sort after unshift
+    globalFormFactuelData.value.sort((a, b) => {
+      return a.typePosition - b.typePosition || a.principePosition - b.principePosition || a.criterePosition - b.criterePosition || a.indicateurPosition - b.indicateurPosition;
+    });
 
-  console.log("currentGlobalFactuelFormDataArray.value", currentGlobalFactuelFormDataArray.value);
-  console.log("currentPreviewFactuelFormDataArray.value", currentPreviewFactuelFormDataArray.value);
+    previewFormFactuelData.value.sort((a, b) => {
+      return a.type.position - b.type.position || a.principe.position - b.principe.position || a.critere.position - b.critere.position || a.indicateur.position - b.indicateur.position;
+    });
+    
+    localStorage.setItem("globalFormFactuelData", JSON.stringify(globalFormFactuelData.value));
+    localStorage.setItem("previewFormFactuelData", JSON.stringify(previewFormFactuelData.value));
+
+    updateAllTypesGouvernance();
+
+    if (index === currentGlobalFactuelFormDataArray.value.length - 1) {
+      resetCurrentPreviewFactuelFormData();
+      resetCurrentGlobalFactuelFormData();
+      resetCurrentForm.value = !resetCurrentForm.value;
+    }
+
+    toast.success("Indicateur ajouté.");
+  } else {
+    toast.info("Indicateur deja ajouté.");
+  }
+});
+console.log("currentGlobalFactuelFormDataArray.value", currentGlobalFactuelFormDataArray.value);
+
+console.log("currentPreviewFactuelFormDataArray.value", currentPreviewFactuelFormDataArray.value);
 };
+
+
+
+
+// const STORAGE_KEYS = {
+//   lastTypeIndex: 'lastTypeIndexGlobal',
+//   lastPrincipeIndex: 'lastPrincipeIndexByType', 
+//   lastCritereIndex: 'lastCritereIndexByPrincipe',
+//   lastIndicateurIndex: 'lastIndicateurIndexByCritere'
+// };
+
+// // Fonction pour charger une Map depuis localStorage
+// const loadMapFromStorage = (storageKey) => {
+//   const stored = localStorage.getItem(storageKey);
+//   if (stored) {
+//     try {
+//       const parsed = JSON.parse(stored);
+//       return new Map(Object.entries(parsed));
+//     } catch (e) {
+//       console.warn(`Erreur lors du chargement de ${storageKey}:`, e);
+//     }
+//   }
+//   return new Map();
+// };
+
+// // Fonction pour sauvegarder une Map dans localStorage
+// const saveMapToStorage = (map, storageKey) => {
+//   try {
+//     const obj = Object.fromEntries(map);
+//     localStorage.setItem(storageKey, JSON.stringify(obj));
+//   } catch (e) {
+//     console.warn(`Erreur lors de la sauvegarde de ${storageKey}:`, e);
+//   }
+// };
+
+
+// // Initialiser les Maps avec les données persistées
+// const lastTypeIndexGlobal = loadMapFromStorage(STORAGE_KEYS.lastTypeIndex);
+// const lastPrincipeIndexByType = loadMapFromStorage(STORAGE_KEYS.lastPrincipeIndex);
+// const lastCritereIndexByPrincipe = loadMapFromStorage(STORAGE_KEYS.lastCritereIndex);
+// const lastIndicateurIndexByCritere = loadMapFromStorage(STORAGE_KEYS.lastIndicateurIndex);
+
+
+// // // Stocke les derniers index utilisés pour chaque clé parent
+// // const lastTypeIndexGlobal = new Map();
+// // const lastPrincipeIndexByType = new Map();
+// // const lastCritereIndexByPrincipe = new Map();
+// // const lastIndicateurIndexByCritere = new Map();
+
+// const makeUniqueKey = (baseKey, parentKey, map, allKeys) => {
+//   // Récupérer le dernier index utilisé pour ce parent
+//   let index = map.get(parentKey) ?? -1;
+
+//   // Incrémenter pour avoir le prochain index
+//   index++;
+//   let key = `${baseKey}_${index}`;
+
+//   // Continuer à incrémenter tant que la clé existe
+//   while (allKeys.has(key)) {
+//     index++;
+//     key = `${baseKey}_${index}`;
+//   }
+
+//   // Sauvegarder le nouvel index pour ce parent
+//   map.set(parentKey, index);
+//   return key;
+// };
+
+// const addNewIndicator = () => {
+//   const sessionKeys = new Set();
+
+//   currentGlobalFactuelFormDataArray.value.forEach((item, index) => {
+//     const allKeys = new Set([...uniqueKeys.keys(), ...sessionKeys]);
+
+//     // 1. Générer typeKey normalement
+//     const typeKeyBase = generateKey(item.typeKey);
+//     const typeKey = makeUniqueKey(typeKeyBase, typeKeyBase , lastTypeIndexGlobal, allKeys);
+//     sessionKeys.add(typeKey);
+
+//     // 2. Générer principeKey unique par typeKey
+//     const principeKeyBase = generateKey(item.principeKey + typeKey);
+//     const principeKey = makeUniqueKey(principeKeyBase, typeKey, lastPrincipeIndexByType, allKeys);
+//     sessionKeys.add(principeKey);
+
+//     // 3. Générer critereKey unique par principeKey
+//     const critereKeyBase = generateKey(item.critereKey + principeKey);
+//     const critereKey = makeUniqueKey(critereKeyBase, principeKey, lastCritereIndexByPrincipe, allKeys);
+//     sessionKeys.add(critereKey);
+
+//     // 4. Générer indicateurKey unique par critereKey
+//     const indicateurKeyBase = generateKey(item.indicateurKey + critereKey);
+//     const indicateurKey = makeUniqueKey(indicateurKeyBase, critereKey, lastIndicateurIndexByCritere, allKeys);
+//     sessionKeys.add(indicateurKey);
+
+//     const key = indicateurKey;
+
+//     if (!uniqueKeys.has(key)) {
+//       // Mettre à jour l'objet
+//       item = {
+//         ...item,
+//         typeKey,
+//         principeKey,
+//         critereKey,
+//         indicateurKey,
+//       };
+
+//       const preview = {
+//         ...currentPreviewFactuelFormDataArray.value[index],
+//       };
+
+//       preview.type.key = typeKey;
+//       preview.principe.key = principeKey;
+//       preview.critere.key = critereKey;
+//       preview.indicateur.key = indicateurKey;
+
+//       globalFormFactuelData.value.unshift({ ...item });
+//       previewFormFactuelData.value.unshift(JSON.parse(JSON.stringify(preview)));
+
+//       // Tri par position
+//       globalFormFactuelData.value.sort((a, b) => {
+//         return a.typePosition - b.typePosition || a.principePosition - b.principePosition || a.criterePosition - b.criterePosition || a.indicateurPosition - b.indicateurPosition;
+//       });
+
+//       previewFormFactuelData.value.sort((a, b) => {
+//         return a.type.position - b.type.position || a.principe.position - b.principe.position || a.critere.position - b.critere.position || a.indicateur.position - b.indicateur.position;
+//       });
+
+//       // Sauvegarde
+//       localStorage.setItem("globalFormFactuelData", JSON.stringify(globalFormFactuelData.value));
+//       localStorage.setItem("previewFormFactuelData", JSON.stringify(previewFormFactuelData.value));
+
+//       updateAllTypesGouvernance();
+
+//       if (index === currentGlobalFactuelFormDataArray.value.length - 1) {
+//         resetCurrentPreviewFactuelFormData();
+//         resetCurrentGlobalFactuelFormData();
+//         resetCurrentForm.value = !resetCurrentForm.value;
+//       }
+
+//       toast.success("Indicateur ajouté.");
+//     } else {
+//       toast.info("Indicateur déjà ajouté.");
+//     }
+//   });
+
+//    // Sauvegarder les Maps mises à jour dans localStorage
+//    saveMapToStorage(lastTypeIndexGlobal, STORAGE_KEYS.lastTypeIndex);
+//   saveMapToStorage(lastPrincipeIndexByType, STORAGE_KEYS.lastPrincipeIndex);
+//   saveMapToStorage(lastCritereIndexByPrincipe, STORAGE_KEYS.lastCritereIndex);
+//   saveMapToStorage(lastIndicateurIndexByCritere, STORAGE_KEYS.lastIndicateurIndex);
+
+//   // Ajoute toutes les clés générées dans la session à uniqueKeys
+//   for (const key of sessionKeys) {
+//     uniqueKeys.set(key, true);
+//   }
+
+//   console.log("currentGlobalFactuelFormDataArray.value", currentGlobalFactuelFormDataArray.value);
+//   console.log("currentPreviewFactuelFormDataArray.value", currentPreviewFactuelFormDataArray.value);
+// };
 
 const removeIndicator = (key) => {
   // Trouver l'index de la soumission à supprimer
@@ -956,6 +1079,7 @@ const showDeleteButton = computed(() => {
     return false;
   }
 });
+
 const resetForm = () => {
   payload.libelle = "";
   modalForm.value = false;
@@ -1045,10 +1169,7 @@ onMounted(() => {
 
     console.log("previewTypesGouvernance.value", previewFormFactuelData.value);
 
-    //previewOptionResponsesModel.value = JSON.parse(localStorage.getItem("previewOptionResponsesModel"))
-
-    // previewOptionResponsesModel.value = JSON.parse(localStorage.getItem("previewOptionResponsesModel"));
-    // globalOptionResponses.value = JSON.parse(localStorage.getItem("globalOptionResponses"));
+     
   }
   updateAllTypesGouvernance();
   getcurrentUser();
@@ -1186,7 +1307,7 @@ onMounted(() => {
                   <tr>
                     <!-- Première cellule de catégorie principale avec rowspan -->
                     <td class="font-semibold list-data" v-if="scIndex === 0 && qIndex === 0" :rowspan="principe_de_gouvernance.criteres_de_gouvernance.reduce((sum, sc) => sum + sc.indicateurs_de_gouvernance.length, 0)">
-                      <div class="flex items-center gap-1">{{ type_de_gouvernance.position }}.{{ principe_de_gouvernance.position }} - {{ principe_de_gouvernance.nom }}</div>
+                      <div class="flex items-center gap-1">{{ principe_de_gouvernance.position }} - {{ principe_de_gouvernance.nom }}</div>
 
                       <div class="items-center transition-all opacity-0 container-buttons">
                         <div v-if="canEditCritere[principe_de_gouvernance.key]">
@@ -1204,7 +1325,7 @@ onMounted(() => {
                     </td>
                     <!-- Première cellule de sous-catégorie avec rowspan -->
                     <td class="list-data" v-if="qIndex === 0" :rowspan="critere_de_gouvernance.indicateurs_de_gouvernance.length">
-                      <div class="flex items-center gap-1">{{ type_de_gouvernance.position }}.{{ principe_de_gouvernance.position }}.{{ critere_de_gouvernance.position }} - {{ critere_de_gouvernance.nom }}</div>
+                      <div class="flex items-center gap-1">{{ critere_de_gouvernance.position }} - {{ critere_de_gouvernance.nom }}</div>
 
                       <div class="flex items-center transition-all opacity-0 container-buttons">
                         <div v-if="canEditCritere[critere_de_gouvernance.key]">
@@ -1220,7 +1341,7 @@ onMounted(() => {
                         </div>
                       </div>
                     </td>
-                    <td>{{ type_de_gouvernance.position }}.{{ principe_de_gouvernance.position }}.{{ critere_de_gouvernance.position }}.{{ indicateur_de_gouvernance.position }} - {{ indicateur_de_gouvernance.nom }}</td>
+                    <td>{{ indicateur_de_gouvernance.position }} - {{ indicateur_de_gouvernance.nom }}</td>
                     <td>
                       <div class="flex items-center">
                         <div v-if="canEditIndicateur[indicateur_de_gouvernance.key]">
@@ -1373,60 +1494,8 @@ onMounted(() => {
   </Modal>
   <!-- END: Modal Content -->
 
-  <!-- BEGIN: Modal Content -->
-  <!-- <Modal backdrop="static" size="modal-xl" :show="modalForm === !modalForm" @hidden="modalForm = false">
-    <ModalHeader>
-      <h2 class="mr-auto text-base font-medium">Enregistrer le formulaire</h2>
-    </ModalHeader>
-    <form @submit.prevent="createForm">
-      <ModalBody class="space-y-5">
-        <div class="flex gap-4">
-          <InputForm label="Libellé" class="w-full" :control="getFieldErrors(errors.libelle)"
-            v-model="payload.libelle" />
-          <div class="w-full">
-            <div class="flex-1">
-              <label class="form-label">Année cible<span class="text-danger">*</span> </label>
-              <TomSelect v-model="payload.annee_exercice" name="annee_aggrer"
-                :options="{ placeholder: 'Selectionez une année' }" class="w-full">
-                <option value=""></option>
-                <option v-for="annee in annees" :key="annee" :value="annee">{{ annee }}</option>
-              </TomSelect>
-
-              <TomSelect v-model="payload.annee_exercice" :options="{ placeholder: 'Selectionez une année' }"
-                class="w-full">
-                <option v-for="(year, index) in yearsStore.getYears" :key="index" :value="year">{{ year }}</option>
-              </TomSelect>
-
-            </div>
-            <div v-if="errors.annee_exercice" class="mt-2 text-danger">{{ getFieldErrors(errors.annee_exercice) }}</div>
-          </div>
-        </div>
-        <div>
-          <p class="text-red-500 text-[12px] -mt-2 col-span-12 my-2"
-            v-if="errors['factuel.options_de_reponse.0.point']">
-            {{ extractMessage(errors["factuel.options_de_reponse.0.point"]) }}</p>
-          <p class="text-red-500 text-[12px] -mt-2 col-span-12 my-2"
-            v-if="errors['factuel.options_de_reponse.0.point']">
-            {{ extractMessage(errors["factuel.options_de_reponse.0.point"]) }}</p>
-
-          <p class="mb-3">Options de réponses</p>
-          <ListOptionsResponse :options="previewOptionResponses.options_de_reponse" />
-        </div>
-        <div class="max-h-[50vh] h-[50vh] overflow-y-auto">
-          <p class="mb-3">Formulaire factuel</p>
-          <PreviewFactuelForm :types-gouvernance="previewTypesGouvernance.types_de_gouvernance" />
-        </div>
-      </ModalBody>
-      <ModalFooter>
-        <div class="flex gap-2">
-          <button type="button" @click="resetErrors"
-            class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
-          <VButton :loading="isLoadingForm" label="Enregistrer" />
-        </div>
-      </ModalFooter>
-    </form>
-  </Modal> -->
-  <!-- END: Modal Content -->
+  
+  
   <!-- Modal for deleting -->
   <Modal :show="showDeleteForm" @hidden="showDeleteForm = false">
     <ModalBody class="p-0">

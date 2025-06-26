@@ -447,98 +447,115 @@ onMounted(async () => {
   </div>
 
   <!-- Modal Register & Update -->
-  <Modal backdrop="static" :show="showModalCreate" @hidden="showModalCreate = false">
+  <Modal size="modal-xl" backdrop="static" :show="showModalCreate" @hidden="showModalCreate = false">
     <ModalHeader>
       <h2 class="mr-auto text-base font-medium">{{ mode }} un audit</h2>
     </ModalHeader>
     <form @submit.prevent="submitData">
       <ModalBody>
-        <div class="grid grid-cols-1 gap-4">
-          <InputForm class="col-span-12" label="Prestataire" v-model="payload.entreprise" :control="getFieldErrors(errors.entreprise)" />
-          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.entreprise">{{ $h.extractContentFromArray(messageErreur.entreprise) }}</p>
-
-          <!-- <InputForm class="col-span-12" label="Contact" type="number" v-model="payload.entrepriseContact" :control="getFieldErrors(errors.entrepriseContact)" /> -->
-
-          <div class="col-span-12">
-                  <InputForm
-                    label="Contact"
-                    :control="getFieldErrors(errors.entrepriseContact)"
-                    v-model="payload.entrepriseContact"
-                    maxlength="13"
-                    placeholder="+229xxxxxxxxxx"
-                    type="text"
-                  />
-                  
-                  <!-- Message de validation avec animation -->
-                  <div class="mt-4 _min-h-[1.5rem]">
-                    <p v-if="isValid" class="flex items-center text-green-600 font-medium text-sm animate-pulse">
-                      <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                      </svg>
-                      Numéro valide
-                    </p>
-                    <p v-else-if="payload.entrepriseContact && payload.entrepriseContact.length > 0" class="flex items-center text-red-500 font-medium text-sm">
-                      <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                      </svg>
-                      Numéro invalide
-                    </p>
-                  </div>
+        <div class="grid grid-cols-12 gap-4">
+          <!-- Prestataire -->
+          <div class="col-span-12 md:col-span-6">
+            <InputForm label="Prestataire" v-model="payload.entreprise" :control="getFieldErrors(errors.entreprise)" />
+            <p class="text-red-500 text-[12px] -mt-2" v-if="messageErreur.entreprise">{{ $h.extractContentFromArray(messageErreur.entreprise) }}</p>
           </div>
-          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.entrepriseContact">{{ $h.extractContentFromArray(messageErreur.entrepriseContact) }}</p>
 
+          <!-- Contact -->
+          <div class="col-span-12 md:col-span-6">
+            <InputForm
+              label="Contact"
+              :control="getFieldErrors(errors.entrepriseContact)"
+              v-model="payload.entrepriseContact"
+              maxlength="13"
+              placeholder="+229xxxxxxxxxx"
+              type="text"
+            />
+            <div class="mt-4 _min-h-[1.5rem]">
+              <p v-if="isValid" class="flex items-center text-green-600 font-medium text-sm animate-pulse">
+                <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+                Numéro valide
+              </p>
+              <p v-else-if="payload.entrepriseContact && payload.entrepriseContact.length > 0" class="flex items-center text-red-500 font-medium text-sm">
+                <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+                Numéro invalide
+              </p>
+            </div>
+            <p class="text-red-500 text-[12px] -mt-2" v-if="messageErreur.entrepriseContact">{{ $h.extractContentFromArray(messageErreur.entrepriseContact) }}</p>
+          </div>
 
-          <InputForm class="col-span-12" label="Excercice audité" type="text" v-model="payload.annee" :control="getFieldErrors(errors.annee)" />
-          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.annee">{{ $h.extractContentFromArray(messageErreur.annee) }}</p>
+          <!-- Exercice audité -->
+          <div class="col-span-12 md:col-span-6">
+            <InputForm label="Exercice audité" type="text" v-model="payload.annee" :control="getFieldErrors(errors.annee)" />
+            <p class="text-red-500 text-[12px] -mt-2" v-if="messageErreur.annee">{{ $h.extractContentFromArray(messageErreur.annee) }}</p>
+          </div>
 
-          <InputForm class="col-span-12" label="Date de transmission" type="date" v-model="payload.dateDeTransmission" :control="getFieldErrors(errors.dateDeTransmission)" />
-          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.dateDeTransmission">{{ $h.extractContentFromArray(messageErreur.dateDeTransmission) }}</p>
+          <!-- Date de transmission -->
+          <div class="col-span-12 md:col-span-6">
+            <InputForm label="Date de transmission" type="date" v-model="payload.dateDeTransmission" :control="getFieldErrors(errors.dateDeTransmission)" />
+            <p class="text-red-500 text-[12px] -mt-2" v-if="messageErreur.dateDeTransmission">{{ $h.extractContentFromArray(messageErreur.dateDeTransmission) }}</p>
+          </div>
 
-          <InputForm class="col-span-12" label="Etat avancement" v-model="payload.etat" :control="getFieldErrors(errors.etat)" />
-          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.etat">{{ $h.extractContentFromArray(messageErreur.etat) }}</p>
+          <!-- État d’avancement -->
+          <div class="col-span-12 md:col-span-6">
+            <InputForm label="État d’avancement" v-model="payload.etat" :control="getFieldErrors(errors.etat)" />
+            <p class="text-red-500 text-[12px] -mt-2" v-if="messageErreur.etat">{{ $h.extractContentFromArray(messageErreur.etat) }}</p>
+          </div>
 
-          <InputForm v-if="isCreate" ref="fileInput" class="col-span-12" type="file" @change="handleFileChange" required="required" placeHolder="choisir un fichier" label="Rapport" />
-          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.fichier">{{ $h.extractContentFromArray(messageErreur.fichier) }}</p>
+          <!-- Rapport -->
+          <div class="col-span-12 md:col-span-6" v-if="isCreate">
+            <InputForm ref="fileInput" type="file" @change="handleFileChange" required="required" placeHolder="choisir un fichier" label="Rapport" />
+            <p class="text-red-500 text-[12px] -mt-2" v-if="messageErreur.fichier">{{ $h.extractContentFromArray(messageErreur.fichier) }}</p>
+          </div>
 
-          <div v-if="isCreate" class="col-span-12">
+          <!-- Partager à -->
+          <div class="col-span-12 md:col-span-6" v-if="isCreate">
             <label class="form-label">Partager à</label>
-            <TomSelect v-model="usersId" multiple :options="{ placeholder: 'Selectionez un utilisateur' }" class="w-full">
+            <TomSelect v-model="usersId" multiple :options="{ placeholder: 'Sélectionnez un utilisateur' }" class="w-full">
               <option v-for="(form, index) in users" :key="index" :value="form.id">{{ form.nom }}</option>
             </TomSelect>
-            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.usersId">{{ $h.extractContentFromArray(messageErreur.usersId) }}</p>
+            <p class="text-red-500 text-[12px] -mt-2" v-if="messageErreur.usersId">{{ $h.extractContentFromArray(messageErreur.usersId) }}</p>
           </div>
 
-          <div class="col-span-12">
-            <label class="form-label">Catérogies</label>
-            <TomSelect v-model="payload.categorie" :options="{ placeholder: 'Selectionez une catégorie' }" class="w-full">
+          <!-- Catégories -->
+          <div class="col-span-12 md:col-span-6">
+            <label class="form-label">Catégories</label>
+            <TomSelect v-model="payload.categorie" :options="{ placeholder: 'Sélectionnez une catégorie' }" class="w-full">
               <option value="">Choisir une catégorie</option>
               <option value="0">Audit comptable et financier</option>
-              <option value="1">Audit de conformité environnementale et social</option>
+              <option value="1">Audit de conformité environnementale et sociale</option>
               <option value="2">Audit des acquisitions</option>
-              <option value="3">Audit techniques</option>
+              <option value="3">Audit technique</option>
             </TomSelect>
-            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.categorie">{{ $h.extractContentFromArray(messageErreur.categorie) }}</p>
+            <p class="text-red-500 text-[12px] -mt-2" v-if="messageErreur.categorie">{{ $h.extractContentFromArray(messageErreur.categorie) }}</p>
           </div>
-          <div class="col-span-12">
+
+          <!-- Statut -->
+          <div class="col-span-12 md:col-span-6">
             <label class="form-label">Statut</label>
-            <TomSelect v-model="payload.statut" :options="{ placeholder: 'Selectionez un statut' }" class="w-full">
+            <TomSelect v-model="payload.statut" :options="{ placeholder: 'Sélectionnez un statut' }" class="w-full">
               <option value="">Choisir un statut</option>
-              <option value="1">Terminer</option>
+              <option value="1">Terminé</option>
               <option value="0">En cours</option>
               <option value="-1">En attente</option>
             </TomSelect>
-            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.statut">{{ $h.extractContentFromArray(messageErreur.statut) }}</p>
+            <p class="text-red-500 text-[12px] -mt-2" v-if="messageErreur.statut">{{ $h.extractContentFromArray(messageErreur.statut) }}</p>
           </div>
 
-          <div class="col-span-12">
+          <!-- Projet -->
+          <div class="col-span-12 md:col-span-6">
             <label class="form-label">Projet</label>
-            <TomSelect v-model="payload.projetId" :options="{ placeholder: 'Selectionez un projet' }" class="w-full">
+            <TomSelect v-model="payload.projetId" :options="{ placeholder: 'Sélectionnez un projet' }" class="w-full">
               <option v-for="(form, index) in projets" :key="index" :value="form.id">{{ form.nom }}</option>
             </TomSelect>
-            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.projetId">{{ $h.extractContentFromArray(messageErreur.projetId) }}</p>
+            <p class="text-red-500 text-[12px] -mt-2" v-if="messageErreur.projetId">{{ $h.extractContentFromArray(messageErreur.projetId) }}</p>
           </div>
         </div>
       </ModalBody>
+
       <ModalFooter>
         <div class="flex gap-2">
           <button type="button" @click="resetForm" class="w-full px-2 py-2 my-3 align-top btn btn-outline-secondary">Annuler</button>

@@ -11,32 +11,7 @@
     <ManagementEvaluationIndividuel :formulaires="datas" />
     <div v-show="!isLoadingData" class="!z-0 p-5 mt-4 box">
       <p class="mt-2 text-lg font-medium intro-y">Liste des formulaires</p>
-      <!-- <div class="grid grid-cols-12 gap-2 mt-5">
-        <div v-for="(item, index) in datas" :key="index" class="col-span-12 p-4 md:col-span-12 lg:col-span-4">
-          <div class="p-3 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-105 hover:bg-gray-50">
-            <div @click="gotoSoumissions(item)" class="flex flex-col items-start w-full gap-2 mt-2 cursor-pointer">
-              <div class="text-center lg:text-left lg:mt-0">
-                <span class="text-base font-semibold text-gray-800 transition-colors hover:text-primary">
-                  {{ item.libelle ?? "Libelle" }}
-                </span>
-              </div>
-            </div>
-            <div @click="gotoSoumissions(item)" class="w-full mt-5 text-center cursor-pointer lg:text-left">
-              <div class="mt-5 space-y-3 text-gray-600">
-                <div class="flex items-center text-sm font-medium text-gray-700">
-                  <UserIcon class="w-4 h-4 mr-2 text-primary" /> Participant:
-                  <span class="ml-2 font-semibold text-gray-900">{{ item.nbreParticipants ?? "vide" }}</span>
-                </div>
-              </div>
-            </div>
-            <div class="flex flex-wrap items-center justify-center gap-1 pt-2 mt-2 border-t lg:justify-end border-slate-200/60">
-              <button class="flex items-center mr-auto text-xs btn btn-outline-primary" @click="handlePreview(item)"><EyeIcon class="mr-1 size-4" /> Voir</button>
-              <button class="flex items-center mr-3 text-xs btn btn-outline-pending" @click="handleEdit(item)"><CheckSquareIcon class="mr-1 size-4" /> Modifier</button>
-              <button class="flex items-center text-xs btn btn-outline-danger" @click="handleDelete(item)"><Trash2Icon class="mr-1 size-4" /> Supprimer</button>
-            </div>
-          </div>
-        </div>
-      </div> -->
+      
 
       <div class="overflow-x-auto scrollbar-hidden">
         <div id="tabulator" ref="tabulator" class="mt-5 table-report table-report--tabulator"></div>

@@ -68,22 +68,7 @@
         </div>
       </div>
       <div>
-        <!-- Data List -->
-        <!-- <ul v-if="!isLoadingData" class="overflow-y-auto max-h-[80vh]">
-          <li v-for="data in filterData" :key="data.id" class="flex items-center justify-between gap-2 px-2 py-2 text-base rounded-md hover:bg-blue-100 list-data">
-            <div class="p-2 form-check">
-              <span class="form-check-label">{{ data.nom }}</span>
-            </div>
-            <div class="flex items-center gap-1 space-x-1 text-white transition-all opacity-0 container-buttons">
-              <button class="p-2 rounded-md bg-primary" @click="handleEdit(data)">
-                <Edit3Icon class="size-6" />
-              </button>
-              <button class="p-2 rounded-md bg-danger" @click="handleDelete(data)">
-                <TrashIcon class="size-5" />
-              </button>
-            </div>
-          </li>
-        </ul> -->
+        
         <LoaderSnipper v-if="isLoadingDataCadre" />
         <TabulatorCadreMesure v-else :data="dataAvailable" :unites="unites" :categories="categories" :years="annees" :ongs="responsables" :ugs="ugs" :prop-sites="sites" @update-datas="getDatasCadre" />
         <div v-if="!isLoadingDataCadre && verifyPermission('voir-un-indicateur')" class="flex justify-center gap-3 my-8">

@@ -563,106 +563,90 @@ export default {
 
   <!-- END: Users Layout -->
 
-  <Modal backdrop="static" :show="showModal" @hidden="showModal = false">
+  <Modal size="modal-xl" backdrop="static" :show="showModal" @hidden="showModal = false">
     <ModalHeader>
       <h2 v-if="!update" class="mr-auto text-base font-medium">Ajouter une tache</h2>
       <h2 v-else class="mr-auto text-base font-medium">Modifier une tache</h2>
     </ModalHeader>
     <form>
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
-        <InputForm v-model="formData.nom" class="col-span-12" type="text" required="required" placeHolder="Nom de la tache" label="Nom" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
+        <!-- Nom -->
+         <div class="col-span-12 md:col-span-6  ">
+          <InputForm v-model="formData.nom" class="col-span-6" type="text" required="required" placeHolder="Nom de la tache" label="Nom" />
+          <p class="text-red-500 text-[12px] -mt-2 col-span-6" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
+         </div>
+        
 
-        <div class="input-form mt-3 col-span-12">
-          <label for="validation-form-6" class="form-label w-full"> Description </label>
+        <!-- Date début -->
+        <div class="col-span-12 md:col-span-6  ">
+          <InputForm v-model="formData.debut" class="col-span-6" type="date" required="required" placeHolder="Entrer la date de début" label="Début de la tâche" />
+          <p class="text-red-500 text-[12px] -mt-2 col-span-6" v-if="messageErreur.debut">{{ messageErreur.debut }}</p>
+        </div>
+        <!-- Date fin -->
+        <div class="col-span-12 md:col-span-6  ">
+          <InputForm v-model="formData.fin" class="col-span-6" type="date" required="required" placeHolder="Entrer la date de fin" label="Fin de la tâche" />
+          <p class="text-red-500 text-[12px] -mt-2 col-span-6" v-if="messageErreur.fin">{{ messageErreur.fin }}</p>
+        </div>
+        <!-- Description (pleine ligne) -->
+        <div class="input-form mt-3 col-span-12 md:col-span-6">
+          <label class="form-label w-full"> Description </label>
           <textarea v-model="formData.description" class="form-control w-full" name="comment" placeholder="Ajouter une description"></textarea>
         </div>
 
-        <div class="col-span-12 mt-4">
-          <div class="flex col-span-12" v-if="!update">
-            <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Projets</label>
-            <TomSelect
-              v-model="projetId"
-              :options="{
-                placeholder: 'Choisir un Output',
-                create: false,
-                onOptionAdd: text(),
-              }"
-              class="w-full"
-            >
-              <option value="">Choisir un projet</option>
-
-              <option v-for="(element, index) in projets" :key="index" :value="element.id">{{ element.codePta }}-{{ element.nom }}</option>
-            </TomSelect>
-          </div>
+        <!-- Projets -->
+        <div class="col-span-12 md:col-span-6 mt-4" v-if="!update">
+          <label class="form-label">Projets</label>
+          <TomSelect
+            v-model="projetId"
+            :options="{ placeholder: 'Choisir un projet', create: false, onOptionAdd: text() }"
+            class="w-full"
+          >
+            <option value="">Choisir un projet</option>
+            <option v-for="(element, index) in projets" :key="index" :value="element.id">{{ element.codePta }}-{{ element.nom }}</option>
+          </TomSelect>
         </div>
 
-        <div class="flex col-span-12 mt-4" v-if="!update">
-          <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Outcomes</label>
+        <!-- Outcomes -->
+        <div class="col-span-12 md:col-span-6 mt-4" v-if="!update">
+          <label class="form-label">Outcomes</label>
           <TomSelect
             v-model="selectedIds.composantId"
-            :options="{
-              placeholder: 'Choisir un Outcome',
-              create: false,
-              onOptionAdd: text(),
-            }"
+            :options="{ placeholder: 'Choisir un Outcome', create: false, onOptionAdd: text() }"
             class="w-full"
           >
             <option v-for="(element, index) in composants" :key="index" :value="element.id">{{ element.codePta }}-{{ element.nom }}</option>
           </TomSelect>
         </div>
 
-        <div class="flex col-span-12 mt-4" v-if="!update">
-          <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Output</label>
+        <!-- Output -->
+        <div class="col-span-12 md:col-span-6 mt-4" v-if="!update">
+          <label class="form-label">Outputs</label>
           <TomSelect
             v-model="selectedIds.sousComposantId"
-            :options="{
-              placeholder: 'Choisir un Output',
-              create: false,
-              onOptionAdd: text(),
-            }"
+            :options="{ placeholder: 'Choisir un Output', create: false, onOptionAdd: text() }"
             class="w-full"
           >
             <option value="">Choisir un Output</option>
-
             <option v-for="(element, index) in sousComposants" :key="index" :value="element.id">{{ element.codePta }}-{{ element.nom }}</option>
           </TomSelect>
         </div>
 
-        <div class="flex col-span-12 mt-4" v-if="!update">
-          <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Activités</label>
+        <!-- Activités -->
+        <div class="col-span-12 md:col-span-6 mt-4" v-if="!update">
+          <label class="form-label">Activités</label>
           <TomSelect
             v-model="formData.activiteId"
-            :options="{
-              placeholder: 'Choisir une activité',
-              create: false,
-              onOptionAdd: text(),
-            }"
+            :options="{ placeholder: 'Choisir une activité', create: false, onOptionAdd: text() }"
             class="w-full"
             title="Veuillez sélectionner une activité pour afficher son plan de décaissement"
           >
             <option value="">Choisir une activité</option>
-
             <option v-for="(element, index) in activites" :key="index" :value="element.id">{{ element.codePta }}-{{ element.nom }}</option>
           </TomSelect>
-          <!-- <v-select class="w-full" v-model="formData.activiteId" label="nom" :options="activites">
-            <template #search="{ attributes, events }">
-              <input class="vs__search form-input" :required="!formData.activiteId" v-bind="attributes" v-on="events" />
-            </template>
-          </v-select> -->
-          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.activiteId">{{ messageErreur.activiteId }}</p>
-
-          <!-- <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-bold duration-100 ease-linear -translate-y-3 bg-white _font-medium form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Activites</label> -->
+          <p class="text-red-500 text-[12px] -mt-2" v-if="messageErreur.activiteId">{{ messageErreur.activiteId }}</p>
         </div>
 
-        <InputForm v-model="formData.debut" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de début" label="Début de la tâche" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.debut">{{ messageErreur.debut }}</p>
-
-        <InputForm v-model="formData.fin" class="col-span-12" type="date" required="required" placeHolder="Entrer la date de fin " label="Fin de la tâche " />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.fin">{{ messageErreur.fin }}</p>
-
-        <!-- <pre>{{ getPlageActivite }}</pre> -->
-
+        <!-- Plage de date -->
         <div v-if="getPlageActivite" class="col-span-12">
           <span class="font-bold text-md">Plage de date de l'activité :</span>
           <div class="flex items-center mt-2" v-for="(plage, t) in getPlageActivite" :key="t">
@@ -673,6 +657,7 @@ export default {
           </div>
         </div>
       </ModalBody>
+
       <ModalFooter>
         <div class="flex items-center justify-center">
           <button type="button" @click="showModal = false" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>

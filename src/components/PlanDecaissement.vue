@@ -212,12 +212,7 @@ export default {
       this.labels = "Ajouter";
     },
     sendForm() {
-      // let oldDate = this.formData.annee;
-
-      // if (this.formData.annee) {
-      //   const dateObj = new Date(this.formData.annee); // Convertir la chaîne en objet Date
-      //   this.formData.annee = dateObj.getFullYear(); // Extraire l'année
-      // }
+      
 
       if (this.update) {
         PlanDeCaissement.update(this.planDeDecaissementId, this.formData)
@@ -259,20 +254,12 @@ export default {
 
         console.log("this.formData.annee", this.formData.annee);
 
-        // if (this.formData.annee) {
-        //   const dateObj = new Date(this.formData.annee); // Convertir la chaîne en objet Date
-        //   this.formData.annee = dateObj.getFullYear(); // Extraire l'année
-        // }
-
-        // console.log("this.formData.annee", this.formData.annee);
-
-        // //console.log("this.activiteId", this.activiteId);
+      
 
         PlanDeCaissement.create(this.formData)
           .then((response) => {
             if (response.status == 200 || response.status == 201) {
-              //console.log("this.formData.activiteId", this.formData.activiteId);
-              //this.activiteIdLocal = this.formData.activiteId;
+              
 
               this.getListePlanDeDecaissement(this.formData.activiteId);
               this.isLoading = false;
@@ -289,7 +276,7 @@ export default {
 
             this.isLoading = false;
 
-            toast.error(error.message);
+            toast.error(error.response.data.message);
 
             if (error.response && error.response.data && error.response.data.errors) {
               this.messageErreur = error.response.data.errors;
@@ -298,7 +285,9 @@ export default {
                 this.messageErreur[key] = $h.extractContentFromArray(this.messageErreur[key]);
               });
 
-              if (error.response.data.message !== "") toast.error(error.response.data.message);
+              for (let item in this.messageErreur) {
+                toast.error(this.messageErreur[item]);
+              }
             } else {
               toast.error(error.message);
             }
@@ -355,7 +344,7 @@ export default {
       </div>
       <div v-if="verifyPermission('creer-un-plan-de-decaissement')" class="flex mt-4 sm:mt-0">
         <button class="mr-2 shadow-md btn btn-primary" @click="addPlanDeDecaissement()">
-          <PlusIcon class="w-4 h-4 mr-3" />Ajouter un plan de décaissement 
+          <PlusIcon class="w-4 h-4 mr-3" />Ajouter un plan de décaissement
         </button>
       </div>
     </div>
@@ -376,10 +365,7 @@ v-if="verifyPermission('voir-un-plan-de-decaissement')" -->
         <!-- En-tête avec sigle et titre -->
         <div class="relative flex items-start pt-5">
           <div class="relative flex flex-col items-center w-full pt-5 lg:flex-row lg:items-start">
-            <!-- Circle with initial or image -->
-            <!-- <div class="flex items-center justify-center w-[90px] h-[90px] text-white rounded-full shadow-md bg-primary flex-shrink-0">
-              {{ item.annee }}
-            </div> -->
+            
             <!-- Item details -->
             <div class="w-full">
               <div class="mt-3 text-center lg:ml-4 lg:text-left lg:mt-0 flex-1">
@@ -387,9 +373,7 @@ v-if="verifyPermission('voir-un-plan-de-decaissement')" -->
                   class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary _truncate text-center lg:text-left">
                   {{ item.activite.nom }}</a>
               </div>
-              <!-- <div class="mt-3 text-center lg:ml-4 lg:text-left lg:mt-0 flex-1">
-                <a href="" class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary _truncate text-center lg:text-left"> {{ item.annee }}</a>
-              </div> -->
+              
             </div>
           </div>
           <!-- Dropdown for actions -->

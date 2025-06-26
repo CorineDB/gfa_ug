@@ -37,16 +37,45 @@ import autoTable from "jspdf-autotable";
 //   doc.save("FICHE_RÉSULTATS_SYNTHÉTIQUE.pdf");
 // };
 
-const generatePDF = () => {
-  const doc = new jsPDF({ orientation: "landscape", format: "a4" });
+// const generatePDF = () => {
+//   const doc = new jsPDF({ orientation: "landscape", format: "a4" });
 
-  // Add title
-  doc.setFontSize(24); // Set font size for the title
-  const title = "FICHE RÉSULTATS SYNTHÉTIQUE";
+//   // Add title
+//   doc.setFontSize(24); // Set font size for the title
+//   const title = "FICHE RÉSULTATS SYNTHÉTIQUE";
+//   const pageWidth = doc.internal.pageSize.width;
+//   const textWidth = doc.getTextWidth(title);
+//   const xOffset = (pageWidth - textWidth) / 2;
+//   doc.text(title, xOffset, 20);
+
+//   // Get current date and time
+//   const now = new Date();
+//   const dateStr = now.toLocaleDateString();
+//   const timeStr = now.toLocaleTimeString();
+
+//   // Add date and time to the top right corner
+//   doc.setFontSize(12);
+//   const dateTimeStr = `Générer le: ${dateStr} at ${timeStr}`;
+//   const textXOffset = pageWidth - doc.getTextWidth(dateTimeStr) - 10;
+//   doc.text(dateTimeStr, textXOffset, 10);
+
+//   autoTable(doc, { html: "#my-table8", startY: 40 });
+
+//   let finalY = doc.lastAutoTable.finalY + 10;
+
+//   autoTable(doc, { html: "#my-table11", startY: finalY });
+
+//   doc.save("FICHE_RÉSULTATS_SYNTHÉTIQUE.pdf");
+// };
+
+const generatePDFAdvanced = () => {
+  const doc = new jsPDF({
+    orientation: "landscape",
+    format: "a0",
+    unit: "mm",
+  });
+
   const pageWidth = doc.internal.pageSize.width;
-  const textWidth = doc.getTextWidth(title);
-  const xOffset = (pageWidth - textWidth) / 2;
-  doc.text(title, xOffset, 20);
 
   // Get current date and time
   const now = new Date();
@@ -55,17 +84,182 @@ const generatePDF = () => {
 
   // Add date and time to the top right corner
   doc.setFontSize(12);
-  const dateTimeStr = `Générer le: ${dateStr} at ${timeStr}`;
+  const dateTimeStr = `Générer le: ${dateStr} à ${timeStr}`;
   const textXOffset = pageWidth - doc.getTextWidth(dateTimeStr) - 10;
   doc.text(dateTimeStr, textXOffset, 10);
 
-  autoTable(doc, { html: "#my-table8", startY: 40 });
+  // Récupérer les données du tableau depuis le DOM
+  const table = document.getElementById("my-table8");
+  const rows = [];
+  const headers = [];
+
+  // Extraire les en-têtes
+  const headerRows = table.querySelectorAll("thead tr");
+  headerRows.forEach((row) => {
+    const headerRow = [];
+    row.querySelectorAll("th").forEach((th) => {
+      headerRow.push({
+        content: th.textContent.trim(),
+        colSpan: th.colSpan || 1,
+        rowSpan: th.rowSpan || 1,
+      });
+    });
+    headers.push(headerRow);
+  });
+
+  // Extraire les données du corps
+  const bodyRows = table.querySelectorAll("tbody tr");
+  bodyRows.forEach((row) => {
+    const rowData = [];
+    const backgroundColor = row.style.backgroundColor;
+    const textColor = window.getComputedStyle(row).color;
+
+    row.querySelectorAll("td").forEach((td) => {
+      rowData.push({
+        content: td.textContent.trim(),
+        styles: {
+          fillColor: backgroundColor ? hexToRgb(backgroundColor) : [255, 255, 255],
+          textColor: textColor ? hexToRgb(textColor) : [0, 0, 0],
+        },
+      });
+    });
+
+    if (rowData.length > 0) {
+      rows.push(rowData);
+    }
+  });
+
+  // Fonction pour convertir hex/rgb en tableau RGB
+  function hexToRgb(color) {
+    if (color.startsWith("rgb")) {
+      const matches = color.match(/\d+/g);
+      return matches ? matches.map(Number) : [255, 255, 255];
+    } else if (color.startsWith("#")) {
+      const hex = color.substring(1);
+      const r = parseInt(hex.substr(0, 2), 16);
+      const g = parseInt(hex.substr(2, 2), 16);
+      const b = parseInt(hex.substr(4, 2), 16);
+      return [r, g, b];
+    }
+    return [255, 255, 255];
+  }
+
+  // Ajouter le titre
+  doc.setFontSize(16);
+  doc.setFont("helvetica", "bold");
+  doc.text("Suivi indicateur", 14, 15);
+
+  // Configuration du tableau
+  autoTable(doc, {
+    head: headers,
+    body: rows,
+    startY: 20,
+    theme: "plain",
+    styles: {
+      fontSize: 8,
+      cellPadding: 3,
+      lineColor: [0, 0, 0],
+      lineWidth: 0.1,
+    },
+    headStyles: {
+      fillColor: [15, 52, 96],
+      textColor: [255, 255, 255],
+      fontStyle: "bold",
+      halign: "center",
+    },
+    didParseCell: function (data) {
+      // Appliquer les styles personnalisés pour chaque cellule
+      if (data.row.raw && data.row.raw[data.column.index] && data.row.raw[data.column.index].styles) {
+        Object.assign(data.cell.styles, data.row.raw[data.column.index].styles);
+      }
+    },
+  });
+
+  // Récupérer les données du tableau depuis le DOM
+  const table2 = document.getElementById("my-table11");
+  const rows2 = [];
+  const headers2 = [];
+
+  // Extraire les en-têtes
+  const headerRows2 = table2.querySelectorAll("thead tr");
+  headerRows2.forEach((row) => {
+    const headerRow = [];
+    row.querySelectorAll("th").forEach((th) => {
+      headerRow.push({
+        content: th.textContent.trim(),
+        colSpan: th.colSpan || 1,
+        rowSpan: th.rowSpan || 1,
+      });
+    });
+    headers2.push(headerRow);
+  });
+
+  // Extraire les données du corps
+  const bodyRows2 = table2.querySelectorAll("tbody tr");
+  bodyRows2.forEach((row) => {
+    const rowData = [];
+    const backgroundColor = row.style.backgroundColor;
+    const textColor = window.getComputedStyle(row).color;
+
+    row.querySelectorAll("td").forEach((td) => {
+      rowData.push({
+        content: td.textContent.trim(),
+        styles: {
+          fillColor: backgroundColor ? hexToRgb(backgroundColor) : [255, 255, 255],
+          textColor: textColor ? hexToRgb(textColor) : [0, 0, 0],
+        },
+      });
+    });
+
+    if (rowData.length > 0) {
+      rows2.push(rowData);
+    }
+  });
+
+  // Fonction pour convertir hex/rgb en tableau RGB
+  function hexToRgb(color) {
+    if (color.startsWith("rgb")) {
+      const matches = color.match(/\d+/g);
+      return matches ? matches.map(Number) : [255, 255, 255];
+    } else if (color.startsWith("#")) {
+      const hex = color.substring(1);
+      const r = parseInt(hex.substr(0, 2), 16);
+      const g = parseInt(hex.substr(2, 2), 16);
+      const b = parseInt(hex.substr(4, 2), 16);
+      return [r, g, b];
+    }
+    return [255, 255, 255];
+  }
 
   let finalY = doc.lastAutoTable.finalY + 10;
 
-  autoTable(doc, { html: "#my-table11", startY: finalY });
+  // Configuration du tableau
+  autoTable(doc, {
+    head: headers2,
+    body: rows2,
+    startY: finalY,
+    theme: "plain",
+    styles: {
+      fontSize: 8,
+      cellPadding: 3,
+      lineColor: [0, 0, 0],
+      lineWidth: 0.1,
+    },
+    headStyles: {
+      fillColor: [15, 52, 96],
+      textColor: [255, 255, 255],
+      fontStyle: "bold",
+      halign: "center",
+    },
+    didParseCell: function (data) {
+      // Appliquer les styles personnalisés pour chaque cellule
+      if (data.row.raw && data.row.raw[data.column.index] && data.row.raw[data.column.index].styles) {
+        Object.assign(data.cell.styles, data.row.raw[data.column.index].styles);
+      }
+    },
+  });
 
-  doc.save("FICHE_RÉSULTATS_SYNTHÉTIQUE.pdf");
+  doc.save("suivi_indicateur.pdf");
 };
 
 const generatePDF2 = () => {
@@ -110,22 +304,22 @@ const generatePDF3 = () => {
 
   // Add title
   doc.setFontSize(24); // Set font size for the title
-const title = "FICHE SYNTHESE SCORE DE PERCEPTION GOUVERNANCE";
-const pageWidth = doc.internal.pageSize.width;
-const textWidth = doc.getTextWidth(title);
-const xOffset = (pageWidth - textWidth) / 2;
-doc.text(title, xOffset, 20);
+  const title = "FICHE SYNTHESE SCORE DE PERCEPTION GOUVERNANCE";
+  const pageWidth = doc.internal.pageSize.width;
+  const textWidth = doc.getTextWidth(title);
+  const xOffset = (pageWidth - textWidth) / 2;
+  doc.text(title, xOffset, 20);
 
-// Get current date and time
-const now = new Date();
-const dateStr = now.toLocaleDateString();
-const timeStr = now.toLocaleTimeString();
+  // Get current date and time
+  const now = new Date();
+  const dateStr = now.toLocaleDateString();
+  const timeStr = now.toLocaleTimeString();
 
-// Add date and time to the top right corner
-doc.setFontSize(12);
-const dateTimeStr = `Générer le: ${dateStr} at ${timeStr}`;
-const textXOffset = pageWidth - doc.getTextWidth(dateTimeStr) - 10;
-doc.text(dateTimeStr, textXOffset, 10);
+  // Add date and time to the top right corner
+  doc.setFontSize(12);
+  const dateTimeStr = `Générer le: ${dateStr} at ${timeStr}`;
+  const textXOffset = pageWidth - doc.getTextWidth(dateTimeStr) - 10;
+  doc.text(dateTimeStr, textXOffset, 10);
 
   // doc.text("FICHE SYNTHESE SCORE DE PERCEPTION GOUVERNANCE", 10, 10);
 
@@ -217,7 +411,7 @@ onMounted(async () => {
           <div class="flex justify-end my-4 sm:flex-row sm:items-end xl:items-start">
             <div class="flex mt-5 sm:mt-0">
               <ExportationResultatSynthese v-if="!isLoadingData && currentOrganisation?.profile_de_gouvernance" :org="currentOrganisation?.nom" :pointfocal="`${currentOrganisation?.nom_point_focal}  ${currentOrganisation?.prenom_point_focal}`" :dateevaluation="currentFactuel?.evaluatedAt" :datas="currentOrganisation?.profile_de_gouvernance" class="mr-3" />
-              <button @click="generatePDF" class="btn btn-primary text-left">Télécharger PDF</button>
+              <button @click="generatePDFAdvanced" class="btn btn-primary text-left">Télécharger PDF</button>
             </div>
           </div>
           <table id="my-table8" class="w-full my-12 text-sm border-collapse table-fixed">

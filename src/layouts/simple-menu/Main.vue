@@ -16,7 +16,7 @@
           <template v-for="(menu, menuKey) in formattedMenu">
             <li v-if="menu == 'devider'" :key="menu + menuKey" class="my-6 side-nav__devider"></li>
             <li v-else :key="menu + menuKey">
-              <Tippy
+              <Tippy @enter="enter" @leave="leave"
                 tag="a"
                 :content="menu.title"
                 :options="{

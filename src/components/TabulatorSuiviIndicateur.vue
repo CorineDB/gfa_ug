@@ -1,12 +1,11 @@
 <template>
   <div class="flex justify-end my-1">
     <ExportationSuiviIndicateur :datas="data" :years="years" class="mr-3" />
-    <button @click="generatePDF" class="btn btn-primary text-left">Télécharger PDF</button>
+    <button @click="generatePDFAdvanced" class="btn btn-primary text-left">Télécharger PDF</button>
   </div>
 
-  
   <div class="overflow-x-auto">
-    <table class="w-full max-w-full bg-white border-collapse editor_listing_table border-slate-500" cellpadding="6" cellspacing="0">
+    <table id="my-table5" class="w-full max-w-full bg-white border-collapse editor_listing_table border-slate-500" cellpadding="6" cellspacing="0">
       <thead class="text-white border-white bg-primary">
         <tr>
           <th rowspan="2" class="py-3 border border-white min-w-[500px]">Indicateurs</th>
@@ -55,15 +54,13 @@
 
             <td class="space-x-3 p-2 text-center">
               <button title="Suivre" @click="handleSuivi(suiviIndicateur)" class="btn text-primary">Suivi</button>
-              <button title="Voir" @click="goToDetailSuivi(suiviIndicateur.indicateur.id)" class="btn text-primary"> Details </button>
+              <button title="Voir" @click="goToDetailSuivi(suiviIndicateur.indicateur.id)" class="btn text-primary">Details</button>
             </td>
           </tr>
         </template>
       </tbody>
     </table>
   </div>
-
-
 
   <!-- SUIVIE  -->
   <Modal size="modal-lg" backdrop="static" :show="showModalSuivi" @hidden="closeModal">
@@ -169,11 +166,121 @@ const emit = defineEmits(["refreshData"]);
 const router = useRouter();
 
 //generer pdf
-const generatePDF = () => {
-  const doc = new jsPDF({ orientation: "landscape", format: "a0" });
-  autoTable(doc, { html: "#my-table5" });
+// const generatePDF = () => {
+//   const doc = new jsPDF({ orientation: "landscape", format: "a0" });
+//   autoTable(doc, { html: "#my-table5" });
 
-  doc.text("Suivi indicateur", 10, 10);
+//   doc.text("Suivi indicateur", 10, 10);
+
+//   doc.save("suivi_indicateur.pdf");
+// };
+
+const generatePDFAdvanced = () => {
+  const doc = new jsPDF({
+    orientation: "landscape",
+    format: "a0",
+    unit: "mm",
+  });
+
+  const pageWidth = doc.internal.pageSize.width;
+
+  // Get current date and time
+  const now = new Date();
+  const dateStr = now.toLocaleDateString();
+  const timeStr = now.toLocaleTimeString();
+
+  // Add date and time to the top right corner
+  doc.setFontSize(12);
+  const dateTimeStr = `Générer le: ${dateStr} à ${timeStr}`;
+  const textXOffset = pageWidth - doc.getTextWidth(dateTimeStr) - 10;
+  doc.text(dateTimeStr, textXOffset, 10);
+
+  // Récupérer les données du tableau depuis le DOM
+  const table = document.getElementById("my-table5");
+  const rows = [];
+  const headers = [];
+
+  // Extraire les en-têtes
+  const headerRows = table.querySelectorAll("thead tr");
+  headerRows.forEach((row) => {
+    const headerRow = [];
+    row.querySelectorAll("th").forEach((th) => {
+      headerRow.push({
+        content: th.textContent.trim(),
+        colSpan: th.colSpan || 1,
+        rowSpan: th.rowSpan || 1,
+      });
+    });
+    headers.push(headerRow);
+  });
+
+  // Extraire les données du corps
+  const bodyRows = table.querySelectorAll("tbody tr");
+  bodyRows.forEach((row) => {
+    const rowData = [];
+    const backgroundColor = row.style.backgroundColor;
+    const textColor = window.getComputedStyle(row).color;
+
+    row.querySelectorAll("td").forEach((td) => {
+      rowData.push({
+        content: td.textContent.trim(),
+        styles: {
+          fillColor: backgroundColor ? hexToRgb(backgroundColor) : [255, 255, 255],
+          textColor: textColor ? hexToRgb(textColor) : [0, 0, 0],
+        },
+      });
+    });
+
+    if (rowData.length > 0) {
+      rows.push(rowData);
+    }
+  });
+
+  // Fonction pour convertir hex/rgb en tableau RGB
+  function hexToRgb(color) {
+    if (color.startsWith("rgb")) {
+      const matches = color.match(/\d+/g);
+      return matches ? matches.map(Number) : [255, 255, 255];
+    } else if (color.startsWith("#")) {
+      const hex = color.substring(1);
+      const r = parseInt(hex.substr(0, 2), 16);
+      const g = parseInt(hex.substr(2, 2), 16);
+      const b = parseInt(hex.substr(4, 2), 16);
+      return [r, g, b];
+    }
+    return [255, 255, 255];
+  }
+
+  // Ajouter le titre
+  doc.setFontSize(16);
+  doc.setFont("helvetica", "bold");
+  doc.text("Suivi indicateur", 14, 15);
+
+  // Configuration du tableau
+  autoTable(doc, {
+    head: headers,
+    body: rows,
+    startY: 20,
+    theme: "plain",
+    styles: {
+      fontSize: 8,
+      cellPadding: 3,
+      lineColor: [0, 0, 0],
+      lineWidth: 0.1,
+    },
+    headStyles: {
+      fillColor: [15, 52, 96],
+      textColor: [255, 255, 255],
+      fontStyle: "bold",
+      halign: "center",
+    },
+    didParseCell: function (data) {
+      // Appliquer les styles personnalisés pour chaque cellule
+      if (data.row.raw && data.row.raw[data.column.index] && data.row.raw[data.column.index].styles) {
+        Object.assign(data.cell.styles, data.row.raw[data.column.index].styles);
+      }
+    },
+  });
 
   doc.save("suivi_indicateur.pdf");
 };
@@ -196,7 +303,7 @@ const valeurRealise = ref([]);
 const getCurrentQuarter = function () {
   const month = new Date().getMonth() + 1; // Les mois sont indexés à partir de 0
   return Math.ceil(month / 3); // Calcul du trimestre actuel
-}
+};
 
 const trimestres = [1, 2, 3, 4];
 const optionsSuivi = [
@@ -213,9 +320,8 @@ const payloadSuivi = reactive({
   commentaire: "",
   dateSuivie: "",
   indicateurId: "",
-  sources_de_donnee: ""
+  sources_de_donnee: "",
 });
-
 
 function formatDateOnly(dateTimeString) {
   // Vérifie si la chaîne est valide
@@ -232,7 +338,6 @@ function formatObject(obj) {
     .map(([key, value]) => (key === "moy" ? value : `${key}: ${value}`))
     .join("<br>");
 }
-
 
 const submitSuivi = async () => {
   payloadSuivi.trimestre = Number(payloadSuivi.trimestre);
@@ -264,21 +369,20 @@ const submitSuivi = async () => {
   }
 };
 
-
 const closeModal = () => (showModalSuivi.value = false);
 
 const handleSuivi = (data) => {
   console.log(data);
   valeurCible.value = data.indicateur.valeursCible.filter((valeurCible) => valeurCible.annee === Number(payloadSuivi.annee)).map((v) => v.valeurCible);
   isAgregerCurrentIndicateur.value = data.indicateur.agreger;
-  if(isAgregerCurrentIndicateur.value == false){
+  if (isAgregerCurrentIndicateur.value == false) {
     Object.keys(valeurCible.value[0]).forEach((key) => {
       payloadSuivi.valeurCible = valeurCible.value[0][key];
     });
   }
 
   payloadSuivi.annee = `${new Date().getFullYear()}`;
-  
+
   payloadSuivi.indicateurId = data.indicateur.id;
   valueKeysIndicateurSuivi.value = data.indicateur.value_keys;
   resetValues();
@@ -296,7 +400,6 @@ const resetValues = () => {
   }));
 };
 
-
 const resetFormSuivi = async () => {
   if (isAgregerCurrentIndicateur.value) {
     resetValues();
@@ -305,14 +408,14 @@ const resetFormSuivi = async () => {
     payloadSuivi[key] = "";
   });
 
-  payloadSuivi['annee'] = new Date().getFullYear();
-  payloadSuivi['trimestre'] = getCurrentQuarter();
-  payloadSuivi['valeurCible'] = "";
-  payloadSuivi['valeurRealise'] = "";
-  payloadSuivi['commentaire'] = "";
-  payloadSuivi['dateSuivie'] = "";
-  payloadSuivi['indicateurId'] = "";
-  payloadSuivi['sources_de_donnee'] = "";
+  payloadSuivi["annee"] = new Date().getFullYear();
+  payloadSuivi["trimestre"] = getCurrentQuarter();
+  payloadSuivi["valeurCible"] = "";
+  payloadSuivi["valeurRealise"] = "";
+  payloadSuivi["commentaire"] = "";
+  payloadSuivi["dateSuivie"] = "";
+  payloadSuivi["indicateurId"] = "";
+  payloadSuivi["sources_de_donnee"] = "";
 
   showModalSuivi.value = false;
 };
@@ -332,7 +435,7 @@ const updateValueRealiser = (keyId, newValue) => {
 };
 
 const goToDetailSuivi = (id) => {
-  console.log(id)
+  console.log(id);
   router.push({
     name: "Détail du suivi",
     params: { id },

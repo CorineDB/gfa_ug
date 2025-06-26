@@ -43,6 +43,15 @@ const steps = [
   { label: "Informations Point Focal", id: 3 },
 ];
 
+const visibleSteps = computed(()=>{
+  return steps.filter(step => {
+      if ((step.id === 2 || step.id === 3) && payload.type === 'autre_osc') {
+        return false;
+      }
+      return true;
+    });
+})
+
 // Reactive data structure
 const payload = reactive({
   nom: "",
@@ -498,7 +507,7 @@ onMounted(() => {
       <form @submit.prevent="submitData">
         <ModalBody class="space-y-3">
           <ol class="items-center justify-center w-full mb-3 space-y-4 sm:flex sm:space-x-8 sm:space-y-0 rtl:space-x-reverse">
-            <li v-for="step in steps" @click="goToStep(step.id)" :key="step.id" :class="[currentStep == step.id ? 'text-blue-800' : 'text-gray-500']" class="flex cursor-pointer items-center space-x-2.5 rtl:space-x-reverse">
+            <li v-for="step in visibleSteps" @click="goToStep(step.id)" :key="step.id" :class="[currentStep == step.id ? 'text-blue-800' : 'text-gray-500']" class="flex cursor-pointer items-center space-x-2.5 rtl:space-x-reverse">
               <span :class="[currentStep == step.id ? 'border-blue-800 ' : 'border-gray-500']" class="flex items-center justify-center w-8 h-8 border rounded-full shrink-0"> {{ step.id }} </span>
               <span>
                 <h3 class="font-medium leading-tight">Étape {{ step.id }}</h3>
@@ -516,7 +525,7 @@ onMounted(() => {
                 <InputForm :required="false" :optionel="false" label="Nom" v-model="payload.nom" :control="getFieldErrors(errors.nom)" />
                 <InputForm :required="false" :optionel="false" label="Email" v-model="payload.email" type="email" :control="getFieldErrors(errors.email)" />
               </div>
-              <div class="grid grid-cols-2 gap-4">
+              <div class="grid grid-cols-2 gap-4" v-if="payload.type !== 'autre_osc'">
                 <InputForm :required="false" :optionel="false" label="Sigle" v-model="payload.sigle" :control="getFieldErrors(errors.sigle)" />
                 <!-- <InputForm :required="false" label="Contact" v-model.number="payload.contact" :control="getFieldErrors(errors.contact)" /> -->
                 <div>
@@ -541,7 +550,7 @@ onMounted(() => {
               </div>
               <div class="grid grid-cols-2 gap-4">
                 <InputForm :required="false" :optionel="false" label="Code" :control="getFieldErrors(errors.code)" v-model.number="payload.code" type="number" />
-                <div>
+                <div v-if="payload.type !== 'autre_osc'">
                   <label class="form-label">Domaine D'intervention <span class="text-danger">*</span> </label>
                   <TomSelect v-model="payload.secteurActivite" :options="{ placeholder: 'Selectionez  un secteur' }" class="w-full">
                     <option value=""></option>
@@ -549,9 +558,7 @@ onMounted(() => {
                   </TomSelect>
                   <div v-if="errors.secteurActivite" class="mt-2 text-danger">{{ getFieldErrors(errors.secteurActivite) }}</div>
                 </div>
-              </div>
-              <div class="grid grid-cols-2 gap-4">
-                <div>
+                 <div>
                   <label class="form-label">Types<span class="text-danger">*</span> </label>
                   <TomSelect v-model="payload.type" :options="{ placeholder: 'Selectionez  un type' }" class="w-full">
                     <option value=""></option>
@@ -568,11 +575,12 @@ onMounted(() => {
                   <div v-if="errors.fondId" class="mt-2 text-danger">{{ getFieldErrors(errors.fondId) }}</div>
                 </div>
               </div>
+             
             </div>
           </div>
 
           <!-- Informations  localisation -->
-          <div v-show="currentStep == 2" class="">
+          <div v-show="currentStep == 2 &&  payload.type !== 'autre_osc'" class="">
             <p class="mb-3 text-lg text-semibold">Informations Localisation</p>
             <div class="space-y-3">
               <div class="grid grid-cols-2 gap-4">
@@ -584,7 +592,7 @@ onMounted(() => {
                   </TomSelect>
                   <div v-if="errors.pays" class="mt-2 text-danger">{{ getFieldErrors(errors.pays) }}</div>
                 </div>
-                <InputForm label="Adresse" :control="getFieldErrors(errors.addresse)" v-model="payload.addresse" :required="false" />
+                <InputForm label="Adresse" name="Adresse" :control="getFieldErrors(errors.addresse)" v-model="payload.addresse" :required="false" />
               </div>
               <div v-if="isBenin" class="grid grid-cols-2 gap-4">
                 <div>
@@ -625,31 +633,31 @@ onMounted(() => {
                 </div>
               </div>
               <div v-if="!isBenin" class="grid grid-cols-2 gap-4">
-                <InputForm :required="false" :optionel="false" label="Département" v-model="payload.departement" :control="getFieldErrors(errors.departement)" />
-                <InputForm :required="false" :optionel="false" label="Commune" v-model="payload.commune" :control="getFieldErrors(errors.commune)" />
+                <InputForm :required="false" :optionel="false" label="Département" name="Département" v-model="payload.departement" :control="getFieldErrors(errors.departement)" />
+                <InputForm :required="false" :optionel="false" label="Commune" name="Commune" v-model="payload.commune" :control="getFieldErrors(errors.commune)" />
               </div>
 
               <div v-if="!isBenin" class="grid grid-cols-2 gap-4">
-                <InputForm :required="false" :optionel="false" label="Arrondissement" v-model="payload.arrondissement" :control="getFieldErrors(errors.arrondissement)" />
-                <InputForm :required="false" :optionel="false" label="Quartier" v-model="payload.quartier" :control="getFieldErrors(errors.quartier)" />
+                <InputForm :required="false" :optionel="false" label="Arrondissement" name="Arrondissement" v-model="payload.arrondissement" :control="getFieldErrors(errors.arrondissement)" />
+                <InputForm :required="false" :optionel="false" label="Quartier"  name="Quartier" v-model="payload.quartier" :control="getFieldErrors(errors.quartier)" />
               </div>
               <div class="grid grid-cols-2 gap-4">
-                <InputForm :required="false" :optionel="false" label="Longitude" step="0.1" :control="getFieldErrors(errors.longitude)" v-model.text="payload.longitude" type="number" />
-                <InputForm :required="false" :optionel="false" label="Latitude" step="0.1" :control="getFieldErrors(errors.latitude)" v-model.text="payload.latitude" type="number" />
+                <InputForm :required="false" :optionel="false" label="Longitude" name="Longitude" step="0.1" :control="getFieldErrors(errors.longitude)" v-model.text="payload.longitude" type="number" />
+                <InputForm :required="false" :optionel="false" label="Latitude" name="Latitude" step="0.1" :control="getFieldErrors(errors.latitude)" v-model.text="payload.latitude" type="number" />
               </div>
             </div>
           </div>
 
           <!-- Informations  point focal -->
-          <div v-show="currentStep == 3" class="">
+          <div v-show="currentStep == 3 && payload.type !== 'autre_osc'" class="">
             <p class="mb-3 text-lg text-semibold">Informations Point focal</p>
             <div class="space-y-3">
               <div class="grid grid-cols-2 gap-4">
-                <InputForm label="Nom point focal" :optionel="false" :control="getFieldErrors(errors.nom_point_focal)" v-model="payload.nom_point_focal" />
-                <InputForm label="Prénom point focal" :optionel="false" :control="getFieldErrors(errors.prenom_point_focal)" v-model="payload.prenom_point_focal" />
+                <InputForm label="Nom point focal" name="Nom point focal"  :optionel="payload.type !== 'autre_osc'" :control="getFieldErrors(errors.nom_point_focal)" v-model="payload.nom_point_focal" />
+                <InputForm label="Prénom point focal" name="Prénom point focal" :optionel="payload.type !== 'autre_osc'" :control="getFieldErrors(errors.prenom_point_focal)" v-model="payload.prenom_point_focal" />
               </div>
               <div>
-                <InputForm :optionel="false" :control="getFieldErrors(errors.contact_point_focal)" :required="false" label="Contact point focal" v-model="payload.contact_point_focal" maxlength="13" placeholder="+229xxxxxxxxxx" type="text" />
+                <InputForm :optionel="payload.type !== 'autre_osc'" :control="getFieldErrors(errors.contact_point_focal)" :required="payload.type !== 'autre_osc'" label="Contact point focal"  name="Contact point focal" v-model="payload.contact_point_focal" maxlength="13" placeholder="+229xxxxxxxxxx" type="text" />
 
                 <!-- Message de validation avec animation -->
                 <div class="mt-4 min-h-[1.5rem]">
@@ -673,8 +681,8 @@ onMounted(() => {
             <button @click.prevent="prevStep" :class="[currentStep == 1 ? ' opacity-50 cursor-not-allowed pointer-events-none' : '']" class="flex items-center justify-center mr-1 btn btn-outline-primary">
               <ChevronsLeftIcon class="size-4" />
             </button>
-            <button v-for="step in steps" :key="step.id" :class="[step.id == currentStep ? 'btn-primary' : 'btn-outline-primary']" @click.prevent="goToStep(step.id)" class="flex items-center justify-center rounded-full btn size-8">{{ step.id }}</button>
-            <button @click.prevent="nextStep" :class="[currentStep == steps.length ? ' opacity-50 cursor-not-allowed pointer-events-none' : '']" class="flex items-center justify-center ml-1 text-black btn btn-outline-primary">
+            <button v-for="step in visibleSteps" :key="step.id" :class="[step.id == currentStep ? 'btn-primary' : 'btn-outline-primary']" @click.prevent="goToStep(step.id)" class="flex items-center justify-center rounded-full btn size-8">{{ step.id }}</button>
+            <button @click.prevent="nextStep" :class="[currentStep == visibleSteps.length ? ' opacity-50 cursor-not-allowed pointer-events-none' : '']" class="flex items-center justify-center ml-1 text-black btn btn-outline-primary">
               <ChevronsRightIcon class="text-black size-4" />
             </button>
           </div>
@@ -682,8 +690,8 @@ onMounted(() => {
         <ModalFooter>
           <div class="flex gap-2">
             <button type="button" @click="resetForm" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
-            <VButton v-if="currentStep == steps.length" :loading="isLoading" :label="modeText" />
-            <VButton v-else :loading="isLoading" @click.prevent="nextStep" :class="[currentStep == steps.length ? ' opacity-50 cursor-not-allowed pointer-events-none' : '']" label="Suivant" />
+            <VButton v-if="currentStep == visibleSteps.length" :loading="isLoading" :label="modeText" />
+            <VButton v-else :loading="isLoading" @click.prevent="nextStep" :class="[currentStep == visibleSteps.length ? ' opacity-50 cursor-not-allowed pointer-events-none' : '']" label="Suivant" />
           </div>
         </ModalFooter>
       </form>

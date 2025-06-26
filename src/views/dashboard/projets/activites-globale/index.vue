@@ -1071,43 +1071,47 @@ export default {
     <div class="flex flex-col items-center p-6 mb-3 bg-white rounded-md shadow">
       <p class="text-xl font-bold text-center">TEP DE L'ACTIVITE</p>
 
-      <ChartJauge label="TEP" :temperature="`${activiteTep.toFixed(2)  ?? 0} %`" />
+      <ChartJauge label="TEP" :temperature="activiteTep" />
     </div>
     <div class="flex flex-col items-center p-6 mb-3 bg-white rounded-md shadow">
       <p class="text-xl font-bold text-center">TEF DE L'ACTIVITE</p>
-      <ChartJauge label="TEF" :temperature="`${activiteTef.toFixed(2)  ?? 0}%`" />
+      <ChartJauge label="TEF" :temperature="activiteTef" />
     </div>
   </div>
 
   <!-- END: Users Layout -->
 
-  <Modal backdrop="static" :show="showModal" @hidden="showModal = false">
+  <Modal size="modal-xl" backdrop="static" :show="showModal" @hidden="showModal = false">
     <ModalHeader>
       <h2 v-if="!isUpdate" class="mr-auto text-base font-medium">Ajouter une Activité</h2>
       <h2 v-else class="mr-auto text-base font-medium">Modifier un Activité</h2>
     </ModalHeader>
     <form @submit.prevent="sendForm">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
-        <InputForm v-model="formData.nom" class="col-span-12 mt-4" type="text" required="required"
+        <div class="col-span-12 md:col-span-6">
+          <InputForm v-model="formData.nom" class="col-span-12 mt-4" type="text" required="required"
           placeHolder="Nom de l'activité*" label="Nom" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
-
-        <div class="input-form mt-3 col-span-12">
+        </div>
+        <div class="input-form mt-3 col-span-12 md:col-span-6">
           <label for="validation-form-6" class="form-label w-full"> Description </label>
           <textarea v-model="formData.description" class="form-control w-full" name="comment"
             placeholder="Ajouter une description"></textarea>
         </div>
-
-        <InputForm v-model="formData.pret" class="col-span-12 mt-4" type="number" required="required"
+        <div class="col-span-12 md:col-span-6">
+          <InputForm v-model="formData.pret" class="col-span-12 mt-4" type="number" required="required"
           placeHolder="Subvention*" label="Subvention" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pret">{{ messageErreur.pret }}</p>
-
-        <InputForm v-model="formData.budgetNational" class="col-span-12 mt-4" type="number" required="required"
+        </div>
+        <div class="col-span-12 md:col-span-6">
+          <InputForm v-model="formData.budgetNational" class="col-span-12 mt-4" type="number" required="required"
           placeHolder="Ex : 2" label="Fond Propre" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.budgetNational">{{
           messageErreur.budgetNational }}</p>
+        </div>
+      
 
-        <div v-if="!isUpdate" class="flex col-span-12 mt-4">
+        <div v-if="!isUpdate" class="flex col-span-12 md:col-span-6 mt-4">
           <label for="_input-wizard-10"
             class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OutCome*</label>
           <TomSelect v-model="formData.composanteId" :options="{
@@ -1122,7 +1126,7 @@ export default {
           </TomSelect>
         </div>
 
-        <div class="flex col-span-12 mt-4" v-if="haveSousComposantes && !isUpdate">
+        <div class="flex col-span-12 md:col-span-6 mt-4" v-if="haveSousComposantes && !isUpdate">
           <div class="flex w-11/12 mr-2">
             <label for="_input-wizard-10"
               class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OutPut*</label>
@@ -1144,13 +1148,19 @@ export default {
           </button>
         </div>
 
-        <InputForm v-model="formData.debut" class="col-span-12 mt-4" type="date" required="required"
-          placeHolder="Entrer la date de début*" label="Début de l'activité" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.debut">{{ messageErreur.debut }}</p>
+        <div class="col-span-12 md:col-span-6">
+          <InputForm v-model="formData.debut" class="col-span-12 mt-4" type="date" required="required"
+              placeHolder="Entrer la date de début*" label="Début de l'activité" />
+            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.debut">{{ messageErreur.debut }}</p>
+        </div>
+      
 
-        <InputForm v-model="formData.fin" class="col-span-12 mt-4" type="date" required="required"
+        <div class="col-span-12 md:col-span-6">
+           <InputForm v-model="formData.fin" class="col-span-12 mt-4" type="date" required="required"
           placeHolder="Entrer la date de fin*" label="Fin de l'activité" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.fin">{{ messageErreur.fin }}</p>
+          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.fin">{{ messageErreur.fin }}</p>
+        </div>
+       
 
         <div v-if="getPlageProjet" class="flex items-center mt-2 col-span-12">
           <ClockIcon class="w-4 h-4 mr-2" />

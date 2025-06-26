@@ -13,7 +13,7 @@
     <TabPanels class="mt-5">
       <TabPanel>
         <div class="text-right">
-          <button @click="generatePDF" class="btn btn-primary text-left">Télécharger PDF</button>
+          <button @click="generatePDFAdvanced" class="btn btn-primary text-left">Télécharger PDF</button>
         </div>
 
         <div class="p-5 mt-2 intro-y">
@@ -584,13 +584,227 @@ const props = defineProps({
 const data2 = ref([]);
 
 const generatePDF = () => {
-  const doc = new jsPDF({ orientation: "landscape", format: "a0" });
-  autoTable(doc, { html: "#my-table" });
+  const doc = new jsPDF({ 
+    orientation: "landscape", 
+    format: "a0",
+    unit: 'mm'
+  });
 
-  doc.text("Cadre logique", 10, 10);
 
+  const pageWidth = doc.internal.pageSize.width;
+  
+
+  // Get current date and time
+  const now = new Date();
+  const dateStr = now.toLocaleDateString();
+  const timeStr = now.toLocaleTimeString();
+
+  // Add date and time to the top right corner
+  doc.setFontSize(12);
+  const dateTimeStr = `Générer le: ${dateStr} à ${timeStr}`;
+  const textXOffset = pageWidth - doc.getTextWidth(dateTimeStr) - 10;
+  doc.text(dateTimeStr, textXOffset, 10);
+
+   
+
+  // Configuration des styles pour le tableau
+  const tableConfig = {
+    html: "#my-table",
+    startY: 30,
+    theme: 'plain', // Utiliser 'plain' pour personnaliser complètement les couleurs
+    styles: {
+      fontSize: 8,
+      cellPadding: 3,
+      lineColor: [0, 0, 0], // Couleur des bordures (noir)
+      lineWidth: 0.1,
+    },
+    headStyles: {
+      fillColor: [15, 52, 96], // Couleur de fond de l'en-tête (bleu primaire)
+      textColor: [255, 255, 255], // Couleur du texte de l'en-tête (blanc)
+      fontStyle: 'bold',
+      halign: 'center',
+      valign: 'middle'
+    },
+    bodyStyles: {
+      textColor: [0, 0, 0], // Couleur du texte du corps (noir)
+      fillColor: [255, 255, 255], // Couleur de fond par défaut (blanc)
+    },
+    alternateRowStyles: {
+      fillColor: [248, 249, 250] // Couleur alternée pour les lignes (gris clair)
+    },
+    didParseCell: function(data) {
+      // Personnaliser les couleurs selon le type de résultat
+      const cellText = data.cell.text.join('');
+      
+      // Détecter les lignes de catégories (PRODUIT, EFFET, etc.)
+      if (cellText.includes('PRODUIT') || cellText.includes('EFFET') || 
+          cellText.includes('IMPACT') || cellText.includes('OUTCOME')) {
+        
+        // Appliquer la couleur selon le type
+        const backgroundColor = getBackgroundColorFromText(cellText);
+        if (backgroundColor) {
+          data.cell.styles.fillColor = backgroundColor;
+          
+          // Ajuster la couleur du texte selon le fond
+          if (cellText.includes('PRODUIT')) {
+            data.cell.styles.textColor = [0, 0, 0]; // Texte noir pour produit
+          } else {
+            data.cell.styles.textColor = [255, 255, 255]; // Texte blanc pour les autres
+          }
+          data.cell.styles.fontStyle = 'bold';
+        }
+      }
+      
+      // Styliser les colonnes fixes (première et deuxième colonne)
+      if (data.column.index === 0 || data.column.index === 1) {
+        data.cell.styles.fontStyle = 'bold';
+        data.cell.styles.fillColor = [240, 240, 240]; // Gris clair pour les colonnes fixes
+      }
+    },
+    margin: { top: 20, left: 10, right: 10 }
+  };
+
+  // Fonction pour obtenir la couleur de fond basée sur le texte
+  function getBackgroundColorFromText(text) {
+    // Utiliser la même logique que votre fonction findColorCadreMesure
+    if (text.includes('PRODUIT')) {
+      return [255, 255, 0]; // Jaune ou la couleur que vous utilisez pour produit
+    } else if (text.includes('EFFET')) {
+      return [0, 128, 255]; // Bleu ou la couleur que vous utilisez pour effet
+    } else if (text.includes('IMPACT')) {
+      return [255, 0, 128]; // Rouge/Rose ou la couleur que vous utilisez pour impact
+    } else if (text.includes('OUTCOME')) {
+      return [0, 255, 128]; // Vert ou la couleur que vous utilisez pour outcome
+    }
+    return null;
+  }
+
+  // Ajouter le titre
+  doc.setFontSize(16);
+  doc.setFont('helvetica', 'bold');
+  doc.text("Cadre logique", 14, 15);
+
+  // Générer le tableau avec les styles personnalisés
+  autoTable(doc, tableConfig);
+
+  // Sauvegarder le PDF
   doc.save("cadre_logique.pdf");
 };
+
+// Version alternative si vous voulez plus de contrôle sur les couleurs
+const generatePDFAdvanced = () => {
+  const doc = new jsPDF({ 
+    orientation: "landscape", 
+    format: "a0",
+    unit: 'mm'
+  });
+
+  const pageWidth = doc.internal.pageSize.width;
+  
+
+  // Get current date and time
+  const now = new Date();
+  const dateStr = now.toLocaleDateString();
+  const timeStr = now.toLocaleTimeString();
+
+  // Add date and time to the top right corner
+  doc.setFontSize(12);
+  const dateTimeStr = `Générer le: ${dateStr} à ${timeStr}`;
+  const textXOffset = pageWidth - doc.getTextWidth(dateTimeStr) - 10;
+  doc.text(dateTimeStr, textXOffset, 10);
+
+
+  // Récupérer les données du tableau depuis le DOM
+  const table = document.getElementById('my-table');
+  const rows = [];
+  const headers = [];
+
+  // Extraire les en-têtes
+  const headerRows = table.querySelectorAll('thead tr');
+  headerRows.forEach(row => {
+    const headerRow = [];
+    row.querySelectorAll('th').forEach(th => {
+      headerRow.push({
+        content: th.textContent.trim(),
+        colSpan: th.colSpan || 1,
+        rowSpan: th.rowSpan || 1
+      });
+    });
+    headers.push(headerRow);
+  });
+
+  // Extraire les données du corps
+  const bodyRows = table.querySelectorAll('tbody tr');
+  bodyRows.forEach(row => {
+    const rowData = [];
+    const backgroundColor = row.style.backgroundColor;
+    const textColor = window.getComputedStyle(row).color;
+    
+    row.querySelectorAll('td').forEach(td => {
+      rowData.push({
+        content: td.textContent.trim(),
+        styles: {
+          fillColor: backgroundColor ? hexToRgb(backgroundColor) : [255, 255, 255],
+          textColor: textColor ? hexToRgb(textColor) : [0, 0, 0]
+        }
+      });
+    });
+    
+    if (rowData.length > 0) {
+      rows.push(rowData);
+    }
+  });
+
+  // Fonction pour convertir hex/rgb en tableau RGB
+  function hexToRgb(color) {
+    if (color.startsWith('rgb')) {
+      const matches = color.match(/\d+/g);
+      return matches ? matches.map(Number) : [255, 255, 255];
+    } else if (color.startsWith('#')) {
+      const hex = color.substring(1);
+      const r = parseInt(hex.substr(0, 2), 16);
+      const g = parseInt(hex.substr(2, 2), 16);
+      const b = parseInt(hex.substr(4, 2), 16);
+      return [r, g, b];
+    }
+    return [255, 255, 255];
+  }
+
+  // Ajouter le titre
+  doc.setFontSize(16);
+  doc.setFont('helvetica', 'bold');
+  doc.text("Cadre logique", 14, 15);
+
+  // Configuration du tableau
+  autoTable(doc, {
+    head: headers,
+    body: rows,
+    startY: 20,
+    theme: 'plain',
+    styles: {
+      fontSize: 8,
+      cellPadding: 3,
+      lineColor: [0, 0, 0],
+      lineWidth: 0.1,
+    },
+    headStyles: {
+      fillColor: [15, 52, 96],
+      textColor: [255, 255, 255],
+      fontStyle: 'bold',
+      halign: 'center'
+    },
+    didParseCell: function(data) {
+      // Appliquer les styles personnalisés pour chaque cellule
+      if (data.row.raw && data.row.raw[data.column.index] && data.row.raw[data.column.index].styles) {
+        Object.assign(data.cell.styles, data.row.raw[data.column.index].styles);
+      }
+    }
+  });
+
+  doc.save("cadre_logique_avance.pdf");
+};
+
+
 
 const router = useRouter();
 const trimestres = [1, 2, 3, 4];

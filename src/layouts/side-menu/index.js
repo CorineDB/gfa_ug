@@ -36,6 +36,7 @@ const linkTo = (menu, router, event) => {
   if (menu.subMenu) {
     menu.activeDropdown = !menu.activeDropdown;
   } else {
+   
     console.log("ok");
     event.preventDefault();
     router.push({
