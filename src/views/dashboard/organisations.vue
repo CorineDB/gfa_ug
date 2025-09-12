@@ -522,14 +522,14 @@ onMounted(() => {
             <p class="mb-3 text-lg text-semibold">Informations générales</p>
             <div class="space-y-3">
               <div class="grid grid-cols-2 gap-4">
-                <InputForm :required="false" :optionel="false" label="Nom" v-model="payload.nom" :control="getFieldErrors(errors.nom)" />
-                <InputForm :required="false" :optionel="false" label="Email" v-model="payload.email" type="email" :control="getFieldErrors(errors.email)" />
+                <InputForm :required="true"  label="Nom" v-model="payload.nom" :control="getFieldErrors(errors.nom)" />
+                <InputForm :required="true" label="Email" v-model="payload.email" type="email" :control="getFieldErrors(errors.email)" />
               </div>
               <div class="grid grid-cols-2 gap-4" v-if="payload.type !== 'autre_osc'">
-                <InputForm :required="false" :optionel="false" label="Sigle" v-model="payload.sigle" :control="getFieldErrors(errors.sigle)" />
+                <InputForm :required="true"  label="Sigle" v-model="payload.sigle" :control="getFieldErrors(errors.sigle)" />
                 <!-- <InputForm :required="false" label="Contact" v-model.number="payload.contact" :control="getFieldErrors(errors.contact)" /> -->
                 <div>
-                  <InputForm :control="getFieldErrors(errors.contact)" :required="false" label="Contact" v-model="payload.contact" maxlength="13" placeholder="+229xxxxxxxxxx" type="text" />
+                  <InputForm :control="getFieldErrors(errors.contact)" label="Contact" v-model="payload.contact" maxlength="13" placeholder="+229xxxxxxxxxx" type="text" />
 
                   <!-- Message de validation avec animation -->
                   <div class="mt-4 min-h-[1.5rem]">
@@ -549,7 +549,7 @@ onMounted(() => {
                 </div>
               </div>
               <div class="grid grid-cols-2 gap-4">
-                <InputForm :required="false" :optionel="false" label="Code" :control="getFieldErrors(errors.code)" v-model.number="payload.code" type="number" />
+                <InputForm  label="Code" :control="getFieldErrors(errors.code)" v-model.number="payload.code" type="number" />
                 <div v-if="payload.type !== 'autre_osc'">
                   <label class="form-label">Domaine D'intervention <span class="text-danger">*</span> </label>
                   <TomSelect v-model="payload.secteurActivite" :options="{ placeholder: 'Selectionez  un secteur' }" class="w-full">
@@ -592,7 +592,7 @@ onMounted(() => {
                   </TomSelect>
                   <div v-if="errors.pays" class="mt-2 text-danger">{{ getFieldErrors(errors.pays) }}</div>
                 </div>
-                <InputForm label="Adresse" name="Adresse" :control="getFieldErrors(errors.addresse)" v-model="payload.addresse" :required="false" />
+                <InputForm :required="false" label="Adresse" name="Adresse" :control="getFieldErrors(errors.addresse)" v-model="payload.addresse" />
               </div>
               <div v-if="isBenin" class="grid grid-cols-2 gap-4">
                 <div>
@@ -633,17 +633,17 @@ onMounted(() => {
                 </div>
               </div>
               <div v-if="!isBenin" class="grid grid-cols-2 gap-4">
-                <InputForm :required="false" :optionel="false" label="Département" name="Département" v-model="payload.departement" :control="getFieldErrors(errors.departement)" />
-                <InputForm :required="false" :optionel="false" label="Commune" name="Commune" v-model="payload.commune" :control="getFieldErrors(errors.commune)" />
+                <InputForm :required="false"   :optionel="false" label="Département" name="Département" v-model="payload.departement" :control="getFieldErrors(errors.departement)" />
+                <InputForm :required="false"  :optionel="false" label="Commune" name="Commune" v-model="payload.commune" :control="getFieldErrors(errors.commune)" />
               </div>
 
               <div v-if="!isBenin" class="grid grid-cols-2 gap-4">
-                <InputForm :required="false" :optionel="false" label="Arrondissement" name="Arrondissement" v-model="payload.arrondissement" :control="getFieldErrors(errors.arrondissement)" />
-                <InputForm :required="false" :optionel="false" label="Quartier"  name="Quartier" v-model="payload.quartier" :control="getFieldErrors(errors.quartier)" />
+                <InputForm :required="false"  :optionel="false" label="Arrondissement" name="Arrondissement" v-model="payload.arrondissement" :control="getFieldErrors(errors.arrondissement)" />
+                <InputForm :required="false"  :optionel="false" label="Quartier"  name="Quartier" v-model="payload.quartier" :control="getFieldErrors(errors.quartier)" />
               </div>
               <div class="grid grid-cols-2 gap-4">
-                <InputForm :required="false" :optionel="false" label="Longitude" name="Longitude" step="0.1" :control="getFieldErrors(errors.longitude)" v-model.text="payload.longitude" type="number" />
-                <InputForm :required="false" :optionel="false" label="Latitude" name="Latitude" step="0.1" :control="getFieldErrors(errors.latitude)" v-model.text="payload.latitude" type="number" />
+                <InputForm :required="false"  :optionel="false" label="Longitude" name="Longitude" step="0.1" :control="getFieldErrors(errors.longitude)" v-model.text="payload.longitude" type="number" />
+                <InputForm :required="false"  :optionel="false" label="Latitude" name="Latitude" step="0.1" :control="getFieldErrors(errors.latitude)" v-model.text="payload.latitude" type="number" />
               </div>
             </div>
           </div>
@@ -653,11 +653,11 @@ onMounted(() => {
             <p class="mb-3 text-lg text-semibold">Informations Point focal</p>
             <div class="space-y-3">
               <div class="grid grid-cols-2 gap-4">
-                <InputForm label="Nom point focal" name="Nom point focal"  :optionel="payload.type !== 'autre_osc'" :control="getFieldErrors(errors.nom_point_focal)" v-model="payload.nom_point_focal" />
-                <InputForm label="Prénom point focal" name="Prénom point focal" :optionel="payload.type !== 'autre_osc'" :control="getFieldErrors(errors.prenom_point_focal)" v-model="payload.prenom_point_focal" />
+                <InputForm :required="false" label="Nom point focal" name="Nom point focal"   :control="getFieldErrors(errors.nom_point_focal)" v-model="payload.nom_point_focal" />
+                <InputForm :required="false" label="Prénom point focal" name="Prénom point focal"  :control="getFieldErrors(errors.prenom_point_focal)" v-model="payload.prenom_point_focal" />
               </div>
               <div>
-                <InputForm :optionel="payload.type !== 'autre_osc'" :control="getFieldErrors(errors.contact_point_focal)" :required="payload.type !== 'autre_osc'" label="Contact point focal"  name="Contact point focal" v-model="payload.contact_point_focal" maxlength="13" placeholder="+229xxxxxxxxxx" type="text" />
+                <InputForm :required="false"  :control="getFieldErrors(errors.contact_point_focal)"  label="Contact point focal"  name="Contact point focal" v-model="payload.contact_point_focal" maxlength="13" placeholder="+229xxxxxxxxxx" type="text" />
 
                 <!-- Message de validation avec animation -->
                 <div class="mt-4 min-h-[1.5rem]">

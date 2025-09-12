@@ -18,249 +18,43 @@ import { computed } from "vue";
 import ExportationSynthesePerception from "../../components/news/ExportationSynthesePerception.vue";
 import TabulatorSynthesePerception from "../../components/news/TabulatorSynthesePerception.vue";
 import ExportationResultatSynthese from "../../components/news/ExportationResultatSynthese.vue";
+import generateMultiTablePDF from '@/plugins/exportPdf.js';
 
-import { jsPDF } from "jspdf";
-import autoTable from "jspdf-autotable";
+const info0 = ref({
+  mainTitle: "FICHE RÉSULTATS SYNTHÉTIQUE",
+  tableTitles: {
+    'my-table8': 'Tableau 1',
+    'my-table11': 'Tableau 2'
+  },
+  orientation: "portrait", // Peut surcharger l'orientation
+  addDateTime: true
+})
 
-//export pdf
-// const generatePDF = () => {
-//   const doc = new jsPDF({ orientation: "landscape", format: "a4" });
 
-//   doc.text("FICHE RÉSULTATS SYNTHÉTIQUE", 10, 10);
+const info1 = ref({
+  mainTitle: "FICHE SYNTHESE SCORE FACTUEL GOUVERNANCE",
+  tableTitles: {
+    'my-table9': 'Tableau 1',
+    'my-table12': 'Tableau 2',
+    'my-table14': 'Tableau 3'
+  },
+  orientation: "portrait", // Peut surcharger l'orientation
+  addDateTime: true
+})
 
-//   autoTable(doc, { html: "#my-table8", startY: 20 });
+const info2 = ref({
+  mainTitle: "FICHE SYNTHESE SCORE DE PERCEPTION GOUVERNANCE",
+  tableTitles: {
+    'my-table10': 'Tableau 1',
+    'my-table13': 'Tableau 2',
+     
+  },
+  orientation: "portrait", // Peut surcharger l'orientation
+  addDateTime: true
+})
 
-//   let finalY = doc.lastAutoTable.finalY + 10;
 
-//   autoTable(doc, { html: "#my-table11", startY: finalY });
 
-//   doc.save("FICHE_RÉSULTATS_SYNTHÉTIQUE.pdf");
-// };
-
-// const generatePDF = () => {
-//   const doc = new jsPDF({ orientation: "landscape", format: "a4" });
-
-//   // Add title
-//   doc.setFontSize(24); // Set font size for the title
-//   const title = "FICHE RÉSULTATS SYNTHÉTIQUE";
-//   const pageWidth = doc.internal.pageSize.width;
-//   const textWidth = doc.getTextWidth(title);
-//   const xOffset = (pageWidth - textWidth) / 2;
-//   doc.text(title, xOffset, 20);
-
-//   // Get current date and time
-//   const now = new Date();
-//   const dateStr = now.toLocaleDateString();
-//   const timeStr = now.toLocaleTimeString();
-
-//   // Add date and time to the top right corner
-//   doc.setFontSize(12);
-//   const dateTimeStr = `Générer le: ${dateStr} at ${timeStr}`;
-//   const textXOffset = pageWidth - doc.getTextWidth(dateTimeStr) - 10;
-//   doc.text(dateTimeStr, textXOffset, 10);
-
-//   autoTable(doc, { html: "#my-table8", startY: 40 });
-
-//   let finalY = doc.lastAutoTable.finalY + 10;
-
-//   autoTable(doc, { html: "#my-table11", startY: finalY });
-
-//   doc.save("FICHE_RÉSULTATS_SYNTHÉTIQUE.pdf");
-// };
-
-const generatePDFAdvanced = () => {
-  const doc = new jsPDF({
-    orientation: "landscape",
-    format: "a0",
-    unit: "mm",
-  });
-
-  const pageWidth = doc.internal.pageSize.width;
-
-  // Get current date and time
-  const now = new Date();
-  const dateStr = now.toLocaleDateString();
-  const timeStr = now.toLocaleTimeString();
-
-  // Add date and time to the top right corner
-  doc.setFontSize(12);
-  const dateTimeStr = `Générer le: ${dateStr} à ${timeStr}`;
-  const textXOffset = pageWidth - doc.getTextWidth(dateTimeStr) - 10;
-  doc.text(dateTimeStr, textXOffset, 10);
-
-  // Récupérer les données du tableau depuis le DOM
-  const table = document.getElementById("my-table8");
-  const rows = [];
-  const headers = [];
-
-  // Extraire les en-têtes
-  const headerRows = table.querySelectorAll("thead tr");
-  headerRows.forEach((row) => {
-    const headerRow = [];
-    row.querySelectorAll("th").forEach((th) => {
-      headerRow.push({
-        content: th.textContent.trim(),
-        colSpan: th.colSpan || 1,
-        rowSpan: th.rowSpan || 1,
-      });
-    });
-    headers.push(headerRow);
-  });
-
-  // Extraire les données du corps
-  const bodyRows = table.querySelectorAll("tbody tr");
-  bodyRows.forEach((row) => {
-    const rowData = [];
-    const backgroundColor = row.style.backgroundColor;
-    const textColor = window.getComputedStyle(row).color;
-
-    row.querySelectorAll("td").forEach((td) => {
-      rowData.push({
-        content: td.textContent.trim(),
-        styles: {
-          fillColor: backgroundColor ? hexToRgb(backgroundColor) : [255, 255, 255],
-          textColor: textColor ? hexToRgb(textColor) : [0, 0, 0],
-        },
-      });
-    });
-
-    if (rowData.length > 0) {
-      rows.push(rowData);
-    }
-  });
-
-  // Fonction pour convertir hex/rgb en tableau RGB
-  function hexToRgb(color) {
-    if (color.startsWith("rgb")) {
-      const matches = color.match(/\d+/g);
-      return matches ? matches.map(Number) : [255, 255, 255];
-    } else if (color.startsWith("#")) {
-      const hex = color.substring(1);
-      const r = parseInt(hex.substr(0, 2), 16);
-      const g = parseInt(hex.substr(2, 2), 16);
-      const b = parseInt(hex.substr(4, 2), 16);
-      return [r, g, b];
-    }
-    return [255, 255, 255];
-  }
-
-  // Ajouter le titre
-  doc.setFontSize(16);
-  doc.setFont("helvetica", "bold");
-  doc.text("Suivi indicateur", 14, 15);
-
-  // Configuration du tableau
-  autoTable(doc, {
-    head: headers,
-    body: rows,
-    startY: 20,
-    theme: "plain",
-    styles: {
-      fontSize: 8,
-      cellPadding: 3,
-      lineColor: [0, 0, 0],
-      lineWidth: 0.1,
-    },
-    headStyles: {
-      fillColor: [15, 52, 96],
-      textColor: [255, 255, 255],
-      fontStyle: "bold",
-      halign: "center",
-    },
-    didParseCell: function (data) {
-      // Appliquer les styles personnalisés pour chaque cellule
-      if (data.row.raw && data.row.raw[data.column.index] && data.row.raw[data.column.index].styles) {
-        Object.assign(data.cell.styles, data.row.raw[data.column.index].styles);
-      }
-    },
-  });
-
-  // Récupérer les données du tableau depuis le DOM
-  const table2 = document.getElementById("my-table11");
-  const rows2 = [];
-  const headers2 = [];
-
-  // Extraire les en-têtes
-  const headerRows2 = table2.querySelectorAll("thead tr");
-  headerRows2.forEach((row) => {
-    const headerRow = [];
-    row.querySelectorAll("th").forEach((th) => {
-      headerRow.push({
-        content: th.textContent.trim(),
-        colSpan: th.colSpan || 1,
-        rowSpan: th.rowSpan || 1,
-      });
-    });
-    headers2.push(headerRow);
-  });
-
-  // Extraire les données du corps
-  const bodyRows2 = table2.querySelectorAll("tbody tr");
-  bodyRows2.forEach((row) => {
-    const rowData = [];
-    const backgroundColor = row.style.backgroundColor;
-    const textColor = window.getComputedStyle(row).color;
-
-    row.querySelectorAll("td").forEach((td) => {
-      rowData.push({
-        content: td.textContent.trim(),
-        styles: {
-          fillColor: backgroundColor ? hexToRgb(backgroundColor) : [255, 255, 255],
-          textColor: textColor ? hexToRgb(textColor) : [0, 0, 0],
-        },
-      });
-    });
-
-    if (rowData.length > 0) {
-      rows2.push(rowData);
-    }
-  });
-
-  // Fonction pour convertir hex/rgb en tableau RGB
-  function hexToRgb(color) {
-    if (color.startsWith("rgb")) {
-      const matches = color.match(/\d+/g);
-      return matches ? matches.map(Number) : [255, 255, 255];
-    } else if (color.startsWith("#")) {
-      const hex = color.substring(1);
-      const r = parseInt(hex.substr(0, 2), 16);
-      const g = parseInt(hex.substr(2, 2), 16);
-      const b = parseInt(hex.substr(4, 2), 16);
-      return [r, g, b];
-    }
-    return [255, 255, 255];
-  }
-
-  let finalY = doc.lastAutoTable.finalY + 10;
-
-  // Configuration du tableau
-  autoTable(doc, {
-    head: headers2,
-    body: rows2,
-    startY: finalY,
-    theme: "plain",
-    styles: {
-      fontSize: 8,
-      cellPadding: 3,
-      lineColor: [0, 0, 0],
-      lineWidth: 0.1,
-    },
-    headStyles: {
-      fillColor: [15, 52, 96],
-      textColor: [255, 255, 255],
-      fontStyle: "bold",
-      halign: "center",
-    },
-    didParseCell: function (data) {
-      // Appliquer les styles personnalisés pour chaque cellule
-      if (data.row.raw && data.row.raw[data.column.index] && data.row.raw[data.column.index].styles) {
-        Object.assign(data.cell.styles, data.row.raw[data.column.index].styles);
-      }
-    },
-  });
-
-  doc.save("suivi_indicateur.pdf");
-};
 
 const generatePDF2 = () => {
   const doc = new jsPDF({ orientation: "landscape", format: "a4" });
@@ -411,7 +205,7 @@ onMounted(async () => {
           <div class="flex justify-end my-4 sm:flex-row sm:items-end xl:items-start">
             <div class="flex mt-5 sm:mt-0">
               <ExportationResultatSynthese v-if="!isLoadingData && currentOrganisation?.profile_de_gouvernance" :org="currentOrganisation?.nom" :pointfocal="`${currentOrganisation?.nom_point_focal}  ${currentOrganisation?.prenom_point_focal}`" :dateevaluation="currentFactuel?.evaluatedAt" :datas="currentOrganisation?.profile_de_gouvernance" class="mr-3" />
-              <button @click="generatePDFAdvanced" class="btn btn-primary text-left">Télécharger PDF</button>
+              <button @click="generateMultiTablePDF(['my-table8' , 'my-table11'] , 'Résulat synthétiques' , 'A4' , info0)" class="btn btn-primary text-left">Télécharger PDF</button>
             </div>
           </div>
           <table id="my-table8" class="w-full my-12 text-sm border-collapse table-fixed">
@@ -472,7 +266,7 @@ onMounted(async () => {
           <div class="flex justify-end my-4 sm:flex-row sm:items-end xl:items-start">
             <div class="flex mt-5 sm:mt-0">
               <ExportationSyntheseFactuel v-if="!isLoadingData && currentFactuel" :org="currentOrganisation?.nom" :pointfocal="`${currentOrganisation?.nom_point_focal}  ${currentOrganisation?.prenom_point_focal}`" :dateevaluation="currentFactuel?.evaluatedAt" :datas="currentFactuel" class="mr-3" />
-              <button @click="generatePDF2" class="btn btn-primary text-left">Télécharger PDF</button>
+              <button @click="generateMultiTablePDF(['my-table9' , 'my-table12' , 'my-table14'] , 'FICHE_SYNTHESE_SCORE_FACTUEL_GOUVERNANCE' , 'A4' , info1)" class="btn btn-primary text-left">Télécharger PDF</button>
             </div>
           </div>
 
@@ -518,6 +312,7 @@ onMounted(async () => {
             </tbody>
           </table>
           <!-- Tableau de synthese Factuel -->
+         
           <TabulatorSyntheseFactuel v-if="!isLoadingData && currentFactuel?.synthese" :data="currentFactuel?.synthese" :indicegouvernace="currentFactuel?.indice_de_gouvernance" />
         </TabPanel>
         <!-- Perception-->
@@ -526,7 +321,7 @@ onMounted(async () => {
           <div class="flex justify-end my-4 sm:flex-row sm:items-end xl:items-start">
             <div class="flex mt-5 sm:mt-0">
               <ExportationSynthesePerception v-if="!isLoadingData && currentPerception" :org="currentOrganisation?.nom" :pointfocal="`${currentOrganisation?.nom_point_focal}  ${currentOrganisation?.prenom_point_focal}`" :dateevaluation="currentPerception?.evaluatedAt" :current-perception="currentPerception" class="mr-3" />
-              <button @click="generatePDF3" class="btn btn-primary text-left">Télécharger PDF</button>
+              <button @click="generateMultiTablePDF(['my-table10' , 'my-table13'] , 'FICHE_SYNTHESE_SCORE_DE_PERCEPTION_GOUVERNANCE' , 'A4' , info2)" class="btn btn-primary text-left">Télécharger PDF</button>
             </div>
           </div>
           <table id="my-table10" class="w-full mt-12 text-sm border-collapse table-fixed">

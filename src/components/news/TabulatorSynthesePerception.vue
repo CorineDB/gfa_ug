@@ -1,9 +1,9 @@
 <template>
   <table id="my-table13" class="w-full my-12 border border-collapse table-auto border-slate-500" cellpadding="2" cellspacing="0">
     <thead class="text-left bg-gray-400">
-      <tr class="py-3 border-b-8 border-white" :style="{ 'background-color': getColorForValue(indicegouvernace) }">
-        <td colspan="2" class="font-semibold text-center">Indice factuel de gouvernance</td>
-        <td class="text-left">{{ indicegouvernace }}</td>
+      <tr class="py-3 border-b-8 border-white text-white" :style="{ 'background-color': getColorForValue(indicegouvernace) }">
+        <th colspan="2" class="font-semibold text-center">Indice factuel de gouvernance</th>
+        <th class="text-left">{{ indicegouvernace }}</th>
       </tr>
       <tr class="font-semibold text-white bg-blue-900">
         <th class="py-2 text-center border border-slate-600">Principes</th>

@@ -190,17 +190,62 @@
         <InputForm v-model="formData.fin" class="col-span-12 md:col-span-6 mt-4" type="date" :required="true" placeHolder="Entrer la date de fin" label="Fin du projet" />
 
         <div class="col-span-12 md:col-span-6 mt-4">
+          <!-- <pre>{{ formData.pays }}</pre> -->
+          <label class="form-label">Pays*</label>
+          <!-- Site Select Dropdown -->
+          <div class="relative w-full">
+            <v-select class="w-full" :reduce="(country) => country" v-model="formData.pays" :options="pays" placeholder="Selectionner un pays...">
+              <template #search="{ attributes, events }">
+                <input class="vs__search form-input" :required="!formData.pays" v-bind="attributes" v-on="events" placeholder="Rechercher un pays..." />
+              </template>
+
+              <!-- Selected value display -->
+              <template #selected="option">
+                {{ option.label }}
+              </template>
+
+              <!-- Custom option template -->
+              <template #option="option">
+                {{ option.label }}
+              </template>
+            </v-select>
+          </div>
+        </div>
+
+        <!-- <div class="col-span-12 md:col-span-6 mt-4">
           <label class="form-label">Pays<span class="text-danger">*</span></label>
           <TomSelect v-model="formData.pays" :options="{ placeholder: 'Sélectionnez un pays' }" class="w-full">
             <option value=""></option>
             <option v-for="(country, index) in pays" :key="index" :value="country">{{ country }}</option>
           </TomSelect>
-        </div>
+        </div> -->
 
-        <InputForm v-model="formData.budgetNational" class="col-span-12 md:col-span-6 mt-4" type="text" :required="true" placeHolder="Ex : 100000" label="Fond Propre" />
-        <InputForm v-model="formData.pret" class="col-span-12 md:col-span-6 mt-4" type="text" :required="true" placeHolder="Ex : 100000" label="Subvention" />
+        <InputForm v-model="formData.budgetNational" class="col-span-12 md:col-span-6 mt-4" type="number" :required="true" placeHolder="Ex : 100000" label="Fond Propre" />
+        <InputForm v-model="formData.pret" class="col-span-12 md:col-span-6 mt-4" type="number" :required="true" placeHolder="Ex : 100000" label="Subvention" />
 
         <div class="col-span-12 md:col-span-6 mt-4">
+          <label class="form-label">Organisation*</label>
+
+          <!-- organisation Select Dropdown -->
+          <div class="relative w-full">
+            <v-select class="w-full" :reduce="(ong) => ong.id" v-model="formData.organisationId" label="nom" :options="ongs" placeholder="Selectionner une organisation..." multiple>
+              <template v-if="!formData.organisationId || formData.organisationId.length === 0" #search="{ attributes, events }">
+                <input class="vs__search form-input" :required="!formData.organisationId || formData.organisationId.length === 0" v-bind="attributes" v-on="events" placeholder="Rechercher une organisation..." />
+              </template>
+
+              <!-- Selected value display -->
+              <template v-else #selected="{ nom }">
+                {{ nom }}
+              </template>
+              <!-- Custom option template to show organization name -->
+              <template #option="{ nom }">
+                {{ nom }}
+              </template>
+            </v-select>
+          </div>
+        </div>
+
+        <!-- <div class="col-span-12 md:col-span-6 mt-4">
           <label>Organisation*</label>
           <TomSelect
             v-model="formData.organisationId"
@@ -210,9 +255,38 @@
             <option value="">Choisir une organisation</option>
             <option v-for="(org, index) in ongs" :key="index" :value="org.id">{{ org.nom }}</option>
           </TomSelect>
-        </div>
+        </div> -->
 
         <div class="col-span-12 md:col-span-6 mt-4">
+          <label class="form-label">Site*</label>
+
+          <div class="flex w-full gap-2">
+            <!-- Site Select Dropdown -->
+            <div class="relative w-10/12">
+              <v-select class="w-full" :reduce="(site) => site.id" v-model="sitesId" label="nom" :options="sites" placeholder="Selectionner un site..." multiple>
+                <template #search="{ attributes, events }">
+                  <input class="vs__search form-input" :required="!sitesId || sitesId.length === 0" v-bind="attributes" v-on="events" placeholder="Rechercher un site..." />
+                </template>
+
+                <!-- Selected value display -->
+                <template #selected="{ nom }">
+                  {{ nom }}
+                </template>
+
+                <!-- Custom option template to show organization name -->
+                <template #option="{ nom }">
+                  {{ nom }}
+                </template>
+              </v-select>
+            </div>
+
+            <!-- Add Button -->
+            <button class="shadow-md btn btn-primary w-2/12 flex items-center justify-center" type="button" @click="showModalCreate = true" title="Add new organization">
+              <PlusIcon class="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+        <!-- <div class="col-span-12 md:col-span-6 mt-4">
           <label>Sites*</label>
           <div class="mt-2 flex">
             <TomSelect
@@ -228,7 +302,7 @@
               <PlusIcon class="w-4 h-4 mr-3" />
             </button>
           </div>
-        </div>
+        </div> -->
 
         <!-- Fichiers et images en plein largeur -->
         <div class="col-span-12 md:col-span-6 mt-4" v-if="!isUpdate">
@@ -765,7 +839,7 @@ export default {
         this.isBenin = false;
       }
     },
-     
+
     async createData() {
       this.payloadSites.longitude = this.payloadSites.longitude + "";
       this.payloadSites.latitude = this.payloadSites.latitude + "";
@@ -1000,6 +1074,7 @@ export default {
       this.$store.dispatch("disabled");
     },
     fetchProjets() {
+      console.log("ok");
       this.active();
 
       this.isLoadingProjets = true;
@@ -1008,7 +1083,10 @@ export default {
         .then((data) => {
           this.isLoadingProjets = false;
           const datas = data.data.data;
+
+          console.log(datas);
           this.projets = datas;
+
           //   this.disabled();
         })
         .catch((error) => {
@@ -1428,6 +1506,7 @@ export default {
   },
   beforeMount() {
     this.pays = Object.values(contries);
+    console.log(this.pays);
     this.departements = decoupage;
   },
   mounted() {
@@ -1440,30 +1519,32 @@ export default {
   },
 
   watch: {
-  sites: function (sites) {
-  this.sites.forEach((site, index) => {
-    const latitude = parseFloat(site.latitude);
-    const longitude = parseFloat(site.longitude);
+    sites: function (sites) {
+      this.sites.forEach((site, index) => {
+        const latitude = parseFloat(site.latitude);
+        const longitude = parseFloat(site.longitude);
 
-    // On filtre les projets qui ont un nom non vide
-    const projetsAvecNom = site.projets.filter(project => project.nom && project.nom.trim() !== "");
+        // On filtre les projets qui ont un nom non vide
+        const projetsAvecNom = site.projets.filter((project) => project.nom && project.nom.trim() !== "");
 
-    // Si aucun projet avec nom, ne pas ajouter ce marqueur
-    if (projetsAvecNom.length === 0) return;
+        // Si aucun projet avec nom, ne pas ajouter ce marqueur
+        if (projetsAvecNom.length === 0) return;
 
-    L.marker([latitude, longitude], { icon: this.myIcon })
-      .bindPopup(`
+        L.marker([latitude, longitude], { icon: this.myIcon })
+          .bindPopup(
+            `
         <b>${site.nom}</b><br>
         Arrondissement: ${site.arrondissement}<br>
         Commune: ${site.commune}<br>
         Département: ${site.departement}<br>
         <b>Projects:</b><br>
         <ul>
-          ${projetsAvecNom.map(project => `<li>${project.nom}</li>`).join("")}
+          ${projetsAvecNom.map((project) => `<li>${project.nom}</li>`).join("")}
         </ul>
-      `)
-      .addTo(this.initialMap);
-  });
+      `
+          )
+          .addTo(this.initialMap);
+      });
       /*
       // Créer un groupe de marqueurs
 

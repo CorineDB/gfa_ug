@@ -693,6 +693,7 @@ const generatePDF = () => {
 
 // Version alternative si vous voulez plus de contrôle sur les couleurs
 const generatePDFAdvanced = () => {
+  
   const doc = new jsPDF({ 
     orientation: "landscape", 
     format: "a0",

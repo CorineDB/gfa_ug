@@ -18,8 +18,12 @@ import ActiviteService from "@/services/modules/activite.service";
 import PlanDeCaissement from "@/services/modules/plan.decaissement.service";
 import PlanDeDecaissementService from "@/services/modules/plan.decaissement.service";
 
-// import SuiviFinancierService from "@/services/modules/suiviFinancier.service";
-// import SuiviFinancierService from "@/services/modules/suiviFinancier.service";
+import generateMultiTablePDF from '@/plugins/exportPdf.js';
+
+
+//generateMultiTablePDF(['suiviFinancier'], 'Suivi_financier')
+ 
+ 
 
 // Ajout de plan de décaissement
 
@@ -34,12 +38,7 @@ const storePlanDecaissement = async (payload) => {
   await store.dispatch("planDeDecaissements/STORE_PLAN_DE_DECAISSEMENT", payload);
 };
 
-// ...mapActions({
-//       // Mapping des actions pour le module activites
-//       prolongerDureeActivite: "activites/PROLONGER_DATE",
-//       // Mapping des actions pour le module planDeDecaissements
-//       storePlanDecaissement: "planDeDecaissements/STORE_PLAN_DE_DECAISSEMENT",
-//     }),
+ 
 
 const erreurPlanDeDecaissement = ref(null);
 //const planDeDecaissement = ref([]);
@@ -870,6 +869,7 @@ onMounted(() => {
       </div>
       <div class="flex">
         <button class="mr-2 shadow-md btn btn-primary" @click="openFilterModal"><FilterIcon class="w-4 h-4 mr-3" />Filtrer le suivi financier</button>
+        <button class="mr-2 shadow-md btn btn-primary" @click="generateMultiTablePDF(['suiviFinancier'] , 'suivi_FInancier' , 'A4')">Exporter</button>
 
         <button class="btn btn-primary" title="Réinitialiser le filtre" @click="resetFilter()">
           <RefreshCwIcon class="w-5 h-5" />
@@ -879,27 +879,7 @@ onMounted(() => {
   </div>
 
   <div class="p-5 mt-5 intro-y box">
-    <div class="flex flex-col sm:flex-row sm:items-end xl:items-start">
-      <div></div>
-      <div class="flex mt-5 sm:mt-0">
-        <button id="tabulator-print" class="w-1/2 mr-2 btn btn-outline-secondary sm:w-auto"><PrinterIcon class="w-4 h-4 mr-2" /> Print</button>
-        <Dropdown class="w-1/2 sm:w-auto">
-          <DropdownToggle class="w-full btn btn-outline-secondary sm:w-auto">
-            <FileTextIcon class="w-4 h-4 mr-2" /> Export
-            <ChevronDownIcon class="w-4 h-4 ml-auto sm:ml-2" />
-          </DropdownToggle>
-          <DropdownMenu class="w-40">
-            <DropdownContent>
-              <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Export CSV </DropdownItem>
-              <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Export JSON </DropdownItem>
-              <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Export XLSX </DropdownItem>
-              <DropdownItem> <FileTextIcon class="w-4 h-4 mr-2" /> Export HTML </DropdownItem>
-            </DropdownContent>
-          </DropdownMenu>
-        </Dropdown>
-      </div>
-    </div>
-
+    
     <div>
       <div class="border my-4 rounded-lg border-gray-300 shadow-md" v-if="!isLoadingData">
         <!-- suivi budgetaire  current -->
@@ -1010,82 +990,98 @@ onMounted(() => {
       </div>
     </div>
 
+    <div class="overflow-x-scroll">
+      <table v-show="true === false" id="suiviFinancier" class="table-fixed border-collaspe table1">
+        <thead class="sticky top-0 z-20 text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">  
+            <tr>
+              <th scope="col" rowspan="2" class="py-3 px-6 border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">Activités</th>
+              <th scope="col" rowspan="2" class="py-3 px-6 border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">Année</th>
+              <th scope="col" rowspan="2" class="py-3 px-6 border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">Trimestre</th>
+              <th scope="col" colspan="4" class="py-3 px-6 border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Période</th>
+              <th scope="col" colspan="4" class="py-3 px-6 text-center border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">Exercice</th>
+              <th scope="col" colspan="4" class="py-3 px-6 text-center border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">Cumul</th>
+              <!-- <th scope="col" rowspan="2" class="py-3 px-6 border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap text-center">Actions</th> -->
+            </tr>
+            <tr>
+              <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Budget</th>
+              <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Consommé</th>
+              <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Disponible</th>
+              <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">TEF</th>
+              <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Budget</th>
+              <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Consommé</th>
+              <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Disponible</th>
+              <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">TEF</th>
+              <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Budget</th>
+              <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Consommé</th>
+              <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Disponible</th>
+              <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">TEF</th>
+            </tr>
+        </thead>
+        <tbody class="text-sm divide-y divide-gray-200 bg-white">
+          <tr v-for="(suivi, index) in datas.suiviFinanciers" :key="index" class="bg-white border-b hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+            <td class="p-4 border-b border-slate-200">
+              <span class="font-bold">{{ suivi?.activite?.codePta }}-{{ suivi?.activite?.nom }}</span>
+            </td>
+            <td class="p-4 border-b border-slate-200">
+              <span class="font-bold">{{ suivi.annee }}</span>
+            </td>
+            <td class="p-4 border-b border-slate-200">
+              <span class="font-bold">{{ suivi.trimestre }}</span>
+            </td>
+            <td class="p-4 border-b border-slate-200">
+              <span class="font-bold">{{ suivi.periode.budget == null || suivi.periode.budget == 0 ? 0 : $h.formatCurrency(suivi.periode.budget) }}</span>
+            </td>
+            <td class="p-4 border-b border-slate-200">
+              <span class="font-bold">{{ suivi.periode.consommer == null || suivi.periode.consommer == 0 ? 0 : $h.formatCurrency(suivi.periode.consommer) }}</span>
+            </td>
+            <td class="p-4 border-b border-slate-200">
+              <span class="font-bold">{{ suivi.periode.disponible == null || suivi.periode.disponible == 0 ? 0 : $h.formatCurrency(suivi.periode.disponible) }}</span>
+            </td>
+            <td class="p-4 border-b border-slate-200">
+              <span class="font-bold">{{ suivi.periode.pourcentage }}</span>
+            </td>
+            <td class="p-4 border-b border-slate-200">
+              <span class="font-bold">{{ suivi.exercice.budget == null || suivi.exercice.budget == 0 ? 0 : $h.formatCurrency(suivi.exercice.budget) }}</span>
+            </td>
+            <td class="p-4 border-b border-slate-200">
+              <span class="font-bold">{{ suivi.exercice.consommer == null || suivi.exercice.consommer == 0 ? 0 : $h.formatCurrency(suivi.exercice.consommer) }}</span>
+            </td>
+            <td class="p-4 border-b border-slate-200">
+              <span class="font-bold">{{ suivi.exercice.disponible == null || suivi.exercice.disponible == 0 ? 0 : $h.formatCurrency(suivi.exercice.disponible) }}</span>
+            </td>
+            <td class="p-4 border-b border-slate-200">
+              <span class="font-bold">{{ suivi.exercice.pourcentage }}</span>
+            </td>
+            <td class="p-4 border-b border-slate-200">
+              <span class="font-bold">{{ suivi.cumul.budget == null || suivi.cumul.budget == 0 ? 0 : $h.formatCurrency(suivi.cumul.budget) }}</span>
+            </td>
+            <td class="p-4 border-b border-slate-200">
+              <span class="font-bold">{{ suivi.cumul.consommer == null || suivi.cumul.consommer == 0 ? 0 : $h.formatCurrency(suivi.cumul.consommer) }}</span>
+            </td>
+            <td class="p-4 border-b border-slate-200">
+              <span class="font-bold">{{ suivi.cumul.disponible == null || suivi.cumul.disponible == 0 ? 0 : $h.formatCurrency(suivi.cumul.disponible) }}</span>
+            </td>
+            <td class="p-4 border-b border-slate-200">
+              <span class="font-bold">{{ suivi.cumul.pourcentage }}</span>
+            </td>
+            <!-- <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700 text-center">
+              <button @click="ouvrirModalSuiviFinancierActivite(suivi)" class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-xs px-4 py-2 mr-2">Suivre</button>
+
+              <button @click="handleDetail(suivi)" class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-xs px-4 py-2 mr-2">Voir détail</button>
+
+              <button @click="ouvrirModalPlanDeDecaissementActivite(suivi)" title="Ajouter un plan de décaissement" class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-xs px-4 py-2 mr-2">Ajouter un Plan de décaissement</button>
+
+              <button @click="handleDelete(suivi)" class="text-white bg-red-500 hover:bg-red-600 font-medium rounded-lg text-xs px-4 py-2">Supprimer</button>
+            </td> -->
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
     <LoaderSnipper v-if="isLoadingData" />
   </div>
 
-  <!-- <Modal backdrop="static" :show="showModalPlanDeDecaissement" @hidden="showModalPlanDeDecaissement = false">
-    <ModalHeader>
-      <h2 class="mr-auto text-base font-medium">Plan de décaissement</h2>
-    </ModalHeader>
-
-    <form @submit.prevent="planDeDecaissementActivite">
-      <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
-        <div v-for="(plan, index) in planDeDecaissement" :key="plan.id" class="col-span-12 border-b pb-4 mb-4">
-          <h3 class="text-sm font-medium mb-2">Plan {{ index + 1 }}</h3>
-
-          <div class="col-span-12 mt-3">
-            <label class="form-label">Année</label>
-
-            <TomSelect v-model="plan.annee" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
-              <option v-for="(year, index) in years" :key="index" :value="year">{{ year }}</option>
-            </TomSelect>
-          </div>
-          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.trimestre">
-            {{ erreurPlanDeDecaissement[index].trimestre }}
-          </p>
-
-          <div class="w-full mt-3">
-            <label class="form-label">Sélectionnez le trimestre</label>
-            <TomSelect v-model="plan.trimestre" :options="{ placeholder: 'Selectionez le trimestre' }" class="w-full">
-              <option value="1">Trimestre 1</option>
-              <option value="2">Trimestre 2</option>
-              <option value="3">Trimestre 3</option>
-              <option value="4">Trimestre 4</option>
-            </TomSelect>
-          </div>
-          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.trimestre">
-            {{ erreurPlanDeDecaissement[index].trimestre }}
-          </p>
-
-          <InputForm v-model="plan.budgetNational" :min="0" class="col-span-12 mt-3" type="number" :required="true" placeHolder="Saisissez le fond propre" label="Saisissez le fond propre" />
-          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.budgetNational">
-            {{ erreurPlanDeDecaissement[index].budgetNational }}
-          </p>
-
-          <InputForm v-model="plan.pret" :min="0" class="col-span-12 mt-3" type="number" :required="true" placeHolder="Saisissez la subvention" label="Saisissez la subvention" />
-          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.pret">
-            {{ erreurPlanDeDecaissement[index].pret }}
-          </p>
-
-          <button type="button" @click="removePlan(index)" class="mt-2 text-red-600 text-sm underline">Supprimer ce plan</button>
-
-          <div class="col-span-12" v-if="getPlageActivite">
-            <div class="flex items-center mt-2" v-for="(plage, t) in getPlageActivite.durees" :key="t">
-              <ClockIcon class="w-4 h-4 mr-2" />
-              <div>
-                Plage de date {{ t + 1 }} : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(getPlageActivite.durees[getPlageActivite.durees.length - 1].debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(getPlageActivite.durees[getPlageActivite.durees.length - 1].fin) }}</span>
-              </div>
-            </div>
-          </div>
-
-          <div v-if="getPlageProjet" class="flex items-center mt-2 col-span-12">
-            <ClockIcon class="w-4 h-4 mr-2" />
-            <div>
-              Durée du projet : Du <span class="px-1 font-bold"> {{ $h.reformatDate(getPlageProjet.debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(getPlageProjet.fin) }}</span>
-            </div>
-          </div>
-        </div>
-
-        <button type="button" @click="addPlan" class="col-span-12 btn btn-outline-primary">Ajouter un autre plan</button>
-      </ModalBody>
-      <ModalFooter>
-        <div class="flex items-center justify-center">
-          <button type="button" @click="showModalPlanDeDecaissement = false" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
-          <VButton class="inline-block" label="Enregistrer" :loading="loadingPlanDeDecaissement" :type="submit" :disabled="loaderListePlan" />
-        </div>
-      </ModalFooter>
-    </form>
-  </Modal> -->
+   
 
   <Modal backdrop="static" :show="showModalPlanDeDecaissement" @hidden="showModalPlanDeDecaissement = false">
     <ModalHeader>

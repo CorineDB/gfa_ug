@@ -1,5 +1,7 @@
 <template>
-  <table id="my-table14" class="w-full my-10 border-collapse table-auto border-slate-500" cellpadding="0" cellspacing="0">
+  <!-- <button @click="generateMultiTablePDF(['my-table14'] , 'FICHE_SYNTHESE_SCORE_FACTUEL_GOUVERNANCE' , 'A4' , info1)" class="btn btn-primary text-rigth my-4">Télécharger PDF</button> -->
+
+  <table id="my-table14" class="w-full mb-10 mt- border-collapse table-auto border-slate-500" cellpadding="0" cellspacing="0">
     <thead class="text-white bg-blue-900">
       <tr>
         <th class="py-3 border border-slate-900">Principes</th>
@@ -56,6 +58,7 @@
 <script setup>
 import { ref } from "vue";
 import { getColorForValue } from "../../utils/findColorIndicator";
+
 const props = defineProps({
   data: Array,
   indicegouvernace: [Number, String],
