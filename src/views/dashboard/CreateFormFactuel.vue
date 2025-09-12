@@ -513,239 +513,163 @@ const addNewIndicator = () => {
 };
 */
 
-const addNewIndicator = () => {
-
-currentGlobalFactuelFormDataArray.value.forEach((item, index) => {
-  const typeKey = generateKey(item.typeKey);
-  const principeKey = generateKey(item.principeKey + typeKey);
-  const critereKey = generateKey(item.critereKey + principeKey);
-  const indicateurKey = generateKey(item.indicateurKey + critereKey);
-  const key = indicateurKey;
-
-  console.log("critereKey.value", critereKey)
-
-  if (!uniqueKeys.has(key)) {
-
-    item = {
-      ...item,
-      typeKey: typeKey,
-      principeKey: principeKey,
-      critereKey: critereKey,
-      indicateurKey: indicateurKey,
-    };
-
-    const preview = {
-      ...currentPreviewFactuelFormDataArray.value[index],
-    };
-
-    preview.type.key = typeKey;
-    preview.principe.key = principeKey;
-    preview.critere.key = critereKey;
-    preview.indicateur.key = indicateurKey;
 
 
-    console.log("preview.critere.key", preview.critere.key)
+const STORAGE_KEYS = {
+  lastTypeIndex: 'lastTypeIndexGlobal',
+  lastPrincipeIndex: 'lastPrincipeIndexByType', 
+  lastCritereIndex: 'lastCritereIndexByPrincipe',
+  lastIndicateurIndex: 'lastIndicateurIndexByCritere'
+};
 
-    globalFormFactuelData.value.unshift({ ...item });
-
-    //previewFormFactuelData.value.unshift(JSON.parse(JSON.stringify(currentPreviewFactuelFormDataArray.value[index])));
-    previewFormFactuelData.value.unshift(JSON.parse(JSON.stringify(preview)));
-
-    console.log("previewFormFactuelData.value", previewFormFactuelData.value);
-    console.log("critereKey.value", critereKey)
-    uniqueKeys.set(key, true);
-    uniqueKeys.set(critereKey, true);
-    uniqueKeys.set(principeKey, true);
-    uniqueKeys.set(typeKey, true);
-    
-    // ✅ Sort after unshift
-    globalFormFactuelData.value.sort((a, b) => {
-      return a.typePosition - b.typePosition || a.principePosition - b.principePosition || a.criterePosition - b.criterePosition || a.indicateurPosition - b.indicateurPosition;
-    });
-
-    previewFormFactuelData.value.sort((a, b) => {
-      return a.type.position - b.type.position || a.principe.position - b.principe.position || a.critere.position - b.critere.position || a.indicateur.position - b.indicateur.position;
-    });
-    
-    localStorage.setItem("globalFormFactuelData", JSON.stringify(globalFormFactuelData.value));
-    localStorage.setItem("previewFormFactuelData", JSON.stringify(previewFormFactuelData.value));
-
-    updateAllTypesGouvernance();
-
-    if (index === currentGlobalFactuelFormDataArray.value.length - 1) {
-      resetCurrentPreviewFactuelFormData();
-      resetCurrentGlobalFactuelFormData();
-      resetCurrentForm.value = !resetCurrentForm.value;
+// Fonction pour charger une Map depuis localStorage
+const loadMapFromStorage = (storageKey) => {
+  const stored = localStorage.getItem(storageKey);
+  if (stored) {
+    try {
+      const parsed = JSON.parse(stored);
+      return new Map(Object.entries(parsed));
+    } catch (e) {
+      console.warn(`Erreur lors du chargement de ${storageKey}:`, e);
     }
-
-    toast.success("Indicateur ajouté.");
-  } else {
-    toast.info("Indicateur deja ajouté.");
   }
-});
-console.log("currentGlobalFactuelFormDataArray.value", currentGlobalFactuelFormDataArray.value);
+  return new Map();
+};
 
-console.log("currentPreviewFactuelFormDataArray.value", currentPreviewFactuelFormDataArray.value);
+// Fonction pour sauvegarder une Map dans localStorage
+const saveMapToStorage = (map, storageKey) => {
+  try {
+    const obj = Object.fromEntries(map);
+    localStorage.setItem(storageKey, JSON.stringify(obj));
+  } catch (e) {
+    console.warn(`Erreur lors de la sauvegarde de ${storageKey}:`, e);
+  }
 };
 
 
+// Initialiser les Maps avec les données persistées
+const lastTypeIndexGlobal = loadMapFromStorage(STORAGE_KEYS.lastTypeIndex);
+const lastPrincipeIndexByType = loadMapFromStorage(STORAGE_KEYS.lastPrincipeIndex);
+const lastCritereIndexByPrincipe = loadMapFromStorage(STORAGE_KEYS.lastCritereIndex);
+const lastIndicateurIndexByCritere = loadMapFromStorage(STORAGE_KEYS.lastIndicateurIndex);
 
 
-// const STORAGE_KEYS = {
-//   lastTypeIndex: 'lastTypeIndexGlobal',
-//   lastPrincipeIndex: 'lastPrincipeIndexByType', 
-//   lastCritereIndex: 'lastCritereIndexByPrincipe',
-//   lastIndicateurIndex: 'lastIndicateurIndexByCritere'
-// };
+// // Stocke les derniers index utilisés pour chaque clé parent
+// const lastTypeIndexGlobal = new Map();
+// const lastPrincipeIndexByType = new Map();
+// const lastCritereIndexByPrincipe = new Map();
+// const lastIndicateurIndexByCritere = new Map();
 
-// // Fonction pour charger une Map depuis localStorage
-// const loadMapFromStorage = (storageKey) => {
-//   const stored = localStorage.getItem(storageKey);
-//   if (stored) {
-//     try {
-//       const parsed = JSON.parse(stored);
-//       return new Map(Object.entries(parsed));
-//     } catch (e) {
-//       console.warn(`Erreur lors du chargement de ${storageKey}:`, e);
-//     }
-//   }
-//   return new Map();
-// };
+const makeUniqueKey = (baseKey, parentKey, map, allKeys) => {
+  // Récupérer le dernier index utilisé pour ce parent
+  let index = map.get(parentKey) ?? -1;
 
-// // Fonction pour sauvegarder une Map dans localStorage
-// const saveMapToStorage = (map, storageKey) => {
-//   try {
-//     const obj = Object.fromEntries(map);
-//     localStorage.setItem(storageKey, JSON.stringify(obj));
-//   } catch (e) {
-//     console.warn(`Erreur lors de la sauvegarde de ${storageKey}:`, e);
-//   }
-// };
+  // Incrémenter pour avoir le prochain index
+  index++;
+  let key = `${baseKey}_${index}`;
 
+  // Continuer à incrémenter tant que la clé existe
+  while (allKeys.has(key)) {
+    index++;
+    key = `${baseKey}_${index}`;
+  }
 
-// // Initialiser les Maps avec les données persistées
-// const lastTypeIndexGlobal = loadMapFromStorage(STORAGE_KEYS.lastTypeIndex);
-// const lastPrincipeIndexByType = loadMapFromStorage(STORAGE_KEYS.lastPrincipeIndex);
-// const lastCritereIndexByPrincipe = loadMapFromStorage(STORAGE_KEYS.lastCritereIndex);
-// const lastIndicateurIndexByCritere = loadMapFromStorage(STORAGE_KEYS.lastIndicateurIndex);
+  // Sauvegarder le nouvel index pour ce parent
+  map.set(parentKey, index);
+  return key;
+};
 
+const addNewIndicator = () => {
+  const sessionKeys = new Set();
 
-// // // Stocke les derniers index utilisés pour chaque clé parent
-// // const lastTypeIndexGlobal = new Map();
-// // const lastPrincipeIndexByType = new Map();
-// // const lastCritereIndexByPrincipe = new Map();
-// // const lastIndicateurIndexByCritere = new Map();
+  currentGlobalFactuelFormDataArray.value.forEach((item, index) => {
+    const allKeys = new Set([...uniqueKeys.keys(), ...sessionKeys]);
 
-// const makeUniqueKey = (baseKey, parentKey, map, allKeys) => {
-//   // Récupérer le dernier index utilisé pour ce parent
-//   let index = map.get(parentKey) ?? -1;
+    // 1. Générer typeKey normalement
+    const typeKeyBase = generateKey(item.typeKey);
+    const typeKey = makeUniqueKey(typeKeyBase, typeKeyBase , lastTypeIndexGlobal, allKeys);
+    sessionKeys.add(typeKey);
 
-//   // Incrémenter pour avoir le prochain index
-//   index++;
-//   let key = `${baseKey}_${index}`;
+    // 2. Générer principeKey unique par typeKey
+    const principeKeyBase = generateKey(item.principeKey + typeKey);
+    const principeKey = makeUniqueKey(principeKeyBase, typeKey, lastPrincipeIndexByType, allKeys);
+    sessionKeys.add(principeKey);
 
-//   // Continuer à incrémenter tant que la clé existe
-//   while (allKeys.has(key)) {
-//     index++;
-//     key = `${baseKey}_${index}`;
-//   }
+    // 3. Générer critereKey unique par principeKey
+    const critereKeyBase = generateKey(item.critereKey + principeKey);
+    const critereKey = makeUniqueKey(critereKeyBase, principeKey, lastCritereIndexByPrincipe, allKeys);
+    sessionKeys.add(critereKey);
 
-//   // Sauvegarder le nouvel index pour ce parent
-//   map.set(parentKey, index);
-//   return key;
-// };
+    // 4. Générer indicateurKey unique par critereKey
+    const indicateurKeyBase = generateKey(item.indicateurKey + critereKey);
+    const indicateurKey = makeUniqueKey(indicateurKeyBase, critereKey, lastIndicateurIndexByCritere, allKeys);
+    sessionKeys.add(indicateurKey);
 
-// const addNewIndicator = () => {
-//   const sessionKeys = new Set();
+    const key = indicateurKey;
 
-//   currentGlobalFactuelFormDataArray.value.forEach((item, index) => {
-//     const allKeys = new Set([...uniqueKeys.keys(), ...sessionKeys]);
+    if (!uniqueKeys.has(key)) {
+      // Mettre à jour l'objet
+      item = {
+        ...item,
+        typeKey,
+        principeKey,
+        critereKey,
+        indicateurKey,
+      };
 
-//     // 1. Générer typeKey normalement
-//     const typeKeyBase = generateKey(item.typeKey);
-//     const typeKey = makeUniqueKey(typeKeyBase, typeKeyBase , lastTypeIndexGlobal, allKeys);
-//     sessionKeys.add(typeKey);
+      const preview = {
+        ...currentPreviewFactuelFormDataArray.value[index],
+      };
 
-//     // 2. Générer principeKey unique par typeKey
-//     const principeKeyBase = generateKey(item.principeKey + typeKey);
-//     const principeKey = makeUniqueKey(principeKeyBase, typeKey, lastPrincipeIndexByType, allKeys);
-//     sessionKeys.add(principeKey);
+      preview.type.key = typeKey;
+      preview.principe.key = principeKey;
+      preview.critere.key = critereKey;
+      preview.indicateur.key = indicateurKey;
 
-//     // 3. Générer critereKey unique par principeKey
-//     const critereKeyBase = generateKey(item.critereKey + principeKey);
-//     const critereKey = makeUniqueKey(critereKeyBase, principeKey, lastCritereIndexByPrincipe, allKeys);
-//     sessionKeys.add(critereKey);
+      globalFormFactuelData.value.unshift({ ...item });
+      previewFormFactuelData.value.unshift(JSON.parse(JSON.stringify(preview)));
 
-//     // 4. Générer indicateurKey unique par critereKey
-//     const indicateurKeyBase = generateKey(item.indicateurKey + critereKey);
-//     const indicateurKey = makeUniqueKey(indicateurKeyBase, critereKey, lastIndicateurIndexByCritere, allKeys);
-//     sessionKeys.add(indicateurKey);
+      // Tri par position
+      globalFormFactuelData.value.sort((a, b) => {
+        return a.typePosition - b.typePosition || a.principePosition - b.principePosition || a.criterePosition - b.criterePosition || a.indicateurPosition - b.indicateurPosition;
+      });
 
-//     const key = indicateurKey;
+      previewFormFactuelData.value.sort((a, b) => {
+        return a.type.position - b.type.position || a.principe.position - b.principe.position || a.critere.position - b.critere.position || a.indicateur.position - b.indicateur.position;
+      });
 
-//     if (!uniqueKeys.has(key)) {
-//       // Mettre à jour l'objet
-//       item = {
-//         ...item,
-//         typeKey,
-//         principeKey,
-//         critereKey,
-//         indicateurKey,
-//       };
+      // Sauvegarde
+      localStorage.setItem("globalFormFactuelData", JSON.stringify(globalFormFactuelData.value));
+      localStorage.setItem("previewFormFactuelData", JSON.stringify(previewFormFactuelData.value));
 
-//       const preview = {
-//         ...currentPreviewFactuelFormDataArray.value[index],
-//       };
+      updateAllTypesGouvernance();
 
-//       preview.type.key = typeKey;
-//       preview.principe.key = principeKey;
-//       preview.critere.key = critereKey;
-//       preview.indicateur.key = indicateurKey;
+      if (index === currentGlobalFactuelFormDataArray.value.length - 1) {
+        resetCurrentPreviewFactuelFormData();
+        resetCurrentGlobalFactuelFormData();
+        resetCurrentForm.value = !resetCurrentForm.value;
+      }
 
-//       globalFormFactuelData.value.unshift({ ...item });
-//       previewFormFactuelData.value.unshift(JSON.parse(JSON.stringify(preview)));
+      toast.success("Indicateur ajouté.");
+    } else {
+      toast.info("Indicateur déjà ajouté.");
+    }
+  });
 
-//       // Tri par position
-//       globalFormFactuelData.value.sort((a, b) => {
-//         return a.typePosition - b.typePosition || a.principePosition - b.principePosition || a.criterePosition - b.criterePosition || a.indicateurPosition - b.indicateurPosition;
-//       });
+   // Sauvegarder les Maps mises à jour dans localStorage
+   saveMapToStorage(lastTypeIndexGlobal, STORAGE_KEYS.lastTypeIndex);
+  saveMapToStorage(lastPrincipeIndexByType, STORAGE_KEYS.lastPrincipeIndex);
+  saveMapToStorage(lastCritereIndexByPrincipe, STORAGE_KEYS.lastCritereIndex);
+  saveMapToStorage(lastIndicateurIndexByCritere, STORAGE_KEYS.lastIndicateurIndex);
 
-//       previewFormFactuelData.value.sort((a, b) => {
-//         return a.type.position - b.type.position || a.principe.position - b.principe.position || a.critere.position - b.critere.position || a.indicateur.position - b.indicateur.position;
-//       });
+  // Ajoute toutes les clés générées dans la session à uniqueKeys
+  for (const key of sessionKeys) {
+    uniqueKeys.set(key, true);
+  }
 
-//       // Sauvegarde
-//       localStorage.setItem("globalFormFactuelData", JSON.stringify(globalFormFactuelData.value));
-//       localStorage.setItem("previewFormFactuelData", JSON.stringify(previewFormFactuelData.value));
-
-//       updateAllTypesGouvernance();
-
-//       if (index === currentGlobalFactuelFormDataArray.value.length - 1) {
-//         resetCurrentPreviewFactuelFormData();
-//         resetCurrentGlobalFactuelFormData();
-//         resetCurrentForm.value = !resetCurrentForm.value;
-//       }
-
-//       toast.success("Indicateur ajouté.");
-//     } else {
-//       toast.info("Indicateur déjà ajouté.");
-//     }
-//   });
-
-//    // Sauvegarder les Maps mises à jour dans localStorage
-//    saveMapToStorage(lastTypeIndexGlobal, STORAGE_KEYS.lastTypeIndex);
-//   saveMapToStorage(lastPrincipeIndexByType, STORAGE_KEYS.lastPrincipeIndex);
-//   saveMapToStorage(lastCritereIndexByPrincipe, STORAGE_KEYS.lastCritereIndex);
-//   saveMapToStorage(lastIndicateurIndexByCritere, STORAGE_KEYS.lastIndicateurIndex);
-
-//   // Ajoute toutes les clés générées dans la session à uniqueKeys
-//   for (const key of sessionKeys) {
-//     uniqueKeys.set(key, true);
-//   }
-
-//   console.log("currentGlobalFactuelFormDataArray.value", currentGlobalFactuelFormDataArray.value);
-//   console.log("currentPreviewFactuelFormDataArray.value", currentPreviewFactuelFormDataArray.value);
-// };
+  console.log("currentGlobalFactuelFormDataArray.value", currentGlobalFactuelFormDataArray.value);
+  console.log("currentPreviewFactuelFormDataArray.value", currentPreviewFactuelFormDataArray.value);
+};
 
 const removeIndicator = (key) => {
   // Trouver l'index de la soumission à supprimer
@@ -1307,7 +1231,7 @@ onMounted(() => {
                   <tr>
                     <!-- Première cellule de catégorie principale avec rowspan -->
                     <td class="font-semibold list-data" v-if="scIndex === 0 && qIndex === 0" :rowspan="principe_de_gouvernance.criteres_de_gouvernance.reduce((sum, sc) => sum + sc.indicateurs_de_gouvernance.length, 0)">
-                      <div class="flex items-center gap-1">{{ principe_de_gouvernance.position }} - {{ principe_de_gouvernance.nom }}</div>
+                      <div class="flex items-center gap-1">{{ type_de_gouvernance.position }}.{{ principe_de_gouvernance.position }} - {{ principe_de_gouvernance.nom }}</div>
 
                       <div class="items-center transition-all opacity-0 container-buttons">
                         <div v-if="canEditCritere[principe_de_gouvernance.key]">
@@ -1325,7 +1249,7 @@ onMounted(() => {
                     </td>
                     <!-- Première cellule de sous-catégorie avec rowspan -->
                     <td class="list-data" v-if="qIndex === 0" :rowspan="critere_de_gouvernance.indicateurs_de_gouvernance.length">
-                      <div class="flex items-center gap-1">{{ critere_de_gouvernance.position }} - {{ critere_de_gouvernance.nom }}</div>
+                      <div class="flex items-center gap-1">{{ type_de_gouvernance.position }}.{{ principe_de_gouvernance.position }}.{{ critere_de_gouvernance.position }} - {{ critere_de_gouvernance.nom }}</div>
 
                       <div class="flex items-center transition-all opacity-0 container-buttons">
                         <div v-if="canEditCritere[critere_de_gouvernance.key]">
@@ -1341,7 +1265,7 @@ onMounted(() => {
                         </div>
                       </div>
                     </td>
-                    <td>{{ indicateur_de_gouvernance.position }} - {{ indicateur_de_gouvernance.nom }}</td>
+                    <td>{{ type_de_gouvernance.position }}.{{ principe_de_gouvernance.position }}.{{ critere_de_gouvernance.position }}.{{ indicateur_de_gouvernance.position }} - {{ indicateur_de_gouvernance.nom }}</td>
                     <td>
                       <div class="flex items-center">
                         <div v-if="canEditIndicateur[indicateur_de_gouvernance.key]">
