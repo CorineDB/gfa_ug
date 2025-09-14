@@ -38,17 +38,18 @@ function choiceOption(data, isChecked) {
     // Ajouter l'élément s'il n'est pas déjà présent
     if (!idsChecked.value.includes(data.id)) {
       idsChecked.value.push(data.id);
+      
+      // Émettre uniquement lors de l'ajout
+      let selectedItems = datas.value.filter((item) => idsChecked.value.includes(item.id));
+      selectedItems = selectedItems[selectedItems.length - 1] || {};
+      console.log(selectedItems);
+      emit("selected", selectedItems);
     }
   } else {
-    // Retirer l'élément
-    idsChecked.value = idsChecked.value.filter(id => id !== data.id);
+    // Retirer l'élément sans émettre
+    idsChecked.value = idsChecked.value.filter((id) => id !== data.id);
+    // Pas d'émission ici
   }
-  
-  // Émettre la liste des éléments sélectionnés
-  let selectedItems = datas.value.filter(item => idsChecked.value.includes(item.id));
-  selectedItems = selectedItems[selectedItems.length - 1] || {}; // Prendre le dernier élément sélectionné ou un objet vide si aucun
-  // emit("selected", selectedData);
-  emit("selected", selectedItems);
 }
 
 // Fonction pour vérifier si un élément est sélectionné
@@ -153,9 +154,9 @@ const selectAll = () => {
     idsChecked.value = [];
   } else {
     // Sélectionner tout
-    idsChecked.value = filterData.value.map(item => item.id);
+    idsChecked.value = filterData.value.map((item) => item.id);
   }
-  const selectedItems = datas.value.filter(item => idsChecked.value.includes(item.id));
+  const selectedItems = datas.value.filter((item) => idsChecked.value.includes(item.id));
   emit("selected", selectedItems);
 };
 
@@ -185,40 +186,26 @@ onMounted(getDatas);
     <div class="flex items-center justify-between gap-2 mb-4">
       <input type="text" class="form-control form-control-sm max-w-[300px]" placeholder="Rechercher..." v-model="search" />
       <div class="flex gap-2">
-        <button 
-          class="text-sm btn btn-outline-primary" 
-          @click="selectAll"
-          :class="{ 'btn-warning': isPartiallySelected, 'btn-success': isAllSelected }"
-        >
-          {{ isAllSelected ? 'Désélectionner tout' : 'Sélectionner tout' }}
+        <button class="text-sm btn btn-outline-primary" @click="selectAll" :class="{ 'btn-warning': isPartiallySelected, 'btn-success': isAllSelected }">
+          {{ isAllSelected ? "Désélectionner tout" : "Sélectionner tout" }}
         </button>
         <button class="text-sm btn btn-primary" @click="getDatas">
           <RotateCcwIcon class="mr-1 size-4" />
         </button>
-        <button class="text-sm btn btn-primary" @click="openCreateModal">
-          <PlusIcon class="mr-1 size-4" />Ajouter
-        </button>
+        <button class="text-sm btn btn-primary" @click="openCreateModal"><PlusIcon class="mr-1 size-4" />Ajouter</button>
       </div>
     </div>
 
     <!-- Affichage du nombre d'éléments sélectionnés -->
     <div v-if="idsChecked.length > 0" class="mb-3 p-2 bg-blue-50 border border-blue-200 rounded">
-      <span class="text-sm text-blue-700">
-        {{ idsChecked.length }} élément{{ idsChecked.length > 1 ? 's' : '' }} sélectionné{{ idsChecked.length > 1 ? 's' : '' }}
-      </span>
+      <span class="text-sm text-blue-700"> {{ idsChecked.length }} élément{{ idsChecked.length > 1 ? "s" : "" }} sélectionné{{ idsChecked.length > 1 ? "s" : "" }} </span>
     </div>
 
     <!-- Data List -->
     <ul v-if="!isLoadingData" class="overflow-y-auto max-h-[40vh]">
       <li v-for="(data, index) in filterData" :key="data.id" class="flex items-center justify-between gap-2 px-1 py-1.5 text-base hover:bg-blue-100 list-data">
         <div class="p-2 form-check">
-          <input 
-            :id="`${data.id}${index}`" 
-            @change="choiceOption(data, $event.target.checked)" 
-            class="form-check-input" 
-            type="checkbox"
-            :checked="isItemChecked(data.id)"
-          />
+          <input :id="`${data.id}${index}`" @change="choiceOption(data, $event.target.checked)" class="form-check-input" type="checkbox" :checked="isItemChecked(data.id)" />
           <label class="form-check-label" :for="`${data.id}${index}`">{{ data.nom }}</label>
         </div>
         <div v-if="!isItemChecked(data.id)" class="flex items-center gap-1 space-x-1 transition-all opacity-0 container-buttons">
@@ -236,7 +223,7 @@ onMounted(getDatas);
     <!-- Modal for creating/updating -->
     <Modal backdrop="static" :show="showModalCreate" @hidden="closeModal">
       <ModalHeader>
-        <h2 class="mr-auto text-base font-medium">{{ modeText }} une question opérationnelle</h2>
+        <h2 class="mr-auto text-base font-medium">{{ modeText }} une question opérationnelle dklsds</h2>
       </ModalHeader>
       <form @submit.prevent="submitData">
         <ModalBody>

@@ -53,6 +53,60 @@ const uniqueKeys = new Map();
 const globalData = localStorage.getItem("globalFormPerceptionData");
 const previewData = localStorage.getItem("previewFormPerceptionData");
 
+const STORAGE_KEYS = {
+  lastPrincipeIndex: "lastPrincipeIndexGlobal",
+  lastQuestionIndex: "lastQuestionIndexByPrincipe",
+};
+
+// Fonction pour charger une Map depuis localStorage
+const loadMapFromStorage = (storageKey) => {
+  const stored = localStorage.getItem(storageKey);
+  if (stored) {
+    try {
+      const parsed = JSON.parse(stored);
+      return new Map(Object.entries(parsed));
+    } catch (e) {
+      console.error(`Error loading ${storageKey} from localStorage:`, e);
+      return new Map();
+    }
+  }
+  return new Map();
+};
+
+// Fonction pour sauvegarder une Map dans localStorage
+const saveMapToStorage = (map, storageKey) => {
+  try {
+    const obj = Object.fromEntries(map);
+    localStorage.setItem(storageKey, JSON.stringify(obj));
+  } catch (e) {
+    console.error(`Error saving ${storageKey} to localStorage:`, e);
+  }
+};
+
+// Initialiser les Maps avec les données persistées
+const lastPrincipeIndexGlobal = loadMapFromStorage(STORAGE_KEYS.lastPrincipeIndex);
+const lastQuestionIndexByPrincipe = loadMapFromStorage(STORAGE_KEYS.lastQuestionIndex);
+
+const makeUniqueKey = (baseKey, parentKey, map, allKeys) => {
+  // Récupérer le dernier index utilisé pour ce parent
+  let index = map.get(parentKey) ?? 0;
+
+  // Incrémenter pour avoir le prochain index
+  index++;
+  let key = `${baseKey}_${index}`;
+
+  // Continuer à incrémenter tant que la clé existe
+  while (allKeys.has(key)) {
+    index++;
+    key = `${baseKey}_${index}`;
+  }
+
+  // Sauvegarder le nouvel index
+  map.set(parentKey, index);
+
+  return key;
+};
+
 const canEditQuestion = ref([]);
 const canEditPrincipe = ref([]);
 
@@ -72,7 +126,6 @@ const annees = computed(() => {
 const getcurrentUser = async () => {
   await AuthService.getCurrentUser()
     .then((result) => {
-
       debutProgramme.value = result.data.data.programme.debut;
       finProgramme.value = result.data.data.programme.fin;
     })
@@ -176,7 +229,16 @@ const organisePreviewFormPerceptionData = (submissions) => {
     // Trouver ou créer l'indicateur de gouvernance
     let indicateur = principe.questions_operationnelle.find((i) => i.id === submission.indicateur.id);
     if (!indicateur) {
-      indicateur = { id: submission.indicateur.id, nom: submission.indicateur.nom, position: submission.indicateur.position, key: submission.key };
+      // Vérifier les positions existantes pour éviter les conflits
+      const existingPositions = principe.questions_operationnelle.map(ind => Number(ind.position));
+      let newPosition = 1;
+
+      // Trouver la première position disponible à partir de 1
+      while (existingPositions.includes(newPosition)) {
+        newPosition++;
+      }
+
+      indicateur = { id: submission.indicateur.id, nom: submission.indicateur.nom, position: newPosition, key: submission.key };
       principe.questions_operationnelle.push(indicateur);
     }
   });
@@ -295,7 +357,6 @@ const getPrincipe = (principe) => {
 };
 
 const getQuestion = (question) => {
-
   // changeIndexAccordion(2);
   currentGlobalPerceptionFormData.indicateur = question.id;
 
@@ -326,32 +387,61 @@ const getQuestion = (question) => {
     },
   };
 
-  currentPreviewPerceptionFormDataArray.value.push(form2);
+  // Vérifier si form2.indicateur.id existe déjà dans currentPreviewPerceptionFormDataArray
+  const existsInCurrentPreview = currentPreviewPerceptionFormDataArray.value.some((item) => item.indicateur.id === form2.indicateur.id);
+
+  if (!existsInCurrentPreview) {
+    currentPreviewPerceptionFormDataArray.value.push(form2);
+  }
   currentPreviewPerceptionFormDataArray.value.sort((a, b) => {
     return a.principe.position - b.principe.position || a.indicateur.position - b.indicateur.position;
   });
 };
 
 const addNewIndicator = () => {
+  const sessionKeys = new Set();
+
+  console.log("currentGlobalPerceptionFormDataArray.value", currentGlobalPerceptionFormDataArray.value);
+  console.log("currentPreviewPerceptionFormDataArray.value", currentPreviewPerceptionFormDataArray.value);
 
   currentGlobalPerceptionFormDataArray.value.forEach((item, index) => {
-    const key = generateKey(item.indicateur + item.principe);
+    const allKeys = new Set([...uniqueKeys.keys(), ...sessionKeys]);
+
+    // 1. Générer principeKey normalement
+    const principeKeyBase = generateKey(item.principe);
+    const principeKey = makeUniqueKey(principeKeyBase, principeKeyBase, lastPrincipeIndexGlobal, allKeys);
+    sessionKeys.add(principeKey);
+
+    // 2. Générer questionKey unique par principeKey
+    const questionKeyBase = generateKey(item.indicateur + principeKey);
+    const questionKey = makeUniqueKey(questionKeyBase, principeKey, lastQuestionIndexByPrincipe, allKeys);
+    sessionKeys.add(questionKey);
+
+    const key = questionKey;
 
     if (!uniqueKeys.has(key)) {
-      globalFormPerceptionData.value.unshift({ ...item });
+      // Mettre à jour l'objet
+      const updatedItem = {
+        ...item,
+        key: questionKey,
+      };
 
-      previewFormPerceptionData.value.unshift(JSON.parse(JSON.stringify(currentPreviewPerceptionFormDataArray.value[index])));
+      const preview = {
+        ...currentPreviewPerceptionFormDataArray.value[index],
+        key: questionKey,
+      };
 
-      uniqueKeys.set(key, true);
+      globalFormPerceptionData.value.unshift({ ...updatedItem });
+      previewFormPerceptionData.value.unshift(JSON.parse(JSON.stringify(preview)));
 
-      // ✅ Sort after unshift
+      // Tri par position
       globalFormPerceptionData.value.sort((a, b) => a.position ?? 0 - b.position ?? 0);
-      //previewFormPerceptionData.value.sort((a, b) => a.position ?? 0 - b.position ?? 0)
 
       previewFormPerceptionData.value.sort((a, b) => {
         return a.principe.position - b.principe.position || a.indicateur.position - b.indicateur.position;
       });
 
+      // Sauvegarde
       localStorage.setItem("globalFormPerceptionData", JSON.stringify(globalFormPerceptionData.value));
       localStorage.setItem("previewFormPerceptionData", JSON.stringify(previewFormPerceptionData.value));
 
@@ -365,9 +455,18 @@ const addNewIndicator = () => {
 
       toast.success("Question operationnelle ajouté.");
     } else {
-      toast.info("Question operationnelle deja ajouté.");
+      toast.info("Question operationnelle déjà ajouté.");
     }
   });
+
+  // Sauvegarder les Maps mises à jour dans localStorage
+  saveMapToStorage(lastPrincipeIndexGlobal, STORAGE_KEYS.lastPrincipeIndex);
+  saveMapToStorage(lastQuestionIndexByPrincipe, STORAGE_KEYS.lastQuestionIndex);
+
+  // Ajoute toutes les clés générées dans la session à uniqueKeys
+  for (const key of sessionKeys) {
+    uniqueKeys.set(key, true);
+  }
 };
 
 const removeIndicator = (key) => {
@@ -391,8 +490,7 @@ const removeIndicator = (key) => {
     localStorage.setItem("previewFormPerceptionData", JSON.stringify(previewFormPerceptionData.value));
 
     toast.success("Question operationnelle supprimé.");
-  }
-  else {
+  } else {
     const indice = currentPreviewPerceptionFormDataArray.value.findIndex((s) => s.key === key);
 
     if (indice !== -1) {
@@ -426,15 +524,14 @@ function editTemporyPrincipe(id, position) {
 }
 
 function editTemporyQuestion(key, position) {
-  updateTemporyQuestions(key, position, false)
+  updateTemporyQuestions(key, position, false);
   canEditQuestion.value[key] = false;
 }
 
 const removeElement = (key) => {
-
   key = globalFormPerceptionData.value.find((s) => s.key === key);
   if (key) {
-    key = key['principe'];
+    key = key["principe"];
     // Remove from globalFormPerceptionData
     for (let i = globalFormPerceptionData.value.length - 1; i >= 0; i--) {
       if (globalFormPerceptionData.value[i]["principe"] === key) {
@@ -480,17 +577,18 @@ const removeElement = (key) => {
 };
 
 const updateTemporyPrincipe = (id, position, isCurrent = false) => {
-
   if (isCurrent == false) {
     // Update position from previewFormPerceptionData
-    previewFormPerceptionData.value = previewFormPerceptionData.value.map((item) => {
-      if (item.principe.id == id) {
-        item.principe.position = position;
-      }
-      return item;
-    }).sort((a, b) => {
-      return a.principe.position - b.principe.position || a.indicateur.position - b.indicateur.position;
-    });
+    previewFormPerceptionData.value = previewFormPerceptionData.value
+      .map((item) => {
+        if (item.principe.id == id) {
+          item.principe.position = position;
+        }
+        return item;
+      })
+      .sort((a, b) => {
+        return a.principe.position - b.principe.position || a.indicateur.position - b.indicateur.position;
+      });
 
     // Recalculate and update
     updateAllTypesGouvernance();
@@ -498,42 +596,43 @@ const updateTemporyPrincipe = (id, position, isCurrent = false) => {
     // Persist to localStorage
     localStorage.setItem("globalFormPerceptionData", JSON.stringify(globalFormPerceptionData.value));
     localStorage.setItem("previewFormPerceptionData", JSON.stringify(previewFormPerceptionData.value));
-  }
-  else {
-
+  } else {
     currentPreviewPerceptionFormData.principe.position = position;
 
-    currentPreviewPerceptionFormDataArray.value = currentPreviewPerceptionFormDataArray.value.map((item, index) => {
-      if (item.principe.id == id) {
-        item.principe.position = position;
-      }
-      return item;
-    }).sort((a, b) => {
-      return a.principe.position - b.principe.position || a.indicateur.position - b.indicateur.position;
-    });
-
+    currentPreviewPerceptionFormDataArray.value = currentPreviewPerceptionFormDataArray.value
+      .map((item, index) => {
+        if (item.principe.id == id) {
+          item.principe.position = position;
+        }
+        return item;
+      })
+      .sort((a, b) => {
+        return a.principe.position - b.principe.position || a.indicateur.position - b.indicateur.position;
+      });
   }
 };
 
 const updateTemporyQuestions = (key, position, isCurrent = false) => {
-
   if (!isCurrent) {
+    previewFormPerceptionData.value = previewFormPerceptionData.value
+      .map((item) => {
+        if (item.key == key) {
+          item.indicateur.position = position;
+        }
+        return item;
+      })
+      .sort((a, b) => {
+        return a.principe.position - b.principe.position || a.indicateur.position - b.indicateur.position;
+      });
 
-    previewFormPerceptionData.value = previewFormPerceptionData.value.map((item) => {
-      if (item.key == key) {
-        item.indicateur.position = position;
-      }
-      return item;
-    }).sort((a, b) => {
-      return a.principe.position - b.principe.position || a.indicateur.position - b.indicateur.position;
-    });
-
-    globalFormPerceptionData.value = globalFormPerceptionData.value.map((item) => {
-      if (item.key == key) {
-        item.position = position;
-      }
-      return item;
-    }).sort((a, b) => a.position - b.position);
+    globalFormPerceptionData.value = globalFormPerceptionData.value
+      .map((item) => {
+        if (item.key == key) {
+          item.position = position;
+        }
+        return item;
+      })
+      .sort((a, b) => a.position - b.position);
 
     updateAllTypesGouvernance();
 
@@ -541,26 +640,26 @@ const updateTemporyQuestions = (key, position, isCurrent = false) => {
     localStorage.setItem("previewFormPerceptionData", JSON.stringify(previewFormPerceptionData.value));
 
     toast.success("Question operationnelle update.");
-  }
-  else {
+  } else {
+    currentPreviewPerceptionFormDataArray.value = currentPreviewPerceptionFormDataArray.value
+      .map((item) => {
+        if (item.key == key) {
+          item.indicateur.position = position;
+        }
+        return item;
+      })
+      .sort((a, b) => {
+        return a.principe.position - b.principe.position || a.indicateur.position - b.indicateur.position;
+      });
 
-    currentPreviewPerceptionFormDataArray.value = currentPreviewPerceptionFormDataArray.value.map((item) => {
-      if (item.key == key) {
-        item.indicateur.position = position;
-      }
-      return item;
-    }).sort((a, b) => {
-      return a.principe.position - b.principe.position || a.indicateur.position - b.indicateur.position;
-    });
-
-
-    currentGlobalPerceptionFormDataArray.value = currentGlobalPerceptionFormDataArray.value.map((item) => {
-      if (item.key == key) {
-        item.position = position;
-      }
-      return item;
-    }).sort((a, b) => a.position - b.position);
-
+    currentGlobalPerceptionFormDataArray.value = currentGlobalPerceptionFormDataArray.value
+      .map((item) => {
+        if (item.key == key) {
+          item.position = position;
+        }
+        return item;
+      })
+      .sort((a, b) => a.position - b.position);
   }
 };
 
@@ -655,12 +754,14 @@ const showForm = computed(() => {
 
 onBeforeUnmount(() => {
   clearUniqueKeys();
+  localStorage.removeItem("globalFormPerceptionData");
+  localStorage.removeItem("previewFormPerceptionData");
 });
 
 onMounted(async () => {
   await getOneForm();
   updateAllTypesGouvernance();
-  getcurrentUser()
+  getcurrentUser();
 });
 </script>
 
@@ -674,9 +775,7 @@ onMounted(async () => {
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <OptionsResponsePerception :reset-to="resetOptions" :is-update="true" :id-form="idForm"
-              v-model:previewOptionResponses="previewOptionResponses"
-              v-model:globalOptionResponses="globalOptionResponses" />
+            <OptionsResponsePerception :reset-to="resetOptions" :is-update="true" :id-form="idForm" v-model:previewOptionResponses="previewOptionResponses" v-model:globalOptionResponses="globalOptionResponses" />
           </AccordionPanel>
         </AccordionItem>
 
@@ -686,8 +785,7 @@ onMounted(async () => {
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <QuestionsOperationnel :to-reset="resetCurrentForm" :is-available="isAvailable.indicateur"
-              @selected="getQuestion" />
+            <QuestionsOperationnel :to-reset="resetCurrentForm" :is-available="isAvailable.indicateur" @selected="getQuestion" />
           </AccordionPanel>
         </AccordionItem>
 
@@ -697,8 +795,7 @@ onMounted(async () => {
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <PrincipeDeGouvernancPerception :to-reset="resetCurrentForm" :is-available="isAvailable.principe"
-              @selected="getPrincipe" />
+            <PrincipeDeGouvernancPerception :to-reset="resetCurrentForm" :is-available="isAvailable.principe" @selected="getPrincipe" />
           </AccordionPanel>
         </AccordionItem>
       </AccordionGroup>
@@ -721,14 +818,9 @@ onMounted(async () => {
               <div class="space-y-2">
                 <p class="text-lg font-medium">Ajouter des questions opérationnelles</p>
 
-                <PerceptionStructureMultiple @deleteQuestion="removeIndicator" @deletePrincipe="removeElement"
-                  @editPositionPrincipe="updateTemporyPrincipe" @editPositionQuestion="updateTemporyQuestions"
-                  :principe="currentPreviewPerceptionFormData.principe"
-                  :indicateurArray="currentPreviewPerceptionFormDataArray.length > 0 ? currentPreviewPerceptionFormDataArray : undefined" />
+                <PerceptionStructureMultiple @deleteQuestion="removeIndicator" @deletePrincipe="removeElement" @editPositionPrincipe="updateTemporyPrincipe" @editPositionQuestion="updateTemporyQuestions" :principe="currentPreviewPerceptionFormData.principe" :indicateurArray="currentPreviewPerceptionFormDataArray.length > 0 ? currentPreviewPerceptionFormDataArray : undefined" />
 
-                <button :disabled="!isCurrentFormValid" @click="addNewIndicator" class="my-4 text-sm btn btn-primary">
-                  <PlusIcon class="mr-1 size-4" />Ajouter
-                </button>
+                <button :disabled="!isCurrentFormValid" @click="addNewIndicator" class="my-4 text-sm btn btn-primary"><PlusIcon class="mr-1 size-4" />Ajouter</button>
               </div>
             </div>
           </TabPanel>
@@ -742,12 +834,8 @@ onMounted(async () => {
       <p class="text-lg font-medium">Modification du Formulaire</p>
 
       <div class="flex justify-spacely py-2" v-if="previewPrincipesGouvernance?.principes_de_gouvernance?.length">
-        <button :disabled="!showForm" @click="previewForm" class="mr-5 px-5 text-base btn btn-primary">
-          <CheckIcon class="mr-1 size-5" />Modifier
-        </button>
-        <button :disabled="!showForm" @click="previewFormulaire = true" class="px-5 text-base btn btn-primary">
-          <EyeIcon class="mr-1 size-5" />Voir le formumlaire
-        </button>
+        <button :disabled="!showForm" @click="previewForm" class="mr-5 px-5 text-base btn btn-primary"><CheckIcon class="mr-1 size-5" />Modifier</button>
+        <button :disabled="!showForm" @click="previewFormulaire = true" class="px-5 text-base btn btn-primary"><EyeIcon class="mr-1 size-5" />Voir le formumlaire</button>
       </div>
     </div>
     <div class="max-h-[75vh] py-2 border-t overflow-y-auto mb-10 mt-2">
@@ -762,21 +850,15 @@ onMounted(async () => {
         </thead>
 
         <tbody v-if="previewPrincipesGouvernance?.principes_de_gouvernance?.length">
-          <template v-for="principe_de_gouvernance in previewPrincipesGouvernance.principes_de_gouvernance"
-            :key="principe_de_gouvernance.id">
-            <template v-for="(question_operationnelle, qIndex) in principe_de_gouvernance.questions_operationnelle"
-              :key="question_operationnelle.id">
+          <template v-for="principe_de_gouvernance in previewPrincipesGouvernance.principes_de_gouvernance" :key="principe_de_gouvernance.id">
+            <template v-for="(question_operationnelle, qIndex) in principe_de_gouvernance.questions_operationnelle" :key="question_operationnelle.id">
               <tr>
-                <td class="font-semibold list-data" v-if="qIndex === 0"
-                  :rowspan="principe_de_gouvernance.questions_operationnelle.length">
-                  <div class="flex items-start gap-1">{{ principe_de_gouvernance.position }} - {{
-                    principe_de_gouvernance.nom }}</div>
+                <td class="font-semibold list-data" v-if="qIndex === 0" :rowspan="principe_de_gouvernance.questions_operationnelle.length">
+                  <div class="flex items-start gap-1">{{ principe_de_gouvernance.position }} - {{ principe_de_gouvernance.nom }}</div>
 
                   <div class="items-center transition-all opacity-0 container-buttons">
                     <div v-if="canEditPrincipe[principe_de_gouvernance.id]">
-                      <input type="number" min="1" step="1" name="position" :value="principe_de_gouvernance.position"
-                        @keyup.enter="editTemporyPrincipe(principe_de_gouvernance.id, $event.target.value)"
-                        class="w-2/5 form-control" />
+                      <input type="number" min="1" step="1" name="position" :value="principe_de_gouvernance.position" @keyup.enter="editTemporyPrincipe(principe_de_gouvernance.id, $event.target.value)" class="w-2/5 form-control" />
                     </div>
                     <div v-else>
                       <button class="p-1.5 text-primary">
@@ -788,16 +870,12 @@ onMounted(async () => {
                     </div>
                   </div>
                 </td>
-                <td>
-                  {{ question_operationnelle.position }} - {{ question_operationnelle.nom }}
-                </td>
+                <td>{{ principe_de_gouvernance.position }}.{{ question_operationnelle.position }} - {{ question_operationnelle.nom }}</td>
 
                 <td>
                   <div class="flex items-center">
                     <div v-if="canEditQuestion[question_operationnelle.key]">
-                      <input type="number" min="1" step="1" name="position" :value="question_operationnelle.position"
-                        @keyup.enter="editTemporyQuestion(question_operationnelle.key, $event.target.value)"
-                        class="w-2/5 form-control" />
+                      <input type="number" min="1" step="1" name="position" :value="question_operationnelle.position" @keyup.enter="editTemporyQuestion(question_operationnelle.key, $event.target.value)" class="w-2/5 form-control" />
                     </div>
                     <div v-else>
                       <button class="p-1.5 text-primary">
@@ -822,17 +900,11 @@ onMounted(async () => {
     </div>
     <div class="flex justify-between py-2 my-2 items-center">
       <div class="flex justify-between py-2 my-2 items-center">
-        <button @click="goBackToCreate" class="px-5 mr-4 text-base btn btn-danger">
-          <ArrowLeftIcon class="mr-1 size-5" />Annuler la modification
-        </button>
-        <button @click="resetAllFormWithDataLocalStorage" class="px-5 text-base btn btn-outline-danger">
-          <TrashIcon class="mr-1 size-5" />Vider
-        </button>
+        <button @click="goBackToCreate" class="px-5 mr-4 text-base btn btn-danger"><ArrowLeftIcon class="mr-1 size-5" />Annuler la modification</button>
+        <button @click="resetAllFormWithDataLocalStorage" class="px-5 text-base btn btn-outline-danger"><TrashIcon class="mr-1 size-5" />Vider</button>
       </div>
 
-      <button @click="comeBackToUpdate" class="px-5 text-base btn btn-primary">
-        <RotateCcwIcon class="mr-1 size-5" />Revenir pour continuer la modification
-      </button>
+      <button @click="comeBackToUpdate" class="px-5 text-base btn btn-primary"><RotateCcwIcon class="mr-1 size-5" />Revenir pour continuer la modification</button>
     </div>
   </div>
   <LoaderSnipper v-else />
@@ -842,8 +914,7 @@ onMounted(async () => {
       <h2 class="mr-auto text-base font-medium">Formulaire de perception de gouvernance</h2>
     </ModalHeader>
     <ModalBody class="space-y-5">
-      <table class="w-full border-collapse table-auto border-slate-500" border="1" cellspacing="0" cellpadding="8"
-        style="border-collapse: collapse; font-family: Arial, sans-serif">
+      <table class="w-full border-collapse table-auto border-slate-500" border="1" cellspacing="0" cellpadding="8" style="border-collapse: collapse; font-family: Arial, sans-serif">
         <tr>
           <td rowspan="3"><strong>Vous êtes :</strong></td>
           <td style="background-color: white; color: black">Membre du Conseil d'administration</td>
@@ -867,38 +938,26 @@ onMounted(async () => {
           <tr>
             <th :rowspan="2" class="py-3 border border-slate-900">Principes</th>
             <th :rowspan="2" class="py-3 border border-slate-900">Indicateurs</th>
-            <th :colspan="previewOptionResponses.options_de_reponse.length"
-              class="py-3 border border-slate-900 text-center">Réponses</th>
+            <th :colspan="previewOptionResponses.options_de_reponse.length" class="py-3 border border-slate-900 text-center">Réponses</th>
           </tr>
           <!-- Second header row -->
           <tr>
-            <template v-for="(option_de_reponse, idx) in previewOptionResponses.options_de_reponse"
-              :key="option_de_reponse.id">
+            <template v-for="(option_de_reponse, idx) in previewOptionResponses.options_de_reponse" :key="option_de_reponse.id">
               <th class="py-3 border border-slate-900 text-center">{{ option_de_reponse.libelle }}</th>
             </template>
           </tr>
         </thead>
 
         <tbody v-if="previewPrincipesGouvernance?.principes_de_gouvernance?.length">
-          <template v-for="principe_de_gouvernance in previewPrincipesGouvernance.principes_de_gouvernance"
-            :key="principe_de_gouvernance.id">
-            <template v-for="(question_operationnelle, qIndex) in principe_de_gouvernance.questions_operationnelle"
-              :key="question_operationnelle.id">
+          <template v-for="principe_de_gouvernance in previewPrincipesGouvernance.principes_de_gouvernance" :key="principe_de_gouvernance.id">
+            <template v-for="(question_operationnelle, qIndex) in principe_de_gouvernance.questions_operationnelle" :key="question_operationnelle.id">
               <tr>
-                <td class="font-semibold" v-if="qIndex === 0"
-                  :rowspan="principe_de_gouvernance.questions_operationnelle.length">
-                  {{ principe_de_gouvernance.position }} - {{ principe_de_gouvernance.nom }}
-                </td>
+                <td class="font-semibold" v-if="qIndex === 0" :rowspan="principe_de_gouvernance.questions_operationnelle.length">{{ principe_de_gouvernance.position }} - {{ principe_de_gouvernance.nom }}</td>
 
-                <td>
-                  {{ question_operationnelle.position }} - {{ question_operationnelle.nom }}
-                </td>
+                <td>{{ question_operationnelle.position }} - {{ question_operationnelle.nom }}</td>
 
-                <template v-for="(option_de_reponse, optionIdx) in previewOptionResponses.options_de_reponse"
-                  :key="option_de_reponse.id">
-                  <td class="border border-slate-900 text-center">
-                    {{}}
-                  </td>
+                <template v-for="(option_de_reponse, optionIdx) in previewOptionResponses.options_de_reponse" :key="option_de_reponse.id">
+                  <td class="border border-slate-900 text-center">{{}}</td>
                 </template>
               </tr>
             </template>
@@ -907,20 +966,22 @@ onMounted(async () => {
 
         <tbody v-else>
           <tr class="bg-transparent text-center">
-            <td :colspan="2 + previewOptionResponses.options_de_reponse.length" class="font-semibold">Constituer le
-              formulaire de perception</td>
+            <td :colspan="2 + previewOptionResponses.options_de_reponse.length" class="font-semibold">Constituer le formulaire de perception</td>
           </tr>
         </tbody>
       </table>
     </ModalBody>
     <ModalFooter>
       <div class="flex gap-2">
-        <button type="button" @click="previewFormulaire = false"
-          class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Fermer</button>
-        <button type="button" @click="
-          previewFormulaire = false;
-        previewForm();
-        " class="w-full px-2 py-2 my-3 btn btn-primary">
+        <button type="button" @click="previewFormulaire = false" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Fermer</button>
+        <button
+          type="button"
+          @click="
+            previewFormulaire = false;
+            previewForm();
+          "
+          class="w-full px-2 py-2 my-3 btn btn-primary"
+        >
           Modifier
         </button>
       </div>
@@ -961,8 +1022,7 @@ onMounted(async () => {
       </ModalBody>
       <ModalFooter>
         <div class="flex gap-2">
-          <button type="button" @click="modalForm = false"
-            class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
+          <button type="button" @click="modalForm = false" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
           <VButton :loading="isLoadingForm" label="Modifier" />
         </div>
       </ModalFooter>

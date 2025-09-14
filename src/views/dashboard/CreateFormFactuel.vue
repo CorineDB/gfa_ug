@@ -8,7 +8,10 @@ import PrincipeDeGouvernanceFactuel from "@/components/create-form/PrincipeDeGou
 import CritereDeGouvernanceFactuel from "@/components/create-form/CritereDeGouvernanceFactuel.vue";
 import IndicateurGouvernance from "@/components/create-form/IndicateurGouvernance.vue";
 import FactuelStructure from "@/components/create-form/FactuelStructure.vue";
+
+//permet d'afficher les différents elements selectionnnés dans le formulaire factuel
 import MultipleFactuelStructure from "@/components/create-form/MultipleFactuelStructure.vue";
+
 import ListAccordionIndicateur from "@/components/create-form/ListAccordionIndicateur.vue";
 import VButton from "@/components/news/VButton.vue";
 import InputForm from "@/components/news/InputForm.vue";
@@ -125,6 +128,7 @@ const currentPreviewFactuelFormData = reactive({
   indicateur: { id: "", nom: "", key: "", position: 0 },
 });
 
+// représente les informations du formulaire actuelle
 const currentGlobalFactuelFormData = reactive({
   type: "",
   principe: "",
@@ -266,6 +270,7 @@ const resetCurrentGlobalFactuelFormData = () => {
 
   currentGlobalFactuelFormDataArray.value = [];
 };
+
 const resetAllForm = () => {
   resetCurrentGlobalFactuelFormData();
   resetCurrentPreviewFactuelFormData();
@@ -416,23 +421,21 @@ const getIndicateurs = (indicateur) => {
     .filter(val => val !== null && val !== undefined && val !== "");
   */
 
-  let donnee = (currentGlobalFactuelFormDataArray.value || [])
-    .filter((item) => item.critere === currentGlobalFactuelFormData.critere)
-    .map((item) => item.indicateur)
-    .filter((val) => val !== null && val !== undefined && val !== "");
+  // Compter les indicateurs déjà persistés pour ce critère
+  let indicateursPersistes = (globalFormFactuelData.value || []).filter((item) => item.critere === currentGlobalFactuelFormData.critere).map((item) => item.indicateur);
 
-  console.log("donnee");
-  console.log(donnee);
-  console.log(donnee.length);
+  // Compter les indicateurs en cours d'ajout pour ce critère
+  let indicateursEnCours = (currentGlobalFactuelFormDataArray.value || []).filter((item) => item.critere === currentGlobalFactuelFormData.critere).map((item) => item.indicateur);
 
-  let position = new Set(donnee).size;
+  // Combiner les deux et compter les uniques
+  let tousIndicateurs = [...indicateursPersistes, ...indicateursEnCours].filter((val) => val !== null && val !== undefined && val !== "");
 
-  /* let position = new Set(
-    (globalFormFactuelData.value || [])
-      .map(item => item.indicateur)
-      .filter(val => { console.log(val); return val !== null && val !== undefined && val !== "" && val.critere == currentGlobalFactuelFormData.critere;})
-  ).size; */
-  console.log(position);
+  let position = new Set(tousIndicateurs).size;
+
+  console.log("indicateursPersistes:", indicateursPersistes);
+  console.log("indicateursEnCours:", indicateursEnCours);
+  console.log("tousIndicateurs:", tousIndicateurs);
+  console.log("position:", position);
 
   position = position + 1;
 
@@ -513,13 +516,11 @@ const addNewIndicator = () => {
 };
 */
 
-
-
 const STORAGE_KEYS = {
-  lastTypeIndex: 'lastTypeIndexGlobal',
-  lastPrincipeIndex: 'lastPrincipeIndexByType', 
-  lastCritereIndex: 'lastCritereIndexByPrincipe',
-  lastIndicateurIndex: 'lastIndicateurIndexByCritere'
+  lastTypeIndex: "lastTypeIndexGlobal",
+  lastPrincipeIndex: "lastPrincipeIndexByType",
+  lastCritereIndex: "lastCritereIndexByPrincipe",
+  lastIndicateurIndex: "lastIndicateurIndexByCritere",
 };
 
 // Fonction pour charger une Map depuis localStorage
@@ -546,13 +547,11 @@ const saveMapToStorage = (map, storageKey) => {
   }
 };
 
-
 // Initialiser les Maps avec les données persistées
 const lastTypeIndexGlobal = loadMapFromStorage(STORAGE_KEYS.lastTypeIndex);
 const lastPrincipeIndexByType = loadMapFromStorage(STORAGE_KEYS.lastPrincipeIndex);
 const lastCritereIndexByPrincipe = loadMapFromStorage(STORAGE_KEYS.lastCritereIndex);
 const lastIndicateurIndexByCritere = loadMapFromStorage(STORAGE_KEYS.lastIndicateurIndex);
-
 
 // // Stocke les derniers index utilisés pour chaque clé parent
 // const lastTypeIndexGlobal = new Map();
@@ -562,20 +561,27 @@ const lastIndicateurIndexByCritere = loadMapFromStorage(STORAGE_KEYS.lastIndicat
 
 const makeUniqueKey = (baseKey, parentKey, map, allKeys) => {
   // Récupérer le dernier index utilisé pour ce parent
+  console.log("map", map);
+
   let index = map.get(parentKey) ?? -1;
 
   // Incrémenter pour avoir le prochain index
   index++;
   let key = `${baseKey}_${index}`;
 
+  console.log("allKeys.has(key)", allKeys.has(key));
+
   // Continuer à incrémenter tant que la clé existe
   while (allKeys.has(key)) {
+    console.log("ok");
     index++;
     key = `${baseKey}_${index}`;
   }
 
   // Sauvegarder le nouvel index pour ce parent
   map.set(parentKey, index);
+
+  console.log("key", key);
   return key;
 };
 
@@ -585,9 +591,11 @@ const addNewIndicator = () => {
   currentGlobalFactuelFormDataArray.value.forEach((item, index) => {
     const allKeys = new Set([...uniqueKeys.keys(), ...sessionKeys]);
 
+    console.log(allKeys);
+
     // 1. Générer typeKey normalement
     const typeKeyBase = generateKey(item.typeKey);
-    const typeKey = makeUniqueKey(typeKeyBase, typeKeyBase , lastTypeIndexGlobal, allKeys);
+    const typeKey = makeUniqueKey(typeKeyBase, typeKeyBase, lastTypeIndexGlobal, allKeys);
     sessionKeys.add(typeKey);
 
     // 2. Générer principeKey unique par typeKey
@@ -626,6 +634,8 @@ const addNewIndicator = () => {
       preview.critere.key = critereKey;
       preview.indicateur.key = indicateurKey;
 
+      console.log("preview.indicateur", preview.indicateur);
+
       globalFormFactuelData.value.unshift({ ...item });
       previewFormFactuelData.value.unshift(JSON.parse(JSON.stringify(preview)));
 
@@ -656,8 +666,8 @@ const addNewIndicator = () => {
     }
   });
 
-   // Sauvegarder les Maps mises à jour dans localStorage
-   saveMapToStorage(lastTypeIndexGlobal, STORAGE_KEYS.lastTypeIndex);
+  // Sauvegarder les Maps mises à jour dans localStorage
+  saveMapToStorage(lastTypeIndexGlobal, STORAGE_KEYS.lastTypeIndex);
   saveMapToStorage(lastPrincipeIndexByType, STORAGE_KEYS.lastPrincipeIndex);
   saveMapToStorage(lastCritereIndexByPrincipe, STORAGE_KEYS.lastCritereIndex);
   saveMapToStorage(lastIndicateurIndexByCritere, STORAGE_KEYS.lastIndicateurIndex);
@@ -734,6 +744,8 @@ const updateTemporyElement = (key, position, isCurrent = false, type = "critere"
             item.criterePosition = position;
           }
         }
+
+        console.log(item);
 
         return item;
       })
@@ -872,7 +884,7 @@ const updateTemporyIndicateurs = (key, position, isCurrent = false) => {
         return a.typePosition - b.typePosition || a.principePosition - b.principePosition || a.criterePosition - b.criterePosition || a.indicateurPosition - b.indicateurPosition;
       });
 
-    updateAllTypesGouvernance();
+    //  updateAllTypesGouvernance();
 
     localStorage.setItem("globalFormFactuelData", JSON.stringify(globalFormFactuelData.value));
     localStorage.setItem("previewFormFactuelData", JSON.stringify(previewFormFactuelData.value));
@@ -1008,9 +1020,13 @@ const resetForm = () => {
   payload.libelle = "";
   modalForm.value = false;
 };
+
 const createForm = async () => {
   isLoadingForm.value = true;
   payload.factuel.options_de_reponse = globalOptionResponses.value.options_de_reponse;
+  payload.factuel.types_de_gouvernance = previewTypesGouvernance.value.types_de_gouvernance;
+
+  console.log(payload.factuel);
 
   try {
     await FormulaireFactuel.create(payload);
@@ -1092,8 +1108,6 @@ onMounted(() => {
     previewFormFactuelData.value = JSON.parse(previewData);
 
     console.log("previewTypesGouvernance.value", previewFormFactuelData.value);
-
-     
   }
   updateAllTypesGouvernance();
   getcurrentUser();
@@ -1206,6 +1220,8 @@ onMounted(() => {
           </tr>
         </thead>
 
+        <!-- <pre>{{ previewTypesGouvernance?.types_de_gouvernance }}</pre> -->
+
         <tbody v-if="previewTypesGouvernance?.types_de_gouvernance?.length">
           <template v-for="type_de_gouvernance in previewTypesGouvernance.types_de_gouvernance" :key="type_de_gouvernance.id">
             <tr class="bg-green-100 list-data">
@@ -1265,7 +1281,8 @@ onMounted(() => {
                         </div>
                       </div>
                     </td>
-                    <td>{{ type_de_gouvernance.position }}.{{ principe_de_gouvernance.position }}.{{ critere_de_gouvernance.position }}.{{ indicateur_de_gouvernance.position }} - {{ indicateur_de_gouvernance.nom }}</td>
+                    <td>{{ type_de_gouvernance.position }}.{{ principe_de_gouvernance.position }}.{{ critere_de_gouvernance.position }}.{{ indicateur_de_gouvernance.position }} - {{ indicateur_de_gouvernance.id }}- {{ indicateur_de_gouvernance.nom }}</td>
+
                     <td>
                       <div class="flex items-center">
                         <div v-if="canEditIndicateur[indicateur_de_gouvernance.key]">
@@ -1296,21 +1313,16 @@ onMounted(() => {
         </tbody>
       </table>
     </div>
-    <div class="flex justify-between py-2 my-2 items-center">      
-      <div class="flex justify-between ">
-        <button @click="goBackToFormList" class="px-5 mr-4 text-base btn btn-danger">
-          <ArrowLeftIcon class="mr-1 size-5" />Annuler
-        </button>
-        <button @click="resetAllFormWithDataLocalStorage" class="px-5 text-base btn btn-outline-danger">
-          <TrashIcon class="mr-1 size-5" />Vider
-        </button>
+    <div class="flex justify-between py-2 my-2 items-center">
+      <div class="flex justify-between">
+        <button @click="goBackToFormList" class="px-5 mr-4 text-base btn btn-danger"><ArrowLeftIcon class="mr-1 size-5" />Annuler</button>
+        <button @click="resetAllFormWithDataLocalStorage" class="px-5 text-base btn btn-outline-danger"><TrashIcon class="mr-1 size-5" />Vider</button>
       </div>
 
-      <button @click="comeBackToCreation" class="px-5 text-base btn btn-primary">
-        <RotateCcwIcon class="mr-1 size-5" />Revenir pour continuer
-      </button>
+      <button @click="comeBackToCreation" class="px-5 text-base btn btn-primary"><RotateCcwIcon class="mr-1 size-5" />Revenir pour continuer</button>
     </div>
   </div>
+
   <Modal backdrop="static" :show="previewFormulaire" size="modal-xl" @hidden="previewFormulaire = false">
     <ModalHeader>
       <h2 class="mr-auto text-base font-medium">Formulaire factuel de gouvernance</h2>
@@ -1418,8 +1430,6 @@ onMounted(() => {
   </Modal>
   <!-- END: Modal Content -->
 
-  
-  
   <!-- Modal for deleting -->
   <Modal :show="showDeleteForm" @hidden="showDeleteForm = false">
     <ModalBody class="p-0">
