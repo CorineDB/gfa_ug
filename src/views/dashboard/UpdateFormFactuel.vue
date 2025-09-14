@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeUnmount, reactive, ref, computed, onMounted } from "vue";
+import { onBeforeUnmount, reactive, ref, computed, onMounted, watch } from "vue";
 import { toast } from "vue3-toastify";
 /*import OptionsResponse from "@/components/create-form/OptionsResponse.vue";
 import TypeGouvernance from "@/components/create-form/TypeGouvernance.vue";
@@ -36,7 +36,38 @@ const route = useRoute();
 const router = useRouter();
 
 const idForm = route.params.id;
+
+const tabs = [
+  {
+    label: "MODIFIER FORMULAIRE FACTUEL",
+    key: 0,
+  },
+  {
+    label: "LISTE FORMULAIRE FACTUEL",
+    key: 1,
+  },
+];
+
 const currentTab = ref(0);
+
+// Navigation functions
+const selectTab = (index) => {
+  currentTab.value = index;
+  router.replace({ query: { ...route.query, tab: index } });
+};
+
+// Watch for route changes
+watch(
+  () => route.query.tab,
+  (newTab) => {
+    if (newTab !== undefined) {
+      currentTab.value = Number(newTab);
+    } else {
+      currentTab.value = 0;
+    }
+  },
+  { immediate: true }
+);
 const indexAccordion = ref(0);
 const resetCurrentForm = ref(false);
 const modalForm = ref(false);
@@ -118,6 +149,22 @@ const makeUniqueKey = (baseKey, parentKey, map, allKeys) => {
 
 const previewFormulaire = ref(false);
 
+// Variables d'état manquantes de CreateFormFactuel
+const extractMessage = function (errorArray) {
+  return Array.isArray(errorArray) && errorArray.length > 0 ? errorArray[0] : "";
+};
+
+const isAvailable = reactive({
+  option: true,
+  type: true,
+  principe: true,
+  critere: true,
+  indicateur: true,
+  question: true,
+});
+
+const errors = ref({});
+
 const goBackToCreate = function () {
   router.push({ name: "Ajouter_un_formulaire_Factuel" });
 };
@@ -154,15 +201,6 @@ const getcurrentUser = async () => {
       toast.error("Une erreur est survenue: Utilisateur connecté .");
     });
 };
-
-const isAvailable = reactive({
-  option: true,
-  type: true,
-  principe: true,
-  critere: true,
-  indicateur: true,
-  question: true,
-});
 
 const payload = reactive({
   libelle: "",
@@ -231,7 +269,7 @@ const organiseGlobalFormFactuelData = (submissions) => {
     // Trouver ou créer l'indicateur de gouvernance
     let indicateur = critere.indicateurs_de_gouvernance.find((i) => i.id === submission.indicateur);
     if (!indicateur) {
-      indicateur = { id: submission.indicateur, key: submission.indicateuKey, position: Number(submission.indicateurPosition) };
+      indicateur = { id: submission.indicateur, key: submission.indicateurKey, position: Number(submission.indicateurPosition) };
       critere.indicateurs_de_gouvernance.push(indicateur);
     }
   });
@@ -286,6 +324,50 @@ const organisePreviewFormFactuelData = (submissions) => {
   console.log(organisedData);
 
   return organisedData;
+};
+
+// Fonctions de nettoyage et utilitaires importées de CreateFormFactuel
+const resetCurrentPreviewFactuelFormData = () => {
+  currentPreviewFactuelFormData.principe = { id: "", nom: "", key: "", position: 0 };
+  currentPreviewFactuelFormData.critere = { id: "", nom: "", key: "", position: 0 };
+  currentPreviewFactuelFormData.indicateur = { id: "", nom: "", key: "", position: 0 };
+  currentPreviewFactuelFormData.type = { id: "", nom: "", key: "", position: 0 };
+
+  console.log(currentPreviewFactuelFormDataArray.value);
+
+  currentPreviewFactuelFormDataArray.value = [];
+};
+
+const resetCurrentGlobalFactuelFormData = () => {
+  Object.keys(currentGlobalFactuelFormData).forEach((key) => {
+    currentGlobalFactuelFormData[key] = "";
+  });
+
+  currentGlobalFactuelFormDataArray.value = [];
+};
+
+const resetAllForm = () => {
+  resetCurrentGlobalFactuelFormData();
+  resetCurrentPreviewFactuelFormData();
+  (previewOptionResponses.value.options_de_reponse = []), (globalOptionResponses.value.options_de_reponse = []);
+  // resetOptions.value = !resetOptions.value;
+  // resetCurrentForm.value = !resetCurrentForm.value;
+  // globalOptionResponses.value.options_de_reponse = [];
+  // principesGouvernance.value.principes_de_gouvernance = [];
+  // previewOptionResponses.value.options_de_reponse = [];
+  // globalTypesGouvernance.value.types_de_gouvernance = [];
+  // previewTypesGouvernance.value.types_de_gouvernance = [];
+  globalFormFactuelData.value = [];
+  previewFormFactuelData.value = [];
+};
+
+const resetErrors = () => {
+  modalForm.value = false;
+  errors.value = {};
+};
+
+const changeIndexAccordion = (index) => {
+  indexAccordion.value = index;
 };
 
 const flattenGovernanceData = (organisedData) => {
@@ -415,33 +497,6 @@ function matchDataUpdateWithCurrentDatas(typesCurrent) {
   resetCurrentForm.value = !resetCurrentForm.value;
 }
 
-const resetCurrentPreviewFactuelFormData = () => {
-  // for (const key in currentPreviewFactuelFormData) {
-  //   currentPreviewFactuelFormData[key] = { id: "", nom: "" };
-  // }
-  currentPreviewFactuelFormData.indicateur = { id: "", nom: "", key: "", position: 0 };
-};
-
-const resetCurrentGlobalFactuelFormData = () => {
-  // Object.keys(currentGlobalFactuelFormData).forEach((key) => {
-  //   currentGlobalFactuelFormData[key] = "";
-  // });
-  currentGlobalFactuelFormData.indicateur = "";
-};
-
-const resetAllForm = () => {
-  resetCurrentGlobalFactuelFormData();
-  resetCurrentPreviewFactuelFormData();
-  // resetOptions.value = !resetOptions.value;
-  // resetCurrentForm.value = !resetCurrentForm.value;
-  // globalOptionResponses.value.options_de_reponse = [];
-  // principesGouvernance.value.principes_de_gouvernance = [];
-  // previewOptionResponses.value.options_de_reponse = [];
-  // globalTypesGouvernance.value.types_de_gouvernance = [];
-  // previewTypesGouvernance.value.types_de_gouvernance = [];
-  globalFormFactuelData.value = [];
-  previewFormFactuelData.value = [];
-};
 
 const updateAllTypesGouvernance = () => {
   console.log(globalFormFactuelData.value);
@@ -464,14 +519,9 @@ const updateAllTypesGouvernance = () => {
   // console.log("PREVIEW", previewTypesGouvernance.value);
 };
 
-const changeIndexAccordion = (index) => {
-  indexAccordion.value = index;
-};
-
-const getType = (type) => {
+const getTypes = (type) => {
   changeIndexAccordion(1);
   currentGlobalFactuelFormData.type = type.id;
-  //currentPreviewFactuelFormData.type = { id: type.id, nom: type.nom };
 
   let position = new Set((globalFormFactuelData.value || []).map((item) => item.type).filter((val) => val !== null && val !== undefined && val !== "")).size;
 
@@ -479,31 +529,34 @@ const getType = (type) => {
 
   currentGlobalFactuelFormData.typeKey = position + type.id;
 
+  currentGlobalFactuelFormDataArray.value.forEach((item) => {
+    item.type = currentGlobalFactuelFormData.type;
+    item.typeKey = currentGlobalFactuelFormData.typeKey;
+    item.typePosition = currentGlobalFactuelFormData.typePosition;
+  });
+
   currentPreviewFactuelFormData.type = { id: type.id, nom: type.nom, key: currentGlobalFactuelFormData.typeKey, position: position };
 
-  /* 
-    currentGlobalFactuelFormDataArray.value.forEach((item) => {
-      item.type = currentGlobalFactuelFormData.type;
-      item.typeKey = currentGlobalFactuelFormData.typeKey;
-      item.typePosition = currentGlobalFactuelFormData.typePosition;
-    });
-
-    currentPreviewFactuelFormDataArray.value.forEach((item2, index) => {
-      item2.type = currentPreviewFactuelFormData.type;
-    }); 
-  */
+  currentPreviewFactuelFormDataArray.value.forEach((item2, index) => {
+    item2.type = currentPreviewFactuelFormData.type;
+  });
 };
-const getPrincipe = (principe) => {
+
+const getType = (type) => {
+  changeIndexAccordion(1);
+  currentGlobalFactuelFormData.type = type.id;
+  currentPreviewFactuelFormData.type = { id: type.id, nom: type.nom };
+};
+const getPrincipes = (principe) => {
   changeIndexAccordion(2);
   currentGlobalFactuelFormData.principe = principe.id;
-  //currentPreviewFactuelFormData.principe = { id: principe.id, nom: principe.nom };
 
-  let donnee = (globalFormFactuelData.value || [])
-    .filter((item) => item.type === currentGlobalFactuelFormData.type)
-    .map((item) => item.principe)
-    .filter((val) => val !== null && val !== undefined && val !== "");
-
-  let position = new Set(donnee).size;
+  let position = new Set(
+    (globalFormFactuelData.value || [])
+      .filter((val) => val.type == currentGlobalFactuelFormData.type)
+      .map((item) => item.principe)
+      .filter((val) => val !== null && val !== undefined && val !== "")
+  ).size;
 
   position = position + 1;
 
@@ -515,31 +568,34 @@ const getPrincipe = (principe) => {
 
   currentGlobalFactuelFormData.principeKey = key;
 
+  currentGlobalFactuelFormDataArray.value.forEach((item) => {
+    item.principe = currentGlobalFactuelFormData.principe;
+    item.principeKey = currentGlobalFactuelFormData.principeKey;
+  });
+
   currentPreviewFactuelFormData.principe = { id: principe.id, nom: principe.nom, key: currentGlobalFactuelFormData.principeKey, position: position };
 
-  /*
-    currentGlobalFactuelFormDataArray.value.forEach((item) => {
-      item.principe = currentGlobalFactuelFormData.principe;
-      item.principeKey = currentGlobalFactuelFormData.principeKey;
-    });
-
-    currentPreviewFactuelFormDataArray.value.forEach((item2, index) => {
-      item2.principe = currentPreviewFactuelFormData.principe;
-    });
-  */
+  currentPreviewFactuelFormDataArray.value.forEach((item2, index) => {
+    item2.principe = currentPreviewFactuelFormData.principe;
+  });
 };
 
-const getCritere = (critere) => {
+const getPrincipe = (principe) => {
+  changeIndexAccordion(2);
+  currentGlobalFactuelFormData.principe = principe.id;
+  currentPreviewFactuelFormData.principe = { id: principe.id, nom: principe.nom };
+};
+
+const getCriteres = (critere) => {
   changeIndexAccordion(3);
   currentGlobalFactuelFormData.critere = critere.id;
-  //currentPreviewFactuelFormData.critere = { id: critere.id, nom: critere.nom };
 
-  let donnee = (globalFormFactuelData.value || [])
-    .filter((item) => item.principe === currentGlobalFactuelFormData.principe)
-    .map((item) => item.critere)
-    .filter((val) => val !== null && val !== undefined && val !== "");
-
-  let position = new Set(donnee).size;
+  let position = new Set(
+    (globalFormFactuelData.value || [])
+      .filter((val) => val.principe == currentGlobalFactuelFormData.principe)
+      .map((item) => item.critere)
+      .filter((val) => val !== null && val !== undefined && val !== "")
+  ).size;
 
   position = position + 1;
 
@@ -551,22 +607,26 @@ const getCritere = (critere) => {
 
   currentGlobalFactuelFormData.critereKey = key;
 
+  currentGlobalFactuelFormDataArray.value.forEach((item) => {
+    item.critere = currentGlobalFactuelFormData.critere;
+    item.critereKey = currentGlobalFactuelFormData.critereKey;
+    item.principePosition = currentGlobalFactuelFormData.principePosition;
+  });
+
   currentPreviewFactuelFormData.critere = { id: critere.id, nom: critere.nom, key: currentGlobalFactuelFormData.critereKey, position: position };
 
-  /*
-    currentGlobalFactuelFormDataArray.value.forEach((item) => {
-      item.critere = currentGlobalFactuelFormData.critere;
-      item.critereKey = currentGlobalFactuelFormData.critereKey;
-      item.principePosition = currentGlobalFactuelFormData.principePosition;
-    });
-
-    currentPreviewFactuelFormDataArray.value.forEach((item2, index) => {
-      item2.critere = currentPreviewFactuelFormData.critere;
-    });
-  */
+  currentPreviewFactuelFormDataArray.value.forEach((item2, index) => {
+    item2.critere = currentPreviewFactuelFormData.critere;
+  });
 };
 
-const getIndicateur = (indicateur) => {
+const getCritere = (critere) => {
+  changeIndexAccordion(3);
+  currentGlobalFactuelFormData.critere = critere.id;
+  currentPreviewFactuelFormData.critere = { id: critere.id, nom: critere.nom };
+};
+
+const getIndicateurs = (indicateur) => {
   // changeIndexAccordion(4);
   currentGlobalFactuelFormData.indicateur = indicateur.id;
 
@@ -639,6 +699,12 @@ const getIndicateur = (indicateur) => {
   currentPreviewFactuelFormDataArray.value.push(form2);
 
   console.log("currentPreviewFactuelFormDataArray.value", currentPreviewFactuelFormDataArray.value);
+};
+
+const getIndicateur = (indicateur) => {
+  changeIndexAccordion(4);
+  currentGlobalFactuelFormData.indicateur = indicateur.id;
+  currentPreviewFactuelFormData.indicateur = { id: indicateur.id, nom: indicateur.nom };
 };
 
 const addNewIndicator = () => {
@@ -717,6 +783,15 @@ const addNewIndicator = () => {
         resetCurrentPreviewFactuelFormData();
         resetCurrentGlobalFactuelFormData();
         resetCurrentForm.value = !resetCurrentForm.value;
+
+        // Réinitialiser les sélections d'accordéon
+        changeIndexAccordion(0);
+
+        // Réinitialiser les disponibilités pour forcer une nouvelle sélection
+        isAvailable.type = true;
+        isAvailable.principe = true;
+        isAvailable.critere = true;
+        isAvailable.indicateur = true;
       }
 
       toast.success("Indicateur ajouté.");
@@ -1050,7 +1125,7 @@ onMounted(async () => {
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <TypeGouvernance :to-reset="false" :is-available="isAvailable.type" @selected="getType" />
+            <TypeGouvernance :to-reset="resetCurrentForm" :is-available="isAvailable.type" @selected="getTypes" />
           </AccordionPanel>
         </AccordionItem>
 
@@ -1060,7 +1135,7 @@ onMounted(async () => {
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <PrincipeDeGouvernanceFactuel :to-reset="false" :is-available="isAvailable.principe" @selected="getPrincipe" />
+            <PrincipeDeGouvernanceFactuel :to-reset="resetCurrentForm" :is-available="isAvailable.principe" @selected="getPrincipes" />
           </AccordionPanel>
         </AccordionItem>
 
@@ -1070,7 +1145,7 @@ onMounted(async () => {
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <CritereDeGouvernanceFactuel :to-reset="false" :is-available="isAvailable.critere" @selected="getCritere" />
+            <CritereDeGouvernanceFactuel :to-reset="resetCurrentForm" :is-available="isAvailable.critere" @selected="getCriteres" />
           </AccordionPanel>
         </AccordionItem>
 
@@ -1080,7 +1155,7 @@ onMounted(async () => {
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <IndicateurGouvernance :to-reset="resetCurrentForm" :is-available="isAvailable.indicateur" @selected="getIndicateur" />
+            <IndicateurGouvernance :to-reset="resetCurrentForm" :is-available="isAvailable.indicateur" @selected="getIndicateurs" :monTableau="previewFormFactuelData" />
           </AccordionPanel>
         </AccordionItem>
 
@@ -1096,10 +1171,10 @@ onMounted(async () => {
       </AccordionGroup>
     </section>
 
-    <section class="w-[70%] pt-5">
+    <section class="w-[70%] max-h-[50%] pt-5" :class="{ 'w-full': currentTab }">
       <TabGroup :selectedIndex="currentTab">
         <TabList class="nav-boxed-tabs">
-          <Tab class="w-full py-2" tag="button">{{ currentForm.libelle ?? "Formulaire" }}</Tab>
+          <Tab @click="selectTab(tab.key)" v-for="(tab, indexTab) in tabs" :key="indexTab" class="w-full py-2" tag="button">{{ tab.label }}</Tab>
         </TabList>
         <TabPanels class="mt-5">
           <TabPanel class="leading-relaxed">
@@ -1114,13 +1189,8 @@ onMounted(async () => {
                 <button :disabled="!isCurrentFormValid" @click="addNewIndicator" class="my-4 text-sm btn btn-primary"><PlusIcon class="mr-1 size-4" />Ajouter</button>
               </div>
             </div>
-          </TabPanel>
-        </TabPanels>
-      </TabGroup>
-    </section>
-  </div>
 
-  <div v-if="!isLoadingOneForm" class="space-y-2 mt-6">
+            <div v-if="!isLoadingOneForm" class="space-y-2 mt-6">
     <div class="flex justify-between items-center py-2">
       <p class="text-lg font-medium">Previsualisation du Formulaire</p>
 
@@ -1232,15 +1302,23 @@ onMounted(async () => {
       </table>
     </div>
 
-    <div class="flex justify-between py-2 my-2 items-center">
-      <div class="flex justify-between">
-        <button @click="goBackToFormList" class="px-5 mr-4 text-base btn btn-danger"><ArrowLeftIcon class="mr-1 size-5" />Annuler</button>
-        <button @click="resetAllFormWithDataLocalStorage" class="px-5 text-base btn btn-outline-danger"><TrashIcon class="mr-1 size-5" />Vider</button>
-      </div>
-      <button @click="comeBackToCreation" class="px-5 text-base btn btn-primary"><RotateCcwIcon class="mr-1 size-5" />Revenir pour continuer</button>
-    </div>
+            <div class="flex justify-between py-2 my-2 items-center">
+              <div class="flex justify-between">
+                <button @click="goBackToFormList" class="px-5 mr-4 text-base btn btn-danger"><ArrowLeftIcon class="mr-1 size-5" />Annuler</button>
+                <button @click="resetAllFormWithDataLocalStorage" class="px-5 text-base btn btn-outline-danger"><TrashIcon class="mr-1 size-5" />Vider</button>
+              </div>
+              <button @click="comeBackToCreation" class="px-5 text-base btn btn-primary"><RotateCcwIcon class="mr-1 size-5" />Revenir pour continuer</button>
+            </div>
+            </div>
+            <LoaderSnipper v-else />
+          </TabPanel>
+          <TabPanel class="">
+            <ListFormFactuel :fetch-data="fetchListForms" />
+          </TabPanel>
+        </TabPanels>
+      </TabGroup>
+    </section>
   </div>
-  <LoaderSnipper v-else />
 
   <Modal backdrop="static" :show="previewFormulaire" size="modal-xl" @hidden="previewFormulaire = false">
     <ModalHeader>
