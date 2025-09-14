@@ -741,6 +741,25 @@ const addNewIndicator = () => {
     const key = indicateurKey;
 
     if (!uniqueKeys.has(key)) {
+      // Vérifier les positions des indicateurs existants pour éviter les conflits
+      const existingIndicateurs = previewFormFactuelData.value.filter(
+        existingItem =>
+          existingItem.type.id === currentPreviewFactuelFormDataArray.value[index].type.id &&
+          existingItem.principe.id === currentPreviewFactuelFormDataArray.value[index].principe.id &&
+          existingItem.critere.id === currentPreviewFactuelFormDataArray.value[index].critere.id
+      );
+
+      const existingPositions = existingIndicateurs.map(ind => Number(ind.indicateur.position));
+      let newPosition = 1;
+
+      // Trouver la première position disponible à partir de 1
+      while (existingPositions.includes(newPosition)) {
+        newPosition++;
+      }
+
+      // Mettre à jour la position dans les données temporaires
+      currentGlobalFactuelFormDataArray.value[index].indicateurPosition = newPosition;
+      currentPreviewFactuelFormDataArray.value[index].indicateur.position = newPosition;
       // Mettre à jour l'objet
       item = {
         ...item,
@@ -1056,20 +1075,27 @@ const getOneForm = async () => {
 const updateForm = async () => {
   isLoadingForm.value = true;
   payload.factuel.options_de_reponse = previewOptionResponses.value.options_de_reponse;
-  payload.factuel.types_de_gouvernance = globalTypesGouvernance.value.types_de_gouvernance;
+  payload.factuel.types_de_gouvernance = previewTypesGouvernance.value.types_de_gouvernance;
 
-  console.log(payload);
+  console.log(payload.factuel);
 
   try {
     await FormulaireFactuel.update(idForm, payload);
-    toast.success(`Formulaire modifiée avec succès.`);
+    toast.success(`Formulaire modifié avec succès.`);
     fetchListForms.value = !fetchListForms.value;
+    // resetForm();
+    resetAllFormWithDataLocalStorage();
     clearUniqueKeys();
-    resetAllForm();
+    errors.value = {};
     modalForm.value = false;
-    router.push({ name: "Ajouter_un_formulaire_Factuel", query: { tab: 1 } });
-  } catch (e) {
-    toast.error(getAllErrorMessages(e));
+    router.push({ name: "Modifier_un_formulaire_Factuel", query: { tab: 1 } });
+  }                                                                                                                                                             catch (e) {
+    if (e.response && e.response.status === 422) {
+      errors.value = e.response.data.errors;
+      toast.error(`Une erreur est survenue dans le formulaire.`);
+    } else {
+      toast.error(getAllErrorMessages(e));
+    }
     console.log(e);
   } finally {
     isLoadingForm.value = false;
@@ -1213,7 +1239,7 @@ onMounted(async () => {
         <tbody v-if="previewTypesGouvernance?.types_de_gouvernance?.length">
           <template v-for="type_de_gouvernance in previewTypesGouvernance.types_de_gouvernance" :key="type_de_gouvernance.id">
             <tr class="bg-green-100 list-data">
-              <td colspan="3" class="font-semibold">{{ type_de_gouvernance.position }} - {{ type_de_gouvernance.nom }}</td>
+              <td colspan="3" class="font-semibold">{{ type_de_gouvernance.position }} - {{ type_de_gouvernance.nom }} - {{ type_de_gouvernance.id }}</td>
 
               <td class="items-center transition-all opacity-0 container-buttons">
                 <template v-if="canEditType[type_de_gouvernance.key]">
@@ -1236,7 +1262,7 @@ onMounted(async () => {
                     <!-- Première cellule de catégorie principale avec rowspan -->
                     <td class="font-semibold list-data" v-if="scIndex === 0 && qIndex === 0" :rowspan="principe_de_gouvernance.criteres_de_gouvernance.reduce((sum, sc) => sum + sc.indicateurs_de_gouvernance.length, 0)">
                       <div class="flex items-center gap-1">{{ type_de_gouvernance.position }}.{{ principe_de_gouvernance.position }} - {{ principe_de_gouvernance.nom }}</div>
-
+                      <div>{{ type_de_gouvernance.id  }}</div>
                       <div class="items-center transition-all opacity-0 container-buttons">
                         <template v-if="canEditPrincipe[principe_de_gouvernance.key]">
                           <input type="number" min="1" step="1" name="position" :value="principe_de_gouvernance.position" @keyup.enter="editTemporyFormElement(principe_de_gouvernance.key, $event.target.value, 'principe')" class="w-2/5 form-control" />
@@ -1254,7 +1280,7 @@ onMounted(async () => {
                     <!-- Première cellule de sous-catégorie avec rowspan -->
                     <td class="list-data" v-if="qIndex === 0" :rowspan="critere_de_gouvernance.indicateurs_de_gouvernance.length">
                       <div class="flex items-center gap-1">{{ type_de_gouvernance.position }}.{{ principe_de_gouvernance.position }}.{{ critere_de_gouvernance.position }} - {{ critere_de_gouvernance.nom }}</div>
-
+                      <div>{{ principe_de_gouvernance.id  }}</div>
                       <div class="flex items-center transition-all opacity-0 container-buttons">
                         <template v-if="canEditCritere[critere_de_gouvernance.key]">
                           <input type="number" min="1" step="1" name="position" :value="critere_de_gouvernance.position" @keyup.enter="editTemporyFormElement(critere_de_gouvernance.key, $event.target.value, 'critere')" class="w-2/5 form-control" />
@@ -1269,8 +1295,8 @@ onMounted(async () => {
                         </template>
                       </div>
                     </td>
-                    <td>{{ type_de_gouvernance.position }}.{{ principe_de_gouvernance.position }}.{{ critere_de_gouvernance.position }}.{{ indicateur_de_gouvernance.position }} - {{ indicateur_de_gouvernance.nom }}</td>
-
+                    <td>{{ type_de_gouvernance.position }}.{{ principe_de_gouvernance.position }}.{{ critere_de_gouvernance.position }}.{{ indicateur_de_gouvernance.position }} - {{ indicateur_de_gouvernance.nom }} -  <div>{{ indicateur_de_gouvernance.id  }}</div></td>
+ 
                     <td>
                       <div class="flex items-center">
                         <template v-if="canEditIndicateur[indicateur_de_gouvernance.key]">
