@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onBeforeMount, onMounted, reactive, ref, watch, getCurrentInstance } from "vue";
+import { computed, onBeforeMount, onMounted, reactive, ref, watch, getCurrentInstance, nextTick } from "vue";
 import VButton from "@/components/news/VButton.vue";
 import InputForm from "@/components/news/InputForm.vue";
 import OngService from "@/services/modules/ong.service.js";
@@ -43,14 +43,32 @@ const steps = [
   { label: "Informations Point Focal", id: 3 },
 ];
 
-const visibleSteps = computed(()=>{
-  return steps.filter(step => {
-      if ((step.id === 2 || step.id === 3) && payload.type === 'autre_osc') {
+const step2Label = computed(() => {
+  const step = steps.find(s => s.id === 2);
+  if (!step) return "";
+
+  return payload.type === "autre_osc"
+    ? "Informations Point Focal"
+    : step.label;
+});
+
+const visibleSteps = computed(() => {
+  return steps
+    .filter((step) => {
+      // si type = autre_osc on supprime l'étape 3
+      if (step.id === 3 && payload.type === "autre_osc") {
         return false;
       }
       return true;
+    })
+    .map((step) => {
+      // si type = autre_osc et étape 2 => changer label
+      if (step.id === 2 && payload.type === "autre_osc") {
+        return { ...step, label: "Informations Point Focal" };
+      }
+      return step;
     });
-})
+});
 
 // Reactive data structure
 const payload = reactive({
@@ -96,6 +114,13 @@ const currentStep = ref(1);
 const selectedDepartementData = ref("");
 
 const initTabulator = () => {
+  console.log("initTabulator called with data:", datas.value);
+  const element = document.getElementById("tabulator");
+  if (!element) {
+    console.error("Element #tabulator not found in DOM");
+    return;
+  }
+  console.log("DOM element found:", element);
   tabulator.value = new Tabulator("#tabulator", {
     data: datas.value,
     placeholder: "Aucune donnée disponible.",
@@ -119,7 +144,6 @@ const initTabulator = () => {
         field: "projet",
         minWidth: 150,
         hozAlign: "left",
-        hozAlign: "left",
         formatter(cell) {
           if (cell.getData().projet !== null) {
             return `<div> ${cell.getData().projet.nom ?? "a"}</div>`;
@@ -133,12 +157,12 @@ const initTabulator = () => {
         field: "user",
         minWidth: 150,
         hozAlign: "left",
-        hozAlign: "left",
         formatter(cell) {
-          if (cell.getData().user.email !== null) {
-            return `<div> ${cell.getData().user.email}</div>`;
+          const userData = cell.getData().user;
+          if (userData && userData.email !== null) {
+            return `<div> ${userData.email}</div>`;
           } else {
-            return `<div></div>`;
+            return `<div>--</div>`;
           }
         },
       },
@@ -152,12 +176,12 @@ const initTabulator = () => {
         field: "user",
         minWidth: 150,
         hozAlign: "left",
-        hozAlign: "left",
         formatter(cell) {
-          if (cell.getData().user.contact !== null) {
-            return `<div> ${cell.getData().user.contact}</div>`;
+          const userData = cell.getData().user;
+          if (userData && userData.contact !== null) {
+            return `<div> ${userData.contact}</div>`;
           } else {
-            return `<div></div>`;
+            return `<div>--</div>`;
           }
         },
       },
@@ -165,9 +189,10 @@ const initTabulator = () => {
         title: "Actions",
         minWidth: "400",
         field: "actions",
+        hozAlign: "left",
         formatter: (cell) => {
           const container = document.createElement("div");
-          container.className = "flex items-center justify-center gap-3";
+          container.className = "flex items-center justify-start gap-3";
 
           const createButton = (label, className, onClick) => {
             const button = document.createElement("button");
@@ -177,7 +202,6 @@ const initTabulator = () => {
             return button;
           };
 
-          
           const viewPta = createButton("Plan d'action", "btn btn-pending", () => {
             goToPta(cell.getData());
           });
@@ -190,12 +214,11 @@ const initTabulator = () => {
             handleDelete(cell.getData());
           });
 
-          if(cell.getData().projet !== null){
+          if (cell.getData().projet !== null) {
             container.append(viewPta);
-            
           }
 
-          container.append( modifyButton, deleteButton);
+          container.append(modifyButton, deleteButton);
 
           return container;
         },
@@ -209,10 +232,13 @@ const getDatas = async () => {
     isLoadingData.value = true;
     const { data } = await OngService.get();
     datas.value = data.data;
+    console.log("Data loaded:", data.data);
   } catch (e) {
+    console.error("Error loading data:", e);
     toast.error("Erreur lors de la récupération des Organisations.");
   } finally {
     isLoadingData.value = false;
+    await nextTick();
     initTabulator();
   }
 };
@@ -242,6 +268,7 @@ const getOne = async (id) => {
 
 // Submit data (create or update)
 const submitData = async () => {
+
   isLoading.value = true;
   // this.value = this.value.replace(",", ".");
 
@@ -256,23 +283,31 @@ const submitData = async () => {
     payload.latitude = payload.latitude.replace(",", ".");
   }
 
+  // Retirer le + du contact s'il existe
+  if (payload.contact && payload.contact.startsWith("+")) {
+    payload.contact = payload.contact.substring(1);
+  }
+
+  payload.contact_point_focal = payload.contact;
+
   const action = isCreate.value ? OngService.create(payload) : OngService.update(idSelect.value, payload);
 
   if (!isCreate.value) {
-    if (payload.type !== "osc_fosir" && payload.type !== '') {
+    if (payload.type !== "osc_fosir" && payload.type !== "") {
       delete payload.fondId;
     }
   }
   try {
-    if (!isValid1.value) {
+    if (!isValid1.value && payload.type !== "autre_osc") {
       toast.error("Le numéro de contact de l'organisation n'est pas valide");
       return;
     }
 
-    if (!isValid2.value) {
+    if (!isValid2.value && addPointFocal.value) {
       toast.error("Le numéro de contact du point focal n'est pas valide");
       return;
     }
+
     await action;
     toast.success(`Organisation ${isCreate.value ? "créee" : "modifiée"} avec succès.`);
     getDatas();
@@ -319,8 +354,7 @@ const handleEdit = (data) => {
   payload.prenom_point_focal = data.prenom_point_focal;
   payload.contact_point_focal = data.contact_point_focal;
   payload.secteurActivite = data.secteurActivite;
-  payload.type = data.type ?? types[0].id,
-  payload.fondId = data.fondId ?? "";
+  (payload.type = data.type ?? types[0].id), (payload.fondId = data.fondId ?? "");
   payload.latitude = data.latitude;
   payload.longitude = data.longitude;
   payload.pays = data.pays ?? "";
@@ -394,13 +428,20 @@ const goToStep = (index) => {
 };
 
 const prevStep = () => {
-  if (currentStep.value > 1) currentStep.value--;
-  else currentStep.value = 1;
+  // Si on est à l'étape 3 et que le type est 'autre_osc', revenir directement à l'étape 1
+  if (currentStep.value > 1) {
+    currentStep.value--;
+  } else {
+    currentStep.value = 1;
+  }
 };
 
 const nextStep = () => {
-  if (currentStep.value < 3) currentStep.value++;
-  else currentStep.value = 3;
+  if (currentStep.value < visibleSteps.value.length) {
+    currentStep.value++;
+  } else {
+    currentStep.value = visibleSteps.value.length;
+  }
 };
 
 // Propriétés calculées pour filtrer les options
@@ -468,7 +509,6 @@ onBeforeMount(() => {
 onMounted(() => {
   getDatas();
   getFonds();
-  initTabulator();
 });
 </script>
 
@@ -522,11 +562,11 @@ onMounted(() => {
             <p class="mb-3 text-lg text-semibold">Informations générales</p>
             <div class="space-y-3">
               <div class="grid grid-cols-2 gap-4">
-                <InputForm :required="true"  label="Nom" v-model="payload.nom" :control="getFieldErrors(errors.nom)" />
+                <InputForm :required="true" label="Nom" v-model="payload.nom" :control="getFieldErrors(errors.nom)" />
                 <InputForm :required="true" label="Email" v-model="payload.email" type="email" :control="getFieldErrors(errors.email)" />
               </div>
-              <div class="grid grid-cols-2 gap-4" v-if="payload.type !== 'autre_osc'">
-                <InputForm :required="true"  label="Sigle" v-model="payload.sigle" :control="getFieldErrors(errors.sigle)" />
+              <div class="grid grid-cols-2 gap-4">
+                <InputForm :required="true" label="Sigle" v-model="payload.sigle" :control="getFieldErrors(errors.sigle)" />
                 <!-- <InputForm :required="false" label="Contact" v-model.number="payload.contact" :control="getFieldErrors(errors.contact)" /> -->
                 <div>
                   <InputForm :control="getFieldErrors(errors.contact)" label="Contact" v-model="payload.contact" maxlength="13" placeholder="+229xxxxxxxxxx" type="text" />
@@ -549,7 +589,7 @@ onMounted(() => {
                 </div>
               </div>
               <div class="grid grid-cols-2 gap-4">
-                <InputForm  label="Code" :control="getFieldErrors(errors.code)" v-model.number="payload.code" type="number" />
+                <InputForm label="Code" :control="getFieldErrors(errors.code)" v-model.number="payload.code" type="number" />
                 <div v-if="payload.type !== 'autre_osc'">
                   <label class="form-label">Domaine D'intervention <span class="text-danger">*</span> </label>
                   <TomSelect v-model="payload.secteurActivite" :options="{ placeholder: 'Selectionez  un secteur' }" class="w-full">
@@ -558,7 +598,7 @@ onMounted(() => {
                   </TomSelect>
                   <div v-if="errors.secteurActivite" class="mt-2 text-danger">{{ getFieldErrors(errors.secteurActivite) }}</div>
                 </div>
-                 <div>
+                <div>
                   <label class="form-label">Types<span class="text-danger">*</span> </label>
                   <TomSelect v-model="payload.type" :options="{ placeholder: 'Selectionez  un type' }" class="w-full">
                     <option value=""></option>
@@ -575,91 +615,134 @@ onMounted(() => {
                   <div v-if="errors.fondId" class="mt-2 text-danger">{{ getFieldErrors(errors.fondId) }}</div>
                 </div>
               </div>
-             
             </div>
           </div>
 
           <!-- Informations  localisation -->
-          <div v-show="currentStep == 2 &&  payload.type !== 'autre_osc'" class="">
-            <p class="mb-3 text-lg text-semibold">Informations Localisation</p>
-            <div class="space-y-3">
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="form-label">Pays<span class="text-danger">*</span> </label>
-                  <TomSelect v-model="payload.pays" @change="changeCountry" :options="{ placeholder: 'Selectionez  un pays' }" class="w-full">
-                    <option value=""></option>
-                    <option v-for="(country, index) in pays" :key="index" :value="country">{{ country }}</option>
-                  </TomSelect>
-                  <div v-if="errors.pays" class="mt-2 text-danger">{{ getFieldErrors(errors.pays) }}</div>
+          <div v-show="currentStep == 2" class="">
+            <div v-if="payload.type !== 'autre_osc'">
+              <p class="mb-3 text-lg text-semibold">Informations Localisation</p>
+              <div class="space-y-3">
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="form-label">Pays</label>
+                    <div class="relative w-full">
+                      <v-select class="w-full" :reduce="(country) => country" v-model="payload.pays" :options="pays" placeholder="Selectionez un pays..." @option:selected="changeCountry">
+                        <template #search="{ attributes, events }">
+                          <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher un pays..." />
+                        </template>
+                      </v-select>
+                    </div>
+                    <div v-if="errors.pays" class="mt-2 text-danger">{{ getFieldErrors(errors.pays) }}</div>
+                  </div>
+                  <InputForm :required="false" label="Adresse" name="Adresse" :control="getFieldErrors(errors.addresse)" v-model="payload.addresse" />
                 </div>
-                <InputForm :required="false" label="Adresse" name="Adresse" :control="getFieldErrors(errors.addresse)" v-model="payload.addresse" />
-              </div>
-              <div v-if="isBenin" class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="form-label">Départements<span class="text-danger">*</span> </label>
-                  <TomSelect v-model="payload.departement" @change="updateCommunes" :options="{ placeholder: 'Selectionez un département' }" class="w-full">
-                    <option value=""></option>
-                    <option v-for="(dep, index) in departements" :key="index" :value="dep.lib_dep">{{ dep.lib_dep }}</option>
-                  </TomSelect>
-                  <div v-if="errors.departement" class="mt-2 text-danger">{{ getFieldErrors(errors.departement) }}</div>
+                <div v-if="isBenin" class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="form-label">Départements<span class="text-danger">*</span> </label>
+                    <div class="relative w-full">
+                      <v-select class="w-full" :reduce="(dep) => dep.lib_dep" v-model="payload.departement" :options="departements" label="lib_dep" placeholder="Selectionez un département..." @option:selected="updateCommunes">
+                        <template #search="{ attributes, events }">
+                          <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher un département..." />
+                        </template>
+                      </v-select>
+                    </div>
+                    <div v-if="errors.departement" class="mt-2 text-danger">{{ getFieldErrors(errors.departement) }}</div>
+                  </div>
+                  <div :class="[!showCommune ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
+                    <label class="form-label">Communes<span class="text-danger">*</span> </label>
+                    <div class="relative w-full">
+                      <v-select class="w-full" :reduce="(commune) => commune.lib_com" v-model="payload.commune" :options="filteredCommunes" label="lib_com" placeholder="Sélectionner la commune..." @option:selected="updateArrondissements">
+                        <template #search="{ attributes, events }">
+                          <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher une commune..." />
+                        </template>
+                      </v-select>
+                    </div>
+                    <div v-if="errors.commune" class="mt-2 text-danger">{{ getFieldErrors(errors.commune) }}</div>
+                  </div>
                 </div>
-                <div :class="[!showCommune ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
-                  <label class="form-label">Communes<span class="text-danger">*</span> </label>
-                  <TomSelect v-model="payload.commune" :options="{ placeholder: 'Sélectionner la commune' }" class="w-full" @change="updateArrondissements">
-                    <option v-for="commune in filteredCommunes" :key="commune.lib_com" :value="commune.lib_com">
-                      {{ commune.lib_com }}
-                    </option>
-                  </TomSelect>
-                  <div v-if="errors.commune" class="mt-2 text-danger">{{ getFieldErrors(errors.commune) }}</div>
-                </div>
-              </div>
 
-              <div v-if="isBenin" class="grid grid-cols-2 gap-4">
-                <div :class="[!showArrondissement ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
-                  <label class="form-label">Arrondissement<span class="text-danger">*</span> </label>
-                  <TomSelect v-model="payload.arrondissement" @change="updateQuartiers" :options="{ placeholder: 'Selectionez  arrondissement' }" class="w-full">
-                    <option v-for="(arrond, index) in filteredArrondissements" :key="index" :value="arrond.lib_arrond">{{ arrond.lib_arrond }}</option>
-                  </TomSelect>
-                  <div v-if="errors.arrondissement" class="mt-2 text-danger">{{ getFieldErrors(errors.arrondissement) }}</div>
+                <div v-if="isBenin" class="grid grid-cols-2 gap-4">
+                  <div :class="[!showArrondissement ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
+                    <label class="form-label">Arrondissement<span class="text-danger">*</span> </label>
+                    <div class="relative w-full">
+                      <v-select class="w-full" :reduce="(arrond) => arrond.lib_arrond" v-model="payload.arrondissement" :options="filteredArrondissements" label="lib_arrond" placeholder="Selectionez un arrondissement..." @option:selected="updateQuartiers">
+                        <template #search="{ attributes, events }">
+                          <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher un arrondissement..." />
+                        </template>
+                      </v-select>
+                    </div>
+                    <div v-if="errors.arrondissement" class="mt-2 text-danger">{{ getFieldErrors(errors.arrondissement) }}</div>
+                  </div>
+                  <div :class="[!showQuatier ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
+                    <label class="form-label">Quartier<span class="text-danger">*</span> </label>
+                    <div class="relative w-full">
+                      <v-select class="w-full" :reduce="(quart) => quart.lib_quart" v-model="payload.quartier" :options="filteredQuartiers" label="lib_quart" placeholder="Sélectionner le quartier...">
+                        <template #search="{ attributes, events }">
+                          <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher un quartier..." />
+                        </template>
+                      </v-select>
+                    </div>
+                    <div v-if="errors.quartier" class="mt-2 text-danger">{{ getFieldErrors(errors.quartier) }}</div>
+                  </div>
                 </div>
-                <div :class="[!showQuatier ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
-                  <label class="form-label">Quartier<span class="text-danger">*</span> </label>
-                  <TomSelect v-model="payload.quartier" :options="{ placeholder: 'Sélectionner le quatier' }" class="w-full">
-                    <option v-for="quart in filteredQuartiers" :key="quart.lib_quart" :value="quart.lib_quart">
-                      {{ quart.lib_quart }}
-                    </option>
-                  </TomSelect>
-                  <div v-if="errors.quartier" class="mt-2 text-danger">{{ getFieldErrors(errors.quartier) }}</div>
+                <div v-if="!isBenin" class="grid grid-cols-2 gap-4">
+                  <InputForm :required="false" :optionel="false" label="Département" name="Département" v-model="payload.departement" :control="getFieldErrors(errors.departement)" />
+                  <InputForm :required="false" :optionel="false" label="Commune" name="Commune" v-model="payload.commune" :control="getFieldErrors(errors.commune)" />
                 </div>
-              </div>
-              <div v-if="!isBenin" class="grid grid-cols-2 gap-4">
-                <InputForm :required="false"   :optionel="false" label="Département" name="Département" v-model="payload.departement" :control="getFieldErrors(errors.departement)" />
-                <InputForm :required="false"  :optionel="false" label="Commune" name="Commune" v-model="payload.commune" :control="getFieldErrors(errors.commune)" />
-              </div>
 
-              <div v-if="!isBenin" class="grid grid-cols-2 gap-4">
-                <InputForm :required="false"  :optionel="false" label="Arrondissement" name="Arrondissement" v-model="payload.arrondissement" :control="getFieldErrors(errors.arrondissement)" />
-                <InputForm :required="false"  :optionel="false" label="Quartier"  name="Quartier" v-model="payload.quartier" :control="getFieldErrors(errors.quartier)" />
+                <div v-if="!isBenin" class="grid grid-cols-2 gap-4">
+                  <InputForm :required="false" :optionel="false" label="Arrondissement" name="Arrondissement" v-model="payload.arrondissement" :control="getFieldErrors(errors.arrondissement)" />
+                  <InputForm :required="false" :optionel="false" label="Quartier" name="Quartier" v-model="payload.quartier" :control="getFieldErrors(errors.quartier)" />
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                  <InputForm :required="false" :optionel="false" label="Longitude" name="Longitude" step="0.1" :control="getFieldErrors(errors.longitude)" v-model.text="payload.longitude" type="number" />
+                  <InputForm :required="false" :optionel="false" label="Latitude" name="Latitude" step="0.1" :control="getFieldErrors(errors.latitude)" v-model.text="payload.latitude" type="number" />
+                </div>
               </div>
-              <div class="grid grid-cols-2 gap-4">
-                <InputForm :required="false"  :optionel="false" label="Longitude" name="Longitude" step="0.1" :control="getFieldErrors(errors.longitude)" v-model.text="payload.longitude" type="number" />
-                <InputForm :required="false"  :optionel="false" label="Latitude" name="Latitude" step="0.1" :control="getFieldErrors(errors.latitude)" v-model.text="payload.latitude" type="number" />
+            </div>
+            <div class="v-else">
+              <p class="mb-3 text-lg text-semibold">Informations Point focal</p>
+              <div class="space-y-3">
+                <div class="grid grid-cols-2 gap-4">
+                  <InputForm :required="false" label="Nom point focal" name="Nom point focal" :control="getFieldErrors(errors.nom_point_focal)" v-model="payload.nom_point_focal" />
+                  <InputForm :required="false" label="Prénom point focal" name="Prénom point focal" :control="getFieldErrors(errors.prenom_point_focal)" v-model="payload.prenom_point_focal" />
+                </div>
+                <div>
+                  <!-- <InputForm :required="false" :control="getFieldErrors(errors.contact_point_focal)" label="Contact" name="Contact" v-model="payload.contact" maxlength="13" placeholder="+229xxxxxxxxxx" type="text" />
+
+                  Message de validation avec animation
+                  <div class="mt-4 min-h-[1.5rem]">
+                    <p v-if="isValid1" class="flex items-center text-green-600 font-medium text-sm animate-pulse">
+                      <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                      </svg>
+                      Numéro valide
+                    </p>
+                    <p v-else-if="payload.contact && payload.contact.length > 0" class="flex items-center text-red-500 font-medium text-sm">
+                      <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                      </svg>
+                      Numéro invalide
+                    </p>
+                  </div> -->
+                </div>
               </div>
             </div>
           </div>
 
           <!-- Informations  point focal -->
-          <div v-show="currentStep == 3 && payload.type !== 'autre_osc'" class="">
+          <div v-show="currentStep == 3" class="">
             <p class="mb-3 text-lg text-semibold">Informations Point focal</p>
             <div class="space-y-3">
               <div class="grid grid-cols-2 gap-4">
-                <InputForm :required="false" label="Nom point focal" name="Nom point focal"   :control="getFieldErrors(errors.nom_point_focal)" v-model="payload.nom_point_focal" />
-                <InputForm :required="false" label="Prénom point focal" name="Prénom point focal"  :control="getFieldErrors(errors.prenom_point_focal)" v-model="payload.prenom_point_focal" />
+                <InputForm :required="false" label="Nom point focal" name="Nom point focal" :control="getFieldErrors(errors.nom_point_focal)" v-model="payload.nom_point_focal" />
+                <InputForm :required="false" label="Prénom point focal" name="Prénom point focal" :control="getFieldErrors(errors.prenom_point_focal)" v-model="payload.prenom_point_focal" />
               </div>
               <div>
-                <InputForm :required="false"  :control="getFieldErrors(errors.contact_point_focal)"  label="Contact point focal"  name="Contact point focal" v-model="payload.contact_point_focal" maxlength="13" placeholder="+229xxxxxxxxxx" type="text" />
+                <!-- <InputForm :required="false"  :control="getFieldErrors(errors.contact_point_focal)"  label="Contact point focal"  name="Contact point focal" v-model="payload.contact_point_focal" maxlength="13" placeholder="+229xxxxxxxxxx" type="text" />
 
-                <!-- Message de validation avec animation -->
+                Message de validation avec animation
                 <div class="mt-4 min-h-[1.5rem]">
                   <p v-if="isValid2" class="flex items-center text-green-600 font-medium text-sm animate-pulse">
                     <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -673,7 +756,7 @@ onMounted(() => {
                     </svg>
                     Numéro invalide
                   </p>
-                </div>
+                </div> -->
               </div>
             </div>
           </div>
@@ -690,6 +773,7 @@ onMounted(() => {
         <ModalFooter>
           <div class="flex gap-2">
             <button type="button" @click="resetForm" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
+            
             <VButton v-if="currentStep == visibleSteps.length" :loading="isLoading" :label="modeText" />
             <VButton v-else :loading="isLoading" @click.prevent="nextStep" :class="[currentStep == visibleSteps.length ? ' opacity-50 cursor-not-allowed pointer-events-none' : '']" label="Suivant" />
           </div>

@@ -1,1 +1,56 @@
-getCleIndicateursDatas  keyIndicateursDatas uniteDeMesureDatas getUniteMesureDatas router.push getSiteDatas
+{
+    "data": {
+        "statut": "error",
+        "message": "Erreur de validation du formulaire",
+        "errors": {
+            "pays": [
+                "The pays field is required."
+            ]
+        },
+        "statutCode": 422
+    },
+    "status": 422,
+    "statusText": "",
+    "headers": {
+        "cache-control": "no-cache, private",
+        "content-length": "132",
+        "content-type": "application/json"
+    },
+    "config": {
+        "transitional": {
+            "silentJSONParsing": true,
+            "forcedJSONParsing": true,
+            "clarifyTimeoutError": false
+        },
+        "adapter": [
+            "xhr",
+            "http",
+            "fetch"
+        ],
+        "transformRequest": [
+            null
+        ],
+        "transformResponse": [
+            null
+        ],
+        "timeout": 6000000000,
+        "xsrfCookieName": "XSRF-TOKEN",
+        "xsrfHeaderName": "X-XSRF-TOKEN",
+        "maxContentLength": -1,
+        "maxBodyLength": -1,
+        "env": {},
+        "headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+            "Access-Control-Allow-Headers": "X-Requested-With, Content-Type, X-Token-Auth, Authorization",
+            "Authorization": "Bearer 112|quwNqe3CeD4W224zazq8OiXyMv0zTno6EOLeysQULHPyptyJJP9jJtjUl1n2qTTE2x2OBxRj4bCuBJMxKNgRXQbKCxF1TY0RupQA4Ezh5c9vXB6hPkYn7SI6AbKJmZAEZapiazX99qjiJLilcJmRjj5TZmKFrNrQkTSntlGUcP3kAM8U4Qds9IEAfUUQ97PTquYOKhvr44UaJv6M02MzqoZB0bUw85p6fS8BGmEhacn4CK3tEzeqAGM1VIW3BkKE"
+        },
+        "baseURL": "https://dms-redevabilite.com:8443/api/",
+        "method": "post",
+        "url": "sites",
+        "data": "{\"nom\":\"hjhjgjgjh\",\"longitude\":\"0.071567\",\"latitude\":\"0.051417\",\"arrondissement\":\"uiyiuyuiy\",\"commune\":\"uiyiuyuyi\",\"departement\":\"departement 3\",\"pays\":\"\",\"quartier\":\"iiyuyuiyu\"}"
+    },
+    "request": {}
+}

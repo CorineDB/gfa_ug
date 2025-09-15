@@ -65,7 +65,7 @@
   <!-- SUIVIE  -->
   <Modal size="modal-lg" backdrop="static" :show="showModalSuivi" @hidden="closeModal">
     <ModalHeader>
-      <h2 class="mr-auto text-base font-medium">Enregistrer un suivi</h2>
+      <h2 class="mr-auto text-base font-medium">Enregistrer un suivi </h2>
     </ModalHeader>
     <form @submit.prevent="submitSuivi">
       <ModalBody>
@@ -75,11 +75,18 @@
             <TomSelect v-model="payloadSuivi.annee" name="annee_suivi" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
               <option v-for="annee in years" :key="annee" :value="annee">{{ annee }}</option>
             </TomSelect>
+            <div v-if="errors.annee" class="mt-2 text-danger">{{ getFieldErrors(errors.annee) }}</div>
           </div>
           <!-- <InputForm label="Année de suivi" class="flex-1" v-model="payloadSuivi.annee" type="number" /> -->
           <div v-if="!isAgregerCurrentIndicateur" class="flex flex-wrap items-center justify-between gap-3">
-            <InputForm label="Valeur cible" class="flex-1" v-model="payloadSuivi.valeurCible" type="number" />
-            <InputForm label="Valeur réalisée" class="flex-1" v-model="payloadSuivi.valeurRealise" type="number" />
+            <div class="flex-1">
+              <InputForm label="Valeur cible" v-model="payloadSuivi.valeurCible" type="number" />
+              <div v-if="errors.valeurCible" class="mt-2 text-danger">{{ getFieldErrors(errors.valeurCible) }}</div>
+            </div>
+            <div class="flex-1">
+              <InputForm label="Valeur réalisée" v-model="payloadSuivi.valeurRealise" type="number" />
+              <div v-if="errors.valeurRealise" class="mt-2 text-danger">{{ getFieldErrors(errors.valeurRealise) }}</div>
+            </div>
           </div>
 
           <div v-if="valueKeysIndicateurSuivi.length > 0 && isAgregerCurrentIndicateur" class="">
@@ -116,21 +123,27 @@
               <option value=""></option>
               <option v-for="trimestre in trimestres" :key="trimestre" :value="trimestre">Trimestre {{ trimestre }}</option>
             </TomSelect>
+            <div v-if="errors.trimestre" class="mt-2 text-danger">{{ getFieldErrors(errors.trimestre) }}</div>
           </div>
 
-          <InputForm v-else label="Date de suivi" class="flex-1" v-model="payloadSuivi.dateSuivie" type="date" />
+          <div v-else class="flex-1">
+            <InputForm label="Date de suivi" v-model="payloadSuivi.dateSuivie" type="date" />
+            <div v-if="errors.dateSuivie" class="mt-2 text-danger">{{ getFieldErrors(errors.dateSuivie) }}</div>
+          </div>
           <div class="flex-1">
             <label class="form-label">Source de données</label>
             <TomSelect v-model="payloadSuivi.sources_de_donnee" name="source" :options="{ placeholder: 'Selectionez une source' }" class="w-full">
               <option value=""></option>
               <option v-for="(source, index) in sourcesDonnees" :key="index" :value="source">{{ source }}</option>
             </TomSelect>
+            <div v-if="errors.sources_de_donnee" class="mt-2 text-danger">{{ getFieldErrors(errors.sources_de_donnee) }}</div>
           </div>
           <div class="flex-1">
             <label class="form-label" for="description">Commentaire</label>
             <div class="">
               <textarea name="description" class="form-control" id="description" v-model="payloadSuivi.commentaire" cols="30" rows="2"></textarea>
             </div>
+            <div v-if="errors.commentaire" class="mt-2 text-danger">{{ getFieldErrors(errors.commentaire) }}</div>
           </div>
         </div>
       </ModalBody>
@@ -164,6 +177,15 @@ import IndicateursService from "@/services/modules/indicateur.service";
 const emit = defineEmits(["refreshData"]);
 
 const router = useRouter();
+
+// Variable pour stocker les erreurs de validation
+const errors = ref({});
+
+// Fonction pour gérer l'affichage des erreurs
+const getFieldErrors = (fieldErrors) => {
+  if (!fieldErrors || !Array.isArray(fieldErrors)) return "";
+  return fieldErrors.join(", ");
+};
 
 //generer pdf
 // const generatePDF = () => {
@@ -356,6 +378,8 @@ const submitSuivi = async () => {
   console.log(payloadSuivi);
 
   isLoading.value = true;
+  errors.value = {}; // Reset errors
+
   const action = IndicateursService.createSuivi(payloadSuivi);
   try {
     await action;
@@ -364,8 +388,24 @@ const submitSuivi = async () => {
     await resetFormSuivi();
     emit("refreshData", data);
   } catch (e) {
+    isLoading.value = false;
     console.log(e);
-    toast.error(getAllErrorMessages(e));
+
+    // Gestion des erreurs de validation (422)
+    if (e.response && e.response.status === 422) {
+      const errorData = e.response.data;
+
+      // Structure: { data: { errors: { field: ["message"] } } } ou { errors: { field: ["message"] } }
+      if (errorData.data && errorData.data.errors) {
+        errors.value = errorData.data.errors;
+      } else if (errorData.errors) {
+        errors.value = errorData.errors;
+      }
+
+      toast.error(errorData.data?.message || errorData.message || "Erreur de validation du formulaire");
+    } else {
+      toast.error(getAllErrorMessages(e));
+    }
   }
 };
 
@@ -417,6 +457,7 @@ const resetFormSuivi = async () => {
   payloadSuivi["indicateurId"] = "";
   payloadSuivi["sources_de_donnee"] = "";
 
+  errors.value = {}; // Reset errors
   showModalSuivi.value = false;
 };
 

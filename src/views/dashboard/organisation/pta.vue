@@ -132,176 +132,176 @@
               </td>
               <!-- Fond propre -->
               <!-- v-if="pta.bn != ''" -->
-              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span class="font-bold">{{ pta.bn == null || pta.bn == 0 ? 0 : $h.formatCurrency(pta.bn) }} </span>
               </td>
               <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300 font-bold" v-else>0</td> -->
 
               <!-- Subvention -->
               <!-- v-if="pta.pret" -->
-              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span class="font-bold"> {{ pta.pret == null || pta.pret == 0 ? 0 : $h.formatCurrency(pta.pret) }}</span>
               </td>
               <!-- <td v-else class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300 font-bold">0</td> -->
 
               <!-- Dépenses -->
               <!-- v-if="pta.depenses" -->
-              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span class="font-bold"> {{ pta.depenses == null || pta.depenses == 0 ? 0 : $h.formatCurrency(pta.depenses) }}</span>
               </td>
               <!-- <td v-else class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300 font-bold">0</td> -->
 
               <!-- Solde -->
-              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span class="font-bold text-yellow-500"> <!-- {{ pta.pret + pta.bn - pta.depenses == null || pta.pret + pta.bn - pta.depenses == 0 ? 0 : $h.formatCurrency(pta.pret + pta.bn - pta.depenses) }} --> {{ (pta.pret + pta.bn - pta.depenses == null || pta.pret + pta.bn - pta.depenses == 0) ? 0 : $h.formatCurrency(pta.pret + pta.bn - pta.depenses) }}</span>
               </td>
 
               <!-- tef -->
-              <td v-if="pta.pret + pta.bn > 0" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <td v-if="pta.pret + pta.bn > 0 && !pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span class="font-bold text-yellow-500"> {{ ((pta.depenses / (pta.pret + pta.bn)) * 100).toFixed(2) }} %</span>
               </td>
-              <td v-else class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">Non disponible</td>
+              <td v-else-if="!pta.isProjet" class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">Non disponible</td>
 
               <!-- total budgetaire-->
               <!-- v-if="pta.pret != '' || pta.bn != ''" -->
-              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span class="font-bold text-yellow-500"> {{ pta.pret + pta.bn == null || pta.pret + pta.bn == 0 ? 0 : $h.formatCurrency(pta.pret + pta.bn) }}</span>
               </td>
               <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
-              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span v-if="pta.poids != undefined" class="font-bold"> {{ pta.poids }} </span>
                 <!--  <span v-else class="font-bold" >0 FCFA</span> -->
               </td>
 
-              <td v-if="statutActuel" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <td v-if="statutActuel && !pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span v-if="pta.poidsActuel != undefined" class="font-bold text-green-500"> {{ pta.poidsActuel }} </span>
                 <!--  <span v-else class="font-bold" >0 FCFA</span> -->
               </td>
 
-              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span v-if="pta.structureResponsable != undefined" class="font-bold"> {{ pta.structureResponsable }} </span>
                 <!--  <span v-else class="font-bold" >0 FCFA</span> -->
               </td>
 
               <!--  Planing vrai activité-->
 
-              <td v-if="pta.planing != undefined && pta.planing.janvier != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
-              <td v-else-if="pta.planingt != undefined && pta.planingt.janvier != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
-              <td class="relative p-2 border shadow whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+              <td v-if="pta.planing != undefined && pta.planing.janvier != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
+              <td v-else-if="pta.planingt != undefined && pta.planingt.janvier != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
+              <td class="relative p-2 border shadow whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else-if="!pta.isProjet"></td>
 
-              <td v-if="pta.planing != undefined && pta.planing.fevrier != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
-              <td v-else-if="pta.planingt != undefined && pta.planingt.fevrier != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
-              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+              <td v-if="pta.planing != undefined && pta.planing.fevrier != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
+              <td v-else-if="pta.planingt != undefined && pta.planingt.fevrier != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
+              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else-if="!pta.isProjet"></td>
 
-              <td v-if="pta.planing != undefined && pta.planing.mars != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
-              <td v-else-if="pta.planingt != undefined && pta.planingt.mars != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
-              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+              <td v-if="pta.planing != undefined && pta.planing.mars != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
+              <td v-else-if="pta.planingt != undefined && pta.planingt.mars != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
+              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else-if="!pta.isProjet"></td>
 
-              <td v-if="pta.planing != undefined && pta.planing.avril != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
-              <td v-else-if="pta.planingt != undefined && pta.planingt.avril != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
-              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+              <td v-if="pta.planing != undefined && pta.planing.avril != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
+              <td v-else-if="pta.planingt != undefined && pta.planingt.avril != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
+              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else-if="!pta.isProjet"></td>
 
-              <td v-if="pta.planing != undefined && pta.planing.mai != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
-              <td v-else-if="pta.planingt != undefined && pta.planingt.mai != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
-              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+              <td v-if="pta.planing != undefined && pta.planing.mai != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
+              <td v-else-if="pta.planingt != undefined && pta.planingt.mai != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
+              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else-if="!pta.isProjet"></td>
 
-              <td v-if="pta.planing != undefined && pta.planing.juin != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
-              <td v-else-if="pta.planingt != undefined && pta.planingt.juin != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
-              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+              <td v-if="pta.planing != undefined && pta.planing.juin != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
+              <td v-else-if="pta.planingt != undefined && pta.planingt.juin != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
+              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else-if="!pta.isProjet"></td>
 
-              <td v-if="pta.planing != undefined && pta.planing.juillet != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
-              <td v-else-if="pta.planingt != undefined && pta.planingt.juillet != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
+              <td v-if="pta.planing != undefined && pta.planing.juillet != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
+              <td v-else-if="pta.planingt != undefined && pta.planingt.juillet != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
 
-              <td class="relative p-2 border whitespace-nowrap dark:bg-yellow-800 dark:border-gray-300" v-else></td>
+              <td class="relative p-2 border whitespace-nowrap dark:bg-yellow-800 dark:border-gray-300" v-else-if="!pta.isProjet"></td>
 
-              <td v-if="pta.planing != undefined && pta.planing.aout != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
-              <td v-else-if="pta.planingt != undefined && pta.planingt.aout != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
-              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+              <td v-if="pta.planing != undefined && pta.planing.aout != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
+              <td v-else-if="pta.planingt != undefined && pta.planingt.aout != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
+              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else-if="!pta.isProjet"></td>
 
-              <td v-if="pta.planing != undefined && pta.planing.septembre != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
-              <td v-else-if="pta.planingt != undefined && pta.planingt.septembre != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
-              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+              <td v-if="pta.planing != undefined && pta.planing.septembre != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
+              <td v-else-if="pta.planingt != undefined && pta.planingt.septembre != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
+              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else-if="!pta.isProjet"></td>
 
-              <td v-if="pta.planing != undefined && pta.planing.octobre != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
-              <td v-else-if="pta.planingt != undefined && pta.planingt.octobre != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
-              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+              <td v-if="pta.planing != undefined && pta.planing.octobre != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
+              <td v-else-if="pta.planingt != undefined && pta.planingt.octobre != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
+              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else-if="!pta.isProjet"></td>
 
-              <td v-if="pta.planing != undefined && pta.planing.novembre != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
-              <td v-else-if="pta.planingt != undefined && pta.planingt.novembre != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
-              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+              <td v-if="pta.planing != undefined && pta.planing.novembre != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
+              <td v-else-if="pta.planingt != undefined && pta.planingt.novembre != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
+              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else-if="!pta.isProjet"></td>
 
-              <td v-if="pta.planing != undefined && pta.planing.decembre != ''" class="p-2 bg-blue-500 border border-l-0 border-r-0"></td>
-              <td v-else-if="pta.planingt != undefined && pta.planingt.decembre != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
-              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+              <td v-if="pta.planing != undefined && pta.planing.decembre != '' && !pta.isProjet" class="p-2 bg-blue-500 border border-l-0 border-r-0"></td>
+              <td v-else-if="pta.planingt != undefined && pta.planingt.decembre != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
+              <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else-if="!pta.isProjet"></td>
 
               <!-- fin planing -->
 
               <!-- v-if="pta.t1Bn != undefined && pta.t1Bn != ''" -->
-              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span class="font-bold"> {{ pta.t1Bn == null || pta.t1Bn == 0 ? 0 : $h.formatCurrency(pta.t1Bn) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA</span> -->
               </td>
               <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
               <!-- v-if="pta.t1Pret != undefined && pta.t1Pret != ''" -->
-              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span class="font-bold"> {{ pta.t1Pret == null || pta.t1Pret == 0 ? 0 : $h.formatCurrency(pta.t1Pret) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA</span> -->
               </td>
               <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
               <!-- v-if="pta.t1Pret != '' || pta.t1Bn != ''" -->
-              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span class="font-bold"> {{ pta.t1Pret + pta.t1Bn == null || pta.t1Pret + pta.t1Bn == 0 ? 0 : $h.formatCurrency(pta.t1Pret + pta.t1Bn) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA </span> -->
               </td>
               <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
               <!-- v-if="pta.t2Bn != undefined && pta.t2Bn != ''" -->
-              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span class="font-bold"> {{ pta.t2Bn == null || pta.t2Bn == 0 ? 0 : $h.formatCurrency(pta.t2Bn) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA</span> -->
               </td>
               <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
               <!-- v-if="pta.t2Pret != undefined && pta.t2Pret != ''" -->
-              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span class="font-bold"> {{ pta.t2Pret == null || pta.t2Pret == 0 ? 0 : $h.formatCurrency(pta.t2Pret) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA </span> -->
               </td>
               <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
               <!--  v-if="pta.t2Pret != '' || pta.t2Bn != ''" -->
-              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span class="font-bold"> {{ pta.t2Pret + pta.t2Bn == null || pta.t2Pret + pta.t2Bn == 0 ? 0 : $h.formatCurrency(pta.t2Pret + pta.t2Bn) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA </span> -->
               </td>
               <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
               <!-- v-if="pta.t3Bn != undefined && pta.t3Bn != ''" -->
-              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span class="font-bold"> {{ pta.t3Bn == null || pta.t3Bn == 0 ? 0 : $h.formatCurrency(pta.t3Bn) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA</span> -->
               </td>
               <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
               <!--  v-if="pta.t3Pret != undefined && pta.t3Pret != ''"  -->
-              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span class="font-bold"> {{ pta.t3Pret == null || pta.t3Pret == 0 ? 0 : $h.formatCurrency(pta.t3Pret) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA</span> -->
               </td>
               <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
               <!-- v-if="pta.t3Pret != '' || pta.t3Bn != ''" -->
-              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span class="font-bold"> <!-- {{ $h.formatCurrency(pta.t3Pret + pta.t3Bn) }} --> {{ pta.t3Pret + pta.t3Bn == null || pta.t3Pret + pta.t3Bn == 0 ? 0 : $h.formatCurrency(pta.t3Pret + pta.t3Bn) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA </span> -->
               </td>
               <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
               <!-- v-if="pta.t4Bn != undefined && pta.t4Bn != ''" -->
-              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span class="font-bold"> {{ pta.t4Bn == null || pta.t4Bn == 0 ? 0 : $h.formatCurrency(pta.t4Bn) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA</span> -->
               </td>
@@ -309,20 +309,20 @@
               <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
               <!--  -->
-              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span class="font-bold"> {{ pta.t4Pret == null || pta.t4Pret == 0 ? 0 : $h.formatCurrency(pta.t4Pret) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA</span> -->
               </td>
               <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
               <!-- v-if="pta.t4Pret != '' || pta.t4Bn != ''" -->
-              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+              <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span v-if="pta.t4Pret != undefined && pta.t4Bn != undefined" class="font-bold"> {{ pta.t4Pret + pta.t4Bn == null || pta.t4Pret + pta.t4Bn == 0 ? 0 : $h.formatCurrency(pta.t4Pret + pta.t4Bn) }}</span>
                 <!--  <span v-else class="font-bold" >0 FCFA </span> -->
               </td>
               <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
-              <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
+              <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700">
                 <button v-if="pta.isActivite" @click="ouvrirModalSuiviFinancierActivite(pta)" class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-xs px-4 py-2 mr-2">Faire un suivi financier</button>
 
                 <button v-if="pta.isActivite" @click="voirSuiviActivite(pta.activiteId)" class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-xs px-4 py-2 mr-2">Voir les suivis financier</button>
@@ -413,176 +413,176 @@
         </td>
         <!-- Fond propre -->
         <!-- v-if="pta.bn != ''" -->
-        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+        <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
           <span class="font-bold">{{ pta.bn == null || pta.bn == 0 ? 0 : $h.formatCurrency(pta.bn) }} </span>
         </td>
         <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300 font-bold" v-else>0</td> -->
 
         <!-- Subvention -->
         <!-- v-if="pta.pret" -->
-        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+        <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
           <span class="font-bold"> {{ pta.pret == null || pta.pret == 0 ? 0 : $h.formatCurrency(pta.pret) }}</span>
         </td>
         <!-- <td v-else class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300 font-bold">0</td> -->
 
         <!-- Dépenses -->
         <!-- v-if="pta.depenses" -->
-        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+        <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
           <span class="font-bold"> {{ pta.depenses == null || pta.depenses == 0 ? 0 : $h.formatCurrency(pta.depenses) }}</span>
         </td>
         <!-- <td v-else class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300 font-bold">0</td> -->
 
         <!-- Solde -->
-        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+        <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
           <span class="font-bold text-yellow-500"> {{ pta.pret + pta.bn - pta.depenses == null || pta.pret + pta.bn - pta.depenses == 0 ? 0 : $h.formatCurrency(pta.pret + pta.bn - pta.depenses) }} {{ pta.pret + pta.bn - pta.depenses == null || pta.pret + pta.bn - pta.depenses == 0 ? 0 : $h.formatCurrency(pta.pret + pta.bn - pta.depenses) }}</span>
         </td>
 
         <!-- tef -->
-        <td v-if="pta.pret + pta.bn > 0" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+        <td v-if="pta.pret + pta.bn > 0 && !pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
           <span class="font-bold text-yellow-500"> {{ ((pta.depenses / (pta.pret + pta.bn)) * 100).toFixed(2) }} %</span>
         </td>
-        <td v-else class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">Non disponible</td>
+        <td v-else-if="!pta.isProjet" class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">Non disponible</td>
 
         <!-- total budgetaire-->
         <!-- v-if="pta.pret != '' || pta.bn != ''" -->
-        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+        <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
           <span class="font-bold text-yellow-500"> {{ pta.pret + pta.bn == null || pta.pret + pta.bn == 0 ? 0 : $h.formatCurrency(pta.pret + pta.bn) }}</span>
         </td>
         <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
-        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+        <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
           <span v-if="pta.poids != undefined" class="font-bold"> {{ pta.poids }} </span>
           <!--  <span v-else class="font-bold" >0 FCFA</span> -->
         </td>
 
-        <td v-if="statutActuel" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+        <td v-if="statutActuel && !pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
           <span v-if="pta.poidsActuel != undefined" class="font-bold text-green-500"> {{ pta.poidsActuel }} </span>
           <!--  <span v-else class="font-bold" >0 FCFA</span> -->
         </td>
 
-        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+        <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
           <span v-if="pta.structureResponsable != undefined" class="font-bold"> {{ pta.structureResponsable }} </span>
           <!--  <span v-else class="font-bold" >0 FCFA</span> -->
         </td>
 
         <!--  Planing vrai activité-->
 
-        <td v-if="pta.planing != undefined && pta.planing.janvier != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
-        <td v-else-if="pta.planingt != undefined && pta.planingt.janvier != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
-        <td class="relative p-2 border shadow whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+        <td v-if="pta.planing != undefined && pta.planing.janvier != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
+        <td v-else-if="pta.planingt != undefined && pta.planingt.janvier != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
+        <td class="relative p-2 border shadow whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else-if="!pta.isProjet"></td>
 
-        <td v-if="pta.planing != undefined && pta.planing.fevrier != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
-        <td v-else-if="pta.planingt != undefined && pta.planingt.fevrier != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
-        <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+        <td v-if="pta.planing != undefined && pta.planing.fevrier != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
+        <td v-else-if="pta.planingt != undefined && pta.planingt.fevrier != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
+        <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else-if="!pta.isProjet"></td>
 
-        <td v-if="pta.planing != undefined && pta.planing.mars != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
-        <td v-else-if="pta.planingt != undefined && pta.planingt.mars != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
-        <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+        <td v-if="pta.planing != undefined && pta.planing.mars != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
+        <td v-else-if="pta.planingt != undefined && pta.planingt.mars != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
+        <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else-if="!pta.isProjet"></td>
 
-        <td v-if="pta.planing != undefined && pta.planing.avril != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
-        <td v-else-if="pta.planingt != undefined && pta.planingt.avril != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
-        <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+        <td v-if="pta.planing != undefined && pta.planing.avril != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
+        <td v-else-if="pta.planingt != undefined && pta.planingt.avril != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
+        <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else-if="!pta.isProjet"></td>
 
-        <td v-if="pta.planing != undefined && pta.planing.mai != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
-        <td v-else-if="pta.planingt != undefined && pta.planingt.mai != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
-        <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+        <td v-if="pta.planing != undefined && pta.planing.mai != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
+        <td v-else-if="pta.planingt != undefined && pta.planingt.mai != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
+        <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else-if="!pta.isProjet"></td>
 
-        <td v-if="pta.planing != undefined && pta.planing.juin != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
-        <td v-else-if="pta.planingt != undefined && pta.planingt.juin != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
-        <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+        <td v-if="pta.planing != undefined && pta.planing.juin != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
+        <td v-else-if="pta.planingt != undefined && pta.planingt.juin != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
+        <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else-if="!pta.isProjet"></td>
 
-        <td v-if="pta.planing != undefined && pta.planing.juillet != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
-        <td v-else-if="pta.planingt != undefined && pta.planingt.juillet != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
+        <td v-if="pta.planing != undefined && pta.planing.juillet != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
+        <td v-else-if="pta.planingt != undefined && pta.planingt.juillet != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
 
-        <td class="relative p-2 border whitespace-nowrap dark:bg-yellow-800 dark:border-gray-300" v-else></td>
+        <td class="relative p-2 border whitespace-nowrap dark:bg-yellow-800 dark:border-gray-300" v-else-if="!pta.isProjet"></td>
 
-        <td v-if="pta.planing != undefined && pta.planing.aout != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
-        <td v-else-if="pta.planingt != undefined && pta.planingt.aout != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
-        <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+        <td v-if="pta.planing != undefined && pta.planing.aout != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
+        <td v-else-if="pta.planingt != undefined && pta.planingt.aout != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
+        <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else-if="!pta.isProjet"></td>
 
-        <td v-if="pta.planing != undefined && pta.planing.septembre != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
-        <td v-else-if="pta.planingt != undefined && pta.planingt.septembre != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
-        <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+        <td v-if="pta.planing != undefined && pta.planing.septembre != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
+        <td v-else-if="pta.planingt != undefined && pta.planingt.septembre != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
+        <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else-if="!pta.isProjet"></td>
 
-        <td v-if="pta.planing != undefined && pta.planing.octobre != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
-        <td v-else-if="pta.planingt != undefined && pta.planingt.octobre != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
-        <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+        <td v-if="pta.planing != undefined && pta.planing.octobre != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
+        <td v-else-if="pta.planingt != undefined && pta.planingt.octobre != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
+        <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else-if="!pta.isProjet"></td>
 
-        <td v-if="pta.planing != undefined && pta.planing.novembre != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
-        <td v-else-if="pta.planingt != undefined && pta.planingt.novembre != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
-        <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+        <td v-if="pta.planing != undefined && pta.planing.novembre != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-blue-400 to-blue-600"></td>
+        <td v-else-if="pta.planingt != undefined && pta.planingt.novembre != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
+        <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else-if="!pta.isProjet"></td>
 
-        <td v-if="pta.planing != undefined && pta.planing.decembre != ''" class="p-2 bg-blue-500 border border-l-0 border-r-0"></td>
-        <td v-else-if="pta.planingt != undefined && pta.planingt.decembre != ''" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
-        <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td>
+        <td v-if="pta.planing != undefined && pta.planing.decembre != '' && !pta.isProjet" class="p-2 bg-blue-500 border border-l-0 border-r-0"></td>
+        <td v-else-if="pta.planingt != undefined && pta.planingt.decembre != '' && !pta.isProjet" class="p-2 border border-l-0 border-r-0 shadow bg-gradient-to-br from-red-400 to-red-600"></td>
+        <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else-if="!pta.isProjet"></td>
 
         <!-- fin planing -->
 
         <!-- v-if="pta.t1Bn != undefined && pta.t1Bn != ''" -->
-        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+        <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
           <span class="font-bold"> {{ pta.t1Bn == null || pta.t1Bn == 0 ? 0 : $h.formatCurrency(pta.t1Bn) }}</span>
           <!--  <span v-else class="font-bold" >0 FCFA</span> -->
         </td>
         <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
         <!-- v-if="pta.t1Pret != undefined && pta.t1Pret != ''" -->
-        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+        <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
           <span class="font-bold"> {{ pta.t1Pret == null || pta.t1Pret == 0 ? 0 : $h.formatCurrency(pta.t1Pret) }}</span>
           <!--  <span v-else class="font-bold" >0 FCFA</span> -->
         </td>
         <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
         <!-- v-if="pta.t1Pret != '' || pta.t1Bn != ''" -->
-        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+        <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
           <span class="font-bold"> {{ pta.t1Pret + pta.t1Bn == null || pta.t1Pret + pta.t1Bn == 0 ? 0 : $h.formatCurrency(pta.t1Pret + pta.t1Bn) }}</span>
           <!--  <span v-else class="font-bold" >0 FCFA </span> -->
         </td>
         <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
         <!-- v-if="pta.t2Bn != undefined && pta.t2Bn != ''" -->
-        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+        <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
           <span class="font-bold"> {{ pta.t2Bn == null || pta.t2Bn == 0 ? 0 : $h.formatCurrency(pta.t2Bn) }}</span>
           <!--  <span v-else class="font-bold" >0 FCFA</span> -->
         </td>
         <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
         <!-- v-if="pta.t2Pret != undefined && pta.t2Pret != ''" -->
-        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+        <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
           <span class="font-bold"> {{ pta.t2Pret == null || pta.t2Pret == 0 ? 0 : $h.formatCurrency(pta.t2Pret) }}</span>
           <!--  <span v-else class="font-bold" >0 FCFA </span> -->
         </td>
         <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
         <!--  v-if="pta.t2Pret != '' || pta.t2Bn != ''" -->
-        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+        <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
           <span class="font-bold"> {{ pta.t2Pret + pta.t2Bn == null || pta.t2Pret + pta.t2Bn == 0 ? 0 : $h.formatCurrency(pta.t2Pret + pta.t2Bn) }}</span>
           <!--  <span v-else class="font-bold" >0 FCFA </span> -->
         </td>
         <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
         <!-- v-if="pta.t3Bn != undefined && pta.t3Bn != ''" -->
-        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+        <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
           <span class="font-bold"> {{ pta.t3Bn == null || pta.t3Bn == 0 ? 0 : $h.formatCurrency(pta.t3Bn) }}</span>
           <!--  <span v-else class="font-bold" >0 FCFA</span> -->
         </td>
         <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
         <!--  v-if="pta.t3Pret != undefined && pta.t3Pret != ''"  -->
-        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+        <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
           <span class="font-bold"> {{ pta.t3Pret == null || pta.t3Pret == 0 ? 0 : $h.formatCurrency(pta.t3Pret) }}</span>
           <!--  <span v-else class="font-bold" >0 FCFA</span> -->
         </td>
         <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
         <!-- v-if="pta.t3Pret != '' || pta.t3Bn != ''" -->
-        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+        <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
           <span class="font-bold"> {{ $h.formatCurrency(pta.t3Pret + pta.t3Bn) }} {{ pta.t3Pret + pta.t3Bn == null || pta.t3Pret + pta.t3Bn == 0 ? 0 : $h.formatCurrency(pta.t3Pret + pta.t3Bn) }}</span>
           <!--  <span v-else class="font-bold" >0 FCFA </span> -->
         </td>
         <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
         <!-- v-if="pta.t4Bn != undefined && pta.t4Bn != ''" -->
-        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+        <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
           <span class="font-bold"> {{ pta.t4Bn == null || pta.t4Bn == 0 ? 0 : $h.formatCurrency(pta.t4Bn) }}</span>
           <!--  <span v-else class="font-bold" >0 FCFA</span> -->
         </td>
@@ -590,14 +590,14 @@
         <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
         <!--  -->
-        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+        <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
           <span class="font-bold"> {{ pta.t4Pret == null || pta.t4Pret == 0 ? 0 : $h.formatCurrency(pta.t4Pret) }}</span>
           <!--  <span v-else class="font-bold" >0 FCFA</span> -->
         </td>
         <!-- <td class="relative p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300" v-else></td> -->
 
         <!-- v-if="pta.t4Pret != '' || pta.t4Bn != ''" -->
-        <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
+        <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
           <span v-if="pta.t4Pret != undefined && pta.t4Bn != undefined" class="font-bold"> {{ pta.t4Pret + pta.t4Bn == null || pta.t4Pret + pta.t4Bn == 0 ? 0 : $h.formatCurrency(pta.t4Pret + pta.t4Bn) }}</span>
           <!--  <span v-else class="font-bold" >0 FCFA </span> -->
         </td>

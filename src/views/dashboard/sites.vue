@@ -4,7 +4,7 @@ import VButton from "@/components/news/VButton.vue";
 import InputForm from "@/components/news/InputForm.vue";
 import SiteService from "@/services/modules/site.service";
 import TypeGouvernance from "@/services/modules/typeGouvernance.service";
-import Tabulator from "tabulator-tables";
+import SimpleTable from "@/components/SimpleTable.vue";
 import DeleteButton from "@/components/news/DeleteButton.vue";
 import { toast } from "vue3-toastify";
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
@@ -167,7 +167,7 @@ const showQuatier = computed(() => {
   return !payload.arrondissement;
 });
 
-const tabulator = ref();
+// const tabulator = ref(); // Remplacé par SimpleTable
 const idSelect = ref("");
 const showModalCreate = ref(false);
 const deleteModalPreview = ref(false);
@@ -179,17 +179,34 @@ const datas = ref([]);
 
 const createData = async () => {
   isLoading.value = true;
+  errors.value = {}; // Reset errors
+
   await SiteService.create(payload)
     .then(() => {
       isLoading.value = false;
       getDatas();
       resetForm();
-      toast.success("Sites créer.");
+      toast.success("Site créé avec succès.");
     })
     .catch((e) => {
       isLoading.value = false;
       console.error(e);
-      toast.error("Vérifier les informations et ressayer.");
+
+      // Gestion des erreurs de validation (422)
+      if (e.response && e.response.status === 422) {
+        const errorData = e.response.data;
+
+        // Structure: { data: { errors: { field: ["message"] } } } ou { errors: { field: ["message"] } }
+        if (errorData.data && errorData.data.errors) {
+          errors.value = errorData.data.errors;
+        } else if (errorData.errors) {
+          errors.value = errorData.errors;
+        }
+
+        toast.error(errorData.data?.message || errorData.message || "Erreur de validation du formulaire");
+      } else {
+        toast.error("Vérifier les informations et ressayer.");
+      }
     });
 };
 
@@ -228,7 +245,7 @@ async function fetchAllAdresses(sites) {
     item.adresse = nomPositions.value.find((pos) => pos.lat === parseFloat(item.latitude) && pos.lon === parseFloat(item.longitude))?.address || "Adresse non trouvée";
   });
 
-  initTabulator();
+  // initTabulator(); // Remplacé par SimpleTable
 
   console.log(datas.value);
 
@@ -240,41 +257,50 @@ const getDatas = async () => {
   await SiteService.get()
     .then((result) => {
       datas.value = result.data.data;
-       
-      result.data.data.forEach((item) => {
-        const position = {
-          lat: parseFloat(item.latitude),
-          lon: parseFloat(item.longitude),
-        };
-        allPosition.value.push(position);
-      });
-
-      fetchAllAdresses(allPosition.value);
+      isLoadingData.value = false;
     })
     .catch((e) => {
       console.error(e);
-      
+      isLoadingData.value = false;
       toast.error("Une erreur est survenue: Liste des type des options.");
     });
 };
 
 const updateData = async () => {
   isLoading.value = true;
+  errors.value = {}; // Reset errors
+
   await SiteService.update(idSelect.value, payload)
     .then(() => {
       isLoading.value = false;
       getDatas();
       resetForm();
-      toast.success("Sites modifiée.");
+      toast.success("Site modifié avec succès.");
     })
     .catch((e) => {
       isLoading.value = false;
       console.error(e);
-      toast.error("Vérifier les informations et ressayer.");
+
+      // Gestion des erreurs de validation (422)
+      if (e.response && e.response.status === 422) {
+        const errorData = e.response.data;
+
+        // Structure: { data: { errors: { field: ["message"] } } } ou { errors: { field: ["message"] } }
+        if (errorData.data && errorData.data.errors) {
+          errors.value = errorData.data.errors;
+        } else if (errorData.errors) {
+          errors.value = errorData.errors;
+        }
+
+        toast.error(errorData.data?.message || errorData.message || "Erreur de validation du formulaire");
+      } else {
+        toast.error("Vérifier les informations et ressayer.");
+      }
     });
 };
 
 const submitData = () => (isCreate.value ? createData() : updateData());
+
 
 const deleteData = async () => {
   isLoading.value = true;
@@ -303,63 +329,7 @@ const getProgrammes = () => {
     });
 };
 
-const initTabulator = () => {
-  tabulator.value = new Tabulator("#tabulator", {
-    data: datas.value,
-    placeholder: "Aucune donnée disponible.",
-    layout: "fitColumns",
-    columns: [
-      {
-        title: "Nom",
-        field: "nom",
-      },
-      {
-        title: "Longitude",
-        field: "longitude",
-      },
-      {
-        title: "Latitude",
-        field: "latitude",
-        hozAlign: "center",
-        width: 200,
-      },
-      {
-        title: "Adresse",
-        field: "adresse",
-        hozAlign: "center",
-        width: 200,
-      },
-      {
-        title: "Actions",
-        field: "actions",
-        formatter: (cell) => {
-          const container = document.createElement("div");
-          container.className = "flex items-center justify-center gap-3";
-
-          const createButton = (label, className, onClick) => {
-            const button = document.createElement("button");
-            button.className = className;
-            button.innerText = label;
-            button.addEventListener("click", onClick);
-            return button;
-          };
-
-          const modifyButton = createButton("Modifier", "btn btn-primary", () => {
-            handleEdit(cell.getData());
-          });
-
-          const deleteButton = createButton("Supprimer", "btn btn-danger", () => {
-            handleDelete(cell.getData());
-          });
-
-          container.append(modifyButton, deleteButton);
-
-          return container;
-        },
-      },
-    ],
-  });
-};
+// Fonction initTabulator supprimée - remplacée par SimpleTable
 
 const handleEdit = (params) => {
   isCreate.value = false;
@@ -387,6 +357,7 @@ const cancelSelect = () => {
 
 const resetForm = () => {
   Object.assign(payload, getinitForm());
+  errors.value = {}; // Réinitialiser les erreurs
   showModalCreate.value = false;
 };
 
@@ -440,8 +411,13 @@ onMounted(() => {
         </Dropdown>
       </div>
     </div>
-    <div class="overflow-x-auto scrollbar-hidden" v-if="!isLoadingData">
-      <div id="tabulator" class="mt-5 table-report table-report--tabulator"></div>
+    <!-- SimpleTable remplace Tabulator -->
+    <div v-if="!isLoadingData" class="mt-5">
+      <SimpleTable
+        :data="datas"
+        @edit="handleEdit"
+        @delete="handleDelete"
+      />
     </div>
     <LoaderSnipper v-if="isLoadingData" />
   </div>
@@ -454,7 +430,10 @@ onMounted(() => {
     <form @submit.prevent="submitData">
       <ModalBody>
         <div class="grid grid-cols-1 gap-4">
-          <InputForm label="Nom" v-model="payload.nom" class="col-span-12" />
+          <div class="col-span-12">
+            <InputForm label="Nom" v-model="payload.nom" />
+            <div v-if="errors.nom" class="mt-2 text-danger">{{ getFieldErrors(errors.nom) }}</div>
+          </div>
 
           <!-- Coordonnées avec bouton pour ouvrir la carte -->
           <div class="grid grid-cols-2 gap-4 col-span-12">

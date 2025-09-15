@@ -22,12 +22,10 @@
     <form @submit.prevent="createData">
       <ModalBody>
         <div class="grid grid-cols-1 gap-4">
-          <InputForm label="Nom" v-model="payloadSites.nom" class="col-span-12" />
-          <!-- <InputForm label="Longitude" type="number" step="any" v-model="payloadSites.longitude" class="col-span-12" />
-          <div v-if="errors.longitude" class="mt-2 text-danger">{{ getFieldErrors(errors.longitude) }}</div>
-
-          <InputForm label="Latitude" type="number" step="any" v-model.number="payloadSites.latitude" class="col-span-12" />
-          <div v-if="errors.latitude" class="mt-2 text-danger">{{ getFieldErrors(errors.latitude) }}</div> -->
+          <div class="col-span-12">
+            <InputForm label="Nom" v-model="payloadSites.nom" />
+            <div v-if="errors.nom" class="mt-2 text-danger">{{ getFieldErrors(errors.nom) }}</div>
+          </div>
 
           <!-- Coordonnées avec bouton pour ouvrir la carte -->
           <div class="grid grid-cols-2 gap-4 col-span-12">
@@ -183,14 +181,27 @@
 
     <form @submit.prevent="sendForm">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
-        <InputForm v-model="formData.nom" class="col-span-12 md:col-span-6 mt-4" type="text" :required="true" placeHolder="Nom du projet" label="Nom" />
-        <InputForm v-model="formData.couleur" class="col-span-12 md:col-span-6 mt-4" type="color" :required="true" placeHolder="Couleur" label="Couleur" />
+        <div class="col-span-12 md:col-span-6">
+          <InputForm v-model="formData.nom" class="w-full" type="text" :required="true" placeHolder="Entrer le nom du projet" label="Nom du projet" />
+          <div v-if="errors.nom" class="mt-2 text-danger">{{ getFieldErrors(errors.nom) }}</div>
+        </div>
 
-        <InputForm v-model="formData.debut" class="col-span-12 md:col-span-6 mt-4" type="date" :required="true" placeHolder="Entrer la date de début" label="Début du projet" />
-        <InputForm v-model="formData.fin" class="col-span-12 md:col-span-6 mt-4" type="date" :required="true" placeHolder="Entrer la date de fin" label="Fin du projet" />
+        <div class="col-span-12 md:col-span-6">
+          <InputForm v-model="formData.codePta" class="w-full" type="text" :required="true" placeHolder="Ex: PTA-001" label="Code PTA" />
+          <div v-if="errors.codePta" class="mt-2 text-danger">{{ getFieldErrors(errors.codePta) }}</div>
+        </div>
 
-        <div class="col-span-12 md:col-span-6 mt-4">
-          <!-- <pre>{{ formData.pays }}</pre> -->
+        <div class="col-span-12 md:col-span-6">
+          <InputForm v-model="formData.debut" class="w-full" type="date" :required="true" placeHolder="Entrer la date de début" label="Début du projet" />
+          <div v-if="errors.debut" class="mt-2 text-danger">{{ getFieldErrors(errors.debut) }}</div>
+        </div>
+
+        <div class="col-span-12 md:col-span-6">
+          <InputForm v-model="formData.fin" class="w-full" type="date" :required="true" placeHolder="Entrer la date de fin" label="Fin du projet" />
+          <div v-if="errors.fin" class="mt-2 text-danger">{{ getFieldErrors(errors.fin) }}</div>
+        </div>
+
+        <div class="col-span-12 md:col-span-6">
           <label class="form-label">Pays*</label>
           <!-- Site Select Dropdown -->
           <div class="relative w-full">
@@ -210,20 +221,22 @@
               </template>
             </v-select>
           </div>
+          <div v-if="errors.pays" class="mt-2 text-danger">{{ getFieldErrors(errors.pays) }}</div>
         </div>
 
-        <!-- <div class="col-span-12 md:col-span-6 mt-4">
-          <label class="form-label">Pays<span class="text-danger">*</span></label>
-          <TomSelect v-model="formData.pays" :options="{ placeholder: 'Sélectionnez un pays' }" class="w-full">
-            <option value=""></option>
-            <option v-for="(country, index) in pays" :key="index" :value="country">{{ country }}</option>
-          </TomSelect>
-        </div> -->
+        
 
-        <InputForm v-model="formData.budgetNational" class="col-span-12 md:col-span-6 mt-4" type="number" :required="true" placeHolder="Ex : 100000" label="Fond Propre" />
-        <InputForm v-model="formData.pret" class="col-span-12 md:col-span-6 mt-4" type="number" :required="true" placeHolder="Ex : 100000" label="Subvention" />
+        <div class="col-span-12 md:col-span-6">
+          <InputForm v-model="formData.budgetNational" class="w-full" type="number" :required="true" placeHolder="Ex : 100000" label="Fond Propre" />
+          <div v-if="errors.budgetNational" class="mt-2 text-danger">{{ getFieldErrors(errors.budgetNational) }}</div>
+        </div>
 
-        <div class="col-span-12 md:col-span-6 mt-4">
+        <div class="col-span-12 md:col-span-6">
+          <InputForm v-model="formData.pret" class="w-full" type="number" :required="true" placeHolder="Ex : 100000" label="Subvention" />
+          <div v-if="errors.pret" class="mt-2 text-danger">{{ getFieldErrors(errors.pret) }}</div>
+        </div>
+
+        <div class="col-span-12 md:col-span-6">
           <label class="form-label">Organisation*</label>
 
           <!-- organisation Select Dropdown -->
@@ -242,22 +255,11 @@
                 {{ nom }}
               </template>
             </v-select>
+            <div v-if="errors.organisationId" class="mt-2 text-danger">{{ getFieldErrors(errors.organisationId) }}</div>
           </div>
         </div>
 
-        <!-- <div class="col-span-12 md:col-span-6 mt-4">
-          <label>Organisation*</label>
-          <TomSelect
-            v-model="formData.organisationId"
-            :options="{ placeholder: 'Veuillez associer une organisation' }"
-            class="w-full"
-          >
-            <option value="">Choisir une organisation</option>
-            <option v-for="(org, index) in ongs" :key="index" :value="org.id">{{ org.nom }}</option>
-          </TomSelect>
-        </div> -->
-
-        <div class="col-span-12 md:col-span-6 mt-4">
+        <div class="col-span-12 md:col-span-6">
           <label class="form-label">Site*</label>
 
           <div class="flex w-full gap-2">
@@ -278,6 +280,8 @@
                   {{ nom }}
                 </template>
               </v-select>
+              <div v-if="errors.sitesId" class="mt-2 text-danger">{{ getFieldErrors(errors.sitesId) }}</div>
+
             </div>
 
             <!-- Add Button -->
@@ -286,35 +290,20 @@
             </button>
           </div>
         </div>
-        <!-- <div class="col-span-12 md:col-span-6 mt-4">
-          <label>Sites*</label>
-          <div class="mt-2 flex">
-            <TomSelect
-              v-model="sitesId"
-              multiple
-              :options="{ placeholder: 'Veuillez associer des sites' }"
-              class="w-11/12 mr-2"
-            >
-              <option value="">Choisir un site</option>
-              <option v-for="(site, index) in sites" :key="index" :value="site.id">{{ site.nom }}</option>
-            </TomSelect>
-            <button class="shadow-md btn btn-primary" type="button" @click="showModalCreate = true">
-              <PlusIcon class="w-4 h-4 mr-3" />
-            </button>
-          </div>
-        </div> -->
 
         <!-- Fichiers et images en plein largeur -->
-        <div class="col-span-12 md:col-span-6 mt-4" v-if="!isUpdate">
+        <div class="col-span-12 md:col-span-6" v-if="!isUpdate">
           <label class="block my-3 font-bold text-gray-700">Images de couverture</label>
           <input type="file" ref="fileInput" @change="handleFileChange" accept="image/*" class="block w-full ..." />
           <div v-if="imagePreview" class="flex items-center mt-3">
             <img :src="imagePreview" alt="Prévisualisation" width="200" />
             <button type="button" class="ml-4 text-red-500" @click="clearFiles(index)">Supprimer</button>
           </div>
+          <div v-if="errors.image" class="mt-2 text-danger">{{ getFieldErrors(errors.image) }}</div>
+
         </div>
 
-        <div class="col-span-12 md:col-span-6 mt-4" v-if="!isUpdate">
+        <div class="col-span-12 md:col-span-6" v-if="!isUpdate">
           <label class="block my-3 font-bold text-gray-700">Pièces jointes</label>
           <input name="fichier" ref="fileInput2" type="file" multiple class="block w-full ..." @change="handleFileChange2" />
           <ul v-if="files.length > 0" class="mt-3 space-y-2">
@@ -323,6 +312,8 @@
               <button type="button" class="text-red-500" @click="removeFile(index)">Supprimer</button>
             </li>
           </ul>
+          <div v-if="errors.fichier" class="mt-2 text-danger">{{ getFieldErrors(errors.fichier) }}</div>
+
         </div>
       </ModalBody>
 
@@ -523,7 +514,7 @@ import { addressPoints } from "./markerDemo";
 import icon from "./icon.png";
 import contries from "@/pays.json";
 import markerShadow from "./marker-shadow.png"; // ../../utils/helpers"
-// import { getFieldErrors } from "../../../utils/helpers";
+// import { getFieldErrors } from "../../../utils/helpers"; // Fonction définie localement
 import decoupage from "@/decoupage_territorial_benin.json";
 
 export default {
@@ -853,17 +844,34 @@ export default {
       }
 
       this.isLoadingSite = true;
+      this.errors = {}; // Reset errors
+
       await SiteService.create(this.payloadSites)
         .then(() => {
           this.isLoadingSite = false;
           this.fetchSites();
           this.resetFormSite();
-          toast.success("Sites créer.");
+          toast.success("Site créé avec succès.");
         })
         .catch((e) => {
           this.isLoadingSite = false;
           console.error(e);
-          toast.error("Vérifier les informations et ressayer.");
+
+          // Gestion des erreurs de validation (422)
+          if (e.response && e.response.status === 422) {
+            const errorData = e.response.data;
+
+            // Structure: { data: { errors: { field: ["message"] } } } ou { errors: { field: ["message"] } }
+            if (errorData.data && errorData.data.errors) {
+              this.errors = errorData.data.errors;
+            } else if (errorData.errors) {
+              this.errors = errorData.errors;
+            }
+
+            toast.error(errorData.data?.message || errorData.message || "Erreur de validation du formulaire");
+          } else {
+            toast.error("Vérifier les informations et ressayer.");
+          }
         });
     },
     removeFile(index) {
@@ -1397,19 +1405,39 @@ export default {
               this.fetchProjets(this.programmeId);
             }
           })
-          .catch((error) => {
-            console.log(error);
-            this.isLoading = false;
-            this.FormProjet = new FormData();
+          .catch((e) => {
+            this.isLoadingSite = false;
+            console.error(e);
 
-            // Mettre à jour les messages d'erreurs dynamiquement
-            if (error.response && error.response.data && Object.keys(error.response.data.errors).length > 0) {
-              this.messageErreur = error.response.data.errors;
-              toast.error("Une erreur s'est produite dans votre formulaire");
+            // Gestion des erreurs de validation (422)
+            if (e.response && e.response.status === 422) {
+              const errorData = e.response.data;
+
+              // Structure: { data: { errors: { field: ["message"] } } } ou { errors: { field: ["message"] } }
+              if (errorData.data && errorData.data.errors) {
+                this.errors = errorData.data.errors;
+              } else if (errorData.errors) {
+                this.errors = errorData.errors;
+              }
+
+              toast.error(errorData.data?.message || errorData.message || "Erreur de validation du formulaire");
             } else {
               toast.error(error.response.data.message);
             }
           });
+        // .catch((error) => {
+        //   console.log(error);
+        //   this.isLoading = false;
+        //   this.FormProjet = new FormData();
+
+        //   // Mettre à jour les messages d'erreurs dynamiquement
+        //   if (error.response && error.response.data && Object.keys(error.response.data.errors).length > 0) {
+        //     this.messageErreur = error.response.data.errors;
+        //     toast.error("Une erreur s'est produite dans votre formulaire");
+        //   } else {
+        //     toast.error(error.response.data.message);
+        //   }
+        // });
       }
     },
 

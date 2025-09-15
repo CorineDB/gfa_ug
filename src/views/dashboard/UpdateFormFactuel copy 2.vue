@@ -497,6 +497,7 @@ function matchDataUpdateWithCurrentDatas(typesCurrent) {
   resetCurrentForm.value = !resetCurrentForm.value;
 }
 
+
 const updateAllTypesGouvernance = () => {
   console.log(globalFormFactuelData.value);
   console.log(previewFormFactuelData.value);
@@ -741,9 +742,14 @@ const addNewIndicator = () => {
 
     if (!uniqueKeys.has(key)) {
       // Vérifier les positions des indicateurs existants pour éviter les conflits
-      const existingIndicateurs = previewFormFactuelData.value.filter((existingItem) => existingItem.type.id === currentPreviewFactuelFormDataArray.value[index].type.id && existingItem.principe.id === currentPreviewFactuelFormDataArray.value[index].principe.id && existingItem.critere.id === currentPreviewFactuelFormDataArray.value[index].critere.id);
+      const existingIndicateurs = previewFormFactuelData.value.filter(
+        existingItem =>
+          existingItem.type.id === currentPreviewFactuelFormDataArray.value[index].type.id &&
+          existingItem.principe.id === currentPreviewFactuelFormDataArray.value[index].principe.id &&
+          existingItem.critere.id === currentPreviewFactuelFormDataArray.value[index].critere.id
+      );
 
-      const existingPositions = existingIndicateurs.map((ind) => Number(ind.indicateur.position));
+      const existingPositions = existingIndicateurs.map(ind => Number(ind.indicateur.position));
       let newPosition = 1;
 
       // Trouver la première position disponible à partir de 1
@@ -1051,7 +1057,7 @@ const getOneForm = async () => {
   try {
     const { data } = await FormulaireFactuel.getOne(idForm);
     currentForm.value = data.data;
-    console.log("currentForm.value", currentForm.value);
+    console.log(currentForm.value);
 
     previewOptionResponses.value.options_de_reponse = currentForm.value.options_de_reponse;
 
@@ -1075,21 +1081,14 @@ const updateForm = async () => {
 
   try {
     await FormulaireFactuel.update(idForm, payload);
-    toast.success(`Formulaire modifié avec succès.`);
+    toast.success(`Formulaire modifiée avec succès.`);
     fetchListForms.value = !fetchListForms.value;
-    // resetForm();
-    resetAllFormWithDataLocalStorage();
     clearUniqueKeys();
-    errors.value = {};
+    resetAllForm();
     modalForm.value = false;
     router.push({ name: "Ajouter_un_formulaire_Factuel", query: { tab: 1 } });
   } catch (e) {
-    if (e.response && e.response.status === 422) {
-      errors.value = e.response.data.errors;
-      toast.error(`Une erreur est survenue dans le formulaire.`);
-    } else {
-      toast.error(getAllErrorMessages(e));
-    }
+    toast.error(getAllErrorMessages(e));
     console.log(e);
   } finally {
     isLoadingForm.value = false;
@@ -1209,16 +1208,8 @@ onMounted(async () => {
                 <button :disabled="!isCurrentFormValid" @click="addNewIndicator" class="my-4 text-sm btn btn-primary"><PlusIcon class="mr-1 size-4" />Ajouter</button>
               </div>
             </div>
-          </TabPanel>
-          <TabPanel class="">
-            <ListFormFactuel :fetch-data="fetchListForms" />
-          </TabPanel>
-        </TabPanels>
-      </TabGroup>
-    </section>
-  </div>
 
-  <div v-if="!isLoadingOneForm" class="space-y-2 mt-6">
+            <div v-if="!isLoadingOneForm" class="space-y-2 mt-6">
     <div class="flex justify-between items-center py-2">
       <p class="text-lg font-medium">Previsualisation du Formulaire</p>
 
@@ -1264,7 +1255,7 @@ onMounted(async () => {
                     <!-- Première cellule de catégorie principale avec rowspan -->
                     <td class="font-semibold list-data" v-if="scIndex === 0 && qIndex === 0" :rowspan="principe_de_gouvernance.criteres_de_gouvernance.reduce((sum, sc) => sum + sc.indicateurs_de_gouvernance.length, 0)">
                       <div class="flex items-center gap-1">{{ type_de_gouvernance.position }}.{{ principe_de_gouvernance.position }} - {{ principe_de_gouvernance.nom }}</div>
-                      <div>{{ type_de_gouvernance.id }}</div>
+                      <div>{{ type_de_gouvernance.id  }}</div>
                       <div class="items-center transition-all opacity-0 container-buttons">
                         <template v-if="canEditPrincipe[principe_de_gouvernance.key]">
                           <input type="number" min="1" step="1" name="position" :value="principe_de_gouvernance.position" @keyup.enter="editTemporyFormElement(principe_de_gouvernance.key, $event.target.value, 'principe')" class="w-2/5 form-control" />
@@ -1282,7 +1273,7 @@ onMounted(async () => {
                     <!-- Première cellule de sous-catégorie avec rowspan -->
                     <td class="list-data" v-if="qIndex === 0" :rowspan="critere_de_gouvernance.indicateurs_de_gouvernance.length">
                       <div class="flex items-center gap-1">{{ type_de_gouvernance.position }}.{{ principe_de_gouvernance.position }}.{{ critere_de_gouvernance.position }} - {{ critere_de_gouvernance.nom }}</div>
-                      <div>{{ principe_de_gouvernance.id }}</div>
+                      <div>{{ principe_de_gouvernance.id  }}</div>
                       <div class="flex items-center transition-all opacity-0 container-buttons">
                         <template v-if="canEditCritere[critere_de_gouvernance.key]">
                           <input type="number" min="1" step="1" name="position" :value="critere_de_gouvernance.position" @keyup.enter="editTemporyFormElement(critere_de_gouvernance.key, $event.target.value, 'critere')" class="w-2/5 form-control" />
@@ -1297,11 +1288,8 @@ onMounted(async () => {
                         </template>
                       </div>
                     </td>
-                    <td>
-                      {{ type_de_gouvernance.position }}.{{ principe_de_gouvernance.position }}.{{ critere_de_gouvernance.position }}.{{ indicateur_de_gouvernance.position }} - {{ indicateur_de_gouvernance.nom }} -
-                      <div>{{ indicateur_de_gouvernance.id }}</div>
-                    </td>
-
+                    <td>{{ type_de_gouvernance.position }}.{{ principe_de_gouvernance.position }}.{{ critere_de_gouvernance.position }}.{{ indicateur_de_gouvernance.position }} - {{ indicateur_de_gouvernance.nom }} -  <div>{{ indicateur_de_gouvernance.id  }}</div></td>
+ 
                     <td>
                       <div class="flex items-center">
                         <template v-if="canEditIndicateur[indicateur_de_gouvernance.key]">
@@ -1333,15 +1321,23 @@ onMounted(async () => {
       </table>
     </div>
 
-    <div class="flex justify-between py-2 my-2 items-center">
-      <div class="flex justify-between">
-        <button @click="goBackToFormList" class="px-5 mr-4 text-base btn btn-danger"><ArrowLeftIcon class="mr-1 size-5" />Annuler</button>
-        <button @click="resetAllFormWithDataLocalStorage" class="px-5 text-base btn btn-outline-danger"><TrashIcon class="mr-1 size-5" />Vider</button>
-      </div>
-      <button @click="comeBackToCreation" class="px-5 text-base btn btn-primary"><RotateCcwIcon class="mr-1 size-5" />Revenir pour continuer</button>
-    </div>
+            <div class="flex justify-between py-2 my-2 items-center">
+              <div class="flex justify-between">
+                <button @click="goBackToFormList" class="px-5 mr-4 text-base btn btn-danger"><ArrowLeftIcon class="mr-1 size-5" />Annuler</button>
+                <button @click="resetAllFormWithDataLocalStorage" class="px-5 text-base btn btn-outline-danger"><TrashIcon class="mr-1 size-5" />Vider</button>
+              </div>
+              <button @click="comeBackToCreation" class="px-5 text-base btn btn-primary"><RotateCcwIcon class="mr-1 size-5" />Revenir pour continuer</button>
+            </div>
+            </div>
+            <LoaderSnipper v-else />
+          </TabPanel>
+          <TabPanel class="">
+            <ListFormFactuel :fetch-data="fetchListForms" />
+          </TabPanel>
+        </TabPanels>
+      </TabGroup>
+    </section>
   </div>
-  <LoaderSnipper v-else />
 
   <Modal backdrop="static" :show="previewFormulaire" size="modal-xl" @hidden="previewFormulaire = false">
     <ModalHeader>
