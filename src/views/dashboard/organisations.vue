@@ -96,7 +96,7 @@ const payload = reactive({
 const tabulator = ref();
 const idSelect = ref("");
 const nameSelect = ref("");
-const search = ref("");
+const searchs = ref("");
 const showModalCreate = ref(false);
 const deleteModalPreview = ref(false);
 const isLoading = ref(false);
@@ -485,7 +485,7 @@ const showQuatier = computed(() => !payload.arrondissement);
 
 const applyFilter = () => {
   if (tabulator.value) {
-    const query = search.value.toLowerCase();
+    const query = searchs.value.toLowerCase();
     tabulator.value.setFilter((data) => {
       return data.nom.toLowerCase().includes(query) || data.sigle.toLowerCase().includes(query);
     });
@@ -519,7 +519,8 @@ onMounted(() => {
       <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
         <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
           <div class="relative w-56 text-slate-500">
-            <input type="text" v-model="search" @input="applyFilter" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
+            <!--  -->
+            <input type="text" v-model="searchs"  @input="applyFilter" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
             <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
           </div>
         </div>
@@ -701,7 +702,7 @@ onMounted(() => {
                 </div>
               </div>
             </div>
-            <div class="v-else">
+            <div v-else >
               <p class="mb-3 text-lg text-semibold">Informations Point focal</p>
               <div class="space-y-3">
                 <div class="grid grid-cols-2 gap-4">

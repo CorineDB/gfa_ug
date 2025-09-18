@@ -1281,7 +1281,7 @@ onMounted(() => {
                         </div>
                       </div>
                     </td>
-                    <td>{{ type_de_gouvernance.position }}.{{ principe_de_gouvernance.position }}.{{ critere_de_gouvernance.position }}.{{ indicateur_de_gouvernance.position }} - {{ indicateur_de_gouvernance.id }}- {{ indicateur_de_gouvernance.nom }}</td>
+                    <td>{{ type_de_gouvernance.position }}.{{ principe_de_gouvernance.position }}.{{ critere_de_gouvernance.position }}.{{ indicateur_de_gouvernance.position }} - {{ indicateur_de_gouvernance.nom }}</td>
 
                     <td>
                       <div class="flex items-center">

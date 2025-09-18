@@ -224,8 +224,6 @@
           <div v-if="errors.pays" class="mt-2 text-danger">{{ getFieldErrors(errors.pays) }}</div>
         </div>
 
-        
-
         <div class="col-span-12 md:col-span-6">
           <InputForm v-model="formData.budgetNational" class="w-full" type="number" :required="true" placeHolder="Ex : 100000" label="Fond Propre" />
           <div v-if="errors.budgetNational" class="mt-2 text-danger">{{ getFieldErrors(errors.budgetNational) }}</div>
@@ -281,7 +279,6 @@
                 </template>
               </v-select>
               <div v-if="errors.sitesId" class="mt-2 text-danger">{{ getFieldErrors(errors.sitesId) }}</div>
-
             </div>
 
             <!-- Add Button -->
@@ -300,7 +297,6 @@
             <button type="button" class="ml-4 text-red-500" @click="clearFiles(index)">Supprimer</button>
           </div>
           <div v-if="errors.image" class="mt-2 text-danger">{{ getFieldErrors(errors.image) }}</div>
-
         </div>
 
         <div class="col-span-12 md:col-span-6" v-if="!isUpdate">
@@ -313,7 +309,6 @@
             </li>
           </ul>
           <div v-if="errors.fichier" class="mt-2 text-danger">{{ getFieldErrors(errors.fichier) }}</div>
-
         </div>
       </ModalBody>
 
@@ -1082,7 +1077,7 @@ export default {
       this.$store.dispatch("disabled");
     },
     fetchProjets() {
-      console.log("ok");
+     // console.log("ok");
       this.active();
 
       this.isLoadingProjets = true;
@@ -1092,8 +1087,10 @@ export default {
           this.isLoadingProjets = false;
           const datas = data.data.data;
 
-          console.log(datas);
+          
           this.projets = datas;
+
+          
 
           //   this.disabled();
         })
@@ -1273,7 +1270,7 @@ export default {
       // this.filteredProjet.splice(data.index, 1);
       // this.deleteModal = false;
       this.isLoading = true;
-      console.log(this.deleteData.data.id);
+      
       ProjetService.destroy(this.deleteData.data.id)
         .then((data) => {
           this.isLoading = false;
@@ -1406,8 +1403,11 @@ export default {
             }
           })
           .catch((e) => {
-            this.isLoadingSite = false;
-            console.error(e);
+            this.isLoading = false;
+            alert('ok')
+            console.log(e);
+            console.log(e.response.data.message)
+            toast.error(e.response.data.message);
 
             // Gestion des erreurs de validation (422)
             if (e.response && e.response.status === 422) {
@@ -1425,19 +1425,6 @@ export default {
               toast.error(error.response.data.message);
             }
           });
-        // .catch((error) => {
-        //   console.log(error);
-        //   this.isLoading = false;
-        //   this.FormProjet = new FormData();
-
-        //   // Mettre à jour les messages d'erreurs dynamiquement
-        //   if (error.response && error.response.data && Object.keys(error.response.data.errors).length > 0) {
-        //     this.messageErreur = error.response.data.errors;
-        //     toast.error("Une erreur s'est produite dans votre formulaire");
-        //   } else {
-        //     toast.error(error.response.data.message);
-        //   }
-        // });
       }
     },
 
