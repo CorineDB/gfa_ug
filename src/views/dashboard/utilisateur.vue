@@ -57,6 +57,22 @@
               <label for="regular-form-1" class="form-label">Contact</label>
               <input id="regular-form-1" type="text" required v-model="formData.contact" class="form-control" placeholder="Contact" />
               <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.contact">{{ messageErreur.contact }}</p>
+
+              <!-- Message de validation avec animation -->
+              <div class="mt-2 min-h-[1.5rem]">
+                <p v-if="isContactValid" class="flex items-center text-green-600 font-medium text-sm animate-pulse">
+                  <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  Numéro valide
+                </p>
+                <p v-else-if="formData.contact && formData.contact.length > 0" class="flex items-center text-red-500 font-medium text-sm">
+                  <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                  </svg>
+                  Numéro invalide
+                </p>
+              </div>
             </div>
 
             <div class="col-span-6">
@@ -85,7 +101,7 @@
         <ModalFooter>
           <div class="flex gap-2">
             <button type="button" @click="resetForm" class="w-full px-2 py-2 my-3 align-top btn btn-outline-secondary">Annuler</button>
-            <VButton :loading="isLoading" label="Ajouter" />
+            <VButton :loading="chargement" label="Ajouter" />
           </div>
         </ModalFooter>
       </form>
@@ -107,102 +123,274 @@
     </div>
     <!-- END: Modal Toggle -->
 
-    <div class="overflow-x-auto mt-5">        
-      <table id="userOIN" class="w-full mt-5 text-left table-auto min-w-max">
-        <thead class="bg-gray-100 text-gray-700 text-sm">
-          <tr>
-            <th class="p-4 border-b border-slate-300 bg-slate-50">#</th>
-            <th class="p-4 border-b border-slate-300 bg-slate-50">Nom</th>
-            <th class="p-4 border-b border-slate-300 bg-slate-50">Prénoms</th>
-            <th class="p-4 border-b border-slate-300 bg-slate-50">Email</th>
-            <th class="p-4 border-b border-slate-300 bg-slate-50">Contact</th>
-            <th class="p-4 border-b border-slate-300 bg-slate-50">Poste</th>
-            <th class="p-4 border-b border-slate-300 bg-slate-50">Type utilisateur</th>
-            <th class="p-4 border-b border-slate-300 bg-slate-50">Date création</th>
-            <th class="p-4 border-b border-slate-300 bg-slate-50">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(data, index) in resultQuery" :key="index">
-            <td>{{ index + 1 }}</td>
-            <td>{{ data.nom }}</td>
-            <td>{{ data.prenom }}</td>
-
-            <td>{{ data.email }}</td>
-            <td>{{ data.contact }}</td>
-            
-
-            <td :class="data.poste ? 'text-gray-800' : 'text-gray-400 italic'"
-            >
-              {{ data.poste ?? "N/D" }}
-            </td>
-
-            <td>
-            
-              <div class="flex flex-wrap gap-1">
-                <span v-for="(role, index) in data.roles" :key="index" class="bg-primary text-white rounded-md px-2 py-1 text-xs">
-                  {{ role.nom }}
-                </span>
-              </div>
-            </td>
-
-            <td>{{ data.created_at }}</td>
-            <!-- v-if="$h.getPermission('write.utilisateur')" -->
-            <td class="flex space-x-2 items-center">
-              <Tippy tag="a" href="javascript:;" class="tooltip" content="cliquez pour modifier">
-                <span @click="openUpdateModal(data)" class="text-blue-500 cursor-pointer">
-                  <EditIcon />
-                </span>
-              </Tippy>
-
-              <Tippy tag="a" href="javascript:;" class="tooltip" content="cliquez pour modifier">
-                <Trash2Icon class="text-red-500 cursor-pointer" @click="supprimer(index, data)" />
-              </Tippy>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="flex justify-center mt-4" v-if="totalPages() > 1">
-        <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-l-md px-4 py-2 m-1 focus:outline-none" :disabled="currentPage === 1" @click="currentPage--">Previous</button>
-        <template v-if="totalPages() <= 7">
-          <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === currentPage }" v-for="pageNumber in totalPages()" :key="pageNumber" @click="goToPage(pageNumber)">
-            {{ pageNumber }}
+    <!-- État vide -->
+    <div v-if="resultQuery.length === 0" class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mt-5">
+      <div class="text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">Aucun utilisateur</h3>
+        <p class="mt-1 text-sm text-gray-500">Commencez par ajouter un nouvel utilisateur.</p>
+        <div class="mt-6">
+          <button @click="addUsers" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+            <PlusSquareIcon class="h-5 w-5 mr-2" />
+            Ajouter un utilisateur
           </button>
-        </template>
-        <template v-else>
-          <template v-if="currentPage <= 4">
-            <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === currentPage }" v-for="pageNumber in 5" :key="pageNumber" @click="goToPage(pageNumber)">
-              {{ pageNumber }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Tableau des utilisateurs -->
+    <div v-else class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden mt-5">
+      <!-- Header du tableau avec statistiques -->
+      <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-200">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900">Liste des utilisateurs</h3>
+            <p class="text-sm text-gray-600 mt-1">
+              {{ resultQuery.length }} utilisateur{{ resultQuery.length > 1 ? 's' : '' }}
+              {{ resultQuery.length > 1 ? 'trouvés' : 'trouvé' }}
+            </p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+              <svg class="w-2 h-2 mr-1 fill-current" viewBox="0 0 8 8">
+                <circle cx="4" cy="4" r="3" />
+              </svg>
+              {{ resultQuery.filter(u => u.roles && u.roles.length > 0).length }} actifs
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table id="userOIN" class="w-full">
+          <thead class="bg-gradient-to-r from-gray-50 via-gray-100 to-gray-50 border-b-2 border-gray-300">
+            <tr>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-r border-gray-300">#</th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-r border-gray-300">
+                <div class="flex items-center space-x-1">
+                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  <span>Identité</span>
+                </div>
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-r border-gray-300">
+                <div class="flex items-center space-x-1">
+                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 7.89a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  <span>Contact</span>
+                </div>
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-r border-gray-300">
+                <div class="flex items-center space-x-1">
+                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2z" />
+                  </svg>
+                  <span>Poste</span>
+                </div>
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-r border-gray-300">
+                <div class="flex items-center space-x-1">
+                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.031 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                  <span>Rôles</span>
+                </div>
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-r border-gray-300">
+                <div class="flex items-center space-x-1">
+                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a4 4 0 118 0v4m-4 6v6m-4-6v6m8-6v6" />
+                  </svg>
+                  <span>Créé le</span>
+                </div>
+              </th>
+              <th class="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr v-for="(data, index) in resultQuery" :key="index" class="group hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200 border-l-4 border-transparent hover:border-l-primary">
+              <!-- Numéro avec style badge -->
+              <td class="px-6 py-5 whitespace-nowrap border-r border-gray-200">
+                <div class="flex items-center justify-center w-8 h-8 bg-gray-100 group-hover:bg-primary group-hover:text-white rounded-full text-sm font-bold text-gray-600 transition-colors duration-200">
+                  {{ index + 1 }}
+                </div>
+              </td>
+
+              <!-- Identité complète -->
+              <td class="px-6 py-5 whitespace-nowrap border-r border-gray-200">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 h-12 w-12">
+                    <div class="h-12 w-12 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-lg">
+                      {{ (data.nom ? data.nom[0] : '') + (data.prenom ? data.prenom[0] : '') }}
+                    </div>
+                  </div>
+                  <div class="ml-4">
+                    <div class="text-sm font-bold text-gray-900">{{ data.nom }}</div>
+                    <div class="text-sm text-gray-600">{{ data.prenom }}</div>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Contact avec icônes -->
+              <td class="px-6 py-5 border-r border-gray-200">
+                <div class="space-y-2">
+                  <div class="flex items-center text-sm text-gray-900">
+                    <div class="flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full mr-3">
+                      <svg class="h-3 w-3 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 7.89a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <span class="truncate max-w-40">{{ data.email }}</span>
+                  </div>
+                  <div class="flex items-center text-sm text-gray-600">
+                    <div class="flex items-center justify-center w-6 h-6 bg-green-100 rounded-full mr-3">
+                      <svg class="h-3 w-3 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                      </svg>
+                    </div>
+                    {{ data.contact }}
+                  </div>
+                </div>
+              </td>
+
+              <!-- Poste avec style amélioré -->
+              <td class="px-6 py-5 whitespace-nowrap border-r border-gray-200">
+                <div v-if="data.poste" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                  <svg class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2z" />
+                  </svg>
+                  {{ data.poste }}
+                </div>
+                <span v-else class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-500 italic">
+                  Non défini
+                </span>
+              </td>
+
+              <!-- Rôles -->
+              <td class="px-6 py-5 border-r border-gray-200">
+                <div class="flex flex-wrap gap-1">
+                  <span v-for="(role, roleIndex) in data.roles" :key="roleIndex" class="inline-flex items-center px-2.5 py-0.5 text-primary">
+                    {{ role.nom }}
+                  </span>
+                </div>
+              </td>
+
+              <!-- Date avec format amélioré -->
+              <td class="px-6 py-5 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">
+                <div class="flex items-center">
+                  <svg class="h-4 w-4 text-gray-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a4 4 0 118 0v4m-4 6v6m-4-6v6m8-6v6" />
+                  </svg>
+                  {{ data.created_at }}
+                </div>
+              </td>
+
+              <!-- Actions avec design premium -->
+              <td class="px-6 py-5 whitespace-nowrap text-center">
+                <div class="flex items-center justify-center space-x-2">
+                  <Tippy tag="button" class="group relative p-3 text-blue-600 hover:text-white hover:bg-blue-600 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-sm hover:shadow-md" content="Modifier l'utilisateur">
+                    <EditIcon class="h-5 w-5" @click="openUpdateModal(data)" />
+                  </Tippy>
+                  <Tippy tag="button" class="group relative p-3 text-red-600 hover:text-white hover:bg-red-600 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-sm hover:shadow-md" content="Supprimer l'utilisateur">
+                    <Trash2Icon class="h-5 w-5" @click="supprimer(index, data)" />
+                  </Tippy>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- Pagination moderne -->
+      <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6" v-if="totalPages() > 1">
+        <div class="flex items-center justify-between">
+          <div class="flex-1 flex justify-between sm:hidden">
+            <button
+              class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              :disabled="currentPage === 1"
+              @click="currentPage--"
+            >
+              Précédent
             </button>
-            <span class="bg-gray-200 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1">...</span>
-            <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === totalPages() }" @click="goToPage(totalPages())">
-              {{ totalPages() }}
+            <button
+              class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              :disabled="currentPage === totalPages()"
+              @click="currentPage++"
+            >
+              Suivant
             </button>
-          </template>
-          <template v-else-if="currentPage >= totalPages() - 3">
-            <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === 1 }" @click="goToPage(1)">1</button>
-            <span class="bg-gray-200 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1">...</span>
-            <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === currentPage }" v-for="pageNumber in 5" :key="pageNumber" @click="goToPage(pageNumber)">
-              {{ pageNumber }}
-            </button>
-            <span class="bg-gray-200 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1">...</span>
-            <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === currentPage }" v-for="pageNumber in [totalPages() - 3, totalPages() - 2, totalPages() - 1, totalPages()]" :key="pageNumber" @click="goToPage(pageNumber)">
-              {{ pageNumber }}
-            </button>
-          </template>
-          <template v-else>
-            <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === 1 }" @click="goToPage(1)">1</button>
-            <span class="bg-gray-200 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1">...</span>
-            <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === currentPage }" v-for="pageNumber in [currentPage - 1, currentPage, currentPage + 1]" :key="pageNumber" @click="goToPage(pageNumber)">
-              {{ pageNumber }}
-            </button>
-            <span class="bg-gray-200 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1">...</span>
-            <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-md px-4 py-2 m-1 focus:outline-none" :class="{ 'bg-gray-400': pageNumber === totalPages() }" @click="goToPage(totalPages())">
-              {{ totalPages() }}
-            </button>
-          </template>
-        </template>
-        <button class="bg-gray-200 hover:bg-gray-300 border border-gray-300 text-gray-700 rounded-r-md px-4 py-2 m-1 focus:outline-none" :disabled="currentPage === totalPages()" @click="currentPage++">Next</button>
+          </div>
+          <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+            <div>
+              <p class="text-sm text-gray-700">
+                Affichage de
+                <span class="font-medium">{{ (currentPage - 1) * itemsPerPage + 1 }}</span>
+                à
+                <span class="font-medium">{{ Math.min(currentPage * itemsPerPage, resultQuery.length) }}</span>
+                sur
+                <span class="font-medium">{{ resultQuery.length }}</span>
+                résultats
+              </p>
+            </div>
+            <div>
+              <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                <button
+                  class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  :disabled="currentPage === 1"
+                  @click="currentPage--"
+                >
+                  <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                </button>
+
+                <template v-if="totalPages() <= 7">
+                  <button
+                    v-for="pageNumber in totalPages()"
+                    :key="pageNumber"
+                    class="relative inline-flex items-center px-4 py-2 border text-sm font-medium transition-colors duration-150"
+                    :class="pageNumber === currentPage
+                      ? 'z-10 bg-primary border-primary text-white'
+                      : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'"
+                    @click="goToPage(pageNumber)"
+                  >
+                    {{ pageNumber }}
+                  </button>
+                </template>
+
+                <template v-else>
+                  <!-- Logic simplifiée pour les grandes paginations -->
+                  <button
+                    v-for="pageNumber in getVisiblePages()"
+                    :key="pageNumber"
+                    class="relative inline-flex items-center px-4 py-2 border text-sm font-medium transition-colors duration-150"
+                    :class="pageNumber === currentPage
+                      ? 'z-10 bg-primary border-primary text-white'
+                      : pageNumber === '...'
+                      ? 'bg-white border-gray-300 text-gray-500 cursor-default'
+                      : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'"
+                    @click="pageNumber !== '...' && goToPage(pageNumber)"
+                  >
+                    {{ pageNumber }}
+                  </button>
+                </template>
+
+                <button
+                  class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  :disabled="currentPage === totalPages()"
+                  @click="currentPage++"
+                >
+                  <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                  </svg>
+                </button>
+              </nav>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -273,8 +461,24 @@
 
           <div>
             <label for="regular-form-1" class="form-label">Contact</label>
-            <input id="regular-form-1" type="number" v-model="formEdit.contact" class="form-control" placeholder="Contact" />
+            <input id="regular-form-1" type="text" v-model="formEdit.contact" class="form-control" placeholder="Contact" />
             <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.contact">{{ messageErreur.contact }}</p>
+
+            <!-- Message de validation avec animation -->
+            <div class="mt-2 min-h-[1.5rem]">
+              <p v-if="isContactEditValid" class="flex items-center text-green-600 font-medium text-sm animate-pulse">
+                <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+                Numéro valide
+              </p>
+              <p v-else-if="formEdit.contact && formEdit.contact.length > 0" class="flex items-center text-red-500 font-medium text-sm">
+                <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+                Numéro invalide
+              </p>
+            </div>
           </div>
 
           <div>
@@ -304,7 +508,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, provide, computed } from "vue";
+import { ref, reactive, onMounted, provide, computed, getCurrentInstance } from "vue";
 import UsersService from "../../services/modules/user.service";
 import RoleService from "@/services/modules/roles.permissions.service";
 import { helper as $h } from "@/utils/helper";
@@ -315,6 +519,18 @@ import DownloadPDFButton from "@/components/DownloadPDFButton.vue";
 
 // Modfier un utilisateur
 const updateModal = ref(false);
+
+// Configuration pour la validation de numéro
+const { proxy } = getCurrentInstance();
+
+// Computed properties pour validation des numéros
+const isContactValid = computed(() => {
+  return proxy.$isValidPhoneNumber(formData.contact, "BJ");
+});
+
+const isContactEditValid = computed(() => {
+  return proxy.$isValidPhoneNumber(formEdit.contact, "BJ");
+});
 
 const formEdit = reactive({
   nom: "",
@@ -414,6 +630,12 @@ const resetForm = () => {
 const isLoading = ref(false);
 
 const submitUpdateData = function () {
+  // Validation du numéro de téléphone
+  if (!isContactEditValid.value && formEdit.contact && formEdit.contact.length > 0) {
+    toast.error("Le numéro de contact n'est pas valide");
+    return;
+  }
+
   isLoading.value = true;
   console.log(formData);
   UsersService.update(userId.value, formEdit)
@@ -475,35 +697,36 @@ const resultQuery = computed(() => {
   if (searchs.value) {
     return users.value.filter((item) => {
       return (
-        searchs.value
+        (item.nom && searchs.value
           .toLowerCase()
           .split(" ")
-          .every((v) => item.nom.toLowerCase().includes(v)) ||
-        searchs.value
+          .every((v) => item.nom.toLowerCase().includes(v))) ||
+        (item.prenom && searchs.value
           .toLowerCase()
           .split(" ")
-          .every((v) => item.prenom.toLowerCase().includes(v)) ||
-        searchs.value
+          .every((v) => item.prenom.toLowerCase().includes(v))) ||
+        (item.email && searchs.value
           .toLowerCase()
           .split(" ")
-          .every((v) => item.email.toLowerCase().includes(v)) ||
-        searchs.value
+          .every((v) => item.email.toLowerCase().includes(v))) ||
+        (item.poste && searchs.value
           .toLowerCase()
           .split(" ")
-          .every((v) => item.poste.toLowerCase().includes(v)) ||
-        searchs.value
+          .every((v) => item.poste.toLowerCase().includes(v))) ||
+        (item.contact && searchs.value
           .toLowerCase()
           .split(" ")
-          .every((v) => item.contact.toLowerCase().includes(v)) ||
-        searchs.value
+          .every((v) => item.contact.toLowerCase().includes(v))) ||
+        (item.roles && item.roles.length > 0 &&
+         item.roles.some(role => role && role.nom &&
+           searchs.value
+             .toLowerCase()
+             .split(" ")
+             .every((v) => role.nom.toLowerCase().includes(v)))) ||
+        (item.created_at && searchs.value
           .toLowerCase()
           .split(" ")
-          .every((v) => item.role.nom.toLowerCase().includes(v)) ||
-        //searchs.value.toLowerCase().split(' ').every(v => item.entreprise.nom.toLowerCase().includes(v)) ||
-        searchs.value
-          .toLowerCase()
-          .split(" ")
-          .every((v) => item.created_at.toLowerCase().includes(v))
+          .every((v) => item.created_at.toLowerCase().includes(v)))
       );
     });
   } else {
@@ -578,14 +801,18 @@ const addUsers = function () {
 };
 
 const storeUser = function () {
-  if (chargement.value == false) {
+  if (!chargement.value) {
+    // Validation du numéro de téléphone
+    if (!isContactValid.value && formData.contact && formData.contact.length > 0) {
+      toast.error("Le numéro de contact n'est pas valide");
+      return;
+    }
+
     chargement.value = true;
     console.log(formData);
     UsersService.addUsers(formData)
       .then((data) => {
-        message.type = "success";
-        message.message = "Nouveau utilisateur";
-        successNotificationToggle();
+        toast.success("Utilisateur ajouté avec succès");
         close();
         getData();
         chargement.value = false;

@@ -73,12 +73,14 @@
           <label class="text-xs font-semibold">Contenu du rapport </label>
           <ClassicEditor v-model="editorData" />
         </div>
-        <div class="py-2 my-4 flex justify-end space-x-8">
+        <div class="py-2 my-4 flex justify-end">
           <VButton :loading="chargement" label="Enrégistrer" />
-
-          <button type="button" class="btn btn-primary w-full my-3 px-2" :disabled="editorData == '' && nom == ''" @click.stop.prevent="modalMail()" label="Envoyer par mail">Envoyer par mail</button>
         </div>
       </form>
+
+      <div class="px-5 pb-5 flex justify-end">
+        <button type="button" class="btn btn-primary px-4 py-2" :disabled="editorData == '' && nom == ''" @click="modalMail()">Envoyer par mail</button>
+      </div>
     </div>
 
     <div v-else class="p-4 col-span-12">
@@ -104,70 +106,114 @@
 
     <!-- tableau -->
 
-    <div class="align-middle inline-block bg-white overflow-x-auto p-3 rounded-sm rounded-br-lg w-full">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
       <!-- header -->
-
-      <table class="w-1/2">
-        <thead>
-          <tr>
-            <th class="pb-0 hover:bg-gray-200 text-left whitespace-nowrap leading-4 text-primary tracking-wider">
-              <span @click="showMail" :class="{ 'border-primary border-b-4': voirExempleMail }" class="mx-2 inline-block cursor-pointer text-base uppercase font-bold"> Exemplaire de rapport </span>
-            </th>
-
-            <th class="pb-0 hover:bg-gray-200 text-left whitespace-nowrap leading-4 text-primary tracking-wider">
-              <span @click="showHistory" :class="{ 'border-primary border-b-4': voirHistorique }" class="mx-2 inline-block cursor-pointer text-base uppercase font-bold"> Historique d'envoie </span>
-            </th>
-          </tr>
-        </thead>
-      </table>
+      <div class="border-b border-gray-200 bg-gray-50">
+        <div class="flex">
+          <button
+            @click="showMail"
+            :class="{ 'border-b-2 border-primary bg-white': voirExempleMail, 'hover:bg-gray-100': !voirExempleMail }"
+            class="px-6 py-4 text-sm font-medium text-gray-700 transition-colors duration-200 focus:outline-none"
+          >
+            Exemplaire de rapport
+          </button>
+          <button
+            @click="showHistory"
+            :class="{ 'border-b-2 border-primary bg-white': voirHistorique, 'hover:bg-gray-100': !voirHistorique }"
+            class="px-6 py-4 text-sm font-medium text-gray-700 transition-colors duration-200 focus:outline-none"
+          >
+            Historique d'envoi
+          </button>
+        </div>
+      </div>
       <!-- fin header -->
 
-      <table class="w-full border-t border-gray-200">
-        <!--Il s'agit d'un tableau decomposé alors filter vos donnée avant de 'integretrer par bailleur' -->
+      <!-- Contenu des rapports -->
+      <div v-if="voirExempleMail" class="divide-y divide-gray-200">
+        <div v-if="rapports.length === 0" class="p-8 text-center text-gray-500">
+          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          <p class="mt-2">Aucun rapport disponible</p>
+        </div>
 
-        <tbody v-if="voirExempleMail" class="bg-white" id="table1">
-          <!--Specifier le nombre de ligne +1 de la table -->
-
-          <tr v-for="(rapport, index) in rapports" :key="index" :class="{ 'bg-white': voirHistorique }" class="border-b border-gray-200 hover:shadow hover:bg-gray-50" title="Cliquer pour voir" v-title>
-            <td class="p-3 whitespace-no-wrap text-xs" ref="mail" @click="useRapport(rapport.rapport, index)">
-              {{ rapport.nom }}
-            </td>
-            <td class="flex items-center justify-center">
-              <span class="mr-2 cursor-pointer transform hover:text-blue-500 hover:scale-110" title="modifier le rapport" v-title @click="editRapport(rapport)">
-                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="1.3em" width="1.3em" xmlns="http://www.w3.org/2000/svg">
-                  <path fill="none" d="M0 0h24v24H0z"></path>
-                  <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 000-1.41l-2.34-2.34a.996.996 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"></path>
+        <div v-for="(rapport, index) in rapports" :key="index" class="p-4 hover:bg-gray-50 transition-colors duration-150 cursor-pointer" @click="useRapport(rapport.rapport, index)">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <div class="flex-shrink-0">
+                <svg class="h-8 w-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-              </span>
-
-              <span @click="deleteRapport(rapport.id)" class="mr-2 cursor-pointer transform hover:text-red-500 hover:scale-110" title="supprimer" v-title>
-                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024" height="1.3em" width="1.3em" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M360 184h-8c4.4 0 8-3.6 8-8v8h304v-8c0 4.4 3.6 8 8 8h-8v72h72v-80c0-35.3-28.7-64-64-64H352c-35.3 0-64 28.7-64 64v80h72v-72zm504 72H160c-17.7 0-32 14.3-32 32v32c0 4.4 3.6 8 8 8h60.4l24.7 523c1.6 34.1 29.8 61 63.9 61h454c34.2 0 62.3-26.8 63.9-61l24.7-523H888c4.4 0 8-3.6 8-8v-32c0-17.7-14.3-32-32-32zM731.3 840H292.7l-24.2-512h487l-24.2 512z"></path>
+              </div>
+              <div>
+                <p class="text-sm font-medium text-gray-900">{{ rapport.nom }}</p>
+                <p class="text-sm text-gray-500">Cliquer pour prévisualiser</p>
+              </div>
+            </div>
+            <div class="flex items-center space-x-2">
+              <button
+                @click.stop="editRapport(rapport)"
+                class="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors duration-150"
+                title="Modifier le rapport"
+              >
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
-              </span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+              </button>
+              <button
+                @click.stop="deleteRapport(rapport.id)"
+                class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors duration-150"
+                title="Supprimer"
+              >
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      <table v-if="voirHistorique" class="w-full">
-        <tbody class="bg-white">
-          <!--Specifier le nombre de ligne +1 de la table -->
-          <tr v-for="(email, index2) in emails" :key="index2" class="border-b bg-white border-gray-200 hover:shadow hover:bg-gray-50">
-            <td class="p-3 whitespace-no-wrap text-xs" @click="showModalRapport(emai, index2)">Objet : {{ email.objet }}</td>
-            <!-- <div v-html="email.rapport" @click="showModalRapport(email, index2)" style="display: none;"> </div> -->
+      <!-- Contenu de l'historique -->
+      <div v-if="voirHistorique" class="divide-y divide-gray-200">
+        <div v-if="emails.length === 0" class="p-8 text-center text-gray-500">
+          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 7.89a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          <p class="mt-2">Aucun email envoyé</p>
+        </div>
 
-            <td class="p-3 whitespace-no-wrap text-xs" @click="showModalRapport(email, index2)">Enyoyé à : {{ email.destinataires }}</td>
-
-            <td>
-              <VButton label="Générer pdf " @click="generatePDF(email.rapport)" />
-              <!-- <button title="générer pdf" v-title class="h-auto py-1 px-2 space-x-1 text-xs font-semibold text-white uppercase bg-primary focus:outline-none focus:shadow-outline" @click="generateReport(index2, email.rapport)">
-                <span class="mx-2 text-sm font-semibold">generer pdf </span>
-              </button> -->
-            </td>
-          </tr>
-        </tbody>
-      </table>
+        <div v-for="(email, index2) in emails" :key="index2" class="p-4 hover:bg-gray-50 transition-colors duration-150">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3 flex-1 cursor-pointer" @click="showModalRapport(email, index2)">
+              <div class="flex-shrink-0">
+                <svg class="h-8 w-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 7.89a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-gray-900 truncate">
+                  Objet: {{ email.objet }}
+                </p>
+                <p class="text-sm text-gray-500 truncate">
+                  Envoyé à: {{ email.destinataires }}
+                </p>
+              </div>
+            </div>
+            <div class="ml-4">
+              <button
+                @click="generatePDF(email.rapport)"
+                class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-150"
+              >
+                <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Générer PDF
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- fin tableau -->
@@ -196,8 +242,8 @@ export default {
       messageErreurs: {},
       savedInput: [],
       chargement: false,
-      chargement2: false,
       chargement3: false,
+      isLoading: false,
       showModal: false,
       showSendMail: false,
       showRapport: false,
@@ -249,12 +295,11 @@ export default {
     modalMail() {
       if (this.Update) {
         this.saveEditRapport();
-      } else {
-        this.sendRapport();
+      }  else {
+        this.saveRapport();
       }
 
       this.showSendMail = true;
-      this.chargement2 = false;
     },
 
     getRapports() {
@@ -364,8 +409,10 @@ export default {
     },
 
     sendRapport() {
-      if (this.chargement2 == false) {
-        this.chargement2 = true;
+
+      
+      if (!this.isLoading) {
+        this.isLoading = true;
 
         this.users = this.bcc.split(",").map((email) => email.trim());
 
@@ -392,19 +439,21 @@ export default {
           });
         }
 
+        this.isLoading = true;
+
         ProgrammeService.sendMailRapport(this.FormRapport)
           .then((data) => {
-            this.chargement2 = false;
             toast.success("Email envoyé");
             this.emails = data.data.data;
-            // this.showSendMail = false;
+            this.isLoading = false;
+            this.showSendMail = false;
             this.resetFileInput();
             $h.clearFormData(this.FormRapport);
             $h.clearObjectValues(form);
             // this.messageErreur = {};
           })
           .catch((errors) => {
-            this.chargement2 = false;
+            this.isLoading = false;
 
             if (errors.response && errors.response.data && Object.keys(errors.response.data.errors).length > 0) {
               if ("destinataires.0" in errors.response.data.errors) {

@@ -61,6 +61,8 @@ export default {
       deleteLoader: false,
       activiteTep: 0,
       activiteTef: 0,
+      activiteAdd: true,
+      isLoadingProjets: false,
 
       seeStatistique: false,
       seePlan: false,
@@ -160,7 +162,7 @@ export default {
 
     "selectedIds.sousComposantId": "loadSousComposantDetails",
 
-    "formData.composanteId": "mettreAjoutOutcome",
+    "formData.composanteId": "loadComposantDetails",
 
     //"formData.composanteId": "loadComposantDetails",
   },
@@ -323,36 +325,6 @@ export default {
 
       this.selectedIds.activiteId = data.id;
     },
-    async mettreAjoutOutcome(id) {
-      if (!id || id == "") return;
-
-      try {
-        const response = await ComposantesService.detailComposant(id);
-        const composantData = response.data.data;
-        this.isLoadingData = false;
-        // Mettre à jour les sous-composants et activités du composant
-        this.sousComposants = composantData.souscomposantes || [];
-        console.log("this.sousComposants", this.sousComposants);
-        this.activites = composantData.activites || [];
-        this.currentPage = 1;
-        this.allActivite = this.activites;
-
-        // Vérifier s'il y a des sous-composants
-        if (this.sousComposants.length > 0) {
-          this.haveSousComposantes = true;
-        } else {
-          this.haveSousComposantes = false;
-          // Pas de sous-composants, afficher directement les activités du composant
-          this.updateActivitesList(this.activites);
-        }
-      } catch (error) {
-        this.isLoadingData = false;
-        console.error("Erreur lors du chargement des détails du composant", error);
-      } finally {
-        this.isLoadingData = false;
-      }
-      this.selectedIds.composantId = id;
-    },
     addActivite() {
       this.resetFormData();
       this.messageErreur = {};
@@ -368,10 +340,11 @@ export default {
       }, 400);
     },
     resetSousComposantsId() {
-      // console.log("this.selectedIds.composantId", this.selectedIds.composantId);
       this.selectedIds.sousComposantId = "";
-      this.loadComposantDetails();
-      // this.text();
+      // Recharger les activités du composant principal
+      if (this.selectedIds.composantId) {
+        this.loadComposantDetails();
+      }
     },
 
     async sendForm() {
@@ -401,19 +374,17 @@ export default {
           };
 
           await ActiviteService.create(data);
-          if (this.selectedIds.sousComposantId == "") {
-            // this.selectedIds.composantId = this.formData.composanteId;
-            this.loadComposantDetails();
-          } else {
-            // alert("ok");
-            this.loadSousComposantDetails();
-          }
-
           toast.success("Ajout effectué");
+
+          // Recharger les données selon le contexte
+          if (this.selectedIds.sousComposantId !== "") {
+            this.loadSousComposantDetails();
+          } else {
+            this.loadComposantDetails();
+          }
         }
 
         this.showModal = false;
-         this.loadComposantDetails();
       } catch (error) {
         console.log(error);
 
@@ -451,20 +422,17 @@ export default {
       this.sousComposants = [];
       this.activites = [];
       this.isLoadingData = true;
-      // console.log("this.selectedIds.composantId1", this.selectedIds.composantId);
+
       try {
-        this.isLoadingData = false;
         const response = await ProjetService.getDetailProjet(projetId);
         this.composants = response.data.data.composantes;
         this.selectedIds.composantId = this.composants[0]?.id || "";
 
         console.log("this.selectedIds.composantId2", this.selectedIds.composantId);
-        // alert("ok");
       } catch (error) {
-        this.isLoadingData = false;
         console.error("Erreur lors du chargement des détails du projet", error);
       } finally {
-        if (this.selectedIds.composantId == "") this.isLoadingData = false;
+        this.isLoadingData = false;
       }
     },
 
@@ -774,7 +742,7 @@ export default {
   async mounted() {
     await this.loadProjets();
 
-    if (this.selectedIds.activiteId !== "" || this.selectedIds.activiteId !== null) {
+    if (this.selectedIds.activiteId !== "" && this.selectedIds.activiteId !== null) {
       this.getInfoActivite(this.selectedIds.activiteId);
     }
     this.getcurrentUser();

@@ -176,6 +176,26 @@ const isLoadingData = ref(true);
 const isCreate = ref(true);
 const programmes = ref([]);
 const datas = ref([]);
+const search = ref("");
+
+// Computed property pour filtrer les données basées sur la recherche
+const filteredDatas = computed(() => {
+  if (!search.value) {
+    return datas.value;
+  }
+
+  const searchTerm = search.value.toLowerCase();
+  return datas.value.filter((item) => {
+    return (
+      (item.nom && item.nom.toLowerCase().includes(searchTerm)) ||
+      (item.description && item.description.toLowerCase().includes(searchTerm)) ||
+      (item.adresse && item.adresse.toLowerCase().includes(searchTerm)) ||
+      (item.contact && item.contact.toLowerCase().includes(searchTerm)) ||
+      (item.email && item.email.toLowerCase().includes(searchTerm)) ||
+      (item.created_at && item.created_at.toLowerCase().includes(searchTerm))
+    );
+  });
+});
 
 const createData = async () => {
   isLoading.value = true;
@@ -380,7 +400,7 @@ onMounted(() => {
     <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
       <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
         <div class="relative w-56 text-slate-500">
-          <input type="text" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
+          <input type="text" v-model="search" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
           <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
         </div>
       </div>
@@ -414,7 +434,7 @@ onMounted(() => {
     <!-- SimpleTable remplace Tabulator -->
     <div v-if="!isLoadingData" class="mt-5">
       <SimpleTable
-        :data="datas"
+        :data="filteredDatas"
         @edit="handleEdit"
         @delete="handleDelete"
       />

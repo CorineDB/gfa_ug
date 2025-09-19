@@ -10,22 +10,14 @@
       </div>
       <div class="flex">
         <button class="mr-2 shadow-md btn btn-primary" @click="showModalFiltre = true"><FilterIcon class="w-4 h-4 mr-3" />Filtrer le PA</button>
-        <!-- v-if="!isLoadingData && currentOrganisation?.profile_de_gouvernance" :org="currentOrganisation?.nom" :pointfocal="`${currentOrganisation?.nom_point_focal}  ${currentOrganisation?.prenom_point_focal}`" :dateevaluation="currentFactuel?.evaluatedAt" -->
-        <!-- <ExportationResultatSynthese :datas="dataNew" class="mr-3" /> -->
-        <!-- <download-excel :data="json_data" class="btn btn-primary">
-          Télécharger Excel
-          <DownloadIcon class="w-4 h-4" />
-        </download-excel> -->
+        
         <button @click="exportToExcel" class="mr-2 btn btn-primary">
           <DownloadIcon class="w-4 h-4 mr-2" />
           Export Excel (XLSX)
         </button>
 
         <DownloadPDFButton :tableIds="['ptaTable34']" pageName="Plan d'action" format="a0" />
-        <!-- <button @click="$router.go(-1)" class="ml-2 btn btn-primary">
-          <ArrowLeftIcon class="w-4 h-4 ml-2" />
-          Retour
-        </button> -->
+       
         <button class="ml-2 btn btn-primary" title="Retour" @click="$router.go(-1)">
           <CornerDownLeftIcon class="w-5 h-5" />
         </button>

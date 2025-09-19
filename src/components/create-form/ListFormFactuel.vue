@@ -53,6 +53,8 @@ const getOneForm = async () => {
   try {
     const { data } = await FormulaireFactuel.getOne(idSelectedForm.value);
     previewForm.value = data.data;
+
+    console.log("previewForm", previewForm.value);
   } catch (e) {
     toast.error("Erreur récupération du  formulaire.");
     console.log(e);
@@ -349,6 +351,7 @@ onMounted(() => {
       </ModalHeader>
 
       <ModalBody class="space-y-5">
+        <!-- <pre>{{ previewForm }}</pre> -->
         <!-- <div>
           <p class="mb-3">Options de réponses</p>
           <ListOptionsResponse :options="optionPreviewForm" />
@@ -375,41 +378,64 @@ onMounted(() => {
             <th class="py-3 border border-slate-900">Source de validation</th>
           </tr>
         </thead>
-        <tbody>
-
-          <template v-for="type_de_gouvernance in previewForm.categories_de_gouvernance"
-            :key="type_de_gouvernance.id">
-            <tr class="bg-green-100">
-              <td colspan="7" class="font-semibold">{{ type_de_gouvernance.position }} - {{ type_de_gouvernance.nom }}</td>
+        <tbody v-if="previewForm.categories_de_gouvernance?.length">
+          <template v-for="type_de_gouvernance in previewForm.categories_de_gouvernance" :key="type_de_gouvernance.id">
+            <tr class="bg-green-100 list-data">
+              <td colspan="5" class="font-semibold">{{ type_de_gouvernance.position }} - {{ type_de_gouvernance.nom }}</td>
             </tr>
-            <template v-for="principe_de_gouvernance in type_de_gouvernance.categories_de_gouvernance"
-              :key="principe_de_gouvernance.id">
-              <template v-for="(critere_de_gouvernance, scIndex) in principe_de_gouvernance.categories_de_gouvernance"
-                :key="critere_de_gouvernance.id">
-                <template
-                  v-for="(indicateur_de_gouvernance, qIndex) in critere_de_gouvernance.questions_de_gouvernance"
-                  :key="indicateur_de_gouvernance.id">
-
+            <template v-for="principe_de_gouvernance in type_de_gouvernance.categories_de_gouvernance" :key="principe_de_gouvernance.id">
+              <template v-for="(critere_de_gouvernance, scIndex) in principe_de_gouvernance.categories_de_gouvernance" :key="critere_de_gouvernance.id">
+                <template v-for="(question_de_gouvernance, qIndex) in critere_de_gouvernance.questions_de_gouvernance" :key="question_de_gouvernance.id">
                   <tr>
-                    <!-- Première cellule de catégorie principale avec rowspan -->
-                    <td class="font-semibold" v-if="scIndex === 0 && qIndex === 0"
-                      :rowspan="principe_de_gouvernance.categories_de_gouvernance.reduce((sum, sc) => sum + sc.questions_de_gouvernance.length, 0)">
-                      {{ principe_de_gouvernance.position }} - {{ principe_de_gouvernance.nom }}
+                    <!-- Première cellule de catégorie principale (Principes) avec rowspan -->
+                    <td class="font-semibold list-data" v-if="scIndex === 0 && qIndex === 0"
+                        :rowspan="principe_de_gouvernance.categories_de_gouvernance.reduce((sum, sc) => sum + sc.questions_de_gouvernance.length, 0)">
+                      <div class="flex items-center gap-1">
+                        {{ type_de_gouvernance.position }}.{{ principe_de_gouvernance.position }} - {{ principe_de_gouvernance.nom }}
+                      </div>
                     </td>
 
-                    <!-- Première cellule de sous-catégorie avec rowspan -->
-                    <td v-if="qIndex === 0" :rowspan="critere_de_gouvernance.questions_de_gouvernance.length">
-                      {{ critere_de_gouvernance.position }} - {{ critere_de_gouvernance.nom }}
+                    <!-- Première cellule de sous-catégorie (Critères) avec rowspan -->
+                    <td class="list-data" v-if="qIndex === 0" :rowspan="critere_de_gouvernance.questions_de_gouvernance.length">
+                      <div class="flex items-center gap-1">
+                        {{ type_de_gouvernance.position }}.{{ principe_de_gouvernance.position }}.{{ critere_de_gouvernance.position }} - {{ critere_de_gouvernance.nom }}
+                      </div>
                     </td>
-                    <td>{{ indicateur_de_gouvernance.position }} - {{ indicateur_de_gouvernance.nom }}</td>
-                    <td>{{ }}</td>
-                    <td>{{ }}</td>
+
+                    <!-- Colonne Indicateurs -->
+                    <td>
+                      {{ type_de_gouvernance.position }}.{{ principe_de_gouvernance.position }}.{{ critere_de_gouvernance.position }}.{{ question_de_gouvernance.position }} - {{ question_de_gouvernance.nom }}
+                      <div class="text-sm text-gray-600 mt-1" v-if="question_de_gouvernance.indicateur_de_gouvernance">
+                        <em>Indicateur: {{ question_de_gouvernance.indicateur_de_gouvernance.nom }}</em>
+                      </div>
+                    </td>
+
+                    <!-- Colonne Réponses -->
+                    <td>
+                      <div class="flex flex-wrap gap-1">
+                        <template v-for="(option, idx) in previewForm.options_de_reponse" :key="option.id">
+                          <span class="px-2 py-1 text-xs bg-blue-100 rounded">
+                            {{ option.libelle }} ({{ option.point }}pt)
+                          </span>
+                        </template>
+                      </div>
+                    </td>
+
+                    <!-- Colonne Source de validation -->
+                    <td class="text-sm">
+                      À définir lors de l'évaluation
+                    </td>
                   </tr>
                 </template>
               </template>
-              <!-- Ligne Score factuel après chaque catégorie principale -->
             </template>
           </template>
+        </tbody>
+
+        <tbody v-else>
+          <tr class="bg-transparent text-center">
+            <td colspan="5" class="font-semibold">Aucune donnée disponible</td>
+          </tr>
         </tbody>
       </table>
       </ModalBody>

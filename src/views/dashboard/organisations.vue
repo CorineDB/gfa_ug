@@ -570,7 +570,7 @@ onMounted(() => {
                 <InputForm :required="true" label="Sigle" v-model="payload.sigle" :control="getFieldErrors(errors.sigle)" />
                 <!-- <InputForm :required="false" label="Contact" v-model.number="payload.contact" :control="getFieldErrors(errors.contact)" /> -->
                 <div>
-                  <InputForm :control="getFieldErrors(errors.contact)" label="Contact" v-model="payload.contact" maxlength="13" placeholder="+229xxxxxxxxxx" type="text" />
+                <InputForm :control="getFieldErrors(errors.contact)" label="Contact" v-model="payload.contact" maxlength="13" placeholder="+229xxxxxxxxxx" type="text" />
 
                   <!-- Message de validation avec animation -->
                   <div class="mt-4 min-h-[1.5rem]">

@@ -573,7 +573,7 @@ export default {
         <!-- Nom -->
         <div class="col-span-12 md:col-span-6">
           <InputForm v-model="formData.nom" class="col-span-6" type="text" required="required" placeHolder="Nom de la tache" label="Nom" />
-          <p class="text-red-500 text-[12px] -mt-2 col-span-6" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
+          <p class="text-red-500 text-[12px] mt-2 col-span-6" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
         </div>
 
         <!-- Description (pleine ligne) -->
@@ -615,18 +615,18 @@ export default {
             <option value="">Choisir une activité</option>
             <option v-for="(element, index) in activites" :key="index" :value="element.id">{{ element.codePta }}-{{ element.nom }}</option>
           </TomSelect>
-          <p class="text-red-500 text-[12px] -mt-2" v-if="messageErreur.activiteId">{{ messageErreur.activiteId }}</p>
+          <p class="text-red-500 text-[12px] mt-2" v-if="messageErreur.activiteId">{{ messageErreur.activiteId }}</p>
         </div>
 
         <!-- Date début -->
         <div class="col-span-12 md:col-span-6">
           <InputForm v-model="formData.debut" class="col-span-6" type="date" required="required" placeHolder="Entrer la date de début" label="Début de la tâche" />
-          <p class="text-red-500 text-[12px] -mt-2 col-span-6" v-if="messageErreur.debut">{{ messageErreur.debut }}</p>
+          <p class="text-red-500 text-[12px] mt-2 col-span-6" v-if="messageErreur.debut">{{ messageErreur.debut }}</p>
         </div>
         <!-- Date fin -->
         <div class="col-span-12 md:col-span-6">
           <InputForm v-model="formData.fin" class="col-span-6" type="date" required="required" placeHolder="Entrer la date de fin" label="Fin de la tâche" />
-          <p class="text-red-500 text-[12px] -mt-2 col-span-6" v-if="messageErreur.fin">{{ messageErreur.fin }}</p>
+          <p class="text-red-500 text-[12px] mt-2 col-span-6" v-if="messageErreur.fin">{{ messageErreur.fin }}</p>
         </div>
 
         <!-- Plage de date -->

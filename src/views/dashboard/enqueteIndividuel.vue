@@ -3,9 +3,76 @@
     <h2 class="mt-10 text-lg font-medium intro-y">Enquête Individuelle</h2>
     <LoaderSnipper v-if="loading" />
     <div class="grid grid-cols-12 gap-6 mt-5">
-      <div v-show="!loading" class="iframe-container">
-        <iframe src="https://surveyjs.io/create-free-survey" @load="onIframeLoad"></iframe>
-        <div class="overlay"></div>
+      <div v-show="!loading" class="col-span-12">
+        <div class="p-5 box max-h-[80vh] overflow-y-auto">
+          <h3 class="text-lg font-medium sticky top-0 bg-white pb-2 z-10">Créateur de formulaire</h3>
+
+          <!-- Form Field Creator -->
+          <div class="grid grid-cols-4 gap-4 mt-4 sticky top-12 bg-white pb-4 z-10 border-b">
+            <div>
+              <label class="form-label">Type de champ</label>
+              <select v-model="newField.type_champ" class="form-select">
+                <option value="">Sélectionner</option>
+                <option value="text">Texte</option>
+                <option value="number">Nombre</option>
+                <option value="email">Email</option>
+                <option value="select">Liste déroulante</option>
+                <option value="radio">Boutons radio</option>
+                <option value="checkbox">Cases à cocher</option>
+                <option value="textarea">Zone de texte</option>
+                <option value="date">Date</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">Attribut</label>
+              <input v-model="newField.attribut" type="text" class="form-control" placeholder="nom du champ">
+            </div>
+            <div>
+              <label class="form-label">Label</label>
+              <input v-model="newField.label" type="text" class="form-control" placeholder="libellé du champ">
+            </div>
+            <div>
+              <label class="form-label">Valeur par défaut</label>
+              <input v-model="newField.value" type="text" class="form-control" placeholder="valeur">
+            </div>
+            <div class="col-span-4">
+              <label class="form-label">Options (séparées par des virgules)</label>
+              <input v-model="newField.options" type="text" class="form-control" placeholder="option1,option2,option3">
+            </div>
+          </div>
+
+          <div class="flex gap-2 mt-4 sticky top-40 bg-white py-2 z-10 border-b">
+            <button @click="addField" class="btn btn-primary">Ajouter le champ</button>
+            <button @click="clearForm" class="btn btn-secondary">Vider le formulaire</button>
+            <button @click="copyJson" class="btn btn-success">Copier JSON</button>
+          </div>
+
+          <!-- Form Preview -->
+          <div v-if="formFields.length > 0" class="mt-6">
+            <h4 class="text-md font-medium mb-3">Aperçu du formulaire</h4>
+            <div class="p-4 bg-slate-50 rounded max-h-60 overflow-y-auto">
+              <div v-for="(field, index) in formFields" :key="index" class="mb-4 p-3 bg-white rounded border">
+                <div class="flex justify-between items-start">
+                  <div class="flex-1">
+                    <strong>{{ field.label }}</strong> ({{ field.type_champ }})
+                    <div class="text-sm text-slate-500">Attribut: {{ field.attribut }}</div>
+                    <div v-if="field.value" class="text-sm text-slate-600">Valeur par défaut: {{ field.value }}</div>
+                    <div v-if="field.options && field.options.length > 0" class="text-sm text-slate-600">
+                      Options: {{ field.options.join(', ') }}
+                    </div>
+                  </div>
+                  <button @click="removeField(index)" class="btn btn-sm btn-danger">Supprimer</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- JSON Output -->
+          <div v-if="formFields.length > 0" class="mt-6">
+            <h4 class="text-md font-medium mb-3">JSON résultant</h4>
+            <textarea ref="jsonOutput" :value="formJson" class="form-control h-48" readonly></textarea>
+          </div>
+        </div>
       </div>
     </div>
     <ManagementEvaluationIndividuel :formulaires="datas" />
@@ -71,13 +138,13 @@
     </ModalBody>
   </Modal>
 
-  <Modal backdrop="static" size="modal-xl " :show="showModalPreview" @hidden="showModalPreview = false">
+  <!-- <Modal backdrop="static" size="modal-xl " :show="showModalPreview" @hidden="showModalPreview = false">
     <ModalHeader>
       <h2 class="mr-auto text-base font-medium">{{ currentForm.libelle }}</h2>
     </ModalHeader>
     <ModalBody>
       <div class="max-h-[65vh] h-[65vh] overflow-y-auto">
-        <SurveyComponent :model="survey" />
+        
       </div>
     </ModalBody>
     <ModalFooter>
@@ -85,7 +152,7 @@
         <button type="button" @click="showModalPreview = false" class="flex-1 w-full px-2 py-2 my-3 btn btn-outline-secondary">Retour</button>
       </div>
     </ModalFooter>
-  </Modal>
+  </Modal> -->
 </template>
 
 <script setup>
@@ -101,15 +168,13 @@ import Tabulator from "tabulator-tables";
 import DeleteButton from "@/components/news/DeleteButton.vue";
 import EnqueteIndividuelService from "../../services/modules/enquete.individuel.service";
 import ManagementEvaluationIndividuel from "./ManagementEvaluationIndividuel.vue";
-import "survey-core/defaultV2.min.css";
-import { SurveyComponent } from "survey-vue3-ui";
-import { Model } from "survey-core";
+ 
+
+ 
 import { reactive } from "vue";
 
-const iframeSrc = "https://surveyjs.io/create-free-survey";
-
 const payload = reactive({ libelle: "", description: "", form_data: "" });
-const loading = ref(true);
+const loading = ref(false);
 const isLoading = ref(false);
 const showModalCreate = ref(false);
 const showModalPreview = ref(false);
@@ -118,16 +183,95 @@ const isCreate = ref(true);
 const datas = ref([]);
 const errors = ref({});
 const currentForm = ref({});
-const currentSurvey = ref({});
 const idSelect = ref("");
 const nameSelect = ref("");
 const deleteModalPreview = ref(false);
 const tabulator = ref();
-const survey = ref(new Model({}));
 
-function onIframeLoad() {
-  loading.value = false;
-}
+// Form builder variables
+const newField = reactive({
+  type_champ: "",
+  attribut: "",
+  label: "",
+  value: "",
+  options: ""
+});
+const formFields = ref([]);
+const jsonOutput = ref();
+
+// Form builder methods
+const addField = () => {
+  if (!newField.type_champ || !newField.attribut) {
+    toast.error("Type de champ et attribut sont requis");
+    return;
+  }
+
+  const field = {
+    type_champ: newField.type_champ,
+    attribut: newField.attribut,
+    label: newField.label || newField.attribut,
+    value: newField.value || "",
+    options: newField.options ? newField.options.split(',').map(opt => opt.trim()) : []
+  };
+
+  formFields.value.push(field);
+
+  // Reset form
+  newField.type_champ = "";
+  newField.attribut = "";
+  newField.label = "";
+  newField.value = "";
+  newField.options = "";
+};
+
+const removeField = (index) => {
+  formFields.value.splice(index, 1);
+};
+
+const clearForm = () => {
+  formFields.value = [];
+  newField.type_champ = "";
+  newField.attribut = "";
+  newField.label = "";
+  newField.value = "";
+  newField.options = "";
+};
+
+const copyJson = async () => {
+  try {
+    await navigator.clipboard.writeText(formJson.value);
+    toast.success("JSON copié dans le presse-papier");
+  } catch (err) {
+    console.error("Erreur lors de la copie:", err);
+    toast.error("Erreur lors de la copie du JSON");
+  }
+};
+
+const formJson = computed(() => {
+  return JSON.stringify({
+    title: "Formulaire créé",
+    pages: [{
+      name: "page1",
+      elements: formFields.value.map(field => {
+        const element = {
+          type: field.type_champ,
+          name: field.attribut,
+          title: field.label
+        };
+
+        if (field.value) {
+          element.defaultValue = field.value;
+        }
+
+        if (field.options && field.options.length > 0 && ['select', 'radio', 'checkbox'].includes(field.type_champ)) {
+          element.choices = field.options;
+        }
+
+        return element;
+      })
+    }]
+  }, null, 2);
+});
 
 const initTabulator = () => {
   tabulator.value = new Tabulator("#tabulator", {
@@ -249,8 +393,6 @@ const handleEdit = (data) => {
 
 const handlePreview = (data) => {
   currentForm.value = data;
-  currentSurvey.value = data.form_data;
-  survey.value = new Model(currentSurvey.value);
   showModalPreview.value = true;
 };
 

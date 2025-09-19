@@ -13,11 +13,11 @@ import vSelect from "vue-select";
 import "vue-select/dist/vue-select.css";
 import Vue3Toastify from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
-import { surveyPlugin } from "survey-vue3-ui";
+
 import permissionPlugin from "./plugins/verify-permission";
 import permissionDirective from "./utils/permissionsDirective";
 import JsonExcel from "vue-json-excel3";
-import phoneValidator from './plugins/phoneValidator';
+import phoneValidator from "./plugins/phoneValidator";
 
 //import { Vue3SimpleHtml2pdf } from "vue3-simple-html2pdf";
 
@@ -29,7 +29,7 @@ const app = createApp(App)
   .use(Vue3Toastify, {
     autoClose: 3000,
   })
-  .use(surveyPlugin)
+
   .use(permissionPlugin)
   .use(phoneValidator);
 

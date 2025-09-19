@@ -1210,6 +1210,7 @@ onMounted(() => {
       </div>
     </div>
     <div class="max-h-[80vh] py-2 border-t overflow-y-auto mb-10 my-2">
+      <!-- <pre>{{ previewTypesGouvernance }}</pre> -->
       <table class="w-full border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
         <thead class="text-white bg-blue-900">
           <tr>

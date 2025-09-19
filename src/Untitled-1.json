@@ -1,131 +1,119 @@
+previewTypesGouvernance  (src/views/dashboard/CreateFormFactuel.vue) exemple
+
 {
-  "id": "ol3v0egbpkaOMrYlzZm5xELqG28o7DJnDqBv3VKjA910RwgnW6e4dyQPbayEmLRQ",
-  "trimestre": 3,
-  "dateSuivie": "2025-09-30 00:00:00",
-  "estValider": true,
-  "sources_de_donnee": "Documment",
-  "cumul": [
-      787386
-  ],
-  "valeurRealise": {
-      "H": 343
-  },
-  "valeurCible": {
-      "id": "ny5xop4Y3n6AY4mB9rog5NMdlVOZWRJBeE80qjpxKGyvwP1kbLaDe2z71ed0mgD2",
-      "annee": 2025,
-      "valeurCible": 75,
-      "indicateur": {
-          "id": "RbEzrJQkB0poV8QYnxzr9ZljN7e6L4P8lPAkRDWgyqmaJKEO2G5w31bvlx01npjo",
-          "nom": "Nombre de structures dont les versions citoyennes ou synthèse des documents d'information financière (budgets, audits FADeC, comptes administratifs communaux, Rapport annuel de la Cour des comptes) sont vulgarisés",
-          "description": "Nombre de structures dont les versions citoyennes ou synthèse des documents d'information financière (budgets, audits FADeC, comptes administratifs communaux, Rapport annuel de la Cour des comptes) sont vulgarisés",
-          "indice": 1,
-          "code": "0.1.1",
-          "kobo": null,
-          "koboVersion": null,
-          "categorieId": "l82Gz4gWYDbeaZA096EpMrdwLR1OnKJW4xG8BkyNvoVQzj2WP4gqlX53Avj5X9EL",
-          "categorie": {
-              "id": "l82Gz4gWYDbeaZA096EpMrdwLR1OnKJW4xG8BkyNvoVQzj2WP4gqlX53Avj5X9EL",
-              "nom": "outcome 1 : les citoyens bénéficient des services publics de meilleure qualité dans les quatre secteurs prioritaires (eau, éducation, état civil et santé)"
-          },
-          "agreger": false,
-          "value_keys": [
-              {
-                  "id": "2q8V9QM5Q20nWeVamJ8Ay3lDYZqRGpO8POXo675P9wbvNkx4gzKM1rEdYDXP4WAg",
-                  "libelle": "Homme",
-                  "key": "H",
-                  "description": "Homme",
-                  "type": "nombre",
-                  "uniteeMesureId": "MrkPnW9OPO6qmRGD2gzZl80Mje9L7V5Px5wAaXNBdpQEYWx4kyrbv3n1R4q2j8z0"
-              }
-          ],
-          "unitee_mesure": {
-              "id": "MrkPnW9OPO6qmRGD2gzZl80Mje9L7V5Px5wAaXNBdpQEYWx4kyrbv3n1R4q2j8z0",
-              "nom": "nombre"
-          },
-          "anneeDeBase": 2024,
-          "valeurDeBase": {
-              "H": "46"
-          },
-          "valeursCible": [
-              {
-                  "id": "oRj0BLamVapW2zl40YdM7e1859x63jXydQDRvBPOymrZgokGnKAwqLbNv6rGkgVb",
-                  "annee": 2024,
-                  "valeurCible": {
-                      "H": 47
-                  },
-                  "valeur_realiser": []
-              },
-              {
-                  "id": "ny5xop4Y3n6AY4mB9rog5NMdlVOZWRJBeE80qjpxKGyvwP1kbLaDe2z71ed0mgD2",
-                  "annee": 2025,
-                  "valeurCible": 75,
-                  "valeur_realiser": {
-                      "H": 787386
-                  }
-              }
-          ],
-          "valeurCibleTotal": {
-              "H": 47
-          },
-          "valeurRealiserTotal": {
-              "H": 787386
-          },
-          "taux_realisation": {
-              "H": 16752.893617021276
-          },
-          "sources_de_donnee": null,
-          "methode_de_la_collecte": null,
-          "frequence_de_la_collecte": null,
-          "ug_responsable": {
-              "id": "AdVOYRq4wkMlqV24Rgvp1Lxa6Yd5Zj8Vv8O9n7ermEyJQKXWAGbPzN03w65vg7bz",
-              "nom": "GFA Redevabilite - UG",
-              "programme": {
-                  "id": "Kl4ankW8vn18AZDLmoaqz3YdgwkG5RE9AEMKBQOP2y9le4pXrj60Wbx71mr7dxLq",
-                  "nom": "Programme Redevabilité",
-                  "code": "1",
-                  "budgetNational": 90000000,
-                  "debut": "2024-01-01",
-                  "fin": "2028-12-31",
-                  "description": "Programme visant à appuyer la transformation numérique des institutions publiques.",
-                  "objectifGlobaux": "Renforcer l'efficacité administrative et la transparence à travers le numérique.",
-                  "created_at": "2025-06-02T20:37:57.000000Z",
-                  "organismeDeTutelle": "Ministère du Numérique"
-              },
-              "user": {
-                  "id": "VApb6mXWVzR91opYNBe0D6ng5yLw2AJmpOE4GxQdXMrWbkl7qjaPKmZv9Gnk45ez",
-                  "nom": "KOKOYE",
-                  "prenom": "Marc",
-                  "contact": "2290140161604",
-                  "email": "kmarc@secuprogroup.com",
-                  "type": "unitee-de-gestion",
-                  "programmeId": "Kl4ankW8vn18AZDLmoaqz3YdgwkG5RE9AEMKBQOP2y9le4pXrj60Wbx71mr7dxLq",
-                  "poste": null,
-                  "created_at": "2025-06-02 08:49:08"
-              },
-              "created_at": "2025-06-02 08:41:11"
-          },
-          "organisations_responsable": [],
-          "created_at": "2025-06-13 07:50:58"
-      }
-  },
-  "auteur": {
-      "id": "AdVOYRq4wkMlqV24Rgvp1Lxa6Yd5Zj8Vv8O9n7ermEyJQKXWAGbPzN03w65vg7bz",
-      "nom": "KOKOYE",
-      "prenom": "Marc"
-  },
-  "commentaire": "hjggjhguy",
-  "commentaires": [
+    "types_de_gouvernance": [
       {
-          "id": "QlXambVZNnAVzEb5pJo6gZ4xPy7Y0Qqa0W3RalMmWX2edkLw1jvKBr8GDJ8kon2j",
-          "contenu": "hjggjhguy",
-          "commentable_type": "App\\Models\\SuiviIndicateur",
-          "commentable_id": 48,
-          "created_at": "2025-09-18T20:06:53.000000Z",
-          "updated_at": "2025-09-18T20:06:53.000000Z",
-          "deleted_at": null,
-          "commentaireId": null,
-          "auteurId": 3
+        "id": "Gj1PONlbL67bQkARyjpBYe1d3JwnvMEBP2xlaVDPgWrom84zNGX0qKOZvBYZqpze",
+        "nom": "Gouvernance économique et financière",
+        "key": "1Gj1PONlbL67bQkARyjpBYe1d3JwnvMEBP2xlaVDPgWrom84zNGX0qKOZvBYZqpze_0",
+        "position": 1,
+        "principes_de_gouvernance": [
+          {
+            "id": "OAKd1Gr50Wy6RAZOkrxlap7qbV5N1YBNdnjXJdE3vzP4owKQMmG2L8egQ2zmJqL6",
+            "nom": "Transparence",
+            "key": "1OAKd1Gr50Wy6RAZOkrxlap7qbV5N1YBNdnjXJdE3vzP4owKQMmG2L8egQ2zmJqL61Gj1PONlbL67bQkARyjpBYe1d3JwnvMEBP2xlaVDPgWrom84zNGX0qKOZvBYZqpze1Gj1PONlbL67bQkARyjpBYe1d3JwnvMEBP2xlaVDPgWrom84zNGX0qKOZvBYZqpze_0_0",
+            "position": 1,
+            "criteres_de_gouvernance": [
+              {
+                "id": "oMaJ24xr38PD7oXzBq0erMwvyRjd1WnO2Qg9G56bJaxOVLZmApK4lk2YAlO3KjW9",
+                "nom": "Légitimité/légalité",
+                "key": "1oMaJ24xr38PD7oXzBq0erMwvyRjd1WnO2Qg9G56bJaxOVLZmApK4lk2YAlO3KjW91OAKd1Gr50Wy6RAZOkrxlap7qbV5N1YBNdnjXJdE3vzP4owKQMmG2L8egQ2zmJqL61Gj1PONlbL67bQkARyjpBYe1d3JwnvMEBP2xlaVDPgWrom84zNGX0qKOZvBYZqpze1OAKd1Gr50Wy6RAZOkrxlap7qbV5N1YBNdnjXJdE3vzP4owKQMmG2L8egQ2zmJqL61Gj1PONlbL67bQkARyjpBYe1d3JwnvMEBP2xlaVDPgWrom84zNGX0qKOZvBYZqpze1Gj1PONlbL67bQkARyjpBYe1d3JwnvMEBP2xlaVDPgWrom84zNGX0qKOZvBYZqpze_0_0_0",
+                "position": 1,
+                "indicateurs_de_gouvernance": [
+                  {
+                    "id": "LvwlMpWEP7v2y03aVq9Omwd1XGJNeKQ2kor8gj5zAYMpDxLERk6WZ4bledXA74a1",
+                    "nom": "Rôles et responsabilité clairement définis",
+                    "key": "1LvwlMpWEP7v2y03aVq9Omwd1XGJNeKQ2kor8gj5zAYMpDxLERk6WZ4bledXA74a11oMaJ24xr38PD7oXzBq0erMwvyRjd1WnO2Qg9G56bJaxOVLZmApK4lk2YAlO3KjW91OAKd1Gr50Wy6RAZOkrxlap7qbV5N1YBNdnjXJdE3vzP4owKQMmG2L8egQ2zmJqL61Gj1PONlbL67bQkARyjpBYe1d3JwnvMEBP2xlaVDPgWrom84zNGX0qKOZvBYZqpze1OAKd1Gr50Wy6RAZOkrxlap7qbV5N1YBNdnjXJdE3vzP4owKQMmG2L8egQ2zmJqL61Gj1PONlbL67bQkARyjpBYe1d3JwnvMEBP2xlaVDPgWrom84zNGX0qKOZvBYZqpze1Gj1PONlbL67bQkARyjpBYe1d3JwnvMEBP2xlaVDPgWrom84zNGX0qKOZvBYZqpze_0_0_0_0",
+                    "position": 1
+                  },
+                  {
+                    "id": "4DdRVwmZpZ8vRXy5wGJ9bezKa640WDQERoLmAOd3xP1jNVr7qMYkEl2gPM2byO5k",
+                    "nom": "Organes statutaires fonctionnels",
+                    "key": "24DdRVwmZpZ8vRXy5wGJ9bezKa640WDQERoLmAOd3xP1jNVr7qMYkEl2gPM2byO5k1oMaJ24xr38PD7oXzBq0erMwvyRjd1WnO2Qg9G56bJaxOVLZmApK4lk2YAlO3KjW91OAKd1Gr50Wy6RAZOkrxlap7qbV5N1YBNdnjXJdE3vzP4owKQMmG2L8egQ2zmJqL61Gj1PONlbL67bQkARyjpBYe1d3JwnvMEBP2xlaVDPgWrom84zNGX0qKOZvBYZqpze1OAKd1Gr50Wy6RAZOkrxlap7qbV5N1YBNdnjXJdE3vzP4owKQMmG2L8egQ2zmJqL61Gj1PONlbL67bQkARyjpBYe1d3JwnvMEBP2xlaVDPgWrom84zNGX0qKOZvBYZqpze1Gj1PONlbL67bQkARyjpBYe1d3JwnvMEBP2xlaVDPgWrom84zNGX0qKOZvBYZqpze_1_0_0_0",
+                    "position": 2
+                  },
+                  {
+                    "id": "JqdGAjlVxmwGXMRAO5dzgaql1WeEj3BONn4vLZ9y6bNYpKr70J82VkPD6zZYXRpv",
+                    "nom": "Existence de statuts et règlement intérieur",
+                    "key": "3JqdGAjlVxmwGXMRAO5dzgaql1WeEj3BONn4vLZ9y6bNYpKr70J82VkPD6zZYXRpv1oMaJ24xr38PD7oXzBq0erMwvyRjd1WnO2Qg9G56bJaxOVLZmApK4lk2YAlO3KjW91OAKd1Gr50Wy6RAZOkrxlap7qbV5N1YBNdnjXJdE3vzP4owKQMmG2L8egQ2zmJqL61Gj1PONlbL67bQkARyjpBYe1d3JwnvMEBP2xlaVDPgWrom84zNGX0qKOZvBYZqpze1OAKd1Gr50Wy6RAZOkrxlap7qbV5N1YBNdnjXJdE3vzP4owKQMmG2L8egQ2zmJqL61Gj1PONlbL67bQkARyjpBYe1d3JwnvMEBP2xlaVDPgWrom84zNGX0qKOZvBYZqpze1Gj1PONlbL67bQkARyjpBYe1d3JwnvMEBP2xlaVDPgWrom84zNGX0qKOZvBYZqpze_2_0_0_0",
+                    "position": 3
+                  }
+                ]
+              }
+            ]
+          }
+        ]
       }
-  ],
-  "created_at": "2025-09-18 08:06:53"
+    ]
 }
+
+
+je veux que preview (src/components/create-form/ListFormFactuel.vue) suive la meme HIERACHIE DE DONNÉES que previewTypesGouvernance
+voici l'architecture actuelle de preview (ligne 364-417)
+
+{
+    "id": "0mBbxevad0MQkaGJwB3mvLRnb26WA19qxKygzXpxjlrP8Z54qYEV7eNONWYkz7yg",
+    "libelle": "test critere suprimé new",
+    "description": null,
+    "created_by": "VApb6mXWVzR91opYNBe0D6ng5yLw2AJmpOE4GxQdXMrWbkl7qjaPKmZv9Gnk45ez",
+    "created_at": "2025-09-17",
+    "options_de_reponse": [
+      {
+        "id": "5raNoMpy7rWeoAVvdGJD4z6ZqMKEw2QEPO1RLXp39jg8xPy05mNkBYalK2YEJ9Xw",
+        "libelle": "Oui",
+        "slug": "oui",
+        "point": 1
+      },
+      {
+        "id": "yz8pxJWg2G5pYvxLk67jJEaqNZW34Xb5KOm1egzVyDd0l9oPB8MKrwRA7PGkwrB6",
+        "libelle": "Non",
+        "slug": "non",
+        "point": 0
+      },
+      {
+        "id": "63kjxmWRD4qL0MoxG6gedaZEzvkjPWQoYn3B5XJplN2rAVK97yRY1wm8Ld7B4oa0",
+        "libelle": "Partiellement",
+        "slug": "partiellement",
+        "point": 0.5
+      }
+    ],
+    "categories_de_gouvernance": [
+      {
+        "id": "AO8Gqy3b760KA83lbvapw5ZyqBW4mrN5lAEeYk1XOL9Qj2dxzVDPRMGgJ5JYlReM",
+        "nom": "Gouvernance économique et financière",
+        "categorieableId": "Gj1PONlbL67bQkARyjpBYe1d3JwnvMEBP2xlaVDPgWrom84zNGX0qKOZvBYZqpze",
+        "position": 1,
+        "categorieDeGouvernanceId": null,
+        "categories_de_gouvernance": [
+          {
+            "id": "xdeqbQGJ4r5KDmA1lwP9Yeq0ZjxOy2nBPmNBbVJX8vdLaQGpg7Wzk3R6MpyZMVAa",
+            "nom": "Transparence",
+            "categorieableId": "OAKd1Gr50Wy6RAZOkrxlap7qbV5N1YBNdnjXJdE3vzP4owKQMmG2L8egQ2zmJqL6",
+            "position": 1,
+            "categorieDeGouvernanceId": "AO8Gqy3b760KA83lbvapw5ZyqBW4mrN5lAEeYk1XOL9Qj2dxzVDPRMGgJ5JYlReM",
+            "categories_de_gouvernance": [
+              {
+                "id": "OzZ6AaJdv4y7ZwbG8djV5pL6QlK9g3EkVQnPm2kaJMXBWxzeqrRA1Y0DOwe0rP2R",
+                "nom": "Obligation de rendre compte",
+                "categorieableId": "Xj28DapM5gajb163OVpePyJqRdB8GlEojnoAW2k7DMzwK0Z9Lrxm4YXvlJLmzdxe",
+                "position": 2,
+                "categorieDeGouvernanceId": "xdeqbQGJ4r5KDmA1lwP9Yeq0ZjxOy2nBPmNBbVJX8vdLaQGpg7Wzk3R6MpyZMVAa",
+                "questions_de_gouvernance": [
+                  {
+                    "id": "zYgDGlKLkzvNLWj62mJPqe3oDp4A1MQvWmE8ygYVK0aZdR7OrwxlbX59Gebwxjm2",
+                    "nom": "Rôles et responsabilité clairement définis",
+                    "position": 3,
+                    "indicateur_de_gouvernance": {
+                      "id": "LvwlMpWEP7v2y03aVq9Omwd1XGJNeKQ2kor8gj5zAYMpDxLERk6WZ4bledXA74a1",
+                      "nom": "Rôles et responsabilité clairement définis"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+}
+  
