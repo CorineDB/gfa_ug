@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref, reactive } from "vue";
+import { computed, onMounted, ref, reactive , watch } from "vue";
 import IndicateursService from "@/services/modules/indicateur.service";
 import IndicateurSuivisService from "@/services/modules/indicateur.suivi.service";
 import AuthService from "@/services/modules/auth.service";
@@ -13,6 +13,13 @@ import { getAllErrorMessages } from "@/utils/gestion-error";
 import ChartDetailSuivi from "../../../components/news/ChartDetailSuivi.vue";
 import { sourcesDonnees } from "@/utils/constants";
 import DeleteButton from "@/components/news/DeleteButton.vue";
+import { Chart, registerables } from "chart.js";
+
+// Enregistrer tous les composants Chart.js
+Chart.register(...registerables);
+
+
+
 
 const route = useRoute();
 const router = useRouter();
@@ -24,6 +31,7 @@ const showModalValidate = ref(false);
 const isLoadingData = ref(true);
 const isLoading = ref(false);
 const datas = ref([]);
+const formErrors = ref({});
 
 const debutProgramme = ref("");
 const finProgramme = ref("");
@@ -104,7 +112,7 @@ const initTabulator = () => {
         width: 350,
         formatter: (cell) => {
           const container = document.createElement("div");
-          container.className = "flex items-center justify-center gap-3";
+          container.className = "flex items-center justify-start gap-3";
 
           const createButton = (label, className, onClick) => {
             const button = document.createElement("button");
@@ -113,7 +121,6 @@ const initTabulator = () => {
             button.addEventListener("click", onClick);
             return button;
           };
-
 
           const validateButton = createButton("Valider", "btn btn-primary", () => {
             handleValidate(cell.getData());
@@ -126,7 +133,7 @@ const initTabulator = () => {
           const suiviButton = createButton("Suivi", "btn btn-primary", () => {
             handleSuivi(cell.getData());
           });
-          
+
           const modifyButton = createButton("Modifier", "btn btn-primary", () => {
             handleEditSuivi(cell.getData());
           });
@@ -182,17 +189,14 @@ const validateData = async () => {
     });
 };
 
-
-
 // filter
-
 
 const mode = computed(() => (isCreate.value ? "Ajouter" : "Modifier"));
 
 const getCurrentQuarter = function () {
   const month = new Date().getMonth() + 1; // Les mois sont indexés à partir de 0
   return Math.ceil(month / 3); // Calcul du trimestre actuel
-}
+};
 
 const openFilterModal = () => {
   console.log(filterPayload.annee);
@@ -279,8 +283,165 @@ const years = computed(() => {
   return annees;
 });
 
-/** Manage suivi */
 
+//Pour le graphique : 
+// Ref pour le graphique
+const barChart = ref(null);
+let chartInstance = null;
+
+ 
+
+// Méthode pour formater les données du graphique
+const formatChartData = () => {
+  if (!datas.value || datas.value.length === 0) return null;
+
+  const labels = datas.value.map((item) => {
+    const trimestre = item.trimestre || 'N/A';
+    const annee = item.valeurCible?.annee || new Date(item.dateSuivie).getFullYear();
+    return `T${trimestre} - ${annee}`;
+  });
+
+  // Extraction des valeurs avec gestion des différents formats
+  const realisedValues = datas.value.map((item) => {
+    const valeurRealise = item.valeurRealise;
+    if (typeof valeurRealise === 'object' && valeurRealise.moy !== undefined) {
+      return valeurRealise.moy;
+    } else if (typeof valeurRealise === 'number') {
+      return valeurRealise;
+    } else {
+      // Si c'est un objet avec des clés dynamiques, prendre la première valeur numérique
+      const values = Object.values(valeurRealise || {});
+      return values.find(v => typeof v === 'number') || 0;
+    }
+  });
+
+  const targetValues = datas.value.map((item) => {
+    const valeurCible = item.valeurCible?.valeurCible;
+    if (typeof valeurCible === 'object' && valeurCible.moy !== undefined) {
+      return valeurCible.moy;
+    } else if (typeof valeurCible === 'number') {
+      return valeurCible;
+    } else {
+      // Si c'est un objet avec des clés dynamiques, prendre la première valeur numérique
+      const values = Object.values(valeurCible || {});
+      return values.find(v => typeof v === 'number') || 0;
+    }
+  });
+
+  return {
+    labels,
+    datasets: [
+      {
+        label: "Valeur Réalisée",
+        data: realisedValues,
+        backgroundColor: "rgba(75, 192, 192, 0.6)",
+        borderColor: "rgba(75, 192, 192, 1)",
+        borderWidth: 2,
+        barThickness: 30,
+        borderRadius: 4,
+      },
+      {
+        label: "Valeur Cible",
+        data: targetValues,
+        backgroundColor: "rgba(239, 68, 68, 0.6)",
+        borderColor: "rgba(239, 68, 68, 1)",
+        borderWidth: 2,
+        barThickness: 30,
+        borderRadius: 4,
+      },
+    ],
+  };
+};
+
+// Méthode pour rendre le graphique
+const renderChart = () => {
+  if (!barChart.value) return;
+
+  if (chartInstance) {
+    chartInstance.destroy();
+  }
+
+  const chartData = formatChartData();
+  if (!chartData) return;
+
+  chartInstance = new Chart(barChart.value, {
+    type: "bar",
+    data: chartData,
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: "top",
+          labels: {
+            usePointStyle: true,
+            padding: 20,
+          },
+        },
+        tooltip: {
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          titleColor: 'white',
+          bodyColor: 'white',
+          borderColor: 'rgba(255, 255, 255, 0.1)',
+          borderWidth: 1,
+          cornerRadius: 8,
+        },
+      },
+      scales: {
+        x: {
+          title: {
+            display: true,
+            text: "Période (Trimestre - Année)",
+            font: {
+              size: 12,
+              weight: 'bold',
+            },
+          },
+          grid: {
+            display: false,
+          },
+          ticks: {
+            maxRotation: 45,
+            minRotation: 0,
+          },
+        },
+        y: {
+          title: {
+            display: true,
+            text: "Valeurs",
+            font: {
+              size: 12,
+              weight: 'bold',
+            },
+          },
+          beginAtZero: true,
+          grid: {
+            color: 'rgba(0, 0, 0, 0.1)',
+          },
+        },
+      },
+      interaction: {
+        intersect: false,
+        mode: 'index',
+      },
+    },
+  });
+};
+
+// Watcher pour re-rendre le graphique quand les données changent
+watch(
+  () => datas.value,
+  () => {
+    if (datas.value.length > 0) {
+      setTimeout(() => {
+        renderChart();
+      }, 100);
+    }
+  },
+  { deep: true }
+);
+
+/** Manage suivi */
 
 const showModalSuivi = ref(false);
 const deleteSuiviModalPreview = ref(false);
@@ -305,37 +466,54 @@ const payloadSuivi = reactive({
   commentaire: "",
   dateSuivie: "",
   indicateurId: "",
-  sources_de_donnee: ""
+  sources_de_donnee: "",
 });
 
 const handleEditSuivi = (data) => {
   console.log(data);
   isCreate.value = false;
   idSelect.value = data.id;
-  const date = new Date(data.dateSuivie);
-  payloadSuivi.dateSuivie = date.toISOString().slice(0, 10); // mm/dd/yyyy
 
-  console.log(payloadSuivi.dateSuivie);
+  // Clear previous errors
+  formErrors.value = {};
+
+  const date = new Date(data.dateSuivie);
+  payloadSuivi.dateSuivie = date.toISOString().slice(0, 10);
 
   payloadSuivi.sources_de_donnee = data.sources_de_donnee;
   payloadSuivi.commentaire = data.commentaire;
-  payloadSuivi.annee = `${new Date(data.dateSuivie).getFullYear()}`; 
-  payloadSuivi.trimestre = `${payloadSuivi.trimestre}`;
-  valeurCible.value = data.valeurCible.valeurCible;
-  valeurRealise.value = data.valeurRealise;
+  payloadSuivi.annee = `${new Date(data.dateSuivie).getFullYear()}`;
+  payloadSuivi.trimestre = `${data.trimestre}`;
+
+  // Determine if indicator is aggregated
   isAgregerCurrentIndicateur.value = data.valeurCible.indicateur.agreger;
-  if(isAgregerCurrentIndicateur.value == false){
-    Object.keys(valeurCible.value).forEach((key) => {
-      payloadSuivi.valeurCible = valeurCible.value[key];
-    });
-    Object.keys(valeurCible.value).forEach((key) => {
-      payloadSuivi.valeurRealise = valeurRealise.value[key];
-    });
+
+  if (isAgregerCurrentIndicateur.value) {
+    // For aggregated indicators, use the structure from value_keys
+    valeurCible.value = data.valeurCible.valeurCible;
+    valeurRealise.value = data.valeurRealise;
+  } else {
+    // For non-aggregated indicators, get single values
+    if (typeof data.valeurCible.valeurCible === 'object') {
+      payloadSuivi.valeurCible = Object.values(data.valeurCible.valeurCible)[0];
+    } else {
+      payloadSuivi.valeurCible = data.valeurCible.valeurCible;
+    }
+
+    if (typeof data.valeurRealise === 'object') {
+      payloadSuivi.valeurRealise = Object.values(data.valeurRealise)[0];
+    } else {
+      payloadSuivi.valeurRealise = data.valeurRealise;
+    }
   }
 
   payloadSuivi.indicateurId = data.valeurCible.indicateur.id;
   valueKeysIndicateurSuivi.value = data.valeurCible.indicateur.value_keys;
-  resetValues();
+
+  if (isAgregerCurrentIndicateur.value) {
+    resetValues();
+  }
+
   showModalSuivi.value = true;
   console.log(payloadSuivi);
 };
@@ -344,7 +522,7 @@ const handleSuivi = (data) => {
   console.log(data);
   valeurCible.value = data.valeurCible.valeurCible;
   isAgregerCurrentIndicateur.value = data.valeurCible.indicateur.agreger;
-  if(isAgregerCurrentIndicateur.value == false){
+  if (isAgregerCurrentIndicateur.value == false) {
     Object.keys(valeurCible.value).forEach((key) => {
       payloadSuivi.valeurCible = valeurCible.value[key];
     });
@@ -389,14 +567,17 @@ const resetFormSuivi = () => {
     payloadSuivi[key] = "";
   });
 
-  payloadSuivi['annee'] = `${new Date().getFullYear()}`;
-  payloadSuivi['trimestre'] = `${getCurrentQuarter()}`;
-  payloadSuivi['valeurCible'] = "";
-  payloadSuivi['valeurRealise'] = "";
-  payloadSuivi['commentaire'] = "";
-  payloadSuivi['dateSuivie'] = "";
-  payloadSuivi['indicateurId'] = "";
-  payloadSuivi['sources_de_donnee'] = "";
+  payloadSuivi["annee"] = `${new Date().getFullYear()}`;
+  payloadSuivi["trimestre"] = `${getCurrentQuarter()}`;
+  payloadSuivi["valeurCible"] = "";
+  payloadSuivi["valeurRealise"] = "";
+  payloadSuivi["commentaire"] = "";
+  payloadSuivi["dateSuivie"] = "";
+  payloadSuivi["indicateurId"] = "";
+  payloadSuivi["sources_de_donnee"] = "";
+
+  // Clear form errors
+  formErrors.value = {};
 
   showModalSuivi.value = false;
   isCreate.value = true;
@@ -405,7 +586,7 @@ const resetFormSuivi = () => {
 const submitData = async () => {
   console.log(isCreate.value);
   isCreate.value ? submitSuivi() : submitUpdateSuivi();
-}
+};
 
 const submitSuivi = async () => {
   payloadSuivi.annee = Number(payloadSuivi.annee);
@@ -433,7 +614,16 @@ const submitSuivi = async () => {
     isLoading.value = false;
     //emit("refreshData", data);
   } catch (e) {
+    isLoading.value = false;
     console.log(e);
+
+    // Capture validation errors if available
+    if (e.response && e.response.data && e.response.data.errors) {
+      formErrors.value = e.response.data.errors;
+    } else {
+      formErrors.value = {};
+    }
+
     toast.error(getAllErrorMessages(e));
   }
 };
@@ -465,8 +655,16 @@ const submitUpdateSuivi = async () => {
     isLoading.value = false;
   } catch (e) {
     console.log(e);
-    toast.error(getAllErrorMessages(e));
     isLoading.value = false;
+
+    // Capture validation errors if available
+    if (e.response && e.response.data && e.response.data.errors) {
+      formErrors.value = e.response.data.errors;
+    } else {
+      formErrors.value = {};
+    }
+
+    toast.error(getAllErrorMessages(e));
   }
 };
 
@@ -498,9 +696,11 @@ const deleteSuivi = async () => {
   }
 };
 
-const closeModal = () => (showModalSuivi.value = false);
+const closeModal = () => {
+  formErrors.value = {};
+  showModalSuivi.value = false;
+};
 const closeDeleteSuiviModal = () => (deleteSuiviModalPreview.value = false);
-
 
 onMounted(() => {
   getcurrentUser();
@@ -530,18 +730,10 @@ onMounted(() => {
       <div class="text-base font-medium text-white">Unité de mesure</div>
       <div class="text-white text-opacity-80">{{ datas[0]?.valeurCible.indicateur?.unitee_mesure?.nom }}</div>
     </div>
-    <!-- <div v-if="datas[0]?.valeurCible.indicateur.organisations_responsable.length > 0" class="col-span-12 p-5 cursor-pointer sm:col-span-4 2xl:col-span-3 box zoom-in">
-      <div class="text-base font-medium">Organisations</div>
-      <div class="text-slate-500">{{ datas[0]?.valeurCible.indicateur.organisations_responsable.map((org) => org.nom).join(", ") }}</div>
-    </div>
-    <div v-if="datas[0]?.valeurCible.indicateur.description" class="col-span-12 p-5 cursor-pointer sm:col-span-4 2xl:col-span-3 box zoom-in">
-      <div class="text-base font-medium">Description</div>
-      <div class="text-slate-500">{{ datas[0]?.valeurCible.indicateur.description }}</div>
-    </div> -->
+   
   </div>
 
   <div class="p-5 mt-5 intro-y box">
-
     <div class="grid grid-cols-12 gap-6 mt-5">
       <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
         <div class="flex w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
@@ -551,9 +743,7 @@ onMounted(() => {
           </div>
         </div>
         <div class="flex">
-          <button class="mr-2 shadow-md btn btn-primary" @click="openFilterModal">
-            <FilterIcon class="w-4 h-4 mr-3" />Filtre
-          </button>
+          <button class="mr-2 shadow-md btn btn-primary" @click="openFilterModal"><FilterIcon class="w-4 h-4 mr-3" />Filtre</button>
 
           <button class="btn btn-primary" title="Réinitialiser le filtre" @click="resetFilter()">
             <RefreshCwIcon class="w-5 h-5" />
@@ -568,10 +758,37 @@ onMounted(() => {
     <LoaderSnipper v-if="isLoadingData" />
   </div>
 
-  <div v-if="!isLoadingData" class="w-full mt-5 box">
+  <div v-if="!isLoadingData && datas.length > 0" class="w-full mt-5 box">
+    <div class="p-5">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-medium text-gray-800">Suivi des valeurs cibles et réalisées</h3>
+        <div class="flex items-center gap-4 text-sm">
+          <div class="flex items-center gap-2">
+            <div class="w-4 h-4 bg-red-400 rounded"></div>
+            <span>Valeur Cible</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-4 h-4 bg-teal-400 rounded"></div>
+            <span>Valeur Réalisée</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Conteneur du graphique avec hauteur fixe -->
+      <div class="relative" style="height: 400px;">
+        <canvas 
+          ref="barChart" 
+          class="w-full h-full"
+          style="max-height: 400px !important;"
+        ></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- <div v-if="!isLoadingData" class="w-full mt-5 box">
     <p class="p-2 text-lg font-medium">Suivi des valeurs cibles et des valeurs réalisées</p>
     <ChartDetailSuivi :data="datas" />
-  </div>
+  </div> -->
 
   <Modal :show="showModalValidate" @hidden="showModalValidate = false">
     <ModalBody class="p-2">
@@ -586,8 +803,6 @@ onMounted(() => {
       </div>
     </ModalBody>
   </Modal>
-
-
 
   <!-- Modal Filtre des suivis -->
   <Modal backdrop="static" :show="showModalFiltre" @hidden="showModalFiltre = false">
@@ -621,8 +836,6 @@ onMounted(() => {
   </Modal>
   <!-- End Modal -->
 
-
-
   <!-- SUIVIE  -->
   <Modal size="modal-lg" backdrop="static" :show="showModalSuivi" @hidden="closeModal">
     <ModalHeader>
@@ -633,15 +846,28 @@ onMounted(() => {
         <div class="grid grid-cols-1 gap-5">
           <div class="flex-1">
             <label class="form-label">Année de suivi</label>
-            
+
             <TomSelect v-model="payloadSuivi.annee" name="annee_suivi" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
               <option v-for="annee in years" :key="annee" :value="annee">{{ annee }}</option>
             </TomSelect>
+            <div v-if="formErrors.annee" class="mt-1 text-sm text-red-600">
+              <p v-for="error in formErrors.annee" :key="error">{{ error }}</p>
+            </div>
           </div>
           <!-- <InputForm label="Année de suivi" class="flex-1" v-model="payloadSuivi.annee" type="number" /> -->
           <div v-if="!isAgregerCurrentIndicateur" class="flex flex-wrap items-center justify-between gap-3">
-            <InputForm label="Valeur cible" class="flex-1" v-model="payloadSuivi.valeurCible" type="number" />
-            <InputForm label="Valeur réalisée" class="flex-1" v-model="payloadSuivi.valeurRealise" type="number" />
+            <div class="flex-1">
+              <InputForm label="Valeur cible" v-model="payloadSuivi.valeurCible" type="number" />
+              <div v-if="formErrors.valeurCible" class="mt-1 text-sm text-red-600">
+                <p v-for="error in formErrors.valeurCible" :key="error">{{ error }}</p>
+              </div>
+            </div>
+            <div class="flex-1">
+              <InputForm label="Valeur réalisée" v-model="payloadSuivi.valeurRealise" type="number" />
+              <div v-if="formErrors.valeurRealise" class="mt-1 text-sm text-red-600">
+                <p v-for="error in formErrors.valeurRealise" :key="error">{{ error }}</p>
+              </div>
+            </div>
           </div>
 
           <div v-if="valueKeysIndicateurSuivi.length > 0 && isAgregerCurrentIndicateur" class="">
@@ -678,20 +904,34 @@ onMounted(() => {
               <option value=""></option>
               <option v-for="trimestre in 4" :key="trimestre" :value="trimestre">Trimestre {{ trimestre }}</option>
             </TomSelect>
+            <div v-if="formErrors.trimestre" class="mt-1 text-sm text-red-600">
+              <p v-for="error in formErrors.trimestre" :key="error">{{ error }}</p>
+            </div>
           </div>
 
-          <InputForm v-else label="Date de suivi" class="flex-1" v-model="payloadSuivi.dateSuivie" type="date" />
+          <div v-else class="flex-1">
+            <InputForm label="Date de suivi" v-model="payloadSuivi.dateSuivie" type="date" />
+            <div v-if="formErrors.dateSuivie" class="mt-1 text-sm text-red-600">
+              <p v-for="error in formErrors.dateSuivie" :key="error">{{ error }}</p>
+            </div>
+          </div>
           <div class="flex-1">
             <label class="form-label">Source de données</label>
             <TomSelect v-model="payloadSuivi.sources_de_donnee" name="source" :options="{ placeholder: 'Selectionez une source' }" class="w-full">
               <option value=""></option>
               <option v-for="(source, index) in sourcesDonnees" :key="index" :value="source">{{ source }}</option>
             </TomSelect>
+            <div v-if="formErrors.sources_de_donnee" class="mt-1 text-sm text-red-600">
+              <p v-for="error in formErrors.sources_de_donnee" :key="error">{{ error }}</p>
+            </div>
           </div>
           <div class="flex-1">
             <label class="form-label" for="description">Commentaire</label>
             <div class="">
               <textarea name="description" class="form-control" id="description" v-model="payloadSuivi.commentaire" cols="30" rows="2"></textarea>
+            </div>
+            <div v-if="formErrors.commentaire" class="mt-1 text-sm text-red-600">
+              <p v-for="error in formErrors.commentaire" :key="error">{{ error }}</p>
             </div>
           </div>
         </div>

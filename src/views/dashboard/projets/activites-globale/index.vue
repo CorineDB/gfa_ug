@@ -391,6 +391,7 @@ export default {
           console.log("data", data);
           await ActiviteService.update(this.selectedIds.activiteId, this.formData);
           toast.success("Modification effectuée");
+          this.loadComposantDetails();
         } else {
           const data = {
             ...this.formData,
@@ -412,7 +413,7 @@ export default {
         }
 
         this.showModal = false;
-        // this.loadComposantDetails();
+         this.loadComposantDetails();
       } catch (error) {
         console.log(error);
 
@@ -468,6 +469,7 @@ export default {
     },
 
     async loadComposantDetails() {
+      
       if (!this.selectedIds.composantId || this.selectedIds.composantId == "") return;
 
       this.isLoadingData = true;
@@ -533,7 +535,7 @@ export default {
       this.seeActivite = false;
       this.seeStatistique = false;
     },
-    text() { },
+    text() {},
 
     ouvrirModalProlongerActivite(item) {
       this.dateDebutOld = item.debut;
@@ -632,18 +634,18 @@ export default {
         });
     },
 
-    submitDuree(){
-      if(this.editDuree ) {
+    submitDuree() {
+      if (this.editDuree) {
         this.modifierDureeActivite();
-      }else{
-         this.prolongementActivite();
+      } else {
+        this.prolongementActivite();
       }
     },
 
     changerStatut(item, statut = 2) {
       this.loaderStatut = true;
 
-      const nouveauStatut = statut;//item.statut === 0 ? 2 : 0;
+      const nouveauStatut = statut; //item.statut === 0 ? 2 : 0;
 
       const payLoad = {
         statut: nouveauStatut,
@@ -783,22 +785,16 @@ export default {
 <template>
   <div class="flex items-center justify-between my-2 flex-wrap sm:flex-nowrap">
     <div class="flex space-x-2 md:space-x-4 w-full sm:w-4/5">
-      <span :class="{ 'border-primary border-b-8 font-bold': seeActivite }" @click="seeActivities()"
-        class="inline-block cursor-pointer text-xs sm:text-sm md:text-base uppercase border-primary py-2 mb-2">Activités</span>
-      <span :class="{ 'border-primary border-b-8 font-bold': seePlan }" @click="seePlanDecaissement()"
-        class="inline-block cursor-pointer text-xs sm:text-sm md:text-base uppercase py-2 mb-2">Plan de décaissement
-      </span>
-      <span :class="{ 'border-primary border-b-8 font-bold': seeStatistique }" @click="seeStats()"
-        class="inline-block cursor-pointer text-xs sm:text-sm md:text-base uppercase py-2 mb-2">Statistiques </span>
+      <span :class="{ 'border-primary border-b-8 font-bold': seeActivite }" @click="seeActivities()" class="inline-block cursor-pointer text-xs sm:text-sm md:text-base uppercase border-primary py-2 mb-2">Activités</span>
+      <span :class="{ 'border-primary border-b-8 font-bold': seePlan }" @click="seePlanDecaissement()" class="inline-block cursor-pointer text-xs sm:text-sm md:text-base uppercase py-2 mb-2">Plan de décaissement </span>
+      <span :class="{ 'border-primary border-b-8 font-bold': seeStatistique }" @click="seeStats()" class="inline-block cursor-pointer text-xs sm:text-sm md:text-base uppercase py-2 mb-2">Statistiques </span>
     </div>
     <div>
-      <button v-if="seeActivite && activiteAdd" @click="addActivite" title="ajouter une activite"
-        class="px-4 py-2 flex overflow-hidden items-center text-xs font-semibold text-white uppercase bg-primary focus:outline-none focus:shadow-outline">
+      <button v-if="seeActivite && activiteAdd" @click="addActivite" title="ajouter une activite" class="px-4 py-2 flex overflow-hidden items-center text-xs font-semibold text-white uppercase bg-primary focus:outline-none focus:shadow-outline">
         <span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-            style="fill: rgba(255, 255, 255, 1); transform: ; msfilter: ">
-            <path d="M19 11h-6V5h-2v6H5v2h6v6h2v-6h6z"></path>
-          </svg></span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" style="fill: rgba(255, 255, 255, 1); transform: ; msfilter: ">
+            <path d="M19 11h-6V5h-2v6H5v2h6v6h2v-6h6z"></path></svg
+        ></span>
         <span class="mx-2 text-xs font-semibold">ajouter </span>
       </button>
     </div>
@@ -812,66 +808,74 @@ export default {
 
       <div class="grid grid-cols-2 gap-4">
         <div class="flex col-span-6">
-          <label for="_input-wizard-10"
-            class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Projets</label>
-          <TomSelect v-model="projetId" :options="{
-            placeholder: 'Choisir un Output',
-            create: false,
-            onOptionAdd: text(),
-          }" class="w-full">
+          <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Projets</label>
+          <TomSelect
+            v-model="projetId"
+            :options="{
+              placeholder: 'Choisir un Output',
+              create: false,
+              onOptionAdd: text(),
+            }"
+            class="w-full"
+          >
             <option value="">Choisir un projet</option>
-            <option v-for="(element, index) in projets" :key="index" :value="element.id">{{ element.codePta }} - {{
-              element.nom }}</option>
+            <option v-for="(element, index) in projets" :key="index" :value="element.id">{{ element.codePta }} - {{ element.nom }}</option>
           </TomSelect>
         </div>
         <!--  v-if="composants.length > 0" -->
         <div class="flex col-span-6">
-          <label for="_input-wizard-10"
-            class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Outcomes</label>
-          <TomSelect v-model="selectedIds.composantId" :options="{
-            placeholder: 'Choisir un Outcome',
-            create: false,
-            onOptionAdd: text(),
-          }" class="w-full">
-            <option v-for="(element, index) in composants" :key="index" :value="element.id">{{ element.codePta }} - {{
-              element.nom }}</option>
+          <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Outcomes</label>
+          <TomSelect
+            v-model="selectedIds.composantId"
+            :options="{
+              placeholder: 'Choisir un Outcome',
+              create: false,
+              onOptionAdd: text(),
+            }"
+            class="w-full"
+          >
+            <option v-for="(element, index) in composants" :key="index" :value="element.id">{{ element.codePta }} - {{ element.nom }}</option>
           </TomSelect>
         </div>
 
         <div class="col-span-6 flex items-center justify-center">
-          <div class="flex w-full mr-4">
-            <label for="_input-wizard-10"
-              class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Output</label>
-            <TomSelect v-model="selectedIds.sousComposantId" :options="{
-              placeholder: 'Choisir un Output',
-              create: false,
-              onOptionAdd: text(),
-            }" class="w-full">
+          <div class="flex w-full mr-1">
+            <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Output</label>
+            <TomSelect
+              v-model="selectedIds.sousComposantId"
+              :options="{
+                placeholder: 'Choisir un Output',
+                create: false,
+                onOptionAdd: text(),
+              }"
+              class="w-full"
+            >
               <option value="">Choisir un Output</option>
 
-              <option v-for="(element, index) in sousComposants" :key="index" :value="element.id">{{ element.codePta }}
-                - {{ element.nom }}</option>
+              <option v-for="(element, index) in sousComposants" :key="index" :value="element.id">{{ element.codePta }} - {{ element.nom }}</option>
             </TomSelect>
           </div>
-          <button v-if="sousComposants.length > 0" type="button" class="btn btn-outline-primary"
-            @click="resetSousComposantsId()" title="Rester dans le composant">
+          <button v-if="sousComposants.length > 0" type="button" class="btn btn-outline-primary" @click="resetSousComposantsId()" title="Rester dans le composant">
             <TrashIcon class="w-4 h-4" />
           </button>
         </div>
 
         <div class="flex col-span-6" v-if="seePlan || seeStatistique">
-          <label for="_input-wizard-10"
-            class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Activités</label>
-          <TomSelect v-model="selectedIds.activiteId" :options="{
-            placeholder: 'Choisir une activité',
-            create: false,
-            onOptionAdd: text(),
-          }" @change="getInfoActivite(selectedIds.activiteId)" class="w-full"
-            title="Veuillez sélectionner une activité pour afficher son plan de décaissement">
+          <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Activités</label>
+          <TomSelect
+            v-model="selectedIds.activiteId"
+            :options="{
+              placeholder: 'Choisir une activité',
+              create: false,
+              onOptionAdd: text(),
+            }"
+            @change="getInfoActivite(selectedIds.activiteId)"
+            class="w-full"
+            title="Veuillez sélectionner une activité pour afficher son plan de décaissement"
+          >
             <option value="">Choisir une activité</option>
 
-            <option v-for="(element, index) in activites" :key="index" :value="element.id">{{ element.codePta }} - {{
-              element.nom }}</option>
+            <option v-for="(element, index) in activites" :key="index" :value="element.id">{{ element.codePta }} - {{ element.nom }}</option>
           </TomSelect>
         </div>
       </div>
@@ -887,32 +891,20 @@ export default {
           <h2 class="text-base font-bold">Activites</h2>
         </div>
         <div class="flex">
-          <button class="mr-2 shadow-md btn btn-primary" v-permission="['creer-une-activite']" @click="addActivite()">
-            <PlusIcon class="w-4 h-4 mr-3" />Ajouter une Activité
-          </button>
+          <button class="mr-2 shadow-md btn btn-primary" v-permission="['creer-une-activite']" @click="addActivite()"><PlusIcon class="w-4 h-4 mr-3" />Ajouter une Activité</button>
         </div>
       </div>
 
       <div class="flex flex-wrap items-center justify-between col-span-12">
         <div class="flex flex-wrap space-x-2 md:space-x-4">
-          <span :class="{ 'border-primary border-b-4 font-bold': seeActivitiesOfState == 3 }"
-            @click="seeTypeActivities(3)"
-            class="inline-block cursor-pointer text-xs sm:text-sm uppercase py-2 mb-2">Tout</span>
+          <span :class="{ 'border-primary border-b-4 font-bold': seeActivitiesOfState == 3 }" @click="seeTypeActivities(3)" class="inline-block cursor-pointer text-xs sm:text-sm uppercase py-2 mb-2">Tout</span>
 
-          <span :class="{ 'border-primary border-b-4 font-bold': seeActivitiesOfState == -1 }"
-            @click="seeTypeActivities(-1)"
-            class="inline-block cursor-pointer text-xs sm:text-sm uppercase py-2 mb-2">Non demarre</span>
-          <span :class="{ 'border-primary border-b-4 font-bold': seeActivitiesOfState == 0 }"
-            @click="seeTypeActivities(0)" class="inline-block cursor-pointer text-xs sm:text-sm uppercase py-2 mb-2">En
-            cours </span>
+          <span :class="{ 'border-primary border-b-4 font-bold': seeActivitiesOfState == -1 }" @click="seeTypeActivities(-1)" class="inline-block cursor-pointer text-xs sm:text-sm uppercase py-2 mb-2">Non demarre</span>
+          <span :class="{ 'border-primary border-b-4 font-bold': seeActivitiesOfState == 0 }" @click="seeTypeActivities(0)" class="inline-block cursor-pointer text-xs sm:text-sm uppercase py-2 mb-2">En cours </span>
 
-          <span :class="{ 'border-primary border-b-4 font-bold': seeActivitiesOfState == 1 }"
-            @click="seeTypeActivities(1)" class="inline-block cursor-pointer text-xs sm:text-sm uppercase py-2 mb-2">En
-            retard </span>
+          <span :class="{ 'border-primary border-b-4 font-bold': seeActivitiesOfState == 1 }" @click="seeTypeActivities(1)" class="inline-block cursor-pointer text-xs sm:text-sm uppercase py-2 mb-2">En retard </span>
 
-          <span :class="{ 'border-primary border-b-4 font-bold': seeActivitiesOfState == 2 }"
-            @click="seeTypeActivities(2)"
-            class="inline-block cursor-pointer text-xs sm:text-sm uppercase py-2 mb-2">Termine </span>
+          <span :class="{ 'border-primary border-b-4 font-bold': seeActivitiesOfState == 2 }" @click="seeTypeActivities(2)" class="inline-block cursor-pointer text-xs sm:text-sm uppercase py-2 mb-2">Termine </span>
         </div>
         <div class="flex">
           <div class="relative text-slate-500">
@@ -928,24 +920,17 @@ export default {
       <LoaderSnipper v-if="isLoadingData" />
 
       <div v-if="!isLoadingData" class="grid grid-cols-12 gap-6 mt-5">
-        <NoRecordsMessage class="col-span-12" v-if="!paginatedAndFilteredData.length" title="Aucune activité trouvée"
-          description="Il semble qu'il n'y ait pas d'activités à afficher. Veuillez en créer un." />
-        <div v-else v-for="(item, index) in paginatedAndFilteredData" :key="index"
-          class="col-span-12 p-4 md:col-span-6 lg:col-span-4">
-          
-          <div v-if="verifyPermission('voir-une-activite')"
-            class="p-5 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-105 hover:bg-gray-50">
+        <NoRecordsMessage class="col-span-12" v-if="!paginatedAndFilteredData.length" title="Aucune activité trouvée" description="Il semble qu'il n'y ait pas d'activités à afficher. Veuillez en créer un." />
+        <div v-else v-for="(item, index) in paginatedAndFilteredData" :key="index" class="col-span-12 p-4 md:col-span-6 lg:col-span-4">
+          <div v-if="verifyPermission('voir-une-activite')" class="p-5 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-105 hover:bg-gray-50">
             <div class="relative flex items-start pt-5">
               <div class="flex flex-col items-center w-full lg:flex-row">
-                <div
-                  class="flex items-center justify-center w-[90px] h-[90px] text-white rounded-full shadow-md bg-primary flex-shrink-0 mr-4">
+                <div class="flex items-center justify-center w-[90px] h-[90px] text-white rounded-full shadow-md bg-primary flex-shrink-0 mr-4">
                   {{ item.codePta }}
                   <!-- <img alt="Midone Tailwind HTML Admin Template" class="rounded-full" :src="faker.photos[0]" /> -->
                 </div>
-                <div
-                  class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary _truncate text-center lg:text-left">
-                  <a href="" class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary">{{
-                    item.nom }} </a>
+                <div class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary _truncate text-center lg:text-left">
+                  <a href="" class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary">{{ item.nom }} </a>
                 </div>
               </div>
               <Dropdown class="absolute top-0 right-0 mt-3 mr-5">
@@ -954,40 +939,18 @@ export default {
                 </DropdownToggle>
                 <DropdownMenu class="w-40">
                   <DropdownContent>
-                    <DropdownItem v-if="verifyPermission('modifier-une-activite')" @click="modifierActivite(item)">
-                      <Edit2Icon class="w-4 h-4 mr-2" /> Modifier
-                    </DropdownItem>
-                    <DropdownItem v-if="verifyPermission('prolonger-une-activite')"
-                      @click="ouvrirModalProlongerActivite(item)">
-                      <CalendarIcon class="w-4 h-4 mr-2" /> Prolonger
-                    </DropdownItem>
-                    <DropdownItem title="cliquer pour marquer l'activité comme terminer"
-                      v-if="verifyPermission('modifier-une-activite') && item.statut == 0"
-                      @click="changerStatut(item, 2)">
-                      <CalendarIcon class="w-4 h-4 mr-2" /> Terminer
-                    </DropdownItem>
-                    <DropdownItem title="cliquer pour marquer l'activité comme pas démarré"
-                      v-if="verifyPermission('modifier-une-activite') && item.statut == 0"
-                      @click="changerStatut(item, -1)">
-                      <CalendarIcon class="w-4 h-4 mr-2" /> Pas Démarrer
-                    </DropdownItem>
+                    <DropdownItem v-if="verifyPermission('modifier-une-activite')" @click="modifierActivite(item)"> <Edit2Icon class="w-4 h-4 mr-2" /> Modifier </DropdownItem>
+                    <DropdownItem v-if="verifyPermission('prolonger-une-activite')" @click="ouvrirModalProlongerActivite(item)"> <CalendarIcon class="w-4 h-4 mr-2" /> Prolonger </DropdownItem>
+                    <DropdownItem title="cliquer pour marquer l'activité comme terminer" v-if="verifyPermission('modifier-une-activite') && item.statut == 0" @click="changerStatut(item, 2)"> <CalendarIcon class="w-4 h-4 mr-2" /> Terminer </DropdownItem>
+                    <DropdownItem title="cliquer pour marquer l'activité comme pas démarré" v-if="verifyPermission('modifier-une-activite') && item.statut == 0" @click="changerStatut(item, -1)"> <CalendarIcon class="w-4 h-4 mr-2" /> Pas Démarrer </DropdownItem>
 
-                    <DropdownItem title="cliquer pour démarré l'activité"
-                      v-else-if="verifyPermission('modifier-une-activite') && (item.statut !== 0)"
-                      @click="changerStatut(item, 0)">
-                      <CalendarIcon class="w-4 h-4 mr-2" /> Démarrer
-                    </DropdownItem>
+                    <DropdownItem title="cliquer pour démarré l'activité" v-else-if="verifyPermission('modifier-une-activite') && item.statut !== 0" @click="changerStatut(item, 0)"> <CalendarIcon class="w-4 h-4 mr-2" /> Démarrer </DropdownItem>
 
-                    <DropdownItem v-if="verifyPermission('creer-un-plan-de-decaissement')"
-                      @click="ouvrirModalPlanDeDecaissementActivite(item)">
-                      <CalendarIcon class="w-4 h-4 mr-2" /> Plan de decaissement
-                    </DropdownItem>
+                    <DropdownItem v-if="verifyPermission('creer-un-plan-de-decaissement')" @click="ouvrirModalPlanDeDecaissementActivite(item)"> <CalendarIcon class="w-4 h-4 mr-2" /> Plan de decaissement </DropdownItem>
 
                     <!-- <a v-if="verifyPermission('prolonger-un-projet')" class="flex items-center mr-auto text-primary" href="javascript:;" @click="ouvrirModalProlongerProjet(item)" title="Prolonger la date du projet"> <CalendarIcon class="w-4 h-4 mr-1" /><span class="hidden sm:block"> Étendre </span></a> -->
 
-                    <DropdownItem v-if="verifyPermission('supprimer-une-activite')" @click="supprimerComposant(item)">
-                      <TrashIcon class="w-4 h-4 mr-2" /> Supprimer
-                    </DropdownItem>
+                    <DropdownItem v-if="verifyPermission('supprimer-une-activite')" @click="supprimerComposant(item)"> <TrashIcon class="w-4 h-4 mr-2" /> Supprimer </DropdownItem>
                   </DropdownContent>
                 </DropdownMenu>
               </Dropdown>
@@ -1000,16 +963,13 @@ export default {
               </p>
 
               <div class="mt-5 space-y-3 text-gray-600">
-                
                 <div class="flex items-center">
-                  <LinkIcon class="w-4 h-4 mr-2" /> Fonds propre: {{ item.budgetNational == null || item.budgetNational
-                    == 0 ? 0 : $h.formatCurrency(item.budgetNational) }}
+                  <LinkIcon class="w-4 h-4 mr-2" /> Fonds propre: {{ item.budgetNational == null || item.budgetNational == 0 ? 0 : $h.formatCurrency(item.budgetNational) }}
                   <div class="ml-2 italic font-bold">Fcfa</div>
                 </div>
 
                 <div class="flex items-center">
-                  <LinkIcon class="w-4 h-4 mr-2" /> Subvention: {{ item.pret == null || item.pret == 0 ? 0 :
-                    $h.formatCurrency(item.pret) }}
+                  <LinkIcon class="w-4 h-4 mr-2" /> Subvention: {{ item.pret == null || item.pret == 0 ? 0 : $h.formatCurrency(item.pret) }}
                   <div class="ml-2 italic font-bold">Fcfa</div>
                 </div>
 
@@ -1029,17 +989,14 @@ export default {
                 <div class="flex items-center mt-2">
                   <ClockIcon class="w-4 h-4 mr-2" />
                   <div>
-                    Date : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(item.debut) }}</span> au <span
-                      class="font-bold"> {{ $h.reformatDate(item.fin) }}</span>
+                    Date : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(item.debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(item.fin) }}</span>
                   </div>
                 </div>
                 <div class="flex items-center mt-2" v-for="(plage, t) in item.durees" :key="t">
-                  
                   <ClockIcon class="w-4 h-4 mr-2" v-if="t <= item.durees.length - 1" />
-                  
+
                   <div v-if="t <= item.durees.length - 1">
-                    Plage de date {{ t + 1 }} : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(plage.debut)
-                      }}</span> au <span class="font-bold"> {{ $h.reformatDate(plage.fin) }}</span>
+                    Plage de date {{ t + 1 }} : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(plage.debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(plage.fin) }}</span>
                   </div>
 
                   <button class="p-1.5 text-primary" @click="editModalProlongerActivite(item, plage)">
@@ -1052,8 +1009,7 @@ export default {
         </div>
       </div>
     </div>
-    <pagination class="col-span-12" :total-items="totalItems" :items-per-page="itemsPerPage"
-      :is-loading="isLoadingProjets" @page-changed="onPageChanged" @items-per-page-changed="onItemsPerPageChanged">
+    <pagination class="col-span-12" :total-items="totalItems" :items-per-page="itemsPerPage" :is-loading="isLoadingProjets" @page-changed="onPageChanged" @items-per-page-changed="onItemsPerPageChanged">
       <!-- Slots personnalisés (facultatif) -->
       <template #prev-icon>
         <span>&laquo; Précédent</span>
@@ -1064,8 +1020,7 @@ export default {
     </pagination>
   </div>
 
-  <PlanDecaissementComponent v-if="seePlan" :activiteId="selectedIds.activiteId" :activites="activites"
-    @send-activiteId="changeActiviteId" :getPlageActivites="getPlageActivite" />
+  <PlanDecaissementComponent v-if="seePlan" :activiteId="selectedIds.activiteId" :activites="activites" @send-activiteId="changeActiviteId" :getPlageActivites="getPlageActivite" />
 
   <div v-if="seeStatistique" class="flex flex-col sm:flex-row justify-evenly mt-4">
     <div class="flex flex-col items-center p-6 mb-3 bg-white rounded-md shadow">
@@ -1089,78 +1044,78 @@ export default {
     <form @submit.prevent="sendForm">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
         <div class="col-span-12 md:col-span-6">
-          <InputForm v-model="formData.nom" class="col-span-12 mt-4" type="text" required="required"
-          placeHolder="Nom de l'activité*" label="Nom" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
+          <InputForm v-model="formData.nom" class="col-span-12 mt-4" type="text" required="required" placeHolder="Nom de l'activité*" label="Nom" />
+          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
         </div>
         <div class="input-form mt-3 col-span-12 md:col-span-6">
           <label for="validation-form-6" class="form-label w-full"> Description </label>
-          <textarea v-model="formData.description" class="form-control w-full" name="comment"
-            placeholder="Ajouter une description"></textarea>
+          <textarea v-model="formData.description" class="form-control w-full" name="comment" placeholder="Ajouter une description"></textarea>
         </div>
         <div class="col-span-12 md:col-span-6">
-          <InputForm v-model="formData.pret" class="col-span-12 mt-4" type="number" required="required"
-          placeHolder="Subvention*" label="Subvention" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pret">{{ messageErreur.pret }}</p>
+          <InputForm v-model="formData.pret" class="col-span-12 mt-4" type="number" required="required" placeHolder="Subvention*" label="Subvention" />
+          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pret">{{ messageErreur.pret }}</p>
         </div>
         <div class="col-span-12 md:col-span-6">
-          <InputForm v-model="formData.budgetNational" class="col-span-12 mt-4" type="number" required="required"
-          placeHolder="Ex : 2" label="Fond Propre" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.budgetNational">{{
-          messageErreur.budgetNational }}</p>
+          <InputForm v-model="formData.budgetNational" class="col-span-12 mt-4" type="number" required="required" placeHolder="Ex : 2" label="Fond Propre" />
+          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.budgetNational">{{ messageErreur.budgetNational }}</p>
         </div>
-      
 
-        <div v-if="!isUpdate" class="flex col-span-12 md:col-span-6 mt-4">
-          <label for="_input-wizard-10"
-            class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OutCome*</label>
-          <TomSelect v-model="formData.composanteId" :options="{
-            placeholder: 'Choisir un Outcome',
-            create: false,
-            onOptionAdd: text(),
-          }" class="w-full">
+        <div v-if="!isUpdate" class="flex flex-col col-span-12 md:col-span-6 mt-4">
+          <label for="_input-wizard-10" class="form-label">OutCome*</label>
+          <TomSelect
+            v-model="formData.composanteId"
+            :options="{
+              placeholder: 'Choisir un Outcome',
+              create: false,
+              onOptionAdd: text(),
+            }"
+            class="w-full"
+          >
             <option value="">Choisir un Outcome</option>
 
-            <option v-for="(element, index) in composants" :key="index" :value="element.id">{{ element.codePta }} - {{
-              element.nom }}</option>
+            <option v-for="(element, index) in composants" :key="index" :value="element.id">{{ element.codePta }} - {{ element.nom }}</option>
           </TomSelect>
         </div>
 
         <div class="flex col-span-12 md:col-span-6 mt-4" v-if="haveSousComposantes && !isUpdate">
-          <div class="flex w-11/12 mr-2">
-            <label for="_input-wizard-10"
-              class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OutPut*</label>
-            <TomSelect v-model="selectedIds.sousComposantId" :options="{
-              placeholder: 'Choisir un Output',
-              create: false,
-              onOptionAdd: text(),
-            }" class="w-full">
-              <option value="">Choisir un Output</option>
-              <option v-for="(element, index) in sousComposants" :key="index" :value="element.id">{{ element.codePta }}
-                -
-                {{ element.nom }}</option>
+          <div class="flex flex-col w-full ">
+            <label for="_input-wizard-10" class="form-label">Output*</label>
+            <div class="flex">
+              <TomSelect
+                  v-model="selectedIds.sousComposantId"
+                  :options="{
+                    placeholder: 'Choisir un Output',
+                    create: false,
+                    onOptionAdd: text(),
+                  }"
+                  class="w-11/12 mr-4"
+                >
+                <option value="">Choisir un Output</option>
+                <option v-for="(element, index) in sousComposants" :key="index" :value="element.id">
+                  {{ element.codePta }}
+                  -
+                  {{ element.nom }}
+                </option>
             </TomSelect>
+              <button type="button" class="btn btn-outline-primary inline-block" @click="resetSousComposantsId()" title="Rester dans le composant">
+              <TrashIcon class="w-4 h-4" />
+            </button>
+          </div>
+           
           </div>
 
-          <button type="button" class="btn btn-outline-primary" @click="resetSousComposantsId()"
-            title="Rester dans le composant">
-            <TrashIcon class="w-4 h-4" />
-          </button>
+          
         </div>
 
         <div class="col-span-12 md:col-span-6">
-          <InputForm v-model="formData.debut" class="col-span-12 mt-4" type="date" required="required"
-              placeHolder="Entrer la date de début*" label="Début de l'activité" />
-            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.debut">{{ messageErreur.debut }}</p>
+          <InputForm v-model="formData.debut" class="col-span-12 mt-4" type="date" required="required" placeHolder="Entrer la date de début*" label="Début de l'activité" />
+          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.debut">{{ messageErreur.debut }}</p>
         </div>
-      
 
         <div class="col-span-12 md:col-span-6">
-           <InputForm v-model="formData.fin" class="col-span-12 mt-4" type="date" required="required"
-          placeHolder="Entrer la date de fin*" label="Fin de l'activité" />
+          <InputForm v-model="formData.fin" class="col-span-12 mt-4" type="date" required="required" placeHolder="Entrer la date de fin*" label="Fin de l'activité" />
           <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.fin">{{ messageErreur.fin }}</p>
         </div>
-       
 
         <div v-if="getPlageProjet" class="flex items-center mt-2 col-span-12">
           <ClockIcon class="w-4 h-4 mr-2" />
@@ -1172,8 +1127,7 @@ export default {
       </ModalBody>
       <ModalFooter>
         <div class="flex items-center justify-center">
-          <button type="button" @click="showModal = false"
-            class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
+          <button type="button" @click="showModal = false" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
           <VButton class="inline-block" :label="labels" :loading="isLoading" />
         </div>
       </ModalFooter>
@@ -1188,8 +1142,7 @@ export default {
         <div class="mt-2 text-slate-500">Voulez vous supprimer l'activité ? <br />Cette action ne peut être annulé</div>
       </div>
       <div class="flex gap-2 px-5 pb-8 text-center">
-        <button type="button" @click="showDeleteModal = false"
-          class="w-full my-3 mr-1 btn btn-outline-secondary">Annuler</button>
+        <button type="button" @click="showDeleteModal = false" class="w-full my-3 mr-1 btn btn-outline-secondary">Annuler</button>
         <VButton :loading="deleteLoader" label="Supprimer" @click="deleteComposants" />
       </div>
     </ModalBody>
@@ -1202,24 +1155,20 @@ export default {
 
     <form @submit.prevent="submitDuree">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
-        <InputForm v-model="dateDebut" :min="dateDebutOld" class="col-span-12 mt-4" type="date" :required="true"
-          placeHolder="Entrer la nouvelle date debut" label="Nouvelle date debut de l'activite" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12"
-          v-if="erreurProlongation != null && erreurProlongation.debut">{{ erreurProlongation.debut }}</p>
+        <InputForm v-model="dateDebut" :min="dateDebutOld" class="col-span-12 mt-4" type="date" :required="true" placeHolder="Entrer la nouvelle date debut" label="Nouvelle date debut de l'activite" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurProlongation != null && erreurProlongation.debut">{{ erreurProlongation.debut }}</p>
 
-        <InputForm v-model="dateFin" :min="dateFinOld" class="col-span-12 mt-4" type="date" :required="true"
-          placeHolder="Entrer la nouvelle date fin" label="Nouvelle date fin de l'activite" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12"
-          v-if="erreurProlongation != null && erreurProlongation.fin">
-          {{ erreurProlongation.fin }}</p>
+        <InputForm v-model="dateFin" :min="dateFinOld" class="col-span-12 mt-4" type="date" :required="true" placeHolder="Entrer la nouvelle date fin" label="Nouvelle date fin de l'activite" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurProlongation != null && erreurProlongation.fin">
+          {{ erreurProlongation.fin }}
+        </p>
 
         <div class="col-span-12 mt-4" v-if="getPlageActivite">
           <div class="flex items-center mt-2" v-for="(plage, t) in getPlageActivite.durees" :key="t">
             <ClockIcon class="w-4 h-4 mr-2" />
             <div>
-              Plage de date {{ t + 1 }} : Du <span class="pr-1 font-bold"> {{
-                $h.reformatDate(plage.debut) }}</span> au 
-                <span class="font-bold"> {{ $h.reformatDate(plage.fin) }} </span>
+              Plage de date {{ t + 1 }} : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(plage.debut) }}</span> au
+              <span class="font-bold"> {{ $h.reformatDate(plage.fin) }} </span>
             </div>
           </div>
         </div>
@@ -1233,8 +1182,7 @@ export default {
       </ModalBody>
       <ModalFooter>
         <div class="flex items-center justify-center">
-          <button type="button" @click="showModalProlongement = false"
-            class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
+          <button type="button" @click="showModalProlongement = false" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
           <VButton class="inline-block" :label="editDuree ? 'Modifier' : 'Prolonger'" :loading="loadingProlonger" :type="submit" />
         </div>
       </ModalFooter>
@@ -1284,30 +1232,23 @@ export default {
             {{ erreurPlanDeDecaissement[index].trimestre }}
           </p> -->
 
-          <InputForm v-model="plan.budgetNational" :min="0" class="col-span-12 mt-4" type="number" :required="true"
-            placeHolder="Saisissez le fond propre" label="Saisissez le fond propre" />
-          <p class="text-red-500 text-[12px] -mt-2 col-span-12"
-            v-if="erreurPlanDeDecaissement?.[index]?.budgetNational">
+          <InputForm v-model="plan.budgetNational" :min="0" class="col-span-12 mt-4" type="number" :required="true" placeHolder="Saisissez le fond propre" label="Saisissez le fond propre" />
+          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.budgetNational">
             {{ erreurPlanDeDecaissement[index].budgetNational }}
           </p>
 
-          <InputForm v-model="plan.pret" :min="0" class="col-span-12 mt-4" type="number" :required="true"
-            placeHolder="Saisissez la subvention" label="Saisissez la subvention" />
+          <InputForm v-model="plan.pret" :min="0" class="col-span-12 mt-4" type="number" :required="true" placeHolder="Saisissez la subvention" label="Saisissez la subvention" />
           <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.pret">
             {{ erreurPlanDeDecaissement[index].pret }}
           </p>
 
-          <button type="button" @click="removePlan(index)" class="mt-4 text-red-600 text-sm underline">Supprimer ce
-            plan</button>
+          <button type="button" @click="removePlan(index)" class="mt-4 text-red-600 text-sm underline">Supprimer ce plan</button>
 
           <div class="col-span-12 mt-4" v-if="getPlageActivite">
             <div class="flex items-center mt-2" v-for="(plage, t) in getPlageActivite.durees" :key="t">
               <ClockIcon class="w-4 h-4 mr-2" />
               <div>
-                Plage de date {{ t + 1 }} : Du <span class="pr-1 font-bold"> {{
-                  $h.reformatDate(plage.debut) }}</span> au <span
-                  class="font-bold"> {{ $h.reformatDate(plage.fin)
-                  }}</span>
+                Plage de date {{ t + 1 }} : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(plage.debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(plage.fin) }}</span>
               </div>
             </div>
           </div>
@@ -1321,15 +1262,12 @@ export default {
           </div>
         </div>
 
-        <button type="button" @click="addPlan" class="col-span-12 btn btn-outline-primary">Ajouter un autre
-          plan</button>
+        <button type="button" @click="addPlan" class="col-span-12 btn btn-outline-primary">Ajouter un autre plan</button>
       </ModalBody>
       <ModalFooter>
         <div class="flex items-center justify-center">
-          <button type="button" @click="showModalPlanDeDecaissement = false"
-            class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
-          <VButton class="inline-block" label="Enregistrer" :loading="loadingPlanDeDecaissement"
-            :disabled="loaderListePlan" :type="submit" />
+          <button type="button" @click="showModalPlanDeDecaissement = false" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
+          <VButton class="inline-block" label="Enregistrer" :loading="loadingPlanDeDecaissement" :disabled="loaderListePlan" :type="submit" />
         </div>
       </ModalFooter>
     </form>

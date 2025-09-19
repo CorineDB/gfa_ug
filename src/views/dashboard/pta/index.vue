@@ -4,7 +4,7 @@
     <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
       <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
         <div class="relative w-56 text-slate-500">
-          <input type="text" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
+          <input type="text" v-model="searchs" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
           <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
         </div>
       </div>
@@ -12,10 +12,15 @@
         <button class="mr-2 shadow-md btn btn-primary" @click="showModalFiltre = true"><FilterIcon class="w-4 h-4 mr-3" />Filtrer le PA</button>
         <!-- v-if="!isLoadingData && currentOrganisation?.profile_de_gouvernance" :org="currentOrganisation?.nom" :pointfocal="`${currentOrganisation?.nom_point_focal}  ${currentOrganisation?.prenom_point_focal}`" :dateevaluation="currentFactuel?.evaluatedAt" -->
         <!-- <ExportationResultatSynthese :datas="dataNew" class="mr-3" /> -->
-        <download-excel :data="json_data" class="btn btn-primary">
+        <!-- <download-excel :data="json_data" class="btn btn-primary">
           Télécharger Excel
-          <!-- <DownloadIcon class="w-4 h-4" /> -->
-        </download-excel>
+          <DownloadIcon class="w-4 h-4" />
+        </download-excel> -->
+
+        <button @click="exportToExcel" class="mr-2 btn btn-primary">
+          <DownloadIcon class="w-4 h-4 mr-2" />
+          Export Excel (XLSX)
+        </button>
 
         <DownloadPDFButton :tableIds="['ptaTable34']" pageName="Plan d'action" format="a0" />
       </div>
@@ -38,7 +43,7 @@
           </thead>
 
           <tbody>
-            <tr v-for="pta in dataNew" :key="pta.id" style="height: 52px; max-height: 52px" :class="['border-b dark:border-gray-300', pta.isComposante ? 'bg-blue-200' : pta.isActivite ? 'bg-slate-400' : 'bg-white dark:bg-gray-200']">
+            <tr v-for="pta in filteredDataNew" :key="pta.id" style="height: 52px; max-height: 52px" :class="['border-b dark:border-gray-300', pta.isComposante ? 'bg-blue-200' : pta.isActivite ? 'bg-slate-400' : 'bg-white dark:bg-gray-200']">
               <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
                 <span v-if="pta.isProjet" class="text-lg font-bold"> {{ pta.code }}</span>
                 <span v-if="pta.isComposante" class="text-sm text-blue-500"> {{ pta.code }}</span>
@@ -133,7 +138,7 @@
           </thead>
 
           <tbody>
-            <tr v-for="pta in dataNew" :key="pta.id" style="height: 52px; max-height: 52px" :class="['border-b dark:border-gray-300', pta.isComposante ? 'bg-blue-200' : pta.isActivite ? 'bg-slate-400' : 'bg-white dark:bg-gray-800']">
+            <tr v-for="pta in filteredDataNew" :key="pta.id" style="height: 52px; max-height: 52px" :class="['border-b dark:border-gray-300', pta.isComposante ? 'bg-blue-200' : pta.isActivite ? 'bg-slate-400' : 'bg-white dark:bg-gray-800']">
               <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300 uppercase">
                 <span v-if="pta.isProjet" class="text-sm text-blue-500">Projet: {{ pta.nom }}</span>
                 <span v-if="pta.isComposante" class="text-sm text-blue-500">OutCome: {{ pta.nom }}</span>
@@ -398,7 +403,7 @@
     </thead>
 
     <tbody>
-      <tr v-for="pta in dataNew" :key="pta.id" class="bg-white border-b dark:bg-gray-800 dark:border-gray-300">
+      <tr v-for="pta in filteredDataNew" :key="pta.id" class="bg-white border-b dark:bg-gray-800 dark:border-gray-300">
         <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
           <span v-if="pta.isProjet" class="text-sm text-blue-500">{{ pta.code }}</span>
           <span v-if="pta.isComposante" class="text-sm text-blue-500"> {{ pta.code }}</span>
@@ -610,7 +615,7 @@
       </tr>
     </tbody>
   </table>
-  <NoRecordsMessage class="col-span-12" v-if="!dataNew.length" title="Aucun plan d'action n'est disponible pour le moment. Veuillez en établir un." />
+  <NoRecordsMessage class="col-span-12" v-if="!filteredDataNew.length" title="Aucun plan d'action n'est disponible pour le moment. Veuillez en établir un." />
 
   <!-- Modal Register & Update -->
   <Modal backdrop="static" :show="showModalFiltre" @hidden="showModalFiltre = false">
@@ -964,7 +969,7 @@
 </template>
 
 <script>
-//var XLSX = require("xlsx");
+import * as XLSX from "xlsx";
 import PtabService from "@/services/modules/pta.service.js";
 import BailleursService from "@/services/modules/bailleur.service.js";
 import TacheService from "@/services/modules/tache.service.js";
@@ -989,6 +994,7 @@ export default {
   components: { VButton, NoRecordsMessage, InputForm, DownloadPDFButton, ExportationResultatSynthese },
   data() {
     return {
+      searchs: "",
       listePlanDeDecaissement: [],
       planDeDecaissement: [],
       showModalPlanDeDecaissement: false,
@@ -1373,6 +1379,16 @@ export default {
       }
       this.fich.push(programme);
       return programme;
+    },
+    filteredDataNew() {
+      if (!this.searchs) {
+        return this.dataNew;
+      }
+
+      const searchTerm = this.searchs.toLowerCase();
+      return this.dataNew.filter((pta) => {
+        return pta.nom?.toLowerCase().includes(searchTerm) || pta.code?.toString().toLowerCase().includes(searchTerm) || pta.description?.toLowerCase().includes(searchTerm);
+      });
     },
     json_data() {
       const programme = [];
@@ -2072,6 +2088,40 @@ export default {
     // },
   },
   methods: {
+    exportToExcel() {
+      try {
+        // Préparer les données pour l'export
+        const exportData = this.filteredDataNew.map((item) => ({
+          Code: item.code || "",
+          Nom: item.nom || "",
+          Description: item.description || "",
+          Type: item.isProjet ? "Projet" : item.isComposante ? "Composante" : item.isSC ? "Sous-Composante" : item.isActivite ? "Activité" : item.isTache ? "Tâche" : "",
+          "Budget National": item.budgetNational || 0,
+          Prêt: item.pret || 0,
+          Total: (item.budgetNational || 0) + (item.pret || 0),
+        }));
+
+        // Créer le workbook
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.json_to_sheet(exportData);
+
+        // Ajouter la feuille au workbook
+        XLSX.utils.book_append_sheet(wb, ws, "Plan d'Action");
+
+        // Générer le nom du fichier avec la date
+        const today = new Date();
+        const dateStr = today.toISOString().split("T")[0];
+        const filename = `Plan_Action_${dateStr}.xlsx`;
+
+        // Télécharger le fichier
+        XLSX.writeFile(wb, filename);
+
+        toast.success("Export Excel réussi !");
+      } catch (error) {
+        console.error("Erreur lors de l'export Excel:", error);
+        toast.error("Erreur lors de l'export Excel");
+      }
+    },
     removePlan(index) {
       this.planDeDecaissement.splice(index, 1);
     },

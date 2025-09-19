@@ -369,7 +369,7 @@
               <div v-if="errors.responsables" class="mt-2 text-danger">{{ getFieldErrors(errors.responsables) }}</div>
             </div>
             <div class="flex-1">
-              <label class="form-label">Responsables</label>
+              <label class="form-label">Organisation</label>
               <TomSelect v-model="responsablesForm.organisations" name="responsable" multiple :options="{ placeholder: 'Selectionez un responsable' }" class="w-full">
                 <option value=""></option>
                 <option v-for="(responsable, index) in ongs" :key="index" :value="responsable.id">{{ responsable.nom }}</option>

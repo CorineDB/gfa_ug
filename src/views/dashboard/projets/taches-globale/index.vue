@@ -223,8 +223,10 @@ export default {
               toast.success("Modification éffectuée");
               this.activitesId = this.formData.activiteId;
               this.clearObjectValues(this.formData);
+              this.loadActiviteDetails();
+
               // delete this.formData.projetId;
-              this.getActiviteById(this.activitesId.id);
+              //this.getActiviteById(this.activitesId.id);
               // this.getListeProjet();
               //this.sendRequest = false;
             }
@@ -493,8 +495,6 @@ export default {
 
   <LoaderSnipper v-if="isLoadingData" />
 
- 
-
   <div v-if="!isLoadingData" class="grid grid-cols-12 gap-6 mt-5">
     <!-- BEGIN: Users Layout -->
     <!-- <pre>{{sousComposants}}</pre>   -->
@@ -571,24 +571,13 @@ export default {
     <form>
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
         <!-- Nom -->
-         <div class="col-span-12 md:col-span-6  ">
+        <div class="col-span-12 md:col-span-6">
           <InputForm v-model="formData.nom" class="col-span-6" type="text" required="required" placeHolder="Nom de la tache" label="Nom" />
           <p class="text-red-500 text-[12px] -mt-2 col-span-6" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
-         </div>
-        
+        </div>
 
-        <!-- Date début -->
-        <div class="col-span-12 md:col-span-6  ">
-          <InputForm v-model="formData.debut" class="col-span-6" type="date" required="required" placeHolder="Entrer la date de début" label="Début de la tâche" />
-          <p class="text-red-500 text-[12px] -mt-2 col-span-6" v-if="messageErreur.debut">{{ messageErreur.debut }}</p>
-        </div>
-        <!-- Date fin -->
-        <div class="col-span-12 md:col-span-6  ">
-          <InputForm v-model="formData.fin" class="col-span-6" type="date" required="required" placeHolder="Entrer la date de fin" label="Fin de la tâche" />
-          <p class="text-red-500 text-[12px] -mt-2 col-span-6" v-if="messageErreur.fin">{{ messageErreur.fin }}</p>
-        </div>
         <!-- Description (pleine ligne) -->
-        <div class="input-form mt-3 col-span-12 md:col-span-6">
+        <div class="input-form _mt-3 col-span-12 md:col-span-6">
           <label class="form-label w-full"> Description </label>
           <textarea v-model="formData.description" class="form-control w-full" name="comment" placeholder="Ajouter une description"></textarea>
         </div>
@@ -596,11 +585,7 @@ export default {
         <!-- Projets -->
         <div class="col-span-12 md:col-span-6 mt-4" v-if="!update">
           <label class="form-label">Projets</label>
-          <TomSelect
-            v-model="projetId"
-            :options="{ placeholder: 'Choisir un projet', create: false, onOptionAdd: text() }"
-            class="w-full"
-          >
+          <TomSelect v-model="projetId" :options="{ placeholder: 'Choisir un projet', create: false, onOptionAdd: text() }" class="w-full">
             <option value="">Choisir un projet</option>
             <option v-for="(element, index) in projets" :key="index" :value="element.id">{{ element.codePta }}-{{ element.nom }}</option>
           </TomSelect>
@@ -609,11 +594,7 @@ export default {
         <!-- Outcomes -->
         <div class="col-span-12 md:col-span-6 mt-4" v-if="!update">
           <label class="form-label">Outcomes</label>
-          <TomSelect
-            v-model="selectedIds.composantId"
-            :options="{ placeholder: 'Choisir un Outcome', create: false, onOptionAdd: text() }"
-            class="w-full"
-          >
+          <TomSelect v-model="selectedIds.composantId" :options="{ placeholder: 'Choisir un Outcome', create: false, onOptionAdd: text() }" class="w-full">
             <option v-for="(element, index) in composants" :key="index" :value="element.id">{{ element.codePta }}-{{ element.nom }}</option>
           </TomSelect>
         </div>
@@ -621,11 +602,7 @@ export default {
         <!-- Output -->
         <div class="col-span-12 md:col-span-6 mt-4" v-if="!update">
           <label class="form-label">Outputs</label>
-          <TomSelect
-            v-model="selectedIds.sousComposantId"
-            :options="{ placeholder: 'Choisir un Output', create: false, onOptionAdd: text() }"
-            class="w-full"
-          >
+          <TomSelect v-model="selectedIds.sousComposantId" :options="{ placeholder: 'Choisir un Output', create: false, onOptionAdd: text() }" class="w-full">
             <option value="">Choisir un Output</option>
             <option v-for="(element, index) in sousComposants" :key="index" :value="element.id">{{ element.codePta }}-{{ element.nom }}</option>
           </TomSelect>
@@ -634,16 +611,22 @@ export default {
         <!-- Activités -->
         <div class="col-span-12 md:col-span-6 mt-4" v-if="!update">
           <label class="form-label">Activités</label>
-          <TomSelect
-            v-model="formData.activiteId"
-            :options="{ placeholder: 'Choisir une activité', create: false, onOptionAdd: text() }"
-            class="w-full"
-            title="Veuillez sélectionner une activité pour afficher son plan de décaissement"
-          >
+          <TomSelect v-model="formData.activiteId" :options="{ placeholder: 'Choisir une activité', create: false, onOptionAdd: text() }" class="w-full" title="Veuillez sélectionner une activité pour afficher son plan de décaissement">
             <option value="">Choisir une activité</option>
             <option v-for="(element, index) in activites" :key="index" :value="element.id">{{ element.codePta }}-{{ element.nom }}</option>
           </TomSelect>
           <p class="text-red-500 text-[12px] -mt-2" v-if="messageErreur.activiteId">{{ messageErreur.activiteId }}</p>
+        </div>
+
+        <!-- Date début -->
+        <div class="col-span-12 md:col-span-6">
+          <InputForm v-model="formData.debut" class="col-span-6" type="date" required="required" placeHolder="Entrer la date de début" label="Début de la tâche" />
+          <p class="text-red-500 text-[12px] -mt-2 col-span-6" v-if="messageErreur.debut">{{ messageErreur.debut }}</p>
+        </div>
+        <!-- Date fin -->
+        <div class="col-span-12 md:col-span-6">
+          <InputForm v-model="formData.fin" class="col-span-6" type="date" required="required" placeHolder="Entrer la date de fin" label="Fin de la tâche" />
+          <p class="text-red-500 text-[12px] -mt-2 col-span-6" v-if="messageErreur.fin">{{ messageErreur.fin }}</p>
         </div>
 
         <!-- Plage de date -->

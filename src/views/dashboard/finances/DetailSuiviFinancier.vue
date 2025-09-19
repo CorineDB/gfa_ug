@@ -83,6 +83,7 @@ const isLoadingData = ref(true);
 const isCreate = ref(true);
 const datas = ref([]);
 const erreurSuiviFinancier = ref(null);
+const formErrors = ref({});
 
 const filter = ref({
   annee: new Date().getFullYear(),
@@ -135,9 +136,9 @@ const createData = async () => {
       toast.error(getAllErrorMessages(e));
 
       if (e.response && e.response.data && e.response.data.errors) {
-        erreurSuiviFinancier.value = error.response.data.errors;
+        formErrors.value = e.response.data.errors;
       } else {
-        toast.error(e.response.data.errors.message);
+        formErrors.value = {};
       }
     });
 };
@@ -170,9 +171,9 @@ const updateData = async () => {
       toast.error(getAllErrorMessages(e));
 
       if (e.response && e.response.data && e.response.data.errors) {
-        erreurSuiviFinancier.value = error.response.data.errors;
+        formErrors.value = e.response.data.errors;
       } else {
-        toast.error(e.response.data.errors.message);
+        formErrors.value = {};
       }
     });
 };
@@ -285,6 +286,10 @@ const resetForm = () => {
   payload.annee = new Date().getFullYear(); // Set current year as default
   payload.consommer = 0;
   // payload.type = 0;
+
+  // Clear form errors
+  formErrors.value = {};
+
   showModalCreate.value = false;
 };
 const openCreateModal = () => {
@@ -294,6 +299,12 @@ const openCreateModal = () => {
   payload.consommer = 0;
   // payload.type = "";
   payload.activiteId = route.params.id;
+  formErrors.value = {};
+};
+
+const closeModal = () => {
+  formErrors.value = {};
+  showModalCreate.value = false;
 };
 
 const mode = computed(() => (isCreate.value ? "Ajouter" : "Modifier"));
@@ -357,7 +368,7 @@ onMounted(() => {
   </div>
 
   <!-- Modal Register & Update -->
-  <Modal backdrop="static" :show="showModalCreate" @hidden="showModalCreate = false">
+  <Modal backdrop="static" :show="showModalCreate" @hidden="closeModal">
     <ModalHeader>
       <h2 class="mr-auto text-base font-medium">{{ mode }} un suivi</h2>
     </ModalHeader>
@@ -367,17 +378,11 @@ onMounted(() => {
         <div class="grid grid-cols-1 gap-4">
           <div class="col-span-12">
             <InputForm label="Consommé" v-model="payload.consommer" type="number" />
-            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurSuiviFinancier?.[index]?.consommer">
-              {{ erreurSuiviFinancier[index].consommer }}
-            </p>
+            <div v-if="formErrors.consommer" class="mt-1 text-sm text-red-600">
+              <p v-for="error in formErrors.consommer" :key="error">{{ error }}</p>
+            </div>
           </div>
-          <!-- <div class="col-span-12">
-            <label class="form-label">Sources</label>
-            <TomSelect v-model="payload.type" :options="{ placeholder: 'Selectionez une source' }" class="w-full">
-              <option value="fond-propre">Fond propre</option>
-              <option value="budget-alloue">Budget Alloue</option>
-            </TomSelect>
-          </div> -->
+         
           
 
           <div class="col-span-12 mt-3">
@@ -385,9 +390,9 @@ onMounted(() => {
             <TomSelect v-model="payload.annee" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
               <option v-for="(year, index) in years" :key="index" :value="year">{{ year }}</option>
             </TomSelect>
-            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurSuiviFinancier?.[index]?.annee">
-              {{ erreurSuiviFinancier[index].annee }}
-            </p>
+            <div v-if="formErrors.annee" class="mt-1 text-sm text-red-600">
+              <p v-for="error in formErrors.annee" :key="error">{{ error }}</p>
+            </div>
           </div>
 
           <div class="col-span-12">
@@ -398,9 +403,9 @@ onMounted(() => {
               <option :value="3">Trimestre 3</option>
               <option :value="4">Trimestre 4</option>
             </TomSelect>
-            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurSuiviFinancier?.[index]?.trimestre">
-              {{ erreurSuiviFinancier[index].trimestre }}
-            </p>
+            <div v-if="formErrors.trimestre" class="mt-1 text-sm text-red-600">
+              <p v-for="error in formErrors.trimestre" :key="error">{{ error }}</p>
+            </div>
           </div>
 
           <!-- <InputForm label="Nom" v-model="payload.intitule" />

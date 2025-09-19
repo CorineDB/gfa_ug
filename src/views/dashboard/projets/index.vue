@@ -239,7 +239,7 @@
 
           <!-- organisation Select Dropdown -->
           <div class="relative w-full">
-            <v-select class="w-full" :reduce="(ong) => ong.id" v-model="formData.organisationId" label="nom" :options="ongs" placeholder="Selectionner une organisation..." multiple>
+            <v-select class="w-full" :reduce="(ong) => ong.id" v-model="formData.organisationId" label="nom" :options="ongs" placeholder="Selectionner une organisation..." >
               <template v-if="!formData.organisationId || formData.organisationId.length === 0" #search="{ attributes, events }">
                 <input class="vs__search form-input" :required="!formData.organisationId || formData.organisationId.length === 0" v-bind="attributes" v-on="events" placeholder="Rechercher une organisation..." />
               </template>

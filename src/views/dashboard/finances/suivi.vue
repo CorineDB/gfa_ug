@@ -18,12 +18,9 @@ import ActiviteService from "@/services/modules/activite.service";
 import PlanDeCaissement from "@/services/modules/plan.decaissement.service";
 import PlanDeDecaissementService from "@/services/modules/plan.decaissement.service";
 
-import generateMultiTablePDF from '@/plugins/exportPdf.js';
-
+import generateMultiTablePDF from "@/plugins/exportPdf.js";
 
 //generateMultiTablePDF(['suiviFinancier'], 'Suivi_financier')
- 
- 
 
 // Ajout de plan de décaissement
 
@@ -37,8 +34,6 @@ const prolongerDureeActivite = async (payload) => {
 const storePlanDecaissement = async (payload) => {
   await store.dispatch("planDeDecaissements/STORE_PLAN_DE_DECAISSEMENT", payload);
 };
-
- 
 
 const erreurPlanDeDecaissement = ref(null);
 //const planDeDecaissement = ref([]);
@@ -217,69 +212,6 @@ const addPlan = () => {
   });
 };
 
-// const planDeDecaissementActivite = async function () {
-//   loadingPlanDeDecaissement.value = true;
-
-//   let errorIndex = [];
-
-//   for (let index = 0; index < planDeDecaissement.value.length; index++) {
-//     let plan = listePlanDeDecaissement.value.filter((plan) => plan.annee == planDeDecaissement.value[index].annee && plan.trimestre == planDeDecaissement.value[index].trimestre);
-
-//     const action = plan.length > 0 ? PlanDeCaissement.update(plan[0].id, planDeDecaissement.value[index]) : PlanDeDecaissementService.create(planDeDecaissement.value[index]);
-
-//     try {
-//       await action;
-
-//       toast.success(`Plan  de decaissement n° ${index + 1} enrégistré avec succès`);
-
-//       errorIndex.push(index);
-
-//       if (index === planDeDecaissement.value.length - 1) {
-//         showModalPlanDeDecaissement.value = false;
-
-//         setTimeout(() => {
-//           this.planDeDecaissement = [];
-//         }, 500);
-//       }
-//     } catch (error) {
-//       loadingPlanDeDecaissement.value = false;
-
-//       toast.error(`Plan ${index + 1} : ${error.response.data.message}`);
-
-//       erreurPlanDeDecaissement.value = [];
-//       // Mettre à jour les messages d'erreurs dynamiquement
-//       if (error.response && error.response.data && error.response.data.errors.length > 0) {
-//         erreurPlanDeDecaissement.value.push(error.response.data.errors);
-
-//         console.log("index" , index)
-
-//         Object.keys(erreurPlanDeDecaissement.value[index]).forEach((key) => {
-//           erreurPlanDeDecaissement.value[index][key] = $h.extractContentFromArray(erreurPlanDeDecaissement.value[index][key]);
-//         });
-
-//         for (let i = 0; i < erreurPlanDeDecaissement.value.length; i++) {
-//           for (let item in erreurPlanDeDecaissement.value[i]) {
-//             toast.error(`Plan ${index + 1} :  ${erreurPlanDeDecaissement.value[i][item]}`);
-//           }
-//         }
-//       } else {
-//         toast.error(`Plan ${index + 1} : ${error.message}`);
-//       }
-//     } finally {
-//       loadingPlanDeDecaissement.value = false;
-//       getListePlanDeDecaissement(planDeDecaissement.value[0].activiteId);
-//     }
-
-//     if (planDeDecaissement.value.length > 0) {
-//       if (errorIndex.length > 0) {
-//         errorIndex.forEach((item) => {
-//           removePlan(item);
-//         });
-//       }
-//     }
-//   }
-// };
-
 const loaderListePlan = ref(false);
 
 const listePlanDeDecaissement = ref([]);
@@ -333,6 +265,7 @@ const filterPayload = reactive({
   annee: new Date().getFullYear(),
 });
 const isLoadingFilter = ref(false);
+const searchs = ref("");
 
 const suiviFinancier = ref([]);
 const suiviFinancierPayload = reactive({
@@ -344,8 +277,9 @@ const suiviFinancierPayload = reactive({
 });
 
 const resetFilter = function () {
-  filterPayload.trimestre = 1;
-  filterPayload.annee = new Date().getFullYear();
+  // filterPayload.trimestre = 1;
+  // filterPayload.annee = new Date().getFullYear();
+  getDatas();
 
   filterSuiviFinancierActivite();
 };
@@ -816,6 +750,17 @@ const suiviFinancierActivite = async () => {
 
 const mode = computed(() => (isCreate.value ? "Ajouter" : "Modifier"));
 
+const filteredSuiviFinanciers = computed(() => {
+  if (!searchs.value) {
+    return datas.value.suiviFinanciers || [];
+  }
+
+  return (datas.value.suiviFinanciers || []).filter((suivi) => {
+    const searchTerm = searchs.value.toLowerCase();
+    return suivi?.activite?.nom?.toLowerCase().includes(searchTerm) || suivi?.activite?.codePta?.toLowerCase().includes(searchTerm) || suivi?.annee?.toString().includes(searchTerm) || suivi?.trimestre?.toString().includes(searchTerm);
+  });
+});
+
 const openFilterModal = () => {
   console.log(filterPayload.annee);
   filterPayload.trimestre = 3; //getCurrentQuarter();
@@ -863,13 +808,13 @@ onMounted(() => {
     <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
       <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
         <div class="relative w-56 text-slate-500">
-          <input type="text" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
+          <input type="text" v-model="searchs" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
           <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
         </div>
       </div>
       <div class="flex">
         <button class="mr-2 shadow-md btn btn-primary" @click="openFilterModal"><FilterIcon class="w-4 h-4 mr-3" />Filtrer le suivi financier</button>
-        <button class="mr-2 shadow-md btn btn-primary" @click="generateMultiTablePDF(['suiviFinancier'] , 'suivi_FInancier' , 'A4')">Exporter</button>
+        <button class="mr-2 shadow-md btn btn-primary" @click="generateMultiTablePDF(['suiviFinancier'], 'suivi_FInancier', 'A4')">Exporter</button>
 
         <button class="btn btn-primary" title="Réinitialiser le filtre" @click="resetFilter()">
           <RefreshCwIcon class="w-5 h-5" />
@@ -879,7 +824,6 @@ onMounted(() => {
   </div>
 
   <div class="p-5 mt-5 intro-y box">
-    
     <div>
       <div class="border my-4 rounded-lg border-gray-300 shadow-md" v-if="!isLoadingData">
         <!-- suivi budgetaire  current -->
@@ -893,7 +837,7 @@ onMounted(() => {
                   </tr>
                 </thead>
                 <tbody class="text-sm divide-y divide-gray-200 bg-white">
-                  <tr style="height: 49px" v-for="(suivi, index) in datas.suiviFinanciers" :key="index" class="bg-white border-b hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+                  <tr style="height: 49px" v-for="(suivi, index) in filteredSuiviFinanciers" :key="index" class="bg-white border-b hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
                     <td class="p-4 border-b border-slate-200">
                       <span class="font-bold">{{ suivi?.activite?.codePta }}-{{ suivi?.activite?.nom }}</span>
                     </td>
@@ -929,7 +873,7 @@ onMounted(() => {
                   </tr>
                 </thead>
                 <tbody class="text-sm divide-y divide-gray-200 bg-white">
-                  <tr v-for="(suivi, index) in datas.suiviFinanciers" :key="index" class="bg-white border-b hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+                  <tr v-for="(suivi, index) in filteredSuiviFinanciers" :key="index" class="bg-white border-b hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
                     <td class="p-4 border-b border-slate-200">
                       <span class="font-bold">{{ suivi.annee }}</span>
                     </td>
@@ -992,33 +936,33 @@ onMounted(() => {
 
     <div class="overflow-x-scroll">
       <table v-show="true === false" id="suiviFinancier" class="table-fixed border-collaspe table1">
-        <thead class="sticky top-0 z-20 text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">  
-            <tr>
-              <th scope="col" rowspan="2" class="py-3 px-6 border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">Activités</th>
-              <th scope="col" rowspan="2" class="py-3 px-6 border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">Année</th>
-              <th scope="col" rowspan="2" class="py-3 px-6 border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">Trimestre</th>
-              <th scope="col" colspan="4" class="py-3 px-6 border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Période</th>
-              <th scope="col" colspan="4" class="py-3 px-6 text-center border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">Exercice</th>
-              <th scope="col" colspan="4" class="py-3 px-6 text-center border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">Cumul</th>
-              <!-- <th scope="col" rowspan="2" class="py-3 px-6 border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap text-center">Actions</th> -->
-            </tr>
-            <tr>
-              <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Budget</th>
-              <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Consommé</th>
-              <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Disponible</th>
-              <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">TEF</th>
-              <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Budget</th>
-              <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Consommé</th>
-              <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Disponible</th>
-              <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">TEF</th>
-              <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Budget</th>
-              <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Consommé</th>
-              <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Disponible</th>
-              <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">TEF</th>
-            </tr>
+        <thead class="sticky top-0 z-20 text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+          <tr>
+            <th scope="col" rowspan="2" class="py-3 px-6 border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">Activités</th>
+            <th scope="col" rowspan="2" class="py-3 px-6 border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">Année</th>
+            <th scope="col" rowspan="2" class="py-3 px-6 border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">Trimestre</th>
+            <th scope="col" colspan="4" class="py-3 px-6 border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Période</th>
+            <th scope="col" colspan="4" class="py-3 px-6 text-center border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">Exercice</th>
+            <th scope="col" colspan="4" class="py-3 px-6 text-center border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap">Cumul</th>
+            <!-- <th scope="col" rowspan="2" class="py-3 px-6 border bg-blue-200 dark:bg-gray-800 dark:border-gray-700 whitespace-nowrap text-center">Actions</th> -->
+          </tr>
+          <tr>
+            <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Budget</th>
+            <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Consommé</th>
+            <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Disponible</th>
+            <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">TEF</th>
+            <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Budget</th>
+            <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Consommé</th>
+            <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Disponible</th>
+            <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">TEF</th>
+            <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Budget</th>
+            <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Consommé</th>
+            <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">Disponible</th>
+            <th scope="col" class="py-3 px-6 border bg-blue-100 dark:bg-gray-800 dark:border-gray-700 text-center whitespace-nowrap">TEF</th>
+          </tr>
         </thead>
         <tbody class="text-sm divide-y divide-gray-200 bg-white">
-          <tr v-for="(suivi, index) in datas.suiviFinanciers" :key="index" class="bg-white border-b hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+          <tr v-for="(suivi, index) in filteredSuiviFinanciers" :key="index" class="bg-white border-b hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
             <td class="p-4 border-b border-slate-200">
               <span class="font-bold">{{ suivi?.activite?.codePta }}-{{ suivi?.activite?.nom }}</span>
             </td>
@@ -1064,24 +1008,13 @@ onMounted(() => {
             <td class="p-4 border-b border-slate-200">
               <span class="font-bold">{{ suivi.cumul.pourcentage }}</span>
             </td>
-            <!-- <td class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-700 text-center">
-              <button @click="ouvrirModalSuiviFinancierActivite(suivi)" class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-xs px-4 py-2 mr-2">Suivre</button>
-
-              <button @click="handleDetail(suivi)" class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-xs px-4 py-2 mr-2">Voir détail</button>
-
-              <button @click="ouvrirModalPlanDeDecaissementActivite(suivi)" title="Ajouter un plan de décaissement" class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-xs px-4 py-2 mr-2">Ajouter un Plan de décaissement</button>
-
-              <button @click="handleDelete(suivi)" class="text-white bg-red-500 hover:bg-red-600 font-medium rounded-lg text-xs px-4 py-2">Supprimer</button>
-            </td> -->
           </tr>
         </tbody>
       </table>
     </div>
-    
+
     <LoaderSnipper v-if="isLoadingData" />
   </div>
-
-   
 
   <Modal backdrop="static" :show="showModalPlanDeDecaissement" @hidden="showModalPlanDeDecaissement = false">
     <ModalHeader>
@@ -1151,19 +1084,7 @@ onMounted(() => {
           <!-- Bouton supprimer -->
           <button type="button" @click="removePlan(index)" class="mt-2 text-red-600 text-sm underline hover:text-red-800 transition-colors">Supprimer ce plan</button>
 
-          <!-- Affichage des plages d'activité -->
-          <div class="col-span-12" v-if="getPlageActivite">
-            <div class="flex items-center mt-2" v-for="(plage, t) in getPlageActivite.durees" :key="t">
-              <ClockIcon class="w-4 h-4 mr-2 text-gray-500" />
-              <div class="text-sm text-gray-600">
-                Plage de date {{ t + 1 }} : Du
-                <span class="pr-1 font-bold">{{ $h.reformatDate(plage.debut) }}</span>
-                au
-                <span class="font-bold">{{ $h.reformatDate(plage.fin) }}</span>
-              </div>
-            </div>
-          </div>
-
+        
           <!-- Affichage de la durée du projet -->
           <div v-if="getPlageProjet" class="flex items-center mt-2 col-span-12">
             <ClockIcon class="w-4 h-4 mr-2 text-gray-500" />
@@ -1175,6 +1096,20 @@ onMounted(() => {
             </div>
           </div>
         </div>
+
+        <!-- Affichage des plages d'activité -->
+        <div class="col-span-12" v-if="getPlageActivitePlan">
+          <div class="flex items-center mt-2">
+            <ClockIcon class="w-4 h-4 mr-2 text-gray-500" />
+            <div class="text-sm text-gray-600">
+              Durée de l'activité : Du
+              <span class="pr-1 font-bold">{{ $h.reformatDate(getPlageActivitePlan.activite.debut) }}</span>
+              au
+              <span class="font-bold">{{ $h.reformatDate(getPlageActivitePlan.activite.fin) }}</span>
+            </div>
+          </div>
+        </div>
+
 
         <!-- Bouton ajouter un plan -->
         <button type="button" @click="addPlan" class="col-span-12 btn btn-outline-primary hover:bg-primary hover:text-white transition-colors">
@@ -1263,7 +1198,7 @@ onMounted(() => {
             </p>
           </div>
 
-          <!-- <pre>getPlageActivite :{{ getPlageActivite.activite }}</pre> -->
+         
 
           <button type="button" @click="removeSuivi(index)" class="mt-2 text-red-600 text-sm underline">Supprimer ce suivi</button>
         </div>
