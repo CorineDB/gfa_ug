@@ -106,8 +106,13 @@
             </div>
           </div>
           <div class="flex-1">
-            <label class="form-label" for="description">Strucutre Formulaire <span class="text-danger">*</span> </label>
+            <label class="form-label" for="description">Structure Formulaire <span class="text-danger">*</span> </label>
             <div class="">
+              <div class="flex gap-2 mb-2">
+                <button type="button" @click="updateFormDataFromBuilder" class="btn btn-secondary btn-sm">
+                  Récupérer depuis le créateur
+                </button>
+              </div>
               <textarea name="form_data" class="form-control" id="form_data" v-model="payload.form_data" cols="30" rows="3"></textarea>
               <div v-if="errors.form_data" class="mt-2 text-danger">{{ getFieldErrors(errors.form_data) }}</div>
             </div>
@@ -138,13 +143,16 @@
     </ModalBody>
   </Modal>
 
-  <!-- <Modal backdrop="static" size="modal-xl " :show="showModalPreview" @hidden="showModalPreview = false">
+  <Modal backdrop="static" size="modal-xl" :show="showModalPreview" @hidden="showModalPreview = false">
     <ModalHeader>
       <h2 class="mr-auto text-base font-medium">{{ currentForm.libelle }}</h2>
     </ModalHeader>
     <ModalBody>
       <div class="max-h-[65vh] h-[65vh] overflow-y-auto">
-        
+        <div class="p-4">
+          <h3 class="text-lg font-medium mb-3">Aperçu du formulaire</h3>
+          <pre class="bg-gray-100 p-4 rounded text-sm overflow-auto">{{ JSON.stringify(currentForm.form_data, null, 2) }}</pre>
+        </div>
       </div>
     </ModalBody>
     <ModalFooter>
@@ -152,7 +160,7 @@
         <button type="button" @click="showModalPreview = false" class="flex-1 w-full px-2 py-2 my-3 btn btn-outline-secondary">Retour</button>
       </div>
     </ModalFooter>
-  </Modal> -->
+  </Modal>
 </template>
 
 <script setup>
@@ -168,9 +176,6 @@ import Tabulator from "tabulator-tables";
 import DeleteButton from "@/components/news/DeleteButton.vue";
 import EnqueteIndividuelService from "../../services/modules/enquete.individuel.service";
 import ManagementEvaluationIndividuel from "./ManagementEvaluationIndividuel.vue";
- 
-
- 
 import { reactive } from "vue";
 
 const payload = reactive({ libelle: "", description: "", form_data: "" });
@@ -244,6 +249,15 @@ const copyJson = async () => {
   } catch (err) {
     console.error("Erreur lors de la copie:", err);
     toast.error("Erreur lors de la copie du JSON");
+  }
+};
+
+const updateFormDataFromBuilder = () => {
+  if (formFields.value.length > 0) {
+    payload.form_data = formJson.value;
+    toast.success("Données du formulaire mises à jour depuis le créateur");
+  } else {
+    toast.error("Aucun champ créé dans le formulaire");
   }
 };
 
