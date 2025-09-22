@@ -909,21 +909,23 @@ onMounted(() => {
     </ModalHeader>
     <ModalBody class="space-y-5">
       <table class="w-full border-collapse table-auto border-slate-500" border="1" cellspacing="0" cellpadding="8" style="border-collapse: collapse; font-family: Arial, sans-serif">
-        <tr>
-          <td rowspan="3"><strong>Vous êtes :</strong></td>
-          <td style="background-color: white; color: black">Membre du Conseil d'administration</td>
-        </tr>
-        <tr>
-          <td>Membre de l'association</td>
-        </tr>
-        <tr>
-          <td>Employé de l'association</td>
-        </tr>
+        <tbody>
+          <tr>
+            <td rowspan="3"><strong>Vous êtes :</strong></td>
+            <td style="background-color: white; color: black">Membre du Conseil d'administration</td>
+          </tr>
+          <tr>
+            <td>Membre de l'association</td>
+          </tr>
+          <tr>
+            <td>Employé de l'association</td>
+          </tr>
 
-        <tr>
-          <td rowspan="1"></td>
-          <td>Partenaires</td>
-        </tr>
+          <tr>
+            <td rowspan="1"></td>
+            <td>Partenaires</td>
+          </tr>
+        </tbody>
       </table>
 
       <table class="w-full mt-5 border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">

@@ -13,23 +13,22 @@ import vSelect from "vue-select";
 import "vue-select/dist/vue-select.css";
 import Vue3Toastify from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
-
 import permissionPlugin from "./plugins/verify-permission";
 import permissionDirective from "./utils/permissionsDirective";
 import JsonExcel from "vue-json-excel3";
 import phoneValidator from "./plugins/phoneValidator";
 
+// import '@vueform/vueform/themes/vueform/css/index.css'
+
 //import { Vue3SimpleHtml2pdf } from "vue3-simple-html2pdf";
 
 const app = createApp(App)
   .use(router)
-  .use(VueGoodTablePlugin)
   .use(createPinia())
   .use(store)
   .use(Vue3Toastify, {
     autoClose: 3000,
   })
-
   .use(permissionPlugin)
   .use(phoneValidator);
 

@@ -1,56 +1,178 @@
-{
-    "data": {
-        "statut": "error",
-        "message": "Erreur de validation du formulaire",
-        "errors": {
-            "pays": [
-                "The pays field is required."
+{ 
+    "forms": [
+      {
+        "element_type": "section",
+        "ordre_affichage": 1,
+        "id": 150,
+        "intitule": "Objectif et justification d'un nouveau projet",
+        "description": "Évaluation des objectifs et de la justification du nouveau projet",
+        "info": "",
+        "key": "section-objectif-justification-2",
+        "parentSectionId": null,
+        "type": "formulaire",
+        "elements": [
+          {
+            "element_type": "field",
+            "ordre_affichage": 1,
+            "id": 662,
+            "label": "Comment le projet répondrait-il aux objectifs spécifiques du Plan national de développement, du Plan sectoriel, de la Stratégie de croissance verte et de résilience climatique ou de toute autre politique gouvernementale ?",
+            "info": "Votre réponse doit inclure des références à des programmes spécifiques et inclure des références de documents spécifiques, avec le numéro de page et le paragraphe pertinents. Des critères politiques spécifiques tels que la création d'emplois, le genre et le changement climatique doivent également être mentionnés ici. Les questions liées au changement climatique en particulier sont une caractéristique de plus en plus importante des priorités de dépenses d'investissement du gouvernement, cela doit donc être pris en compte dans votre réponse. Indiquez si le projet est lié aux contributions déterminées au niveau national",
+            "key": "reponse_objectifs_politiques",
+            "attribut": "reponse_objectifs_politiques",
+            "placeholder": "Comment le projet répondrait-il aux objectifs spécifiques du Plan national de développement, du Plan sectoriel, de la Stratégie de croissance verte et de résilience climatique ou de toute autre politique gouvernementale ?",
+            "is_required": true,
+            "default_value": null,
+            "isEvaluated": true,
+            "type_champ": "textarea",
+            "sectionId": 150,
+            "documentId": 15,
+            "meta_options": {
+              "configs": {
+                "options": [
+                  {
+                    "label": "Passe",
+                    "value": "passe",
+                    "description": "Il a été fait référence aux stratégies nationales ou sectorielles et aux stratégies de lutte contre le changement climatique et une explication claire a été fournie sur les liens avec le projet proposé."
+                  },
+                  {
+                    "label": "Retour",
+                    "value": "retour",
+                    "description": "Il a été fait référence à des stratégies nationales ou sectorielles et aux stratégies de lutte contre le changement climatique, mais les liens vers le projet proposé sont insuffisants"
+                  },
+                  {
+                    "label": "Non accepté",
+                    "value": "non_accepte",
+                    "description": "Aucun lien n'a été établi entre le projet proposé et les stratégies nationales ou sectorielles en matière de changement climatique"
+                  }
+                ]
+              },
+              "conditions": {
+                "disable": false,
+                "visible": true,
+                "conditions": []
+              },
+              "validations_rules": {
+                "max": 5000,
+                "string": true,
+                "required": true
+              }
+            },
+            "champ_standard": true,
+            "startWithNewLine": false
+          }  
+        ]
+      },
+      {
+        "element_type": "section",
+        "ordre_affichage": 2,
+        "id": 151,
+        "intitule": "Informations financières",
+        "description": "Évaluation des aspects financiers du projet et de sa viabilité économique",
+        "info": "",
+        "key": "section-informations-financieres-2",
+        "parentSectionId": null,
+        "type": "formulaire",
+        "elements": [
+          {
+            "element_type": "field",
+            "ordre_affichage": 1,
+            "id": 682,
+            "label": "Coût total estimé en capital pour achever le projet",
+            "info": "Inclure tous les éléments de coût nécessaires pour rendre le projet fonctionnel. Inclure toutes les études, travaux de conception, construction, terrain, équipement ou tout autre coût pour rendre le projet opérationnel. L'estimation complète du capital doit être incluse même lorsque le projet pourrait être financé par des ODA ou des PPP et doit inclure une estimation provisoire pour assurer la résilience climatique lorsque des vulnérabilités ont été identifiées",
+            "key": "cout_total_capital",
+            "attribut": "cout_total_capital",
+            "placeholder": "Montant en Francs CFA",
+            "is_required": true,
+            "default_value": null,
+            "isEvaluated": true,
+            "type_champ": "number",
+            "sectionId": 151,
+            "documentId": 15,
+            "meta_options": {
+              "configs": {
+                "min": 0,
+                "step": 1
+                
+              },
+              "conditions": {
+                "disable": false,
+                "visible": true,
+                "conditions": []
+              },
+              "validations_rules": {
+                "min": 0,
+                "numeric": true,
+                "required": true
+              }
+            },
+            "champ_standard": true,
+            "startWithNewLine": false
+          },
+          {
+            "element_type": "section",
+            "ordre_affichage": 3,
+            "id": 152,
+            "intitule": "Planification de la mise en œuvre",
+            "description": "Évaluation de la planification",
+            "info": "",
+            "key": "section-planification-mise-oeuvre-2",
+            "parentSectionId": null,
+            "type": "formulaire",
+            "elements": [
+              {
+                "element_type": "field",
+                "ordre_affichage": 1,
+                "id": 691,
+                "label": "Calendrier prévu du projet",
+                "info": "Donnez les dates estimées - mois/année - pour les étapes suivantes : Préparation (y compris l'achèvement de toutes les études) / Évaluation terminée ; Début du processus d'approvisionnement ; Attribution du contrat ; Début des travaux ; Finalisation des travaux ; Le projet devient opérationnel",
+                "key": "calendrier_projet",
+                "attribut": "calendrier_projet",
+                "placeholder": "Préparation: MM/AAAA, Approvisionnement: MM/AAAA, Attribution: MM/AAAA, etc.",
+                "is_required": true,
+                "default_value": null,
+                "isEvaluated": true,
+                "type_champ": "select",
+                "sectionId": 152,
+                "documentId": 15,
+                "meta_options": {
+                  "configs": {
+                    "rows": 4,
+                    "options": [
+                      {
+                        "label": "Passe",
+                        "value": "passe",
+                        "description": "Le plan est clair et semble réaliste"
+                      },
+                      {
+                        "label": "Retour",
+                        "value": "retour",
+                        "description": "Le plan présenté paraît crédible mais nécessite des éclaircissements"
+                      },
+                      {
+                        "label": "Non accepté",
+                        "value": "non_accepte",
+                        "description": "Les horaires ne sont pas crédibles ou aucune information n'a été fournie."
+                      }
+                    ],
+                    "max_length": 2000
+                  },
+                  "conditions": {
+                    "disable": false,
+                    "visible": true,
+                    "conditions": []
+                  },
+                  "validations_rules": {
+                    "string": true,
+                    "required": true
+                  }
+                },
+                "champ_standard": true,
+                "startWithNewLine": false
+              }
             ]
-        },
-        "statutCode": 422
-    },
-    "status": 422,
-    "statusText": "",
-    "headers": {
-        "cache-control": "no-cache, private",
-        "content-length": "132",
-        "content-type": "application/json"
-    },
-    "config": {
-        "transitional": {
-            "silentJSONParsing": true,
-            "forcedJSONParsing": true,
-            "clarifyTimeoutError": false
-        },
-        "adapter": [
-            "xhr",
-            "http",
-            "fetch"
-        ],
-        "transformRequest": [
-            null
-        ],
-        "transformResponse": [
-            null
-        ],
-        "timeout": 6000000000,
-        "xsrfCookieName": "XSRF-TOKEN",
-        "xsrfHeaderName": "X-XSRF-TOKEN",
-        "maxContentLength": -1,
-        "maxBodyLength": -1,
-        "env": {},
-        "headers": {
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-            "Access-Control-Allow-Headers": "X-Requested-With, Content-Type, X-Token-Auth, Authorization",
-            "Authorization": "Bearer 112|quwNqe3CeD4W224zazq8OiXyMv0zTno6EOLeysQULHPyptyJJP9jJtjUl1n2qTTE2x2OBxRj4bCuBJMxKNgRXQbKCxF1TY0RupQA4Ezh5c9vXB6hPkYn7SI6AbKJmZAEZapiazX99qjiJLilcJmRjj5TZmKFrNrQkTSntlGUcP3kAM8U4Qds9IEAfUUQ97PTquYOKhvr44UaJv6M02MzqoZB0bUw85p6fS8BGmEhacn4CK3tEzeqAGM1VIW3BkKE"
-        },
-        "baseURL": "https://dms-redevabilite.com:8443/api/",
-        "method": "post",
-        "url": "sites",
-        "data": "{\"nom\":\"hjhjgjgjh\",\"longitude\":\"0.071567\",\"latitude\":\"0.051417\",\"arrondissement\":\"uiyiuyuiy\",\"commune\":\"uiyiuyuyi\",\"departement\":\"departement 3\",\"pays\":\"\",\"quartier\":\"iiyuyuiyu\"}"
-    },
-    "request": {}
-}
+          }  
+        ]
+      }
+    ]
+    
+  }

@@ -492,29 +492,7 @@ const getIndicateurs = (indicateur) => {
   console.log("currentPreviewFactuelFormDataArray.value", currentPreviewFactuelFormDataArray.value);
 };
 
-/* 
-const addNewIndicator = () => {
-  const key = generateKey(currentGlobalFactuelFormData.indicateur);
-
-  // Ajouter la soumission si la clé est absente
-  if (!uniqueKeys.has(key)) {
-    globalFormFactuelData.value.unshift({ ...currentGlobalFactuelFormData });
-    previewFormFactuelData.value.unshift(JSON.parse(JSON.stringify(currentPreviewFactuelFormData)));
-    uniqueKeys.set(key, true);
-    localStorage.setItem("globalFormFactuelData", JSON.stringify(globalFormFactuelData.value));
-    localStorage.setItem("previewFormFactuelData", JSON.stringify(previewFormFactuelData.value));
-    // console.log("global:", globalFormFactuelData.value);
-    // console.log("preview:", previewFormFactuelData.value);
-    updateAllTypesGouvernance();
-    resetCurrentPreviewFactuelFormData();
-    resetCurrentGlobalFactuelFormData();
-    resetCurrentForm.value = !resetCurrentForm.value;
-    toast.success("Indicateur ajouté.");
-  } else {
-    toast.info("Indicateur exisant.");
-  }
-};
-*/
+ 
 
 const STORAGE_KEYS = {
   lastTypeIndex: "lastTypeIndexGlobal",
@@ -585,6 +563,11 @@ const makeUniqueKey = (baseKey, parentKey, map, allKeys) => {
   return key;
 };
 
+// Variables globales pour mémoriser les derniers parents utilisés entre les ajouts
+let lastUsedTypeKey = null;
+let lastUsedPrincipeKey = null;
+let lastUsedCritereKey = null;
+
 const addNewIndicator = () => {
   const sessionKeys = new Set();
 
@@ -598,15 +581,24 @@ const addNewIndicator = () => {
     const typeKey = makeUniqueKey(typeKeyBase, typeKeyBase, lastTypeIndexGlobal, allKeys);
     sessionKeys.add(typeKey);
 
+    // Pas de réinitialisation - chaque chemin garde son propre compteur
+    lastUsedTypeKey = typeKey;
+
     // 2. Générer principeKey unique par typeKey
     const principeKeyBase = generateKey(item.principeKey + typeKey);
     const principeKey = makeUniqueKey(principeKeyBase, typeKey, lastPrincipeIndexByType, allKeys);
     sessionKeys.add(principeKey);
 
+    // Pas de réinitialisation - chaque chemin garde son propre compteur
+    lastUsedPrincipeKey = principeKey;
+
     // 3. Générer critereKey unique par principeKey
     const critereKeyBase = generateKey(item.critereKey + principeKey);
     const critereKey = makeUniqueKey(critereKeyBase, principeKey, lastCritereIndexByPrincipe, allKeys);
     sessionKeys.add(critereKey);
+
+    // Pas de réinitialisation - chaque chemin garde son propre compteur
+    lastUsedCritereKey = critereKey;
 
     // 4. Générer indicateurKey unique par critereKey
     const indicateurKeyBase = generateKey(item.indicateurKey + critereKey);
