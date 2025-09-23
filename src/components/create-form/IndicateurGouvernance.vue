@@ -58,11 +58,14 @@ function choiceOption(data) {
     // Sinon l'ajouter
     selectedIds.value.push(data.id);
   }
-  
-  // Émettre les données sélectionnées
-  let selectedData = datas.value.filter(item => selectedIds.value.includes(item.id));
-  selectedData = selectedData[selectedData.length - 1] || {}; // Prendre le dernier élément sélectionné ou un objet vide si aucun
-  emit("selected", selectedData);
+
+  // Émettre les données sélectionnées seulement s'il y en a
+  if (selectedIds.value.length > 0) {
+    let selectedData = datas.value.filter(item => selectedIds.value.includes(item.id));
+    const lastSelected = selectedData[selectedData.length - 1];
+    emit("selected", lastSelected);
+  }
+  // Si selectedIds est vide, on n'émet rien
 }
 
 // CHANGEMENT: Fonction pour vérifier si un item est sélectionné

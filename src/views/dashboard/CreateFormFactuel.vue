@@ -411,10 +411,18 @@ const getIndicateur = (indicateur) => {
 };
 
 const getIndicateurs = (indicateur) => {
+  // Vérifier si l'indicateur existe déjà dans currentPreviewFactuelFormDataArray
+  const indicateurExiste = currentPreviewFactuelFormDataArray.value.some(item => item.indicateur.id === indicateur.id);
+
+  if (indicateurExiste) {
+    toast.error("Cet indicateur a déjà été sélectionné");
+    return;
+  }
+
   // changeIndexAccordion(4);
   currentGlobalFactuelFormData.indicateur = indicateur.id;
 
-  /* 
+  /*
     let donnee = (globalFormFactuelData.value || [])
     .filter(item => item.critere === currentGlobalFactuelFormData.critere)
     .map(item => item.indicateur)
@@ -492,124 +500,90 @@ const getIndicateurs = (indicateur) => {
   console.log("currentPreviewFactuelFormDataArray.value", currentPreviewFactuelFormDataArray.value);
 };
 
- 
+// ===========================================
+// SYSTÈME DE COMPTEURS HIÉRARCHIQUES SIMPLIFIÉ
+// ===========================================
 
-const STORAGE_KEYS = {
-  lastTypeIndex: "lastTypeIndexGlobal",
-  lastPrincipeIndex: "lastPrincipeIndexByType",
-  lastCritereIndex: "lastCritereIndexByPrincipe",
-  lastIndicateurIndex: "lastIndicateurIndexByCritere",
+// Compteurs hiérarchiques
+let counters = {
+  type: 0,
+  principe: 0,
+  critere: 0,
+  indicateur: 0,
 };
 
-// Fonction pour charger une Map depuis localStorage
-const loadMapFromStorage = (storageKey) => {
-  const stored = localStorage.getItem(storageKey);
-  if (stored) {
-    try {
-      const parsed = JSON.parse(stored);
-      return new Map(Object.entries(parsed));
-    } catch (e) {
-      console.warn(`Erreur lors du chargement de ${storageKey}:`, e);
-    }
-  }
-  return new Map();
+// Dernier chemin traité
+let lastPath = {
+  type: null,
+  principe: null,
+  critere: null,
 };
 
-// Fonction pour sauvegarder une Map dans localStorage
-const saveMapToStorage = (map, storageKey) => {
-  try {
-    const obj = Object.fromEntries(map);
-    localStorage.setItem(storageKey, JSON.stringify(obj));
-  } catch (e) {
-    console.warn(`Erreur lors de la sauvegarde de ${storageKey}:`, e);
-  }
+// Fonction pour reset complet du système
+const resetPathSystem = () => {
+  counters = {
+    type: 0,
+    principe: 0,
+    critere: 0,
+    indicateur: 0,
+  };
+  
+  lastPath = {
+    type: null,
+    principe: null,
+    critere: null,
+  };
 };
 
-// Initialiser les Maps avec les données persistées
-const lastTypeIndexGlobal = loadMapFromStorage(STORAGE_KEYS.lastTypeIndex);
-const lastPrincipeIndexByType = loadMapFromStorage(STORAGE_KEYS.lastPrincipeIndex);
-const lastCritereIndexByPrincipe = loadMapFromStorage(STORAGE_KEYS.lastCritereIndex);
-const lastIndicateurIndexByCritere = loadMapFromStorage(STORAGE_KEYS.lastIndicateurIndex);
-
-// // Stocke les derniers index utilisés pour chaque clé parent
-// const lastTypeIndexGlobal = new Map();
-// const lastPrincipeIndexByType = new Map();
-// const lastCritereIndexByPrincipe = new Map();
-// const lastIndicateurIndexByCritere = new Map();
-
-const makeUniqueKey = (baseKey, parentKey, map, allKeys) => {
-  // Récupérer le dernier index utilisé pour ce parent
-  console.log("map", map);
-
-  let index = map.get(parentKey) ?? -1;
-
-  // Incrémenter pour avoir le prochain index
-  index++;
-  let key = `${baseKey}_${index}`;
-
-  console.log("allKeys.has(key)", allKeys.has(key));
-
-  // Continuer à incrémenter tant que la clé existe
-  while (allKeys.has(key)) {
-    console.log("ok");
-    index++;
-    key = `${baseKey}_${index}`;
-  }
-
-  // Sauvegarder le nouvel index pour ce parent
-  map.set(parentKey, index);
-
-  console.log("key", key);
-  return key;
-};
-
-// Variables globales pour mémoriser les derniers parents utilisés entre les ajouts
-let lastUsedTypeKey = null;
-let lastUsedPrincipeKey = null;
-let lastUsedCritereKey = null;
-
+// FONCTION PRINCIPALE addNewIndicator - Version simplifiée et efficace
 const addNewIndicator = () => {
   const sessionKeys = new Set();
 
   currentGlobalFactuelFormDataArray.value.forEach((item, index) => {
-    const allKeys = new Set([...uniqueKeys.keys(), ...sessionKeys]);
+    // Vérifier changement de type
+    if (item.type !== lastPath.type) {
+      counters.type++;
+      counters.principe = 0;
+      counters.critere = 0;
+      counters.indicateur = 0;
+      lastPath.type = item.type;
+      lastPath.principe = null;
+      lastPath.critere = null;
+      console.log(`Changement de type détecté: nouveau compteur type = ${counters.type}`);
+    }
 
-    console.log(allKeys);
+    // Vérifier changement de principe
+    if (item.principe !== lastPath.principe) {
+      counters.principe++;
+      counters.critere = 0;
+      counters.indicateur = 0;
+      lastPath.principe = item.principe;
+      lastPath.critere = null;
+      console.log(`Changement de principe détecté: nouveau compteur principe = ${counters.principe}`);
+    }
 
-    // 1. Générer typeKey normalement
-    const typeKeyBase = generateKey(item.typeKey);
-    const typeKey = makeUniqueKey(typeKeyBase, typeKeyBase, lastTypeIndexGlobal, allKeys);
-    sessionKeys.add(typeKey);
+    // Vérifier changement de critère
+    if (item.critere !== lastPath.critere) {
+      counters.critere++;
+      counters.indicateur = 0;
+      lastPath.critere = item.critere;
+      console.log(`Changement de critère détecté: nouveau compteur critère = ${counters.critere}`);
+    }
 
-    // Pas de réinitialisation - chaque chemin garde son propre compteur
-    lastUsedTypeKey = typeKey;
+    // Toujours ajouter un indicateur
+    counters.indicateur++;
 
-    // 2. Générer principeKey unique par typeKey
-    const principeKeyBase = generateKey(item.principeKey + typeKey);
-    const principeKey = makeUniqueKey(principeKeyBase, typeKey, lastPrincipeIndexByType, allKeys);
-    sessionKeys.add(principeKey);
+    // Génération des clés hiérarchiques
+    const typeKey = `type_${counters.type}`;
+    const principeKey = `${typeKey}_principe_${counters.principe}`;
+    const critereKey = `${principeKey}_critere_${counters.critere}`;
+    const indicateurKey = `${critereKey}_indicateur_${counters.indicateur}`;
 
-    // Pas de réinitialisation - chaque chemin garde son propre compteur
-    lastUsedPrincipeKey = principeKey;
-
-    // 3. Générer critereKey unique par principeKey
-    const critereKeyBase = generateKey(item.critereKey + principeKey);
-    const critereKey = makeUniqueKey(critereKeyBase, principeKey, lastCritereIndexByPrincipe, allKeys);
-    sessionKeys.add(critereKey);
-
-    // Pas de réinitialisation - chaque chemin garde son propre compteur
-    lastUsedCritereKey = critereKey;
-
-    // 4. Générer indicateurKey unique par critereKey
-    const indicateurKeyBase = generateKey(item.indicateurKey + critereKey);
-    const indicateurKey = makeUniqueKey(indicateurKeyBase, critereKey, lastIndicateurIndexByCritere, allKeys);
     sessionKeys.add(indicateurKey);
 
-    const key = indicateurKey;
-
-    if (!uniqueKeys.has(key)) {
-      // Mettre à jour l'objet
-      item = {
+    // Vérifier unicité
+    if (!uniqueKeys.has(indicateurKey)) {
+      const updatedItem = {
         ...item,
         typeKey,
         principeKey,
@@ -619,33 +593,40 @@ const addNewIndicator = () => {
 
       const preview = {
         ...currentPreviewFactuelFormDataArray.value[index],
+        type: { ...currentPreviewFactuelFormDataArray.value[index].type, key: typeKey },
+        principe: { ...currentPreviewFactuelFormDataArray.value[index].principe, key: principeKey },
+        critere: { ...currentPreviewFactuelFormDataArray.value[index].critere, key: critereKey },
+        indicateur: { ...currentPreviewFactuelFormDataArray.value[index].indicateur, key: indicateurKey },
       };
 
-      preview.type.key = typeKey;
-      preview.principe.key = principeKey;
-      preview.critere.key = critereKey;
-      preview.indicateur.key = indicateurKey;
+      console.log("Ajout de l'indicateur avec clé:", indicateurKey);
 
-      console.log("preview.indicateur", preview.indicateur);
-
-      globalFormFactuelData.value.unshift({ ...item });
+      // Ajouter aux données
+      globalFormFactuelData.value.unshift({ ...updatedItem });
       previewFormFactuelData.value.unshift(JSON.parse(JSON.stringify(preview)));
 
-      // Tri par position
+      // Tri par positions
       globalFormFactuelData.value.sort((a, b) => {
-        return a.typePosition - b.typePosition || a.principePosition - b.principePosition || a.criterePosition - b.criterePosition || a.indicateurPosition - b.indicateurPosition;
+        return a.typePosition - b.typePosition ||
+               a.principePosition - b.principePosition ||
+               a.criterePosition - b.criterePosition ||
+               a.indicateurPosition - b.indicateurPosition;
       });
 
       previewFormFactuelData.value.sort((a, b) => {
-        return a.type.position - b.type.position || a.principe.position - b.principe.position || a.critere.position - b.critere.position || a.indicateur.position - b.indicateur.position;
+        return a.type.position - b.type.position ||
+               a.principe.position - b.principe.position ||
+               a.critere.position - b.critere.position ||
+               a.indicateur.position - b.indicateur.position;
       });
 
-      // Sauvegarde
+      // Sauvegarde localStorage
       localStorage.setItem("globalFormFactuelData", JSON.stringify(globalFormFactuelData.value));
       localStorage.setItem("previewFormFactuelData", JSON.stringify(previewFormFactuelData.value));
 
       updateAllTypesGouvernance();
 
+      // Reset du formulaire après le dernier ajout
       if (index === currentGlobalFactuelFormDataArray.value.length - 1) {
         resetCurrentPreviewFactuelFormData();
         resetCurrentGlobalFactuelFormData();
@@ -656,22 +637,18 @@ const addNewIndicator = () => {
     } else {
       toast.info("Indicateur déjà ajouté.");
     }
+
+    // Marquer la clé comme utilisée
+    uniqueKeys.set(indicateurKey, true);
   });
 
-  // Sauvegarder les Maps mises à jour dans localStorage
-  saveMapToStorage(lastTypeIndexGlobal, STORAGE_KEYS.lastTypeIndex);
-  saveMapToStorage(lastPrincipeIndexByType, STORAGE_KEYS.lastPrincipeIndex);
-  saveMapToStorage(lastCritereIndexByPrincipe, STORAGE_KEYS.lastCritereIndex);
-  saveMapToStorage(lastIndicateurIndexByCritere, STORAGE_KEYS.lastIndicateurIndex);
-
-  // Ajoute toutes les clés générées dans la session à uniqueKeys
-  for (const key of sessionKeys) {
-    uniqueKeys.set(key, true);
-  }
-
-  console.log("currentGlobalFactuelFormDataArray.value", currentGlobalFactuelFormDataArray.value);
-  console.log("currentPreviewFactuelFormDataArray.value", currentPreviewFactuelFormDataArray.value);
+  console.log("Compteurs actuels:", counters);
+  console.log("Dernier chemin:", lastPath);
 };
+
+// ===========================================
+// FIN DU NOUVEAU SYSTÈME
+// ===========================================
 
 const removeIndicator = (key) => {
   // Trouver l'index de la soumission à supprimer
@@ -910,9 +887,12 @@ const updateTemporyIndicateurs = (key, position, isCurrent = false) => {
 const clearUniqueKeys = () => {
   uniqueKeys.clear(); // Supprime toutes les clés de uniqueKeys
 };
+
+// FONCTION MODIFIÉE resetAllFormWithDataLocalStorage
 const resetAllFormWithDataLocalStorage = () => {
   resetAllForm();
   clearUniqueKeys();
+  resetPathSystem(); // Ajout du reset du système de chemins
   localStorage.removeItem("globalFormFactuelData");
   localStorage.removeItem("previewFormFactuelData");
   localStorage.removeItem("previewOptionResponsesModel");
@@ -1178,7 +1158,7 @@ onMounted(() => {
               </div>
               <div class="space-y-2">
                 <p class="text-lg font-medium">Ajouter des indicateurs</p>
-
+                <!-- <pre>{{ currentPreviewFactuelFormDataArray }}</pre> -->
                 <MultipleFactuelStructure :type="currentPreviewFactuelFormData.type" :principe="currentPreviewFactuelFormData.principe" :critere="currentPreviewFactuelFormData.critere" @deleteIndicateur="removeIndicator" @deletePrincipe="removeElement" @deleteType="removeElement" @updatePositionIndicateur="updateTemporyIndicateurs" @deleteCritere="removeElement" @updateTemporyElement="updateTemporyElement" :indicateurArray="currentPreviewFactuelFormDataArray.length > 0 ? currentPreviewFactuelFormDataArray : []" />
                 <button :disabled="!isCurrentFormValid" @click="addNewIndicator" class="my-4 text-sm btn btn-primary"><PlusIcon class="mr-1 size-4" />Ajouter</button>
               </div>
