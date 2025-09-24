@@ -35,20 +35,23 @@ const errors = ref({});
 // Fonction modifiée pour gérer les choix multiples
 function choiceOption(data, isChecked) {
   if (isChecked) {
-    // Ajouter l'élément s'il n'est pas déjà présent
+    // Vérifier si data.id n'est pas déjà dans idsChecked.value
     if (!idsChecked.value.includes(data.id)) {
+      // Ajouter data.id à idsChecked.value
       idsChecked.value.push(data.id);
-      
-      // Émettre uniquement lors de l'ajout
+
+      // Filtrer datas.value pour récupérer les éléments sélectionnés
       let selectedItems = datas.value.filter((item) => idsChecked.value.includes(item.id));
+      // Prendre le dernier élément ajouté
       selectedItems = selectedItems[selectedItems.length - 1] || {};
       console.log(selectedItems);
+      // Émettre l'événement "selected" avec cet élément
       emit("selected", selectedItems);
     }
   } else {
-    // Retirer l'élément sans émettre
+    // Retirer data.id de idsChecked.value
     idsChecked.value = idsChecked.value.filter((id) => id !== data.id);
-    // Pas d'émission ici
+    // NE PAS émettre d'événement
   }
 }
 

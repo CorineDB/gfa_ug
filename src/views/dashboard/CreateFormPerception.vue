@@ -61,8 +61,8 @@ const globalData = localStorage.getItem("globalFormPerceptionData");
 const previewData = localStorage.getItem("previewFormPerceptionData");
 
 const STORAGE_KEYS = {
-  lastPrincipeIndex: 'lastPrincipeIndexGlobal',
-  lastQuestionIndex: 'lastQuestionIndexByPrincipe'
+  lastPrincipeIndex: "lastPrincipeIndexGlobal",
+  lastQuestionIndex: "lastQuestionIndexByPrincipe",
 };
 
 // Fonction pour charger une Map depuis localStorage
@@ -96,17 +96,17 @@ const lastQuestionIndexByPrincipe = loadMapFromStorage(STORAGE_KEYS.lastQuestion
 const makeUniqueKey = (baseKey, parentKey, map, allKeys) => {
   // Récupérer le dernier index utilisé pour ce parent
   let index = map.get(parentKey) ?? 0;
-  
+
   // Incrémenter pour avoir le prochain index
   index++;
   let key = `${baseKey}_${index}`;
-  
+
   // Continuer à incrémenter tant que la clé existe
   while (allKeys.has(key)) {
     index++;
     key = `${baseKey}_${index}`;
   }
-  
+
   // Sauvegarder le nouvel index pour ce parent
   map.set(parentKey, index);
   return key;
@@ -306,21 +306,24 @@ const getPrincipe = (principe) => {
 };
 
 const getQuestion = (question) => {
+  // Vérifier si la question existe déjà dans currentPreviewPerceptionFormDataArray
+  const questionExiste = currentPreviewPerceptionFormDataArray.value.some((item) => item.indicateur.id === question.id);
+
+  if (questionExiste) {
+    toast.error("Cette question a déjà été sélectionnée");
+    return;
+  }
+
   currentGlobalPerceptionFormData.indicateur = question.id;
 
   // Compter les questions déjà persistées pour ce principe
-  let questionsPersistees = (globalFormPerceptionData.value || [])
-    .filter((item) => item.principe === currentGlobalPerceptionFormData.principe)
-    .map((item) => item.indicateur);
+  let questionsPersistees = (globalFormPerceptionData.value || []).filter((item) => item.principe === currentGlobalPerceptionFormData.principe).map((item) => item.indicateur);
 
   // Compter les questions en cours d'ajout pour ce principe
-  let questionsEnCours = (currentGlobalPerceptionFormDataArray.value || [])
-    .filter((item) => item.principe === currentGlobalPerceptionFormData.principe)
-    .map((item) => item.indicateur);
+  let questionsEnCours = (currentGlobalPerceptionFormDataArray.value || []).filter((item) => item.principe === currentGlobalPerceptionFormData.principe).map((item) => item.indicateur);
 
   // Combiner les deux et compter les uniques
-  let toutesQuestions = [...questionsPersistees, ...questionsEnCours]
-    .filter((val) => val !== null && val !== undefined && val !== "");
+  let toutesQuestions = [...questionsPersistees, ...questionsEnCours].filter((val) => val !== null && val !== undefined && val !== "");
 
   let position = new Set(toutesQuestions).size + 1;
 
@@ -405,7 +408,7 @@ const addNewIndicator = () => {
 
       // Tri par position
       globalFormPerceptionData.value.sort((a, b) => a.position ?? 0 - b.position ?? 0);
-      
+
       previewFormPerceptionData.value.sort((a, b) => {
         return a.principe.position - b.principe.position || a.indicateur.position - b.indicateur.position;
       });
@@ -426,6 +429,8 @@ const addNewIndicator = () => {
     } else {
       toast.info("Question operationnelle déjà ajouté.");
     }
+
+    changeIndexAccordion(0);
   });
 
   // Sauvegarder les Maps mises à jour dans localStorage
@@ -579,6 +584,12 @@ const updateTemporyQuestions = (key, position, isCurrent = false) => {
 };
 
 const removeIndicator = (key) => {
+  console.log("Removing key:", key);
+
+  console.log(globalFormPerceptionData.value);
+
+  console.log(globalFormPerceptionData.value.findIndex((s) => s.key === key));
+
   const index = globalFormPerceptionData.value.findIndex((s) => s.key === key);
 
   if (index !== -1) {
@@ -756,8 +767,6 @@ onMounted(() => {
   <div class="flex w-full gap-2">
     <section v-if="!currentTab" class="max-h-[50%] pr-1 overflow-y-auto border-r-2 pt-5" :class="currentTab ? 'w-0' : 'w-[30%]'">
       <AccordionGroup :selectedIndex="indexAccordion" class="space-y-1">
-        
-
         <AccordionItem>
           <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
             <p>Principes de gouvernance</p>
@@ -807,7 +816,7 @@ onMounted(() => {
               </div>
               <div class="space-y-2">
                 <p class="text-lg font-medium">Ajouter des questions opérationnelles</p>
-
+                <pre>{{ currentPreviewPerceptionFormDataArray }}</pre>
                 <PerceptionStructureMultiple @deleteQuestion="removeIndicator" @deletePrincipe="removeElement" @editPositionPrincipe="updateTemporyPrincipe" @editPositionQuestion="updateTemporyQuestions" :principe="currentPreviewPerceptionFormData.principe" :indicateurArray="currentPreviewPerceptionFormDataArray.length > 0 ? currentPreviewPerceptionFormDataArray : undefined" />
                 <button :disabled="!isCurrentFormValid" @click="addNewIndicator" class="my-4 text-sm btn btn-primary"><PlusIcon class="mr-1 size-4" />Ajouter</button>
               </div>
@@ -953,9 +962,7 @@ onMounted(() => {
                 <td>{{ question_operationnelle.position }} - {{ question_operationnelle.nom }}</td>
 
                 <template v-for="(option_de_reponse, optionIdx) in previewOptionResponses.options_de_reponse" :key="option_de_reponse.id">
-                  <td class="border border-slate-900 text-center">
-                    {{}}
-                  </td>
+                  <td class="border border-slate-900 text-center">{{}}</td>
                 </template>
               </tr>
             </template>
