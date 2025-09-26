@@ -423,23 +423,26 @@ const getIndicateurs = (indicateur) => {
     .filter(val => val !== null && val !== undefined && val !== "");
   */
 
-  // Compter les indicateurs déjà persistés pour ce critère
-  let indicateursPersistes = (globalFormFactuelData.value || []).filter((item) => item.critere === currentGlobalFactuelFormData.critere).map((item) => item.indicateur);
+  // Compter les indicateurs déjà persistés pour ce critère (même type, principe, critère)
+  let indicateursPersistes = (globalFormFactuelData.value || []).filter((item) => 
+    item.type === currentGlobalFactuelFormData.type && 
+    item.principe === currentGlobalFactuelFormData.principe && 
+    item.critere === currentGlobalFactuelFormData.critere
+  );
 
   // Compter les indicateurs en cours d'ajout pour ce critère
-  let indicateursEnCours = (currentGlobalFactuelFormDataArray.value || []).filter((item) => item.critere === currentGlobalFactuelFormData.critere).map((item) => item.indicateur);
+  let indicateursEnCours = (currentGlobalFactuelFormDataArray.value || []).filter((item) => 
+    item.type === currentGlobalFactuelFormData.type && 
+    item.principe === currentGlobalFactuelFormData.principe && 
+    item.critere === currentGlobalFactuelFormData.critere
+  );
 
-  // Combiner les deux et compter les uniques
-  let tousIndicateurs = [...indicateursPersistes, ...indicateursEnCours].filter((val) => val !== null && val !== undefined && val !== "");
+  let position = indicateursPersistes.length + indicateursEnCours.length + 1;
 
-  let position = new Set(tousIndicateurs).size;
-
-  console.log("indicateursPersistes:", indicateursPersistes);
-  console.log("indicateursEnCours:", indicateursEnCours);
-  console.log("tousIndicateurs:", tousIndicateurs);
-  console.log("position:", position);
-
-  position = position + 1;
+  console.log("🔢 Calcul position dans getIndicateurs:");
+  console.log("   indicateursPersistes:", indicateursPersistes.length);
+  console.log("   indicateursEnCours:", indicateursEnCours.length);
+  console.log("   position calculée:", position);
 
   const typeKey = currentGlobalFactuelFormData?.typeKey != "" ? currentGlobalFactuelFormData?.typeKey : "";
   const principeKey = currentGlobalFactuelFormData?.principeKey != "" ? currentGlobalFactuelFormData?.principeKey : "";
@@ -529,49 +532,74 @@ const resetPathSystem = () => {
   };
 };
 
-// FONCTION PRINCIPALE addNewIndicator - Version simplifiée et efficace
+// FONCTION PRINCIPALE addNewIndicator - Version avec incrémentation continue des indicateurs
 const addNewIndicator = () => {
   const sessionKeys = new Set();
 
   currentGlobalFactuelFormDataArray.value.forEach((item, index) => {
-    // Vérifier changement de type
-    if (item.type !== lastPath.type) {
-      counters.type++;
-      counters.principe = 0;
-      counters.critere = 0;
-      counters.indicateur = 0;
-      lastPath.type = item.type;
-      lastPath.principe = null;
-      lastPath.critere = null;
-      console.log(`Changement de type détecté: nouveau compteur type = ${counters.type}`);
-    }
+    // Calculer les positions basées sur les données existantes
+    
+    // Position du type : compter les types uniques déjà existants + en cours
+    const typesExistants = new Set(globalFormFactuelData.value.map(i => i.type).filter(Boolean));
+    const typesEnCours = new Set(currentGlobalFactuelFormDataArray.value.slice(0, index).map(i => i.type).filter(Boolean));
+    const allTypes = new Set([...typesExistants, ...typesEnCours]);
+    
+    const typePosition = item.type && !allTypes.has(item.type) ? 
+      allTypes.size + 1 : 
+      [...allTypes].indexOf(item.type) + 1;
 
-    // Vérifier changement de principe
-    if (item.principe !== lastPath.principe) {
-      counters.principe++;
-      counters.critere = 0;
-      counters.indicateur = 0;
-      lastPath.principe = item.principe;
-      lastPath.critere = null;
-      console.log(`Changement de principe détecté: nouveau compteur principe = ${counters.principe}`);
-    }
+    // Position du principe : compter les principes uniques pour ce type
+    const principesExistants = new Set(
+      globalFormFactuelData.value
+        .filter(i => i.type === item.type)
+        .map(i => i.principe)
+        .filter(Boolean)
+    );
+    const principesEnCours = new Set(
+      currentGlobalFactuelFormDataArray.value
+        .slice(0, index)
+        .filter(i => i.type === item.type)
+        .map(i => i.principe)
+        .filter(Boolean)
+    );
+    const allPrincipes = new Set([...principesExistants, ...principesEnCours]);
+    
+    const principePosition = item.principe && !allPrincipes.has(item.principe) ? 
+      allPrincipes.size + 1 : 
+      [...allPrincipes].indexOf(item.principe) + 1;
 
-    // Vérifier changement de critère
-    if (item.critere !== lastPath.critere) {
-      counters.critere++;
-      counters.indicateur = 0;
-      lastPath.critere = item.critere;
-      console.log(`Changement de critère détecté: nouveau compteur critère = ${counters.critere}`);
-    }
+    // Position du critère : compter les critères uniques pour ce principe
+    const criteresExistants = new Set(
+      globalFormFactuelData.value
+        .filter(i => i.type === item.type && i.principe === item.principe)
+        .map(i => i.critere)
+        .filter(Boolean)
+    );
+    const criteresEnCours = new Set(
+      currentGlobalFactuelFormDataArray.value
+        .slice(0, index)
+        .filter(i => i.type === item.type && i.principe === item.principe)
+        .map(i => i.critere)
+        .filter(Boolean)
+    );
+    const allCriteres = new Set([...criteresExistants, ...criteresEnCours]);
+    
+    const criterePosition = item.critere && !allCriteres.has(item.critere) ? 
+      allCriteres.size + 1 : 
+      [...allCriteres].indexOf(item.critere) + 1;
 
-    // Toujours ajouter un indicateur
-    counters.indicateur++;
+    // Utiliser la position déjà calculée dans getIndicateurs
+    const indicateurPosition = item.indicateurPosition || 1;
+    
+    console.log(`📍 Utilisation position pré-calculée: ${indicateurPosition} pour indicateur ${item.indicateur}`);
 
-    // Génération des clés hiérarchiques
-    const typeKey = `type_${counters.type}`;
-    const principeKey = `${typeKey}_principe_${counters.principe}`;
-    const critereKey = `${principeKey}_critere_${counters.critere}`;
-    const indicateurKey = `${critereKey}_indicateur_${counters.indicateur}`;
+    // Génération des clés hiérarchiques avec les positions calculées
+    const typeKey = `type_${typePosition}`;
+    const principeKey = `${typeKey}_principe_${principePosition}`;
+    const critereKey = `${principeKey}_critere_${criterePosition}`;
+    const indicateurKey = `${critereKey}_indicateur_${indicateurPosition}`;
+
+    console.log(`Positions calculées: Type(${typePosition}), Principe(${principePosition}), Critère(${criterePosition}), Indicateur(${indicateurPosition})`);
 
     sessionKeys.add(indicateurKey);
 
@@ -583,14 +611,18 @@ const addNewIndicator = () => {
         principeKey,
         critereKey,
         indicateurKey,
+        typePosition,
+        principePosition,
+        criterePosition,
+        indicateurPosition,
       };
 
       const preview = {
         ...currentPreviewFactuelFormDataArray.value[index],
-        type: { ...currentPreviewFactuelFormDataArray.value[index].type, key: typeKey },
-        principe: { ...currentPreviewFactuelFormDataArray.value[index].principe, key: principeKey },
-        critere: { ...currentPreviewFactuelFormDataArray.value[index].critere, key: critereKey },
-        indicateur: { ...currentPreviewFactuelFormDataArray.value[index].indicateur, key: indicateurKey },
+        type: { ...currentPreviewFactuelFormDataArray.value[index].type, key: typeKey, position: typePosition },
+        principe: { ...currentPreviewFactuelFormDataArray.value[index].principe, key: principeKey, position: principePosition },
+        critere: { ...currentPreviewFactuelFormDataArray.value[index].critere, key: critereKey, position: criterePosition },
+        indicateur: { ...currentPreviewFactuelFormDataArray.value[index].indicateur, key: indicateurKey, position: indicateurPosition },
       };
 
       console.log("Ajout de l'indicateur avec clé:", indicateurKey);
@@ -636,8 +668,7 @@ const addNewIndicator = () => {
     uniqueKeys.set(indicateurKey, true);
   });
 
-  console.log("Compteurs actuels:", counters);
-  console.log("Dernier chemin:", lastPath);
+  console.log("Ajout terminé avec succès");
 };
 
 // ===========================================

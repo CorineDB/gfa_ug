@@ -478,16 +478,27 @@ const updateTemporyQuestions = (key, position, isCurrent = false) => {
 };
 
 const removeIndicator = (key) => {
-  const index = globalFormPerceptionData.value.findIndex((s) => s.key === key);
+  console.log("🗑️ Tentative de suppression avec clé:", key);
+  console.log("📋 Clés disponibles dans globalFormPerceptionData:", 
+    globalFormPerceptionData.value.map(item => ({ key: item.key, indicateur: item.indicateur, principe: item.principe })));
+  console.log("📋 Clés disponibles dans previewFormPerceptionData:", 
+    previewFormPerceptionData.value.map(item => ({ key: item.key, indicateur: item.indicateur?.id, principe: item.principe?.id })));
+
+  // 1. Chercher dans les données persistées (globalFormPerceptionData)
+  let index = globalFormPerceptionData.value.findIndex((s) => s.key === key);
 
   if (index !== -1) {
+    console.log("✅ Trouvé dans globalFormPerceptionData à l'index:", index);
     globalFormPerceptionData.value.splice(index, 1);
-    previewFormPerceptionData.value.splice(index, 1);
+    // Chercher l'index correspondant dans previewFormPerceptionData
+    const previewIndex = previewFormPerceptionData.value.findIndex((s) => s.key === key);
+    if (previewIndex !== -1) {
+      previewFormPerceptionData.value.splice(previewIndex, 1);
+    }
     uniqueKeys.delete(key);
 
-    // ✅ Sort after unshift
+    // ✅ Sort after removal
     globalFormPerceptionData.value.sort((a, b) => a.position ?? 0 - b.position ?? 0);
-
     previewFormPerceptionData.value.sort((a, b) => {
       return a.principe.position - b.principe.position || a.indicateur.position - b.indicateur.position;
     });
@@ -496,25 +507,66 @@ const removeIndicator = (key) => {
     localStorage.setItem("globalFormPerceptionData", JSON.stringify(globalFormPerceptionData.value));
     localStorage.setItem("previewFormPerceptionData", JSON.stringify(previewFormPerceptionData.value));
 
-    toast.success("Question operationnelle supprimé.");
-  } else {
-    const indice = currentPreviewPerceptionFormDataArray.value.findIndex((s) => s.key === key);
-
-    if (indice !== -1) {
-      currentGlobalPerceptionFormDataArray.value.splice(indice, 1);
-      currentPreviewPerceptionFormDataArray.value.splice(indice, 1);
-      uniqueKeys.delete(key);
-
-      // ✅ Sort after unshift
-      currentGlobalPerceptionFormDataArray.value.sort((a, b) => a.position ?? 0 - b.position ?? 0);
-
-      currentPreviewPerceptionFormDataArray.value.sort((a, b) => {
-        return a.principe.position - b.principe.position || a.indicateur.position - b.indicateur.position;
-      });
-
-      toast.success("Supprimé.");
-    }
+    toast.success("Question opérationnelle supprimée.");
+    return;
   }
+
+  // 2. Chercher dans previewFormPerceptionData (pour les éléments avec clés longues)
+  index = previewFormPerceptionData.value.findIndex((s) => s.key === key);
+  if (index !== -1) {
+    console.log("✅ Trouvé dans previewFormPerceptionData à l'index:", index);
+    previewFormPerceptionData.value.splice(index, 1);
+    // Chercher et supprimer dans globalFormPerceptionData aussi
+    const globalIndex = globalFormPerceptionData.value.findIndex((s) => s.key === key);
+    if (globalIndex !== -1) {
+      globalFormPerceptionData.value.splice(globalIndex, 1);
+    }
+    uniqueKeys.delete(key);
+
+    updateAllTypesGouvernance();
+    localStorage.setItem("globalFormPerceptionData", JSON.stringify(globalFormPerceptionData.value));
+    localStorage.setItem("previewFormPerceptionData", JSON.stringify(previewFormPerceptionData.value));
+
+    toast.success("Question opérationnelle supprimée.");
+    return;
+  }
+
+  // 3. Chercher dans les données temporaires avec différentes variantes de clé
+  let indice = currentPreviewPerceptionFormDataArray.value.findIndex((s) => s.key === key);
+  
+  if (indice === -1) {
+    // Essayer avec la clé générée différemment
+    indice = currentPreviewPerceptionFormDataArray.value.findIndex((s) => {
+      const keyVariant1 = s.indicateur?.id + s.principe?.id;
+      const keyVariant2 = s.indicateur?.id + "" + s.principe?.id;
+      const keyVariant3 = generateKey(s.indicateur?.id + s.principe?.id);
+      return keyVariant1 === key || keyVariant2 === key || keyVariant3 === key;
+    });
+    
+    if (indice !== -1) {
+      console.log("✅ Trouvé dans currentPreviewPerceptionFormDataArray avec variante de clé à l'index:", indice);
+    }
+  } else {
+    console.log("✅ Trouvé dans currentPreviewPerceptionFormDataArray à l'index:", indice);
+  }
+
+  if (indice !== -1) {
+    currentGlobalPerceptionFormDataArray.value.splice(indice, 1);
+    currentPreviewPerceptionFormDataArray.value.splice(indice, 1);
+    uniqueKeys.delete(key);
+
+    // ✅ Sort after removal
+    currentGlobalPerceptionFormDataArray.value.sort((a, b) => a.position ?? 0 - b.position ?? 0);
+    currentPreviewPerceptionFormDataArray.value.sort((a, b) => {
+      return a.principe.position - b.principe.position || a.indicateur.position - b.indicateur.position;
+    });
+
+    toast.success("Question supprimée.");
+    return;
+  }
+
+  console.error("❌ Impossible de trouver l'élément à supprimer avec la clé:", key);
+  toast.error("Impossible de supprimer cet élément.");
 };
 
 function editPrincipe(id) {
