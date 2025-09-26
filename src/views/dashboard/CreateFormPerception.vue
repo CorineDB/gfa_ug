@@ -60,58 +60,6 @@ const uniqueKeys = new Map();
 const globalData = localStorage.getItem("globalFormPerceptionData");
 const previewData = localStorage.getItem("previewFormPerceptionData");
 
-const STORAGE_KEYS = {
-  lastPrincipeIndex: "lastPrincipeIndexGlobal",
-  lastQuestionIndex: "lastQuestionIndexByPrincipe",
-};
-
-// Fonction pour charger une Map depuis localStorage
-const loadMapFromStorage = (storageKey) => {
-  const stored = localStorage.getItem(storageKey);
-  if (stored) {
-    try {
-      const parsed = JSON.parse(stored);
-      return new Map(Object.entries(parsed));
-    } catch (e) {
-      console.warn(`Erreur lors du chargement de ${storageKey}:`, e);
-    }
-  }
-  return new Map();
-};
-
-// Fonction pour sauvegarder une Map dans localStorage
-const saveMapToStorage = (map, storageKey) => {
-  try {
-    const obj = Object.fromEntries(map);
-    localStorage.setItem(storageKey, JSON.stringify(obj));
-  } catch (e) {
-    console.warn(`Erreur lors de la sauvegarde de ${storageKey}:`, e);
-  }
-};
-
-// Initialiser les Maps avec les données persistées
-const lastPrincipeIndexGlobal = loadMapFromStorage(STORAGE_KEYS.lastPrincipeIndex);
-const lastQuestionIndexByPrincipe = loadMapFromStorage(STORAGE_KEYS.lastQuestionIndex);
-
-const makeUniqueKey = (baseKey, parentKey, map, allKeys) => {
-  // Récupérer le dernier index utilisé pour ce parent
-  let index = map.get(parentKey) ?? 0;
-
-  // Incrémenter pour avoir le prochain index
-  index++;
-  let key = `${baseKey}_${index}`;
-
-  // Continuer à incrémenter tant que la clé existe
-  while (allKeys.has(key)) {
-    index++;
-    key = `${baseKey}_${index}`;
-  }
-
-  // Sauvegarder le nouvel index pour ce parent
-  map.set(parentKey, index);
-  return key;
-};
-
 const canEditQuestion = ref([]);
 const canEditPrincipe = ref([]);
 
@@ -306,31 +254,9 @@ const getPrincipe = (principe) => {
 };
 
 const getQuestion = (question) => {
-  // Vérifier si la question existe déjà dans currentPreviewPerceptionFormDataArray
-  const questionExiste = currentPreviewPerceptionFormDataArray.value.some((item) => item.indicateur.id === question.id);
-
-  if (questionExiste) {
-    toast.error("Cette question a déjà été sélectionnée");
-    return;
-  }
-
+  //console.log("question", question);
+  // changeIndexAccordion(3);
   currentGlobalPerceptionFormData.indicateur = question.id;
-
-  // Compter les questions déjà persistées pour ce principe
-  let questionsPersistees = (globalFormPerceptionData.value || []).filter((item) => item.principe === currentGlobalPerceptionFormData.principe).map((item) => item.indicateur);
-
-  // Compter les questions en cours d'ajout pour ce principe
-  let questionsEnCours = (currentGlobalPerceptionFormDataArray.value || []).filter((item) => item.principe === currentGlobalPerceptionFormData.principe).map((item) => item.indicateur);
-
-  // Combiner les deux et compter les uniques
-  let toutesQuestions = [...questionsPersistees, ...questionsEnCours].filter((val) => val !== null && val !== undefined && val !== "");
-
-  let position = new Set(toutesQuestions).size + 1;
-
-  console.log("questionsPersistees:", questionsPersistees);
-  console.log("questionsEnCours:", questionsEnCours);
-  console.log("toutesQuestions:", toutesQuestions);
-  console.log("position:", position);
 
   const key = currentGlobalPerceptionFormData?.principe != "" ? question.id + currentGlobalPerceptionFormData?.principe : currentGlobalPerceptionFormData?.indicateur;
 
@@ -338,14 +264,14 @@ const getQuestion = (question) => {
     key: key,
     principe: currentGlobalPerceptionFormData?.principe,
     indicateur: question.id,
-    position: position,
+    position: currentGlobalPerceptionFormDataArray.value.length + 1,
   };
 
   currentGlobalPerceptionFormDataArray.value.push(form);
 
   console.log("currentGlobalPerceptionFormDataArray.value", currentGlobalPerceptionFormDataArray.value);
 
-  currentPreviewPerceptionFormData.indicateur = { id: question.id, nom: question.nom, position: position };
+  currentPreviewPerceptionFormData.indicateur = { id: question.id, nom: question.nom, position: 1 };
 
   let form2 = {
     key: key,
@@ -357,7 +283,7 @@ const getQuestion = (question) => {
     indicateur: {
       id: question.id,
       nom: question.nom,
-      position: position,
+      position: currentPreviewPerceptionFormDataArray.value.length + 1,
     },
   };
 
@@ -371,49 +297,28 @@ const getQuestion = (question) => {
 };
 
 const addNewIndicator = () => {
-  const sessionKeys = new Set();
-
   console.log("currentGlobalPerceptionFormDataArray.value", currentGlobalPerceptionFormDataArray.value);
+
   console.log("currentPreviewPerceptionFormDataArray.value", currentPreviewPerceptionFormDataArray.value);
 
   currentGlobalPerceptionFormDataArray.value.forEach((item, index) => {
-    const allKeys = new Set([...uniqueKeys.keys(), ...sessionKeys]);
-
-    // 1. Générer principeKey normalement
-    const principeKeyBase = generateKey(item.principe);
-    const principeKey = makeUniqueKey(principeKeyBase, principeKeyBase, lastPrincipeIndexGlobal, allKeys);
-    sessionKeys.add(principeKey);
-
-    // 2. Générer questionKey unique par principeKey
-    const questionKeyBase = generateKey(item.indicateur + principeKey);
-    const questionKey = makeUniqueKey(questionKeyBase, principeKey, lastQuestionIndexByPrincipe, allKeys);
-    sessionKeys.add(questionKey);
-
-    const key = questionKey;
+    const key = generateKey(item.indicateur + item.principe);
 
     if (!uniqueKeys.has(key)) {
-      // Mettre à jour l'objet
-      const updatedItem = {
-        ...item,
-        key: questionKey,
-      };
+      globalFormPerceptionData.value.unshift({ ...item });
 
-      const preview = {
-        ...currentPreviewPerceptionFormDataArray.value[index],
-        key: questionKey,
-      };
+      previewFormPerceptionData.value.unshift(JSON.parse(JSON.stringify(currentPreviewPerceptionFormDataArray.value[index])));
 
-      globalFormPerceptionData.value.unshift({ ...updatedItem });
-      previewFormPerceptionData.value.unshift(JSON.parse(JSON.stringify(preview)));
+      uniqueKeys.set(key, true);
 
-      // Tri par position
+      // ✅ Sort after unshift
       globalFormPerceptionData.value.sort((a, b) => a.position ?? 0 - b.position ?? 0);
+      //previewFormPerceptionData.value.sort((a, b) => a.position ?? 0 - b.position ?? 0)
 
       previewFormPerceptionData.value.sort((a, b) => {
         return a.principe.position - b.principe.position || a.indicateur.position - b.indicateur.position;
       });
 
-      // Sauvegarde
       localStorage.setItem("globalFormPerceptionData", JSON.stringify(globalFormPerceptionData.value));
       localStorage.setItem("previewFormPerceptionData", JSON.stringify(previewFormPerceptionData.value));
 
@@ -427,20 +332,9 @@ const addNewIndicator = () => {
 
       toast.success("Question operationnelle ajouté.");
     } else {
-      toast.info("Question operationnelle déjà ajouté.");
+      toast.info("Question operationnelle deja ajouté.");
     }
-
-    changeIndexAccordion(0);
   });
-
-  // Sauvegarder les Maps mises à jour dans localStorage
-  saveMapToStorage(lastPrincipeIndexGlobal, STORAGE_KEYS.lastPrincipeIndex);
-  saveMapToStorage(lastQuestionIndexByPrincipe, STORAGE_KEYS.lastQuestionIndex);
-
-  // Ajoute toutes les clés générées dans la session à uniqueKeys
-  for (const key of sessionKeys) {
-    uniqueKeys.set(key, true);
-  }
 };
 
 const removeElement = (key) => {
@@ -584,12 +478,6 @@ const updateTemporyQuestions = (key, position, isCurrent = false) => {
 };
 
 const removeIndicator = (key) => {
-  console.log("Removing key:", key);
-
-  console.log(globalFormPerceptionData.value);
-
-  console.log(globalFormPerceptionData.value.findIndex((s) => s.key === key));
-
   const index = globalFormPerceptionData.value.findIndex((s) => s.key === key);
 
   if (index !== -1) {
@@ -659,8 +547,6 @@ const resetAllFormWithDataLocalStorage = () => {
   localStorage.removeItem("previewFormPerceptionData");
   localStorage.removeItem("previewOptionResponsesModel");
   localStorage.removeItem("globalOptionResponses");
-  localStorage.removeItem(STORAGE_KEYS.lastPrincipeIndex);
-  localStorage.removeItem(STORAGE_KEYS.lastQuestionIndex);
 
   updateAllTypesGouvernance();
   showDeleteForm.value = false;
@@ -767,6 +653,8 @@ onMounted(() => {
   <div class="flex w-full gap-2">
     <section v-if="!currentTab" class="max-h-[50%] pr-1 overflow-y-auto border-r-2 pt-5" :class="currentTab ? 'w-0' : 'w-[30%]'">
       <AccordionGroup :selectedIndex="indexAccordion" class="space-y-1">
+        
+
         <AccordionItem>
           <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
             <p>Principes de gouvernance</p>
@@ -816,7 +704,7 @@ onMounted(() => {
               </div>
               <div class="space-y-2">
                 <p class="text-lg font-medium">Ajouter des questions opérationnelles</p>
-                <pre>{{ currentPreviewPerceptionFormDataArray }}</pre>
+
                 <PerceptionStructureMultiple @deleteQuestion="removeIndicator" @deletePrincipe="removeElement" @editPositionPrincipe="updateTemporyPrincipe" @editPositionQuestion="updateTemporyQuestions" :principe="currentPreviewPerceptionFormData.principe" :indicateurArray="currentPreviewPerceptionFormDataArray.length > 0 ? currentPreviewPerceptionFormDataArray : undefined" />
                 <button :disabled="!isCurrentFormValid" @click="addNewIndicator" class="my-4 text-sm btn btn-primary"><PlusIcon class="mr-1 size-4" />Ajouter</button>
               </div>
@@ -871,7 +759,7 @@ onMounted(() => {
                   </div>
                 </td>
 
-                <td>{{ principe_de_gouvernance.position }}.{{ question_operationnelle.position }} - {{ question_operationnelle.nom }}</td>
+                <td>{{ question_operationnelle.position }} - {{ question_operationnelle.nom }}</td>
 
                 <td>
                   <div class="flex items-center">
@@ -918,23 +806,21 @@ onMounted(() => {
     </ModalHeader>
     <ModalBody class="space-y-5">
       <table class="w-full border-collapse table-auto border-slate-500" border="1" cellspacing="0" cellpadding="8" style="border-collapse: collapse; font-family: Arial, sans-serif">
-        <tbody>
-          <tr>
-            <td rowspan="3"><strong>Vous êtes :</strong></td>
-            <td style="background-color: white; color: black">Membre du Conseil d'administration</td>
-          </tr>
-          <tr>
-            <td>Membre de l'association</td>
-          </tr>
-          <tr>
-            <td>Employé de l'association</td>
-          </tr>
+        <tr>
+          <td rowspan="3"><strong>Vous êtes :</strong></td>
+          <td style="background-color: white; color: black">Membre du Conseil d'administration</td>
+        </tr>
+        <tr>
+          <td>Membre de l'association</td>
+        </tr>
+        <tr>
+          <td>Employé de l'association</td>
+        </tr>
 
-          <tr>
-            <td rowspan="1"></td>
-            <td>Partenaires</td>
-          </tr>
-        </tbody>
+        <tr>
+          <td rowspan="1"></td>
+          <td>Partenaires</td>
+        </tr>
       </table>
 
       <table class="w-full mt-5 border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
@@ -962,7 +848,9 @@ onMounted(() => {
                 <td>{{ question_operationnelle.position }} - {{ question_operationnelle.nom }}</td>
 
                 <template v-for="(option_de_reponse, optionIdx) in previewOptionResponses.options_de_reponse" :key="option_de_reponse.id">
-                  <td class="border border-slate-900 text-center">{{}}</td>
+                  <td class="border border-slate-900 text-center">
+                    {{}}
+                  </td>
                 </template>
               </tr>
             </template>

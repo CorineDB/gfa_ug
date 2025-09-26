@@ -275,13 +275,7 @@ const resetAllForm = () => {
   resetCurrentGlobalFactuelFormData();
   resetCurrentPreviewFactuelFormData();
   (previewOptionResponses.value.options_de_reponse = []), (globalOptionResponses.value.options_de_reponse = []);
-  // resetOptions.value = !resetOptions.value;
-  // resetCurrentForm.value = !resetCurrentForm.value;
-  // globalOptionResponses.value.options_de_reponse = [];
-  // principesGouvernance.value.principes_de_gouvernance = [];
-  // previewOptionResponses.value.options_de_reponse = [];
-  // globalTypesGouvernance.value.types_de_gouvernance = [];
-  // previewTypesGouvernance.value.types_de_gouvernance = [];
+  
   globalFormFactuelData.value = [];
   previewFormFactuelData.value = [];
 };

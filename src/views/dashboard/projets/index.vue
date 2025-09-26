@@ -85,9 +85,7 @@
               </select>
               <div v-if="errors.commune" class="mt-2 text-danger">{{ getFieldErrors(errors.commune) }}</div>
             </div>
-          </div>
 
-          <div v-if="isBenin" class="col-span-12">
             <div class="w-full mb-4" :class="[!showArrondissement ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
               <label class="form-label">Arrondissement<span class="text-danger">*</span> </label>
               <select v-model="payloadSites.arrondissement" @change="updateQuartiers" class="form-select w-full">
@@ -108,53 +106,6 @@
               <div v-if="errors.quartier" class="mt-2 text-danger">{{ getFieldErrors(errors.quartier) }}</div>
             </div>
           </div>
-
-          <!-- <div class="col-span-12">
-            <label class="form-label">Pays<span class="text-danger">*</span> </label>
-            <TomSelect v-model="payloadSites.pays" @change="changeCountry" :options="{ placeholder: 'Selectionez  un pays' }" class="w-full">
-              <option value=""></option>
-              <option v-for="(country, index) in pays" :key="index" :value="country">{{ country }}</option>
-            </TomSelect>
-            <div v-if="errors.pays" class="mt-2 text-danger">{{ getFieldErrors(errors.pays) }}</div>
-          </div>
-          <div v-if="isBenin" class="col-span-12">
-            <div class="w-full mb-4">
-              <label class="form-label">Départements<span class="text-danger">*</span> </label>
-              <TomSelect v-model="payloadSites.departement" @change="updateCommunes" :options="{ placeholder: 'Selectionez un département' }" class="w-full">
-                <option value=""></option>
-                <option v-for="(dep, index) in departements" :key="index" :value="dep.lib_dep">{{ dep.lib_dep }}</option>
-              </TomSelect>
-              <div v-if="errors.departement" class="mt-2 text-danger">{{ getFieldErrors(errors.departement) }}</div>
-            </div>
-            <div class="mb-4" :class="[!showCommune ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
-              <label class="form-label">Communes<span class="text-danger">*</span> </label>
-              <TomSelect v-model="payloadSites.commune" :options="{ placeholder: 'Sélectionner la commune' }" class="w-full" @change="updateArrondissements">
-                <option v-for="commune in filteredCommunes" :key="commune.lib_com" :value="commune.lib_com">
-                  {{ commune.lib_com }}
-                </option>
-              </TomSelect>
-              <div v-if="errors.commune" class="mt-2 text-danger">{{ getFieldErrors(errors.commune) }}</div>
-            </div>
-          </div>
-
-          <div v-if="isBenin" class="col-span-12">
-            <div class="w-full mb-4" :class="[!showArrondissement ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
-              <label class="form-label">Arrondissemnt<span class="text-danger">*</span> </label>
-              <TomSelect v-model="payloadSites.arrondissement" @change="updateQuartiers" :options="{ placeholder: 'Selectionez  arrondissement' }" class="w-full">
-                <option v-for="(arrond, index) in filteredArrondissements" :key="index" :value="arrond.lib_arrond">{{ arrond.lib_arrond }}</option>
-              </TomSelect>
-              <div v-if="errors.arrondissement" class="mt-2 text-danger">{{ getFieldErrors(errors.arrondissement) }}</div>
-            </div>
-            <div class="w-full mb-4" :class="[!showQuatier ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
-              <label class="form-label">Quartier<span class="text-danger">*</span> </label>
-              <TomSelect v-model="payloadSites.quartier" :options="{ placeholder: 'Sélectionner le quatier' }" class="w-full">
-                <option v-for="quart in filteredQuartiers" :key="quart.lib_quart" :value="quart.lib_quart">
-                  {{ quart.lib_quart }}
-                </option>
-              </TomSelect>
-              <div v-if="errors.quartier" class="mt-2 text-danger">{{ getFieldErrors(errors.quartier) }}</div>
-            </div>
-          </div> -->
 
           <div v-if="!isBenin" class="col-span-12">
             <InputForm :required="false" :optionel="false" label="Département" v-model="payloadSites.departement" :control="getFieldErrors(errors.departement)" class="mb-4" />
@@ -735,7 +686,16 @@ export default {
       this.updateCoordinates(lat, lng);
     },
     resetForm() {
-      Object.assign(this.payloadSites, this.getinitForm());
+      this.payloadSites = this.getinitForm();
+      this.errors = {};
+
+      // Réinitialiser les états des sélecteurs
+      this.isBenin = false;
+      this.indexBenin = 1;
+
+      // Réinitialiser la position du marqueur
+      this.markerLatLng = [6.3703, 2.3912];
+
       this.showModalCreate = false;
     },
 
@@ -768,29 +728,27 @@ export default {
       // Le centrage se fera automatiquement via la réactivité de Vue
     },
     updateCoordinates(lat, lng) {
+      // Assignation directe pour Vue 3
       this.payloadSites.latitude = lat.toFixed(6);
       this.payloadSites.longitude = lng.toFixed(6);
+
       this.markerLatLng = [lat, lng];
     },
-    getinitForm() {
-      return {
-        nom: "",
-        longitude: "",
-        latitude: "",
-        arrondissement: "",
-        commune: "",
-        departement: "",
-        pays: "",
-        quartier: "",
-      };
-    },
     resetPayload() {
-      this.payloadSites = this.getinitForm;
+      this.payloadSites = this.getinitForm();
     },
     verifyPermission,
     resetFormSite() {
       this.resetPayload();
       this.errors = {};
+
+      // Réinitialiser les états des sélecteurs
+      this.isBenin = false;
+      this.indexBenin = 1;
+
+      // Réinitialiser la position du marqueur
+      this.markerLatLng = [6.3703, 2.3912];
+
       this.showModalCreate = false;
     },
     getFieldErrors(errors) {
@@ -895,6 +853,45 @@ export default {
       // Réinitialiser le champ de fichier
       this.selectedFile = null; // Réinitialiser la variable selectedFile
       this.imagePreview = null; // Réinitialiser la prévisualisation
+    },
+
+    resetAllProjetFields() {
+      // Réinitialiser formData
+      this.formData = {
+        nom: "",
+        couleur: "",
+        debut: "",
+        fin: "",
+        pays: "",
+        pret: 0,
+        organisationId: "",
+        nombreEmploie: 0,
+        budgetNational: 0,
+      };
+
+      // Réinitialiser les sites sélectionnés
+      this.sitesId = [];
+
+      // Réinitialiser les fichiers
+      this.selectedFile = null;
+      this.selectedFile2 = null;
+      this.imagePreview = null;
+      this.files = [];
+
+      // Réinitialiser FormData
+      this.FormProjet = new FormData();
+
+      // Réinitialiser les erreurs
+      this.messageErreur = {};
+      this.errors = {};
+
+      // Réinitialiser les inputs file dans le DOM
+      if (this.$refs.fileInput) {
+        this.$refs.fileInput.value = "";
+      }
+      if (this.$refs.fileInput2) {
+        this.$refs.fileInput2.value = "";
+      }
     },
     handleFileChange(event) {
       const file = event.target.files[0];
@@ -1339,6 +1336,9 @@ export default {
             if (response.status == 200 || response.status == 201) {
               this.isLoading = false;
 
+              // Réinitialiser tous les champs après modification
+              this.resetAllProjetFields();
+
               this.fetchProjets();
               toast.success("Modification éffectuée avec succès");
               this.showModal = false;
@@ -1391,10 +1391,8 @@ export default {
               this.isLoading = false;
               this.showModal = false;
 
-              this.resetFileInput();
-              $h.clearFormData(this.FormProjet);
-              $h.clearObjectValues(this.formData);
-              this.messageErreur = {};
+              // Réinitialiser tous les champs après ajout
+              this.resetAllProjetFields();
 
               toast.success("Ajout éffectuée avec succès");
 
@@ -1404,7 +1402,7 @@ export default {
           })
           .catch((e) => {
             this.isLoading = false;
-            alert('ok')
+          
             console.log(e);
             console.log(e.response.data.message)
             toast.error(e.response.data.message);
