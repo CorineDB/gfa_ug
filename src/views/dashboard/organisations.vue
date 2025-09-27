@@ -205,6 +205,9 @@ const initTabulator = () => {
           const viewPta = createButton("Plan d'action", "btn btn-pending", () => {
             goToPta(cell.getData());
           });
+          const viewDashboard = createButton("Voir le Dashbpard", "btn btn-pending", () => {
+            goToDashboard(cell.getData());
+          });
 
           const modifyButton = createButton("modifier", "btn btn-primary", () => {
             handleEdit(cell.getData());
@@ -216,6 +219,7 @@ const initTabulator = () => {
 
           if (cell.getData().projet !== null) {
             container.append(viewPta);
+            container.append(viewDashboard);
           }
 
           container.append(modifyButton, deleteButton);
@@ -375,6 +379,11 @@ const handleDelete = (data) => {
 
 const goToPta = (data) => {
   router.push({ name: "pta", params: { ongId: data.id } });
+};
+
+const goToDashboard = (data) => {
+  console.log(data);
+  router.push({ name: "Dashboard Organisation", params: { projetId: data.projet.id } });
 };
 
 function resetPayload() {

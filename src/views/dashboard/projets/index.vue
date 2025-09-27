@@ -190,9 +190,9 @@
 
           <!-- organisation Select Dropdown -->
           <div class="relative w-full">
-            <v-select class="w-full" :reduce="(ong) => ong.id" v-model="formData.organisationId" label="nom" :options="ongs" placeholder="Selectionner une organisation..." >
+            <v-select class="w-full" :reduce="(ong) => ong.id" v-model="formData.organisationId" label="nom" :options="ongs" placeholder="Selectionner une organisation...">
               <template v-if="!formData.organisationId || formData.organisationId.length === 0" #search="{ attributes, events }">
-                <input class="vs__search form-input" :required="!formData.organisationId || formData.organisationId.length === 0" v-bind="attributes" v-on="events" placeholder="Rechercher une organisation..." />
+                <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher une organisation..." />
               </template>
 
               <!-- Selected value display -->
@@ -935,7 +935,9 @@ export default {
         .then((data) => {
           const datas = data.data.data;
 
-          this.ongs = datas.filter((ong) => ong.type !== "autre_osc");
+          
+
+          this.ongs = datas.filter((ong) => ong.type !== "autre_osc" && (ong.projet == null || ong.projet == "null") );
 
           console.log("this.ongs", this.ongs);
         })
@@ -1074,7 +1076,7 @@ export default {
       this.$store.dispatch("disabled");
     },
     fetchProjets() {
-     // console.log("ok");
+      // console.log("ok");
       this.active();
 
       this.isLoadingProjets = true;
@@ -1084,10 +1086,7 @@ export default {
           this.isLoadingProjets = false;
           const datas = data.data.data;
 
-          
           this.projets = datas;
-
-          
 
           //   this.disabled();
         })
@@ -1267,7 +1266,7 @@ export default {
       // this.filteredProjet.splice(data.index, 1);
       // this.deleteModal = false;
       this.isLoading = true;
-      
+
       ProjetService.destroy(this.deleteData.data.id)
         .then((data) => {
           this.isLoading = false;
@@ -1327,6 +1326,13 @@ export default {
     },
 
     sendForm() {
+      console.log(this.formData.organisationId);
+
+      if (this.formData.organisationId == "") {
+        delete this.formData.organisationId;
+      }
+      console.log(this.formData);
+
       if (this.isUpdate) {
         this.isLoading = true;
         this.formData.sites = this.sitesId;
@@ -1402,9 +1408,9 @@ export default {
           })
           .catch((e) => {
             this.isLoading = false;
-          
+
             console.log(e);
-            console.log(e.response.data.message)
+            console.log(e.response.data.message);
             toast.error(e.response.data.message);
 
             // Gestion des erreurs de validation (422)

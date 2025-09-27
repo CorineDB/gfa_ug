@@ -312,14 +312,7 @@ export default {
             <option v-for="(element, index) in projets" :key="index" :value="element.id">{{ element.codePta }} - {{ element.nom }}</option>
           </TomSelect>
         </div>
-        <!-- <div class="flex col-span-12">
-          <v-select class="w-full" :reduce="(projet) => projet.id" v-model="projetId" label="nom" :options="projets">
-            <template #search="{ attributes, events }">
-              <input class="vs__search form-input" :required="!projetId" v-bind="attributes" v-on="events" />
-            </template>
-          </v-select>
-          <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Projets</label>
-        </div> -->
+       
       </div>
     </div>
   </div>
@@ -342,29 +335,29 @@ export default {
   <LoaderSnipper v-if="isLoadingOutcome" />
   <div v-if="!isLoadingOutcome" class="grid grid-cols-12 gap-6 mt-5">
     <NoRecordsMessage class="col-span-12" v-if="!paginatedAndFilteredData.length" title="Aucun outCome trouvée" description="Il semble qu'il n'y ait pas d'outComes à afficher. Veuillez en créer un. " />
-    <div v-for="(item, index) in paginatedAndFilteredData" :key="index" class="col-span-12 p-4 md:col-span-6 xl:col-span-4">
-      <div v-if="verifyPermission('voir-un-outcome')" class="p-5 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-105 hover:bg-gray-50">
+    <div v-for="(item, index) in paginatedAndFilteredData" :key="index" class="col-span-12 p-2 sm:p-4 md:col-span-6 xl:col-span-4">
+      <div v-if="verifyPermission('voir-un-outcome')" class="p-3 sm:p-5 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-105 hover:bg-gray-50">
         <!-- En-tête avec sigle et titre -->
-        <div class="relative flex items-start pt-5">
-          <div class="relative flex flex-col items-center w-full pt-5 lg:flex-row lg:items-start">
+        <div class="relative flex items-start pt-3 sm:pt-5">
+          <div class="relative flex flex-col items-center w-full pt-3 sm:pt-5 md:flex-row md:items-start">
             <!-- Circle with initial or image -->
-            <div class="flex items-center justify-center w-[90px] h-[90px] text-white rounded-full shadow-md bg-primary flex-shrink-0">
+            <div class="flex items-center justify-center w-[60px] h-[60px] sm:w-[75px] sm:h-[75px] lg:w-[90px] lg:h-[90px] text-sm sm:text-base text-white rounded-full shadow-md bg-primary flex-shrink-0">
               {{ item.codePta }}
             </div>
             <!-- Item details -->
-            <div class="mt-3 text-center lg:ml-4 lg:text-left lg:mt-0 flex-1">
-              <a href="" class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary _truncate text-center lg:text-left"> {{ item.nom }}</a>
+            <div class="mt-2 sm:mt-3 text-center md:ml-3 lg:ml-4 md:text-left md:mt-0 flex-1">
+              <a href="" class="text-sm sm:text-base lg:text-lg font-semibold text-gray-800 transition-colors hover:text-primary _truncate text-center md:text-left block"> {{ item.nom }}</a>
             </div>
           </div>
           <!-- Dropdown for actions -->
-          <Dropdown class="absolute top-0 right-0 mt-2 mr-2">
-            <DropdownToggle tag="a" class="block w-5 h-5 cursor-pointer">
-              <MoreVerticalIcon class="w-5 h-5 text-gray-400 transition-colors hover:text-gray-600" />
+          <Dropdown class="absolute top-0 right-0 mt-1 sm:mt-2 mr-1 sm:mr-2">
+            <DropdownToggle tag="a" class="block w-4 h-4 sm:w-5 sm:h-5 cursor-pointer">
+              <MoreVerticalIcon class="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 transition-colors hover:text-gray-600" />
             </DropdownToggle>
-            <DropdownMenu class="w-40 bg-white rounded-md shadow-lg">
+            <DropdownMenu class="w-36 sm:w-40 bg-white rounded-md shadow-lg">
               <DropdownContent>
-                <DropdownItem v-if="verifyPermission('modifier-un-outcome')" @click="modifierComposante(item)"> <Edit2Icon class="w-4 h-4 mr-2 text-gray-600" /> Modifier </DropdownItem>
-                <DropdownItem v-if="verifyPermission('supprimer-un-outcome')" @click="supprimerComposant(item)"> <TrashIcon class="w-4 h-4 mr-2 text-red-500" /> Supprimer </DropdownItem>
+                <DropdownItem v-if="verifyPermission('modifier-un-outcome')" @click="modifierComposante(item)"> <Edit2Icon class="w-3 h-3 sm:w-4 sm:h-4 mr-2 text-gray-600" /> Modifier </DropdownItem>
+                <DropdownItem v-if="verifyPermission('supprimer-un-outcome')" @click="supprimerComposant(item)"> <TrashIcon class="w-3 h-3 sm:w-4 sm:h-4 mr-2 text-red-500" /> Supprimer </DropdownItem>
               </DropdownContent>
             </DropdownMenu>
           </Dropdown>

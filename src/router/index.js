@@ -81,6 +81,7 @@ import CadreMesure from "../views/dashboard/CadreMesure.vue";
 import SuiviIndicateur from "../views/dashboard/indicateurs/SuiviIndicateur.vue";
 import DetailSuivi from "../views/dashboard/indicateurs/DetailSuivi.vue";
 import DetailSuiviFinancier from "../views/dashboard/finances/DetailSuiviFinancier.vue";
+import DashboardOng from "../views/dashboard/organisation/Dashboard.vue";
 
 import UpdateFormPerception from "../views/dashboard/UpdateFormPerception.vue";
 import UpdateFormFactuel from "../views/dashboard/UpdateFormFactuel.vue";
@@ -96,21 +97,13 @@ const routes = [
     component: SideMenu,
     name: "dashboard",
     children: [
-      // {
-      //   path: "gfa",
-      //   name: "DashboardGfa",
-      //   component: DashboardGfa,
-      // },
+      
       {
         path: "/organisation",
         name: "Organisations",
         component: Organisations,
       },
-      // {
-      //   path: "/files",
-      //   name: "Gestionnaire",
-      //   component: Gestionnaire,
-      // },
+      
 
       {
         path: "indicateursDeGouvernance",
@@ -163,6 +156,11 @@ const routes = [
         path: "indicateur/:id",
         name: "Détail du suivi",
         component: DetailSuivi,
+      },
+      {
+        path: "dashboardOng/:projetId",
+        name: "Dashboard Organisation",
+        component: DashboardOng,
       },
       {
         path: "suiviFinancier/:id",
