@@ -99,6 +99,12 @@ export default {
       editDuree: false,
       debutProgramme: "",
       finProgramme: "",
+      fondPropreOutcomes: 0,
+      SubventionTotalOutcomes: 0,
+      fondPropreOutPut : 0 ,
+      SubventionTotalOutPut : 0 ,
+      OutcomeData : [],
+      OutputData : []
     };
   },
 
@@ -207,6 +213,7 @@ export default {
             console.log(response.data.data);
             this.activiteTep = response.data.data.tep;
             this.activiteTef = response.data.data.tef;
+            // this.
             console.log("this.activiteTep ", this.activiteTep);
             console.log("this.activiteTef ", this.activiteTef);
           })
@@ -307,16 +314,7 @@ export default {
       this.formData.type = data.type;
       this.formData.composanteId = data.composanteId;
       this.formData.budgetNational = parseInt(data.budgetNational);
-      // this.formData.nom = data.nom
-      // this.formData.nom = data.nom
-      // this.formData.nom = data.nom
 
-      // this.formData = {
-      //   ...data,
-      //   debut: data.durees[0]?.debut || "",
-      //   fin: data.durees[0]?.fin || "",
-      //   composanteId: data.composanteId,
-      // };
       if (data.description == null) {
         this.formData.description = "";
       } else {
@@ -351,12 +349,7 @@ export default {
       this.isLoading = true;
       try {
         if (this.isUpdate) {
-          // const data = {
-          //   ...this.formData,
-          //   // composanteId: this.selectedIds.sousComposantId == "" ? this.formData.composanteId : this.selectedIds.sousComposantId,
-          //   budgetNational: parseInt(this.formData.budgetNational),
-          //   pret: parseInt(this.formData.pret),
-          // };
+
           if (this.formData.description == "") {
             delete this.formData.description;
           }
@@ -437,7 +430,7 @@ export default {
     },
 
     async loadComposantDetails() {
-      
+
       if (!this.selectedIds.composantId || this.selectedIds.composantId == "") return;
 
       this.isLoadingData = true;
@@ -445,6 +438,11 @@ export default {
       try {
         const response = await ComposantesService.detailComposant(this.selectedIds.composantId);
         const composantData = response.data.data;
+
+        fondPropreOutcomes: 0,
+        SubventionTotalOutcomes: 0,
+
+        this.fondPropreOutcomes =
         this.isLoadingData = false;
         this.sousComposants = composantData.souscomposantes || [];
         console.log("this.sousComposants", this.sousComposants);
@@ -1046,33 +1044,30 @@ export default {
         </div>
 
         <div class="flex col-span-12 md:col-span-6 mt-4" v-if="haveSousComposantes && !isUpdate">
-          <div class="flex flex-col w-full ">
+          <div class="flex flex-col w-full">
             <label for="_input-wizard-10" class="form-label">Output*</label>
             <div class="flex">
               <TomSelect
-                  v-model="selectedIds.sousComposantId"
-                  :options="{
-                    placeholder: 'Choisir un Output',
-                    create: false,
-                    onOptionAdd: text(),
-                  }"
-                  class="w-11/12 mr-4"
-                >
+                v-model="selectedIds.sousComposantId"
+                :options="{
+                  placeholder: 'Choisir un Output',
+                  create: false,
+                  onOptionAdd: text(),
+                }"
+                class="w-11/12 mr-4"
+              >
                 <option value="">Choisir un Output</option>
                 <option v-for="(element, index) in sousComposants" :key="index" :value="element.id">
                   {{ element.codePta }}
                   -
                   {{ element.nom }}
                 </option>
-            </TomSelect>
+              </TomSelect>
               <button type="button" class="btn btn-outline-primary inline-block" @click="resetSousComposantsId()" title="Rester dans le composant">
-              <TrashIcon class="w-4 h-4" />
-            </button>
+                <TrashIcon class="w-4 h-4" />
+              </button>
+            </div>
           </div>
-           
-          </div>
-
-          
         </div>
 
         <div class="col-span-12 md:col-span-6">

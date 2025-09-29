@@ -54,6 +54,9 @@ export default {
       labels: "Ajouter",
       showDeleteModal: false,
       deleteLoader: false,
+      fondPropreOutcome: 0,
+      SubventionOutcome: 0,
+      composantData: [],
     };
   },
   computed: {
@@ -81,62 +84,46 @@ export default {
 
       return obj ? obj : null;
     },
-    getMontantRestant() {
-      let fondPropreOutcome = 0;
-      let montantFinanceOutcome = 0;
-      let sommeFondPropreOutput = 0;
-      let sommeMontantFinanceOutput = 0;
-      let outcomes = null;
-      let sousComposantes = null;
+    fontPropreRestantOutcome() {
+      let totalBudgetUtilise = 0;
 
-      let resteFondPropre = 0;
-      let resteMontantFinance = 0;
-
-      // if (this.selectedIds.composantId !== "") {
-      //   outcomes = this.composants.find((item) => item.id === this.selectedIds.composantId);
-      //   fondPropreOutcome = outcomes.budgetNational;
-      //   montantFinanceOutcome = outcomes.pret;
-
-      //   if (outcomes.souscomposantes.length) {
-      //     sousComposantes = outcomes.souscomposantes;
-      //     sommeFondPropreOutput = 0;
-      //     sommeMontantFinanceOutput = 0;
-
-      //     sousComposantes.forEach((item) => {
-      //       sommeFondPropreOutput = sommeFondPropreOutput + item.budgetNational;
-      //       sommeMontantFinanceOutput = sommeMontantFinanceOutput + item.pret;
-      //     });
-
-      //     resteFondPropre = fondPropreOutcome - sommeFondPropreOutput;
-
-      //     resteMontantFinance = montantFinanceOutcome - sommeMontantFinanceOutput;
-      //   }
-      // }
-
-      console.log(this.formData.composanteId);
-
-      if (this.formData.composanteId !== "") {
-        outcomes = this.composants.find((item) => item.id === this.formData.composanteId);
-        fondPropreOutcome = outcomes.budgetNational;
-        montantFinanceOutcome = outcomes.pret;
-
-        if (outcomes.souscomposantes.length) {
-          sousComposantes = outcomes.souscomposantes;
-          sommeFondPropreOutput = 0;
-          sommeMontantFinanceOutput = 0;
-
-          sousComposantes.forEach((item) => {
-            sommeFondPropreOutput = sommeFondPropreOutput + item.budgetNational;
-            sommeMontantFinanceOutput = sommeMontantFinanceOutput + item.pret;
-          });
-
-          resteFondPropre = fondPropreOutcome - sommeFondPropreOutput;
-
-          resteMontantFinance = montantFinanceOutcome - sommeMontantFinanceOutput;
-        }
+      // Parcours des souscomposants et somme des budgetNational
+      if (this.sousComposants && this.sousComposants.length > 0) {
+        this.sousComposants.forEach((sousComposant) => {
+          totalBudgetUtilise += sousComposant.budgetNational ? sousComposant.budgetNational : 0;
+        });
       }
 
-      return { budgetRestant: resteFondPropre, pretRestant: sommeMontantFinanceOutput };
+      // Parcours des activités du composant et somme des budgetNational
+      if (this.composantData && this.composantData.activites && this.composantData.activites.length > 0) {
+        this.composantData.activites.forEach((activite) => {
+          totalBudgetUtilise += activite.budgetNational ? activite.budgetNational : 0;
+        });
+      }
+
+      console.log((this.composantData?.budgetNational || 0) - totalBudgetUtilise);
+      // Soustraire du fond propre de l'outcome
+      return (this.composantData?.budgetNational || 0) - totalBudgetUtilise;
+    },
+    SubventionRestantOutcome() {
+      let totalPretUtilise = 0;
+
+      // Parcours des souscomposants et somme des prets
+      if (this.sousComposants && this.sousComposants.length > 0) {
+        this.sousComposants.forEach((sousComposant) => {
+          totalPretUtilise += sousComposant.pret ? sousComposant.pret : 0;
+        });
+      }
+
+      // Parcours des activités du composant et somme des prets
+      if (this.composantData && this.composantData.activites && this.composantData.activites.length > 0) {
+        this.composantData.activites.forEach((activite) => {
+          totalPretUtilise += activite.pret ? activite.pret : 0;
+        });
+      }
+
+      // Soustraire de la subvention de l'outcome
+      return (this.composantData?.pret || 0) - totalPretUtilise;
     },
   },
   watch: {
@@ -341,6 +328,7 @@ export default {
         this.isLoadingData = false;
         const response = await ProjetService.getDetailProjet(projetId);
         this.composants = response.data.data.composantes;
+
         this.selectedIds.composantId = this.composants[0]?.id || "";
 
         console.log("this.selectedIds.composantId2", this.selectedIds.composantId);
@@ -357,23 +345,15 @@ export default {
       this.isLoadingData = true;
       try {
         const response = await ComposantesService.detailComposant(this.selectedIds.composantId);
-        const composantData = response.data.data;
+
+        this.composantData = response.data.data;
+
+        this.fondPropreOutcome = this.composantData.budgetNational || 0;
+        this.SubventionOutcome = this.composantData.pret || 0;
+
         this.isLoadingData = false;
         // Mettre à jour les sous-composants et activités du composant
-        this.sousComposants = composantData.souscomposantes || [];
-        console.log("this.sousComposants", this.sousComposants);
-        // this.activites = composantData.activites || [];
-        // this.currentPage = 1;
-        // this.allActivite = this.activites;
-
-        // Vérifier s'il y a des sous-composants
-        // if (this.sousComposants.length > 0) {
-        //   this.haveSousComposantes = true;
-        // } else {
-        //   this.haveSousComposantes = false;
-        //   // Pas de sous-composants, afficher directement les activités du composant
-        //   this.updateActivitesList(this.activites);
-        // }
+        this.sousComposants = this.composantData.souscomposantes || [];
       } catch (error) {
         this.isLoadingData = false;
         console.error("Erreur lors du chargement des détails du composant", error);
@@ -458,7 +438,6 @@ export default {
       </div>
     </div>
   </div>
-  <!-- <pre>{{ getMontantRestant }}</pre> -->
 
   <LoaderSnipper v-if="isLoadingData" />
 
@@ -509,7 +488,7 @@ export default {
             </div>
 
             <div class="flex items-center">
-              <LinkIcon class="w-4 h-4 mr-2" /> Subvention: {{ item.pret == null || item.pret == 0 ? 0 :  $h.formatCurrency(item.pret ) }}
+              <LinkIcon class="w-4 h-4 mr-2" /> Subvention: {{ item.pret == null || item.pret == 0 ? 0 : $h.formatCurrency(item.pret) }}
               <div class="ml-2 italic font-bold">Fcfa</div>
             </div>
             <!-- <div class="flex items-center text-sm font-medium text-gray-700">
@@ -591,15 +570,20 @@ export default {
             Durée du projet : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(getPlageProjet.debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(getPlageProjet.fin) }}</span>
           </div>
         </div>
-
-        <!-- <div v-if="getMontantRestant" class="flex items-center mt-2 col-span-12">
-          <DollarSignIcon class="w-4 h-4 mr-2" />
-          <div>
-            Montant restant de OutCome : <br />
-            Fond Propre <span class="pr-1 font-bold"> {{ $h.formatCurrency(getMontantRestant.budgetRestant) }}</span> <br />
-            Montant budgétisé : <span class="font-bold"> {{ $h.formatCurrency(getMontantRestant.pretRestant) }}</span>
+        <!-- Affiche fontPropreRestantOutcome et SubventionRestantOutcome-->
+        <div class="col-span-12 mt-4 p-4 bg-gray-50 rounded-lg">
+          <h3 class="text-sm font-semibold text-gray-700 mb-3">Budget disponible (Outcome)</h3>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="text-center">
+              <p class="text-xs text-gray-500">Fond propre restant</p>
+              <p class="text-lg font-bold" :class="fontPropreRestantOutcome >= 0 ? 'text-green-600' : 'text-red-600'">{{ fontPropreRestantOutcome === 0 ? "0" : $h.formatCurrency(fontPropreRestantOutcome) }} FCFA</p>
+            </div>
+            <div class="text-center">
+              <p class="text-xs text-gray-500">Subvention restante</p>
+              <p class="text-lg font-bold" :class="SubventionRestantOutcome >= 0 ? 'text-green-600' : 'text-red-600'">{{ SubventionRestantOutcome === 0 ? "0" : $h.formatCurrency(SubventionRestantOutcome) }} FCFA</p>
+            </div>
           </div>
-        </div> -->
+        </div>
       </ModalBody>
       <ModalFooter>
         <div class="flex items-center justify-center">

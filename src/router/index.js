@@ -89,6 +89,7 @@ import SurveyFormView from "../views/dashboard/SurveyFormView.vue";
 import DetailEvaluationIndividuel from "../views/dashboard/DetailEvaluationIndividuel.vue";
 import FicheMarqueurClassement from "../views/dashboard/FicheMarqueurClassement.vue";
 import FondView from "../views/dashboard/FondView.vue";
+import ProjectDetail from "../views/dashboard/projets/projet/contenuProjet.vue";
 // import Gestionnaire from "../views/dashboard/fileManager/index.vue";
 
 const routes = [
@@ -97,13 +98,11 @@ const routes = [
     component: SideMenu,
     name: "dashboard",
     children: [
-      
       {
         path: "/organisation",
         name: "Organisations",
         component: Organisations,
       },
-      
 
       {
         path: "indicateursDeGouvernance",
@@ -116,6 +115,13 @@ const routes = [
 
         name: "Détails Projets",
       },
+      {
+        path: "/projects/:projectId",
+        name: "ProjectDetail",
+        component: ProjectDetail, // affiche Outcomes du projet
+        props: true,
+      },
+
       {
         path: "projets/composantes-globale",
         component: dashboard_projets_composantes_globale,

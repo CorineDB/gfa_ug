@@ -348,8 +348,9 @@
 
   <div v-if="verifyPermission('voir-un-projet') && !isLoadingProjets" class="grid grid-cols-1 gap-6 mt-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
     <div href="#" class="relative transition-all duration-500 border-l-4 shadow-2xl box group _bg-white zoom-in border-primary hover:border-secondary" v-for="(item, index) in paginatedAndFilteredData" :key="index">
-      <div class="relative m-5 bg-white">
-        <div class="text-[#171a1d] group-hover:text-[#007580] font-medium text-[14px] md:text-[16px] lg:text-[18px] leading-[30px] pt-[10px]">{{ item.codePta }} - {{ item.nom }}</div>
+      <div class="relative m-5 bg-white flex justify-between">
+        <div class="text-[#171a1d] group-hover:text-[#007580] font-medium text-[14px] md:text-[16px] lg:text-[18px] leading-[30px] pt-[10px]">{{ item.codePta }} - {{ item.nom }} </div>
+        <button class="btn btn-primary" @click="voirOutCome(item.id)">Voir Outcomes</button>
       </div>
 
       <div class="relative mt-[12px] m-5 h-40 2xl:h-56 image-fit rounded-md overflow-hidden before:block before:absolute before:w-full before:h-full before:top-0 before:left-0 before:z-10 before:bg-gradient-to-t before:from-black before:to-black/10">
@@ -394,6 +395,25 @@
           <span class="p-1 pl-1 text-white bg-yellow-500 rounded-md shadow-md" v-else-if="item.statut == 0"> En cours </span>
           <span class="p-1 pl-1 text-white bg-red-500 rounded-md shadow-md" v-else-if="item.statut == 1"> En retard </span>
           <span class="pl-2" v-else-if="item.statut == 2">Terminé</span>
+        </div>
+
+        <!-- Budget restant -->
+        <div class="mt-4 p-3 bg-gray-50 rounded-lg">
+          <h4 class="text-xs font-semibold text-gray-700 mb-2">Budget disponible</h4>
+          <div class="grid grid-cols-2 gap-2">
+            <div class="text-center">
+              <p class="text-xs text-gray-500">Fond propre restant</p>
+              <p class="text-sm font-bold" :class="getFondRestant(item) >= 0 ? 'text-green-600' : 'text-red-600'">
+                {{ getFondRestant(item) === 0 ? '0' : $h.formatCurrency(getFondRestant(item)) }} FCFA
+              </p>
+            </div>
+            <div class="text-center">
+              <p class="text-xs text-gray-500">Subvention restante</p>
+              <p class="text-sm font-bold" :class="getSubventionRestant(item) >= 0 ? 'text-green-600' : 'text-red-600'">
+                {{ getSubventionRestant(item) === 0 ? '0' : $h.formatCurrency(getSubventionRestant(item)) }} FCFA
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -668,6 +688,27 @@ export default {
   },
 
   methods: {
+    voirOutCome(id){
+      this.$router.push({ name: "ProjectDetail", params: { projectId: id } });
+    },
+    getFondRestant(projet) {
+      let totalFondUtilise = 0;
+      if (projet.composantes && projet.composantes.length > 0) {
+        projet.composantes.forEach((item) => {
+          totalFondUtilise += item.budgetNational ? item.budgetNational : 0;
+        });
+      }
+      return (projet.budgetNational || 0) - totalFondUtilise;
+    },
+    getSubventionRestant(projet) {
+      let totalSubventionUtilise = 0;
+      if (projet.composantes && projet.composantes.length > 0) {
+        projet.composantes.forEach((item) => {
+          totalSubventionUtilise += item.pret ? item.pret : 0;
+        });
+      }
+      return (projet.pret || 0) - totalSubventionUtilise;
+    }, 
     getinitForm() {
       return {
         nom: "",

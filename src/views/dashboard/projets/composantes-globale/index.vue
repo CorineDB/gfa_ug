@@ -48,6 +48,10 @@ export default {
       labels: "Ajouter",
       showDeleteModal: false,
       deleteLoader: false,
+      fondPropreProjet: 0,
+      SubventionProjet: 0,
+      // fondRestant: 0,
+      // subventionRestant: 0,
     };
   },
   computed: {
@@ -74,6 +78,55 @@ export default {
       }
 
       return obj ? obj : null;
+    },
+    // getFondRestant() {
+    //   let totalFond = 0;
+    //   let totalPret = 0;
+
+    //   this.composants.forEach((item) => {
+    //     totalFond += item.budgetNational ? item.budgetNational : 0;
+    //     totalPret += item.pret ? item.pret : 0;
+    //   });
+
+    //   this.fondRestant = ;
+    //   this.budgetRestant = this.getPlageProjet ? (this.getPlageProjet.budgetExterne ? this.getPlageProjet.budgetExterne : 0) - totalPret : 0;
+
+    //   return this.fondRestant;
+    // },
+    getBudgetRestant() {
+      return this.budgetRestant;
+    },
+    fondRestant() {
+      let totalFondUtilise = 0;
+
+      console.log(this.composants);
+
+      if (this.composants.length == 0) {
+        return this.fondPropreProjet;
+      }
+
+      this.composants.forEach((item) => {
+        totalFondUtilise += item.budgetNational ? item.budgetNational : 0;
+      });
+
+      console.log(this.fondPropreProjet - totalFondUtilise);
+      return this.fondPropreProjet - totalFondUtilise;
+    },
+    subventionRestant() {
+      let totalSubventionUtilise = 0;
+
+      console.log(this.composants);
+
+      if (this.composants.length == 0) {
+        return this.SubventionProjet;
+      }
+
+      this.composants.forEach((item) => {
+        totalSubventionUtilise += item.pret ? item.pret : 0;
+      });
+
+      console.log(this.SubventionProjet - totalSubventionUtilise);
+      return this.SubventionProjet - totalSubventionUtilise;
     },
   },
   watch: {
@@ -158,11 +211,12 @@ export default {
         });
     },
     modifierComposante(data) {
+       
       this.messageErreur = {};
       console.log(data);
       this.labels = "Modifier";
       this.showModal = true;
-      console.log("showModal", this.showModal);
+      
       this.update = true;
       this.formData.nom = data.nom;
       this.formData.description = data.description;
@@ -252,6 +306,7 @@ export default {
       ProjetService.get()
         .then((data) => {
           this.projets = data.data.data;
+          this.fondPropreProjet;
           this.getProjetById();
         })
         .catch((error) => {
@@ -262,11 +317,24 @@ export default {
     getProjetById() {
       if (this.projetId == "") {
         this.projetId = this.projets[0].id;
+        this.fondPropreProjet = this.projets[0].budgetNational;
+        this.SubventionProjet = this.projets[0].pret;
+
+        console.log(this.fondPropreProjet);
+        console.log(this.SubventionProjet);
       }
 
       ProjetService.getDetailProjet(this.projetId)
         .then((data) => {
           this.composants = data.data.data.composantes;
+          this.fondPropreProjet = data.data.data.budgetNational;
+          this.SubventionProjet = data.data.data.pret;
+
+          // this.fondRestant
+          // this.subventionRestant
+
+          console.log(this.fondPropreProjet);
+          console.log(this.SubventionProjet);
           this.isLoadingOutcome = false;
         })
         .catch((error) => {
@@ -312,7 +380,6 @@ export default {
             <option v-for="(element, index) in projets" :key="index" :value="element.id">{{ element.codePta }} - {{ element.nom }}</option>
           </TomSelect>
         </div>
-       
       </div>
     </div>
   </div>
@@ -461,6 +528,21 @@ export default {
           <ClockIcon class="w-4 h-4 mr-2" />
           <div>
             Durée du projet : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(getPlageProjet.debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(getPlageProjet.fin) }}</span>
+          </div>
+        </div>
+
+        <div class="col-span-12 mt-4 p-4 bg-gray-50 rounded-lg">
+          <h3 class="text-sm font-semibold text-gray-700 mb-3">Budget disponible</h3>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="text-center">
+              <p class="text-xs text-gray-500">Fond propre restant</p>
+
+              <p class="text-lg font-bold" :class="fondRestant >= 0 ? 'text-green-600' : 'text-red-600'">{{ fondRestant === 0 ? "0" : $h.formatCurrency(fondRestant) }} FCFA</p>
+            </div>
+            <div class="text-center">
+              <p class="text-xs text-gray-500">Subvention restante</p>
+              <p class="text-lg font-bold" :class="subventionRestant >= 0 ? 'text-green-600' : 'text-red-600'">{{ subventionRestant === 0 ? "0" : $h.formatCurrency(subventionRestant) }} FCFA</p>
+            </div>
           </div>
         </div>
       </ModalBody>

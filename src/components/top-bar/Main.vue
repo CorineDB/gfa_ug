@@ -82,30 +82,30 @@ const finProgramme = ref("");
 
 let inactivityTimer;
 
-const resetInactivityTimer = () => {
-  clearTimeout(inactivityTimer);
-  inactivityTimer = setTimeout(() => {
-    toast.info("Déconnexion automatique après inactivité.");
-    logout();
-  }, 30* 60 * 1000); // 30 minutes
-};
+// const resetInactivityTimer = () => {
+//   clearTimeout(inactivityTimer);
+//   inactivityTimer = setTimeout(() => {
+//     toast.info("Déconnexion automatique après inactivité.");
+//     // logout();
+//   }, 30* 60 * 1000); // 30 minutes
+// };
 
 // Événements utilisateurs à écouter
-const userEvents = ["mousemove", "keydown", "click", "touchstart"];
+// const userEvents = ["mousemove", "keydown", "click", "touchstart"];
 
-const setupInactivityListeners = () => {
-  userEvents.forEach((event) =>
-    window.addEventListener(event, resetInactivityTimer)
-  );
-  resetInactivityTimer(); // Lancer le timer au départ
-};
+// const setupInactivityListeners = () => {
+//   userEvents.forEach((event) =>
+//     window.addEventListener(event, resetInactivityTimer)
+//   );
+//   // resetInactivityTimer(); // Lancer le timer au départ
+// };
 
-const removeInactivityListeners = () => {
-  userEvents.forEach((event) =>
-    window.removeEventListener(event, resetInactivityTimer)
-  );
-  clearTimeout(inactivityTimer);
-};
+// const removeInactivityListeners = () => {
+//   userEvents.forEach((event) =>
+//     window.removeEventListener(event, resetInactivityTimer)
+//   );
+//   // clearTimeout(inactivityTimer);
+// };
 
 
 const getcurrentUser = async () => {
@@ -162,7 +162,7 @@ const message = reactive({
 const usersProfileImage = ref("");
 
 onMounted(() => {
-    setupInactivityListeners(); // ⬅️ Ajouté ici
+    // setupInactivityListeners(); // ⬅️ Ajouté ici
 
   const usersInfo = JSON.parse(localStorage.getItem("authenticateUser"));
 
@@ -184,7 +184,7 @@ onMounted(() => {
   }
 });
 onBeforeUnmount(() => {
-  removeInactivityListeners();
+  // removeInactivityListeners();
 });
 
 const logout = () => {
