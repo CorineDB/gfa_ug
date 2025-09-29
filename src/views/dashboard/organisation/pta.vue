@@ -67,7 +67,7 @@
                   <TrendingUpIcon class="w-4 h-4" />
                 </button>
 
-                <button v-if="pta.isActivite" @click="voirSuiviActivite()" title="Voir les suivis" class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-xs p-1 mr-2">
+                <button v-if="pta.isActivite" @click="voirSuiviActivite(pta.activiteId || pta.id)" title="Voir les suivis" class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-xs p-1 mr-2">
                   <EyeIcon class="w-4 h-4" />
                 </button>
 
@@ -762,7 +762,7 @@
     </ModalHeader>
 
     <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
-      <div class="_p-5 _mt-5 col-span-12 intro-y box">
+      <div class="_p-5 _mt-5 col-span-12 intro-y">
         <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
           <div class="flex mt-5 sm:mt-0">
             <button class="mr-2 shadow-md btn btn-primary" @click="openFilterModalSuiviFinancier"><FilterIcon class="w-4 h-4 mr-3" />Filtrer le suivi financier</button>
@@ -2177,11 +2177,13 @@ export default {
       this.filterPayloadSuiviFinancier.annee = parseInt(this.filterPayloadSuiviFinancier.annee);
       this.filterPayloadSuiviFinancier.trimestre = parseInt(this.filterPayloadSuiviFinancier.trimestre);
 
-      await SuiviFinancierService.filtre(this.filterPayloadSuiviFinancier)
+      await SuiviFinancier.getSuiviByActivite(this.filterPayloadSuiviFinancier.activiteId, this.filterPayloadSuiviFinancier)
         .then((result) => {
-          this.listeSuivi = result.data.data.suiviFinanciers;
-          console.log("this.listeSuivi", this.listeSuivi);
+          // Utiliser la même variable que Tabulator pour l'affichage
+          this.suivisFinancierActivite = result.data.data;
+          console.log("this.suivisFinancierActivite", this.suivisFinancierActivite);
           this.isLoadingFilterSuiviFinancier = false;
+          this.initTabulator();
           this.resetFilterModalSuivi();
           toast.success("Suivi Financier filtrer.");
         })
@@ -2203,6 +2205,12 @@ export default {
     },
     openFilterModalSuiviFinancier() {
       this.filterPayloadSuiviFinancier.trimestre = this.getCurrentQuarter();
+
+      // S'assurer que activiteId est défini
+      if (!this.filterPayloadSuiviFinancier.activiteId && this.suiviFinancierPayload.activiteId) {
+        this.filterPayloadSuiviFinancier.activiteId = this.suiviFinancierPayload.activiteId;
+      }
+
       this.showModalFiltreSuiviFinancier = true;
 
       console.log("this.filterPayloadSuiviFinancier", this.filterPayloadSuiviFinancier);
@@ -2226,10 +2234,17 @@ export default {
     },
     voirSuiviActivite(data) {
       //this.getListeDataSuivi();
-      console.log(data);
+      console.log("voirSuiviActivite called with data:", data);
+
+      if (!data) {
+        console.error("Aucun activiteId fourni à voirSuiviActivite");
+        toast.error("Impossible d'identifier l'activité sélectionnée");
+        return;
+      }
+
       this.filterPayloadSuiviFinancier.activiteId = data;
       this.suiviFinancierPayload.activiteId = data;
-      console.log(this.filterPayloadSuiviFinancier);
+      console.log("filterPayloadSuiviFinancier mis à jour:", this.filterPayloadSuiviFinancier);
       this.getSuiviFinancierDatas(data);
       // this.getcurrentUser()
       this.voirSuiviModal = true;
@@ -2239,7 +2254,9 @@ export default {
       return this.isCreate ? "Ajouter" : "Modifier";
     },
     resetModalSuiviFinancierActivite(item) {
-      this.suiviFinancier = [];
+      this.suiviFinancier.splice(0); // Vider le tableau de manière réactive
+      this.erreurSuiviFinancier = null; // Reset des erreurs
+      this.loadingSuiviFinancier = false; // Reset du loading
       this.showModalSuiviFinancier = false;
     },
 
@@ -2267,7 +2284,8 @@ export default {
       SuiviFinancierService.filtre(payload)
         .then((data) => {
           this.loaderListeSuivi = false;
-          this.listeSuivi = data.data.data.suiviFinanciers;
+          // this.listeSuivi = data.data.data.suiviFinanciers; // Structure incohérente
+          this.listeSuivi = data.data.data; // Garder la même structure que getListeDataSuivi()
         })
         .catch((error) => {
           this.loaderListeSuivi = false;
@@ -2293,8 +2311,8 @@ export default {
     editSuivi(index, type = "consommer", value) {
       this.suiviFinancier[index][type] = value;
     },
-    miseAjourTabSuivi(payLoad) {
-      let taille = payLoad.length;
+    miseAjourTabSuivi(payLoad, index = 0) {
+      let taille = payLoad.toString().length;
 
       let form = {
         trimestre: taille < 2 ? payLoad : this.suiviFinancier[index].trimestre,
@@ -2369,17 +2387,27 @@ export default {
     },
 
     ouvrirModalSuiviFinancierActivite(item) {
-      this.suiviFinancier = [];
+      this.suiviFinancier.splice(0); // Vider le tableau de manière réactive
+
+      // Gérer les deux cas : pta (avec activiteId) ou suivi (avec activite.id)
+      const activiteId = item?.activiteId || item?.activite?.id || item?.id;
+
+      if (!activiteId) {
+        console.error("Impossible de récupérer l'ID de l'activité", item);
+        return;
+      }
 
       const newItem = {
-        activiteId: item.activiteId,
+        activiteId: activiteId,
         trimestre: this.getCurrentQuarter(),
         annee: new Date().getFullYear(),
         consommer: 0,
         id: Date.now() + "-" + Math.random().toString(36).substr(2, 9),
       };
 
-      this.suiviFinancierPayload.activiteId = item.activiteId;
+      console.log("activiteId trouvé:", activiteId);
+
+      this.suiviFinancierPayload.activiteId = activiteId;
       this.suiviFinancierPayload.trimestre = this.getCurrentQuarter();
       this.suiviFinancierPayload.annee = new Date().getFullYear();
       this.suiviFinancierPayload.consommer = 0;
@@ -2779,7 +2807,7 @@ export default {
       });
     },
     async getSuiviFinancierDatas(activiteId) {
-      this.isLoadingFilterSuiviFinancier = false;
+      this.isLoadingFilterSuiviFinancier = true;
       console.log(this.filterPayloadSuiviFinancier);
       await SuiviFinancier.getSuiviByActivite(activiteId, this.filterPayloadSuiviFinancier)
         .then((result) => {
@@ -2787,7 +2815,7 @@ export default {
           console.log(activiteId);
           console.log(this.suivisFinancierActivite);
           this.isLoadingFilterSuiviFinancier = false;
-          this.resetSuivisFinancierFilter();
+          this.initTabulator();
         })
         .catch((e) => {
           console.log(e);
@@ -2795,12 +2823,16 @@ export default {
           this.isLoadingFilterSuiviFinancier = false;
           //toast.error("Une erreur est survenue: Liste de sources.");
         });
-      this.initTabulator();
     },
 
     resetSuivisFinancierFilter() {
       this.filterPayloadSuiviFinancier.trimestre = this.getCurrentQuarter();
       this.filterPayloadSuiviFinancier.annee = new Date().getFullYear();
+
+      // Recharger les données avec les filtres réinitialisés
+      if (this.filterPayloadSuiviFinancier.activiteId) {
+        this.getSuiviFinancierDatas(this.filterPayloadSuiviFinancier.activiteId);
+      }
     },
 
     handleEditSuivi(params) {
