@@ -439,10 +439,12 @@ export default {
         const response = await ComposantesService.detailComposant(this.selectedIds.composantId);
         const composantData = response.data.data;
 
-        fondPropreOutcomes: 0,
-        SubventionTotalOutcomes: 0,
+        // fondPropreOutcomes: 0,
+        // SubventionTotalOutcomes: 0,
 
-        this.fondPropreOutcomes =
+        // this.fondPropreOutcomes =
+
+
         this.isLoadingData = false;
         this.sousComposants = composantData.souscomposantes || [];
         console.log("this.sousComposants", this.sousComposants);
