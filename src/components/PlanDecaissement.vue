@@ -16,7 +16,7 @@ import { helper as $h } from "@/utils/helper";
 
 import { toast } from "vue3-toastify";
 export default {
-  emits: ["send-activiteId"],
+  emits: ["send-activiteId", "send-sommeDesPlanDeDecaissement", "send-montantRestantADecaisser"],
   props: {
     activiteId: {
       type: String, // Type attendu (String, Number, Boolean, Array, Object, etc.)
@@ -32,6 +32,11 @@ export default {
       type: Array, // Type attendu (String, Number, Boolean, Array, Object, etc.)
       required: false, // Indique si la prop est obligatoire
       default: [], // Définit une valeur par défaut
+    },
+    montantADecaisser: {
+      type: Number,
+      required: false,
+      default: 0,
     },
   },
   components: {
@@ -70,6 +75,7 @@ export default {
       labels: "Ajouter",
       showDeleteModal: false,
       deleteLoader: false,
+      sommeDesPlanDeDecaissement: 0,
     };
   },
   computed: {
@@ -127,7 +133,7 @@ export default {
       const details = { id: 1, nom: "Exemple" };
       this.$emit("send-activiteId", id);
     },
-    text() { },
+    text() {},
     onPageChanged(newPage) {
       this.currentPage = newPage;
       //console.log("Page actuelle :", this.currentPage);
@@ -201,6 +207,8 @@ export default {
       this.formData.annee = data.annee;
       this.planDeDecaissementId = data.id;
 
+      // faire un emit ici pour recalculer le montant restant a decaisser
+
       //console.log("planDeDecaissementId", this.planDeDecaissementId);
 
       //console.log("this.formData", this.formData);
@@ -212,8 +220,6 @@ export default {
       this.labels = "Ajouter";
     },
     sendForm() {
-      
-
       if (this.update) {
         PlanDeCaissement.update(this.planDeDecaissementId, this.formData)
           .then((response) => {
@@ -254,13 +260,9 @@ export default {
 
         console.log("this.formData.annee", this.formData.annee);
 
-      
-
         PlanDeCaissement.create(this.formData)
           .then((response) => {
             if (response.status == 200 || response.status == 201) {
-              
-
               this.getListePlanDeDecaissement(this.formData.activiteId);
               this.isLoading = false;
               toast.success("Ajout éffectué");
@@ -297,19 +299,29 @@ export default {
     getListePlanDeDecaissement(id) {
       ActiviteService.plansDeDecaissement(id)
         .then((data) => {
-          //console.log(data.data.data);
           this.planDeDecaissement = data.data.data;
+
+          //faire sommeDesPanDeDecaissement
+          if (this.planDeDecaissement.length > 0) {
+            this.sommeDesPlanDeDecaissement = this.planDeDecaissement.reduce((total, item) => {
+              return total + (item.budgetNational || 0) + (item.pret || 0);
+            }, 0);
+
+            this.$emit("send-sommeDesPlanDeDecaissement", this.sommeDesPlanDeDecaissement);
+          } else {
+            this.sommeDesPlanDeDecaissement = 0;
+            this.$emit("send-sommeDesPlanDeDecaissement", 0);
+          }
         })
         .catch((error) => {
           this.loaderListePlan = false;
-          //console.log(error);
         });
     },
 
     // getListeplanDeDecaissement(data) {
     //   this.planDeDecaissement = data.composantes;
     // },
-    filter() { },
+    filter() {},
   },
   watch: {
     activiteId(newId) {
@@ -320,7 +332,7 @@ export default {
     },
   },
 
-  created() { },
+  created() {},
   mounted() {
     if (this.activiteId !== "") {
       this.getListePlanDeDecaissement(this.activiteId);
@@ -343,9 +355,7 @@ export default {
         </div>
       </div>
       <div v-if="verifyPermission('creer-un-plan-de-decaissement')" class="flex mt-4 sm:mt-0">
-        <button class="mr-2 shadow-md btn btn-primary" @click="addPlanDeDecaissement()">
-          <PlusIcon class="w-4 h-4 mr-3" />Ajouter un plan de décaissement
-        </button>
+        <button class="mr-2 shadow-md btn btn-primary" @click="addPlanDeDecaissement()"><PlusIcon class="w-4 h-4 mr-3" />Ajouter un plan de décaissement</button>
       </div>
     </div>
   </div>
@@ -354,26 +364,18 @@ v-if="!isLoadingData"
 v-if="verifyPermission('voir-un-plan-de-decaissement')" -->
   <!-- <pre>{{ planDeDecaissement }}</pre> -->
   <div class="grid grid-cols-12 gap-6 mt-5">
-    <NoRecordsMessage class="col-span-12" v-if="!planDeDecaissement.length"
-      title="Aucun plan de décaissement disponible"
-      description="Il semble qu'il n'y ait pas de plan de décaissement à afficher. Veuillez ajouter des suivis financiers aux différentes activités." />
+    <NoRecordsMessage class="col-span-12" v-if="!planDeDecaissement.length" title="Aucun plan de décaissement disponible" description="Il semble qu'il n'y ait pas de plan de décaissement à afficher. Veuillez ajouter des suivis financiers aux différentes activités." />
 
-    <div v-for="(item, index) in paginatedAndFilteredDataPlan" :key="index"
-      class="col-span-12 p-4 md:col-span-6 xl:col-span-4">
-      <div
-        class="p-5 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-105 hover:bg-gray-50">
+    <div v-for="(item, index) in paginatedAndFilteredDataPlan" :key="index" class="col-span-12 p-4 md:col-span-6 xl:col-span-4">
+      <div class="p-5 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-105 hover:bg-gray-50">
         <!-- En-tête avec sigle et titre -->
         <div class="relative flex items-start pt-5">
           <div class="relative flex flex-col items-center w-full pt-5 lg:flex-row lg:items-start">
-            
             <!-- Item details -->
             <div class="w-full">
               <div class="mt-3 text-center lg:ml-4 lg:text-left lg:mt-0 flex-1">
-                <a href=""
-                  class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary _truncate text-center lg:text-left">
-                  {{ item.activite.nom }}</a>
+                <a href="" class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary _truncate text-center lg:text-left"> {{ item.activite.nom }}</a>
               </div>
-              
             </div>
           </div>
           <!-- Dropdown for actions -->
@@ -383,14 +385,8 @@ v-if="verifyPermission('voir-un-plan-de-decaissement')" -->
             </DropdownToggle>
             <DropdownMenu class="w-40 bg-white rounded-md shadow-lg">
               <DropdownContent>
-                <DropdownItem v-if="verifyPermission('modifier-un-plan-de-decaissement')"
-                  @click="modifierPlanDeDecaissement(item)">
-                  <Edit2Icon class="w-4 h-4 mr-2 text-gray-600" /> Modifier
-                </DropdownItem>
-                <DropdownItem v-if="verifyPermission('supprimer-un-plan-de-decaissement')"
-                  @click="supprimerPlanDeDecaissement(item)">
-                  <TrashIcon class="w-4 h-4 mr-2 text-red-500" /> Supprimer
-                </DropdownItem>
+                <DropdownItem v-if="verifyPermission('modifier-un-plan-de-decaissement')" @click="modifierPlanDeDecaissement(item)"> <Edit2Icon class="w-4 h-4 mr-2 text-gray-600" /> Modifier </DropdownItem>
+                <DropdownItem v-if="verifyPermission('supprimer-un-plan-de-decaissement')" @click="supprimerPlanDeDecaissement(item)"> <TrashIcon class="w-4 h-4 mr-2 text-red-500" /> Supprimer </DropdownItem>
               </DropdownContent>
             </DropdownMenu>
           </Dropdown>
@@ -404,7 +400,7 @@ v-if="verifyPermission('voir-un-plan-de-decaissement')" -->
           <!-- Other details with iconized section headers -->
           <div class="mt-5 space-y-3 text-gray-600">
             <div class="flex items-center">
-              <LinkIcon class="w-4 h-4 mr-2" /> Fonds propre: {{ item.budgetNational ? $h.formatCurrency(item.budgetNational) : 0}}
+              <LinkIcon class="w-4 h-4 mr-2" /> Fonds propre: {{ item.budgetNational ? $h.formatCurrency(item.budgetNational) : 0 }}
               <div class="ml-2 italic font-bold">Fcfa</div>
             </div>
 
@@ -426,8 +422,7 @@ v-if="verifyPermission('voir-un-plan-de-decaissement')" -->
     </div>
   </div>
 
-  <pagination class="col-span-12" :total-items="totalItems" :items-per-page="itemsPerPage" :is-loading="isLoadingData"
-    @page-changed="onPageChanged" @items-per-page-changed="onItemsPerPageChanged">
+  <pagination class="col-span-12" :total-items="totalItems" :items-per-page="itemsPerPage" :is-loading="isLoadingData" @page-changed="onPageChanged" @items-per-page-changed="onItemsPerPageChanged">
     <!-- Slots personnalisés (facultatif) -->
     <template #prev-icon>
       <span>&laquo; Précédent</span>
@@ -447,22 +442,24 @@ v-if="verifyPermission('voir-un-plan-de-decaissement')" -->
     <form @submit.prevent="sendForm">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
         <div v-if="!update" class="flex col-span-12">
-          <label for="_input-wizard-10"
-            class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Activités</label>
-          <TomSelect v-model="formData.activiteId" :options="{
-            placeholder: 'Choisir une activité',
-            create: false,
-            onOptionAdd: text(),
-          }" @change="updateActiviteId(formData.activiteId)" class="w-full"
-            title="Veuillez sélectionner une activité pour afficher son plan de décaissement">
+          <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Activités</label>
+          <TomSelect
+            v-model="formData.activiteId"
+            :options="{
+              placeholder: 'Choisir une activité',
+              create: false,
+              onOptionAdd: text(),
+            }"
+            @change="updateActiviteId(formData.activiteId)"
+            class="w-full"
+            title="Veuillez sélectionner une activité pour afficher son plan de décaissement"
+          >
             <option value="">Choisir une activité</option>
 
             <option v-for="(element, index) in activites" :key="index" :value="element.id">{{ element.nom }}</option>
           </TomSelect>
         </div>
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.activiteId">{{
-            messageErreur.activiteId
-            }}</p>
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.activiteId">{{ messageErreur.activiteId }}</p>
         <!-- <InputForm v-model="formData.annee" class="col-span-12" type="date" required="required" placeHolder="Annee de base" label="Année de base" /> -->
 
         <div class="col-span-12 mt-3">
@@ -473,16 +470,17 @@ v-if="verifyPermission('voir-un-plan-de-decaissement')" -->
         </div>
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.annee">{{ messageErreur.annee }}</p>
 
-
         <div class="col-span-12 mt-3">
-
           <div v-if="!update" class="flex col-span-12 mt-4">
-            <label for="_input-wizard-10"
-              class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Trimestre</label>
-            <TomSelect v-model="formData.trimestre" :options="{
-              placeholder: 'Choisir un trimestre',
-              create: false,
-            }" class="w-full">
+            <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Trimestre</label>
+            <TomSelect
+              v-model="formData.trimestre"
+              :options="{
+                placeholder: 'Choisir un trimestre',
+                create: false,
+              }"
+              class="w-full"
+            >
               <option value="">Choisir un trimestre</option>
               <option value="1">Trimestre 1</option>
               <option value="2">Trimestre 2</option>
@@ -490,21 +488,15 @@ v-if="verifyPermission('voir-un-plan-de-decaissement')" -->
               <option value="4">Trimestre 4</option>
             </TomSelect>
           </div>
-        
         </div>
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.trimestre">{{
-            messageErreur.trimestre
-            }}</p>
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.trimestre">{{ messageErreur.trimestre }}</p>
         <!-- <InputForm v-model="formData.annee" :min="2000" class="col-span-12" type="number" :required="true" placeHolder="Saisissez l'année" label="Saisissez l'année de décaissement" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.annee">{{ messageErreur.annee }}</p> -->
 
-        <InputForm v-model="formData.budgetNational" class="col-span-12 no-spin" type="number" required="required"
-          placeHolder="Ex : 2" label="Fond propre" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.budgetNational">{{
-          messageErreur.budgetNational }}</p>
+        <InputForm v-model="formData.budgetNational" class="col-span-12 no-spin" type="number" required="required" placeHolder="Ex : 2" label="Fond propre" />
+        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.budgetNational">{{ messageErreur.budgetNational }}</p>
 
-        <InputForm v-model="formData.pret" class="col-span-12" type="number" required="required" placeHolder="Ex : 2"
-          label="Subvention" />
+        <InputForm v-model="formData.pret" class="col-span-12" type="number" required="required" placeHolder="Ex : 2" label="Subvention" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pret">{{ messageErreur.pret }}</p>
 
         <!-- <pre>{{ getPlageActivites }}</pre> -->
@@ -517,11 +509,11 @@ v-if="verifyPermission('voir-un-plan-de-decaissement')" -->
             </div>
           </div>
         </div>
+        <!-- Affiche le montant restant a decaisser . propose moi une optimisation du code -->
       </ModalBody>
       <ModalFooter>
         <div class="flex items-center justify-center">
-          <button type="button" @click="showModal = false"
-            class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
+          <button type="button" @click="showModal = false" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
           <VButton class="inline-block" :label="labels" :loading="isLoading" />
         </div>
       </ModalFooter>
@@ -533,12 +525,10 @@ v-if="verifyPermission('voir-un-plan-de-decaissement')" -->
       <div class="p-5 text-center">
         <XCircleIcon class="w-16 h-16 mx-auto mt-3 text-danger" />
         <div class="mt-5 text-3xl">Etes vous sûr?</div>
-        <div class="mt-2 text-slate-500">Voulez vous supprimer l'organisation ? <br />Cette action ne peut être annulé
-        </div>
+        <div class="mt-2 text-slate-500">Voulez vous supprimer l'organisation ? <br />Cette action ne peut être annulé</div>
       </div>
       <div class="flex gap-2 px-5 pb-8 text-center">
-        <button type="button" @click="showDeleteModal = false"
-          class="w-full my-3 mr-1 btn btn-outline-secondary">Annuler</button>
+        <button type="button" @click="showDeleteModal = false" class="w-full my-3 mr-1 btn btn-outline-secondary">Annuler</button>
         <VButton :loading="deleteLoader" label="Supprimer" @click="deleteplanDeDecaissement" />
       </div>
     </ModalBody>

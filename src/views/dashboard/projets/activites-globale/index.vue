@@ -101,10 +101,18 @@ export default {
       finProgramme: "",
       fondPropreOutcomes: 0,
       SubventionTotalOutcomes: 0,
-      fondPropreOutPut : 0 ,
-      SubventionTotalOutPut : 0 ,
-      OutcomeData : [],
-      OutputData : []
+      fondPropreOutPut: 0,
+      SubventionTotalOutPut: 0,
+      OutcomeData: [],
+      OutputData: [],
+      outputActivite: [],
+      montantADecaisser: 0,
+      sommeDesPlanDeDecaissement: 0,
+      montantRestantADecaisser : 0 ,
+      dureeActivite : {
+        debut : "" ,
+        fin : ""
+      }
     };
   },
 
@@ -155,6 +163,49 @@ export default {
       return obj ? obj : null;
       // Retourne le nom ou `null` si non trouvé
     },
+    fondRestantOutCome() {
+      // parcourt toutes les activités et calcule la somme des budgets nationaux (item.budgetNational) utilisés
+      const sommeFondActivite = this.activites.reduce((total, activite) => {
+        return total + (activite.budgetNational || 0);
+      }, 0);
+
+      //parcouts this.sousComposants et calcule la somme des subventions (item.pret) utilisé
+      const sommeFondSouscomposant = this.sousComposants.reduce((total, sousComposant) => {
+        return total + (sousComposant.budgetNational || 0);
+      }, 0);
+
+      //fondRestant = fondPropreOutcomes - (sommeFondActivite + sommeSubventionSouscomposant)
+      return this.fondPropreOutcomes - (sommeFondActivite + sommeFondSouscomposant);
+    },
+    fondRestantOutput() {
+      // sommeFondUtilise  = parcourt this.outputActivite et calcule la somme des budgets nationaux (item.budgetNational) utilisés
+      const sommeFondUtilise = this.outputActivite.reduce((total, activite) => {
+        return total + (activite.budgetNational || 0);
+      }, 0);
+
+      // return fondRestant  = fondTotal - sommeFondUtilise
+      return this.fondPropreOutPut - sommeFondUtilise;
+    },
+    SubventionRestantOutcome() {
+      // fait pareil comme pour fondRestantOutCome .la différence est la clé item.pret au lieu de item.budgetNational
+      const sommeSubventionActivite = this.activites.reduce((total, activite) => {
+        return total + (activite.pret || 0);
+      }, 0);
+
+      const sommeSubventionSouscomposant = this.sousComposants.reduce((total, sousComposant) => {
+        return total + (sousComposant.pret || 0);
+      }, 0);
+
+      return this.SubventionTotalOutcomes - (sommeSubventionActivite + sommeSubventionSouscomposant);
+    },
+    subventionRestantOutput() {
+      // fait pareil pour fondRestantOutput .la différence est la clé item.pret au lieu de item.budgetNational
+      const sommeSubventionUtilise = this.outputActivite.reduce((total, activite) => {
+        return total + (activite.pret || 0);
+      }, 0);
+
+      return this.SubventionTotalOutPut - sommeSubventionUtilise;
+    },
   },
 
   watch: {
@@ -174,6 +225,11 @@ export default {
   },
 
   methods: {
+    receiveMontantRestantADecaisser() {
+      const montantRestantADecaisser = this.montantADecaisser - this.sommeDesPlanDeDecaissement;
+      return montantRestantADecaisser;
+    },
+
     async getcurrentUser() {
       await AuthService.getCurrentUser()
         .then((result) => {
@@ -191,8 +247,19 @@ export default {
       ActiviteService.plansDeDecaissement(id)
         .then((data) => {
           this.loaderListePlan = false;
-          //console.log(data.data.data);
           this.listePlanDeDecaissement = data.data.data;
+
+          //sommeDesPlanDeDecaissement = parcourir listePlanDeDecaissement et faire somme item.budgetNational + item.pret
+          if (this.listePlanDeDecaissement.length > 0) {
+            this.sommeDesPlanDeDecaissement = this.listePlanDeDecaissement.reduce((total, item) => {
+              return total + (item.budgetNational || 0) + (item.pret || 0);
+            }, 0);
+          } else {
+            this.sommeDesPlanDeDecaissement = 0;
+          }
+
+          //montantRestantADecaisser = montantADecaisser - sommeDesPlanDeDecaissement
+          this.montantRestantADecaisser = this.montantADecaisser - this.sommeDesPlanDeDecaissement;
 
           console.log("this.listePlanDeDecaissement", this.listePlanDeDecaissement);
         })
@@ -206,6 +273,9 @@ export default {
 
       // console.log("this.selectedIds.activiteId", this.selectedIds.activiteId);
     },
+    receiveSommeDesPlanDeDecaissement(somme) {
+      this.sommeDesPlanDeDecaissement = somme;
+    },
     getInfoActivite(id) {
       if (id !== null || id !== "") {
         ActiviteService.get(id)
@@ -213,7 +283,10 @@ export default {
             console.log(response.data.data);
             this.activiteTep = response.data.data.tep;
             this.activiteTef = response.data.data.tef;
-            // this.
+
+            //recuperer montantADecaisser
+            this.montantADecaisser = response.data.data.pret + response.data.data.budgetNational;
+
             console.log("this.activiteTep ", this.activiteTep);
             console.log("this.activiteTef ", this.activiteTef);
           })
@@ -349,7 +422,6 @@ export default {
       this.isLoading = true;
       try {
         if (this.isUpdate) {
-
           if (this.formData.description == "") {
             delete this.formData.description;
           }
@@ -430,7 +502,6 @@ export default {
     },
 
     async loadComposantDetails() {
-
       if (!this.selectedIds.composantId || this.selectedIds.composantId == "") return;
 
       this.isLoadingData = true;
@@ -439,11 +510,10 @@ export default {
         const response = await ComposantesService.detailComposant(this.selectedIds.composantId);
         const composantData = response.data.data;
 
-        // fondPropreOutcomes: 0,
-        // SubventionTotalOutcomes: 0,
+        this.OutcomeData = response.data.data;
 
-        // this.fondPropreOutcomes =
-
+        this.fondPropreOutcomes = this.OutcomeData.budgetNational;
+        this.SubventionTotalOutcomes = this.OutcomeData.pret;
 
         this.isLoadingData = false;
         this.sousComposants = composantData.souscomposantes || [];
@@ -468,6 +538,15 @@ export default {
       try {
         const response = await ComposantesService.detailComposant(this.selectedIds.sousComposantId);
         const sousComposantData = response.data.data;
+
+        this.outputActivite = sousComposantData.activites;
+
+        this.OutputData = response.data.data;
+
+        this.fondPropreOutPut = this.OutputData.budgetNational;
+        this.SubventionTotalOutPut = this.OutputData.pret;
+
+        //recupere fondPropre et subvention de output
 
         console.log("sousComposantData", sousComposantData);
 
@@ -546,6 +625,7 @@ export default {
 
             toast.success("Prolongation éffectuée avec succès");
 
+            
             this.loadSousComposantDetails();
             //this.fetchProjets(this.programmeId);
           }
@@ -644,6 +724,7 @@ export default {
     },
 
     ouvrirModalPlanDeDecaissementActivite(item) {
+      this.montantADecaisser = item.pret + item.budgetNational;
       this.planDeDecaissement = [];
       const newItem = {
         activiteId: item.id,
@@ -653,6 +734,11 @@ export default {
         pret: 0,
         id: Date.now() + "-" + Math.random().toString(36).substr(2, 9),
       };
+
+      //cree var global dureeActivite
+      //dureeActivite = item.fin - item.debut
+      this.dureeActivite.debut = item.debut;
+      this.dureeActivite.fin = item.fin
 
       console.log("newItem", newItem);
 
@@ -988,7 +1074,7 @@ export default {
     </pagination>
   </div>
 
-  <PlanDecaissementComponent v-if="seePlan" :activiteId="selectedIds.activiteId" :activites="activites" @send-activiteId="changeActiviteId" :getPlageActivites="getPlageActivite" />
+  <PlanDecaissementComponent v-if="seePlan" :activiteId="selectedIds.activiteId" :activites="activites" :montantADecaisser="montantADecaisser" @send-activiteId="changeActiviteId" @send-sommeDesPlanDeDecaissement="receiveSommeDesPlanDeDecaissement" @send-montantRestantADecaisser="receiveMontantRestantADecaisser" :getPlageActivites="getPlageActivite" />
 
   <div v-if="seeStatistique" class="flex flex-col sm:flex-row justify-evenly mt-4">
     <div class="flex flex-col items-center p-6 mb-3 bg-white rounded-md shadow">
@@ -1089,6 +1175,40 @@ export default {
             <span class="font-bold"> {{ $h.reformatDate(getPlageProjet.fin) }}</span>
           </div>
         </div>
+
+        <!-- Afficher fondPropreRestantOutcome et subventionRestantOutcome si haveSousComposantes = false -->
+        <div v-if="!haveSousComposantes" class="col-span-12 mt-4">
+          <div class="p-4 bg-gray-50 rounded-lg">
+            <h3 class="text-lg font-semibold mb-3">Budget disponible (Outcome)</h3>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="text-center">
+                <p class="text-sm text-gray-600">Fonds propres restants</p>
+                <p class="text-xl font-bold text-primary">{{ fondRestantOutCome === 0 ? "0" : $h.formatCurrency(fondRestantOutCome) + " FCFA" }}</p>
+              </div>
+              <div class="text-center">
+                <p class="text-sm text-gray-600">Subventions restantes</p>
+                <p class="text-xl font-bold text-green-600">{{ SubventionRestantOutcome === 0 ? "0" : $h.formatCurrency(SubventionRestantOutcome) + " FCFA" }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Afficher fondPropreRestantOutput et subventionRestantOutput si haveSousComposantes = true -->
+        <div v-if="haveSousComposantes" class="col-span-12 mt-4">
+          <div class="p-4 bg-gray-50 rounded-lg">
+            <h3 class="text-lg font-semibold mb-3">Budget disponible (Output)</h3>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="text-center">
+                <p class="text-sm text-gray-600">Fonds propres restants</p>
+                <p class="text-xl font-bold text-primary">{{ fondRestantOutput === 0 ? "0" : $h.formatCurrency(fondRestantOutput) + " FCFA" }}</p>
+              </div>
+              <div class="text-center">
+                <p class="text-sm text-gray-600">Subventions restantes</p>
+                <p class="text-xl font-bold text-green-600">{{ subventionRestantOutput === 0 ? "0" : $h.formatCurrency(subventionRestantOutput) + " FCFA" }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </ModalBody>
       <ModalFooter>
         <div class="flex items-center justify-center">
@@ -1138,12 +1258,12 @@ export default {
           </div>
         </div>
 
-        <!-- <div v-if="getPlageProjet" class="flex items-center mt-2 col-span-12">
+        <div v-if="getPlageProjet" class="flex items-center mt-2 col-span-12">
           <ClockIcon class="w-4 h-4 mr-2" />
           <div>
             Durée du projet : Du <span class="px-1 font-bold"> {{ $h.reformatDate(getPlageProjet.debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(getPlageProjet.fin) }}</span>
           </div>
-        </div> -->
+        </div>
       </ModalBody>
       <ModalFooter>
         <div class="flex items-center justify-center">
@@ -1223,6 +1343,43 @@ export default {
             <div>
               Durée du projet : Du <span class="px-1 font-bold"> {{ $h.reformatDate(getPlageProjet.debut) }}</span> au
               <span class="font-bold"> {{ $h.reformatDate(getPlageProjet.fin) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Affiche durée de l'activité -->
+        <div class="col-span-12" v-if="dureeActivite.debut && dureeActivite.fin">
+          <div class="flex items-center">
+            <ClockIcon class="w-4 h-4 mr-2" />
+            <div>
+              Durée de l'activité : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(dureeActivite.debut) }}</span> au
+              <span class="font-bold"> {{ $h.reformatDate(dureeActivite.fin) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Affiche montantRestantADeecaisser en fonction de loaderListePlan -->
+        <div class="col-span-12 mt-4">
+          <div class="p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <h3 class="text-lg font-semibold mb-3 text-blue-800">Résumé financier</h3>
+            <div v-if="loaderListePlan" class="flex justify-center items-center py-4">
+              <LoaderSnipper />
+            </div>
+            <div v-else class="grid grid-cols-1 gap-3">
+              <div class="flex justify-between items-center">
+                <p class="text-sm text-gray-600">Montant total à décaisser:</p>
+                <p class="text-lg font-bold text-gray-900">{{ montantADecaisser ? $h.formatCurrency(montantADecaisser) : 0 }} FCFA</p>
+              </div>
+              <div class="flex justify-between items-center">
+                <p class="text-sm text-gray-600">Somme des plans de décaissement:</p>
+                <p class="text-lg font-bold text-gray-900">{{ sommeDesPlanDeDecaissement ? $h.formatCurrency(sommeDesPlanDeDecaissement) : 0 }} FCFA</p>
+              </div>
+              <div class="flex justify-between items-center pt-3 border-t border-blue-300">
+                <p class="text-sm font-semibold text-gray-700">Montant restant à décaisser:</p>
+                <p class="text-xl font-bold" :class="montantRestantADecaisser >= 0 ? 'text-green-600' : 'text-red-600'">
+                  {{ $h.formatCurrency(montantRestantADecaisser) }} FCFA
+                </p>
+              </div>
             </div>
           </div>
         </div>
