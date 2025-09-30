@@ -70,7 +70,7 @@
       <div>
         
         <LoaderSnipper v-if="isLoadingDataCadre" />
-        <TabulatorCadreMesure v-else :data="dataAvailable" :unites="unites" :categories="categories" :years="annees" :ongs="responsables" :ugs="ugs" :prop-sites="sites" @update-datas="getDatasCadre" />
+        <TabulatorCadreMesure v-else :data="dataAvailable" :unites="unites" :categories="categories" :years="annees" :ongs="responsables" :ugs="ugs" :prop-sites="sites" @update-datas="getDatasCadre" @refreshData="refreshDatasCadreSilently" />
         <div v-if="!isLoadingDataCadre && verifyPermission('voir-un-indicateur')" class="flex justify-center gap-3 my-8">
           <button @click="prevPage" :disabled="currentPage === 1" class="px-4 py-3 btn btn-outline-primary"><ChevronsLeftIcon class="size-5" /></button>
           <div class="max-w-[400px] overflow-x-auto flex items-center gap-3">
@@ -188,13 +188,30 @@
                     </div>
                   </div>
                   <div v-if="payload.agreger" class="space-y-3">
-                    <button v-show="array_value_keys.length > 0" class="text-sm btn btn-primary" @click.prevent="showModalAnnee = true"><PlusIcon class="mr-1 size-3" /> Ajouter une année cible</button>
+                    <button v-show="array_value_keys.length > 0" class="text-sm btn btn-primary" @click.prevent="openAddAnneeCibleModal"><PlusIcon class="mr-1 size-3" /> Ajouter une année cible</button>
                   </div>
-                  <div v-if="payload.agreger && anneesCible.length > 0" class="flex flex-wrap items-center w-full gap-3">
-                    <p>Années cible:</p>
-                    <div :title="annee.valeurCible.map((item) => item.value).join(',')" class="flex items-center justify-between gap-2 px-2 py-0.5 text-sm font-medium bg-white rounded-full shadow cursor-pointer text-primary" v-for="(annee, index) in anneesCible" :key="index">
-                      <span>{{ annee.annee }} </span>
-                      <button @click.prevent="deleteAnneeCible(index)" class="p-1.5 transition-colors rounded-full hover:bg-red-100"><XIcon class="size-4 text-danger" /></button>
+                  <div v-if="payload.agreger && anneesCible.length > 0" class="w-full space-y-3">
+                    <p class="font-medium text-slate-700">Années cibles configurées :</p>
+                    <div class="space-y-3">
+                      <div v-for="(annee, index) in anneesCible" :key="index" class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <div class="flex items-center justify-between mb-3">
+                          <h4 class="font-semibold text-lg text-primary">Année {{ annee.annee }}</h4>
+                          <div class="flex items-center gap-2">
+                            <button @click.prevent="editAnneeCible(index)" class="p-2 transition-colors rounded-lg hover:bg-blue-100 bg-blue-50" title="Modifier">
+                              <Edit3Icon class="size-4 text-blue-600" />
+                            </button>
+                            <button @click.prevent="deleteAnneeCible(index)" class="p-2 transition-colors rounded-lg hover:bg-red-100 bg-red-50" title="Supprimer">
+                              <XIcon class="size-4 text-red-600" />
+                            </button>
+                          </div>
+                        </div>
+                        <div class="grid gap-2 grid-cols-[repeat(auto-fill,_minmax(200px,_1fr))]">
+                          <div v-for="valeur in annee.valeurCible" :key="valeur.keyId" class="flex items-center justify-between p-2 bg-white rounded border">
+                            <span class="text-sm font-medium text-slate-600">{{ getKeyLabel(valeur.keyId) }}</span>
+                            <span class="text-sm font-semibold text-slate-900">{{ valeur.value || '—' }}</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                     <div v-if="errors.anneesCible" class="mt-2 text-danger">{{ getFieldErrors(errors.anneesCible) }}</div>
                   </div>
@@ -294,6 +311,15 @@
                       <div v-if="errors.sources_de_donnee" class="mt-2 text-danger">{{ getFieldErrors(errors.sources_de_donnee) }}</div>
                     </div>
                   </div>
+                  <div class="flex flex-wrap items-center justify-between w-full gap-3">
+                    <div class="flex-1">
+                      <label class="form-label" for="hypothese">Hypothèses et risques</label>
+                      <div class="">
+                        <textarea name="hypothese" class="form-control" id="hypothese" v-model="payload.hypothese" cols="30" rows="3" placeholder="Décrivez les hypothèses et risques liés à cet indicateur"></textarea>
+                      </div>
+                      <div v-if="errors.hypothese" class="mt-2 text-danger">{{ getFieldErrors(errors.hypothese) }}</div>
+                    </div>
+                  </div>
                 </div>
               </div>
               <!-- END -->
@@ -320,7 +346,7 @@
         <!-- Modal for Annee -->
         <Modal :show="showModalAnnee" @hidden="showModalAnnee = false">
           <ModalHeader>
-            <h2 class="mr-auto text-base font-medium">Ajouter une année cible</h2>
+            <h2 class="mr-auto text-base font-medium">{{ isEditingAnneeCible ? 'Modifier' : 'Ajouter' }} une année cible</h2>
           </ModalHeader>
           <form @submit.prevent="addAnneeCible">
             <ModalBody>
@@ -350,7 +376,7 @@
             <ModalFooter>
               <div class="flex gap-2">
                 <button type="button" @click="resetFormAnnee" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
-                <VButton label="Ajouter" />
+                <VButton :label="isEditingAnneeCible ? 'Modifier' : 'Ajouter'" />
               </div>
             </ModalFooter>
           </form>
@@ -452,6 +478,9 @@ const currentAnneeCible = ref({
   valeurCible: [],
 });
 const anneesCible = ref([]);
+// Variables pour la modification des années cibles
+const isEditingAnneeCible = ref(false);
+const editingAnneeCibleIndex = ref(-1);
 // Objet réactif pour stocker les valeurs des champs saisis
 const valeur = ref({});
 
@@ -481,6 +510,7 @@ const payload = reactive({
   categorieId: "",
   uniteeMesureId: "",
   sites: [],
+  hypothese: "",
 });
 
 const payloadNotAgreger = reactive({
@@ -504,6 +534,17 @@ const getDatasCadre = async () => {
     toast.error("Erreur lors de la récupération des données.");
   } finally {
     isLoadingDataCadre.value = false;
+  }
+};
+
+// Rafraîchissement silencieux des données (sans loader visible)
+const refreshDatasCadreSilently = async () => {
+  try {
+    const { data } = await ResultatCadreRendementService.getCadreRendement(idProgramme.value);
+    cadreRendement.value = data.data;
+  } catch (e) {
+    console.log(e);
+    // Pas de toast d'erreur pour ne pas perturber l'utilisateur
   }
 };
 
@@ -536,6 +577,41 @@ const deleteAnneeCibleNotAgreger = (item) => {
 const deleteAnneeCible = (item) => {
   anneesCible.value.splice(item, 1);
 };
+
+const editAnneeCible = (index) => {
+  // Passer en mode modification
+  isEditingAnneeCible.value = true;
+  editingAnneeCibleIndex.value = index;
+
+  // Charger les données de l'année cible à modifier
+  const anneeCibleToEdit = anneesCible.value[index];
+  currentAnneeCible.value = {
+    annee: anneeCibleToEdit.annee,
+    valeurCible: [...anneeCibleToEdit.valeurCible] // Copie des valeurs
+  };
+
+  // Ouvrir le modal
+  showModalAnnee.value = true;
+};
+
+const openAddAnneeCibleModal = () => {
+  // S'assurer qu'on est en mode ajout
+  isEditingAnneeCible.value = false;
+  editingAnneeCibleIndex.value = -1;
+
+  // Réinitialiser les champs du formulaire
+  currentAnneeCible.value = {
+    annee: "",
+    valeurCible: array_value_keys.value.map((keyId) => ({
+      keyId,
+      value: "",
+    })),
+  };
+
+  // Ouvrir le modal
+  showModalAnnee.value = true;
+};
+
 const resetForm = () => {
   currentStep.value = 1;
   payloadNotAgreger.anneesCible = [];
@@ -558,6 +634,7 @@ const resetForm = () => {
   payload.value_keys = [];
   payload.valeurDeBase = [];
   payload.anneesCible = [];
+  payload.hypothese = "";
   showModalCreate.value = false;
   errors.value = {};
 };
@@ -606,7 +683,32 @@ const updateUnites = (datas) => {
   unites.value = datas; // Stocke les données reçues
 };
 const updateKeys = (datas) => {
+  const oldKeys = keys.value;
   keys.value = datas; // Stocke les données reçues
+
+  // Détecter les nouvelles clés ajoutées
+  if (oldKeys.length > 0 && datas.length > oldKeys.length) {
+    const newKeys = datas.filter(newKey =>
+      !oldKeys.some(oldKey => oldKey.id === newKey.id)
+    );
+
+    if (newKeys.length > 0) {
+      // Auto-sélectionner les nouvelles clés créées
+      newKeys.forEach(newKey => {
+        if (!array_value_keys.value.includes(newKey.id)) {
+          array_value_keys.value.push(newKey.id);
+        }
+      });
+
+      // Informer l'utilisateur
+      const msg = newKeys.length === 1
+        ? `La nouvelle clé "${newKeys[0].libelle}" a été créée et ajoutée automatiquement`
+        : `${newKeys.length} nouvelles clés ont été créées et ajoutées automatiquement`;
+      toast.success(msg);
+
+      // Note: Les années cibles seront automatiquement mises à jour grâce au watch sur array_value_keys
+    }
+  }
 };
 
 const updateCategories = (datas) => {
@@ -726,6 +828,10 @@ const resetFormAnnee = () => {
     })),
   };
 
+  // Réinitialiser les variables de modification
+  isEditingAnneeCible.value = false;
+  editingAnneeCibleIndex.value = -1;
+
   showModalAnnee.value = false;
 };
 
@@ -765,8 +871,15 @@ const addAnneeCible = () => {
     return;
   }
 
-  // Ajouter l'année cible au tableau principal
-  anneesCible.value.push({ ...currentAnneeCible.value });
+  if (isEditingAnneeCible.value) {
+    // Mode modification : remplacer l'année cible existante
+    anneesCible.value[editingAnneeCibleIndex.value] = { ...currentAnneeCible.value };
+    toast.success("Année cible modifiée avec succès !");
+  } else {
+    // Mode ajout : ajouter l'année cible au tableau principal
+    anneesCible.value.push({ ...currentAnneeCible.value });
+    toast.success("Année cible ajoutée avec succès !");
+  }
 
   // Réinitialiser le formulaire
   resetFormAnnee();
@@ -788,6 +901,12 @@ const valeurDeBase = computed(() => {
     .filter(([keyId]) => array_value_keys.value.includes(keyId)) // Ne garde que les clés sélectionnées
     .map(([keyId, value]) => ({ keyId, value })); // Transforme en { keyId, value }
 });
+
+// Fonction pour récupérer le libellé d'une clé par son ID
+const getKeyLabel = (keyId) => {
+  const key = keys.value.find(k => k.id === keyId);
+  return key ? key.libelle : `Clé ${keyId}`;
+};
 
 // Calculer le nombre total de pages
 const totalPages = computed(() => Math.ceil(cadreRendement.value ? cadreRendement.value.length / itemsPerPage : 0));
@@ -827,13 +946,54 @@ const truncateText = (text, maxLength = 100) => {
 
 watch(
   array_value_keys,
-  (newKeys) => {
+  (newKeys, oldKeys) => {
     // Vérifiez que newKeys est bien un tableau
     if (Array.isArray(newKeys)) {
+      // Mettre à jour le formulaire d'ajout
       currentAnneeCible.value.valeurCible = newKeys.map((keyId) => ({
         keyId,
         value: "",
       }));
+
+      // Synchroniser les années cibles existantes avec les nouvelles clés
+      if (oldKeys && Array.isArray(oldKeys)) {
+        const removedKeys = oldKeys.filter(keyId => !newKeys.includes(keyId));
+        const addedKeys = newKeys.filter(keyId => !oldKeys.includes(keyId));
+
+        if (removedKeys.length > 0 || addedKeys.length > 0) {
+          anneesCible.value.forEach(annee => {
+            // Supprimer les clés qui ne sont plus sélectionnées
+            annee.valeurCible = annee.valeurCible.filter(valeur =>
+              newKeys.includes(valeur.keyId)
+            );
+
+            // Ajouter les nouvelles clés avec des valeurs vides
+            addedKeys.forEach(keyId => {
+              if (!annee.valeurCible.find(valeur => valeur.keyId === keyId)) {
+                annee.valeurCible.push({
+                  keyId: keyId,
+                  value: ""
+                });
+              }
+            });
+          });
+
+          // Informer l'utilisateur des changements
+          if (removedKeys.length > 0) {
+            const msg = removedKeys.length === 1
+              ? "Une clé a été supprimée des années cibles existantes"
+              : `${removedKeys.length} clés ont été supprimées des années cibles existantes`;
+            toast.info(msg);
+          }
+
+          if (addedKeys.length > 0) {
+            const msg = addedKeys.length === 1
+              ? "Une nouvelle clé a été ajoutée aux années cibles existantes"
+              : `${addedKeys.length} nouvelles clés ont été ajoutées aux années cibles existantes`;
+            toast.info(msg);
+          }
+        }
+      }
     } else {
       console.warn("array_value_keys n'est pas un tableau valide :", newKeys);
       currentAnneeCible.value.valeurCible = [];

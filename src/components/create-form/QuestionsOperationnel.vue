@@ -13,6 +13,14 @@ import { getFieldErrors } from "../../utils/helpers";
 const props = defineProps({
   isAvailable: Boolean,
   toReset: Boolean,
+  excludedQuestions: {
+    type: Array,
+    default: () => []
+  },
+  currentPrincipe: {
+    type: Object,
+    default: () => ({ id: null })
+  }
 });
 
 const emit = defineEmits(["selected"]);
@@ -148,7 +156,34 @@ const closeModal = () => (showModalCreate.value = false);
 const closeDeleteModal = () => (deleteModalPreview.value = false);
 
 const modeText = computed(() => (isCreate.value ? "Ajouter" : "Modifier"));
-const filterData = computed(() => datas.value.filter((data) => data.nom.toLowerCase().includes(search.value.toLowerCase())));
+
+// Computed pour filtrer les questions disponibles
+const filterData = computed(() => {
+  // Filtrer par recherche
+  let filteredBySearch = datas.value.filter((data) => 
+    data.nom.toLowerCase().includes(search.value.toLowerCase())
+  );
+  
+  // Si un principe est sélectionné, exclure les questions déjà utilisées par ce principe
+  if (props.currentPrincipe?.id) {
+    // Récupérer les IDs des questions déjà utilisées par ce principe
+    const questionsUsedByCurrentPrincipe = props.excludedQuestions
+      .filter(exclusion => exclusion.principeId === props.currentPrincipe.id)
+      .map(exclusion => exclusion.questionId);
+    
+    // Exclure ces questions de la liste
+    filteredBySearch = filteredBySearch.filter(question => 
+      !questionsUsedByCurrentPrincipe.includes(question.id)
+    );
+  }
+  
+  return filteredBySearch;
+});
+
+// Computed pour afficher un message informatif
+const availableQuestionsCount = computed(() => filterData.value.length);
+const totalQuestionsCount = computed(() => datas.value.length);
+const excludedQuestionsCount = computed(() => totalQuestionsCount.value - availableQuestionsCount.value);
 
 // Fonction pour sélectionner/désélectionner tous les éléments
 const selectAll = () => {
@@ -202,6 +237,19 @@ onMounted(getDatas);
     <!-- Affichage du nombre d'éléments sélectionnés -->
     <div v-if="idsChecked.length > 0" class="mb-3 p-2 bg-blue-50 border border-blue-200 rounded">
       <span class="text-sm text-blue-700"> {{ idsChecked.length }} élément{{ idsChecked.length > 1 ? "s" : "" }} sélectionné{{ idsChecked.length > 1 ? "s" : "" }} </span>
+    </div>
+
+    <!-- Message informatif sur le filtrage -->
+    <div v-if="currentPrincipe?.id && excludedQuestionsCount > 0" class="mb-3 p-2 bg-yellow-50 border border-yellow-200 rounded">
+      <div class="flex items-center">
+        <svg class="w-4 h-4 text-yellow-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+        </svg>
+        <span class="text-sm text-yellow-700">
+          {{ availableQuestionsCount }} questions disponibles sur {{ totalQuestionsCount }} 
+          ({{ excludedQuestionsCount }} déjà utilisée{{ excludedQuestionsCount > 1 ? "s" : "" }} par ce principe)
+        </span>
+      </div>
     </div>
 
     <!-- Data List -->

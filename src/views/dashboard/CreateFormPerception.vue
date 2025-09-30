@@ -92,6 +92,14 @@ const getcurrentUser = async () => {
 };
 
 const previewFormulaire = ref(false);
+const showModifyModal = ref(false);
+const modifyElement = reactive({
+  key: '',
+  type: '', // 'principe', 'question'
+  currentData: {},
+  newParentId: '',
+  availableParents: []
+});
 
 const isAvailable = reactive({
   option: true,
@@ -110,6 +118,29 @@ const currentPreviewPerceptionFormData = reactive({
   principe: { id: "", nom: "", position: 0 },
   indicateur: { id: "", nom: "", position: 0 },
   key: "",
+});
+
+// Computed pour les questions exclues (déjà utilisées par principe)
+const excludedQuestions = computed(() => {
+  const exclusions = [];
+  
+  // Parcourir les données persistées
+  globalFormPerceptionData.value.forEach(item => {
+    exclusions.push({
+      principeId: item.principe,
+      questionId: item.indicateur
+    });
+  });
+  
+  // Parcourir les données en cours d'ajout
+  currentGlobalPerceptionFormDataArray.value.forEach(item => {
+    exclusions.push({
+      principeId: item.principe,
+      questionId: item.indicateur
+    });
+  });
+  
+  return exclusions;
 });
 
 const currentGlobalPerceptionFormData = reactive({
@@ -234,6 +265,7 @@ const changeIndexAccordion = (index) => {
 };
 
 const getPrincipe = (principe) => {
+  // Ouvrir automatiquement l'accordéon des questions opérationnelles
   changeIndexAccordion(1);
   currentGlobalPerceptionFormData.principe = principe.id;
 
@@ -253,47 +285,91 @@ const getPrincipe = (principe) => {
   });
 };
 
-const getQuestion = (question) => {
-  //console.log("question", question);
-  // changeIndexAccordion(3);
-  currentGlobalPerceptionFormData.indicateur = question.id;
+const getQuestion = (questions) => {
+  // Gérer le cas où on reçoit un tableau (sélection multiple) ou un seul élément
+  const questionsArray = Array.isArray(questions) ? questions : [questions];
+  
+  if (!currentGlobalPerceptionFormData.principe) {
+    toast.error("Veuillez d'abord sélectionner un principe");
+    return;
+  }
+  
+  let addedCount = 0;
+  let skippedCount = 0;
+  
+  questionsArray.forEach((question) => {
+    // Vérifier si la question n'est pas déjà ajoutée pour ce principe
+    const isAlreadyAdded = excludedQuestions.value.some(exclusion => 
+      exclusion.principeId === currentGlobalPerceptionFormData.principe && 
+      exclusion.questionId === question.id
+    );
+    
+    if (isAlreadyAdded) {
+      skippedCount++;
+      return; // Passer à la question suivante
+    }
 
-  const key = currentGlobalPerceptionFormData?.principe != "" ? question.id + currentGlobalPerceptionFormData?.principe : currentGlobalPerceptionFormData?.indicateur;
+    // Traiter cette question
+    const key = currentGlobalPerceptionFormData?.principe != "" ? question.id + currentGlobalPerceptionFormData?.principe : question.id;
 
-  let form = {
-    key: key,
-    principe: currentGlobalPerceptionFormData?.principe,
-    indicateur: question.id,
-    position: currentGlobalPerceptionFormDataArray.value.length + 1,
-  };
+    let form = {
+      key: key,
+      principe: currentGlobalPerceptionFormData?.principe,
+      indicateur: question.id,
+      position: currentGlobalPerceptionFormDataArray.value.length + 1,
+    };
 
-  currentGlobalPerceptionFormDataArray.value.push(form);
+    currentGlobalPerceptionFormDataArray.value.push(form);
 
-  console.log("currentGlobalPerceptionFormDataArray.value", currentGlobalPerceptionFormDataArray.value);
+    let form2 = {
+      key: key,
+      principe: currentPreviewPerceptionFormData.principe ?? {
+        id: "",
+        nom: "",
+        position: 0,
+      },
+      indicateur: {
+        id: question.id,
+        nom: question.nom,
+        position: currentPreviewPerceptionFormDataArray.value.length + 1,
+      },
+    };
 
-  currentPreviewPerceptionFormData.indicateur = { id: question.id, nom: question.nom, position: 1 };
-
-  let form2 = {
-    key: key,
-    principe: currentPreviewPerceptionFormData.principe ?? {
-      id: "",
-      nom: "",
-      position: 0,
-    },
-    indicateur: {
-      id: question.id,
-      nom: question.nom,
-      position: currentPreviewPerceptionFormDataArray.value.length + 1,
-    },
-  };
-
-  currentPreviewPerceptionFormDataArray.value.push(form2);
-
+    currentPreviewPerceptionFormDataArray.value.push(form2);
+    addedCount++;
+  });
+  
+  // Mettre à jour currentPreviewPerceptionFormData.indicateur avec la dernière question ajoutée
+  if (addedCount > 0 && questionsArray.length > 0) {
+    const lastQuestion = questionsArray[questionsArray.length - 1];
+    currentPreviewPerceptionFormData.indicateur = { 
+      id: lastQuestion.id, 
+      nom: lastQuestion.nom, 
+      position: 1 
+    };
+  }
+  
+  // Trier les données
   currentPreviewPerceptionFormDataArray.value.sort((a, b) => {
     return a.principe.position - b.principe.position || a.indicateur.position - b.indicateur.position;
   });
-
-  console.log("currentPreviewPerceptionFormDataArray.value", currentPreviewPerceptionFormDataArray.value);
+  
+  // Afficher les résultats
+  if (addedCount > 0) {
+    if (addedCount === 1) {
+      toast.success("Question ajoutée avec succès");
+    } else {
+      toast.success(`${addedCount} questions ajoutées avec succès`);
+    }
+  }
+  
+  if (skippedCount > 0) {
+    if (skippedCount === 1) {
+      toast.warning("1 question était déjà associée à ce principe");
+    } else {
+      toast.warning(`${skippedCount} questions étaient déjà associées à ce principe`);
+    }
+  }
 };
 
 const addNewIndicator = () => {
@@ -311,12 +387,12 @@ const addNewIndicator = () => {
 
       uniqueKeys.set(key, true);
 
-      // ✅ Sort after unshift
-      globalFormPerceptionData.value.sort((a, b) => a.position ?? 0 - b.position ?? 0);
-      //previewFormPerceptionData.value.sort((a, b) => a.position ?? 0 - b.position ?? 0)
+      // ✅ Sort after unshift - Fixed null position handling
+      globalFormPerceptionData.value.sort((a, b) => (a.position || 0) - (b.position || 0));
 
       previewFormPerceptionData.value.sort((a, b) => {
-        return a.principe.position - b.principe.position || a.indicateur.position - b.indicateur.position;
+        return (a.principe.position || 0) - (b.principe.position || 0) || 
+               (a.indicateur.position || 0) - (b.indicateur.position || 0);
       });
 
       localStorage.setItem("globalFormPerceptionData", JSON.stringify(globalFormPerceptionData.value));
@@ -337,53 +413,68 @@ const addNewIndicator = () => {
   });
 };
 
-const removeElement = (key) => {
-  key = globalFormPerceptionData.value.find((s) => s.key === key);
-  if (key) {
-    key = key["principe"];
-    // Remove from globalFormPerceptionData
-    for (let i = globalFormPerceptionData.value.length - 1; i >= 0; i--) {
-      if (globalFormPerceptionData.value[i]["principe"] === key) {
-        globalFormPerceptionData.value.splice(i, 1);
-
-        // Remove key from unique se
-        if (uniqueKeys.has(globalFormPerceptionData.value[i]?.["key"])) {
-          uniqueKeys.delete(globalFormPerceptionData.value[i]["key"]);
-        }
-      }
-    }
-
-    // ✅ Sort after unshift
-    globalFormPerceptionData.value.sort((a, b) => a.position ?? 0 - b.position ?? 0);
-
-    // Remove from previewFormPerceptionData
-    for (let i = previewFormPerceptionData.value.length - 1; i >= 0; i--) {
-      if (previewFormPerceptionData.value[i]["principe"]["id"] === key) {
-        previewFormPerceptionData.value.splice(i, 1);
-      }
-    }
-
-    previewFormPerceptionData.value.sort((a, b) => {
-      return a.principe.position - b.principe.position || a.indicateur.position - b.indicateur.position;
-    });
-
-    // Recalculate and update
-    updateAllTypesGouvernance();
-
-    // Persist to localStorage
-    localStorage.setItem("globalFormPerceptionData", JSON.stringify(globalFormPerceptionData.value));
-    localStorage.setItem("previewFormPerceptionData", JSON.stringify(previewFormPerceptionData.value));
-
-    toast.success("Principe supprimé.");
-  } else {
-    Object.keys(currentGlobalPerceptionFormData).forEach((key) => {
-      currentGlobalPerceptionFormData[key] = "";
-    });
-
-    currentPreviewPerceptionFormData.principe = { id: "", nom: "", position: 0 };
-    currentPreviewPerceptionFormData.indicateur = { id: "", nom: "", position: 0 };
-    currentPreviewPerceptionFormData.key = "";
+const removeElement = (key, type = 'principe') => {
+  if (!key) {
+    toast.error("Clé de suppression invalide");
+    return;
   }
+
+  // Trouver l'élément à supprimer
+  const elementToRemove = globalFormPerceptionData.value.find((s) => s.key === key);
+  if (!elementToRemove) {
+    // Si pas trouvé dans les données persistées, chercher dans les données temporaires
+    resetCurrentPreviewPerceptionFormData();
+    resetCurrentGlobalPerceptionFormData();
+    return;
+  }
+
+  const principeId = elementToRemove.principe;
+  if (!principeId) {
+    toast.error("Impossible de déterminer le principe à supprimer");
+    return;
+  }
+
+  // Supprimer toutes les questions de ce principe
+  const keysToDelete = [];
+  
+  // Collecter les clés à supprimer
+  globalFormPerceptionData.value.forEach(item => {
+    if (item.principe === principeId) {
+      keysToDelete.push(item.key);
+    }
+  });
+
+  // Supprimer de globalFormPerceptionData
+  for (let i = globalFormPerceptionData.value.length - 1; i >= 0; i--) {
+    if (globalFormPerceptionData.value[i].principe === principeId) {
+      const keyToDelete = globalFormPerceptionData.value[i].key;
+      globalFormPerceptionData.value.splice(i, 1);
+      uniqueKeys.delete(keyToDelete);
+    }
+  }
+
+  // Supprimer de previewFormPerceptionData
+  for (let i = previewFormPerceptionData.value.length - 1; i >= 0; i--) {
+    if (previewFormPerceptionData.value[i].principe?.id === principeId) {
+      previewFormPerceptionData.value.splice(i, 1);
+    }
+  }
+
+  // Recalculer les positions après suppression
+  recalculatePositionsPerception();
+  
+  // Trier les données
+  sortAllDataPerception();
+
+  // Mettre à jour l'affichage
+  updateAllTypesGouvernance();
+
+  // Sauvegarder
+  localStorage.setItem("globalFormPerceptionData", JSON.stringify(globalFormPerceptionData.value));
+  localStorage.setItem("previewFormPerceptionData", JSON.stringify(previewFormPerceptionData.value));
+
+  console.log(`🔓 Principe et ses ${keysToDelete.length} questions libérés`);
+  toast.success(`Principe supprimé avec ${keysToDelete.length} question(s).`);
 };
 
 const updateTemporyPrincipe = (id, position, isCurrent = false) => {
@@ -578,15 +669,7 @@ const handleEdit = (key) => {
   canEditQuestion.value[key] = true;
 };
 
-function editTemporyPrincipe(id, position) {
-  updateTemporyPrincipe(id, position, false);
-  canEditPrincipe.value[id] = false;
-}
 
-function editTemporyQuestion(key, position) {
-  updateTemporyQuestions(key, position, false);
-  canEditQuestion.value[key] = false;
-}
 
 const clearUniqueKeys = () => {
   uniqueKeys.clear(); // Supprime toutes les clés de uniqueKeys
@@ -642,12 +725,18 @@ const previewForm = () => {
   }
 };
 const isCurrentFormValid = computed(() => {
-  return Object.values(currentPreviewPerceptionFormData).every((value) => {
-    if (typeof value === "object" && value !== null && "id" in value) {
-      return value.id.trim() !== "";
-    }
-    return true; // skip non-object or irrelevant values like "key"
-  });
+  // Vérifier qu'un principe est sélectionné
+  const hasPrincipe = currentPreviewPerceptionFormData.principe && 
+                     currentPreviewPerceptionFormData.principe.id && 
+                     currentPreviewPerceptionFormData.principe.id.trim() !== "";
+  
+  // Vérifier qu'au moins une question est ajoutée (soit en cours d'ajout, soit déjà ajoutée)
+  const hasQuestions = currentPreviewPerceptionFormDataArray.value.length > 0 ||
+                      (currentPreviewPerceptionFormData.indicateur && 
+                       currentPreviewPerceptionFormData.indicateur.id && 
+                       currentPreviewPerceptionFormData.indicateur.id.trim() !== "");
+  
+  return hasPrincipe && hasQuestions;
 });
 
 const showForm = computed(() => {
@@ -682,6 +771,296 @@ watch(() => {
   }
   console.log(currentTab.value);
 });
+
+// ===== FONCTIONNALITÉS AVANCÉES MIGRÉES DU FACTUEL =====
+
+// Fonction pour ouvrir le modal de modification
+const openModifyModal = (key, type, currentData) => {
+  modifyElement.key = key;
+  modifyElement.type = type;
+  modifyElement.currentData = { ...currentData };
+  modifyElement.newParentId = '';
+  
+  loadAvailableParents(type, currentData);
+  showModifyModal.value = true;
+};
+
+// Fonction pour charger les parents disponibles
+const loadAvailableParents = async (type, currentData) => {
+  modifyElement.availableParents = [];
+  
+  try {
+    if (type === 'question') {
+      // Charger tous les principes de gouvernance disponibles
+      const PrincipeGouvernanceService = await import('@/services/modules/enquetes_de_gouvernance/principeGouvernanceDePerception.service');
+      const response = await PrincipeGouvernanceService.default.get();
+      modifyElement.availableParents = response.data.data || [];
+    }
+  } catch (error) {
+    console.error('Erreur lors du chargement des parents disponibles:', error);
+    toast.error('Erreur lors du chargement des données');
+  }
+};
+
+// Fonction pour appliquer la modification
+const applyModification = () => {
+  if (!modifyElement.newParentId) {
+    toast.error('Veuillez sélectionner un nouveau parent');
+    return;
+  }
+  
+  const { key, type, newParentId } = modifyElement;
+  
+  // Trouver tous les éléments affectés
+  const affectedElements = findAffectedElementsPerception(key, type);
+  
+  // Supprimer les éléments de leur position actuelle
+  removeElementsFromCurrentPositionPerception(affectedElements, type);
+  
+  // Réassigner les éléments au nouveau parent
+  reassignElementsToNewParentPerception(affectedElements, type, newParentId);
+  
+  // Recalculer toutes les positions
+  recalculatePositionsPerception();
+  
+  // Trier les données
+  sortAllDataPerception();
+  
+  // Mettre à jour l'affichage
+  updateAllTypesGouvernance();
+  
+  // Sauvegarder
+  localStorage.setItem('globalFormPerceptionData', JSON.stringify(globalFormPerceptionData.value));
+  localStorage.setItem('previewFormPerceptionData', JSON.stringify(previewFormPerceptionData.value));
+  
+  // Fermer le modal
+  showModifyModal.value = false;
+  
+  toast.success('Modification effectuée avec succès');
+};
+
+// Fonction pour trouver tous les éléments affectés
+const findAffectedElementsPerception = (key, type) => {
+  const globalAffected = [];
+  const previewAffected = [];
+  
+  if (type === 'question') {
+    globalAffected.push(...globalFormPerceptionData.value.filter(item => item.key === key));
+    previewAffected.push(...previewFormPerceptionData.value.filter(item => item.key === key));
+  }
+  
+  return { globalAffected, previewAffected };
+};
+
+// Fonction pour supprimer les éléments de leur position actuelle
+const removeElementsFromCurrentPositionPerception = (affectedElements, type) => {
+  const { globalAffected, previewAffected } = affectedElements;
+  
+  // Supprimer de globalFormPerceptionData
+  globalAffected.forEach(element => {
+    const index = globalFormPerceptionData.value.indexOf(element);
+    if (index !== -1) {
+      globalFormPerceptionData.value.splice(index, 1);
+    }
+  });
+  
+  // Supprimer de previewFormPerceptionData
+  previewAffected.forEach(element => {
+    const index = previewFormPerceptionData.value.indexOf(element);
+    if (index !== -1) {
+      previewFormPerceptionData.value.splice(index, 1);
+    }
+  });
+};
+
+// Fonction pour réassigner les éléments au nouveau parent
+const reassignElementsToNewParentPerception = (affectedElements, type, newParentId) => {
+  const { globalAffected, previewAffected } = affectedElements;
+  const newParent = modifyElement.availableParents.find(parent => parent.id === newParentId);
+  if (!newParent) return;
+  
+  // Réassigner les éléments globaux
+  globalAffected.forEach(element => {
+    if (type === 'question') {
+      element.principe = newParentId;
+      element.key = element.indicateur + newParentId; // Recalculer la clé
+    }
+    
+    // Rajouter à globalFormPerceptionData
+    globalFormPerceptionData.value.push(element);
+  });
+  
+  // Réassigner les éléments de prévisualisation
+  previewAffected.forEach(element => {
+    if (type === 'question') {
+      element.principe = { id: newParentId, nom: newParent.nom, position: 0 };
+      element.key = element.indicateur.id + newParentId;
+    }
+    
+    // Rajouter à previewFormPerceptionData
+    previewFormPerceptionData.value.push(element);
+  });
+};
+
+// Fonction pour recalculer les positions après modification
+const recalculatePositionsPerception = () => {
+  // 1. Recalculer les positions des principes
+  const uniquePrincipes = [...new Set(globalFormPerceptionData.value.map(item => item.principe))];
+  uniquePrincipes.forEach((principeId, index) => {
+    const newPosition = index + 1;
+    globalFormPerceptionData.value.forEach(item => {
+      if (item.principe === principeId) {
+        item.position = newPosition;
+      }
+    });
+    previewFormPerceptionData.value.forEach(item => {
+      if (item.principe.id === principeId) {
+        item.principe.position = newPosition;
+      }
+    });
+  });
+
+  // 2. Recalculer les positions des questions pour chaque principe
+  uniquePrincipes.forEach(principeId => {
+    const questionsForPrincipe = globalFormPerceptionData.value
+      .filter(item => item.principe === principeId)
+      .sort((a, b) => a.position - b.position);
+    
+    questionsForPrincipe.forEach((item, index) => {
+      const newPosition = index + 1;
+      item.position = newPosition;
+      
+      // Mettre à jour aussi dans previewFormPerceptionData
+      const previewItem = previewFormPerceptionData.value.find(preview => 
+        preview.principe.id === principeId && 
+        preview.indicateur.id === item.indicateur
+      );
+      if (previewItem) {
+        previewItem.indicateur.position = newPosition;
+      }
+    });
+  });
+};
+
+// Fonction pour trier toutes les données
+const sortAllDataPerception = () => {
+  globalFormPerceptionData.value.sort((a, b) => {
+    return a.position - b.position;
+  });
+  
+  previewFormPerceptionData.value.sort((a, b) => {
+    return a.principe.position - b.principe.position || 
+           a.indicateur.position - b.indicateur.position;
+  });
+};
+
+// Fonction pour validation et réorganisation des positions
+const validateAndReorganizePositionsPerception = (key, newPosition, type = "question", isCurrent = false) => {
+  const position = parseInt(newPosition);
+  
+  // Validation de base
+  if (position < 1) {
+    toast.error("La position doit être supérieure à 0");
+    return false;
+  }
+
+  if (!isCurrent) {
+    let elementsToCheck = [];
+    let currentElementId = null;
+
+    if (type === "principe") {
+      elementsToCheck = [...new Set(globalFormPerceptionData.value.map(item => item.principe))];
+      currentElementId = globalFormPerceptionData.value.find(item => item.key === key)?.principe;
+    } else if (type === "question") {
+      const currentElement = globalFormPerceptionData.value.find(item => item.key === key);
+      if (currentElement) {
+        elementsToCheck = [...new Set(
+          globalFormPerceptionData.value
+            .filter(item => item.principe === currentElement.principe)
+            .map(item => item.indicateur)
+        )];
+        currentElementId = currentElement.indicateur;
+      }
+    }
+
+    // Validation : la position ne peut pas dépasser le nombre d'éléments
+    if (position > elementsToCheck.length) {
+      toast.error(`La position ne peut pas dépasser ${elementsToCheck.length}`);
+      return false;
+    }
+
+    // Réorganisation des positions
+    reorganizePositionsPerception(currentElementId, position, type, isCurrent);
+  }
+
+  return true;
+};
+
+// Fonction pour réorganiser les positions
+const reorganizePositionsPerception = (elementId, newPosition, type, isCurrent = false) => {
+  if (type === "principe") {
+    // Obtenir tous les principes uniques avec leurs positions actuelles
+    const principePositions = new Map();
+    globalFormPerceptionData.value.forEach(item => {
+      if (!principePositions.has(item.principe)) {
+        principePositions.set(item.principe, item.position || 1);
+      }
+    });
+
+    // Créer un tableau ordonné des principes
+    const sortedPrincipes = Array.from(principePositions.entries()).sort((a, b) => a[1] - b[1]);
+    const elementIndex = sortedPrincipes.findIndex(([id]) => id === elementId);
+    const [element] = sortedPrincipes.splice(elementIndex, 1);
+    sortedPrincipes.splice(newPosition - 1, 0, element);
+
+    // Appliquer les nouvelles positions
+    sortedPrincipes.forEach(([principeId], index) => {
+      const newPos = index + 1;
+      globalFormPerceptionData.value.forEach(item => {
+        if (item.principe === principeId) {
+          item.position = newPos;
+        }
+      });
+      previewFormPerceptionData.value.forEach(item => {
+        if (item.principe.id === principeId) {
+          item.principe.position = newPos;
+        }
+      });
+    });
+  }
+
+  // Tri et sauvegarde
+  sortAllDataPerception();
+  updateAllTypesGouvernance();
+  localStorage.setItem('globalFormPerceptionData', JSON.stringify(globalFormPerceptionData.value));
+  localStorage.setItem('previewFormPerceptionData', JSON.stringify(previewFormPerceptionData.value));
+
+  toast.success("Position mise à jour avec réorganisation");
+};
+
+// Fonctions d'édition améliorées avec validation
+const editTemporyPrincipe = (id, position, isCurrent = false) => {
+  const key = globalFormPerceptionData.value.find(item => item.principe === id)?.key;
+  if (validateAndReorganizePositionsPerception(key, position, 'principe', isCurrent)) {
+    canEditPrincipe.value[id] = false;
+  }
+};
+
+const editTemporyQuestion = (key, position, isCurrent = false) => {
+  if (validateAndReorganizePositionsPerception(key, position, 'question', isCurrent)) {
+    canEditQuestion.value[key] = false;
+  }
+};
+
+const handleEditPrincipe = (id) => {
+  canEditPrincipe.value[id] = true;
+};
+
+const handleEditQuestion = (key) => {
+  canEditQuestion.value[key] = true;
+};
+
+// ===== FIN DES FONCTIONNALITÉS AVANCÉES =====
 
 onBeforeUnmount(() => {
   clearUniqueKeys();
@@ -723,7 +1102,13 @@ onMounted(() => {
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <QuestionsOperationnel :to-reset="resetCurrentForm" :is-available="isAvailable.indicateur" @selected="getQuestion" />
+            <QuestionsOperationnel 
+              :to-reset="resetCurrentForm" 
+              :is-available="isAvailable.indicateur" 
+              :excluded-questions="excludedQuestions"
+              :current-principe="currentPreviewPerceptionFormData.principe"
+              @selected="getQuestion" 
+            />
           </AccordionPanel>
         </AccordionItem>
 
@@ -800,9 +1185,9 @@ onMounted(() => {
                     <div v-if="canEditPrincipe[principe_de_gouvernance.id]">
                       <input type="number" min="1" step="1" name="position" :value="principe_de_gouvernance.position" @keyup.enter="editTemporyPrincipe(principe_de_gouvernance.id, $event.target.value)" class="w-2/5 form-control" />
                     </div>
-                    <div v-else>
-                      <button class="p-1.5 text-primary">
-                        <Edit3Icon class="size-5" @click="editPrincipe(principe_de_gouvernance.id)" />
+                    <div v-else class="flex gap-1">
+                      <button class="p-1.5 text-primary" @click="handleEditPrincipe(principe_de_gouvernance.id)" title="Modifier la position">
+                        <Edit3Icon class="size-5" />
                       </button>
                       <button class="p-1.5 text-danger" @click="removeElement(question_operationnelle.key, 'principe')">
                         <TrashIcon class="size-5" />
@@ -811,16 +1196,19 @@ onMounted(() => {
                   </div>
                 </td>
 
-                <td>{{ question_operationnelle.position }} - {{ question_operationnelle.nom }}</td>
+                <td>{{ qIndex + 1 }} - {{ question_operationnelle.nom }}</td>
 
                 <td>
                   <div class="flex items-center">
                     <div v-if="canEditQuestion[question_operationnelle.key]">
                       <input type="number" min="1" step="1" name="position" :value="question_operationnelle.position" @keyup.enter="editTemporyQuestion(question_operationnelle.key, $event.target.value)" class="w-2/5 form-control" />
                     </div>
-                    <div v-else>
-                      <button class="p-1.5 text-primary">
-                        <Edit3Icon class="size-5" @click="handleEdit(question_operationnelle.key)" />
+                    <div v-else class="flex gap-1">
+                      <button class="p-1.5 text-primary" @click="handleEditQuestion(question_operationnelle.key)" title="Modifier la position">
+                        <Edit3Icon class="size-5" />
+                      </button>
+                      <button class="p-1.5 text-info" @click="openModifyModal(question_operationnelle.key, 'question', question_operationnelle)" title="Changer de principe">
+                        <ArrowRightIcon class="size-5" />
                       </button>
                       <button class="p-1.5 text-danger" @click="removeIndicator(question_operationnelle.key)">
                         <TrashIcon class="size-5" />
@@ -897,7 +1285,7 @@ onMounted(() => {
               <tr>
                 <td class="font-semibold" v-if="qIndex === 0" :rowspan="principe_de_gouvernance.questions_operationnelle.length">{{ principe_de_gouvernance.position }} - {{ principe_de_gouvernance.nom }}</td>
 
-                <td>{{ question_operationnelle.position }} - {{ question_operationnelle.nom }}</td>
+                <td>{{ qIndex + 1 }} - {{ question_operationnelle.nom }}</td>
 
                 <template v-for="(option_de_reponse, optionIdx) in previewOptionResponses.options_de_reponse" :key="option_de_reponse.id">
                   <td class="border border-slate-900 text-center">
@@ -979,6 +1367,75 @@ onMounted(() => {
         <DeleteButton @click="resetAllFormWithDataLocalStorage" />
       </div>
     </ModalBody>
+  </Modal>
+
+  <!-- Modal pour modifier le parent d'une question -->
+  <Modal backdrop="static" :show="showModifyModal" @hidden="showModifyModal = false">
+    <ModalHeader>
+      <h2 class="mr-auto text-base font-medium">
+        Changer le principe de la question
+      </h2>
+    </ModalHeader>
+    <ModalBody class="space-y-4">
+      <div class="p-4 bg-gray-50 rounded">
+        <h3 class="font-medium mb-2">Question à modifier :</h3>
+        <p class="text-sm text-gray-600">{{ modifyElement.currentData.nom }}</p>
+      </div>
+      
+      <div>
+        <label class="form-label">
+          Nouveau principe de gouvernance
+        </label>
+        <TomSelect 
+          v-model="modifyElement.newParentId" 
+          :options="{ placeholder: 'Sélectionnez un nouveau principe' }"
+          class="w-full"
+        >
+          <option value="">Sélectionnez un nouveau principe</option>
+          <option 
+            v-for="parent in modifyElement.availableParents" 
+            :key="parent.id" 
+            :value="parent.id"
+          >
+            {{ parent.nom }}
+          </option>
+        </TomSelect>
+      </div>
+      
+      <div class="p-4 bg-yellow-50 border border-yellow-200 rounded">
+        <div class="flex items-start">
+          <svg class="w-5 h-5 text-yellow-400 mt-0.5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+          </svg>
+          <div>
+            <h4 class="font-medium text-yellow-800">Attention</h4>
+            <p class="text-sm text-yellow-700 mt-1">
+              Cette action déplacera la question vers le nouveau principe sélectionné. 
+              Les positions seront automatiquement recalculées.
+            </p>
+          </div>
+        </div>
+      </div>
+    </ModalBody>
+    <ModalFooter>
+      <div class="flex gap-2">
+        <button 
+          type="button" 
+          @click="showModifyModal = false" 
+          class="w-full px-2 py-2 my-3 btn btn-outline-secondary"
+        >
+          Annuler
+        </button>
+        <button 
+          type="button" 
+          @click="applyModification" 
+          :disabled="!modifyElement.newParentId"
+          class="w-full px-2 py-2 my-3 btn btn-primary"
+        >
+          Appliquer
+        </button>
+      </div>
+    </ModalFooter>
   </Modal>
 </template>
 

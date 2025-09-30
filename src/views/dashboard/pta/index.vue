@@ -444,7 +444,7 @@
 
         <!-- Solde -->
         <td v-if="!pta.isProjet" class="p-2 border whitespace-nowrap dark:bg-gray-800 dark:border-gray-300">
-          <span class="font-bold text-black"> {{ pta.pret + pta.bn - pta.depenses == null || pta.pret + pta.bn - pta.depenses == 0 ? 0 : $h.formatCurrency(pta.pret + pta.bn - pta.depenses) }} {{ pta.pret + pta.bn - pta.depenses == null || pta.pret + pta.bn - pta.depenses == 0 ? 0 : $h.formatCurrency(pta.pret + pta.bn - pta.depenses) }}</span>
+          <span class="font-bold text-black"> {{ pta.pret + pta.bn - pta.depenses == null || pta.pret + pta.bn - pta.depenses == 0 ? 0 : $h.formatCurrency(pta.pret + pta.bn - pta.depenses) }} </span>
         </td>
 
         <!-- tef -->
@@ -682,7 +682,7 @@
 
           <div class="w-full mt-3">
             <label class="form-label">Sélectionnez le trimestre</label>
-            <TomSelect v-model="suivi.trimestre" :options="{ placeholder: 'Selectionez le trimestre' }" class="w-full" @change="miseAjourTabSuivi(suivi.trimestre)">
+            <TomSelect v-model="suivi.trimestre" :options="{ placeholder: 'Selectionez le trimestre' }" class="w-full" @change="miseAjourTabSuivi(suivi.trimestre, index)">
               <option value="1">Trimestre 1</option>
               <option value="2">Trimestre 2</option>
               <option value="3">Trimestre 3</option>
@@ -695,7 +695,7 @@
 
           <div class="col-span-12 mt-3">
             <label class="form-label">Année</label>
-            <TomSelect v-model="suivi.annee" :options="{ placeholder: 'Selectionez une année' }" class="w-full" @change="miseAjourTabSuivi(suivi.annee)">
+            <TomSelect v-model="suivi.annee" :options="{ placeholder: 'Selectionez une année' }" class="w-full" @change="miseAjourTabSuivi(suivi.annee, index)">
               <option v-for="(year, index) in years" :key="index" :value="year">{{ year }}</option>
             </TomSelect>
             <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurSuiviFinancier?.[index]?.trimestre">
@@ -777,14 +777,16 @@
           <div class="flex mt-5 sm:mt-0">
             <button class="mr-2 shadow-md btn btn-primary" @click="openFilterModalSuiviFinancier"><FilterIcon class="w-4 h-4 mr-3" />Filtrer le suivi financier</button>
 
-            <button class="btn btn-primary" title="Réinitialiser le filtre" @click="resetFilter()">
+            <button class="btn btn-primary" title="Réinitialiser le filtre" @click="resetFilters()">
               <RefreshCwIcon class="w-5 h-5" />
             </button>
           </div>
         </div>
 
         <div class="col-span-12">
-          <div class="border my-4 rounded-lg border-gray-300 shadow-md" v-if="!loadListeSuivi">
+          
+          <!-- Table -->
+          <div class="border my-4 rounded-lg border-gray-300 shadow-md">
             <!-- suivi budgetaire  current -->
             <div class="current">
               <div class="overflow-x-auto relative shadow-md sm:rounded-lg">
@@ -815,7 +817,18 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="(suivi, index) in listeSuivi.suiviFinanciers" :key="index" class="bg-white border-b hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+                    <!-- Loader pendant le chargement -->
+                    <tr v-if="loadListeSuivi || loaderListeSuivi">
+                      <td colspan="9" class="text-center py-12 border-gray-300">
+                        <div class="flex justify-center items-center">
+                          <LoaderSnipper />
+                          <span class="ml-3 text-gray-600">Chargement des suivis financiers...</span>
+                        </div>
+                      </td>
+                    </tr>
+
+                    <!-- Données du tableau -->
+                    <tr v-else v-for="(suivi, index) in listeSuivi.suiviFinanciers" :key="index" class="bg-white border-b hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
                       <td class="p-2 whitespace-nowrap border bg-blue-50 dark:bg-gray-800 dark:border-gray-700">
                         <span class="font-bold">{{ suivi?.activite?.codePta }}-{{ suivi?.activite?.nom }}</span>
                       </td>
@@ -874,9 +887,26 @@
               </div>
             </div>
           </div>
+
+          <!-- Message si aucune donnée - en bas du tableau -->
+          <div v-if="!loadListeSuivi && !loaderListeSuivi && (!listeSuivi.suiviFinanciers || listeSuivi.suiviFinanciers.length === 0)" class="text-center py-8 mt-4">
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 shadow-sm">
+              <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <h3 class="mt-2 text-sm font-medium text-gray-900">Aucun suivi financier trouvé</h3>
+              <p class="mt-1 text-sm text-gray-500">
+                Aucune donnée ne correspond aux critères de filtrage sélectionnés.
+              </p>
+              <div class="mt-6">
+                <button @click="resetFilters" class="btn btn-primary btn-sm">
+                  Réinitialiser les filtres
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <LoaderSnipper v-if="loadListeSuivi" />
       </div>
     </ModalBody>
     <ModalFooter>
@@ -1009,8 +1039,8 @@ export default {
       },
 
       filterPayloadSuiviFinancier: {
-        trimestre: Number,
-        annee: Number,
+        trimestre: new Date().getMonth() < 3 ? 1 : new Date().getMonth() < 6 ? 2 : new Date().getMonth() < 9 ? 3 : 4,
+        annee: new Date().getFullYear(),
       },
       showModalFiltreSuiviFinancier: false,
       loadListeSuivi: false,
@@ -2237,18 +2267,37 @@ export default {
     async filterSuiviFinancierActivite() {
       this.isLoadingFilterSuiviFinancier = true;
 
-      // console.log(filterPayload.annee);
+      // Validation des données avant envoi
+      const annee = parseInt(this.filterPayloadSuiviFinancier.annee);
+      const trimestre = parseInt(this.filterPayloadSuiviFinancier.trimestre);
 
-      this.filterPayloadSuiviFinancier.annee = parseInt(this.filterPayloadSuiviFinancier.annee);
-      this.filterPayloadSuiviFinancier.trimestre = parseInt(this.filterPayloadSuiviFinancier.trimestre);
+      if (!annee || isNaN(annee)) {
+        toast.error("Veuillez sélectionner une année valide");
+        this.isLoadingFilterSuiviFinancier = false;
+        return;
+      }
 
-      await SuiviFinancierService.filtre(this.filterPayloadSuiviFinancier)
+      if (!trimestre || isNaN(trimestre)) {
+        toast.error("Veuillez sélectionner un trimestre valide");
+        this.isLoadingFilterSuiviFinancier = false;
+        return;
+      }
+
+      const payload = {
+        annee: annee,
+        trimestre: trimestre
+      };
+
+      console.log("Payload du filtre:", payload);
+
+      await SuiviFinancierService.filtre(payload)
         .then((result) => {
-          this.listeSuivi = result.data.data.suiviFinanciers;
+          // Garder la même structure que getListeDataSuivi()
+          this.listeSuivi = result.data.data;
           console.log("this.listeSuivi", this.listeSuivi);
           this.isLoadingFilterSuiviFinancier = false;
           this.resetFilterModalSuivi();
-          toast.success("Suivi Financier filtrer.");
+          toast.success("Suivi Financier filtré.");
         })
         .catch((e) => {
           console.log(e);
@@ -2298,9 +2347,20 @@ export default {
     mode() {
       return this.isCreate ? "Ajouter" : "Modifier";
     },
-    resetModalSuiviFinancierActivite(item) {
-      this.suiviFinancier = [];
+    resetModalSuiviFinancierActivite() {
+      this.suiviFinancier.splice(0); // Vider le tableau de manière réactive
+      this.erreurSuiviFinancier = null; // Reset des erreurs
+      this.loadingSuiviFinancier = false; // Reset du loading
       this.showModalSuiviFinancier = false;
+    },
+
+    resetFilters() {
+      // Réinitialiser les filtres aux valeurs par défaut
+      this.filterPayloadSuiviFinancier.annee = new Date().getFullYear();
+      this.filterPayloadSuiviFinancier.trimestre = this.getCurrentQuarter();
+
+      // Recharger les données avec les filtres par défaut
+      this.getListeDataSuivi();
     },
 
     addSuivi() {
@@ -2327,7 +2387,8 @@ export default {
       SuiviFinancier.filtre(payload)
         .then((data) => {
           this.loaderListeSuivi = false;
-          this.listeSuivi = data.data.data.suiviFinanciers;
+          // Garder la même structure que getListeDataSuivi()
+          this.listeSuivi = data.data.data;
         })
         .catch((error) => {
           this.loaderListeSuivi = false;
@@ -2350,8 +2411,8 @@ export default {
           //console.log(error);
         });
     },
-    miseAjourTabSuivi(payLoad) {
-      let taille = payLoad.length;
+    miseAjourTabSuivi(payLoad, index) {
+      let taille = payLoad.toString().length;
 
       let form = {
         trimestre: taille < 2 ? payLoad : this.suiviFinancier[index].trimestre,
@@ -2440,10 +2501,18 @@ export default {
     },
 
     ouvrirModalSuiviFinancierActivite(item) {
-      this.suiviFinancier = [];
+      this.suiviFinancier.splice(0); // Vider le tableau de manière réactive
+
+      // Gérer les deux cas : pta (avec activiteId) ou suivi (avec activite.id)
+      const activiteId = item.activiteId || item.activite?.id || item.id;
+
+      if (!activiteId) {
+        console.error("Impossible de récupérer l'ID de l'activité", item);
+        return;
+      }
 
       const newItem = {
-        activiteId: item.activiteId,
+        activiteId: activiteId,
         trimestre: this.getCurrentQuarter(),
         annee: new Date().getFullYear(),
         consommer: 0,
@@ -2455,12 +2524,11 @@ export default {
         annee: new Date().getFullYear(),
       };
 
-      console.log("item.id", item.activiteId);
+      console.log("activiteId trouvé:", activiteId);
 
       this.filterSuiviFinancierActiviteParAnnee(payLoad);
 
-      console.log(item.activiteId);
-      this.suiviFinancierPayload.activiteId = item.activiteId;
+      this.suiviFinancierPayload.activiteId = activiteId;
       this.suiviFinancierPayload.trimestre = this.getCurrentQuarter();
       this.suiviFinancier.push(newItem);
       this.showModalSuiviFinancier = true;

@@ -222,6 +222,24 @@ export default {
     "formData.composanteId": "loadComposantDetails",
 
     //"formData.composanteId": "loadComposantDetails",
+    
+    // Watcher pour détecter les changements dans l'URL
+    '$route.query': {
+      handler(newQuery) {
+        // Si on arrive avec des paramètres de navigation depuis les outputs
+        if (newQuery.projetId && newQuery.composantId && newQuery.sousComposantId) {
+          this.projetId = newQuery.projetId;
+          this.selectedIds.composantId = newQuery.composantId;
+          this.selectedIds.sousComposantId = newQuery.sousComposantId;
+          
+          // Afficher un message de confirmation du filtre
+          if (newQuery.sousComposantName) {
+            toast.info(`Affichage des activités pour l'output: ${newQuery.sousComposantName}`);
+          }
+        }
+      },
+      immediate: true // Exécuter immédiatement au montage
+    }
   },
 
   methods: {
@@ -823,6 +841,37 @@ export default {
         }
       }
     },
+    
+    // Méthode pour effacer le filtre et retourner à la vue normale
+    clearFilter() {
+      // Réinitialiser les sélections
+      this.selectedIds.composantId = "";
+      this.selectedIds.sousComposantId = "";
+      this.projetId = "";
+      
+      // Supprimer les paramètres de l'URL
+      this.$router.replace({
+        name: 'Activités',
+        query: {}
+      });
+      
+      toast.success("Filtre effacé. Affichage de toutes les activités.");
+    },
+    
+    // Méthode pour naviguer vers les tâches avec filtre automatique
+    navigateToTasks(activiteId, activiteName) {
+      // Naviguer vers la page des tâches avec les paramètres de l'activité sélectionnée
+      this.$router.push({
+        name: 'Tâches',
+        query: {
+          projetId: this.projetId,
+          composantId: this.selectedIds.composantId,
+          sousComposantId: this.selectedIds.sousComposantId,
+          activiteId: activiteId,
+          activiteName: activiteName
+        }
+      });
+    },
   },
 
   async mounted() {
@@ -934,6 +983,27 @@ export default {
         </div>
       </div>
     </div>
+    
+    <!-- Indicateur de filtre actif -->
+    <div v-if="$route.query.sousComposantName" class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center">
+          <svg class="w-5 h-5 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <span class="text-blue-700 font-medium">
+            Filtre actif: Activités de l'output "{{ $route.query.sousComposantName }}"
+          </span>
+        </div>
+        <button 
+          @click="clearFilter" 
+          class="text-blue-600 hover:text-blue-800 text-sm underline"
+          title="Effacer le filtre"
+        >
+          Effacer le filtre
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- Filtre -->
@@ -976,7 +1046,12 @@ export default {
       <div v-if="!isLoadingData" class="grid grid-cols-12 gap-6 mt-5">
         <NoRecordsMessage class="col-span-12" v-if="!paginatedAndFilteredData.length" title="Aucune activité trouvée" description="Il semble qu'il n'y ait pas d'activités à afficher. Veuillez en créer un." />
         <div v-else v-for="(item, index) in paginatedAndFilteredData" :key="index" class="col-span-12 p-4 md:col-span-6 lg:col-span-4">
-          <div v-if="verifyPermission('voir-une-activite')" class="p-5 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-105 hover:bg-gray-50">
+          <div 
+            v-if="verifyPermission('voir-une-activite')" 
+            class="p-5 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-105 hover:bg-gray-50 cursor-pointer"
+            @click="navigateToTasks(item.id, item.nom)"
+            title="Cliquer pour voir les tâches de cette activité"
+          >
             <div class="relative flex items-start pt-5">
               <div class="flex flex-col items-center w-full lg:flex-row">
                 <div class="flex items-center justify-center w-[90px] h-[90px] text-white rounded-full shadow-md bg-primary flex-shrink-0 mr-4">

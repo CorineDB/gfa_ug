@@ -268,14 +268,14 @@
             </div>
           </div>
 
-          <!-- <div class="flex-1">
-            <label class="form-label">Type de variables</label>
-            <TomSelect v-model="payloadUpdate.type_de_variable" name="type_variable" :options="{ placeholder: 'Selectionez un type de variable' }" class="w-full">
+          <div class="flex-1">
+            <label class="form-label">Type de données</label>
+            <TomSelect v-model="payloadUpdate.type_de_variable" name="type_variable" :options="{ placeholder: 'Selectionez un type de données' }" class="w-full">
               <option value=""></option>
               <option v-for="(variable, index) in isAgregerCurrentIndicateur ? type_variablees : type_variablees_agreger" :key="index" :value="variable.id">{{ variable.label }}</option>
             </TomSelect>
             <div v-if="errors.type_de_variable" class="mt-2 text-danger">{{ getFieldErrors(errors.type_de_variable) }}</div>
-          </div> -->
+          </div>
           <div class="flex flex-wrap items-center justify-between gap-3">
             <InputForm class="flex-1" label="Indice" v-model="payloadUpdate.indice" :required="false" :control="getFieldErrors(errors.indice)" type="number" />
             <div class="flex-1">
@@ -334,6 +334,15 @@
                 <option v-for="(source, index) in sourcesDonnees" :key="index" :value="source">{{ source }}</option>
               </TomSelect>
               <div v-if="errors.sources_de_donnee" class="mt-2 text-danger">{{ getFieldErrors(errors.sources_de_donnee) }}</div>
+            </div>
+          </div>
+          <div class="flex flex-wrap items-center justify-between w-full gap-3">
+            <div class="flex-1">
+              <label class="form-label" for="hypothese_update">Hypothèses et risques</label>
+              <div class="">
+                <textarea name="hypothese" class="form-control" id="hypothese_update" v-model="payloadUpdate.hypothese" cols="30" rows="3" placeholder="Décrivez les hypothèses et risques liés à cet indicateur"></textarea>
+              </div>
+              <div v-if="errors.hypothese" class="mt-2 text-danger">{{ getFieldErrors(errors.hypothese) }}</div>
             </div>
           </div>
         </div>
@@ -848,10 +857,11 @@ const payloadUpdate = reactive({
   methode_de_la_collecte: "",
   frequence_de_la_collecte: "",
   anneeDeBase: "",
-  // type_de_variable: "",
+  type_de_variable: "",
   categorieId: "",
   uniteeMesureId: "",
   indice: "",
+  hypothese: "",
   // valeurDeBase: [],
 });
 const payloadSuivi = reactive({
@@ -889,13 +899,17 @@ const updateValueRealiser = (keyId, newValue) => {
 };
 
 const resetValues = () => {
+  // Sauvegarder les valeurs actuelles avant de les réinitialiser
+  const currentValeurCible = valeurCible.value;
+  const currentValeurRealise = valeurRealise.value;
+
   valeurCible.value = valueKeysIndicateurSuivi.value.map((item) => ({
     keyId: item.id,
-    value: valeurCible.value[0][item.key] ?? "",
+    value: (currentValeurCible && currentValeurCible.length > 0 && currentValeurCible[0] && currentValeurCible[0][item.key]) ? currentValeurCible[0][item.key] : "",
   }));
   valeurRealise.value = valueKeysIndicateurSuivi.value.map((item) => ({
     keyId: item.id,
-    value: valeurRealise.value[item.key] ?? "",
+    value: (currentValeurRealise && currentValeurRealise[item.key]) ? currentValeurRealise[item.key] : "",
   }));
 };
 
@@ -1079,6 +1093,7 @@ const deleteData = async () => {
 
 // Handle edit action
 const handleEdit = (data) => {
+  console.log(data.anneeDeBase);
   isAgregerCurrentIndicateur.value = data.agreger;
   idSelect.value = data.id;
   payloadUpdate.nom = data.nom;
@@ -1087,21 +1102,26 @@ const handleEdit = (data) => {
   payloadUpdate.frequence_de_la_collecte = data.frequence_de_la_collecte ?? "";
   payloadUpdate.methode_de_la_collecte = data.methode_de_la_collecte ?? "";
   payloadUpdate.sources_de_donnee = data.sources_de_donnee ?? "";
-  // payloadUpdate.type_de_variable = data.type_de_variable;
+  payloadUpdate.type_de_variable = data.type_de_variable ?? "";
   payloadUpdate.uniteeMesureId = data.unitee_mesure.id ?? "";
-  payloadUpdate.anneeDeBase = data.anneeDeBase ?? ""  //.toString();
+  payloadUpdate.anneeDeBase = data.anneeDeBase ? data.anneeDeBase.toString() : "";  //.toString();
   payloadUpdate.categorieId = data.categorieId ?? "";
+  payloadUpdate.hypothese = data.hypothese ?? "";
   // payloadUpdate.sites = data.sites;
   showModalEdit.value = true;
 };
 const handleSuivi = (data) => {
-  
+
+  console.log(data.valeursCible);
   valeurCible.value = data.valeursCible.filter((valeurCible) => valeurCible.annee === Number(payloadSuivi.annee)).map((v) => v.valeurCible);
   isAgregerCurrentIndicateur.value = data.agreger;
   if(isAgregerCurrentIndicateur.value == false){
-    Object.keys(valeurCible.value[0]).forEach((key) => {
-      payloadSuivi.valeurCible = valeurCible.value[0][key];
-    });
+    // Vérifier que valeurCible.value[0] existe et n'est pas null/undefined
+    if (valeurCible.value && valeurCible.value.length > 0 && valeurCible.value[0]) {
+      Object.keys(valeurCible.value[0]).forEach((key) => {
+        payloadSuivi.valeurCible = valeurCible.value[0][key];
+      });
+    }
   }
 
   payloadSuivi.indicateurId = data.id;

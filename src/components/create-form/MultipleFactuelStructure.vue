@@ -1,9 +1,10 @@
 <script setup>
-import { ref, reactive } from "vue";
-defineProps({
-  type: String,
-  principe: String,
-  critere: String,
+import { ref, reactive, computed, inject } from "vue";
+
+const props = defineProps({
+  type: Object,
+  principe: Object,
+  critere: Object,
   indicateurArray: {
     type: Array,
     default: () => [
@@ -15,6 +16,69 @@ defineProps({
       },
     ],
   },
+});
+
+// Injecter les données depuis le parent pour calculer les positions
+const globalFormFactuelData = inject('globalFormFactuelData', ref([]));
+const currentGlobalFactuelFormDataArray = inject('currentGlobalFactuelFormDataArray', ref([]));
+
+// Calculer la position future du type
+const futureTypePosition = computed(() => {
+  if (!props.type?.id) return 1;
+  
+  const typesExistants = new Set(globalFormFactuelData.value.map(i => i.type).filter(Boolean));
+  const typesEnCours = new Set(currentGlobalFactuelFormDataArray.value.map(i => i.type).filter(Boolean));
+  const allTypes = new Set([...typesExistants, ...typesEnCours]);
+  
+  return props.type.id && !allTypes.has(props.type.id) ? 
+    allTypes.size + 1 : 
+    [...allTypes].indexOf(props.type.id) + 1;
+});
+
+// Calculer la position future du principe
+const futurePrincipePosition = computed(() => {
+  if (!props.principe?.id || !props.type?.id) return 1;
+  
+  const principesExistants = new Set(
+    globalFormFactuelData.value
+      .filter(i => i.type === props.type.id)
+      .map(i => i.principe)
+      .filter(Boolean)
+  );
+  const principesEnCours = new Set(
+    currentGlobalFactuelFormDataArray.value
+      .filter(i => i.type === props.type.id)
+      .map(i => i.principe)
+      .filter(Boolean)
+  );
+  const allPrincipes = new Set([...principesExistants, ...principesEnCours]);
+  
+  return props.principe.id && !allPrincipes.has(props.principe.id) ? 
+    allPrincipes.size + 1 : 
+    [...allPrincipes].indexOf(props.principe.id) + 1;
+});
+
+// Calculer la position future du critère
+const futureCriterePosition = computed(() => {
+  if (!props.critere?.id || !props.type?.id || !props.principe?.id) return 1;
+  
+  const criteresExistants = new Set(
+    globalFormFactuelData.value
+      .filter(i => i.type === props.type.id && i.principe === props.principe.id)
+      .map(i => i.critere)
+      .filter(Boolean)
+  );
+  const criteresEnCours = new Set(
+    currentGlobalFactuelFormDataArray.value
+      .filter(i => i.type === props.type.id && i.principe === props.principe.id)
+      .map(i => i.critere)
+      .filter(Boolean)
+  );
+  const allCriteres = new Set([...criteresExistants, ...criteresEnCours]);
+  
+  return props.critere.id && !allCriteres.has(props.critere.id) ? 
+    allCriteres.size + 1 : 
+    [...allCriteres].indexOf(props.critere.id) + 1;
 });
 
 const emit = defineEmits(["updatePositionIndicateur", "updateTemporyElement", "deleteType", "deletePrincipe", "deleteCritere", "deleteIndicateur"]);
@@ -98,7 +162,7 @@ const handleEdit = (data) => {
       <div class="flex items-center">
         <input v-if="canEditType" type="number" min="1" step="1" name="position" :value="type.position" @keyup.enter="updateTemporyType(type.key, $event.target.value)" class="w-11 h-9 form-control mr-2" />
 
-        <div class="text-wrap" v-if="type.id">{{ !canEditType ? type.position + " - " : "" }} {{ type.nom }}</div>
+        <div class="text-wrap" v-if="type.id">{{ !canEditType ? futureTypePosition + " - " : "" }} {{ type.nom }}</div>
         <span v-else> Type de gouvernance </span>
       </div>
 
@@ -115,7 +179,7 @@ const handleEdit = (data) => {
       <div class="flex items-center">
         <input v-if="canEditPrincipe" type="number" min="1" step="1" name="position" :value="principe.position" @keyup.enter="updateTemporyPrincipe(principe.key, $event.target.value)" class="w-11 h-9 form-control mr-2" />
 
-        <div class="text-wrap" v-if="principe.id">{{ !canEditPrincipe ? principe.position + " - " : "" }} {{ principe.nom }}</div>
+        <div class="text-wrap" v-if="principe.id">{{ !canEditPrincipe ? futureTypePosition + "." + futurePrincipePosition + " - " : "" }} {{ principe.nom }}</div>
         <span v-else> Principe de gouvernance </span>
       </div>
 
@@ -132,7 +196,7 @@ const handleEdit = (data) => {
       <div class="flex items-center">
         <input v-if="canEditCritere" type="number" min="1" step="1" name="position" :value="critere.position" @keyup.enter="updateTemporyCritere(critere.key, $event.target.value)" class="w-11 h-9 form-control mr-2" />
 
-        <div class="text-wrap" v-if="critere.id">{{ !canEditCritere ? critere.position + " - " : "" }} {{ critere.nom }}</div>
+        <div class="text-wrap" v-if="critere.id">{{ !canEditCritere ? futureTypePosition + "." + futurePrincipePosition + "." + futureCriterePosition + " - " : "" }} {{ critere.nom }}</div>
         <span v-else> Critère de gouvernance </span>
       </div>
 
@@ -150,7 +214,7 @@ const handleEdit = (data) => {
       <div class="flex items-center">
         <input v-if="canEditIndicateur[item.indicateur.key]" type="number" min="1" step="1" name="position" :value="item.indicateur.position" @keyup.enter="updateTemporyIndicateur(item.indicateur.key, $event.target.value)" class="w-11 h-9 form-control mr-2" />
 
-        <div class="text-wrap">{{ !canEditIndicateur[item.indicateur.key] ? item.indicateur.position + " - " : "" }} {{ item.indicateur.nom }}</div>
+        <div class="text-wrap">{{ !canEditIndicateur[item.indicateur.key] ? futureTypePosition + "." + futurePrincipePosition + "." + futureCriterePosition + "." + item.indicateur.position + " - " : "" }} {{ item.indicateur.nom }}</div>
       </div>
 
       <div v-if="item.indicateur.key && !canEditIndicateur[item.indicateur.key]" class="flex items-center gap-1 space-x-1 transition-all container-buttons">
