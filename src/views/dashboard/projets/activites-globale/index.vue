@@ -112,7 +112,8 @@ export default {
       dureeActivite : {
         debut : "" ,
         fin : ""
-      }
+      },
+      plageDureeActivite : []
     };
   },
 
@@ -753,10 +754,12 @@ export default {
         id: Date.now() + "-" + Math.random().toString(36).substr(2, 9),
       };
 
-      //cree var global dureeActivite
-      //dureeActivite = item.fin - item.debut
+     
       this.dureeActivite.debut = item.debut;
       this.dureeActivite.fin = item.fin
+
+       this.plageDureeActivite = item.durees
+
 
       console.log("newItem", newItem);
 
@@ -1049,18 +1052,30 @@ export default {
           <div 
             v-if="verifyPermission('voir-une-activite')" 
             class="p-5 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-105 hover:bg-gray-50 cursor-pointer"
-            @click="navigateToTasks(item.id, item.nom)"
-            title="Cliquer pour voir les tâches de cette activité"
           >
             <div class="relative flex items-start pt-5">
               <div class="flex flex-col items-center w-full lg:flex-row">
-                <div class="flex items-center justify-center w-[90px] h-[90px] text-white rounded-full shadow-md bg-primary flex-shrink-0 mr-4">
-                  {{ item.codePta }}
-                  <!-- <img alt="Midone Tailwind HTML Admin Template" class="rounded-full" :src="faker.photos[0]" /> -->
+                <div class="flex flex-col items-center w-full lg:flex-row">
+                    <div class="flex items-center justify-center w-[90px] h-[90px] text-white rounded-full shadow-md bg-primary flex-shrink-0 mr-4">
+                    {{ item.codePta }}
+                    <!-- <img alt="Midone Tailwind HTML Admin Template" class="rounded-full" :src="faker.photos[0]" /> -->
+                  </div>
+                  <div class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary _truncate text-center lg:text-left">
+                    <a href="" class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary">{{ item.nom }} </a>
+                  </div>
                 </div>
-                <div class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary _truncate text-center lg:text-left">
-                  <a href="" class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary">{{ item.nom }} </a>
-                </div>
+                
+                <!-- créer un bouton pour navigateToTasks(item.id, item.nom) -->
+                <button
+                  @click.stop="navigateToTasks(item.id, item.nom)"
+                  class="ml-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors flex items-center gap-2 text-sm font-medium shadow-md"
+                  title="Cliquer pour voir les tâches de cette activité"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                  </svg>
+                  Tâches
+                </button>
               </div>
               <Dropdown class="absolute top-0 right-0 mt-3 mr-5">
                 <DropdownToggle tag="a" class="block w-5 h-5" href="javascript:;">
@@ -1349,7 +1364,7 @@ export default {
     </form>
   </Modal>
 
-  <Modal backdrop="static" :show="showModalPlanDeDecaissement" @hidden="showModalPlanDeDecaissement = false">
+  <Modal backdrop="static" size="modal-lg" :show="showModalPlanDeDecaissement" @hidden="showModalPlanDeDecaissement = false">
     <ModalHeader>
       <h2 class="mr-auto text-base font-medium">Plan de décaissement</h2>
     </ModalHeader>
@@ -1357,82 +1372,110 @@ export default {
     <form @submit.prevent="planDeDecaissementActivite">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
         <div v-for="(plan, index) in planDeDecaissement" :key="plan.id" class="col-span-12 border-b pb-4 mb-4">
-          <h3 class="text-sm font-medium mb-2">Plan {{ index + 1 }}</h3>
+          <h3 class="text-sm font-medium mb-4">Plan {{ index + 1 }}</h3>
 
-          <div class="col-span-12 mt-3">
-            <label class="form-label">Sélectionnner l'année de décaissement</label>
-            <TomSelect v-model="plan.annee" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
-              <option v-for="(year, index) in years" :key="index" :value="year">{{ year }}</option>
-            </TomSelect>
-            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.annee">
-              {{ erreurPlanDeDecaissement[index].annee }}
-            </p>
-          </div>
-
-          <!-- <InputForm v-model="plan.annee" :min="2000" class="col-span-12" type="number" :required="true" placeHolder="Saisissez l'année" label="Saisissez l'année de décaissement" />
-          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.annee">
-            {{ erreurPlanDeDecaissement[index].annee }}
-          </p> -->
-          <div class="col-span-12 mt-4">
-            <label class="form-label">Sélectionnez le trimestre</label>
-            <TomSelect v-model="plan.trimestre" :options="{ placeholder: 'Sélectionnez le trimestre' }" class="w-full">
-              <option :value="1">Trimestre 1</option>
-              <option :value="2">Trimestre 2</option>
-              <option :value="3">Trimestre 3</option>
-              <option :value="4">Trimestre 4</option>
-              <!-- <option v-for="(year, index) in years" :key="index" :value="year">{{ year }}</option> -->
-            </TomSelect>
-            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.trimestre">
-              {{ erreurPlanDeDecaissement[index].trimestre }}
-            </p>
-          </div>
-
-          <!-- <InputForm v-model="plan.trimestre" :min="1" :max="4" class="col-span-12 mt-4" type="number" :required="true" placeHolder="Sélectionnez le trimestre" label="Sélectionnez le trimestre" />
-          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.trimestre">
-            {{ erreurPlanDeDecaissement[index].trimestre }}
-          </p> -->
-
-          <InputForm v-model="plan.budgetNational" :min="0" class="col-span-12 mt-4" type="number" :required="true" placeHolder="Saisissez le fond propre" label="Saisissez le fond propre" />
-          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.budgetNational">
-            {{ erreurPlanDeDecaissement[index].budgetNational }}
-          </p>
-
-          <InputForm v-model="plan.pret" :min="0" class="col-span-12 mt-4" type="number" :required="true" placeHolder="Saisissez la subvention" label="Saisissez la subvention" />
-          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.pret">
-            {{ erreurPlanDeDecaissement[index].pret }}
-          </p>
-
-          <button type="button" @click="removePlan(index)" class="mt-4 text-red-600 text-sm underline">Supprimer ce plan</button>
-
-          <div class="col-span-12 mt-4" v-if="getPlageActivite">
-            <div class="flex items-center mt-2" v-for="(plage, t) in getPlageActivite.durees" :key="t">
-              <ClockIcon class="w-4 h-4 mr-2" />
+          <!-- Grille en deux colonnes -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Colonne gauche : Formulaire -->
+            <div class="space-y-4">
               <div>
-                Plage de date {{ t + 1 }} : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(plage.debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(plage.fin) }}</span>
+                <label class="form-label">Sélectionnner l'année de décaissement</label>
+                <TomSelect v-model="plan.annee" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+                  <option v-for="(year, yearIndex) in years" :key="yearIndex" :value="year">{{ year }}</option>
+                </TomSelect>
+                <p class="text-red-500 text-[12px] mt-1" v-if="erreurPlanDeDecaissement?.[index]?.annee">
+                  {{ erreurPlanDeDecaissement[index].annee }}
+                </p>
+              </div>
+
+              <div>
+                <label class="form-label">Sélectionnez le trimestre</label>
+                <TomSelect v-model="plan.trimestre" :options="{ placeholder: 'Sélectionnez le trimestre' }" class="w-full">
+                  <option :value="1">Trimestre 1</option>
+                  <option :value="2">Trimestre 2</option>
+                  <option :value="3">Trimestre 3</option>
+                  <option :value="4">Trimestre 4</option>
+                </TomSelect>
+                <p class="text-red-500 text-[12px] mt-1" v-if="erreurPlanDeDecaissement?.[index]?.trimestre">
+                  {{ erreurPlanDeDecaissement[index].trimestre }}
+                </p>
+              </div>
+
+              <div>
+                <InputForm v-model="plan.budgetNational" :min="0" type="number" :required="true" placeHolder="Saisissez le fond propre" label="Saisissez le fond propre" />
+                <p class="text-red-500 text-[12px] mt-1" v-if="erreurPlanDeDecaissement?.[index]?.budgetNational">
+                  {{ erreurPlanDeDecaissement[index].budgetNational }}
+                </p>
+              </div>
+
+              <div>
+                <InputForm v-model="plan.pret" :min="0" type="number" :required="true" placeHolder="Saisissez la subvention" label="Saisissez la subvention" />
+                <p class="text-red-500 text-[12px] mt-1" v-if="erreurPlanDeDecaissement?.[index]?.pret">
+                  {{ erreurPlanDeDecaissement[index].pret }}
+                </p>
+              </div>
+
+              <button type="button" @click="removePlan(index)" class="text-red-600 text-sm underline hover:text-red-800">
+                Supprimer ce plan
+              </button>
+            </div>
+
+            <!-- Colonne droite : Informations contextuelles -->
+            <div class="space-y-4">
+              <!-- Durée du projet -->
+              <div v-if="getPlageProjet" class="p-3 bg-gray-50 rounded-lg">
+                <div class="flex items-center">
+                  <ClockIcon class="w-4 h-4 mr-2 text-primary" />
+                  <div class="text-sm text-gray-700">
+                    <span class="font-semibold">Durée du projet :</span><br/>
+                    Du <span class="font-bold"> {{ $h.reformatDate(getPlageProjet.debut) }}</span> au
+                    <span class="font-bold"> {{ $h.reformatDate(getPlageProjet.fin) }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Durée de l'activité -->
+              <div v-if="dureeActivite.debut && dureeActivite.fin" class="p-3 bg-blue-50 rounded-lg">
+                <div class="flex items-center">
+                  <ClockIcon class="w-4 h-4 mr-2 text-primary" />
+                  <div class="text-sm text-gray-700">
+                    <span class="font-semibold">Durée de l'activité :</span><br/>
+                    Du <span class="font-bold"> {{ $h.reformatDate(dureeActivite.debut) }}</span> au
+                    <span class="font-bold"> {{ $h.reformatDate(dureeActivite.fin) }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Plages de prolongation -->
+              <div v-if="plageDureeActivite.length > 0" class="p-3 bg-gray-50 rounded-lg">
+                <h4 class="text-sm font-semibold mb-2 text-gray-700">Plages de prolongation :</h4>
+                <div v-for="(plage, plageIndex) in plageDureeActivite" :key="plage.id" class="flex items-start mt-2">
+                  <ClockIcon class="w-4 h-4 mr-2 mt-0.5 text-primary flex-shrink-0" />
+                  <div class="text-xs text-gray-600">
+                    <span class="font-medium">Prolongation {{ plageIndex + 1 }} :</span><br/>
+                    Du <span class="font-bold"> {{ $h.reformatDate(plage.debut) }}</span> au
+                    <span class="font-bold"> {{ $h.reformatDate(plage.fin) }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Plages getPlageActivite -->
+              <div v-if="getPlageActivite && getPlageActivite.durees && getPlageActivite.durees.length > 0" class="p-3 bg-gray-50 rounded-lg">
+                <h4 class="text-sm font-semibold mb-2 text-gray-700">Plages de date :</h4>
+                <div v-for="(plage, t) in getPlageActivite.durees" :key="t" class="flex items-start mt-2">
+                  <ClockIcon class="w-4 h-4 mr-2 mt-0.5 text-primary flex-shrink-0" />
+                  <div class="text-xs text-gray-600">
+                    <span class="font-medium">Plage {{ t + 1 }} :</span><br/>
+                    Du <span class="font-bold"> {{ $h.reformatDate(plage.debut) }}</span> au
+                    <span class="font-bold"> {{ $h.reformatDate(plage.fin) }}</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-
-          <div v-if="getPlageProjet" class="flex items-center mt-4 col-span-12">
-            <ClockIcon class="w-4 h-4 mr-2" />
-            <div>
-              Durée du projet : Du <span class="px-1 font-bold"> {{ $h.reformatDate(getPlageProjet.debut) }}</span> au
-              <span class="font-bold"> {{ $h.reformatDate(getPlageProjet.fin) }}</span>
-            </div>
-          </div>
         </div>
 
-        <!-- Affiche durée de l'activité -->
-        <div class="col-span-12" v-if="dureeActivite.debut && dureeActivite.fin">
-          <div class="flex items-center">
-            <ClockIcon class="w-4 h-4 mr-2" />
-            <div>
-              Durée de l'activité : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(dureeActivite.debut) }}</span> au
-              <span class="font-bold"> {{ $h.reformatDate(dureeActivite.fin) }}</span>
-            </div>
-          </div>
-        </div>
-
+      
         <!-- Affiche montantRestantADeecaisser en fonction de loaderListePlan -->
         <div class="col-span-12 mt-4">
           <div class="p-4 bg-blue-50 rounded-lg border border-blue-200">
