@@ -133,6 +133,23 @@ export default {
       }
     },
     "selectedIds.composantId": "loadComposantDetails",
+    
+    // Watcher pour détecter les changements dans l'URL
+    '$route.query': {
+      handler(newQuery) {
+        // Si on arrive avec des paramètres de navigation depuis les outcomes
+        if (newQuery.projetId && newQuery.composantId) {
+          this.projetId = newQuery.projetId;
+          this.selectedIds.composantId = newQuery.composantId;
+          
+          // Afficher un message de confirmation du filtre
+          if (newQuery.composantName) {
+            toast.info(`Affichage des outputs pour l'outcome: ${newQuery.composantName}`);
+          }
+        }
+      },
+      immediate: true // Exécuter immédiatement au montage
+    }
   },
 
   methods: {
@@ -141,6 +158,35 @@ export default {
       this.selectedIds.composantId = id;
     },
     text() {},
+    
+    // Méthode pour effacer le filtre et retourner à la vue normale
+    clearFilter() {
+      // Réinitialiser les sélections
+      this.selectedIds.composantId = "";
+      this.projetId = "";
+      
+      // Supprimer les paramètres de l'URL
+      this.$router.replace({
+        name: 'OutPuts',
+        query: {}
+      });
+      
+      toast.success("Filtre effacé. Affichage de tous les outputs.");
+    },
+    
+    // Méthode pour naviguer vers les activités avec filtre automatique
+    navigateToActivities(outputId, outputName) {
+      // Naviguer vers la page des activités avec les paramètres de l'output sélectionné
+      this.$router.push({
+        name: 'Activités',
+        query: {
+          projetId: this.projetId,
+          composantId: this.selectedIds.composantId,
+          sousComposantId: outputId,
+          sousComposantName: outputName
+        }
+      });
+    },
     onPageChanged(newPage) {
       this.currentPage = newPage;
       console.log("Page actuelle :", this.currentPage);
@@ -422,6 +468,27 @@ export default {
 
       <!-- <button class="absolute px-4 py-2 text-white transform -translate-x-1/2 bg-blue-500 rounded -bottom-3 left-1/2" @click="filter()">Filtrer</button> -->
     </div>
+    
+    <!-- Indicateur de filtre actif -->
+    <div v-if="$route.query.composantName" class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center">
+          <svg class="w-5 h-5 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <span class="text-blue-700 font-medium">
+            Filtre actif: Outputs de l'outcome "{{ $route.query.composantName }}"
+          </span>
+        </div>
+        <button 
+          @click="clearFilter" 
+          class="text-blue-600 hover:text-blue-800 text-sm underline"
+          title="Effacer le filtre"
+        >
+          Effacer le filtre
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- Titre de la page -->
@@ -447,7 +514,12 @@ export default {
     <NoRecordsMessage class="col-span-12" v-if="!paginatedAndFilteredData.length" title="Aucun output trouvé" description="Il semble qu'il n'y ait pas d'output à afficher. Veuillez en créer un. " />
 
     <div v-for="(item, index) in paginatedAndFilteredData" :key="index" class="col-span-12 intro-y md:col-span-6 xl:col-span-4">
-      <div v-if="verifyPermission('voir-un-output')" class="p-5 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-105 hover:bg-gray-50">
+      <div 
+        v-if="verifyPermission('voir-un-output')" 
+        class="p-5 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-105 hover:bg-gray-50 cursor-pointer"
+        @click="navigateToActivities(item.id, item.nom)"
+        title="Cliquer pour voir les activités de cet output"
+      >
         <!-- En-tête avec sigle et titre -->
         <div class="relative flex items-start pt-5">
           <div class="relative flex flex-col items-center w-full pt-5 lg:flex-row lg:items-start">

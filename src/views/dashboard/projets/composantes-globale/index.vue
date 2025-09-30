@@ -229,6 +229,7 @@ export default {
       console.log("composantsId", this.composantsId);
     },
     addComposants() {
+      this.messageErreur = {};
       this.showModal = true;
       this.isUpdate = false;
       this.formData.projetId = this.projetId;
@@ -346,6 +347,19 @@ export default {
       this.composants = data.composantes;
     },
     filter() {},
+    
+    // Méthode pour naviguer vers les outputs avec filtre automatique
+    navigateToOutputs(outcomeId, outcomeName) {
+      // Naviguer vers la page des outputs avec les paramètres de l'outcome sélectionné
+      this.$router.push({
+        name: 'OutPuts',
+        query: {
+          projetId: this.projetId,
+          composantId: outcomeId,
+          composantName: outcomeName
+        }
+      });
+    },
   },
 
   created() {},
@@ -403,7 +417,12 @@ export default {
   <div v-if="!isLoadingOutcome" class="grid grid-cols-12 gap-6 mt-5">
     <NoRecordsMessage class="col-span-12" v-if="!paginatedAndFilteredData.length" title="Aucun outCome trouvée" description="Il semble qu'il n'y ait pas d'outComes à afficher. Veuillez en créer un. " />
     <div v-for="(item, index) in paginatedAndFilteredData" :key="index" class="col-span-12 p-2 sm:p-4 md:col-span-6 xl:col-span-4">
-      <div v-if="verifyPermission('voir-un-outcome')" class="p-3 sm:p-5 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-105 hover:bg-gray-50">
+      <div 
+        v-if="verifyPermission('voir-un-outcome')" 
+        class="p-3 sm:p-5 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-105 hover:bg-gray-50 cursor-pointer"
+        @click="navigateToOutputs(item.id, item.nom)"
+        title="Cliquer pour voir les outputs de cet outcome"
+      >
         <!-- En-tête avec sigle et titre -->
         <div class="relative flex items-start pt-3 sm:pt-5">
           <div class="relative flex flex-col items-center w-full pt-3 sm:pt-5 md:flex-row md:items-start">
