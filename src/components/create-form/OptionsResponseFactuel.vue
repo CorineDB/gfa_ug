@@ -25,7 +25,14 @@ const props = defineProps({
 });
 
 // Reactive data structure
-const payload = reactive({ libelle: "", type: "factuel", description: "" });
+const payload = reactive({
+  libelle: "",
+  type: "factuel",
+  description: "",
+  preuveIsRequired: false,
+  sourceIsRequired: false,
+  descriptionIsRequired: false,
+});
 const idSelect = ref("");
 const idChecked = ref([]);
 const nameSelect = ref("");
@@ -101,6 +108,9 @@ const handleEdit = (data) => {
   payload.libelle = data.libelle;
   payload.type = "factuel";
   payload.description = data.description;
+  payload.preuveIsRequired = Boolean(data.preuveIsRequired);
+  payload.sourceIsRequired = Boolean(data.sourceIsRequired);
+  payload.descriptionIsRequired = Boolean(data.descriptionIsRequired);
   showModalCreate.value = true;
 };
 
@@ -116,6 +126,9 @@ const resetForm = () => {
   payload.libelle = "";
   payload.type = "factuel";
   payload.description = "";
+  payload.preuveIsRequired = false;
+  payload.sourceIsRequired = false;
+  payload.descriptionIsRequired = false;
   showModalCreate.value = false;
   errors.value = {};
 };
@@ -195,21 +208,46 @@ watch(
   }
 );
 
-function fixerOptionsDeReponse(){
-  idChecked.value =
-  datas.value.map((item) => {
-    if(item.libelle.toLowerCase() == 'oui'){
-      updateTemporyOption(item.id, 1);
-    }
-    else if(item.libelle.toLowerCase() == 'non'){
-      updateTemporyOption(item.id, 0);
+async function fixerOptionsDeReponse() {
+  idChecked.value = datas.value.map((item) => {
+    const libelleLower = item.libelle.toLowerCase();
 
-    }
-    else if(item.libelle.toLowerCase() == 'partiellement'){
+    if (libelleLower == "oui") {
+      updateTemporyOption(item.id, 1);
+      // Fixer les valeurs pour "Oui"
+      updateOptionRequirements(item.id, {
+        preuveIsRequired: true,
+        sourceIsRequired: true,
+        descriptionIsRequired: false
+      });
+    } else if (libelleLower == "non") {
+      updateTemporyOption(item.id, 0);
+      // Fixer les valeurs pour "Non" (tout à false)
+      updateOptionRequirements(item.id, {
+        preuveIsRequired: false,
+        sourceIsRequired: false,
+        descriptionIsRequired: false
+      });
+    } else if (libelleLower == "partiellement") {
       updateTemporyOption(item.id, 0.5);
+      // Fixer les valeurs pour "Partiellement"
+      updateOptionRequirements(item.id, {
+        preuveIsRequired: false,
+        sourceIsRequired: false,
+        descriptionIsRequired: true
+      });
     }
     return item.id;
   });
+}
+
+// Fonction pour mettre à jour les requirements d'une option
+async function updateOptionRequirements(id, requirements) {
+  try {
+    await OptionReponse.update(id, requirements);
+  } catch (e) {
+    console.error(`Erreur lors de la mise à jour des requirements pour l'option ${id}:`, e);
+  }
 }
 
 // Fetch data on component mount
@@ -301,15 +339,44 @@ onMounted(async () => {
           <div class="grid grid-cols-1 gap-4">
             <InputForm label="Libellé" v-model="payload.libelle" :control="getFieldErrors(errors.libelle)" />
 
-            <!-- <pre>{{ payload.description }}</pre> -->
-
-            <!-- <div class="flex-1">
-              <label class="form-label" for="description">Description</label>
-              <div class="">
-                <textarea name="description" class="form-control" id="description" v-model="payload.description" cols="30" rows="3"></textarea>
-                <div v-if="errors.description" class="mt-2 text-danger">{{ getFieldErrors(errors.description) }}</div>
+            <!-- Nouveaux champs booléens -->
+            <div class="col-span-12">
+              <div class="form-check mb-3">
+                <input
+                  id="preuveIsRequired"
+                  class="form-check-input"
+                  type="checkbox"
+                  v-model="payload.preuveIsRequired"
+                />
+                <label class="form-check-label" for="preuveIsRequired">
+                  Preuve requise
+                </label>
               </div>
-            </div> -->
+
+              <div class="form-check mb-3">
+                <input
+                  id="sourceIsRequired"
+                  class="form-check-input"
+                  type="checkbox"
+                  v-model="payload.sourceIsRequired"
+                />
+                <label class="form-check-label" for="sourceIsRequired">
+                  Source requise
+                </label>
+              </div>
+
+              <div class="form-check">
+                <input
+                  id="descriptionIsRequired"
+                  class="form-check-input"
+                  type="checkbox"
+                  v-model="payload.descriptionIsRequired"
+                />
+                <label class="form-check-label" for="descriptionIsRequired">
+                  Description requise
+                </label>
+              </div>
+            </div>
           </div>
         </ModalBody>
         <ModalFooter>
