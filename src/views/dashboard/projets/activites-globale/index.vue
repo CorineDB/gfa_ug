@@ -108,12 +108,14 @@ export default {
       outputActivite: [],
       montantADecaisser: 0,
       sommeDesPlanDeDecaissement: 0,
-      montantRestantADecaisser : 0 ,
-      dureeActivite : {
-        debut : "" ,
-        fin : ""
+      montantRestantADecaisser: 0,
+      dureeActivite: {
+        debut: null,
+        fin: null,
       },
-      plageDureeActivite : []
+      plageDureeActivite: [],
+      trimestres: [],
+      trimestreYears: [],
     };
   },
 
@@ -223,27 +225,33 @@ export default {
     "formData.composanteId": "loadComposantDetails",
 
     //"formData.composanteId": "loadComposantDetails",
-    
+
     // Watcher pour détecter les changements dans l'URL
-    '$route.query': {
+    "$route.query": {
       handler(newQuery) {
         // Si on arrive avec des paramètres de navigation depuis les outputs
         if (newQuery.projetId && newQuery.composantId && newQuery.sousComposantId) {
           this.projetId = newQuery.projetId;
           this.selectedIds.composantId = newQuery.composantId;
           this.selectedIds.sousComposantId = newQuery.sousComposantId;
-          
+
           // Afficher un message de confirmation du filtre
           if (newQuery.sousComposantName) {
             toast.info(`Affichage des activités pour l'output: ${newQuery.sousComposantName}`);
           }
         }
       },
-      immediate: true // Exécuter immédiatement au montage
-    }
+      immediate: true, // Exécuter immédiatement au montage
+    },
   },
 
   methods: {
+    filteredTrimestresForPlan(annee) {
+      if (!annee) {
+        return this.trimestres;
+      }
+      return this.trimestres.filter((trimestre) => trimestre.annee == annee);
+    },
     receiveMontantRestantADecaisser() {
       const montantRestantADecaisser = this.montantADecaisser - this.sommeDesPlanDeDecaissement;
       return montantRestantADecaisser;
@@ -296,12 +304,44 @@ export default {
       this.sommeDesPlanDeDecaissement = somme;
     },
     getInfoActivite(id) {
-      if (id !== null || id !== "") {
+      if (id !== null && id !== "") {
         ActiviteService.get(id)
           .then((response) => {
             console.log(response.data.data);
             this.activiteTep = response.data.data.tep;
             this.activiteTef = response.data.data.tef;
+
+            this.dureeActivite = {
+              debut: response.data.data.debut,
+              fin: response.data.data.fin,
+            };
+
+            //recuprer les trimestes de la duree de l'activité
+            this.trimestres = this.getQuartersInDuration(response.data.data.debut, response.data.data.fin);
+
+            if (response.data.data.durees && response.data.data.durees.length) {
+              this.plageDureeActivite = response.data.data.durees;
+
+              //parcour plageDureeActivite
+              this.plageDureeActivite.forEach((duree) => {
+                const quartersInDuree = this.getQuartersInDuration(duree.debut, duree.fin);
+
+                quartersInDuree.forEach((quarter) => {
+                  // si le trimestre n'existe pas dans this.trimestres on l'ajoute
+                  const exists = this.trimestres.some((t) => t.trimestre === quarter.trimestre);
+                  if (!exists) {
+                    this.trimestres.push(quarter);
+                  }
+                });
+              });
+
+              // Trier les trimestres par ordre croissant
+              this.trimestres.sort((a, b) => a.trimestre - b.trimestre);
+            }
+
+            //créer etat global : trimestreYears a partie des trimestres
+            const anneesUniques = [...new Set(this.trimestres.map((t) => t.annee))];
+            this.trimestreYears = anneesUniques.sort((a, b) => a - b);
 
             //recuperer montantADecaisser
             this.montantADecaisser = response.data.data.pret + response.data.data.budgetNational;
@@ -327,6 +367,40 @@ export default {
     getCurrentQuarter() {
       const month = new Date().getMonth() + 1; // Les mois sont indexés à partir de 0
       return Math.ceil(month / 3); // Calcul du trimestre actuel
+    },
+
+    getQuartersInDuration(debut, fin) {
+      if (!debut || !fin) return [];
+
+      const dateDebut = new Date(debut);
+      const dateFin = new Date(fin);
+      const quartersMap = new Map(); // Pour stocker trimestre + année
+
+      // Parcourir tous les mois entre debut et fin
+      const currentDate = new Date(dateDebut);
+      while (currentDate <= dateFin) {
+        const month = currentDate.getMonth() + 1;
+        const year = currentDate.getFullYear();
+        const quarter = Math.ceil(month / 3);
+        const key = `${year}-${quarter}`;
+
+        if (!quartersMap.has(key)) {
+          quartersMap.set(key, {
+            trimestre: quarter,
+            value: quarter,
+            annee: year,
+          });
+        }
+
+        // Passer au mois suivant
+        currentDate.setMonth(currentDate.getMonth() + 1);
+      }
+
+      // Convertir en tableau d'objets et trier par année puis trimestre
+      return Array.from(quartersMap.values()).sort((a, b) => {
+        if (a.annee !== b.annee) return a.annee - b.annee;
+        return a.trimestre - b.trimestre;
+      });
     },
 
     verifyPermission,
@@ -644,7 +718,6 @@ export default {
 
             toast.success("Prolongation éffectuée avec succès");
 
-            
             this.loadSousComposantDetails();
             //this.fetchProjets(this.programmeId);
           }
@@ -745,21 +818,47 @@ export default {
     ouvrirModalPlanDeDecaissementActivite(item) {
       this.montantADecaisser = item.pret + item.budgetNational;
       this.planDeDecaissement = [];
+
+      this.dureeActivite = {
+        debut: item.debut,
+        fin: item.fin,
+      };
+
+      //recuprer les trimestes de la duree de l'activité
+      this.trimestres = this.getQuartersInDuration(item.debut, item.fin);
+
+      if (item.durees && item.durees.length) {
+        this.plageDureeActivite = item.durees;
+
+        //parcour plageDureeActivite
+        this.plageDureeActivite.forEach((duree) => {
+          const quartersInDuree = this.getQuartersInDuration(duree.debut, duree.fin);
+
+          quartersInDuree.forEach((quarter) => {
+            // si le trimestre n'existe pas dans this.trimestres on l'ajoute
+            const exists = this.trimestres.some((t) => t.trimestre === quarter.trimestre);
+            if (!exists) {
+              this.trimestres.push(quarter);
+            }
+          });
+        });
+
+        // Trier les trimestres par ordre croissant
+        this.trimestres.sort((a, b) => a.trimestre - b.trimestre);
+      }
+
+      //créer etat global : trimestreYears a partie des trimestres
+      const anneesUniques = [...new Set(this.trimestres.map((t) => t.annee))];
+      this.trimestreYears = anneesUniques.sort((a, b) => a - b);
+
       const newItem = {
         activiteId: item.id,
-        trimestre: 1, // Trimestre actuel
-        annee: new Date().getFullYear(), // Set current year as default
+        trimestre: this.trimestres.length > 0 ? this.trimestres[0].value : 1,
+        annee: this.trimestreYears.length > 0 ? this.trimestreYears[0] : new Date().getFullYear(),
         budgetNational: 0,
         pret: 0,
         id: Date.now() + "-" + Math.random().toString(36).substr(2, 9),
       };
-
-     
-      this.dureeActivite.debut = item.debut;
-      this.dureeActivite.fin = item.fin
-
-       this.plageDureeActivite = item.durees
-
 
       console.log("newItem", newItem);
 
@@ -844,35 +943,35 @@ export default {
         }
       }
     },
-    
+
     // Méthode pour effacer le filtre et retourner à la vue normale
     clearFilter() {
       // Réinitialiser les sélections
       this.selectedIds.composantId = "";
       this.selectedIds.sousComposantId = "";
       this.projetId = "";
-      
+
       // Supprimer les paramètres de l'URL
       this.$router.replace({
-        name: 'Activités',
-        query: {}
+        name: "Activités",
+        query: {},
       });
-      
+
       toast.success("Filtre effacé. Affichage de toutes les activités.");
     },
-    
+
     // Méthode pour naviguer vers les tâches avec filtre automatique
     navigateToTasks(activiteId, activiteName) {
       // Naviguer vers la page des tâches avec les paramètres de l'activité sélectionnée
       this.$router.push({
-        name: 'Tâches',
+        name: "Tâches",
         query: {
           projetId: this.projetId,
           composantId: this.selectedIds.composantId,
           sousComposantId: this.selectedIds.sousComposantId,
           activiteId: activiteId,
-          activiteName: activiteName
-        }
+          activiteName: activiteName,
+        },
       });
     },
   },
@@ -986,7 +1085,7 @@ export default {
         </div>
       </div>
     </div>
-    
+
     <!-- Indicateur de filtre actif -->
     <div v-if="$route.query.sousComposantName" class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
       <div class="flex items-center justify-between">
@@ -994,17 +1093,9 @@ export default {
           <svg class="w-5 h-5 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
-          <span class="text-blue-700 font-medium">
-            Filtre actif: Activités de l'output "{{ $route.query.sousComposantName }}"
-          </span>
+          <span class="text-blue-700 font-medium"> Filtre actif: Activités de l'output "{{ $route.query.sousComposantName }}" </span>
         </div>
-        <button 
-          @click="clearFilter" 
-          class="text-blue-600 hover:text-blue-800 text-sm underline"
-          title="Effacer le filtre"
-        >
-          Effacer le filtre
-        </button>
+        <button @click="clearFilter" class="text-blue-600 hover:text-blue-800 text-sm underline" title="Effacer le filtre">Effacer le filtre</button>
       </div>
     </div>
   </div>
@@ -1049,14 +1140,11 @@ export default {
       <div v-if="!isLoadingData" class="grid grid-cols-12 gap-6 mt-5">
         <NoRecordsMessage class="col-span-12" v-if="!paginatedAndFilteredData.length" title="Aucune activité trouvée" description="Il semble qu'il n'y ait pas d'activités à afficher. Veuillez en créer un." />
         <div v-else v-for="(item, index) in paginatedAndFilteredData" :key="index" class="col-span-12 p-4 md:col-span-6 lg:col-span-4">
-          <div 
-            v-if="verifyPermission('voir-une-activite')" 
-            class="p-5 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-105 hover:bg-gray-50 cursor-pointer"
-          >
+          <div v-if="verifyPermission('voir-une-activite')" class="p-5 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-105 hover:bg-gray-50 cursor-pointer">
             <div class="relative flex items-start pt-5">
               <div class="flex flex-col items-center w-full lg:flex-row">
                 <div class="flex flex-col items-center w-full lg:flex-row">
-                    <div class="flex items-center justify-center w-[90px] h-[90px] text-white rounded-full shadow-md bg-primary flex-shrink-0 mr-4">
+                  <div class="flex items-center justify-center w-[90px] h-[90px] text-white rounded-full shadow-md bg-primary flex-shrink-0 mr-4">
                     {{ item.codePta }}
                     <!-- <img alt="Midone Tailwind HTML Admin Template" class="rounded-full" :src="faker.photos[0]" /> -->
                   </div>
@@ -1064,13 +1152,9 @@ export default {
                     <a href="" class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary">{{ item.nom }} </a>
                   </div>
                 </div>
-                
+
                 <!-- créer un bouton pour navigateToTasks(item.id, item.nom) -->
-                <button
-                  @click.stop="navigateToTasks(item.id, item.nom)"
-                  class="ml-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors flex items-center gap-2 text-sm font-medium shadow-md"
-                  title="Cliquer pour voir les tâches de cette activité"
-                >
+                <button @click.stop="navigateToTasks(item.id, item.nom)" class="ml-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors flex items-center gap-2 text-sm font-medium shadow-md" title="Cliquer pour voir les tâches de cette activité">
                   <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                   </svg>
@@ -1164,7 +1248,7 @@ export default {
     </pagination>
   </div>
 
-  <PlanDecaissementComponent v-if="seePlan" :activiteId="selectedIds.activiteId" :activites="activites" :montantADecaisser="montantADecaisser" @send-activiteId="changeActiviteId" @send-sommeDesPlanDeDecaissement="receiveSommeDesPlanDeDecaissement" @send-montantRestantADecaisser="receiveMontantRestantADecaisser" :getPlageActivites="getPlageActivite" />
+  <PlanDecaissementComponent v-if="seePlan" :activiteId="selectedIds.activiteId" :activites="activites" :montantADecaisser="montantADecaisser" :trimestres="trimestres" :reciveYearsFromParent="trimestreYears" @send-activiteId="changeActiviteId" @send-sommeDesPlanDeDecaissement="receiveSommeDesPlanDeDecaissement" @send-montantRestantADecaisser="receiveMontantRestantADecaisser" :getPlageActivites="getPlageActivite" />
 
   <div v-if="seeStatistique" class="flex flex-col sm:flex-row justify-evenly mt-4">
     <div class="flex flex-col items-center p-6 mb-3 bg-white rounded-md shadow">
@@ -1371,111 +1455,98 @@ export default {
 
     <form @submit.prevent="planDeDecaissementActivite">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
-        <div v-for="(plan, index) in planDeDecaissement" :key="plan.id" class="col-span-12 border-b pb-4 mb-4">
-          <h3 class="text-sm font-medium mb-4">Plan {{ index + 1 }}</h3>
+        <div v-for="(plan, index) in planDeDecaissement" :key="plan.id" class="col-span-12 p-4 bg-gray-50 rounded-lg mb-4">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-base font-semibold text-gray-800">Plan {{ index + 1 }}</h3>
+            <button type="button" @click="removePlan(index)" class="text-red-600 text-sm font-medium hover:text-red-800 flex items-center">
+              <TrashIcon class="w-4 h-4 mr-1" /> Supprimer
+            </button>
+          </div>
 
-          <!-- Grille en deux colonnes -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Colonne gauche : Formulaire -->
-            <div class="space-y-4">
-              <div>
-                <label class="form-label">Sélectionnner l'année de décaissement</label>
-                <TomSelect v-model="plan.annee" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
-                  <option v-for="(year, yearIndex) in years" :key="yearIndex" :value="year">{{ year }}</option>
-                </TomSelect>
-                <p class="text-red-500 text-[12px] mt-1" v-if="erreurPlanDeDecaissement?.[index]?.annee">
-                  {{ erreurPlanDeDecaissement[index].annee }}
-                </p>
-              </div>
-
-              <div>
-                <label class="form-label">Sélectionnez le trimestre</label>
-                <TomSelect v-model="plan.trimestre" :options="{ placeholder: 'Sélectionnez le trimestre' }" class="w-full">
-                  <option :value="1">Trimestre 1</option>
-                  <option :value="2">Trimestre 2</option>
-                  <option :value="3">Trimestre 3</option>
-                  <option :value="4">Trimestre 4</option>
-                </TomSelect>
-                <p class="text-red-500 text-[12px] mt-1" v-if="erreurPlanDeDecaissement?.[index]?.trimestre">
-                  {{ erreurPlanDeDecaissement[index].trimestre }}
-                </p>
-              </div>
-
-              <div>
-                <InputForm v-model="plan.budgetNational" :min="0" type="number" :required="true" placeHolder="Saisissez le fond propre" label="Saisissez le fond propre" />
-                <p class="text-red-500 text-[12px] mt-1" v-if="erreurPlanDeDecaissement?.[index]?.budgetNational">
-                  {{ erreurPlanDeDecaissement[index].budgetNational }}
-                </p>
-              </div>
-
-              <div>
-                <InputForm v-model="plan.pret" :min="0" type="number" :required="true" placeHolder="Saisissez la subvention" label="Saisissez la subvention" />
-                <p class="text-red-500 text-[12px] mt-1" v-if="erreurPlanDeDecaissement?.[index]?.pret">
-                  {{ erreurPlanDeDecaissement[index].pret }}
-                </p>
-              </div>
-
-              <button type="button" @click="removePlan(index)" class="text-red-600 text-sm underline hover:text-red-800">
-                Supprimer ce plan
-              </button>
+          <!-- Formulaire en deux colonnes -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Année -->
+            <div>
+              <label class="form-label">Sélectionner l'année de décaissement</label>
+              <TomSelect v-model="plan.annee" :options="{ placeholder: 'Sélectionnez une année' }" class="w-full">
+                <option v-for="(year, yearIndex) in trimestreYears" :key="yearIndex" :value="year">{{ year }}</option>
+              </TomSelect>
+              <p class="text-red-500 text-[12px] mt-1" v-if="erreurPlanDeDecaissement?.[index]?.annee">
+                {{ erreurPlanDeDecaissement[index].annee }}
+              </p>
             </div>
 
-            <!-- Colonne droite : Informations contextuelles -->
-            <div class="space-y-4">
-              <!-- Durée du projet -->
-              <div v-if="getPlageProjet" class="p-3 bg-gray-50 rounded-lg">
-                <div class="flex items-center">
-                  <ClockIcon class="w-4 h-4 mr-2 text-primary" />
-                  <div class="text-sm text-gray-700">
-                    <span class="font-semibold">Durée du projet :</span><br/>
-                    Du <span class="font-bold"> {{ $h.reformatDate(getPlageProjet.debut) }}</span> au
-                    <span class="font-bold"> {{ $h.reformatDate(getPlageProjet.fin) }}</span>
-                  </div>
-                </div>
-              </div>
+            <!-- Trimestre -->
+            <div>
+              <label class="form-label">Sélectionner le trimestre</label>
+              <TomSelect v-model="plan.trimestre" :options="{ placeholder: 'Sélectionnez le trimestre' }" class="w-full">
+                <option v-for="trimestre in filteredTrimestresForPlan(plan.annee)" :key="trimestre.value" :value="trimestre.value">
+                  Trimestre {{ trimestre.trimestre }} ({{ trimestre.annee }})
+                </option>
+              </TomSelect>
+              <p class="text-red-500 text-[12px] mt-1" v-if="erreurPlanDeDecaissement?.[index]?.trimestre">
+                {{ erreurPlanDeDecaissement[index].trimestre }}
+              </p>
+            </div>
 
-              <!-- Durée de l'activité -->
-              <div v-if="dureeActivite.debut && dureeActivite.fin" class="p-3 bg-blue-50 rounded-lg">
-                <div class="flex items-center">
-                  <ClockIcon class="w-4 h-4 mr-2 text-primary" />
-                  <div class="text-sm text-gray-700">
-                    <span class="font-semibold">Durée de l'activité :</span><br/>
-                    Du <span class="font-bold"> {{ $h.reformatDate(dureeActivite.debut) }}</span> au
-                    <span class="font-bold"> {{ $h.reformatDate(dureeActivite.fin) }}</span>
-                  </div>
-                </div>
-              </div>
+            <!-- Fond propre -->
+            <div>
+              <InputForm v-model="plan.budgetNational" :min="0" type="number" :required="true" placeHolder="Saisissez le fond propre" label="Fond propre" />
+              <p class="text-red-500 text-[12px] mt-1" v-if="erreurPlanDeDecaissement?.[index]?.budgetNational">
+                {{ erreurPlanDeDecaissement[index].budgetNational }}
+              </p>
+            </div>
 
-              <!-- Plages de prolongation -->
-              <div v-if="plageDureeActivite.length > 0" class="p-3 bg-gray-50 rounded-lg">
-                <h4 class="text-sm font-semibold mb-2 text-gray-700">Plages de prolongation :</h4>
-                <div v-for="(plage, plageIndex) in plageDureeActivite" :key="plage.id" class="flex items-start mt-2">
-                  <ClockIcon class="w-4 h-4 mr-2 mt-0.5 text-primary flex-shrink-0" />
-                  <div class="text-xs text-gray-600">
-                    <span class="font-medium">Prolongation {{ plageIndex + 1 }} :</span><br/>
-                    Du <span class="font-bold"> {{ $h.reformatDate(plage.debut) }}</span> au
-                    <span class="font-bold"> {{ $h.reformatDate(plage.fin) }}</span>
-                  </div>
-                </div>
-              </div>
+            <!-- Subvention -->
+            <div>
+              <InputForm v-model="plan.pret" :min="0" type="number" :required="true" placeHolder="Saisissez la subvention" label="Subvention" />
+              <p class="text-red-500 text-[12px] mt-1" v-if="erreurPlanDeDecaissement?.[index]?.pret">
+                {{ erreurPlanDeDecaissement[index].pret }}
+              </p>
+            </div>
+          </div>
+        </div>
 
-              <!-- Plages getPlageActivite -->
-              <div v-if="getPlageActivite && getPlageActivite.durees && getPlageActivite.durees.length > 0" class="p-3 bg-gray-50 rounded-lg">
-                <h4 class="text-sm font-semibold mb-2 text-gray-700">Plages de date :</h4>
-                <div v-for="(plage, t) in getPlageActivite.durees" :key="t" class="flex items-start mt-2">
-                  <ClockIcon class="w-4 h-4 mr-2 mt-0.5 text-primary flex-shrink-0" />
-                  <div class="text-xs text-gray-600">
-                    <span class="font-medium">Plage {{ t + 1 }} :</span><br/>
-                    Du <span class="font-bold"> {{ $h.reformatDate(plage.debut) }}</span> au
-                    <span class="font-bold"> {{ $h.reformatDate(plage.fin) }}</span>
-                  </div>
-                </div>
+        <!-- Informations contextuelles en bas -->
+        <div class="col-span-12 space-y-4 mt-4">
+          <!-- Durée du projet -->
+          <div v-if="getPlageProjet" class="p-3 bg-gray-50 rounded-lg">
+            <div class="flex items-center">
+              <ClockIcon class="w-4 h-4 mr-2 text-primary" />
+              <div class="text-sm text-gray-700">
+                <span class="font-semibold">Durée du projet :</span><br />
+                Du <span class="font-bold"> {{ $h.reformatDate(getPlageProjet.debut) }}</span> au
+                <span class="font-bold"> {{ $h.reformatDate(getPlageProjet.fin) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Durée de l'activité -->
+          <div v-if="dureeActivite.debut && dureeActivite.fin" class="p-3 bg-blue-50 rounded-lg">
+            <div class="flex items-center">
+              <ClockIcon class="w-4 h-4 mr-2 text-primary" />
+              <div class="text-sm text-gray-700">
+                <span class="font-semibold">Durée de l'activité :</span><br />
+                Du <span class="font-bold"> {{ $h.reformatDate(dureeActivite.debut) }}</span> au
+                <span class="font-bold"> {{ $h.reformatDate(dureeActivite.fin) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Plages de prolongation -->
+          <div v-if="plageDureeActivite.length > 0" class="p-3 bg-gray-50 rounded-lg">
+            <h4 class="text-sm font-semibold mb-2 text-gray-700">Plages de prolongation :</h4>
+            <div v-for="(plage, plageIndex) in plageDureeActivite" :key="plage.id" class="flex items-start mt-2">
+              <ClockIcon class="w-4 h-4 mr-2 mt-0.5 text-primary flex-shrink-0" />
+              <div class="text-xs text-gray-600">
+                <span class="font-medium">Prolongation {{ plageIndex + 1 }} :</span><br />
+                Du <span class="font-bold"> {{ $h.reformatDate(plage.debut) }}</span> au
+                <span class="font-bold"> {{ $h.reformatDate(plage.fin) }}</span>
               </div>
             </div>
           </div>
         </div>
 
-      
         <!-- Affiche montantRestantADeecaisser en fonction de loaderListePlan -->
         <div class="col-span-12 mt-4">
           <div class="p-4 bg-blue-50 rounded-lg border border-blue-200">
@@ -1494,9 +1565,7 @@ export default {
               </div>
               <div class="flex justify-between items-center pt-3 border-t border-blue-300">
                 <p class="text-sm font-semibold text-gray-700">Montant restant à décaisser:</p>
-                <p class="text-xl font-bold" :class="montantRestantADecaisser >= 0 ? 'text-green-600' : 'text-red-600'">
-                  {{ $h.formatCurrency(montantRestantADecaisser) }} FCFA
-                </p>
+                <p class="text-xl font-bold" :class="montantRestantADecaisser >= 0 ? 'text-green-600' : 'text-red-600'">{{ $h.formatCurrency(montantRestantADecaisser) }} FCFA</p>
               </div>
             </div>
           </div>
