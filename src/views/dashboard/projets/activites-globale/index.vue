@@ -1238,7 +1238,7 @@ export default {
                 </div>
 
                 
-                <pre>Statut {{ item.statut }}</pre>
+               
                 <div class="flex items-center text-sm font-medium text-gray-700">
                   <CheckSquareIcon class="w-4 h-4 mr-2 text-primary" /> Statut:
                   <span v-if="item.statut == -2" class="ml-2 text-gray-900">Non validé</span>
