@@ -1,7 +1,8 @@
 <template>
   <div class="flex w-full gap-2">
     <Transition name="menu">
-      <section :class="[showMenu ? 'translate-x-0 w-[30%] border-r-2' : '-translate-x-full w-0']" class="h-screen pt-[130px] pr-1 overflow-y-auto transition-transform duration-300 transform menu-crud">
+      <section :class="[showMenu ? 'translate-x-0 w-[30%] border-r-2' : '-translate-x-full w-0']"
+        class="h-screen pt-[130px] pr-1 overflow-y-auto transition-transform duration-300 transform menu-crud">
         <div :class="['transition-all', showMenu ? '' : 'hidden']">
           <AccordionGroup :selectedIndex="null" class="space-y-1">
             <AccordionItem class="">
@@ -48,13 +49,17 @@
     </Transition>
 
     <section :class="[showMenu ? 'w-[70%]' : 'w-[100%]']" class="pt-5">
-      <button class="text-sm btn" @click="displayMenu"><ChevronsLeftIcon class="mr-1 size-3" />{{ showMenu ? "Cacher le menu" : "Afficher le menu" }}</button>
+      <button class="text-sm btn" @click="displayMenu">
+        <ChevronsLeftIcon class="mr-1 size-3" />{{ showMenu ? "Cacher le menu" : "Afficher le menu" }}
+      </button>
 
       <div class="flex items-center justify-between gap-2 my-2">
         <h2 class="text-lg font-medium intro-y">Liste des indicateurs</h2>
         <!-- Button to open modal -->
         <div v-if="verifyPermission('voir-un-indicateur')" class="flex items-center justify-end gap-2">
-          <button class="text-base btn btn-primary" @click="openCreateModal"><PlusIcon class="mr-1 size-4" />Ajouter</button>
+          <button class="text-base btn btn-primary" @click="openCreateModal">
+            <PlusIcon class="mr-1 size-4" />Ajouter
+          </button>
         </div>
       </div>
       <div class="grid grid-cols-12 gap-6 mt-5">
@@ -68,15 +73,24 @@
         </div>
       </div>
       <div>
-        
+
         <LoaderSnipper v-if="isLoadingDataCadre" />
-        <TabulatorCadreMesure v-else :data="dataAvailable" :unites="unites" :categories="categories" :years="annees" :ongs="responsables" :ugs="ugs" :prop-sites="sites" @update-datas="getDatasCadre" @refreshData="refreshDatasCadreSilently" />
-        <div v-if="!isLoadingDataCadre && verifyPermission('voir-un-indicateur')" class="flex justify-center gap-3 my-8">
-          <button @click="prevPage" :disabled="currentPage === 1" class="px-4 py-3 btn btn-outline-primary"><ChevronsLeftIcon class="size-5" /></button>
+        <TabulatorCadreMesure v-else :data="dataAvailable" :unites="unites" :categories="categories" :years="annees"
+          :ongs="responsables" :ugs="ugs" :prop-sites="sites" @update-datas="getDatasCadre"
+          @refreshData="refreshDatasCadreSilently" />
+        <div v-if="!isLoadingDataCadre && verifyPermission('voir-un-indicateur')"
+          class="flex justify-center gap-3 my-8">
+          <button @click="prevPage" :disabled="currentPage === 1" class="px-4 py-3 btn btn-outline-primary">
+            <ChevronsLeftIcon class="size-5" />
+          </button>
           <div class="max-w-[400px] overflow-x-auto flex items-center gap-3">
-            <button v-for="page in totalPages" :key="page" @click="goToPage(page)" :class="page === currentPage ? 'btn-primary' : 'btn-outline-primary'" class="px-4 py-3 btn">{{ page }}</button>
+            <button v-for="page in totalPages" :key="page" @click="goToPage(page)"
+              :class="page === currentPage ? 'btn-primary' : 'btn-outline-primary'" class="px-4 py-3 btn">{{ page
+              }}</button>
           </div>
-          <button @click="nextPage" :disabled="currentPage === totalPages" class="px-4 py-3 btn btn-outline-primary"><ChevronsRightIcon class="size-5" /></button>
+          <button @click="nextPage" :disabled="currentPage === totalPages" class="px-4 py-3 btn btn-outline-primary">
+            <ChevronsRightIcon class="size-5" />
+          </button>
         </div>
         <!-- <LoaderSnipper v-else /> -->
 
@@ -87,9 +101,13 @@
           </ModalHeader>
           <form @submit.prevent="submitData">
             <ModalBody>
-              <ol class="items-center justify-center w-full mb-3 space-y-4 sm:flex sm:space-x-8 sm:space-y-0 rtl:space-x-reverse">
-                <li v-for="step in steps" @click="goToStep(step.id)" :key="step.id" :class="[currentStep == step.id ? 'text-blue-800' : 'text-gray-500']" class="flex cursor-pointer items-center space-x-2.5 rtl:space-x-reverse">
-                  <span :class="[currentStep == step.id ? 'border-blue-800 ' : 'border-gray-500']" class="flex items-center justify-center w-8 h-8 border rounded-full shrink-0"> {{ step.id }} </span>
+              <ol
+                class="items-center justify-center w-full mb-3 space-y-4 sm:flex sm:space-x-8 sm:space-y-0 rtl:space-x-reverse">
+                <li v-for="step in steps" @click="goToStep(step.id)" :key="step.id"
+                  :class="[currentStep == step.id ? 'text-blue-800' : 'text-gray-500']"
+                  class="flex cursor-pointer items-center space-x-2.5 rtl:space-x-reverse">
+                  <span :class="[currentStep == step.id ? 'border-blue-800 ' : 'border-gray-500']"
+                    class="flex items-center justify-center w-8 h-8 border rounded-full shrink-0"> {{ step.id }} </span>
                   <span>
                     <h3 class="font-medium leading-tight">Étape {{ step.id }}</h3>
                     <p class="text-sm">{{ step.label }}</p>
@@ -103,13 +121,16 @@
 
                 <div class="grid grid-cols-1 gap-4">
                   <div class="flex flex-wrap items-center justify-between gap-3">
-                    <InputForm class="flex-1" :required="false" :optionel="false" :control="getFieldErrors(errors.nom)" label="Nom" v-model="payload.nom" />
+                    <InputForm class="flex-1" :required="false" :optionel="false" :control="getFieldErrors(errors.nom)"
+                      label="Nom" v-model="payload.nom" />
                     <div class="flex-1">
                       <label class="form-label" for="description">Description</label>
                       <div class="">
-                        <textarea name="description" class="form-control" id="description" v-model="payload.description" cols="30" rows="1"></textarea>
+                        <textarea name="description" class="form-control" id="description" v-model="payload.description"
+                          cols="30" rows="1"></textarea>
                       </div>
-                      <div v-if="errors.description" class="mt-2 text-danger">{{ getFieldErrors(errors.description) }}</div>
+                      <div v-if="errors.description" class="mt-2 text-danger">{{ getFieldErrors(errors.description) }}
+                      </div>
                     </div>
                   </div>
                   <div class="flex flex-wrap items-center justify-between gap-3">
@@ -117,19 +138,23 @@
                       <input id="agreer" class="form-check-input" type="checkbox" v-model="payload.agreger" />
                       <label class="form-check-label" for="agreer">Indicateur Agréger</label>
                     </div>
-                    <InputForm class="flex-1" label="Indice" :optionel="false" v-model="payload.indice" :required="false" :control="getFieldErrors(errors.indice)" type="number" />
+                    <InputForm class="flex-1" label="Indice" :optionel="false" v-model="payload.indice"
+                      :required="false" :control="getFieldErrors(errors.indice)" type="number" />
                   </div>
                   <div class="flex flex-wrap items-center justify-between gap-3">
                     <div class="flex-1">
                       <label class="form-label">Année de base</label>
-                      <TomSelect v-model="payload.anneeDeBase" :required="false" name="annee_suivi" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+                      <TomSelect v-model="payload.anneeDeBase" :required="false" name="annee_suivi"
+                        :options="{ placeholder: 'Selectionez une année' }" class="w-full">
                         <option value=""></option>
                         <option v-for="annee in annees" :key="annee" :value="annee">{{ annee }}</option>
                       </TomSelect>
-                      <div v-if="errors.anneeDeBase" class="mt-2 text-danger">{{ getFieldErrors(errors.anneeDeBase) }}</div>
+                      <div v-if="errors.anneeDeBase" class="mt-2 text-danger">{{ getFieldErrors(errors.anneeDeBase) }}
+                      </div>
                     </div>
 
-                    <InputForm v-if="!payload.agreger" class="flex-1" label="Valeur de base" :required="false" :control="getFieldErrors(errors.valeurDeBase)" v-model="payloadNotAgreger.valeurDeBase" />
+                    <InputForm v-if="!payload.agreger" class="flex-1" label="Valeur de base" :required="false"
+                      :control="getFieldErrors(errors.valeurDeBase)" v-model="payloadNotAgreger.valeurDeBase" />
                   </div>
 
                   <div class="flex flex-wrap items-center justify-between gap-3">
@@ -138,44 +163,62 @@
                       <div class="flex gap-1 place-items-end">
                         <div class="flex-1">
                           <label class="form-label">Année cible <span class="text-danger">*</span> </label>
-                          <TomSelect v-model="currentAnneeCibleNotAgreger.annee" name="annee_aggrer" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+                          <TomSelect v-model="currentAnneeCibleNotAgreger.annee" name="annee_aggrer"
+                            :options="{ placeholder: 'Selectionez une année' }" class="w-full">
                             <option value=""></option>
                             <option v-for="annee in annees" :key="annee" :value="annee">{{ annee }}</option>
                           </TomSelect>
                         </div>
 
                         <div class="flex flex-1 gap-1">
-                          <input type="number" class="form-control" id="valeur_cible" placeholder="Valeur cible" v-model="currentAnneeCibleNotAgreger.valeurCible" />
-                          <button @click.prevent="addAnneeCibleNotAgreger" class="btn btn-primary h-9"><PlusIcon class="mr-1 size-3" /></button>
+                          <input type="number" class="form-control" id="valeur_cible" placeholder="Valeur cible"
+                            v-model="currentAnneeCibleNotAgreger.valeurCible" />
+                          <button @click.prevent="addAnneeCibleNotAgreger" class="btn btn-primary h-9">
+                            <PlusIcon class="mr-1 size-3" />
+                          </button>
                         </div>
                       </div>
-                      <div v-if="errors.valeurDeBase" class="mt-2 text-danger">{{ getFieldErrors(errors.valeurDeBase) }}</div>
-                      <div v-if="errors.anneesCible" class="mt-2 text-danger">{{ getFieldErrors(errors.anneesCible) }}</div>
+                      <div v-if="errors.valeurDeBase" class="mt-2 text-danger">{{ getFieldErrors(errors.valeurDeBase) }}
+                      </div>
+                      <div v-if="errors.anneesCible" class="mt-2 text-danger">{{ getFieldErrors(errors.anneesCible) }}
+                      </div>
                     </div>
                   </div>
-                  <div v-if="!payload.agreger && payloadNotAgreger.anneesCible.length > 0" class="flex flex-wrap items-center w-full gap-3">
+                  <div v-if="!payload.agreger && payloadNotAgreger.anneesCible.length > 0"
+                    class="flex flex-wrap items-center w-full gap-3">
                     <p>Années cible:</p>
-                    <div :title="annee.valeurCible" class="flex items-center justify-between gap-1 px-2 py-0.5 text-sm font-normal bg-white rounded-full shadow cursor-pointer text-primary" v-for="(annee, index) in payloadNotAgreger.anneesCible" :key="index">
-                      <span class="font-medium"
-                        >{{ annee.annee }} : <span class="font-normal text-slate-600">{{ annee.valeurCible }} </span></span
-                      >
-                      <button @click.prevent="deleteAnneeCibleNotAgreger(index)" class="p-1.5 transition-colors rounded-full hover:bg-red-100"><XIcon class="size-4 text-danger" /></button>
+                    <div :title="annee.valeurCible"
+                      class="flex items-center justify-between gap-1 px-2 py-0.5 text-sm font-normal bg-white rounded-full shadow cursor-pointer text-primary"
+                      v-for="(annee, index) in payloadNotAgreger.anneesCible" :key="index">
+                      <span class="font-medium">{{ annee.annee }} : <span class="font-normal text-slate-600">{{
+                        annee.valeurCible }} </span></span>
+                      <button @click.prevent="deleteAnneeCibleNotAgreger(index)"
+                        class="p-1.5 transition-colors rounded-full hover:bg-red-100">
+                        <XIcon class="size-4 text-danger" />
+                      </button>
                     </div>
-                    <div v-if="errors.valeurDeBase" class="mt-2 text-danger">{{ getFieldErrors(errors.valeurDeBase) }}</div>
-                    <div v-if="errors.anneesCible" class="mt-2 text-danger">{{ getFieldErrors(errors.anneesCible) }}</div>
+                    <div v-if="errors.valeurDeBase" class="mt-2 text-danger">{{ getFieldErrors(errors.valeurDeBase) }}
+                    </div>
+                    <div v-if="errors.anneesCible" class="mt-2 text-danger">{{ getFieldErrors(errors.anneesCible) }}
+                    </div>
                   </div>
 
                   <div class="flex flex-wrap items-center justify-between gap-3">
                     <div v-if="payload.agreger" class="flex-1">
                       <label class="form-label">Clé valeur</label>
                       <div class="flex gap-1">
-                        <TomSelect v-model="array_value_keys" name="keys" multiple :options="{ placeholder: 'Selectionez les clés valeur' }" class="w-full">
+                        <TomSelect v-model="array_value_keys" name="keys" multiple
+                          :options="{ placeholder: 'Selectionez les clés valeur' }" class="w-full">
                           <option v-for="(key, index) in keys" :key="index" :value="key.id">{{ key.libelle }}</option>
                         </TomSelect>
-                        <button class="flex-1 text-sm btn btn-primary" @click.prevent="(showModalKey = true), handleParentClick()"><PlusIcon class="mr-1 size-3" /></button>
+                        <button class="flex-1 text-sm btn btn-primary"
+                          @click.prevent="(showModalKey = true), handleParentClick()">
+                          <PlusIcon class="mr-1 size-3" />
+                        </button>
                       </div>
 
-                      <div v-if="errors.value_keys" class="mt-2 text-danger">{{ getFieldErrors(errors.value_keys) }}</div>
+                      <div v-if="errors.value_keys" class="mt-2 text-danger">{{ getFieldErrors(errors.value_keys) }}
+                      </div>
                     </div>
                   </div>
                   <div v-if="array_value_keys.length > 0 && payload.agreger" class="">
@@ -183,37 +226,63 @@
                     <div class="grid gap-3 grid-cols-[repeat(auto-fill,_minmax(350px,_1fr))]">
                       <div v-for="(base, index) in filterValueKeys" :key="index" class="input-group">
                         <div class="flex items-center justify-center text-sm input-group-text">{{ base.libelle }}</div>
-                        <input type="text" v-model="valeur[base.id]" class="form-control" placeholder="valeur" aria-label="valeur" aria-describedby="input-group-valeur" />
+                        <input type="text" v-model="valeur[base.id]" class="form-control" placeholder="valeur"
+                          aria-label="valeur" aria-describedby="input-group-valeur" />
                       </div>
                     </div>
                   </div>
                   <div v-if="payload.agreger" class="space-y-3">
-                    <button v-show="array_value_keys.length > 0" class="text-sm btn btn-primary" @click.prevent="openAddAnneeCibleModal"><PlusIcon class="mr-1 size-3" /> Ajouter une année cible</button>
+                    <button v-show="array_value_keys.length > 0" class="text-sm btn btn-primary"
+                      @click.prevent="openAddAnneeCibleModal">
+                      <PlusIcon class="mr-1 size-3" /> Ajouter une année cible
+                    </button>
                   </div>
                   <div v-if="payload.agreger && anneesCible.length > 0" class="w-full space-y-3">
                     <p class="font-medium text-slate-700">Années cibles configurées :</p>
                     <div class="space-y-3">
-                      <div v-for="(annee, index) in anneesCible" :key="index" class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                      <div v-for="(annee, index) in anneesCible" :key="index"
+                        class="p-4 bg-gray-50 rounded-lg border border-gray-200">
                         <div class="flex items-center justify-between mb-3">
                           <h4 class="font-semibold text-lg text-primary">Année {{ annee.annee }}</h4>
                           <div class="flex items-center gap-2">
-                            <button @click.prevent="editAnneeCible(index)" class="p-2 transition-colors rounded-lg hover:bg-blue-100 bg-blue-50" title="Modifier">
+                            <button @click.prevent="editAnneeCible(index)"
+                              class="p-2 transition-colors rounded-lg hover:bg-blue-100 bg-blue-50" title="Modifier">
                               <Edit3Icon class="size-4 text-blue-600" />
                             </button>
-                            <button @click.prevent="deleteAnneeCible(index)" class="p-2 transition-colors rounded-lg hover:bg-red-100 bg-red-50" title="Supprimer">
+                            <button @click.prevent="deleteAnneeCible(index)"
+                              class="p-2 transition-colors rounded-lg hover:bg-red-100 bg-red-50" title="Supprimer">
                               <XIcon class="size-4 text-red-600" />
                             </button>
                           </div>
                         </div>
-                        <div class="grid gap-2 grid-cols-[repeat(auto-fill,_minmax(200px,_1fr))]">
-                          <div v-for="valeur in annee.valeurCible" :key="valeur.keyId" class="flex items-center justify-between p-2 bg-white rounded border">
-                            <span class="text-sm font-medium text-slate-600">{{ getKeyLabel(valeur.keyId) }}</span>
-                            <span class="text-sm font-semibold text-slate-900">{{ valeur.value || '—' }}</span>
+                        <div class="grid gap-2 grid-cols-[repeat(auto-fill,_minmax(250px,_1fr))]">
+                          <div v-for="valeur in annee.valeurCible" :key="valeur.keyId"
+                            class="group flex items-center justify-between gap-2 p-2 bg-white rounded border hover:border-blue-300 transition-all duration-200"
+                            :class="{ 'border-green-300 bg-green-50': isNewlyAddedKey(valeur.keyId) }">
+                            <span class="text-sm font-medium text-slate-600 flex-shrink-0"
+                              :class="{ 'text-green-700': isNewlyAddedKey(valeur.keyId) }">
+                              {{ getKeyLabel(valeur.keyId) }}
+                              <span v-if="isNewlyAddedKey(valeur.keyId)"
+                                class="ml-1 text-xs text-green-600 font-medium">(nouveau)</span>
+                            </span>
+                            <div class="relative">
+                              <input type="number" v-model="valeur.value" @blur="onValeurChange"
+                                @keyup.enter="$event.target.blur()" @focus="$event.target.select()"
+                                class="text-sm font-semibold text-slate-900 bg-transparent border-0 text-right focus:bg-blue-50 focus:ring-1 focus:ring-blue-500 rounded px-2 py-1 w-24 transition-all"
+                                :class="{ 'focus:bg-green-50 focus:ring-green-500': isNewlyAddedKey(valeur.keyId) }"
+                                placeholder="0" step="any" />
+                              <div
+                                class="absolute inset-y-0 right-0 flex items-center pr-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <EditIcon class="w-3 h-3 text-slate-400" />
+                              </div>
+                            </div>
                           </div>
                         </div>
+
                       </div>
                     </div>
-                    <div v-if="errors.anneesCible" class="mt-2 text-danger">{{ getFieldErrors(errors.anneesCible) }}</div>
+                    <div v-if="errors.anneesCible" class="mt-2 text-danger">{{ getFieldErrors(errors.anneesCible) }}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -227,95 +296,149 @@
                     <div class="flex-1">
                       <label class="form-label">Catégorie <span class="text-danger">*</span> </label>
                       <div class="flex gap-1">
-                        <TomSelect v-model="payload.categorieId" name="category" :options="{ placeholder: 'Selectionez une catégorie' }" class="w-full">
+                        <TomSelect v-model="payload.categorieId" name="category"
+                          :options="{ placeholder: 'Selectionez une catégorie' }" class="w-full">
                           <option value=""></option>
-                          <option v-for="(categorie, index) in categories" :key="categorie.id" :value="categorie.id">{{ truncateText(categorie.type + " " + categorie.indice + " " + categorie.nom) }}</option>
+                          <option v-for="(categorie, index) in categories" :key="categorie.id" :value="categorie.id">{{
+                            truncateText(categorie.type + " " + categorie.indice + " " + categorie.nom) }}</option>
                         </TomSelect>
-                        <button class="flex-1 text-sm btn btn-primary" @click.prevent="showModalCategorie = true"><PlusIcon class="mr-1 size-3" /></button>
+                        <button class="flex-1 text-sm btn btn-primary" @click.prevent="showModalCategorie = true">
+                          <PlusIcon class="mr-1 size-3" />
+                        </button>
                       </div>
-                      <div v-if="errors.categorieId" class="mt-2 text-danger">{{ getFieldErrors(errors.categorieId) }}</div>
+                      <div v-if="errors.categorieId" class="mt-2 text-danger">{{ getFieldErrors(errors.categorieId) }}
+                      </div>
                     </div>
                     <div class="flex-1">
                       <label class="form-label">Type de variables <span class="text-danger">*</span> </label>
-                      <TomSelect v-model="payload.type_de_variable" name="type_variable" :options="{ placeholder: 'Selectionez un type de variable' }" class="w-full">
+                      <TomSelect v-model="payload.type_de_variable" name="type_variable"
+                        :options="{ placeholder: 'Selectionez un type de variable' }" class="w-full">
                         <option value=""></option>
-                        <option v-for="(variable, index) in payload.agreger ? type_variablees : type_variablees_agreger" :key="index" :value="variable.id">{{ variable.label }}</option>
+                        <option v-for="(variable, index) in payload.agreger ? type_variablees : type_variablees_agreger"
+                          :key="index" :value="variable.id">{{ variable.label }}</option>
                       </TomSelect>
-                      <div v-if="errors.type_de_variable" class="mt-2 text-danger">{{ getFieldErrors(errors.type_de_variable) }}</div>
+                      <div v-if="errors.type_de_variable" class="mt-2 text-danger">{{
+                        getFieldErrors(errors.type_de_variable) }}</div>
                     </div>
                   </div>
                   <div class="flex flex-wrap items-center justify-between gap-3">
                     <div class="flex-1">
                       <label class="form-label">Méthode de la collecte des données</label>
-                      <TomSelect v-model="payload.methode_de_la_collecte" name="method" :options="{ placeholder: 'Selectionez une methode' }" class="w-full">
+                      <TomSelect v-model="payload.methode_de_la_collecte" name="method"
+                        :options="{ placeholder: 'Selectionez une methode' }" class="w-full">
                         <option value=""></option>
-                        <option v-for="(methode, index) in methodeCollecte" :key="index" :value="methode">{{ methode }}</option>
+                        <option v-for="(methode, index) in methodeCollecte" :key="index" :value="methode">{{ methode }}
+                        </option>
                       </TomSelect>
-                      <div v-if="errors.methode_de_la_collecte" class="mt-2 text-danger">{{ getFieldErrors(errors.methode_de_la_collecte) }}</div>
+                      <div v-if="errors.methode_de_la_collecte" class="mt-2 text-danger">{{
+                        getFieldErrors(errors.methode_de_la_collecte) }}</div>
                     </div>
                     <div class="flex-1">
                       <label class="form-label">Fréquence de la collecte de données</label>
-                      <TomSelect v-model="payload.frequence_de_la_collecte" :options="{ placeholder: 'Selectionez une fréquence' }" class="w-full">
+                      <TomSelect v-model="payload.frequence_de_la_collecte"
+                        :options="{ placeholder: 'Selectionez une fréquence' }" class="w-full">
                         <option value=""></option>
-                        <option v-for="(frequence, index) in frequenceCollecte" :key="index" :value="frequence">{{ frequence }}</option>
+                        <option v-for="(frequence, index) in frequenceCollecte" :key="index" :value="frequence">{{
+                          frequence }}</option>
                       </TomSelect>
-                      <div v-if="errors.frequence_de_la_collecte" class="mt-2 text-danger">{{ getFieldErrors(errors.frequence_de_la_collecte) }}</div>
+                      <div v-if="errors.frequence_de_la_collecte" class="mt-2 text-danger">{{
+                        getFieldErrors(errors.frequence_de_la_collecte) }}</div>
                     </div>
                   </div>
                   <div class="flex-1">
                     <label class="form-label">UG <span class="text-danger">*</span> </label>
-                    <TomSelect v-model="responsablesForm.ug" name="ug" :options="{ placeholder: 'Selectionez un UG' }" class="w-full">
+                    <TomSelect v-model="responsablesForm.ug" name="ug" :options="{ placeholder: 'Selectionez un UG' }"
+                      class="w-full">
                       <option v-for="(ug, index) in ugs" :key="index" :value="ug.id">{{ ug.nom }}</option>
                     </TomSelect>
-                    <div v-if="errors['responsables.ug']" class="mt-2 text-danger">{{ getFieldErrors(errors["responsables.ug"]) }}</div>
+                    <div v-if="errors['responsables.ug']" class="mt-2 text-danger">{{
+                      getFieldErrors(errors["responsables.ug"]) }}</div>
                   </div>
                   <div class="flex flex-wrap items-center justify-between gap-3">
                     <div class="flex-1">
                       <label class="form-label">Responsables <span class="text-danger">*</span> </label>
-                      <TomSelect v-model="responsablesForm.organisations" name="responsable" multiple :options="{ placeholder: 'Selectionez un responsable' }" class="w-full">
+
+                      <TomSelect v-model="responsablesForm.organisations" name="responsable" multiple
+                        :options="{ placeholder: 'Selectionez un responsable' }" class="w-full">
                         <option value=""></option>
-                        <option v-for="(responsable, index) in responsables" :key="index" :value="responsable.id">{{ responsable.nom }}</option>
+                        <option v-for="(responsable, index) in responsables" :key="index" :value="responsable.id">{{
+                          responsable.nom }}</option>
                       </TomSelect>
-                      <div v-if="errors['responsables.organisations']" class="mt-2 text-danger">{{ getFieldErrors(errors["responsables.organisations"]) }}</div>
+
+                      <!--<v-select multiple class="w-full" :reduce="(ong) => ong.id" v-model="responsablesForm.organisations" label="nom" :options="responsables" placeholder="Selectionner une organisation...">
+                        <template v-if="responsablesForm.organisations.length === 0" #search="{ attributes, events }">
+                          <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher une organisation..." />
+                        </template>
+
+<-- Selected value display ->
+  <template v-else #selected="{ nom }">
+                          {{ nom }}
+                        </template>
+  <-- Custom option template to show organization name ->
+    <template #option="{ nom }">
+                          {{ nom }}
+                        </template>
+    </v-select>
+    -->
+                      <!-- <div v-if="errors.responsables.organisations" class="mt-2 text-danger">{{
+                        getFieldErrors(errors.responsables.organisations) }}</div> -->
+
+                      <div v-if="errors['responsables.organisations']" class="mt-2 text-danger">{{
+                        getFieldErrors(errors["responsables.organisations"]) }}</div>
                     </div>
                     <div class="flex-1">
                       <label class="form-label">Unité de mesure <span class="text-danger">*</span> </label>
                       <div class="flex gap-1">
-                        <TomSelect v-model="payload.uniteeMesureId" name="unite" :options="{ placeholder: 'Selectionez une unité de mesure' }" class="w-full">
+                        <TomSelect v-model="payload.uniteeMesureId" name="unite"
+                          :options="{ placeholder: 'Selectionez une unité de mesure' }" class="w-full">
                           <option value=""></option>
-                          <option v-for="(unite, index) in unites" :key="index" :value="unite.id">{{ unite.nom }}</option>
+                          <option v-for="(unite, index) in unites" :key="index" :value="unite.id">{{ unite.nom }}
+                          </option>
                         </TomSelect>
-                        <button class="flex-1 text-sm btn btn-primary" @click.prevent="showModalUniteMesure = true"><PlusIcon class="mr-1 size-3" /></button>
+                        <button class="flex-1 text-sm btn btn-primary" @click.prevent="showModalUniteMesure = true">
+                          <PlusIcon class="mr-1 size-3" />
+                        </button>
                       </div>
-                      <div v-if="errors.uniteeMesureId" class="mt-2 text-danger">{{ getFieldErrors(errors.uniteeMesureId) }}</div>
+                      <div v-if="errors.uniteeMesureId" class="mt-2 text-danger">{{
+                        getFieldErrors(errors.uniteeMesureId) }}</div>
                     </div>
                   </div>
+
                   <div class="flex flex-wrap items-center justify-between w-full gap-3">
                     <div class="flex-1">
                       <label class="form-label">Zone d'intervention <span class="text-danger">*</span> </label>
                       <div class="flex gap-1">
-                        <TomSelect v-model="payload.sites" multiple name="site" :options="{ placeholder: 'Selectionez les sites' }" class="w-full">
+                        <TomSelect v-model="payload.sites" multiple name="site"
+                          :options="{ placeholder: 'Selectionez les sites' }" class="w-full">
                           <option value=""></option>
                           <option v-for="(site, index) in sites" :key="index" :value="site.id">{{ site.nom }}</option>
                         </TomSelect>
-                        <button class="flex-1 text-sm btn btn-primary" @click.prevent="showModalZone = true"><PlusIcon class="mr-1 size-3" /></button>
+                        <button class="flex-1 text-sm btn btn-primary" @click.prevent="showModalZone = true">
+                          <PlusIcon class="mr-1 size-3" />
+                        </button>
                       </div>
                       <div v-if="errors.sites" class="mt-2 text-danger">{{ getFieldErrors(errors.sites) }}</div>
                     </div>
                     <div class="flex-1">
                       <label class="form-label">Source de données</label>
-                      <TomSelect v-model="payload.sources_de_donnee" name="source" :options="{ placeholder: 'Selectionez une source' }" class="w-full">
+                      <TomSelect v-model="payload.sources_de_donnee" name="source"
+                        :options="{ placeholder: 'Selectionez une source' }" class="w-full">
                         <option value=""></option>
-                        <option v-for="(source, index) in sourcesDonnees" :key="index" :value="source">{{ source }}</option>
+                        <option v-for="(source, index) in sourcesDonnees" :key="index" :value="source">{{ source }}
+                        </option>
                       </TomSelect>
-                      <div v-if="errors.sources_de_donnee" class="mt-2 text-danger">{{ getFieldErrors(errors.sources_de_donnee) }}</div>
+                      <div v-if="errors.sources_de_donnee" class="mt-2 text-danger">{{
+                        getFieldErrors(errors.sources_de_donnee) }}
+                      </div>
                     </div>
                   </div>
                   <div class="flex flex-wrap items-center justify-between w-full gap-3">
                     <div class="flex-1">
                       <label class="form-label" for="hypothese">Hypothèses et risques</label>
                       <div class="">
-                        <textarea name="hypothese" class="form-control" id="hypothese" v-model="payload.hypothese" cols="30" rows="3" placeholder="Décrivez les hypothèses et risques liés à cet indicateur"></textarea>
+                        <textarea name="hypothese" class="form-control" id="hypothese" v-model="payload.hypothese"
+                          cols="30" rows="3"
+                          placeholder="Décrivez les hypothèses et risques liés à cet indicateur"></textarea>
                       </div>
                       <div v-if="errors.hypothese" class="mt-2 text-danger">{{ getFieldErrors(errors.hypothese) }}</div>
                     </div>
@@ -324,20 +447,30 @@
               </div>
               <!-- END -->
               <div class="flex justify-end gap-3 py-4 mt-5">
-                <button @click.prevent="prevStep" :class="[currentStep == 1 ? ' opacity-50 cursor-not-allowed pointer-events-none' : '']" class="flex items-center justify-center mr-1 btn btn-outline-primary">
+                <button @click.prevent="prevStep"
+                  :class="[currentStep == 1 ? ' opacity-50 cursor-not-allowed pointer-events-none' : '']"
+                  class="flex items-center justify-center mr-1 btn btn-outline-primary">
                   <ChevronsLeftIcon class="size-4" />
                 </button>
-                <button v-for="step in steps" :key="step.id" :class="[step.id == currentStep ? 'btn-primary' : 'btn-outline-primary']" @click.prevent="goToStep(step.id)" class="flex items-center justify-center rounded-full btn size-8">{{ step.id }}</button>
-                <button @click.prevent="nextStep" :class="[currentStep == steps.length ? ' opacity-50 cursor-not-allowed pointer-events-none' : '']" class="flex items-center justify-center ml-1 text-black btn btn-outline-primary">
+                <button v-for="step in steps" :key="step.id"
+                  :class="[step.id == currentStep ? 'btn-primary' : 'btn-outline-primary']"
+                  @click.prevent="goToStep(step.id)" class="flex items-center justify-center rounded-full btn size-8">{{
+                    step.id }}</button>
+                <button @click.prevent="nextStep"
+                  :class="[currentStep == steps.length ? ' opacity-50 cursor-not-allowed pointer-events-none' : '']"
+                  class="flex items-center justify-center ml-1 text-black btn btn-outline-primary">
                   <ChevronsRightIcon class="text-black size-4" />
                 </button>
               </div>
             </ModalBody>
             <ModalFooter>
               <div class="flex gap-2">
-                <button type="button" @click="resetForm" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
+                <button type="button" @click="resetForm"
+                  class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
                 <VButton v-if="currentStep == steps.length" :loading="isLoading" :label="modeText" />
-                <VButton v-else :loading="isLoading" @click.prevent="nextStep" :class="[currentStep == steps.length ? ' opacity-50 cursor-not-allowed pointer-events-none' : '']" label="Suivant" />
+                <VButton v-else :loading="isLoading" @click.prevent="nextStep"
+                  :class="[currentStep == steps.length ? ' opacity-50 cursor-not-allowed pointer-events-none' : '']"
+                  label="Suivant" />
               </div>
             </ModalFooter>
           </form>
@@ -346,7 +479,8 @@
         <!-- Modal for Annee -->
         <Modal :show="showModalAnnee" @hidden="showModalAnnee = false">
           <ModalHeader>
-            <h2 class="mr-auto text-base font-medium">{{ isEditingAnneeCible ? 'Modifier' : 'Ajouter' }} une année cible</h2>
+            <h2 class="mr-auto text-base font-medium">{{ isEditingAnneeCible ? 'Modifier' : 'Ajouter' }} une année cible
+            </h2>
           </ModalHeader>
           <form @submit.prevent="addAnneeCible">
             <ModalBody>
@@ -355,7 +489,8 @@
                 <!-- <InputForm label="Année" v-model="currentAnneeCible.annee" type="number" placeholder="Entrez l'année" /> -->
                 <div class="flex-1">
                   <label class="form-label">Année</label>
-                  <TomSelect v-model="currentAnneeCible.annee" name="annee_aggrer" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+                  <TomSelect v-model="currentAnneeCible.annee" name="annee_aggrer"
+                    :options="{ placeholder: 'Selectionez une année' }" class="w-full">
                     <option value=""></option>
                     <option v-for="annee in annees" :key="annee" :value="annee">{{ annee }}</option>
                   </TomSelect>
@@ -367,7 +502,8 @@
                       <div class="flex items-center justify-center text-sm input-group-text">
                         {{ key.libelle }}
                       </div>
-                      <input type="text" v-model="currentAnneeCible.valeurCible[index].value" class="form-control" placeholder="valeur" aria-label="valeur" />
+                      <input type="text" v-model="currentAnneeCible.valeurCible[index].value" class="form-control"
+                        placeholder="valeur" aria-label="valeur" />
                     </div>
                   </div>
                 </div>
@@ -375,7 +511,8 @@
             </ModalBody>
             <ModalFooter>
               <div class="flex gap-2">
-                <button type="button" @click="resetFormAnnee" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
+                <button type="button" @click="resetFormAnnee"
+                  class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
                 <VButton :label="isEditingAnneeCible ? 'Modifier' : 'Ajouter'" />
               </div>
             </ModalFooter>
@@ -481,6 +618,8 @@ const anneesCible = ref([]);
 // Variables pour la modification des années cibles
 const isEditingAnneeCible = ref(false);
 const editingAnneeCibleIndex = ref(-1);
+// Tracker les nouvelles clés ajoutées récemment
+const recentlyAddedKeys = ref(new Set());
 // Objet réactif pour stocker les valeurs des champs saisis
 const valeur = ref({});
 
@@ -663,7 +802,10 @@ const getCategories = async () => {
 const getResponsables = async () => {
   try {
     const { data } = await OngService.get();
-    responsables.value = data.data;
+
+    responsables.value = data.data.filter((ong) => ong.type !== "autre_osc" && (ong.projet !== null));
+
+    //responsables.value = data.data;
   } catch (e) {
     toast.error("Erreur lors de la récupération des organisations.");
   }
@@ -698,7 +840,16 @@ const updateKeys = (datas) => {
         if (!array_value_keys.value.includes(newKey.id)) {
           array_value_keys.value.push(newKey.id);
         }
+        // Ajouter au tracker des nouvelles clés
+        recentlyAddedKeys.value.add(newKey.id);
       });
+
+      // Retirer le marquage "nouveau" après 10 secondes
+      setTimeout(() => {
+        newKeys.forEach(newKey => {
+          recentlyAddedKeys.value.delete(newKey.id);
+        });
+      }, 10000);
 
       // Informer l'utilisateur
       const msg = newKeys.length === 1
@@ -908,6 +1059,18 @@ const getKeyLabel = (keyId) => {
   return key ? key.libelle : `Clé ${keyId}`;
 };
 
+// Fonction appelée quand une valeur est modifiée dans le preview
+const onValeurChange = () => {
+  // Feedback visuel/sonore optionnel
+  // Ici on peut ajouter une petite animation ou un feedback
+  // Pour l'instant, la réactivité de Vue gère automatiquement la mise à jour
+};
+
+// Vérifier si une clé a été récemment ajoutée
+const isNewlyAddedKey = (keyId) => {
+  return recentlyAddedKeys.value.has(keyId);
+};
+
 // Calculer le nombre total de pages
 const totalPages = computed(() => Math.ceil(cadreRendement.value ? cadreRendement.value.length / itemsPerPage : 0));
 
@@ -1025,7 +1188,8 @@ onMounted(async () => {
 
 .truncate-option {
   display: inline-block;
-  max-width: 150px; /* Ajustez la largeur selon vos besoins */
+  max-width: 150px;
+  /* Ajustez la largeur selon vos besoins */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
