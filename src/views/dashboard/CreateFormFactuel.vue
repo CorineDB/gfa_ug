@@ -18,6 +18,7 @@ import InputForm from "@/components/news/InputForm.vue";
 //import FormulaireFactuel from "@/services/modules/formFactuel.service";
 
 import FormulaireFactuel from "@/services/modules/enquetes_de_gouvernance/formFactuel.service";
+import OptionReponse from "@/services/modules/enquetes_de_gouvernance/optionReponse.service";
 
 import PreviewFactuelForm from "@/components/create-form/PreviewFactuelForm.vue";
 import { getAllErrorMessages } from "@/utils/gestion-error";
@@ -1365,10 +1366,88 @@ const resetForm = () => {
   payload.libelle = "";
   modalForm.value = false;
 };
-
+// [
+//     {
+//         "id": "YMLrvmB25Kwaro7dGPyW1zN0DExB8gOzqnl2Amvj9ZYXMJqR6Vk4e3pLo9GWe0k1",
+//         "point": "1",
+//         "preuveIsRequired": true,
+//         "sourceIsRequired": true,
+//         "descriptionIsRequired": false
+//     },
+//     {
+//         "id": "oKyBZAvxmYkeVjDz21N8wKXvJP7WL4ndKb09aglRd35pxZyEAMrqB6oGd52k6MYV",
+//         "point": "0.5",
+//         "preuveIsRequired": false,
+//         "sourceIsRequired": false,
+//         "descriptionIsRequired": true
+//     },
+//     {
+//         "id": "VkZjXED00v2XwZzN84a7VErB1qGRJMQezb6Ay3YjoKLgxkWpmldDe95PdRrJ3yxo",
+//         "point": "0",
+//         "preuveIsRequired": false,
+//         "sourceIsRequired": false,
+//         "descriptionIsRequired": false
+//     }
+// ]
 const createForm = async () => {
   isLoadingForm.value = true;
-  payload.factuel.options_de_reponse = globalOptionResponses.value.options_de_reponse;
+
+  // Enrichir les options de réponse avec les données complètes (incluant les champs booléens)
+  try {
+    const { data } = await OptionReponse.factuel();
+    const allOptions = data.data;
+
+    // Enrichir chaque option avec les données complètes
+    payload.factuel.options_de_reponse = globalOptionResponses.value.options_de_reponse.map(option => {
+      const fullOption = allOptions.find(opt => opt.id === option.id);
+
+      if (!fullOption) {
+        return {
+          id: option.id,
+          point: option.point,
+          preuveIsRequired: false,
+          sourceIsRequired: false,
+          descriptionIsRequired: false
+        };
+      }
+
+      const libelleLower = fullOption.libelle?.toLowerCase() || '';
+      const slugLower = fullOption.slug?.toLowerCase() || '';
+
+      // Vérifier les slugs et attribuer les valeurs en conséquence
+      let preuveIsRequired = fullOption.preuveIsRequired || false;
+      let sourceIsRequired = fullOption.sourceIsRequired || false;
+      let descriptionIsRequired = fullOption.descriptionIsRequired || false;
+
+      // Forcer les valeurs selon le slug/libellé (logique hardcodée)
+      if (libelleLower === 'oui' || slugLower === 'oui') {
+        preuveIsRequired = true;
+        sourceIsRequired = true;
+        descriptionIsRequired = false;
+      } else if (libelleLower === 'partiellement' || slugLower === 'partiellement') {
+        preuveIsRequired = false;
+        sourceIsRequired = false;
+        descriptionIsRequired = true;
+      } else if (libelleLower === 'non' || slugLower === 'non') {
+        preuveIsRequired = false;
+        sourceIsRequired = false;
+        descriptionIsRequired = false;
+      }
+
+      return {
+        id: option.id,
+        point: option.point,
+        preuveIsRequired,
+        sourceIsRequired,
+        descriptionIsRequired
+      };
+    });
+  } catch (e) {
+    console.error("Erreur lors de la récupération des options complètes:", e);
+    // En cas d'erreur, on utilise les données sans enrichissement
+    payload.factuel.options_de_reponse = globalOptionResponses.value.options_de_reponse;
+  }
+
   payload.factuel.types_de_gouvernance = previewTypesGouvernance.value.types_de_gouvernance;
 
   console.log(payload.factuel);
@@ -1931,15 +2010,7 @@ onMounted(() => {
         <!--  <div class="flex gap-4"></div> -->
         <div class="gap-4">
           <InputForm label="Libellé" class="w-full mb-4" :control="getFieldErrors(errors.libelle)" v-model="payload.libelle" />
-          <!-- <div class="w-full">
-            <label for="annee" class="form-label">Année<span class="text-danger">*</span> </label>
-            <TomSelect v-model="payload.annee_exercice" :options="{ placeholder: 'Selectionez une année' }"
-              class="w-full">
-              <option v-for="(year, index) in annees" :key="index" :value="year">{{ year }}</option>
-            </TomSelect>
-            <-- <input id="annee" type="number" required v-model.number="payload.annee_exercice" class="form-control" placeholder="Année" /> ->
-            <div v-if="errors.annee_exercice" class="mt-2 text-danger">{{ getFieldErrors(errors.annee_exercice) }}</div>
-          </div> -->
+         
 
           <div>
             <p class="text-red-500 text-[12px] -mt-2 col-span-12 my-2" v-if="errors['factuel.options_de_reponse.0.point']">

@@ -205,10 +205,10 @@ const logout = () => {
         router.push("/");
       }, 100);
       console.log(error);
-      if (error.response) {
-        console.log(error);
-        // toast.error("Erreur de déconnexion");
-      }
+
+      // Afficher le message d'erreur du serveur
+      const errorMessage = error.response?.data?.message || "Erreur de déconnexion";
+      toast.error(errorMessage);
     });
 };
 

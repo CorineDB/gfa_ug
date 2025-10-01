@@ -417,8 +417,13 @@ export default {
       state = parseInt(state);
       this.seeActivitiesOfState = state;
 
+      // Si allActivite est vide, initialiser avec activites actuel
+      if (this.allActivite.length === 0 && this.activites.length > 0) {
+        this.allActivite = [...this.activites];
+      }
+
       if (state == 3) {
-        this.activites = this.allActivite;
+        this.activites = [...this.allActivite];
       } else {
         console.log("state", state);
 
@@ -615,9 +620,10 @@ export default {
 
         if (this.sousComposants.length > 0) {
           this.haveSousComposantes = true;
+          // Vider les activités si on a des sous-composants
+          this.allActivite = [];
         } else {
           this.haveSousComposantes = false;
-
           this.updateActivitesList(this.activites);
         }
       } catch (error) {
@@ -653,7 +659,7 @@ export default {
 
     updateActivitesList(activites) {
       this.activites = activites;
-      this.allActivite = this.activites;
+      this.allActivite = [...activites]; // Copie du tableau pour éviter la référence partagée
       this.currentPage = 1;
       console.log(this.activites);
     },
@@ -795,10 +801,14 @@ export default {
         .then((response) => {
           this.loaderStatut = false;
           if (response.status == 200 || response.status == 201) {
-            toast.success("Statut changer  avec succès");
+            toast.success("Statut changé avec succès");
 
-            this.loadSousComposantDetails();
-            //this.fetchProjets(this.programmeId);
+            // Recharger les activités selon le contexte
+            if (this.selectedIds.sousComposantId && this.selectedIds.sousComposantId !== "") {
+              this.loadSousComposantDetails();
+            } else if (this.selectedIds.composantId && this.selectedIds.composantId !== "") {
+              this.loadComposantDetails();
+            }
           }
         })
         .catch((error) => {
@@ -1169,10 +1179,36 @@ export default {
                   <DropdownContent>
                     <DropdownItem v-if="verifyPermission('modifier-une-activite')" @click="modifierActivite(item)"> <Edit2Icon class="w-4 h-4 mr-2" /> Modifier </DropdownItem>
                     <DropdownItem v-if="verifyPermission('prolonger-une-activite')" @click="ouvrirModalProlongerActivite(item)"> <CalendarIcon class="w-4 h-4 mr-2" /> Prolonger </DropdownItem>
-                    <DropdownItem title="cliquer pour marquer l'activité comme terminer" v-if="verifyPermission('modifier-une-activite') && item.statut == 0" @click="changerStatut(item, 2)"> <CalendarIcon class="w-4 h-4 mr-2" /> Terminer </DropdownItem>
-                    <DropdownItem title="cliquer pour marquer l'activité comme pas démarré" v-if="verifyPermission('modifier-une-activite') && item.statut == 0" @click="changerStatut(item, -1)"> <CalendarIcon class="w-4 h-4 mr-2" /> Pas Démarrer </DropdownItem>
 
-                    <DropdownItem title="cliquer pour démarré l'activité" v-else-if="verifyPermission('modifier-une-activite') && item.statut !== 0" @click="changerStatut(item, 0)"> <CalendarIcon class="w-4 h-4 mr-2" /> Démarrer </DropdownItem>
+                    <!-- Loader pendant le changement de statut -->
+                    <DropdownItem v-if="loaderStatut" class="opacity-50 cursor-not-allowed">
+                      <svg class="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Changement en cours...
+                    </DropdownItem>
+
+                    <!-- Boutons de changement de statut -->
+                    <DropdownItem
+                      title="cliquer pour marquer l'activité comme terminée"
+                      v-if="!loaderStatut && verifyPermission('modifier-une-activite') && item.statut == 0"
+                      @click="changerStatut(item, 2)">
+                      <CalendarIcon class="w-4 h-4 mr-2" /> Terminer
+                    </DropdownItem>
+                    <DropdownItem
+                      title="cliquer pour marquer l'activité comme pas démarré"
+                      v-if="!loaderStatut && verifyPermission('modifier-une-activite') && item.statut == 0"
+                      @click="changerStatut(item, -1)">
+                      <CalendarIcon class="w-4 h-4 mr-2" /> Pas Démarrer
+                    </DropdownItem>
+
+                    <DropdownItem
+                      title="cliquer pour démarrer l'activité"
+                      v-else-if="!loaderStatut && verifyPermission('modifier-une-activite') && item.statut !== 0"
+                      @click="changerStatut(item, 0)">
+                      <CalendarIcon class="w-4 h-4 mr-2" /> Démarrer
+                    </DropdownItem>
 
                     <DropdownItem v-if="verifyPermission('creer-un-plan-de-decaissement')" @click="ouvrirModalPlanDeDecaissementActivite(item)"> <CalendarIcon class="w-4 h-4 mr-2" /> Plan de decaissement </DropdownItem>
 
@@ -1201,11 +1237,8 @@ export default {
                   <div class="ml-2 italic font-bold">Fcfa</div>
                 </div>
 
-                <!-- <div class="flex items-center text-sm font-medium text-gray-700">
-                  <GlobeIcon class="w-4 h-4 mr-2 text-primary" /> Taux d'exécution physique:
-                  <span class="ml-2 font-semibold text-gray-900">{{ item.tep }}</span>
-                </div> -->
-
+                
+                <pre>Statut {{ item.statut }}</pre>
                 <div class="flex items-center text-sm font-medium text-gray-700">
                   <CheckSquareIcon class="w-4 h-4 mr-2 text-primary" /> Statut:
                   <span v-if="item.statut == -2" class="ml-2 text-gray-900">Non validé</span>

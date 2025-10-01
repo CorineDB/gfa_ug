@@ -208,14 +208,14 @@ watch(
   }
 );
 
-async function fixerOptionsDeReponse() {
+function fixerOptionsDeReponse() {
   idChecked.value = datas.value.map((item) => {
     const libelleLower = item.libelle.toLowerCase();
 
     if (libelleLower == "oui") {
       updateTemporyOption(item.id, 1);
       // Fixer les valeurs pour "Oui"
-      updateOptionRequirements(item.id, {
+      updateTemporyOptionRequirements(item.id, {
         preuveIsRequired: true,
         sourceIsRequired: true,
         descriptionIsRequired: false
@@ -223,7 +223,7 @@ async function fixerOptionsDeReponse() {
     } else if (libelleLower == "non") {
       updateTemporyOption(item.id, 0);
       // Fixer les valeurs pour "Non" (tout à false)
-      updateOptionRequirements(item.id, {
+      updateTemporyOptionRequirements(item.id, {
         preuveIsRequired: false,
         sourceIsRequired: false,
         descriptionIsRequired: false
@@ -231,7 +231,7 @@ async function fixerOptionsDeReponse() {
     } else if (libelleLower == "partiellement") {
       updateTemporyOption(item.id, 0.5);
       // Fixer les valeurs pour "Partiellement"
-      updateOptionRequirements(item.id, {
+      updateTemporyOptionRequirements(item.id, {
         preuveIsRequired: false,
         sourceIsRequired: false,
         descriptionIsRequired: true
@@ -241,13 +241,24 @@ async function fixerOptionsDeReponse() {
   });
 }
 
-// Fonction pour mettre à jour les requirements d'une option
-async function updateOptionRequirements(id, requirements) {
-  try {
-    await OptionReponse.update(id, requirements);
-  } catch (e) {
-    console.error(`Erreur lors de la mise à jour des requirements pour l'option ${id}:`, e);
+// Fonction pour mettre à jour les requirements d'une option localement (sans appel API)
+function updateTemporyOptionRequirements(id, requirements) {
+  const index = globalOptionResponses.value.options_de_reponse.findIndex((option) => option.id === id);
+  if (index !== -1) {
+    // Mettre à jour l'option existante avec les nouveaux champs
+    globalOptionResponses.value.options_de_reponse[index] = {
+      ...globalOptionResponses.value.options_de_reponse[index],
+      ...requirements
+    };
+  } else {
+    // Ajouter une nouvelle option avec les requirements et un point par défaut
+    globalOptionResponses.value.options_de_reponse.push({
+      id,
+      point: 0,  // Valeur par défaut pour éviter les erreurs
+      ...requirements
+    });
   }
+  if (!props.isUpdate) localStorage.setItem("globalOptionResponses", JSON.stringify(globalOptionResponses.value));
 }
 
 // Fetch data on component mount
@@ -302,6 +313,8 @@ onMounted(async () => {
       <button class="text-sm btn btn-primary" @click="getDatas"><RotateCcwIcon class="mr-1 size-4" /></button>
       <button class="text-sm btn btn-primary" @click="openCreateModal"><PlusIcon class="mr-1 size-4" />Ajouter</button>
     </div>
+
+    
 
     <!-- Data List -->
     <ul v-if="!isLoadingData" class="overflow-y-auto listes max-h-[40vh]">

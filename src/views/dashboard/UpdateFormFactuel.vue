@@ -1539,7 +1539,40 @@ const getOneForm = async () => {
 
 const updateForm = async () => {
   isLoadingForm.value = true;
-  payload.factuel.options_de_reponse = previewOptionResponses.value.options_de_reponse;
+
+  // Enrichir les options de réponse avec les champs booléens en fonction des slugs
+  payload.factuel.options_de_reponse = previewOptionResponses.value.options_de_reponse.map(option => {
+    const libelleLower = option.libelle?.toLowerCase() || '';
+    const slugLower = option.slug?.toLowerCase() || '';
+
+    // Définir les valeurs selon le slug/libellé (logique hardcodée)
+    let preuveIsRequired = false;
+    let sourceIsRequired = false;
+    let descriptionIsRequired = false;
+
+    if (libelleLower === 'oui' || slugLower === 'oui') {
+      preuveIsRequired = true;
+      sourceIsRequired = true;
+      descriptionIsRequired = false;
+    } else if (libelleLower === 'partiellement' || slugLower === 'partiellement') {
+      preuveIsRequired = false;
+      sourceIsRequired = false;
+      descriptionIsRequired = true;
+    } else if (libelleLower === 'non' || slugLower === 'non') {
+      preuveIsRequired = false;
+      sourceIsRequired = false;
+      descriptionIsRequired = false;
+    }
+
+    return {
+      id: option.id,
+      point: option.point,
+      preuveIsRequired,
+      sourceIsRequired,
+      descriptionIsRequired
+    };
+  });
+
   payload.factuel.types_de_gouvernance = globalTypesGouvernance.value.types_de_gouvernance;
 
   console.log(payload);
