@@ -15,104 +15,130 @@
     </div>
   </div>
   <!-- Modal Register & Update -->
-  <Modal backdrop="static" :show="showModalCreate" @hidden="showModalCreate = false">
+  <Modal size="modal-xl" backdrop="static" :show="showModalCreate" @hidden="showModalCreate = false">
     <ModalHeader>
-      <h2 class="mr-auto text-base font-medium">Ajouter un Site</h2>
+      <h2 class="mr-auto text-base font-medium">Ajouter des Sites</h2>
     </ModalHeader>
-    <form @submit.prevent="createData">
+
+    <form @submit.prevent="createMultipleSites">
       <ModalBody>
-        <div class="grid grid-cols-1 gap-4">
-          <div class="col-span-12">
-            <InputForm label="Nom" v-model="payloadSites.nom" />
-            <div v-if="errors.nom" class="mt-2 text-danger">{{ getFieldErrors(errors.nom) }}</div>
-          </div>
-
-          <!-- Coordonnées avec bouton pour ouvrir la carte -->
-          <div class="grid grid-cols-2 gap-4 col-span-12">
-            <div>
-              <InputForm label="Longitude" type="number" step="any" v-model="payloadSites.longitude" />
-              <div v-if="errors.longitude" class="mt-2 text-danger">{{ getFieldErrors(errors.longitude) }}</div>
-            </div>
-            <div>
-              <InputForm label="Latitude" type="number" step="any" v-model.number="payloadSites.latitude" />
-              <div v-if="errors.latitude" class="mt-2 text-danger">{{ getFieldErrors(errors.latitude) }}</div>
-            </div>
-          </div>
-
-          <!-- Boutons pour la carte -->
-          <div class="flex gap-2 col-span-12">
-            <button type="button" @click="openMapModal" class="flex items-center px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600">
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              Sélectionner sur la carte
-            </button>
-            <button type="button" @click="centerMapOnCoordinates" class="flex items-center px-4 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300" :disabled="!payloadSites.latitude || !payloadSites.longitude">
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
-              </svg>
-              Centrer sur coordonnées
+        <div v-for="(site, index) in payloadsSitesMultiple" :key="site.id" class="p-4 mb-4 bg-gray-50 rounded-lg">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-base font-semibold text-gray-800">Site {{ index + 1 }}</h3>
+            <button
+              type="button"
+              @click="removeSitePayload(index)"
+              class="text-red-600 text-sm font-medium hover:text-red-800 flex items-center"
+              v-if="payloadsSitesMultiple.length > 1"
+            >
+              <TrashIcon class="w-4 h-4 mr-1" /> Supprimer
             </button>
           </div>
 
-          <div class="col-span-12">
-            <label class="form-label">Pays<span class="text-danger">*</span> </label>
-            <select v-model="payloadSites.pays" @change="changeCountry" class="form-select w-full">
-              <option value="">Selectionez un pays</option>
-              <option v-for="(country, index) in pays" :key="index" :value="country">{{ country }}</option>
-            </select>
-            <div v-if="errors.pays" class="mt-2 text-danger">{{ getFieldErrors(errors.pays) }}</div>
+          <div class="grid grid-cols-1 gap-4">
+            <div class="col-span-12">
+              <InputForm label="Nom" v-model="site.nom" />
+              <div v-if="errors[`sites.${index}.nom`]" class="mt-2 text-danger">{{ getFieldErrors(errors[`sites.${index}.nom`]) }}</div>
+            </div>
+
+            <!-- Coordonnées avec bouton pour ouvrir la carte -->
+            <div class="grid grid-cols-2 gap-4 col-span-12">
+              <div>
+                <InputForm label="Longitude" type="number" step="any" v-model="site.longitude" />
+                <div v-if="errors[`sites.${index}.longitude`]" class="mt-2 text-danger">{{ getFieldErrors(errors[`sites.${index}.longitude`]) }}</div>
+              </div>
+              <div>
+                <InputForm label="Latitude" type="number" step="any" v-model.number="site.latitude" />
+                <div v-if="errors[`sites.${index}.latitude`]" class="mt-2 text-danger">{{ getFieldErrors(errors[`sites.${index}.latitude`]) }}</div>
+              </div>
+            </div>
+
+            <!-- Boutons pour la carte -->
+            <div class="flex gap-2 col-span-12">
+              <button type="button" @click="openMapModal(index)" class="flex items-center px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Sélectionner sur la carte
+              </button>
+            </div>
+
+            <div class="col-span-12">
+              <label class="form-label">Pays<span class="text-danger">*</span> </label>
+              <select v-model="site.pays" @change="changeCountryForSite(index)" class="form-select w-full">
+                <option value="">Sélectionnez un pays</option>
+                <option v-for="(country, countryIndex) in pays" :key="countryIndex" :value="country">{{ country }}</option>
+              </select>
+              <div v-if="errors[`sites.${index}.pays`]" class="mt-2 text-danger">{{ getFieldErrors(errors[`sites.${index}.pays`]) }}</div>
+            </div>
+
+            <!-- Sélection en cascade pour le Bénin -->
+            <div v-if="site.pays === 'Bénin'" class="col-span-12">
+              <div class="w-full mb-4">
+                <label class="form-label">Départements<span class="text-danger">*</span> </label>
+                <select v-model="site.departement" @change="updateCommunesForSite(index)" class="form-select w-full">
+                  <option value="">Sélectionnez un département</option>
+                  <option v-for="(dep, depIndex) in departements" :key="depIndex" :value="dep.lib_dep">{{ dep.lib_dep }}</option>
+                </select>
+                <div v-if="errors[`sites.${index}.departement`]" class="mt-2 text-danger">{{ getFieldErrors(errors[`sites.${index}.departement`]) }}</div>
+              </div>
+
+              <div class="mb-4" :class="[!site.departement ? 'opacity-50 cursor-not-allowed pointer-events-none' : '']">
+                <label class="form-label">Communes<span class="text-danger">*</span> </label>
+                <select v-model="site.commune" @change="updateArrondissementsForSite(index)" class="form-select w-full">
+                  <option value="">Sélectionner la commune</option>
+                  <option v-for="commune in filteredCommunesForSite(index)" :key="commune.lib_com" :value="commune.lib_com">
+                    {{ commune.lib_com }}
+                  </option>
+                </select>
+                <div v-if="errors[`sites.${index}.commune`]" class="mt-2 text-danger">{{ getFieldErrors(errors[`sites.${index}.commune`]) }}</div>
+              </div>
+
+              <div class="w-full mb-4" :class="[!site.commune ? 'opacity-50 cursor-not-allowed pointer-events-none' : '']">
+                <label class="form-label">Arrondissement<span class="text-danger">*</span> </label>
+                <select v-model="site.arrondissement" @change="updateQuartiersForSite(index)" class="form-select w-full">
+                  <option value="">Sélectionnez arrondissement</option>
+                  <option v-for="(arrond, arrondIndex) in filteredArrondissementsForSite(index)" :key="arrondIndex" :value="arrond.lib_arrond">{{ arrond.lib_arrond }}</option>
+                </select>
+                <div v-if="errors[`sites.${index}.arrondissement`]" class="mt-2 text-danger">{{ getFieldErrors(errors[`sites.${index}.arrondissement`]) }}</div>
+              </div>
+
+              <div class="w-full mb-4" :class="[!site.arrondissement ? 'opacity-50 cursor-not-allowed pointer-events-none' : '']">
+                <label class="form-label">Quartier<span class="text-danger">*</span> </label>
+                <select v-model="site.quartier" class="form-select w-full">
+                  <option value="">Sélectionner le quartier</option>
+                  <option v-for="quart in filteredQuartiersForSite(index)" :key="quart.lib_quart" :value="quart.lib_quart">
+                    {{ quart.lib_quart }}
+                  </option>
+                </select>
+                <div v-if="errors[`sites.${index}.quartier`]" class="mt-2 text-danger">{{ getFieldErrors(errors[`sites.${index}.quartier`]) }}</div>
+              </div>
+            </div>
+
+            <!-- Champs libres pour les autres pays -->
+            <div v-if="site.pays !== 'Bénin' && site.pays !== ''" class="col-span-12">
+              <InputForm :required="false" :optionel="false" label="Département" v-model="site.departement" class="mb-4" />
+              <div v-if="errors[`sites.${index}.departement`]" class="mt-2 text-danger">{{ getFieldErrors(errors[`sites.${index}.departement`]) }}</div>
+
+              <InputForm :required="false" :optionel="false" label="Commune" v-model="site.commune" class="mb-4" />
+              <div v-if="errors[`sites.${index}.commune`]" class="mt-2 text-danger">{{ getFieldErrors(errors[`sites.${index}.commune`]) }}</div>
+
+              <InputForm :required="false" :optionel="false" label="Arrondissement" v-model="site.arrondissement" class="mb-4" />
+              <div v-if="errors[`sites.${index}.arrondissement`]" class="mt-2 text-danger">{{ getFieldErrors(errors[`sites.${index}.arrondissement`]) }}</div>
+
+              <InputForm :required="false" :optionel="false" label="Quartier" v-model="site.quartier" class="mb-4" />
+              <div v-if="errors[`sites.${index}.quartier`]" class="mt-2 text-danger">{{ getFieldErrors(errors[`sites.${index}.quartier`]) }}</div>
+            </div>
           </div>
+        </div>
 
-          <div v-if="isBenin" class="col-span-12">
-            <div class="w-full mb-4">
-              <label class="form-label">Départements<span class="text-danger">*</span> </label>
-              <select v-model="payloadSites.departement" @change="updateCommunes" class="form-select w-full">
-                <option value="">Selectionez un département</option>
-                <option v-for="(dep, index) in departements" :key="index" :value="dep.lib_dep">{{ dep.lib_dep }}</option>
-              </select>
-              <div v-if="errors.departement" class="mt-2 text-danger">{{ getFieldErrors(errors.departement) }}</div>
-            </div>
-
-            <div class="mb-4" :class="[!showCommune ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
-              <label class="form-label">Communes<span class="text-danger">*</span> </label>
-              <select v-model="payloadSites.commune" @change="updateArrondissements" class="form-select w-full">
-                <option value="">Sélectionner la commune</option>
-                <option v-for="commune in filteredCommunes" :key="commune.lib_com" :value="commune.lib_com">
-                  {{ commune.lib_com }}
-                </option>
-              </select>
-              <div v-if="errors.commune" class="mt-2 text-danger">{{ getFieldErrors(errors.commune) }}</div>
-            </div>
-
-            <div class="w-full mb-4" :class="[!showArrondissement ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
-              <label class="form-label">Arrondissement<span class="text-danger">*</span> </label>
-              <select v-model="payloadSites.arrondissement" @change="updateQuartiers" class="form-select w-full">
-                <option value="">Selectionez arrondissement</option>
-                <option v-for="(arrond, index) in filteredArrondissements" :key="index" :value="arrond.lib_arrond">{{ arrond.lib_arrond }}</option>
-              </select>
-              <div v-if="errors.arrondissement" class="mt-2 text-danger">{{ getFieldErrors(errors.arrondissement) }}</div>
-            </div>
-
-            <div class="w-full mb-4" :class="[!showQuatier ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
-              <label class="form-label">Quartier<span class="text-danger">*</span> </label>
-              <select v-model="payloadSites.quartier" class="form-select w-full">
-                <option value="">Sélectionner le quartier</option>
-                <option v-for="quart in filteredQuartiers" :key="quart.lib_quart" :value="quart.lib_quart">
-                  {{ quart.lib_quart }}
-                </option>
-              </select>
-              <div v-if="errors.quartier" class="mt-2 text-danger">{{ getFieldErrors(errors.quartier) }}</div>
-            </div>
-          </div>
-
-          <div v-if="!isBenin" class="col-span-12">
-            <InputForm :required="false" :optionel="false" label="Département" v-model="payloadSites.departement" :control="getFieldErrors(errors.departement)" class="mb-4" />
-            <InputForm :required="false" :optionel="false" label="Commune" v-model="payloadSites.commune" :control="getFieldErrors(errors.commune)" class="mb-4" />
-            <InputForm :required="false" :optionel="false" label="Arrondissement" v-model="payloadSites.arrondissement" :control="getFieldErrors(errors.arrondissement)" class="mb-4" />
-            <InputForm :required="false" :optionel="false" label="Quartier" v-model="payloadSites.quartier" :control="getFieldErrors(errors.quartier)" class="mb-4" />
-          </div>
+        <!-- Bouton pour ajouter un nouveau site -->
+        <div class="mt-4">
+          <button type="button" @click="addSitePayload" class="flex items-center px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600">
+            <PlusIcon class="w-4 h-4 mr-2" />
+            Ajouter un site
+          </button>
         </div>
       </ModalBody>
       <ModalFooter>
@@ -233,7 +259,7 @@
             </div>
 
             <!-- Add Button -->
-            <button class="shadow-md btn btn-primary w-2/12 flex items-center justify-center" type="button" @click="showModalCreate = true" title="Add new organization">
+            <button class="shadow-md btn btn-primary w-2/12 flex items-center justify-center" type="button" @click="openModalCreateSite" title="Add new organization">
               <PlusIcon class="w-4 h-4" />
             </button>
           </div>
@@ -314,8 +340,8 @@
       <div class="mb-4">
         <p class="text-sm text-gray-600 mb-2">Cliquez sur la carte ou faites glisser le marqueur pour sélectionner la position.</p>
         <div class="flex gap-4 text-sm">
-          <span><strong>Latitude:</strong> {{ payloadSites.latitude || "Non définie" }}</span>
-          <span><strong>Longitude:</strong> {{ payloadSites.longitude || "Non définie" }}</span>
+          <span><strong>Latitude:</strong> {{ currentSiteIndex !== null && payloadsSitesMultiple[currentSiteIndex] ? (payloadsSitesMultiple[currentSiteIndex].latitude || "Non définie") : (payloadSites.latitude || "Non définie") }}</span>
+          <span><strong>Longitude:</strong> {{ currentSiteIndex !== null && payloadsSitesMultiple[currentSiteIndex] ? (payloadsSitesMultiple[currentSiteIndex].longitude || "Non définie") : (payloadSites.longitude || "Non définie") }}</span>
         </div>
       </div>
 
@@ -498,6 +524,8 @@ export default {
       isBenin: false,
       showModalCreate: false,
       payloadSites: this.getinitForm(),
+      payloadsSitesMultiple: [], // État pour stocker plusieurs payloads de sites
+      currentSiteIndex: null, // Index du site en cours d'édition sur la carte
 
       isLoadingSite: false,
       search: "",
@@ -685,6 +713,35 @@ export default {
     showQuatier() {
       return !this.payloadSites.arrondissement;
     },
+
+    // Computed properties pour la cascade des sites multiples
+    filteredCommunesForSite() {
+      return (index) => {
+        const site = this.payloadsSitesMultiple[index];
+        if (!site || !site.departement) return [];
+        const departementData = this.departements.find((dep) => dep.lib_dep === site.departement);
+        return departementData ? departementData.communes : [];
+      };
+    },
+    filteredArrondissementsForSite() {
+      return (index) => {
+        const site = this.payloadsSitesMultiple[index];
+        if (!site || !site.departement || !site.commune) return [];
+        const departementData = this.departements.find((dep) => dep.lib_dep === site.departement);
+        if (!departementData) return [];
+        const communeData = departementData.communes.find((com) => com.lib_com === site.commune);
+        return communeData ? communeData.arrondissements : [];
+      };
+    },
+    filteredQuartiersForSite() {
+      return (index) => {
+        const site = this.payloadsSitesMultiple[index];
+        if (!site || !site.arrondissement) return [];
+        const arrondissements = this.filteredArrondissementsForSite(index);
+        const arrondissementData = arrondissements.find((arrond) => arrond.lib_arrond === site.arrondissement);
+        return arrondissementData ? arrondissementData.quartiers : [];
+      };
+    },
   },
 
   methods: {
@@ -717,7 +774,7 @@ export default {
         arrondissement: "",
         commune: "",
         departement: "",
-        pays: "",
+        pays: "Bénin",
         quartier: "",
       };
     },
@@ -745,10 +802,17 @@ export default {
       this.updateCoordinates(lat, lng);
     },
 
-    openMapModal() {
+    openMapModal(index = null) {
+      this.currentSiteIndex = index;
       this.showMapModal = true;
+
       // Initialiser la position du marker si des coordonnées existent
-      if (this.payloadSites.latitude && this.payloadSites.longitude) {
+      if (index !== null && this.payloadsSitesMultiple[index]) {
+        const site = this.payloadsSitesMultiple[index];
+        if (site.latitude && site.longitude) {
+          this.markerLatLng = [parseFloat(site.latitude), parseFloat(site.longitude)];
+        }
+      } else if (this.payloadSites.latitude && this.payloadSites.longitude) {
         this.markerLatLng = [parseFloat(this.payloadSites.latitude), parseFloat(this.payloadSites.longitude)];
       }
     },
@@ -770,17 +834,45 @@ export default {
     },
     updateCoordinates(lat, lng) {
       // Assignation directe pour Vue 3
-      this.payloadSites.latitude = lat.toFixed(6);
-      this.payloadSites.longitude = lng.toFixed(6);
+      if (this.currentSiteIndex !== null && this.payloadsSitesMultiple[this.currentSiteIndex]) {
+        // Mettre à jour le site en cours d'édition dans le tableau
+        this.payloadsSitesMultiple[this.currentSiteIndex].latitude = lat.toFixed(6);
+        this.payloadsSitesMultiple[this.currentSiteIndex].longitude = lng.toFixed(6);
+      } else {
+        // Fallback pour l'ancien comportement
+        this.payloadSites.latitude = lat.toFixed(6);
+        this.payloadSites.longitude = lng.toFixed(6);
+      }
 
       this.markerLatLng = [lat, lng];
     },
     resetPayload() {
       this.payloadSites = this.getinitForm();
     },
+    addSitePayload() {
+      this.payloadsSitesMultiple.push({
+        ...this.getinitForm(),
+        id: Date.now() + "-" + Math.random().toString(36).substr(2, 9),
+      });
+    },
+    removeSitePayload(index) {
+      this.payloadsSitesMultiple.splice(index, 1);
+    },
+    openModalCreateSite() {
+      // Initialiser avec un premier site vide
+      this.payloadsSitesMultiple = [
+        {
+          ...this.getinitForm(),
+          id: Date.now() + "-" + Math.random().toString(36).substr(2, 9),
+        },
+      ];
+      this.errors = {};
+      this.showModalCreate = true;
+    },
     verifyPermission,
     resetFormSite() {
       this.resetPayload();
+      this.payloadsSitesMultiple = [];
       this.errors = {};
 
       // Réinitialiser les états des sélecteurs
@@ -822,6 +914,102 @@ export default {
           this.payloadSites.departement = "";
         }
         this.isBenin = false;
+      }
+    },
+
+    // Méthodes pour la sélection en cascade des sites multiples
+    changeCountryForSite(index) {
+      const site = this.payloadsSitesMultiple[index];
+      if (site.pays !== "Bénin") {
+        // Si ce n'est pas le Bénin, réinitialiser les champs administratifs
+        site.departement = "";
+        site.commune = "";
+        site.arrondissement = "";
+        site.quartier = "";
+      } else {
+        // Si c'est le Bénin, réinitialiser aussi pour forcer une nouvelle sélection
+        this.updateCommunesForSite(index);
+      }
+    },
+    updateCommunesForSite(index) {
+      const site = this.payloadsSitesMultiple[index];
+      site.commune = "";
+      site.arrondissement = "";
+      site.quartier = "";
+    },
+    updateArrondissementsForSite(index) {
+      const site = this.payloadsSitesMultiple[index];
+      site.arrondissement = "";
+      site.quartier = "";
+    },
+    updateQuartiersForSite(index) {
+      const site = this.payloadsSitesMultiple[index];
+      site.quartier = "";
+    },
+
+    async createMultipleSites() {
+      this.isLoadingSite = true;
+      this.errors = {}; // Reset errors
+
+      let successCount = 0;
+      let errorCount = 0;
+
+      for (let index = 0; index < this.payloadsSitesMultiple.length; index++) {
+        const site = this.payloadsSitesMultiple[index];
+
+        // Normaliser les coordonnées
+        site.longitude = site.longitude + "";
+        site.latitude = site.latitude + "";
+
+        if (site.longitude.includes(",")) {
+          site.longitude = site.longitude.replace(",", ".");
+        }
+
+        if (site.latitude.includes(",")) {
+          site.latitude = site.latitude.replace(",", ".");
+        }
+
+        try {
+          await SiteService.create(site);
+          successCount++;
+          toast.success(`Site ${index + 1} créé avec succès.`);
+        } catch (e) {
+          errorCount++;
+          console.error(`Erreur pour le site ${index + 1}:`, e);
+
+          // Gestion des erreurs de validation (422)
+          if (e.response && e.response.status === 422) {
+            const errorData = e.response.data;
+
+            // Structure: { data: { errors: { field: ["message"] } } } ou { errors: { field: ["message"] } }
+            let siteErrors = {};
+            if (errorData.data && errorData.data.errors) {
+              siteErrors = errorData.data.errors;
+            } else if (errorData.errors) {
+              siteErrors = errorData.errors;
+            }
+
+            // Ajouter les erreurs avec l'index du site
+            Object.keys(siteErrors).forEach((key) => {
+              this.errors[`sites.${index}.${key}`] = siteErrors[key];
+            });
+
+            toast.error(`Site ${index + 1}: ${errorData.data?.message || errorData.message || "Erreur de validation"}`);
+          } else {
+            toast.error(`Site ${index + 1}: Vérifier les informations et réessayer.`);
+          }
+        }
+      }
+
+      this.isLoadingSite = false;
+
+      if (successCount > 0 && errorCount === 0) {
+        this.fetchSites();
+        this.resetFormSite();
+        toast.success(`${successCount} site(s) créé(s) avec succès.`);
+      } else if (successCount > 0 && errorCount > 0) {
+        this.fetchSites();
+        toast.warning(`${successCount} site(s) créé(s), ${errorCount} erreur(s).`);
       }
     },
 

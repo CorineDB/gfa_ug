@@ -101,10 +101,21 @@ export default {
       finProgramme: "",
       fondPropreOutcomes: 0,
       SubventionTotalOutcomes: 0,
-      fondPropreOutPut : 0 ,
-      SubventionTotalOutPut : 0 ,
-      OutcomeData : [],
-      OutputData : []
+      fondPropreOutPut: 0,
+      SubventionTotalOutPut: 0,
+      OutcomeData: [],
+      OutputData: [],
+      outputActivite: [],
+      montantADecaisser: 0,
+      sommeDesPlanDeDecaissement: 0,
+      montantRestantADecaisser: 0,
+      dureeActivite: {
+        debut: null,
+        fin: null,
+      },
+      plageDureeActivite: [],
+      trimestres: [],
+      trimestreYears: [],
     };
   },
 
@@ -155,6 +166,49 @@ export default {
       return obj ? obj : null;
       // Retourne le nom ou `null` si non trouvé
     },
+    fondRestantOutCome() {
+      // parcourt toutes les activités et calcule la somme des budgets nationaux (item.budgetNational) utilisés
+      const sommeFondActivite = this.activites.reduce((total, activite) => {
+        return total + (activite.budgetNational || 0);
+      }, 0);
+
+      //parcouts this.sousComposants et calcule la somme des subventions (item.pret) utilisé
+      const sommeFondSouscomposant = this.sousComposants.reduce((total, sousComposant) => {
+        return total + (sousComposant.budgetNational || 0);
+      }, 0);
+
+      //fondRestant = fondPropreOutcomes - (sommeFondActivite + sommeSubventionSouscomposant)
+      return this.fondPropreOutcomes - (sommeFondActivite + sommeFondSouscomposant);
+    },
+    fondRestantOutput() {
+      // sommeFondUtilise  = parcourt this.outputActivite et calcule la somme des budgets nationaux (item.budgetNational) utilisés
+      const sommeFondUtilise = this.outputActivite.reduce((total, activite) => {
+        return total + (activite.budgetNational || 0);
+      }, 0);
+
+      // return fondRestant  = fondTotal - sommeFondUtilise
+      return this.fondPropreOutPut - sommeFondUtilise;
+    },
+    SubventionRestantOutcome() {
+      // fait pareil comme pour fondRestantOutCome .la différence est la clé item.pret au lieu de item.budgetNational
+      const sommeSubventionActivite = this.activites.reduce((total, activite) => {
+        return total + (activite.pret || 0);
+      }, 0);
+
+      const sommeSubventionSouscomposant = this.sousComposants.reduce((total, sousComposant) => {
+        return total + (sousComposant.pret || 0);
+      }, 0);
+
+      return this.SubventionTotalOutcomes - (sommeSubventionActivite + sommeSubventionSouscomposant);
+    },
+    subventionRestantOutput() {
+      // fait pareil pour fondRestantOutput .la différence est la clé item.pret au lieu de item.budgetNational
+      const sommeSubventionUtilise = this.outputActivite.reduce((total, activite) => {
+        return total + (activite.pret || 0);
+      }, 0);
+
+      return this.SubventionTotalOutPut - sommeSubventionUtilise;
+    },
   },
 
   watch: {
@@ -171,9 +225,38 @@ export default {
     "formData.composanteId": "loadComposantDetails",
 
     //"formData.composanteId": "loadComposantDetails",
+
+    // Watcher pour détecter les changements dans l'URL
+    "$route.query": {
+      handler(newQuery) {
+        // Si on arrive avec des paramètres de navigation depuis les outputs
+        if (newQuery.projetId && newQuery.composantId && newQuery.sousComposantId) {
+          this.projetId = newQuery.projetId;
+          this.selectedIds.composantId = newQuery.composantId;
+          this.selectedIds.sousComposantId = newQuery.sousComposantId;
+
+          // Afficher un message de confirmation du filtre
+          if (newQuery.sousComposantName) {
+            toast.info(`Affichage des activités pour l'output: ${newQuery.sousComposantName}`);
+          }
+        }
+      },
+      immediate: true, // Exécuter immédiatement au montage
+    },
   },
 
   methods: {
+    filteredTrimestresForPlan(annee) {
+      if (!annee) {
+        return this.trimestres;
+      }
+      return this.trimestres.filter((trimestre) => trimestre.annee == annee);
+    },
+    receiveMontantRestantADecaisser() {
+      const montantRestantADecaisser = this.montantADecaisser - this.sommeDesPlanDeDecaissement;
+      return montantRestantADecaisser;
+    },
+
     async getcurrentUser() {
       await AuthService.getCurrentUser()
         .then((result) => {
@@ -191,8 +274,19 @@ export default {
       ActiviteService.plansDeDecaissement(id)
         .then((data) => {
           this.loaderListePlan = false;
-          //console.log(data.data.data);
           this.listePlanDeDecaissement = data.data.data;
+
+          //sommeDesPlanDeDecaissement = parcourir listePlanDeDecaissement et faire somme item.budgetNational + item.pret
+          if (this.listePlanDeDecaissement.length > 0) {
+            this.sommeDesPlanDeDecaissement = this.listePlanDeDecaissement.reduce((total, item) => {
+              return total + (item.budgetNational || 0) + (item.pret || 0);
+            }, 0);
+          } else {
+            this.sommeDesPlanDeDecaissement = 0;
+          }
+
+          //montantRestantADecaisser = montantADecaisser - sommeDesPlanDeDecaissement
+          this.montantRestantADecaisser = this.montantADecaisser - this.sommeDesPlanDeDecaissement;
 
           console.log("this.listePlanDeDecaissement", this.listePlanDeDecaissement);
         })
@@ -206,14 +300,52 @@ export default {
 
       // console.log("this.selectedIds.activiteId", this.selectedIds.activiteId);
     },
+    receiveSommeDesPlanDeDecaissement(somme) {
+      this.sommeDesPlanDeDecaissement = somme;
+    },
     getInfoActivite(id) {
-      if (id !== null || id !== "") {
+      if (id !== null && id !== "") {
         ActiviteService.get(id)
           .then((response) => {
             console.log(response.data.data);
             this.activiteTep = response.data.data.tep;
             this.activiteTef = response.data.data.tef;
-            // this.
+
+            this.dureeActivite = {
+              debut: response.data.data.debut,
+              fin: response.data.data.fin,
+            };
+
+            //recuprer les trimestes de la duree de l'activité
+            this.trimestres = this.getQuartersInDuration(response.data.data.debut, response.data.data.fin);
+
+            if (response.data.data.durees && response.data.data.durees.length) {
+              this.plageDureeActivite = response.data.data.durees;
+
+              //parcour plageDureeActivite
+              this.plageDureeActivite.forEach((duree) => {
+                const quartersInDuree = this.getQuartersInDuration(duree.debut, duree.fin);
+
+                quartersInDuree.forEach((quarter) => {
+                  // si le trimestre n'existe pas dans this.trimestres on l'ajoute
+                  const exists = this.trimestres.some((t) => t.trimestre === quarter.trimestre);
+                  if (!exists) {
+                    this.trimestres.push(quarter);
+                  }
+                });
+              });
+
+              // Trier les trimestres par ordre croissant
+              this.trimestres.sort((a, b) => a.trimestre - b.trimestre);
+            }
+
+            //créer etat global : trimestreYears a partie des trimestres
+            const anneesUniques = [...new Set(this.trimestres.map((t) => t.annee))];
+            this.trimestreYears = anneesUniques.sort((a, b) => a - b);
+
+            //recuperer montantADecaisser
+            this.montantADecaisser = response.data.data.pret + response.data.data.budgetNational;
+
             console.log("this.activiteTep ", this.activiteTep);
             console.log("this.activiteTef ", this.activiteTef);
           })
@@ -237,6 +369,40 @@ export default {
       return Math.ceil(month / 3); // Calcul du trimestre actuel
     },
 
+    getQuartersInDuration(debut, fin) {
+      if (!debut || !fin) return [];
+
+      const dateDebut = new Date(debut);
+      const dateFin = new Date(fin);
+      const quartersMap = new Map(); // Pour stocker trimestre + année
+
+      // Parcourir tous les mois entre debut et fin
+      const currentDate = new Date(dateDebut);
+      while (currentDate <= dateFin) {
+        const month = currentDate.getMonth() + 1;
+        const year = currentDate.getFullYear();
+        const quarter = Math.ceil(month / 3);
+        const key = `${year}-${quarter}`;
+
+        if (!quartersMap.has(key)) {
+          quartersMap.set(key, {
+            trimestre: quarter,
+            value: quarter,
+            annee: year,
+          });
+        }
+
+        // Passer au mois suivant
+        currentDate.setMonth(currentDate.getMonth() + 1);
+      }
+
+      // Convertir en tableau d'objets et trier par année puis trimestre
+      return Array.from(quartersMap.values()).sort((a, b) => {
+        if (a.annee !== b.annee) return a.annee - b.annee;
+        return a.trimestre - b.trimestre;
+      });
+    },
+
     verifyPermission,
     onPageChanged(newPage) {
       this.currentPage = newPage;
@@ -251,8 +417,13 @@ export default {
       state = parseInt(state);
       this.seeActivitiesOfState = state;
 
+      // Si allActivite est vide, initialiser avec activites actuel
+      if (this.allActivite.length === 0 && this.activites.length > 0) {
+        this.allActivite = [...this.activites];
+      }
+
       if (state == 3) {
-        this.activites = this.allActivite;
+        this.activites = [...this.allActivite];
       } else {
         console.log("state", state);
 
@@ -349,7 +520,6 @@ export default {
       this.isLoading = true;
       try {
         if (this.isUpdate) {
-
           if (this.formData.description == "") {
             delete this.formData.description;
           }
@@ -430,7 +600,6 @@ export default {
     },
 
     async loadComposantDetails() {
-
       if (!this.selectedIds.composantId || this.selectedIds.composantId == "") return;
 
       this.isLoadingData = true;
@@ -439,11 +608,10 @@ export default {
         const response = await ComposantesService.detailComposant(this.selectedIds.composantId);
         const composantData = response.data.data;
 
-        // fondPropreOutcomes: 0,
-        // SubventionTotalOutcomes: 0,
+        this.OutcomeData = response.data.data;
 
-        // this.fondPropreOutcomes =
-
+        this.fondPropreOutcomes = this.OutcomeData.budgetNational;
+        this.SubventionTotalOutcomes = this.OutcomeData.pret;
 
         this.isLoadingData = false;
         this.sousComposants = composantData.souscomposantes || [];
@@ -452,9 +620,10 @@ export default {
 
         if (this.sousComposants.length > 0) {
           this.haveSousComposantes = true;
+          // Vider les activités si on a des sous-composants
+          this.allActivite = [];
         } else {
           this.haveSousComposantes = false;
-
           this.updateActivitesList(this.activites);
         }
       } catch (error) {
@@ -469,6 +638,15 @@ export default {
         const response = await ComposantesService.detailComposant(this.selectedIds.sousComposantId);
         const sousComposantData = response.data.data;
 
+        this.outputActivite = sousComposantData.activites;
+
+        this.OutputData = response.data.data;
+
+        this.fondPropreOutPut = this.OutputData.budgetNational;
+        this.SubventionTotalOutPut = this.OutputData.pret;
+
+        //recupere fondPropre et subvention de output
+
         console.log("sousComposantData", sousComposantData);
 
         // Mettre à jour les activités du sous-composant
@@ -481,7 +659,7 @@ export default {
 
     updateActivitesList(activites) {
       this.activites = activites;
-      this.allActivite = this.activites;
+      this.allActivite = [...activites]; // Copie du tableau pour éviter la référence partagée
       this.currentPage = 1;
       console.log(this.activites);
     },
@@ -538,6 +716,7 @@ export default {
         .then((response) => {
           if (response.status == 200 || response.status == 201) {
             this.showModalProlongement = false;
+             this.loadingProlonger = false;
 
             this.dateDebut = "";
             this.dateDebutOld = "";
@@ -546,7 +725,11 @@ export default {
 
             toast.success("Prolongation éffectuée avec succès");
 
-            this.loadSousComposantDetails();
+            
+              this.loadSousComposantDetails();
+            
+              this.loadComposantDetails();
+             
             //this.fetchProjets(this.programmeId);
           }
         })
@@ -576,6 +759,7 @@ export default {
         .then((response) => {
           if (response.status == 200 || response.status == 201) {
             this.showModalProlongement = false;
+             this.loadingProlonger = false;
 
             this.dateDebut = "";
             this.dateDebutOld = "";
@@ -584,7 +768,11 @@ export default {
 
             toast.success("Duree modifiée avec succès");
 
-            this.loadSousComposantDetails();
+           
+              this.loadSousComposantDetails();
+            
+              this.loadComposantDetails();
+            
             //this.fetchProjets(this.programmeId);
           }
         })
@@ -603,6 +791,7 @@ export default {
     },
 
     submitDuree() {
+      this.loadingProlonger = true;
       if (this.editDuree) {
         this.modifierDureeActivite();
       } else {
@@ -623,10 +812,14 @@ export default {
         .then((response) => {
           this.loaderStatut = false;
           if (response.status == 200 || response.status == 201) {
-            toast.success("Statut changer  avec succès");
+            toast.success("Statut changé avec succès");
 
-            this.loadSousComposantDetails();
-            //this.fetchProjets(this.programmeId);
+            // Recharger les activités selon le contexte
+            if (this.selectedIds.sousComposantId && this.selectedIds.sousComposantId !== "") {
+              this.loadSousComposantDetails();
+            } else if (this.selectedIds.composantId && this.selectedIds.composantId !== "") {
+              this.loadComposantDetails();
+            }
           }
         })
         .catch((error) => {
@@ -644,11 +837,45 @@ export default {
     },
 
     ouvrirModalPlanDeDecaissementActivite(item) {
+      this.montantADecaisser = item.pret + item.budgetNational;
       this.planDeDecaissement = [];
+
+      this.dureeActivite = {
+        debut: item.debut,
+        fin: item.fin,
+      };
+
+      //recuprer les trimestes de la duree de l'activité
+      this.trimestres = this.getQuartersInDuration(item.debut, item.fin);
+
+      if (item.durees && item.durees.length) {
+        this.plageDureeActivite = item.durees;
+
+        //parcour plageDureeActivite
+        this.plageDureeActivite.forEach((duree) => {
+          const quartersInDuree = this.getQuartersInDuration(duree.debut, duree.fin);
+
+          quartersInDuree.forEach((quarter) => {
+            // si le trimestre n'existe pas dans this.trimestres on l'ajoute
+            const exists = this.trimestres.some((t) => t.trimestre === quarter.trimestre);
+            if (!exists) {
+              this.trimestres.push(quarter);
+            }
+          });
+        });
+
+        // Trier les trimestres par ordre croissant
+        this.trimestres.sort((a, b) => a.trimestre - b.trimestre);
+      }
+
+      //créer etat global : trimestreYears a partie des trimestres
+      const anneesUniques = [...new Set(this.trimestres.map((t) => t.annee))];
+      this.trimestreYears = anneesUniques.sort((a, b) => a - b);
+
       const newItem = {
         activiteId: item.id,
-        trimestre: 1, // Trimestre actuel
-        annee: new Date().getFullYear(), // Set current year as default
+        trimestre: this.trimestres.length > 0 ? this.trimestres[0].value : 1,
+        annee: this.trimestreYears.length > 0 ? this.trimestreYears[0] : new Date().getFullYear(),
         budgetNational: 0,
         pret: 0,
         id: Date.now() + "-" + Math.random().toString(36).substr(2, 9),
@@ -714,11 +941,24 @@ export default {
           this.loadingPlanDeDecaissement = false;
 
           // Mettre à jour les messages d'erreurs dynamiquement
-          if (error.response && error.response.data && error.response.data.errors.length > 0) {
-            this.erreurPlanDeDecaissement = error.response.data.errors;
-            toast.error("Une erreur s'est produite dans votre formualaire");
-          } else {
+          if (error.response && error.response.data && error.response.data.errors) {
+            // Transformer l'objet errors en format compatible avec l'affichage
+            const formattedErrors = {};
+            Object.keys(error.response.data.errors).forEach(key => {
+              formattedErrors[key] = Array.isArray(error.response.data.errors[key])
+                ? error.response.data.errors[key][0]
+                : error.response.data.errors[key];
+            });
+
+            // Assigner les erreurs à l'index correspondant
+            if (!this.erreurPlanDeDecaissement) {
+              this.erreurPlanDeDecaissement = [];
+            }
+            this.erreurPlanDeDecaissement[index] = formattedErrors;
+
             toast.error(`Plan ${index + 1} : ${error.response.data.message}`);
+          } else {
+            toast.error(`Plan ${index + 1} : ${error.response?.data?.message || "Une erreur s'est produite"}`);
           }
         } finally {
           this.loadingPlanDeDecaissement = false;
@@ -736,6 +976,37 @@ export default {
           });
         }
       }
+    },
+
+    // Méthode pour effacer le filtre et retourner à la vue normale
+    clearFilter() {
+      // Réinitialiser les sélections
+      this.selectedIds.composantId = "";
+      this.selectedIds.sousComposantId = "";
+      this.projetId = "";
+
+      // Supprimer les paramètres de l'URL
+      this.$router.replace({
+        name: "Activités",
+        query: {},
+      });
+
+      toast.success("Filtre effacé. Affichage de toutes les activités.");
+    },
+
+    // Méthode pour naviguer vers les tâches avec filtre automatique
+    navigateToTasks(activiteId, activiteName) {
+      // Naviguer vers la page des tâches avec les paramètres de l'activité sélectionnée
+      this.$router.push({
+        name: "Tâches",
+        query: {
+          projetId: this.projetId,
+          composantId: this.selectedIds.composantId,
+          sousComposantId: this.selectedIds.sousComposantId,
+          activiteId: activiteId,
+          activiteName: activiteName,
+        },
+      });
     },
   },
 
@@ -848,6 +1119,19 @@ export default {
         </div>
       </div>
     </div>
+
+    <!-- Indicateur de filtre actif -->
+    <div v-if="$route.query.sousComposantName" class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center">
+          <svg class="w-5 h-5 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <span class="text-blue-700 font-medium"> Filtre actif: Activités de l'output "{{ $route.query.sousComposantName }}" </span>
+        </div>
+        <button @click="clearFilter" class="text-blue-600 hover:text-blue-800 text-sm underline" title="Effacer le filtre">Effacer le filtre</button>
+      </div>
+    </div>
   </div>
 
   <!-- Filtre -->
@@ -890,16 +1174,26 @@ export default {
       <div v-if="!isLoadingData" class="grid grid-cols-12 gap-6 mt-5">
         <NoRecordsMessage class="col-span-12" v-if="!paginatedAndFilteredData.length" title="Aucune activité trouvée" description="Il semble qu'il n'y ait pas d'activités à afficher. Veuillez en créer un." />
         <div v-else v-for="(item, index) in paginatedAndFilteredData" :key="index" class="col-span-12 p-4 md:col-span-6 lg:col-span-4">
-          <div v-if="verifyPermission('voir-une-activite')" class="p-5 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-105 hover:bg-gray-50">
+          <div v-if="verifyPermission('voir-une-activite')" class="p-5 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-105 hover:bg-gray-50 cursor-pointer">
             <div class="relative flex items-start pt-5">
               <div class="flex flex-col items-center w-full lg:flex-row">
-                <div class="flex items-center justify-center w-[90px] h-[90px] text-white rounded-full shadow-md bg-primary flex-shrink-0 mr-4">
-                  {{ item.codePta }}
-                  <!-- <img alt="Midone Tailwind HTML Admin Template" class="rounded-full" :src="faker.photos[0]" /> -->
+                <div class="flex flex-col items-center w-full lg:flex-row">
+                  <div class="flex items-center justify-center w-[90px] h-[90px] text-white rounded-full shadow-md bg-primary flex-shrink-0 mr-4">
+                    {{ item.codePta }}
+                    <!-- <img alt="Midone Tailwind HTML Admin Template" class="rounded-full" :src="faker.photos[0]" /> -->
+                  </div>
+                  <div class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary _truncate text-center lg:text-left">
+                    <a href="" class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary">{{ item.nom }} </a>
+                  </div>
                 </div>
-                <div class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary _truncate text-center lg:text-left">
-                  <a href="" class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary">{{ item.nom }} </a>
-                </div>
+
+                <!-- créer un bouton pour navigateToTasks(item.id, item.nom) -->
+                <button @click.stop="navigateToTasks(item.id, item.nom)" class="ml-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors flex items-center gap-2 text-sm font-medium shadow-md" title="Cliquer pour voir les tâches de cette activité">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                  </svg>
+                  Tâches
+                </button>
               </div>
               <Dropdown class="absolute top-0 right-0 mt-3 mr-5">
                 <DropdownToggle tag="a" class="block w-5 h-5" href="javascript:;">
@@ -909,10 +1203,36 @@ export default {
                   <DropdownContent>
                     <DropdownItem v-if="verifyPermission('modifier-une-activite')" @click="modifierActivite(item)"> <Edit2Icon class="w-4 h-4 mr-2" /> Modifier </DropdownItem>
                     <DropdownItem v-if="verifyPermission('prolonger-une-activite')" @click="ouvrirModalProlongerActivite(item)"> <CalendarIcon class="w-4 h-4 mr-2" /> Prolonger </DropdownItem>
-                    <DropdownItem title="cliquer pour marquer l'activité comme terminer" v-if="verifyPermission('modifier-une-activite') && item.statut == 0" @click="changerStatut(item, 2)"> <CalendarIcon class="w-4 h-4 mr-2" /> Terminer </DropdownItem>
-                    <DropdownItem title="cliquer pour marquer l'activité comme pas démarré" v-if="verifyPermission('modifier-une-activite') && item.statut == 0" @click="changerStatut(item, -1)"> <CalendarIcon class="w-4 h-4 mr-2" /> Pas Démarrer </DropdownItem>
 
-                    <DropdownItem title="cliquer pour démarré l'activité" v-else-if="verifyPermission('modifier-une-activite') && item.statut !== 0" @click="changerStatut(item, 0)"> <CalendarIcon class="w-4 h-4 mr-2" /> Démarrer </DropdownItem>
+                    <!-- Loader pendant le changement de statut -->
+                    <DropdownItem v-if="loaderStatut" class="opacity-50 cursor-not-allowed">
+                      <svg class="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Changement en cours...
+                    </DropdownItem>
+
+                    <!-- Boutons de changement de statut -->
+                    <DropdownItem
+                      title="cliquer pour marquer l'activité comme terminée"
+                      v-if="!loaderStatut && verifyPermission('modifier-une-activite') && item.statut == 0"
+                      @click="changerStatut(item, 2)">
+                      <CalendarIcon class="w-4 h-4 mr-2" /> Terminer
+                    </DropdownItem>
+                    <DropdownItem
+                      title="cliquer pour marquer l'activité comme pas démarré"
+                      v-if="!loaderStatut && verifyPermission('modifier-une-activite') && item.statut == 0"
+                      @click="changerStatut(item, -1)">
+                      <CalendarIcon class="w-4 h-4 mr-2" /> Pas Démarrer
+                    </DropdownItem>
+
+                    <DropdownItem
+                      title="cliquer pour démarrer l'activité"
+                      v-else-if="!loaderStatut && verifyPermission('modifier-une-activite') && item.statut !== 0"
+                      @click="changerStatut(item, 0)">
+                      <CalendarIcon class="w-4 h-4 mr-2" /> Démarrer
+                    </DropdownItem>
 
                     <DropdownItem v-if="verifyPermission('creer-un-plan-de-decaissement')" @click="ouvrirModalPlanDeDecaissementActivite(item)"> <CalendarIcon class="w-4 h-4 mr-2" /> Plan de decaissement </DropdownItem>
 
@@ -941,11 +1261,8 @@ export default {
                   <div class="ml-2 italic font-bold">Fcfa</div>
                 </div>
 
-                <!-- <div class="flex items-center text-sm font-medium text-gray-700">
-                  <GlobeIcon class="w-4 h-4 mr-2 text-primary" /> Taux d'exécution physique:
-                  <span class="ml-2 font-semibold text-gray-900">{{ item.tep }}</span>
-                </div> -->
-
+                
+               
                 <div class="flex items-center text-sm font-medium text-gray-700">
                   <CheckSquareIcon class="w-4 h-4 mr-2 text-primary" /> Statut:
                   <span v-if="item.statut == -2" class="ml-2 text-gray-900">Non validé</span>
@@ -988,7 +1305,7 @@ export default {
     </pagination>
   </div>
 
-  <PlanDecaissementComponent v-if="seePlan" :activiteId="selectedIds.activiteId" :activites="activites" @send-activiteId="changeActiviteId" :getPlageActivites="getPlageActivite" />
+  <PlanDecaissementComponent v-if="seePlan" :activiteId="selectedIds.activiteId" :activites="activites" :montantADecaisser="montantADecaisser" :trimestres="trimestres" :reciveYearsFromParent="trimestreYears" @send-activiteId="changeActiviteId" @send-sommeDesPlanDeDecaissement="receiveSommeDesPlanDeDecaissement" @send-montantRestantADecaisser="receiveMontantRestantADecaisser" :getPlageActivites="getPlageActivite" />
 
   <div v-if="seeStatistique" class="flex flex-col sm:flex-row justify-evenly mt-4">
     <div class="flex flex-col items-center p-6 mb-3 bg-white rounded-md shadow">
@@ -1007,13 +1324,13 @@ export default {
   <Modal size="modal-xl" backdrop="static" :show="showModal" @hidden="showModal = false">
     <ModalHeader>
       <h2 v-if="!isUpdate" class="mr-auto text-base font-medium">Ajouter une Activité</h2>
-      <h2 v-else class="mr-auto text-base font-medium">Modifier un Activité</h2>
+      <h2 v-else class="mr-auto text-base font-medium">Modifier une Activité</h2>
     </ModalHeader>
     <form @submit.prevent="sendForm">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
         <div class="col-span-12 md:col-span-6">
           <InputForm v-model="formData.nom" class="col-span-12 mt-4" type="text" required="required" placeHolder="Nom de l'activité*" label="Nom" />
-          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
+          <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
         </div>
         <div class="input-form mt-3 col-span-12 md:col-span-6">
           <label for="validation-form-6" class="form-label w-full"> Description </label>
@@ -1021,11 +1338,11 @@ export default {
         </div>
         <div class="col-span-12 md:col-span-6">
           <InputForm v-model="formData.pret" class="col-span-12 mt-4" type="number" required="required" placeHolder="Subvention*" label="Subvention" />
-          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pret">{{ messageErreur.pret }}</p>
+          <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.pret">{{ messageErreur.pret }}</p>
         </div>
         <div class="col-span-12 md:col-span-6">
           <InputForm v-model="formData.budgetNational" class="col-span-12 mt-4" type="number" required="required" placeHolder="Ex : 2" label="Fond Propre" />
-          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.budgetNational">{{ messageErreur.budgetNational }}</p>
+          <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.budgetNational">{{ messageErreur.budgetNational }}</p>
         </div>
 
         <div v-if="!isUpdate" class="flex flex-col col-span-12 md:col-span-6 mt-4">
@@ -1074,12 +1391,12 @@ export default {
 
         <div class="col-span-12 md:col-span-6">
           <InputForm v-model="formData.debut" class="col-span-12 mt-4" type="date" required="required" placeHolder="Entrer la date de début*" label="Début de l'activité" />
-          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.debut">{{ messageErreur.debut }}</p>
+          <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.debut">{{ messageErreur.debut }}</p>
         </div>
 
         <div class="col-span-12 md:col-span-6">
           <InputForm v-model="formData.fin" class="col-span-12 mt-4" type="date" required="required" placeHolder="Entrer la date de fin*" label="Fin de l'activité" />
-          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.fin">{{ messageErreur.fin }}</p>
+          <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.fin">{{ messageErreur.fin }}</p>
         </div>
 
         <div v-if="getPlageProjet" class="flex items-center mt-2 col-span-12">
@@ -1087,6 +1404,40 @@ export default {
           <div>
             Durée du projet : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(getPlageProjet.debut) }}</span> au
             <span class="font-bold"> {{ $h.reformatDate(getPlageProjet.fin) }}</span>
+          </div>
+        </div>
+
+        <!-- Afficher fondPropreRestantOutcome et subventionRestantOutcome si haveSousComposantes = false -->
+        <div v-if="!haveSousComposantes" class="col-span-12 mt-4">
+          <div class="p-4 bg-gray-50 rounded-lg">
+            <h3 class="text-lg font-semibold mb-3">Budget disponible (Outcome)</h3>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="text-center">
+                <p class="text-sm text-gray-600">Fonds propres restants</p>
+                <p class="text-xl font-bold text-primary">{{ fondRestantOutCome === 0 ? "0" : $h.formatCurrency(fondRestantOutCome) + " FCFA" }}</p>
+              </div>
+              <div class="text-center">
+                <p class="text-sm text-gray-600">Subventions restantes</p>
+                <p class="text-xl font-bold text-green-600">{{ SubventionRestantOutcome === 0 ? "0" : $h.formatCurrency(SubventionRestantOutcome) + " FCFA" }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Afficher fondPropreRestantOutput et subventionRestantOutput si haveSousComposantes = true -->
+        <div v-if="haveSousComposantes" class="col-span-12 mt-4">
+          <div class="p-4 bg-gray-50 rounded-lg">
+            <h3 class="text-lg font-semibold mb-3">Budget disponible (Output)</h3>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="text-center">
+                <p class="text-sm text-gray-600">Fonds propres restants</p>
+                <p class="text-xl font-bold text-primary">{{ fondRestantOutput === 0 ? "0" : $h.formatCurrency(fondRestantOutput) + " FCFA" }}</p>
+              </div>
+              <div class="text-center">
+                <p class="text-sm text-gray-600">Subventions restantes</p>
+                <p class="text-xl font-bold text-green-600">{{ subventionRestantOutput === 0 ? "0" : $h.formatCurrency(subventionRestantOutput) + " FCFA" }}</p>
+              </div>
+            </div>
           </div>
         </div>
       </ModalBody>
@@ -1121,10 +1472,10 @@ export default {
     <form @submit.prevent="submitDuree">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
         <InputForm v-model="dateDebut" :min="dateDebutOld" class="col-span-12 mt-4" type="date" :required="true" placeHolder="Entrer la nouvelle date debut" label="Nouvelle date debut de l'activite" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurProlongation != null && erreurProlongation.debut">{{ erreurProlongation.debut }}</p>
+        <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="erreurProlongation != null && erreurProlongation.debut">{{ erreurProlongation.debut }}</p>
 
         <InputForm v-model="dateFin" :min="dateFinOld" class="col-span-12 mt-4" type="date" :required="true" placeHolder="Entrer la nouvelle date fin" label="Nouvelle date fin de l'activite" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurProlongation != null && erreurProlongation.fin">
+        <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="erreurProlongation != null && erreurProlongation.fin">
           {{ erreurProlongation.fin }}
         </p>
 
@@ -1138,12 +1489,12 @@ export default {
           </div>
         </div>
 
-        <!-- <div v-if="getPlageProjet" class="flex items-center mt-2 col-span-12">
+        <div v-if="getPlageProjet" class="flex items-center mt-2 col-span-12">
           <ClockIcon class="w-4 h-4 mr-2" />
           <div>
             Durée du projet : Du <span class="px-1 font-bold"> {{ $h.reformatDate(getPlageProjet.debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(getPlageProjet.fin) }}</span>
           </div>
-        </div> -->
+        </div>
       </ModalBody>
       <ModalFooter>
         <div class="flex items-center justify-center">
@@ -1154,75 +1505,125 @@ export default {
     </form>
   </Modal>
 
-  <Modal backdrop="static" :show="showModalPlanDeDecaissement" @hidden="showModalPlanDeDecaissement = false">
+  <Modal backdrop="static" size="modal-lg" :show="showModalPlanDeDecaissement" @hidden="showModalPlanDeDecaissement = false">
     <ModalHeader>
       <h2 class="mr-auto text-base font-medium">Plan de décaissement</h2>
     </ModalHeader>
 
     <form @submit.prevent="planDeDecaissementActivite">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
-        <div v-for="(plan, index) in planDeDecaissement" :key="plan.id" class="col-span-12 border-b pb-4 mb-4">
-          <h3 class="text-sm font-medium mb-2">Plan {{ index + 1 }}</h3>
-
-          <div class="col-span-12 mt-3">
-            <label class="form-label">Sélectionnner l'année de décaissement</label>
-            <TomSelect v-model="plan.annee" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
-              <option v-for="(year, index) in years" :key="index" :value="year">{{ year }}</option>
-            </TomSelect>
-            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.annee">
-              {{ erreurPlanDeDecaissement[index].annee }}
-            </p>
+        <div v-for="(plan, index) in planDeDecaissement" :key="plan.id" class="col-span-12 p-4 bg-gray-50 rounded-lg mb-4">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-base font-semibold text-gray-800">Plan {{ index + 1 }}</h3>
+            <button type="button" @click="removePlan(index)" class="text-red-600 text-sm font-medium hover:text-red-800 flex items-center">
+              <TrashIcon class="w-4 h-4 mr-1" /> Supprimer
+            </button>
           </div>
 
-          <!-- <InputForm v-model="plan.annee" :min="2000" class="col-span-12" type="number" :required="true" placeHolder="Saisissez l'année" label="Saisissez l'année de décaissement" />
-          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.annee">
-            {{ erreurPlanDeDecaissement[index].annee }}
-          </p> -->
-          <div class="col-span-12 mt-4">
-            <label class="form-label">Sélectionnez le trimestre</label>
-            <TomSelect v-model="plan.trimestre" :options="{ placeholder: 'Sélectionnez le trimestre' }" class="w-full">
-              <option :value="1">Trimestre 1</option>
-              <option :value="2">Trimestre 2</option>
-              <option :value="3">Trimestre 3</option>
-              <option :value="4">Trimestre 4</option>
-              <!-- <option v-for="(year, index) in years" :key="index" :value="year">{{ year }}</option> -->
-            </TomSelect>
-            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.trimestre">
-              {{ erreurPlanDeDecaissement[index].trimestre }}
-            </p>
+          <!-- Formulaire en deux colonnes -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Année -->
+            <div>
+              <label class="form-label">Sélectionner l'année de décaissement</label>
+              <TomSelect v-model="plan.annee" :options="{ placeholder: 'Sélectionnez une année' }" class="w-full">
+                <option v-for="(year, yearIndex) in trimestreYears" :key="yearIndex" :value="year">{{ year }}</option>
+              </TomSelect>
+              <p class="text-red-500 text-[12px] mt-1" v-if="erreurPlanDeDecaissement?.[index]?.annee">
+                {{ erreurPlanDeDecaissement[index].annee }}
+              </p>
+            </div>
+
+            <!-- Trimestre -->
+            <div>
+              <label class="form-label">Sélectionner le trimestre</label>
+              <TomSelect v-model="plan.trimestre" :options="{ placeholder: 'Sélectionnez le trimestre' }" class="w-full">
+                <option v-for="trimestre in filteredTrimestresForPlan(plan.annee)" :key="trimestre.value" :value="trimestre.value">
+                  Trimestre {{ trimestre.trimestre }} ({{ trimestre.annee }})
+                </option>
+              </TomSelect>
+              <p class="text-red-500 text-[12px] mt-1" v-if="erreurPlanDeDecaissement?.[index]?.trimestre">
+                {{ erreurPlanDeDecaissement[index].trimestre }}
+              </p>
+            </div>
+
+            <!-- Fond propre -->
+            <div>
+              <InputForm v-model="plan.budgetNational" :min="0" type="number" :required="true" placeHolder="Saisissez le fond propre" label="Fond propre" />
+              <p class="text-red-500 text-[12px] mt-1" v-if="erreurPlanDeDecaissement?.[index]?.budgetNational">
+                {{ erreurPlanDeDecaissement[index].budgetNational }}
+              </p>
+            </div>
+
+            <!-- Subvention -->
+            <div>
+              <InputForm v-model="plan.pret" :min="0" type="number" :required="true" placeHolder="Saisissez la subvention" label="Subvention" />
+              <p class="text-red-500 text-[12px] mt-1" v-if="erreurPlanDeDecaissement?.[index]?.pret">
+                {{ erreurPlanDeDecaissement[index].pret }}
+              </p>
+            </div>
           </div>
+        </div>
 
-          <!-- <InputForm v-model="plan.trimestre" :min="1" :max="4" class="col-span-12 mt-4" type="number" :required="true" placeHolder="Sélectionnez le trimestre" label="Sélectionnez le trimestre" />
-          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.trimestre">
-            {{ erreurPlanDeDecaissement[index].trimestre }}
-          </p> -->
-
-          <InputForm v-model="plan.budgetNational" :min="0" class="col-span-12 mt-4" type="number" :required="true" placeHolder="Saisissez le fond propre" label="Saisissez le fond propre" />
-          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.budgetNational">
-            {{ erreurPlanDeDecaissement[index].budgetNational }}
-          </p>
-
-          <InputForm v-model="plan.pret" :min="0" class="col-span-12 mt-4" type="number" :required="true" placeHolder="Saisissez la subvention" label="Saisissez la subvention" />
-          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurPlanDeDecaissement?.[index]?.pret">
-            {{ erreurPlanDeDecaissement[index].pret }}
-          </p>
-
-          <button type="button" @click="removePlan(index)" class="mt-4 text-red-600 text-sm underline">Supprimer ce plan</button>
-
-          <div class="col-span-12 mt-4" v-if="getPlageActivite">
-            <div class="flex items-center mt-2" v-for="(plage, t) in getPlageActivite.durees" :key="t">
-              <ClockIcon class="w-4 h-4 mr-2" />
-              <div>
-                Plage de date {{ t + 1 }} : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(plage.debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(plage.fin) }}</span>
+        <!-- Informations contextuelles en bas -->
+        <div class="col-span-12 space-y-4 mt-4">
+          <!-- Durée du projet -->
+          <div v-if="getPlageProjet" class="p-3 bg-gray-50 rounded-lg">
+            <div class="flex items-center">
+              <ClockIcon class="w-4 h-4 mr-2 text-primary" />
+              <div class="text-sm text-gray-700">
+                <span class="font-semibold">Durée du projet :</span><br />
+                Du <span class="font-bold"> {{ $h.reformatDate(getPlageProjet.debut) }}</span> au
+                <span class="font-bold"> {{ $h.reformatDate(getPlageProjet.fin) }}</span>
               </div>
             </div>
           </div>
 
-          <div v-if="getPlageProjet" class="flex items-center mt-4 col-span-12">
-            <ClockIcon class="w-4 h-4 mr-2" />
-            <div>
-              Durée du projet : Du <span class="px-1 font-bold"> {{ $h.reformatDate(getPlageProjet.debut) }}</span> au
-              <span class="font-bold"> {{ $h.reformatDate(getPlageProjet.fin) }}</span>
+          <!-- Durée de l'activité -->
+          <div v-if="dureeActivite.debut && dureeActivite.fin" class="p-3 bg-blue-50 rounded-lg">
+            <div class="flex items-center">
+              <ClockIcon class="w-4 h-4 mr-2 text-primary" />
+              <div class="text-sm text-gray-700">
+                <span class="font-semibold">Durée de l'activité :</span><br />
+                Du <span class="font-bold"> {{ $h.reformatDate(dureeActivite.debut) }}</span> au
+                <span class="font-bold"> {{ $h.reformatDate(dureeActivite.fin) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Plages de prolongation -->
+          <div v-if="plageDureeActivite.length > 0" class="p-3 bg-gray-50 rounded-lg">
+            <h4 class="text-sm font-semibold mb-2 text-gray-700">Plages de prolongation :</h4>
+            <div v-for="(plage, plageIndex) in plageDureeActivite" :key="plage.id" class="flex items-start mt-2">
+              <ClockIcon class="w-4 h-4 mr-2 mt-0.5 text-primary flex-shrink-0" />
+              <div class="text-xs text-gray-600">
+                <span class="font-medium">Prolongation {{ plageIndex + 1 }} :</span><br />
+                Du <span class="font-bold"> {{ $h.reformatDate(plage.debut) }}</span> au
+                <span class="font-bold"> {{ $h.reformatDate(plage.fin) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Affiche montantRestantADeecaisser en fonction de loaderListePlan -->
+        <div class="col-span-12 mt-4">
+          <div class="p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <h3 class="text-lg font-semibold mb-3 text-blue-800">Résumé financier</h3>
+            <div v-if="loaderListePlan" class="flex justify-center items-center py-4">
+              <LoaderSnipper />
+            </div>
+            <div v-else class="grid grid-cols-1 gap-3">
+              <div class="flex justify-between items-center">
+                <p class="text-sm text-gray-600">Montant total à décaisser:</p>
+                <p class="text-lg font-bold text-gray-900">{{ montantADecaisser ? $h.formatCurrency(montantADecaisser) : 0 }} FCFA</p>
+              </div>
+              <div class="flex justify-between items-center">
+                <p class="text-sm text-gray-600">Somme des plans de décaissement:</p>
+                <p class="text-lg font-bold text-gray-900">{{ sommeDesPlanDeDecaissement ? $h.formatCurrency(sommeDesPlanDeDecaissement) : 0 }} FCFA</p>
+              </div>
+              <div class="flex justify-between items-center pt-3 border-t border-blue-300">
+                <p class="text-sm font-semibold text-gray-700">Montant restant à décaisser:</p>
+                <p class="text-xl font-bold" :class="montantRestantADecaisser >= 0 ? 'text-green-600' : 'text-red-600'">{{ $h.formatCurrency(montantRestantADecaisser) }} FCFA</p>
+              </div>
             </div>
           </div>
         </div>

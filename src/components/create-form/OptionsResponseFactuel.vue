@@ -25,7 +25,14 @@ const props = defineProps({
 });
 
 // Reactive data structure
-const payload = reactive({ libelle: "", type: "factuel", description: "" });
+const payload = reactive({
+  libelle: "",
+  type: "factuel",
+  description: "",
+  preuveIsRequired: false,
+  sourceIsRequired: false,
+  descriptionIsRequired: false,
+});
 const idSelect = ref("");
 const idChecked = ref([]);
 const nameSelect = ref("");
@@ -101,6 +108,9 @@ const handleEdit = (data) => {
   payload.libelle = data.libelle;
   payload.type = "factuel";
   payload.description = data.description;
+  payload.preuveIsRequired = Boolean(data.preuveIsRequired);
+  payload.sourceIsRequired = Boolean(data.sourceIsRequired);
+  payload.descriptionIsRequired = Boolean(data.descriptionIsRequired);
   showModalCreate.value = true;
 };
 
@@ -116,6 +126,9 @@ const resetForm = () => {
   payload.libelle = "";
   payload.type = "factuel";
   payload.description = "";
+  payload.preuveIsRequired = false;
+  payload.sourceIsRequired = false;
+  payload.descriptionIsRequired = false;
   showModalCreate.value = false;
   errors.value = {};
 };
@@ -195,21 +208,57 @@ watch(
   }
 );
 
-function fixerOptionsDeReponse(){
-  idChecked.value =
-  datas.value.map((item) => {
-    if(item.libelle.toLowerCase() == 'oui'){
-      updateTemporyOption(item.id, 1);
-    }
-    else if(item.libelle.toLowerCase() == 'non'){
-      updateTemporyOption(item.id, 0);
+function fixerOptionsDeReponse() {
+  idChecked.value = datas.value.map((item) => {
+    const libelleLower = item.libelle.toLowerCase();
 
-    }
-    else if(item.libelle.toLowerCase() == 'partiellement'){
+    if (libelleLower == "oui") {
+      updateTemporyOption(item.id, 1);
+      // Fixer les valeurs pour "Oui"
+      updateTemporyOptionRequirements(item.id, {
+        preuveIsRequired: true,
+        sourceIsRequired: true,
+        descriptionIsRequired: false
+      });
+    } else if (libelleLower == "non") {
+      updateTemporyOption(item.id, 0);
+      // Fixer les valeurs pour "Non" (tout à false)
+      updateTemporyOptionRequirements(item.id, {
+        preuveIsRequired: false,
+        sourceIsRequired: false,
+        descriptionIsRequired: false
+      });
+    } else if (libelleLower == "partiellement") {
       updateTemporyOption(item.id, 0.5);
+      // Fixer les valeurs pour "Partiellement"
+      updateTemporyOptionRequirements(item.id, {
+        preuveIsRequired: false,
+        sourceIsRequired: false,
+        descriptionIsRequired: true
+      });
     }
     return item.id;
   });
+}
+
+// Fonction pour mettre à jour les requirements d'une option localement (sans appel API)
+function updateTemporyOptionRequirements(id, requirements) {
+  const index = globalOptionResponses.value.options_de_reponse.findIndex((option) => option.id === id);
+  if (index !== -1) {
+    // Mettre à jour l'option existante avec les nouveaux champs
+    globalOptionResponses.value.options_de_reponse[index] = {
+      ...globalOptionResponses.value.options_de_reponse[index],
+      ...requirements
+    };
+  } else {
+    // Ajouter une nouvelle option avec les requirements et un point par défaut
+    globalOptionResponses.value.options_de_reponse.push({
+      id,
+      point: 0,  // Valeur par défaut pour éviter les erreurs
+      ...requirements
+    });
+  }
+  if (!props.isUpdate) localStorage.setItem("globalOptionResponses", JSON.stringify(globalOptionResponses.value));
 }
 
 // Fetch data on component mount
@@ -265,6 +314,8 @@ onMounted(async () => {
       <button class="text-sm btn btn-primary" @click="openCreateModal"><PlusIcon class="mr-1 size-4" />Ajouter</button>
     </div>
 
+    
+
     <!-- Data List -->
     <ul v-if="!isLoadingData" class="overflow-y-auto listes max-h-[40vh]">
       <li v-for="(data, index) in filterData" :key="data.id">
@@ -301,15 +352,44 @@ onMounted(async () => {
           <div class="grid grid-cols-1 gap-4">
             <InputForm label="Libellé" v-model="payload.libelle" :control="getFieldErrors(errors.libelle)" />
 
-            <!-- <pre>{{ payload.description }}</pre> -->
-
-            <!-- <div class="flex-1">
-              <label class="form-label" for="description">Description</label>
-              <div class="">
-                <textarea name="description" class="form-control" id="description" v-model="payload.description" cols="30" rows="3"></textarea>
-                <div v-if="errors.description" class="mt-2 text-danger">{{ getFieldErrors(errors.description) }}</div>
+            <!-- Nouveaux champs booléens -->
+            <div class="col-span-12">
+              <div class="form-check mb-3">
+                <input
+                  id="preuveIsRequired"
+                  class="form-check-input"
+                  type="checkbox"
+                  v-model="payload.preuveIsRequired"
+                />
+                <label class="form-check-label" for="preuveIsRequired">
+                  Preuve requise
+                </label>
               </div>
-            </div> -->
+
+              <div class="form-check mb-3">
+                <input
+                  id="sourceIsRequired"
+                  class="form-check-input"
+                  type="checkbox"
+                  v-model="payload.sourceIsRequired"
+                />
+                <label class="form-check-label" for="sourceIsRequired">
+                  Source requise
+                </label>
+              </div>
+
+              <div class="form-check">
+                <input
+                  id="descriptionIsRequired"
+                  class="form-check-input"
+                  type="checkbox"
+                  v-model="payload.descriptionIsRequired"
+                />
+                <label class="form-check-label" for="descriptionIsRequired">
+                  Description requise
+                </label>
+              </div>
+            </div>
           </div>
         </ModalBody>
         <ModalFooter>

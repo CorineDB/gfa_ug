@@ -183,11 +183,15 @@ export default {
             })
             .catch((error) => {
               console.log(error);
-              if (error.response.status == 422) {
+
+              // Afficher le message d'erreur du serveur
+              const errorMessage = error.response?.data?.message || "Identifiants incorrects !!!";
+
+              if (error.response?.status == 422) {
                 this.showAlert = true;
-                toast.error("Email ou mot de passe incorrect reesayer !!!");
+                toast.error(errorMessage);
               } else {
-                toast.error("Identifiants incorrect !!!");
+                toast.error(errorMessage);
               }
               this.chargement = false;
             });
@@ -223,7 +227,7 @@ export default {
       //this.$toast.success('Profile saved',)
     },
   },
-  
+
  // beforeMount() {
   //  if (localStorage.getItem("authenticateUser") && localStorage.getItem("access_token")) {
   //    window.location.href = "/dashboard/projets";

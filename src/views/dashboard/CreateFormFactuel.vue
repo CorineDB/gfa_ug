@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeUnmount, reactive, ref, computed, onMounted, watch } from "vue";
+import { onBeforeUnmount, reactive, ref, computed, onMounted, watch, provide } from "vue";
 import { toast } from "vue3-toastify";
 //import OptionsResponse from "@/components/create-form/OptionsResponse.vue";
 import OptionsResponseFactuel from "@/components/create-form/OptionsResponseFactuel.vue";
@@ -18,6 +18,7 @@ import InputForm from "@/components/news/InputForm.vue";
 //import FormulaireFactuel from "@/services/modules/formFactuel.service";
 
 import FormulaireFactuel from "@/services/modules/enquetes_de_gouvernance/formFactuel.service";
+import OptionReponse from "@/services/modules/enquetes_de_gouvernance/optionReponse.service";
 
 import PreviewFactuelForm from "@/components/create-form/PreviewFactuelForm.vue";
 import { getAllErrorMessages } from "@/utils/gestion-error";
@@ -67,6 +68,14 @@ const globalData = localStorage.getItem("globalFormFactuelData");
 const previewData = localStorage.getItem("previewFormFactuelData");
 
 const previewFormulaire = ref(false);
+const showModifyModal = ref(false);
+const modifyElement = reactive({
+  key: '',
+  type: '', // 'type', 'principe', 'critere', 'indicateur'
+  currentData: {},
+  newParentId: '',
+  availableParents: []
+});
 
 const extractMessage = function (errorArray) {
   return Array.isArray(errorArray) && errorArray.length > 0 ? errorArray[0] : "";
@@ -683,6 +692,19 @@ const removeIndicator = (key) => {
     globalFormFactuelData.value.splice(index, 1);
     previewFormFactuelData.value.splice(index, 1);
     uniqueKeys.delete(key);
+    
+    // Recalculer toutes les positions après suppression
+    recalculatePositions();
+    
+    // ✅ Sort after position recalculation
+    globalFormFactuelData.value.sort((a, b) => {
+      return a.typePosition - b.typePosition || a.principePosition - b.principePosition || a.criterePosition - b.criterePosition || a.indicateurPosition - b.indicateurPosition;
+    });
+
+    previewFormFactuelData.value.sort((a, b) => {
+      return a.type.position - b.type.position || a.principe.position - b.principe.position || a.critere.position - b.critere.position || a.indicateur.position - b.indicateur.position;
+    });
+    
     updateAllTypesGouvernance();
     localStorage.setItem("globalFormFactuelData", JSON.stringify(globalFormFactuelData.value));
     localStorage.setItem("previewFormFactuelData", JSON.stringify(previewFormFactuelData.value));
@@ -720,126 +742,259 @@ const handleEdit = (key) => {
   canEditIndicateur.value[key] = true;
 };
 
+// Fonction pour valider et réorganiser les positions
+const validateAndReorganizePositions = (key, newPosition, type = "critere", isCurrent = false) => {
+  const position = parseInt(newPosition);
+  
+  // Validation de base
+  if (position < 1) {
+    toast.error("La position doit être supérieure à 0");
+    return false;
+  }
+
+  if (!isCurrent) {
+    let elementsToCheck = [];
+    let currentElementId = null;
+
+    // Déterminer les éléments à vérifier selon le type
+    if (type === "type") {
+      elementsToCheck = [...new Set(globalFormFactuelData.value.map(item => item.type))];
+      currentElementId = globalFormFactuelData.value.find(item => item.typeKey === key)?.type;
+    } else if (type === "principe") {
+      const currentElement = globalFormFactuelData.value.find(item => item.principeKey === key);
+      if (currentElement) {
+        elementsToCheck = [...new Set(
+          globalFormFactuelData.value
+            .filter(item => item.type === currentElement.type)
+            .map(item => item.principe)
+        )];
+        currentElementId = currentElement.principe;
+      }
+    } else if (type === "critere") {
+      const currentElement = globalFormFactuelData.value.find(item => item.critereKey === key);
+      if (currentElement) {
+        elementsToCheck = [...new Set(
+          globalFormFactuelData.value
+            .filter(item => item.type === currentElement.type && item.principe === currentElement.principe)
+            .map(item => item.critere)
+        )];
+        currentElementId = currentElement.critere;
+      }
+    }
+
+    // Validation : la position ne peut pas dépasser le nombre d'éléments
+    if (position > elementsToCheck.length) {
+      toast.error(`La position ne peut pas dépasser ${elementsToCheck.length}`);
+      return false;
+    }
+
+    // Réorganisation des positions
+    reorganizePositions(currentElementId, position, type, isCurrent);
+    
+  } else {
+    // Pour les éléments en cours d'ajout
+    let maxPosition = 1;
+    
+    if (type === "type") {
+      maxPosition = new Set([...globalFormFactuelData.value.map(i => i.type), ...currentGlobalFactuelFormDataArray.value.map(i => i.type)].filter(Boolean)).size + 1;
+    } else if (type === "principe") {
+      const typeId = currentGlobalFactuelFormData.type;
+      maxPosition = new Set([
+        ...globalFormFactuelData.value.filter(i => i.type === typeId).map(i => i.principe),
+        ...currentGlobalFactuelFormDataArray.value.filter(i => i.type === typeId).map(i => i.principe)
+      ].filter(Boolean)).size + 1;
+    } else if (type === "critere") {
+      const typeId = currentGlobalFactuelFormData.type;
+      const principeId = currentGlobalFactuelFormData.principe;
+      maxPosition = new Set([
+        ...globalFormFactuelData.value.filter(i => i.type === typeId && i.principe === principeId).map(i => i.critere),
+        ...currentGlobalFactuelFormDataArray.value.filter(i => i.type === typeId && i.principe === principeId).map(i => i.critere)
+      ].filter(Boolean)).size + 1;
+    }
+
+    if (position > maxPosition) {
+      toast.error(`La position ne peut pas dépasser ${maxPosition}`);
+      return false;
+    }
+
+    // Mise à jour pour les éléments en cours
+    updateCurrentElementPosition(key, position, type);
+  }
+
+  return true;
+};
+
+// Fonction pour réorganiser les positions
+const reorganizePositions = (elementId, newPosition, type, isCurrent = false) => {
+  if (type === "type") {
+    // Obtenir tous les types uniques avec leurs positions actuelles
+    const typePositions = new Map();
+    globalFormFactuelData.value.forEach(item => {
+      if (!typePositions.has(item.type)) {
+        typePositions.set(item.type, item.typePosition);
+      }
+    });
+
+    // Créer un tableau ordonné des types
+    const sortedTypes = Array.from(typePositions.entries()).sort((a, b) => a[1] - b[1]);
+    const oldPosition = typePositions.get(elementId);
+
+    // Réorganiser les positions
+    const newSortedTypes = [...sortedTypes];
+    const elementIndex = newSortedTypes.findIndex(([id]) => id === elementId);
+    const [element] = newSortedTypes.splice(elementIndex, 1);
+    newSortedTypes.splice(newPosition - 1, 0, element);
+
+    // Appliquer les nouvelles positions
+    newSortedTypes.forEach(([typeId], index) => {
+      const newPos = index + 1;
+      globalFormFactuelData.value.forEach(item => {
+        if (item.type === typeId) {
+          item.typePosition = newPos;
+        }
+      });
+      previewFormFactuelData.value.forEach(item => {
+        if (item.type.id === typeId) {
+          item.type.position = newPos;
+        }
+      });
+    });
+
+  } else if (type === "principe") {
+    // Similaire pour les principes
+    const currentElement = globalFormFactuelData.value.find(item => item.principeKey && item.principeKey.includes(elementId.toString()));
+    if (currentElement) {
+      const typeId = currentElement.type;
+      
+      const principePositions = new Map();
+      globalFormFactuelData.value
+        .filter(item => item.type === typeId)
+        .forEach(item => {
+          if (!principePositions.has(item.principe)) {
+            principePositions.set(item.principe, item.principePosition);
+          }
+        });
+
+      const sortedPrincipes = Array.from(principePositions.entries()).sort((a, b) => a[1] - b[1]);
+      const newSortedPrincipes = [...sortedPrincipes];
+      const elementIndex = newSortedPrincipes.findIndex(([id]) => id === elementId);
+      const [element] = newSortedPrincipes.splice(elementIndex, 1);
+      newSortedPrincipes.splice(newPosition - 1, 0, element);
+
+      newSortedPrincipes.forEach(([principeId], index) => {
+        const newPos = index + 1;
+        globalFormFactuelData.value.forEach(item => {
+          if (item.type === typeId && item.principe === principeId) {
+            item.principePosition = newPos;
+          }
+        });
+        previewFormFactuelData.value.forEach(item => {
+          if (item.type.id === typeId && item.principe.id === principeId) {
+            item.principe.position = newPos;
+          }
+        });
+      });
+    }
+
+  } else if (type === "critere") {
+    // Similaire pour les critères
+    const currentElement = globalFormFactuelData.value.find(item => item.critereKey && item.critereKey.includes(elementId.toString()));
+    if (currentElement) {
+      const typeId = currentElement.type;
+      const principeId = currentElement.principe;
+      
+      const criterePositions = new Map();
+      globalFormFactuelData.value
+        .filter(item => item.type === typeId && item.principe === principeId)
+        .forEach(item => {
+          if (!criterePositions.has(item.critere)) {
+            criterePositions.set(item.critere, item.criterePosition);
+          }
+        });
+
+      const sortedCriteres = Array.from(criterePositions.entries()).sort((a, b) => a[1] - b[1]);
+      const newSortedCriteres = [...sortedCriteres];
+      const elementIndex = newSortedCriteres.findIndex(([id]) => id === elementId);
+      const [element] = newSortedCriteres.splice(elementIndex, 1);
+      newSortedCriteres.splice(newPosition - 1, 0, element);
+
+      newSortedCriteres.forEach(([critereId], index) => {
+        const newPos = index + 1;
+        globalFormFactuelData.value.forEach(item => {
+          if (item.type === typeId && item.principe === principeId && item.critere === critereId) {
+            item.criterePosition = newPos;
+          }
+        });
+        previewFormFactuelData.value.forEach(item => {
+          if (item.type.id === typeId && item.principe.id === principeId && item.critere.id === critereId) {
+            item.critere.position = newPos;
+          }
+        });
+      });
+    }
+  }
+
+  // Tri et sauvegarde
+  globalFormFactuelData.value.sort((a, b) => {
+    return a.typePosition - b.typePosition || a.principePosition - b.principePosition || a.criterePosition - b.criterePosition || a.indicateurPosition - b.indicateurPosition;
+  });
+
+  previewFormFactuelData.value.sort((a, b) => {
+    return a.type.position - b.type.position || a.principe.position - b.principe.position || a.critere.position - b.critere.position || a.indicateur.position - b.indicateur.position;
+  });
+
+  updateAllTypesGouvernance();
+  localStorage.setItem("globalFormFactuelData", JSON.stringify(globalFormFactuelData.value));
+  localStorage.setItem("previewFormFactuelData", JSON.stringify(previewFormFactuelData.value));
+
+  toast.success("Position mise à jour avec réorganisation");
+};
+
+// Fonction pour mettre à jour les éléments en cours
+const updateCurrentElementPosition = (key, position, type) => {
+  if (type === "type") {
+    currentPreviewFactuelFormData.type.position = position;
+    currentGlobalFactuelFormData.typePosition = position;
+  } else if (type === "principe") {
+    currentPreviewFactuelFormData.principe.position = position;
+    currentGlobalFactuelFormData.principePosition = position;
+  } else if (type === "critere") {
+    currentPreviewFactuelFormData.critere.position = position;
+    currentGlobalFactuelFormData.criterePosition = position;
+  }
+
+  // Mise à jour des arrays temporaires
+  currentGlobalFactuelFormDataArray.value.forEach((item) => {
+    if (type === "type" && item.typeKey === key) {
+      item.typePosition = position;
+    } else if (type === "principe" && item.principeKey === key) {
+      item.principePosition = position;
+    } else if (type === "critere" && item.critereKey === key) {
+      item.criterePosition = position;
+    }
+  });
+
+  currentPreviewFactuelFormDataArray.value.forEach((item) => {
+    if (type === "type" && item.type.key === key) {
+      item.type.position = position;
+    } else if (type === "principe" && item.principe.key === key) {
+      item.principe.position = position;
+    } else if (type === "critere" && item.critere.key === key) {
+      item.critere.position = position;
+    }
+  });
+};
+
 const updateTemporyElement = (key, position, isCurrent = false, type = "critere") => {
-  if (isCurrent == false) {
-    // Update position from globalFormFactuelData
-    globalFormFactuelData.value = globalFormFactuelData.value
-      .map((item) => {
-        if (type == "type") {
-          if (item.typeKey == key) {
-            item.typePosition = position;
-          }
-        } else if (type == "principe") {
-          if (item.principeKey == key) {
-            item.principePosition = position;
-          }
-        } else if (type == "critere") {
-          if (item.critereKey == key) {
-            item.criterePosition = position;
-          }
-        }
-
-        console.log(item);
-
-        return item;
-      })
-      .sort((a, b) => {
-        return a.typePosition - b.typePosition || a.principePosition - b.principePosition || a.criterePosition - b.criterePosition || a.indicateurPosition - b.indicateurPosition;
-      });
-
-    // Update position from previewFormFactuelData
-    previewFormFactuelData.value = previewFormFactuelData.value
-      .map((item) => {
-        if (type == "type") {
-          if (item.type.key == key) {
-            item.type.position = position;
-          }
-        } else if (type == "principe") {
-          if (item.principe.key == key) {
-            item.principe.position = position;
-          }
-        } else if (type == "critere") {
-          if (item.critere.key == key) {
-            item.critere.position = position;
-          }
-        }
-
-        return item;
-      })
-      .sort((a, b) => {
-        return a.type.position - b.type.position || a.principe.position - b.principe.position || a.critere.position - b.critere.position || a.indicateur.position - b.indicateur.position;
-      });
-
-    // Recalculate and update
-    updateAllTypesGouvernance();
-
-    // Persist to localStorage
-    localStorage.setItem("globalFormFactuelData", JSON.stringify(globalFormFactuelData.value));
-    localStorage.setItem("previewFormFactuelData", JSON.stringify(previewFormFactuelData.value));
-
-    if (type == "type") {
+  if (validateAndReorganizePositions(key, position, type, isCurrent)) {
+    // Fermer l'édition
+    if (type === "type") {
       canEditType.value[key] = false;
-    } else if (type == "principe") {
+    } else if (type === "principe") {
       canEditPrincipe.value[key] = false;
-    } else if (type == "critere") {
+    } else if (type === "critere") {
       canEditCritere.value[key] = false;
     }
-    console.log(type);
-  } else {
-    if (type == "type") {
-      currentPreviewFactuelFormData.type.position = position;
-      currentGlobalFactuelFormData.typePosition = position;
-    } else if (type == "principe") {
-      currentPreviewFactuelFormData.principe.position = position;
-      currentGlobalFactuelFormData.principePosition = position;
-    } else if (type == "critere") {
-      currentPreviewFactuelFormData.critere.position = position;
-      currentGlobalFactuelFormData.criterePosition = position;
-    }
-
-    currentGlobalFactuelFormDataArray.value = currentGlobalFactuelFormDataArray.value
-      .map((item) => {
-        if (type == "type") {
-          if (item.typeKey == key) {
-            item.typePosition = position;
-          }
-        } else if (type == "principe") {
-          if (item.principeKey == key) {
-            item.principePosition = position;
-          }
-        } else if (type == "critere") {
-          if (item.critereKey == key) {
-            item.criterePosition = position;
-          }
-        }
-
-        return item;
-      })
-      .sort((a, b) => {
-        return a.typePosition - b.typePosition || a.principePosition - b.principePosition || a.criterePosition - b.criterePosition || a.indicateurPosition - b.indicateurPosition;
-      });
-
-    currentPreviewFactuelFormDataArray.value = currentPreviewFactuelFormDataArray.value
-      .map((item) => {
-        if (type == "type") {
-          if (item.type.key == key) {
-            item.type.position = position;
-          }
-        } else if (type == "principe") {
-          if (item.principe.key == key) {
-            item.principe.position = position;
-          }
-        } else if (type == "critere") {
-          if (item.critere.key == key) {
-            item.critere.position = position;
-          }
-        }
-
-        return item;
-      })
-      .sort((a, b) => {
-        return a.type.position - b.type.position || a.principe.position - b.principe.position || a.critere.position - b.critere.position || a.indicateur.position - b.indicateur.position;
-      });
   }
 };
 
@@ -854,58 +1009,137 @@ const handleEditElement = (key, type = "critere") => {
   }
 };
 
-const updateTemporyIndicateurs = (key, position, isCurrent = false) => {
+// Fonction spécifique pour valider et réorganiser les indicateurs
+const validateAndReorganizeIndicatorPositions = (key, newPosition, isCurrent = false) => {
+  const position = parseInt(newPosition);
+  
+  // Validation de base
+  if (position < 1) {
+    toast.error("La position doit être supérieure à 0");
+    return false;
+  }
+
   if (!isCurrent) {
-    previewFormFactuelData.value = previewFormFactuelData.value
-      .map((item) => {
-        if (item.indicateur.key == key) {
-          item.indicateur.position = position;
-        }
-        return item;
-      })
-      .sort((a, b) => {
-        return a.type.position - b.type.position || a.principe.position - b.principe.position || a.critere.position - b.critere.position || a.indicateur.position - b.indicateur.position;
-      });
+    // Trouver l'indicateur concerné
+    const currentIndicator = globalFormFactuelData.value.find(item => item.indicateurKey === key);
+    if (!currentIndicator) return false;
 
-    globalFormFactuelData.value = globalFormFactuelData.value
-      .map((item) => {
-        if (item.indicateur.key == key) {
-          item.position = position;
-        }
-        return item;
-      })
-      .sort((a, b) => {
-        return a.typePosition - b.typePosition || a.principePosition - b.principePosition || a.criterePosition - b.criterePosition || a.indicateurPosition - b.indicateurPosition;
-      });
+    // Obtenir tous les indicateurs du même critère
+    const indicateursForCritere = globalFormFactuelData.value.filter(item => 
+      item.type === currentIndicator.type && 
+      item.principe === currentIndicator.principe && 
+      item.critere === currentIndicator.critere
+    );
 
-    //  updateAllTypesGouvernance();
+    // Validation : la position ne peut pas dépasser le nombre d'indicateurs
+    if (position > indicateursForCritere.length) {
+      toast.error(`La position ne peut pas dépasser ${indicateursForCritere.length}`);
+      return false;
+    }
 
-    localStorage.setItem("globalFormFactuelData", JSON.stringify(globalFormFactuelData.value));
-    localStorage.setItem("previewFormFactuelData", JSON.stringify(previewFormFactuelData.value));
-
-    toast.success("Question operationnelle update.");
+    // Réorganiser les positions des indicateurs
+    reorganizeIndicatorPositions(currentIndicator, position);
+    
   } else {
-    currentPreviewFactuelFormDataArray.value = currentPreviewFactuelFormDataArray.value
-      .map((item) => {
-        if (item.indicateur.key == key) {
-          item.indicateur.position = position;
-        }
-        return item;
-      })
-      .sort((a, b) => {
-        return a.type.position - b.type.position || a.principe.position - b.principe.position || a.critere.position - b.critere.position || a.indicateur.position - b.indicateur.position;
-      });
+    // Pour les indicateurs en cours d'ajout
+    const typeId = currentGlobalFactuelFormData.type;
+    const principeId = currentGlobalFactuelFormData.principe;
+    const critereId = currentGlobalFactuelFormData.critere;
+    
+    const maxPosition = [
+      ...globalFormFactuelData.value.filter(i => i.type === typeId && i.principe === principeId && i.critere === critereId),
+      ...currentGlobalFactuelFormDataArray.value.filter(i => i.type === typeId && i.principe === principeId && i.critere === critereId)
+    ].length + 1;
 
-    currentGlobalFactuelFormDataArray.value = currentGlobalFactuelFormDataArray.value
-      .map((item) => {
-        if (item.indicateur.key == key) {
-          item.position = position;
-        }
-        return item;
-      })
-      .sort((a, b) => {
-        return a.typePosition - b.typePosition || a.principePosition - b.principePosition || a.criterePosition - b.criterePosition || a.indicateurPosition - b.indicateurPosition;
-      });
+    if (position > maxPosition) {
+      toast.error(`La position ne peut pas dépasser ${maxPosition}`);
+      return false;
+    }
+
+    // Mise à jour pour les indicateurs en cours
+    updateCurrentIndicatorPosition(key, position);
+  }
+
+  return true;
+};
+
+// Fonction pour réorganiser les positions des indicateurs
+const reorganizeIndicatorPositions = (currentIndicator, newPosition) => {
+  const typeId = currentIndicator.type;
+  const principeId = currentIndicator.principe;
+  const critereId = currentIndicator.critere;
+  const indicateurId = currentIndicator.indicateur;
+
+  // Obtenir tous les indicateurs du même critère triés par position
+  const indicateursForCritere = globalFormFactuelData.value
+    .filter(item => item.type === typeId && item.principe === principeId && item.critere === critereId)
+    .sort((a, b) => a.indicateurPosition - b.indicateurPosition);
+
+  // Créer un tableau des IDs d'indicateurs dans l'ordre actuel
+  const indicateurIds = indicateursForCritere.map(item => item.indicateur);
+  
+  // Trouver l'index actuel de l'indicateur à déplacer
+  const currentIndex = indicateurIds.indexOf(indicateurId);
+  
+  // Retirer l'indicateur de sa position actuelle et l'insérer à la nouvelle position
+  const [movedIndicateur] = indicateurIds.splice(currentIndex, 1);
+  indicateurIds.splice(newPosition - 1, 0, movedIndicateur);
+
+  // Appliquer les nouvelles positions
+  indicateurIds.forEach((indicateurIdToUpdate, index) => {
+    const newPos = index + 1;
+    
+    // Mettre à jour dans globalFormFactuelData
+    globalFormFactuelData.value.forEach(item => {
+      if (item.type === typeId && item.principe === principeId && item.critere === critereId && item.indicateur === indicateurIdToUpdate) {
+        item.indicateurPosition = newPos;
+      }
+    });
+    
+    // Mettre à jour dans previewFormFactuelData
+    previewFormFactuelData.value.forEach(item => {
+      if (item.type.id === typeId && item.principe.id === principeId && item.critere.id === critereId && item.indicateur.id === indicateurIdToUpdate) {
+        item.indicateur.position = newPos;
+      }
+    });
+  });
+
+  // Tri et sauvegarde
+  globalFormFactuelData.value.sort((a, b) => {
+    return a.typePosition - b.typePosition || a.principePosition - b.principePosition || a.criterePosition - b.criterePosition || a.indicateurPosition - b.indicateurPosition;
+  });
+
+  previewFormFactuelData.value.sort((a, b) => {
+    return a.type.position - b.type.position || a.principe.position - b.principe.position || a.critere.position - b.critere.position || a.indicateur.position - b.indicateur.position;
+  });
+
+  localStorage.setItem("globalFormFactuelData", JSON.stringify(globalFormFactuelData.value));
+  localStorage.setItem("previewFormFactuelData", JSON.stringify(previewFormFactuelData.value));
+
+  toast.success("Position de l'indicateur mise à jour avec réorganisation");
+};
+
+// Fonction pour mettre à jour les indicateurs en cours
+const updateCurrentIndicatorPosition = (key, position) => {
+  currentPreviewFactuelFormDataArray.value.forEach((item) => {
+    if (item.indicateur.key === key) {
+      item.indicateur.position = position;
+    }
+  });
+
+  currentGlobalFactuelFormDataArray.value.forEach((item) => {
+    if (item.indicateurKey === key) {
+      item.indicateurPosition = position;
+    }
+  });
+};
+
+const updateTemporyIndicateurs = (key, position, isCurrent = false) => {
+  if (validateAndReorganizeIndicatorPositions(key, position, isCurrent)) {
+    // Fermer l'édition si c'est un indicateur persisté
+    if (!isCurrent) {
+      canEditIndicateur.value[key] = false;
+    }
   }
 };
 
@@ -934,6 +1168,118 @@ const updateElement = (key, type = "critere", isCurrent = false) => {
     const typeKey = type + "Key";
   } else {
   }
+};
+
+// Fonction pour recalculer les positions après suppression
+const recalculatePositions = () => {
+  // 1. Recalculer les positions des types
+  const uniqueTypes = [...new Set(globalFormFactuelData.value.map(item => item.type))];
+  uniqueTypes.forEach((typeId, index) => {
+    const newPosition = index + 1;
+    globalFormFactuelData.value.forEach(item => {
+      if (item.type === typeId) {
+        item.typePosition = newPosition;
+      }
+    });
+    previewFormFactuelData.value.forEach(item => {
+      if (item.type.id === typeId) {
+        item.type.position = newPosition;
+      }
+    });
+  });
+
+  // 2. Recalculer les positions des principes pour chaque type
+  uniqueTypes.forEach(typeId => {
+    const principesForType = [...new Set(
+      globalFormFactuelData.value
+        .filter(item => item.type === typeId)
+        .map(item => item.principe)
+    )];
+    
+    principesForType.forEach((principeId, index) => {
+      const newPosition = index + 1;
+      globalFormFactuelData.value.forEach(item => {
+        if (item.type === typeId && item.principe === principeId) {
+          item.principePosition = newPosition;
+        }
+      });
+      previewFormFactuelData.value.forEach(item => {
+        if (item.type.id === typeId && item.principe.id === principeId) {
+          item.principe.position = newPosition;
+        }
+      });
+    });
+  });
+
+  // 3. Recalculer les positions des critères pour chaque principe
+  uniqueTypes.forEach(typeId => {
+    const principesForType = [...new Set(
+      globalFormFactuelData.value
+        .filter(item => item.type === typeId)
+        .map(item => item.principe)
+    )];
+    
+    principesForType.forEach(principeId => {
+      const criteresForPrincipe = [...new Set(
+        globalFormFactuelData.value
+          .filter(item => item.type === typeId && item.principe === principeId)
+          .map(item => item.critere)
+      )];
+      
+      criteresForPrincipe.forEach((critereId, index) => {
+        const newPosition = index + 1;
+        globalFormFactuelData.value.forEach(item => {
+          if (item.type === typeId && item.principe === principeId && item.critere === critereId) {
+            item.criterePosition = newPosition;
+          }
+        });
+        previewFormFactuelData.value.forEach(item => {
+          if (item.type.id === typeId && item.principe.id === principeId && item.critere.id === critereId) {
+            item.critere.position = newPosition;
+          }
+        });
+      });
+    });
+  });
+
+  // 4. Recalculer les positions des indicateurs pour chaque critère
+  uniqueTypes.forEach(typeId => {
+    const principesForType = [...new Set(
+      globalFormFactuelData.value
+        .filter(item => item.type === typeId)
+        .map(item => item.principe)
+    )];
+    
+    principesForType.forEach(principeId => {
+      const criteresForPrincipe = [...new Set(
+        globalFormFactuelData.value
+          .filter(item => item.type === typeId && item.principe === principeId)
+          .map(item => item.critere)
+      )];
+      
+      criteresForPrincipe.forEach(critereId => {
+        const indicateursForCritere = globalFormFactuelData.value
+          .filter(item => item.type === typeId && item.principe === principeId && item.critere === critereId)
+          .sort((a, b) => a.indicateurPosition - b.indicateurPosition);
+        
+        indicateursForCritere.forEach((item, index) => {
+          const newPosition = index + 1;
+          item.indicateurPosition = newPosition;
+          
+          // Mettre à jour aussi dans previewFormFactuelData
+          const previewItem = previewFormFactuelData.value.find(preview => 
+            preview.type.id === typeId && 
+            preview.principe.id === principeId && 
+            preview.critere.id === critereId && 
+            preview.indicateur.id === item.indicateur
+          );
+          if (previewItem) {
+            previewItem.indicateur.position = newPosition;
+          }
+        });
+      });
+    });
+  });
 };
 
 const removeElement = (key, type = "critere", isCurrent = false) => {
@@ -972,17 +1318,20 @@ const removeElement = (key, type = "critere", isCurrent = false) => {
       }
     }
 
-    // ✅ Sort after unshift
-    globalFormFactuelData.value.sort((a, b) => {
-      return a.typePosition - b.typePosition || a.principePosition - b.principePosition || a.criterePosition - b.criterePosition || a.indicateurPosition - b.indicateurPosition;
-    });
-
     // Remove from previewFormFactuelData
     for (let i = previewFormFactuelData.value.length - 1; i >= 0; i--) {
       if (previewFormFactuelData.value[i][type]["key"] === key) {
         previewFormFactuelData.value.splice(i, 1);
       }
     }
+
+    // Recalculer toutes les positions après suppression
+    recalculatePositions();
+
+    // ✅ Sort after position recalculation
+    globalFormFactuelData.value.sort((a, b) => {
+      return a.typePosition - b.typePosition || a.principePosition - b.principePosition || a.criterePosition - b.criterePosition || a.indicateurPosition - b.indicateurPosition;
+    });
 
     previewFormFactuelData.value.sort((a, b) => {
       return a.type.position - b.type.position || a.principe.position - b.principe.position || a.critere.position - b.critere.position || a.indicateur.position - b.indicateur.position;
@@ -1017,10 +1366,88 @@ const resetForm = () => {
   payload.libelle = "";
   modalForm.value = false;
 };
-
+// [
+//     {
+//         "id": "YMLrvmB25Kwaro7dGPyW1zN0DExB8gOzqnl2Amvj9ZYXMJqR6Vk4e3pLo9GWe0k1",
+//         "point": "1",
+//         "preuveIsRequired": true,
+//         "sourceIsRequired": true,
+//         "descriptionIsRequired": false
+//     },
+//     {
+//         "id": "oKyBZAvxmYkeVjDz21N8wKXvJP7WL4ndKb09aglRd35pxZyEAMrqB6oGd52k6MYV",
+//         "point": "0.5",
+//         "preuveIsRequired": false,
+//         "sourceIsRequired": false,
+//         "descriptionIsRequired": true
+//     },
+//     {
+//         "id": "VkZjXED00v2XwZzN84a7VErB1qGRJMQezb6Ay3YjoKLgxkWpmldDe95PdRrJ3yxo",
+//         "point": "0",
+//         "preuveIsRequired": false,
+//         "sourceIsRequired": false,
+//         "descriptionIsRequired": false
+//     }
+// ]
 const createForm = async () => {
   isLoadingForm.value = true;
-  payload.factuel.options_de_reponse = globalOptionResponses.value.options_de_reponse;
+
+  // Enrichir les options de réponse avec les données complètes (incluant les champs booléens)
+  try {
+    const { data } = await OptionReponse.factuel();
+    const allOptions = data.data;
+
+    // Enrichir chaque option avec les données complètes
+    payload.factuel.options_de_reponse = globalOptionResponses.value.options_de_reponse.map(option => {
+      const fullOption = allOptions.find(opt => opt.id === option.id);
+
+      if (!fullOption) {
+        return {
+          id: option.id,
+          point: option.point,
+          preuveIsRequired: false,
+          sourceIsRequired: false,
+          descriptionIsRequired: false
+        };
+      }
+
+      const libelleLower = fullOption.libelle?.toLowerCase() || '';
+      const slugLower = fullOption.slug?.toLowerCase() || '';
+
+      // Vérifier les slugs et attribuer les valeurs en conséquence
+      let preuveIsRequired = fullOption.preuveIsRequired || false;
+      let sourceIsRequired = fullOption.sourceIsRequired || false;
+      let descriptionIsRequired = fullOption.descriptionIsRequired || false;
+
+      // Forcer les valeurs selon le slug/libellé (logique hardcodée)
+      if (libelleLower === 'oui' || slugLower === 'oui') {
+        preuveIsRequired = true;
+        sourceIsRequired = true;
+        descriptionIsRequired = false;
+      } else if (libelleLower === 'partiellement' || slugLower === 'partiellement') {
+        preuveIsRequired = false;
+        sourceIsRequired = false;
+        descriptionIsRequired = true;
+      } else if (libelleLower === 'non' || slugLower === 'non') {
+        preuveIsRequired = false;
+        sourceIsRequired = false;
+        descriptionIsRequired = false;
+      }
+
+      return {
+        id: option.id,
+        point: option.point,
+        preuveIsRequired,
+        sourceIsRequired,
+        descriptionIsRequired
+      };
+    });
+  } catch (e) {
+    console.error("Erreur lors de la récupération des options complètes:", e);
+    // En cas d'erreur, on utilise les données sans enrichissement
+    payload.factuel.options_de_reponse = globalOptionResponses.value.options_de_reponse;
+  }
+
   payload.factuel.types_de_gouvernance = previewTypesGouvernance.value.types_de_gouvernance;
 
   console.log(payload.factuel);
@@ -1096,6 +1523,182 @@ watch(() => {
   }
   console.log(currentTab.value);
 });
+
+// Fonction pour ouvrir le modal de modification
+const openModifyModal = (key, type, currentData) => {
+  modifyElement.key = key;
+  modifyElement.type = type;
+  modifyElement.currentData = { ...currentData };
+  modifyElement.newParentId = '';
+  
+  // Charger les parents disponibles selon le type
+  loadAvailableParents(type, currentData);
+  
+  showModifyModal.value = true;
+};
+
+// Fonction pour charger les parents disponibles
+const loadAvailableParents = async (type, currentData) => {
+  modifyElement.availableParents = [];
+  
+  try {
+    if (type === 'principe') {
+      // Charger tous les types de gouvernance disponibles
+      const TypeGouvernanceService = await import('@/services/modules/enquetes_de_gouvernance/typeGouvernance.service');
+      const response = await TypeGouvernanceService.default.get();
+      modifyElement.availableParents = response.data.data || [];
+    } else if (type === 'critere') {
+      // Charger tous les principes de gouvernance disponibles
+      const PrincipeGouvernanceService = await import('@/services/modules/enquetes_de_gouvernance/principeGouvernanceFactuel.service');
+      const response = await PrincipeGouvernanceService.default.get();
+      modifyElement.availableParents = response.data.data || [];
+    } else if (type === 'indicateur') {
+      // Charger tous les critères de gouvernance disponibles
+      const CritereGouvernanceService = await import('@/services/modules/enquetes_de_gouvernance/critereGouvernance.service');
+      const response = await CritereGouvernanceService.default.get();
+      modifyElement.availableParents = response.data.data || [];
+    }
+  } catch (error) {
+    console.error('Erreur lors du chargement des parents disponibles:', error);
+    toast.error('Erreur lors du chargement des données');
+  }
+};
+
+// Fonction pour appliquer la modification
+const applyModification = () => {
+  if (!modifyElement.newParentId) {
+    toast.error('Veuillez sélectionner un nouveau parent');
+    return;
+  }
+  
+  const { key, type, newParentId } = modifyElement;
+  
+  // Trouver tous les éléments affectés
+  const affectedElements = findAffectedElements(key, type);
+  
+  // Supprimer les éléments de leur position actuelle
+  removeElementsFromCurrentPosition(affectedElements, type);
+  
+  // Réassigner les éléments au nouveau parent
+  reassignElementsToNewParent(affectedElements, type, newParentId);
+  
+  // Recalculer toutes les positions
+  recalculatePositions();
+  
+  // Trier les données
+  sortAllData();
+  
+  // Mettre à jour l'affichage
+  updateAllTypesGouvernance();
+  
+  // Sauvegarder
+  localStorage.setItem('globalFormFactuelData', JSON.stringify(globalFormFactuelData.value));
+  localStorage.setItem('previewFormFactuelData', JSON.stringify(previewFormFactuelData.value));
+  
+  // Fermer le modal
+  showModifyModal.value = false;
+  
+  toast.success('Modification effectuée avec succès');
+};
+
+// Fonction pour trouver tous les éléments affectés
+const findAffectedElements = (key, type) => {
+  const globalAffected = [];
+  const previewAffected = [];
+  
+  if (type === 'type') {
+    globalAffected.push(...globalFormFactuelData.value.filter(item => item.typeKey === key));
+    previewAffected.push(...previewFormFactuelData.value.filter(item => item.type.key === key));
+  } else if (type === 'principe') {
+    globalAffected.push(...globalFormFactuelData.value.filter(item => item.principeKey === key));
+    previewAffected.push(...previewFormFactuelData.value.filter(item => item.principe.key === key));
+  } else if (type === 'critere') {
+    globalAffected.push(...globalFormFactuelData.value.filter(item => item.critereKey === key));
+    previewAffected.push(...previewFormFactuelData.value.filter(item => item.critere.key === key));
+  } else if (type === 'indicateur') {
+    globalAffected.push(...globalFormFactuelData.value.filter(item => item.indicateurKey === key));
+    previewAffected.push(...previewFormFactuelData.value.filter(item => item.indicateur.key === key));
+  }
+  
+  return { globalAffected, previewAffected };
+};
+
+// Fonction pour supprimer les éléments de leur position actuelle
+const removeElementsFromCurrentPosition = (affectedElements, type) => {
+  const { globalAffected, previewAffected } = affectedElements;
+  
+  // Supprimer de globalFormFactuelData
+  globalAffected.forEach(element => {
+    const index = globalFormFactuelData.value.indexOf(element);
+    if (index !== -1) {
+      globalFormFactuelData.value.splice(index, 1);
+    }
+  });
+  
+  // Supprimer de previewFormFactuelData
+  previewAffected.forEach(element => {
+    const index = previewFormFactuelData.value.indexOf(element);
+    if (index !== -1) {
+      previewFormFactuelData.value.splice(index, 1);
+    }
+  });
+};
+
+// Fonction pour réassigner les éléments au nouveau parent
+const reassignElementsToNewParent = (affectedElements, type, newParentId) => {
+  const { globalAffected, previewAffected } = affectedElements;
+  const newParent = modifyElement.availableParents.find(parent => parent.id === newParentId);
+  if (!newParent) return;
+  
+  // Réassigner les éléments globaux
+  globalAffected.forEach(element => {
+    if (type === 'principe') {
+      element.type = newParentId;
+    } else if (type === 'critere') {
+      element.principe = newParentId;
+    } else if (type === 'indicateur') {
+      element.critere = newParentId;
+    }
+    
+    // Rajouter à globalFormFactuelData
+    globalFormFactuelData.value.push(element);
+  });
+  
+  // Réassigner les éléments de prévisualisation
+  previewAffected.forEach(element => {
+    if (type === 'principe') {
+      element.type = { id: newParentId, nom: newParent.nom, key: '', position: 0 };
+    } else if (type === 'critere') {
+      element.principe = { id: newParentId, nom: newParent.nom, key: '', position: 0 };
+    } else if (type === 'indicateur') {
+      element.critere = { id: newParentId, nom: newParent.nom, key: '', position: 0 };
+    }
+    
+    // Rajouter à previewFormFactuelData
+    previewFormFactuelData.value.push(element);
+  });
+};
+
+// Fonction pour trier toutes les données
+const sortAllData = () => {
+  globalFormFactuelData.value.sort((a, b) => {
+    return a.typePosition - b.typePosition || 
+           a.principePosition - b.principePosition || 
+           a.criterePosition - b.criterePosition || 
+           a.indicateurPosition - b.indicateurPosition;
+  });
+  
+  previewFormFactuelData.value.sort((a, b) => {
+    return a.type.position - b.type.position || 
+           a.principe.position - b.principe.position || 
+           a.critere.position - b.critere.position || 
+           a.indicateur.position - b.indicateur.position;
+  });
+};
+
+// Fournir les données aux composants enfants
+provide('globalFormFactuelData', globalFormFactuelData);
+provide('currentGlobalFactuelFormDataArray', currentGlobalFactuelFormDataArray);
 
 onMounted(() => {
   if (route.query.tab) currentTab.value = Number(route.query.tab);
@@ -1229,8 +1832,8 @@ onMounted(() => {
                 <div v-if="canEditType[type_de_gouvernance.key]">
                   <input type="number" min="1" step="1" name="position" :value="type_de_gouvernance.position" @keyup.enter="updateTemporyElement(type_de_gouvernance.key, $event.target.value, false, 'type')" class="w-2/5 form-control" />
                 </div>
-                <div v-else>
-                  <button class="p-1.5 text-primary" @click="handleEditElement(type_de_gouvernance.key, 'type')">
+                <div v-else class="flex gap-1">
+                  <button class="p-1.5 text-primary" @click="handleEditElement(type_de_gouvernance.key, 'type')" title="Modifier la position">
                     <Edit3Icon class="size-5" />
                   </button>
                   <button class="p-1.5 text-danger" @click="removeElement(type_de_gouvernance.key, 'type')">
@@ -1251,9 +1854,12 @@ onMounted(() => {
                         <div v-if="canEditCritere[principe_de_gouvernance.key]">
                           <input type="number" min="1" step="1" name="position" :value="principe_de_gouvernance.position" @keyup.enter="updateTemporyElement(principe_de_gouvernance.key, $event.target.value, false, 'principe')" class="w-2/5 form-control" />
                         </div>
-                        <div v-else>
-                          <button class="p-1.5 text-primary" @click="handleEditElement(principe_de_gouvernance.key, 'principe')">
+                        <div v-else class="flex gap-1">
+                          <button class="p-1.5 text-primary" @click="handleEditElement(principe_de_gouvernance.key, 'principe')" title="Modifier la position">
                             <Edit3Icon class="size-5" />
+                          </button>
+                          <button class="p-1.5 text-info" @click="openModifyModal(principe_de_gouvernance.key, 'principe', principe_de_gouvernance)" title="Changer de type">
+                            <ArrowRightIcon class="size-5" />
                           </button>
                           <button class="p-1.5 text-danger" @click="removeElement(principe_de_gouvernance.key, 'principe')">
                             <TrashIcon class="size-5" />
@@ -1269,9 +1875,12 @@ onMounted(() => {
                         <div v-if="canEditCritere[critere_de_gouvernance.key]">
                           <input type="number" min="1" step="1" name="position" :value="critere_de_gouvernance.position" @keyup.enter="updateTemporyElement(critere_de_gouvernance.key, $event.target.value, false, 'critere')" class="w-2/5 form-control" />
                         </div>
-                        <div v-else>
-                          <button class="p-1.5 text-primary" @click="handleEditElement(critere_de_gouvernance.key, 'critere')">
+                        <div v-else class="flex gap-1">
+                          <button class="p-1.5 text-primary" @click="handleEditElement(critere_de_gouvernance.key, 'critere')" title="Modifier la position">
                             <Edit3Icon class="size-5" />
+                          </button>
+                          <button class="p-1.5 text-info" @click="openModifyModal(critere_de_gouvernance.key, 'critere', critere_de_gouvernance)" title="Changer de principe">
+                            <ArrowRightIcon class="size-5" />
                           </button>
                           <button class="p-1.5 text-danger" @click="removeElement(critere_de_gouvernance.key, 'critere')">
                             <TrashIcon class="size-5" />
@@ -1286,9 +1895,12 @@ onMounted(() => {
                         <div v-if="canEditIndicateur[indicateur_de_gouvernance.key]">
                           <input type="number" min="1" step="1" name="position" :value="indicateur_de_gouvernance.position" @keyup.enter="editTemporyIndicateur(indicateur_de_gouvernance.key, $event.target.value)" class="w-2/5 form-control" />
                         </div>
-                        <div v-else>
-                          <button class="p-1.5 text-primary" @click="handleEdit(indicateur_de_gouvernance.key)">
+                        <div v-else class="flex gap-1">
+                          <button class="p-1.5 text-primary" @click="handleEdit(indicateur_de_gouvernance.key)" title="Modifier la position">
                             <Edit3Icon class="size-5" />
+                          </button>
+                          <button class="p-1.5 text-info" @click="openModifyModal(indicateur_de_gouvernance.key, 'indicateur', indicateur_de_gouvernance)" title="Changer de critère">
+                            <ArrowRightIcon class="size-5" />
                           </button>
                           <button class="p-1.5 text-danger" @click="removeIndicator(indicateur_de_gouvernance.key)">
                             <TrashIcon class="size-5" />
@@ -1333,7 +1945,7 @@ onMounted(() => {
             <th class="py-3 border border-slate-900">Critères</th>
             <th class="py-3 border border-slate-900">Indicateurs</th>
             <th class="py-3 border border-slate-900">
-              Réponses <br />( <template class="py-3 border border-slate-900" v-for="(options_de_reponse, idx) in previewOptionResponses.options_de_reponse" :key="options_de_reponse.id"> {{ options_de_reponse.libelle }} {{ idx < previewOptionResponses.options_de_reponse.length - 1 ? " / " : "" }} </template>)
+              Réponses <br />( <template v-for="(options_de_reponse, idx) in previewOptionResponses.options_de_reponse" :key="options_de_reponse.id"> {{ options_de_reponse.libelle }} {{ idx < previewOptionResponses.options_de_reponse.length - 1 ? " / " : "" }} </template>)
             </th>
             <th class="py-3 border border-slate-900">Source de validation</th>
             <!-- 
@@ -1398,15 +2010,7 @@ onMounted(() => {
         <!--  <div class="flex gap-4"></div> -->
         <div class="gap-4">
           <InputForm label="Libellé" class="w-full mb-4" :control="getFieldErrors(errors.libelle)" v-model="payload.libelle" />
-          <!-- <div class="w-full">
-            <label for="annee" class="form-label">Année<span class="text-danger">*</span> </label>
-            <TomSelect v-model="payload.annee_exercice" :options="{ placeholder: 'Selectionez une année' }"
-              class="w-full">
-              <option v-for="(year, index) in annees" :key="index" :value="year">{{ year }}</option>
-            </TomSelect>
-            <-- <input id="annee" type="number" required v-model.number="payload.annee_exercice" class="form-control" placeholder="Année" /> ->
-            <div v-if="errors.annee_exercice" class="mt-2 text-danger">{{ getFieldErrors(errors.annee_exercice) }}</div>
-          </div> -->
+         
 
           <div>
             <p class="text-red-500 text-[12px] -mt-2 col-span-12 my-2" v-if="errors['factuel.options_de_reponse.0.point']">
@@ -1440,6 +2044,79 @@ onMounted(() => {
         <DeleteButton @click="resetAllFormWithDataLocalStorage" />
       </div>
     </ModalBody>
+  </Modal>
+
+  <!-- Modal pour modifier le parent d'un élément -->
+  <Modal backdrop="static" :show="showModifyModal" @hidden="showModifyModal = false">
+    <ModalHeader>
+      <h2 class="mr-auto text-base font-medium">
+        Modifier le parent {{ modifyElement.type === 'principe' ? 'du principe' : 
+                           modifyElement.type === 'critere' ? 'du critère' : 
+                           'de l\'indicateur' }}
+      </h2>
+    </ModalHeader>
+    <ModalBody class="space-y-4">
+      <div class="p-4 bg-gray-50 rounded">
+        <h3 class="font-medium mb-2">Élément à modifier :</h3>
+        <p class="text-sm text-gray-600">{{ modifyElement.currentData.nom }}</p>
+      </div>
+      
+      <div>
+        <label class="form-label">
+          {{ modifyElement.type === 'principe' ? 'Nouveau type de gouvernance' : 
+             modifyElement.type === 'critere' ? 'Nouveau principe de gouvernance' : 
+             'Nouveau critère de gouvernance' }}
+        </label>
+        <TomSelect 
+          v-model="modifyElement.newParentId" 
+          :options="{ placeholder: 'Sélectionnez un nouveau parent' }"
+          class="w-full"
+        >
+          <option value="">Sélectionnez un nouveau parent</option>
+          <option 
+            v-for="parent in modifyElement.availableParents" 
+            :key="parent.id" 
+            :value="parent.id"
+          >
+            {{ parent.nom }}
+          </option>
+        </TomSelect>
+      </div>
+      
+      <div class="p-4 bg-yellow-50 border border-yellow-200 rounded">
+        <div class="flex items-start">
+          <svg class="w-5 h-5 text-yellow-400 mt-0.5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+          </svg>
+          <div>
+            <h4 class="font-medium text-yellow-800">Attention</h4>
+            <p class="text-sm text-yellow-700 mt-1">
+              Cette action déplacera l'élément et tous ses sous-éléments vers le nouveau parent. 
+              Les positions seront automatiquement recalculées.
+            </p>
+          </div>
+        </div>
+      </div>
+    </ModalBody>
+    <ModalFooter>
+      <div class="flex gap-2">
+        <button 
+          type="button" 
+          @click="showModifyModal = false" 
+          class="w-full px-2 py-2 my-3 btn btn-outline-secondary"
+        >
+          Annuler
+        </button>
+        <button 
+          type="button" 
+          @click="applyModification" 
+          :disabled="!modifyElement.newParentId"
+          class="w-full px-2 py-2 my-3 btn btn-primary"
+        >
+          Appliquer
+        </button>
+      </div>
+    </ModalFooter>
   </Modal>
 </template>
 

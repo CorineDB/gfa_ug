@@ -57,6 +57,12 @@ export default {
       fondPropreOutcome: 0,
       SubventionOutcome: 0,
       composantData: [],
+      fondTotalOutcome: 0,
+      subventionTotalOutcome: 0,
+      fondAttribuerOutcome: 0,
+      subventionAttribuerOutcome: 0,
+      fondRestantOutcome: 0,
+      subventionRestantOutcome: 0,
     };
   },
   computed: {
@@ -133,6 +139,23 @@ export default {
       }
     },
     "selectedIds.composantId": "loadComposantDetails",
+    
+    // Watcher pour détecter les changements dans l'URL
+    '$route.query': {
+      handler(newQuery) {
+        // Si on arrive avec des paramètres de navigation depuis les outcomes
+        if (newQuery.projetId && newQuery.composantId) {
+          this.projetId = newQuery.projetId;
+          this.selectedIds.composantId = newQuery.composantId;
+          
+          // Afficher un message de confirmation du filtre
+          if (newQuery.composantName) {
+            toast.info(`Affichage des outputs pour l'outcome: ${newQuery.composantName}`);
+          }
+        }
+      },
+      immediate: true // Exécuter immédiatement au montage
+    }
   },
 
   methods: {
@@ -141,6 +164,35 @@ export default {
       this.selectedIds.composantId = id;
     },
     text() {},
+    
+    // Méthode pour effacer le filtre et retourner à la vue normale
+    clearFilter() {
+      // Réinitialiser les sélections
+      this.selectedIds.composantId = "";
+      this.projetId = "";
+      
+      // Supprimer les paramètres de l'URL
+      this.$router.replace({
+        name: 'OutPuts',
+        query: {}
+      });
+      
+      toast.success("Filtre effacé. Affichage de tous les outputs.");
+    },
+    
+    // Méthode pour naviguer vers les activités avec filtre automatique
+    navigateToActivities(outputId, outputName) {
+      // Naviguer vers la page des activités avec les paramètres de l'output sélectionné
+      this.$router.push({
+        name: 'Activités',
+        query: {
+          projetId: this.projetId,
+          composantId: this.selectedIds.composantId,
+          sousComposantId: outputId,
+          sousComposantName: outputName
+        }
+      });
+    },
     onPageChanged(newPage) {
       this.currentPage = newPage;
       console.log("Page actuelle :", this.currentPage);
@@ -184,6 +236,11 @@ export default {
           this.deleteLoader = false;
           this.showDeleteModal = false;
           toast.success("Suppression  éffectuée avec succès");
+           
+          if(this.selectedIds.composantId !== ''){
+            this.loadComposantDetails();
+          }
+        
           this.getListeProjet();
         })
         .catch((error) => {
@@ -351,6 +408,38 @@ export default {
         this.fondPropreOutcome = this.composantData.budgetNational || 0;
         this.SubventionOutcome = this.composantData.pret || 0;
 
+        // Étape 1 : Récupérer fondTotalOutcome et subventionTotalOutcome
+        this.fondTotalOutcome = this.composantData.budgetNational || 0;
+        this.subventionTotalOutcome = this.composantData.pret || 0;
+
+        // Étape 2 : Calculer fondAttribuerOutcome (somme fondActivite + somme fondOutput)
+        const sommeFondActivite = (this.composantData.activites || []).reduce((total, activite) => {
+          return total + (activite.budgetNational || 0);
+        }, 0);
+
+        const sommeFondOutput = (this.composantData.souscomposantes || []).reduce((total, output) => {
+          return total + (output.budgetNational || 0);
+        }, 0);
+
+        this.fondAttribuerOutcome = sommeFondActivite + sommeFondOutput;
+
+        // Étape 3 : Calculer subventionAttribuerOutcome (somme subventionActivite + somme subventionOutput)
+        const sommeSubventionActivite = (this.composantData.activites || []).reduce((total, activite) => {
+          return total + (activite.pret || 0);
+        }, 0);
+
+        const sommeSubventionOutput = (this.composantData.souscomposantes || []).reduce((total, output) => {
+          return total + (output.pret || 0);
+        }, 0);
+
+        this.subventionAttribuerOutcome = sommeSubventionActivite + sommeSubventionOutput;
+
+        // Étape 4 : Calculer fondRestantOutcome (fondTotalOutcome - fondAttribuerOutcome)
+        this.fondRestantOutcome = this.fondTotalOutcome - this.fondAttribuerOutcome;
+
+        // Étape 5 : Calculer subventionRestantOutcome (subventionTotalOutcome - subventionAttribuerOutcome)
+        this.subventionRestantOutcome = this.subventionTotalOutcome - this.subventionAttribuerOutcome;
+
         this.isLoadingData = false;
         // Mettre à jour les sous-composants et activités du composant
         this.sousComposants = this.composantData.souscomposantes || [];
@@ -422,6 +511,27 @@ export default {
 
       <!-- <button class="absolute px-4 py-2 text-white transform -translate-x-1/2 bg-blue-500 rounded -bottom-3 left-1/2" @click="filter()">Filtrer</button> -->
     </div>
+    
+    <!-- Indicateur de filtre actif -->
+    <div v-if="$route.query.composantName" class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center">
+          <svg class="w-5 h-5 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <span class="text-blue-700 font-medium">
+            Filtre actif: Outputs de l'outcome "{{ $route.query.composantName }}"
+          </span>
+        </div>
+        <button 
+          @click="clearFilter" 
+          class="text-blue-600 hover:text-blue-800 text-sm underline"
+          title="Effacer le filtre"
+        >
+          Effacer le filtre
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- Titre de la page -->
@@ -447,18 +557,32 @@ export default {
     <NoRecordsMessage class="col-span-12" v-if="!paginatedAndFilteredData.length" title="Aucun output trouvé" description="Il semble qu'il n'y ait pas d'output à afficher. Veuillez en créer un. " />
 
     <div v-for="(item, index) in paginatedAndFilteredData" :key="index" class="col-span-12 intro-y md:col-span-6 xl:col-span-4">
-      <div v-if="verifyPermission('voir-un-output')" class="p-5 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-105 hover:bg-gray-50">
+      <div 
+        v-if="verifyPermission('voir-un-output')" 
+        class="p-5 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-105 hover:bg-gray-50 cursor-pointer"
+       
+        title="Cliquer pour voir les activités de cet output"
+      >
         <!-- En-tête avec sigle et titre -->
         <div class="relative flex items-start pt-5">
-          <div class="relative flex flex-col items-center w-full pt-5 lg:flex-row lg:items-start">
-            <!-- Circle with initial or image -->
-            <div class="flex items-center justify-center w-20 h-20 text-white rounded-full shadow-md bg-primary flex-shrink-0">
-              {{ item.codePta }}
+          <div class="relative flex flex-col md:flex-row items-center w-full pt-5 justify-between">
+            <div class="flex items-center">
+              <!-- Circle with initial or image -->
+              <div class="flex items-center justify-center w-20 h-20 text-white rounded-full shadow-md bg-primary flex-shrink-0">
+                {{ item.codePta }}
+              </div>
+              <!-- Item details -->
+              <div class="mt-3 text-center lg:ml-4 lg:text-left lg:mt-0">
+                <a href="" class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary _truncate text-center lg:text-left"> {{ item.nom }} </a>
+              </div>
             </div>
-            <!-- Item details -->
-            <div class="mt-3 text-center lg:ml-4 lg:text-left lg:mt-0">
-              <a href="" class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary _truncate text-center lg:text-left"> {{ item.nom }} </a>
-            </div>
+            <!-- Bouton Voir Activités -->
+            <button
+              @click.stop="navigateToActivities(item.id, item.nom)"
+              class="btn btn-primary mt-3 md:mt-0"
+            >
+              Voir activités
+            </button>
           </div>
           <!-- Dropdown for actions -->
           <Dropdown class="absolute top-0 right-0 mt-2 mr-2">
@@ -570,17 +694,17 @@ export default {
             Durée du projet : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(getPlageProjet.debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(getPlageProjet.fin) }}</span>
           </div>
         </div>
-        <!-- Affiche fontPropreRestantOutcome et SubventionRestantOutcome-->
+        <!-- Affiche fondRestantOutcome et subventionRestantOutcome-->
         <div class="col-span-12 mt-4 p-4 bg-gray-50 rounded-lg">
           <h3 class="text-sm font-semibold text-gray-700 mb-3">Budget disponible (Outcome)</h3>
           <div class="grid grid-cols-2 gap-4">
             <div class="text-center">
               <p class="text-xs text-gray-500">Fond propre restant</p>
-              <p class="text-lg font-bold" :class="fontPropreRestantOutcome >= 0 ? 'text-green-600' : 'text-red-600'">{{ fontPropreRestantOutcome === 0 ? "0" : $h.formatCurrency(fontPropreRestantOutcome) }} FCFA</p>
+              <p class="text-lg font-bold" :class="fondRestantOutcome >= 0 ? 'text-green-600' : 'text-red-600'">{{ fondRestantOutcome === 0 ? "0" : $h.formatCurrency(fondRestantOutcome) }} FCFA</p>
             </div>
             <div class="text-center">
               <p class="text-xs text-gray-500">Subvention restante</p>
-              <p class="text-lg font-bold" :class="SubventionRestantOutcome >= 0 ? 'text-green-600' : 'text-red-600'">{{ SubventionRestantOutcome === 0 ? "0" : $h.formatCurrency(SubventionRestantOutcome) }} FCFA</p>
+              <p class="text-lg font-bold" :class="subventionRestantOutcome >= 0 ? 'text-green-600' : 'text-red-600'">{{ subventionRestantOutcome === 0 ? "0" : $h.formatCurrency(subventionRestantOutcome) }} FCFA</p>
             </div>
           </div>
         </div>
