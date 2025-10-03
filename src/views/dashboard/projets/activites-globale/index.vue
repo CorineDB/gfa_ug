@@ -716,6 +716,7 @@ export default {
         .then((response) => {
           if (response.status == 200 || response.status == 201) {
             this.showModalProlongement = false;
+             this.loadingProlonger = false;
 
             this.dateDebut = "";
             this.dateDebutOld = "";
@@ -724,7 +725,11 @@ export default {
 
             toast.success("Prolongation éffectuée avec succès");
 
-            this.loadSousComposantDetails();
+            
+              this.loadSousComposantDetails();
+            
+              this.loadComposantDetails();
+             
             //this.fetchProjets(this.programmeId);
           }
         })
@@ -754,6 +759,7 @@ export default {
         .then((response) => {
           if (response.status == 200 || response.status == 201) {
             this.showModalProlongement = false;
+             this.loadingProlonger = false;
 
             this.dateDebut = "";
             this.dateDebutOld = "";
@@ -762,7 +768,11 @@ export default {
 
             toast.success("Duree modifiée avec succès");
 
-            this.loadSousComposantDetails();
+           
+              this.loadSousComposantDetails();
+            
+              this.loadComposantDetails();
+            
             //this.fetchProjets(this.programmeId);
           }
         })
@@ -781,6 +791,7 @@ export default {
     },
 
     submitDuree() {
+      this.loadingProlonger = true;
       if (this.editDuree) {
         this.modifierDureeActivite();
       } else {
@@ -930,11 +941,24 @@ export default {
           this.loadingPlanDeDecaissement = false;
 
           // Mettre à jour les messages d'erreurs dynamiquement
-          if (error.response && error.response.data && error.response.data.errors.length > 0) {
-            this.erreurPlanDeDecaissement = error.response.data.errors;
-            toast.error("Une erreur s'est produite dans votre formualaire");
-          } else {
+          if (error.response && error.response.data && error.response.data.errors) {
+            // Transformer l'objet errors en format compatible avec l'affichage
+            const formattedErrors = {};
+            Object.keys(error.response.data.errors).forEach(key => {
+              formattedErrors[key] = Array.isArray(error.response.data.errors[key])
+                ? error.response.data.errors[key][0]
+                : error.response.data.errors[key];
+            });
+
+            // Assigner les erreurs à l'index correspondant
+            if (!this.erreurPlanDeDecaissement) {
+              this.erreurPlanDeDecaissement = [];
+            }
+            this.erreurPlanDeDecaissement[index] = formattedErrors;
+
             toast.error(`Plan ${index + 1} : ${error.response.data.message}`);
+          } else {
+            toast.error(`Plan ${index + 1} : ${error.response?.data?.message || "Une erreur s'est produite"}`);
           }
         } finally {
           this.loadingPlanDeDecaissement = false;
@@ -1300,13 +1324,13 @@ export default {
   <Modal size="modal-xl" backdrop="static" :show="showModal" @hidden="showModal = false">
     <ModalHeader>
       <h2 v-if="!isUpdate" class="mr-auto text-base font-medium">Ajouter une Activité</h2>
-      <h2 v-else class="mr-auto text-base font-medium">Modifier un Activité</h2>
+      <h2 v-else class="mr-auto text-base font-medium">Modifier une Activité</h2>
     </ModalHeader>
     <form @submit.prevent="sendForm">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
         <div class="col-span-12 md:col-span-6">
           <InputForm v-model="formData.nom" class="col-span-12 mt-4" type="text" required="required" placeHolder="Nom de l'activité*" label="Nom" />
-          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
+          <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
         </div>
         <div class="input-form mt-3 col-span-12 md:col-span-6">
           <label for="validation-form-6" class="form-label w-full"> Description </label>
@@ -1314,11 +1338,11 @@ export default {
         </div>
         <div class="col-span-12 md:col-span-6">
           <InputForm v-model="formData.pret" class="col-span-12 mt-4" type="number" required="required" placeHolder="Subvention*" label="Subvention" />
-          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pret">{{ messageErreur.pret }}</p>
+          <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.pret">{{ messageErreur.pret }}</p>
         </div>
         <div class="col-span-12 md:col-span-6">
           <InputForm v-model="formData.budgetNational" class="col-span-12 mt-4" type="number" required="required" placeHolder="Ex : 2" label="Fond Propre" />
-          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.budgetNational">{{ messageErreur.budgetNational }}</p>
+          <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.budgetNational">{{ messageErreur.budgetNational }}</p>
         </div>
 
         <div v-if="!isUpdate" class="flex flex-col col-span-12 md:col-span-6 mt-4">
@@ -1367,12 +1391,12 @@ export default {
 
         <div class="col-span-12 md:col-span-6">
           <InputForm v-model="formData.debut" class="col-span-12 mt-4" type="date" required="required" placeHolder="Entrer la date de début*" label="Début de l'activité" />
-          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.debut">{{ messageErreur.debut }}</p>
+          <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.debut">{{ messageErreur.debut }}</p>
         </div>
 
         <div class="col-span-12 md:col-span-6">
           <InputForm v-model="formData.fin" class="col-span-12 mt-4" type="date" required="required" placeHolder="Entrer la date de fin*" label="Fin de l'activité" />
-          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.fin">{{ messageErreur.fin }}</p>
+          <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.fin">{{ messageErreur.fin }}</p>
         </div>
 
         <div v-if="getPlageProjet" class="flex items-center mt-2 col-span-12">
@@ -1448,10 +1472,10 @@ export default {
     <form @submit.prevent="submitDuree">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
         <InputForm v-model="dateDebut" :min="dateDebutOld" class="col-span-12 mt-4" type="date" :required="true" placeHolder="Entrer la nouvelle date debut" label="Nouvelle date debut de l'activite" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurProlongation != null && erreurProlongation.debut">{{ erreurProlongation.debut }}</p>
+        <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="erreurProlongation != null && erreurProlongation.debut">{{ erreurProlongation.debut }}</p>
 
         <InputForm v-model="dateFin" :min="dateFinOld" class="col-span-12 mt-4" type="date" :required="true" placeHolder="Entrer la nouvelle date fin" label="Nouvelle date fin de l'activite" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurProlongation != null && erreurProlongation.fin">
+        <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="erreurProlongation != null && erreurProlongation.fin">
           {{ erreurProlongation.fin }}
         </p>
 

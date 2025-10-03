@@ -240,6 +240,7 @@ export default {
     },
     sendForm() {
       if (this.update) {
+        this.isLoading = true;
         PlanDeCaissement.update(this.planDeDecaissementId, this.formData)
           .then((response) => {
             if (response.status == 200 || response.status == 201) {

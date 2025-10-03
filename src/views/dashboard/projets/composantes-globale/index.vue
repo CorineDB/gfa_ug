@@ -50,8 +50,8 @@ export default {
       deleteLoader: false,
       fondPropreProjet: 0,
       SubventionProjet: 0,
-      // fondRestant: 0,
-      // subventionRestant: 0,
+      fondRestant: 0,
+      subventionRestant: 0,
     };
   },
   computed: {
@@ -234,6 +234,7 @@ export default {
       this.isUpdate = false;
       this.formData.projetId = this.projetId;
       this.labels = "Ajouter";
+      
     },
     sendForm() {
       console.log(this.formData);
@@ -417,23 +418,32 @@ export default {
   <div v-if="!isLoadingOutcome" class="grid grid-cols-12 gap-6 mt-5">
     <NoRecordsMessage class="col-span-12" v-if="!paginatedAndFilteredData.length" title="Aucun outCome trouvée" description="Il semble qu'il n'y ait pas d'outComes à afficher. Veuillez en créer un. " />
     <div v-for="(item, index) in paginatedAndFilteredData" :key="index" class="col-span-12 p-2 sm:p-4 md:col-span-6 xl:col-span-4">
-      <div 
-        v-if="verifyPermission('voir-un-outcome')" 
+      <div
+        v-if="verifyPermission('voir-un-outcome')"
         class="p-3 sm:p-5 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-105 hover:bg-gray-50 cursor-pointer"
-        @click="navigateToOutputs(item.id, item.nom)"
+
         title="Cliquer pour voir les outputs de cet outcome"
       >
         <!-- En-tête avec sigle et titre -->
         <div class="relative flex items-start pt-3 sm:pt-5">
-          <div class="relative flex flex-col items-center w-full pt-3 sm:pt-5 md:flex-row md:items-start">
-            <!-- Circle with initial or image -->
-            <div class="flex items-center justify-center w-[60px] h-[60px] sm:w-[75px] sm:h-[75px] lg:w-[90px] lg:h-[90px] text-sm sm:text-base text-white rounded-full shadow-md bg-primary flex-shrink-0">
-              {{ item.codePta }}
+          <div class="relative flex flex-col md:flex-row items-center w-full pt-3 sm:pt-5 justify-between">
+            <div class="flex items-center">
+              <!-- Circle with initial or image -->
+              <div class="flex items-center justify-center w-[60px] h-[60px] sm:w-[75px] sm:h-[75px] lg:w-[90px] lg:h-[90px] text-sm sm:text-base text-white rounded-full shadow-md bg-primary flex-shrink-0">
+                {{ item.codePta }}
+              </div>
+              <!-- Item details -->
+              <div class="mt-2 sm:mt-3 text-center md:ml-3 lg:ml-4 md:text-left md:mt-0 flex-1">
+                <a href="" class="text-sm sm:text-base lg:text-lg font-semibold text-gray-800 transition-colors hover:text-primary _truncate text-center md:text-left block"> {{ item.nom }}</a>
+              </div>
             </div>
-            <!-- Item details -->
-            <div class="mt-2 sm:mt-3 text-center md:ml-3 lg:ml-4 md:text-left md:mt-0 flex-1">
-              <a href="" class="text-sm sm:text-base lg:text-lg font-semibold text-gray-800 transition-colors hover:text-primary _truncate text-center md:text-left block"> {{ item.nom }}</a>
-            </div>
+            <!-- Bouton Voir Outputs -->
+            <button
+              @click.stop="navigateToOutputs(item.id, item.nom)"
+              class="btn btn-primary mt-3 md:mt-0"
+            >
+              Voir Outputs
+            </button>
           </div>
           <!-- Dropdown for actions -->
           <Dropdown class="absolute top-0 right-0 mt-1 sm:mt-2 mr-1 sm:mr-2">
