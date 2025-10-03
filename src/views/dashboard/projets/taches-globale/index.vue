@@ -56,6 +56,8 @@ export default {
       deleteLoader: false,
       taches: [],
       tacheId: "",
+      dateDebutMin: "",
+      dateFinMax: "",
     };
   },
   computed: {
@@ -79,6 +81,10 @@ export default {
 
       if (this.formData.activiteId !== "") {
         obj = this.activites.find((item) => item.id === this.formData.activiteId);
+      }
+
+      if (this.selectedIds.activiteId !== "") {
+        obj = this.activites.find((item) => item.id === this.selectedIds.activiteId);
       }
 
       return obj ? obj.durees : null;
@@ -387,6 +393,23 @@ export default {
       this.isLoadingData = true;
       try {
         const response = await ActiviteService.get(this.selectedIds.activiteId);
+
+        // Parcours getPlageActivite et détermine la date de début min et la date de fin max de la plage
+        if (this.getPlageActivite && this.getPlageActivite.length > 0) {
+          const dates = this.getPlageActivite.map(plage => ({
+            debut: new Date(plage.debut),
+            fin: new Date(plage.fin)
+          }));
+
+          this.dateDebutMin = dates.reduce((min, plage) =>
+            plage.debut < min ? plage.debut : min, dates[0].debut
+          ).toISOString().split('T')[0];
+
+          this.dateFinMax = dates.reduce((max, plage) =>
+            plage.fin > max ? plage.fin : max, dates[0].fin
+          ).toISOString().split('T')[0];
+        }
+
         this.taches = response.data.data.taches;
         this.isLoadingData = false;
       } catch (error) {
@@ -679,18 +702,20 @@ export default {
 
         <!-- Date début -->
         <div class="col-span-12 md:col-span-6">
-          <InputForm v-model="formData.debut" class="col-span-6" type="date" required="required" placeHolder="Entrer la date de début" label="Début de la tâche" />
+          
+          <InputForm v-model="formData.debut" class="col-span-6" type="date" required="required" placeHolder="Entrer la date de début" label="Début de la tâche" :min="dateDebutMin" :max="dateFinMax" />
           <p class="text-red-500 text-[12px] mt-2 col-span-6" v-if="messageErreur.debut">{{ messageErreur.debut }}</p>
         </div>
         <!-- Date fin -->
         <div class="col-span-12 md:col-span-6">
-          <InputForm v-model="formData.fin" class="col-span-6" type="date" required="required" placeHolder="Entrer la date de fin" label="Fin de la tâche" />
+          <InputForm v-model="formData.fin" class="col-span-6" type="date" required="required" placeHolder="Entrer la date de fin" label="Fin de la tâche" :min="dateDebutMin" :max="dateFinMax" />
           <p class="text-red-500 text-[12px] mt-2 col-span-6" v-if="messageErreur.fin">{{ messageErreur.fin }}</p>
         </div>
 
         <!-- Plage de date -->
         <div v-if="getPlageActivite" class="col-span-12">
           <span class="font-bold text-md">Plage de date de l'activité :</span>
+          
           <div class="flex items-center mt-2" v-for="(plage, t) in getPlageActivite" :key="t">
             <ClockIcon class="w-4 h-4 mr-2" />
             <div>

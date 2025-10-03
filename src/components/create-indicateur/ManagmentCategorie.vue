@@ -88,6 +88,7 @@ const handleEdit = (data) => {
   payload.nom = data.nom;
   payload.indice = data.indice;
   payload.categorieId = data.categorieId ?? "";
+  payload.type = data.type ?? "";
   showModalCreate.value = true;
 };
 
