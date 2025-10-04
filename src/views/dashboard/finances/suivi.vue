@@ -838,15 +838,15 @@ onMounted(() => {
                 </thead>
                 <tbody class="text-sm divide-y divide-gray-200 bg-white">
                   <tr style="height: 49px" v-for="(suivi, index) in filteredSuiviFinanciers" :key="index" class="bg-white border-b hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
-                    <td class="p-4 border-b border-slate-200">
-                      <span class="font-bold">{{ suivi?.activite?.codePta }}-{{ suivi?.activite?.nom }}</span>
+                    <td class="p-4 border-b border-slate-200 overflow-scroll max-w-[250px]" style="scrollbar-width: none; -ms-overflow-style: none;">
+                      <span class="font-bold text-nowrap">{{ suivi?.activite?.codePta }}-{{ suivi?.activite?.nom }}</span>
                     </td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
-            <div class="absolute shadow-md perso left-40 sm:rounded-lg">
+            <div class="absolute shadow-md perso left-60 sm:rounded-lg">
               <table class="w-full overflow-auto text-sm text-left text-gray-500 dark:text-gray-400">
                 <thead class="sticky top-0 text-xs text-gray-700 uppercase _z-20 bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                   <tr>
@@ -963,8 +963,8 @@ onMounted(() => {
         </thead>
         <tbody class="text-sm divide-y divide-gray-200 bg-white">
           <tr v-for="(suivi, index) in filteredSuiviFinanciers" :key="index" class="bg-white border-b hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
-            <td class="p-4 border-b border-slate-200">
-              <span class="font-bold">{{ suivi?.activite?.codePta }}-{{ suivi?.activite?.nom }}</span>
+            <td class="p-4 border-b border-slate-200 overflow-x-scroll max-w-[200px]" style="scrollbar-width: none; -ms-overflow-style: none;">
+              <span class="font-bold text-nowrap">{{ suivi?.activite?.codePta }}-{{ suivi?.activite?.nom }}</span>
             </td>
             <td class="p-4 border-b border-slate-200">
               <span class="font-bold">{{ suivi.annee }}</span>

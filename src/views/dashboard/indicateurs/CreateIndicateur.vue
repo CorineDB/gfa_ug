@@ -144,13 +144,17 @@
                   <div class="flex flex-wrap items-center justify-between gap-3">
                     <div class="flex-1">
                       <label class="form-label">Année de base</label>
-                      <TomSelect v-model="payload.anneeDeBase" :required="false" name="annee_suivi"
-                        :options="{ placeholder: 'Selectionez une année' }" class="w-full">
-                        <option value=""></option>
-                        <option v-for="annee in annees" :key="annee" :value="annee">{{ annee }}</option>
-                      </TomSelect>
-                      <div v-if="errors.anneeDeBase" class="mt-2 text-danger">{{ getFieldErrors(errors.anneeDeBase) }}
+                      <div class="relative w-full">
+                        <v-select class="w-full" v-model="payload.anneeDeBase" :options="annees" placeholder="Selectionez une année...">
+                          <template v-if="!payload.anneeDeBase" #search="{ attributes, events }">
+                            <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher une année..." />
+                          </template>
+                          <template v-else #selected="option">
+                            {{ option }}
+                          </template>
+                        </v-select>
                       </div>
+                      <div v-if="errors.anneeDeBase" class="mt-2 text-danger">{{ getFieldErrors(errors.anneeDeBase) }}</div>
                     </div>
 
                     <InputForm v-if="!payload.agreger" class="flex-1" label="Valeur de base" :required="false"
@@ -163,11 +167,16 @@
                       <div class="flex gap-1 place-items-end">
                         <div class="flex-1">
                           <label class="form-label">Année cible <span class="text-danger">*</span> </label>
-                          <TomSelect v-model="currentAnneeCibleNotAgreger.annee" name="annee_aggrer"
-                            :options="{ placeholder: 'Selectionez une année' }" class="w-full">
-                            <option value=""></option>
-                            <option v-for="annee in annees" :key="annee" :value="annee">{{ annee }}</option>
-                          </TomSelect>
+                          <div class="relative w-full">
+                            <v-select class="w-full" v-model="currentAnneeCibleNotAgreger.annee" :options="annees" placeholder="Selectionez une année...">
+                              <template v-if="!currentAnneeCibleNotAgreger.annee" #search="{ attributes, events }">
+                                <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher une année..." />
+                              </template>
+                              <template v-else #selected="option">
+                                {{ option }}
+                              </template>
+                            </v-select>
+                          </div>
                         </div>
 
                         <div class="flex flex-1 gap-1">
@@ -207,14 +216,22 @@
                     <div v-if="payload.agreger" class="flex-1">
                       <label class="form-label">Clé valeur</label>
                       <div class="flex gap-1">
-                        <TomSelect v-model="array_value_keys" name="keys" multiple
-                          :options="{ placeholder: 'Selectionez les clés valeur' }" class="w-full">
-                          <option v-for="(key, index) in keys" :key="index" :value="key.id">{{ key.libelle }}</option>
-                        </TomSelect>
-                        <button class="flex-1 text-sm btn btn-primary"
-                          @click.prevent="(showModalKey = true), handleParentClick()">
-                          <PlusIcon class="mr-1 size-3" />
-                        </button>
+                        <div class="relative w-full">
+                          <v-select class="w-full" :reduce="(key) => key.id" v-model="array_value_keys" label="libelle" :options="keys" placeholder="Selectionez les clés valeur..." multiple>
+                            <template v-if="!array_value_keys || array_value_keys.length === 0" #search="{ attributes, events }">
+                              <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher une clé..." />
+                            </template>
+
+                            <template v-else #selected="{ libelle }">
+                              {{ libelle }}
+                            </template>
+
+                            <template #option="{ libelle }">
+                              {{ libelle }}
+                            </template>
+                          </v-select>
+                        </div>
+                        <button class="flex-1 text-sm btn btn-primary" @click.prevent="(showModalKey = true), handleParentClick()"><PlusIcon class="mr-1 size-3" /></button>
                       </div>
 
                       <div v-if="errors.value_keys" class="mt-2 text-danger">{{ getFieldErrors(errors.value_keys) }}
@@ -294,110 +311,135 @@
                 <div class="grid grid-cols-1 gap-4">
                   <div class="flex flex-wrap items-center justify-between gap-3">
                     <div class="flex-1">
-                      <label class="form-label">Catégorie <span class="text-danger">*</span> </label>
+                      <label class="form-label">Catégorie<span class="text-danger">*</span> </label>
                       <div class="flex gap-1">
-                        <TomSelect v-model="payload.categorieId" name="category"
-                          :options="{ placeholder: 'Selectionez une catégorie' }" class="w-full">
-                          <option value=""></option>
-                          <option v-for="(categorie, index) in categories" :key="categorie.id" :value="categorie.id">{{
-                            truncateText(categorie.type + " " + categorie.indice + " " + categorie.nom) }}</option>
-                        </TomSelect>
-                        <button class="flex-1 text-sm btn btn-primary" @click.prevent="showModalCategorie = true">
-                          <PlusIcon class="mr-1 size-3" />
-                        </button>
-                      </div>
-                      <div v-if="errors.categorieId" class="mt-2 text-danger">{{ getFieldErrors(errors.categorieId) }}
+                       
+                        <div class="relative w-full">
+                          <v-select class="w-full" :reduce="(categorie) => categorie.id" v-model="payload.categorieId" label="nom" :options="categories" placeholder="Selectionez une catégorie...">
+                            <template v-if="!payload.categorieId" #search="{ attributes, events }">
+                              <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher une catégorie..." />
+                            </template>
+
+                            <template v-else #selected="{ nom }">
+                              {{ nom }}
+                            </template>
+
+                            <template #option="{ nom }">
+                              {{ nom }}
+                            </template>
+                          </v-select>
+                        </div>
+                        <button class="flex-1 text-sm btn btn-primary" @click.prevent="showModalCategorie = true"><PlusIcon class="mr-1 size-3" /></button>
                       </div>
                     </div>
                     <div class="flex-1">
                       <label class="form-label">Type de variables <span class="text-danger">*</span> </label>
-                      <TomSelect v-model="payload.type_de_variable" name="type_variable"
-                        :options="{ placeholder: 'Selectionez un type de variable' }" class="w-full">
-                        <option value=""></option>
-                        <option v-for="(variable, index) in payload.agreger ? type_variablees : type_variablees_agreger"
-                          :key="index" :value="variable.id">{{ variable.label }}</option>
-                      </TomSelect>
-                      <div v-if="errors.type_de_variable" class="mt-2 text-danger">{{
-                        getFieldErrors(errors.type_de_variable) }}</div>
+                      <div class="relative w-full">
+                        <v-select class="w-full" :reduce="(variable) => variable.id" v-model="payload.type_de_variable" :options="payload.agreger ? type_variablees : type_variablees_agreger" label="label" placeholder="Selectionez un type de variable...">
+                          <template v-if="!payload.type_de_variable" #search="{ attributes, events }">
+                            <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher un type..." />
+                          </template>
+
+                          <template v-else #selected="option">
+                            {{ option.label }}
+                          </template>
+
+                          <template #option="option">
+                            {{ option.label }}
+                          </template>
+                        </v-select>
+                      </div>
+                      <div v-if="errors.type_de_variable" class="mt-2 text-danger">{{ getFieldErrors(errors.type_de_variable) }}</div>
                     </div>
                   </div>
                   <div class="flex flex-wrap items-center justify-between gap-3">
                     <div class="flex-1">
                       <label class="form-label">Méthode de la collecte des données</label>
-                      <TomSelect v-model="payload.methode_de_la_collecte" name="method"
-                        :options="{ placeholder: 'Selectionez une methode' }" class="w-full">
-                        <option value=""></option>
-                        <option v-for="(methode, index) in methodeCollecte" :key="index" :value="methode">{{ methode }}
-                        </option>
-                      </TomSelect>
-                      <div v-if="errors.methode_de_la_collecte" class="mt-2 text-danger">{{
-                        getFieldErrors(errors.methode_de_la_collecte) }}</div>
+                      <div class="relative w-full">
+                        <v-select class="w-full" v-model="payload.methode_de_la_collecte" :options="methodeCollecte" placeholder="Selectionez une methode...">
+                          <template v-if="!payload.methode_de_la_collecte" #search="{ attributes, events }">
+                            <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher une méthode..." />
+                          </template>
+                          <template v-else #selected="option">
+                            {{ option }}
+                          </template>
+                        </v-select>
+                      </div>
+                      <div v-if="errors.methode_de_la_collecte" class="mt-2 text-danger">{{ getFieldErrors(errors.methode_de_la_collecte) }}</div>
                     </div>
                     <div class="flex-1">
                       <label class="form-label">Fréquence de la collecte de données</label>
-                      <TomSelect v-model="payload.frequence_de_la_collecte"
-                        :options="{ placeholder: 'Selectionez une fréquence' }" class="w-full">
-                        <option value=""></option>
-                        <option v-for="(frequence, index) in frequenceCollecte" :key="index" :value="frequence">{{
-                          frequence }}</option>
-                      </TomSelect>
-                      <div v-if="errors.frequence_de_la_collecte" class="mt-2 text-danger">{{
-                        getFieldErrors(errors.frequence_de_la_collecte) }}</div>
+                      <div class="relative w-full">
+                        <v-select class="w-full" v-model="payload.frequence_de_la_collecte" :options="frequenceCollecte" placeholder="Selectionez une fréquence...">
+                          <template v-if="!payload.frequence_de_la_collecte" #search="{ attributes, events }">
+                            <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher une fréquence..." />
+                          </template>
+                          <template v-else #selected="option">
+                            {{ option }}
+                          </template>
+                        </v-select>
+                      </div>
+                      <div v-if="errors.frequence_de_la_collecte" class="mt-2 text-danger">{{ getFieldErrors(errors.frequence_de_la_collecte) }}</div>
                     </div>
                   </div>
                   <div class="flex-1">
                     <label class="form-label">UG <span class="text-danger">*</span> </label>
-                    <TomSelect v-model="responsablesForm.ug" name="ug" :options="{ placeholder: 'Selectionez un UG' }"
-                      class="w-full">
-                      <option v-for="(ug, index) in ugs" :key="index" :value="ug.id">{{ ug.nom }}</option>
-                    </TomSelect>
-                    <div v-if="errors['responsables.ug']" class="mt-2 text-danger">{{
-                      getFieldErrors(errors["responsables.ug"]) }}</div>
+                    <div class="relative w-full">
+                      <v-select class="w-full" :reduce="(ug) => ug.id" v-model="responsablesForm.ug" label="nom" :options="ugs" placeholder="Selectionez un UG...">
+                        <template v-if="!responsablesForm.ug" #search="{ attributes, events }">
+                          <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher un UG..." />
+                        </template>
+
+                        <template v-else #selected="option">
+                          {{ option.nom }}
+                        </template>
+
+                        <template #option="option">
+                          {{ option.nom }}
+                        </template>
+                      </v-select>
+                    </div>
+                    <div v-if="errors['responsables.ug']" class="mt-2 text-danger">{{ getFieldErrors(errors["responsables.ug"]) }}</div>
                   </div>
                   <div class="flex flex-wrap items-center justify-between gap-3">
                     <div class="flex-1">
                       <label class="form-label">Responsables <span class="text-danger">*</span> </label>
+                      <div class="relative w-full">
+                        <v-select class="w-full" :reduce="(responsable) => responsable.id" v-model="responsablesForm.organisations" label="nom" :options="responsables" placeholder="Selectionez un responsable..." multiple>
+                          <template v-if="!responsablesForm.organisations || responsablesForm.organisations.length === 0" #search="{ attributes, events }">
+                            <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher un responsable..." />
+                          </template>
 
-                      <TomSelect v-model="responsablesForm.organisations" name="responsable" multiple
-                        :options="{ placeholder: 'Selectionez un responsable' }" class="w-full">
-                        <option value=""></option>
-                        <option v-for="(responsable, index) in responsables" :key="index" :value="responsable.id">{{
-                          responsable.nom }}</option>
-                      </TomSelect>
+                          <template v-else #selected="option">
+                            {{ option.nom }}
+                          </template>
 
-                      <!--<v-select multiple class="w-full" :reduce="(ong) => ong.id" v-model="responsablesForm.organisations" label="nom" :options="responsables" placeholder="Selectionner une organisation...">
-                        <template v-if="responsablesForm.organisations.length === 0" #search="{ attributes, events }">
-                          <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher une organisation..." />
-                        </template>
-
-<-- Selected value display ->
-  <template v-else #selected="{ nom }">
-                          {{ nom }}
-                        </template>
-  <-- Custom option template to show organization name ->
-    <template #option="{ nom }">
-                          {{ nom }}
-                        </template>
-    </v-select>
-    -->
-                      <!-- <div v-if="errors.responsables.organisations" class="mt-2 text-danger">{{
-                        getFieldErrors(errors.responsables.organisations) }}</div> -->
-
-                      <div v-if="errors['responsables.organisations']" class="mt-2 text-danger">{{
-                        getFieldErrors(errors["responsables.organisations"]) }}</div>
+                          <template #option="option">
+                            {{ option.nom }}
+                          </template>
+                        </v-select>
+                      </div>
+                      <div v-if="errors['responsables.organisations']" class="mt-2 text-danger">{{ getFieldErrors(errors["responsables.organisations"]) }}</div>
                     </div>
                     <div class="flex-1">
                       <label class="form-label">Unité de mesure <span class="text-danger">*</span> </label>
                       <div class="flex gap-1">
-                        <TomSelect v-model="payload.uniteeMesureId" name="unite"
-                          :options="{ placeholder: 'Selectionez une unité de mesure' }" class="w-full">
-                          <option value=""></option>
-                          <option v-for="(unite, index) in unites" :key="index" :value="unite.id">{{ unite.nom }}
-                          </option>
-                        </TomSelect>
-                        <button class="flex-1 text-sm btn btn-primary" @click.prevent="showModalUniteMesure = true">
-                          <PlusIcon class="mr-1 size-3" />
-                        </button>
+                        <div class="relative w-full">
+                          <v-select class="w-full" :reduce="(unite) => unite.id" v-model="payload.uniteeMesureId" label="nom" :options="unites" placeholder="Selectionez une unité de mesure...">
+                            <template v-if="!payload.uniteeMesureId" #search="{ attributes, events }">
+                              <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher une unité..." />
+                            </template>
+
+                            <template v-else #selected="option">
+                              {{ option.nom }}
+                            </template>
+
+                            <template #option="option">
+                              {{ option.nom }}
+                            </template>
+                          </v-select>
+                        </div>
+                        <button class="flex-1 text-sm btn btn-primary" @click.prevent="showModalUniteMesure = true"><PlusIcon class="mr-1 size-3" /></button>
                       </div>
                       <div v-if="errors.uniteeMesureId" class="mt-2 text-danger">{{
                         getFieldErrors(errors.uniteeMesureId) }}</div>
@@ -408,28 +450,38 @@
                     <div class="flex-1">
                       <label class="form-label">Zone d'intervention <span class="text-danger">*</span> </label>
                       <div class="flex gap-1">
-                        <TomSelect v-model="payload.sites" multiple name="site"
-                          :options="{ placeholder: 'Selectionez les sites' }" class="w-full">
-                          <option value=""></option>
-                          <option v-for="(site, index) in sites" :key="index" :value="site.id">{{ site.nom }}</option>
-                        </TomSelect>
-                        <button class="flex-1 text-sm btn btn-primary" @click.prevent="showModalZone = true">
-                          <PlusIcon class="mr-1 size-3" />
-                        </button>
+                        <div class="relative w-full">
+                          <v-select class="w-full" :reduce="(site) => site.id" v-model="payload.sites" label="nom" :options="sites" placeholder="Selectionez les sites..." multiple>
+                            <template v-if="!payload.sites || payload.sites.length === 0" #search="{ attributes, events }">
+                              <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher un site..." />
+                            </template>
+
+                            <template v-else #selected="option">
+                              {{ option.nom }}
+                            </template>
+
+                            <template #option="option">
+                              {{ option.nom }}
+                            </template>
+                          </v-select>
+                        </div>
+                        <button class="flex-1 text-sm btn btn-primary" @click.prevent="showModalZone = true"><PlusIcon class="mr-1 size-3" /></button>
                       </div>
                       <div v-if="errors.sites" class="mt-2 text-danger">{{ getFieldErrors(errors.sites) }}</div>
                     </div>
                     <div class="flex-1">
                       <label class="form-label">Source de données</label>
-                      <TomSelect v-model="payload.sources_de_donnee" name="source"
-                        :options="{ placeholder: 'Selectionez une source' }" class="w-full">
-                        <option value=""></option>
-                        <option v-for="(source, index) in sourcesDonnees" :key="index" :value="source">{{ source }}
-                        </option>
-                      </TomSelect>
-                      <div v-if="errors.sources_de_donnee" class="mt-2 text-danger">{{
-                        getFieldErrors(errors.sources_de_donnee) }}
+                      <div class="relative w-full">
+                        <v-select class="w-full" v-model="payload.sources_de_donnee" :options="sourcesDonnees" placeholder="Selectionez une source...">
+                          <template v-if="!payload.sources_de_donnee" #search="{ attributes, events }">
+                            <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher une source..." />
+                          </template>
+                          <template v-else #selected="option">
+                            {{ option }}
+                          </template>
+                        </v-select>
                       </div>
+                      <div v-if="errors.sources_de_donnee" class="mt-2 text-danger">{{ getFieldErrors(errors.sources_de_donnee) }}</div>
                     </div>
                   </div>
                   <div class="flex flex-wrap items-center justify-between w-full gap-3">
@@ -486,14 +538,18 @@
             <ModalBody>
               <div class="grid grid-cols-1 gap-4">
                 <!-- Champ pour l'année -->
-                <!-- <InputForm label="Année" v-model="currentAnneeCible.annee" type="number" placeholder="Entrez l'année" /> -->
                 <div class="flex-1">
                   <label class="form-label">Année</label>
-                  <TomSelect v-model="currentAnneeCible.annee" name="annee_aggrer"
-                    :options="{ placeholder: 'Selectionez une année' }" class="w-full">
-                    <option value=""></option>
-                    <option v-for="annee in annees" :key="annee" :value="annee">{{ annee }}</option>
-                  </TomSelect>
+                  <div class="relative w-full">
+                    <v-select class="w-full" v-model="currentAnneeCible.annee" :options="annees" placeholder="Selectionez une année...">
+                      <template v-if="!currentAnneeCible.annee" #search="{ attributes, events }">
+                        <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher une année..." />
+                      </template>
+                      <template v-else #selected="option">
+                        {{ option }}
+                      </template>
+                    </v-select>
+                  </div>
                 </div>
                 <!-- Champs dynamiques pour les valeurs -->
                 <div v-if="array_value_keys.length > 0" class="">
