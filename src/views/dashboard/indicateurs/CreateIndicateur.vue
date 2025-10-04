@@ -124,8 +124,11 @@
                       <label class="form-label">Année de base</label>
                       <div class="relative w-full">
                         <v-select class="w-full" v-model="payload.anneeDeBase" :options="annees" placeholder="Selectionez une année...">
-                          <template #search="{ attributes, events }">
-                            <input class="vs__search form-input" :required="!payload.anneeDeBase" v-bind="attributes" v-on="events" placeholder="Rechercher une année..." />
+                          <template v-if="!payload.anneeDeBase" #search="{ attributes, events }">
+                            <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher une année..." />
+                          </template>
+                          <template v-else #selected="option">
+                            {{ option }}
                           </template>
                         </v-select>
                       </div>
@@ -143,8 +146,11 @@
                           <label class="form-label">Année cible <span class="text-danger">*</span> </label>
                           <div class="relative w-full">
                             <v-select class="w-full" v-model="currentAnneeCibleNotAgreger.annee" :options="annees" placeholder="Selectionez une année...">
-                              <template #search="{ attributes, events }">
-                                <input class="vs__search form-input" :required="!currentAnneeCibleNotAgreger.annee" v-bind="attributes" v-on="events" placeholder="Rechercher une année..." />
+                              <template v-if="!currentAnneeCibleNotAgreger.annee" #search="{ attributes, events }">
+                                <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher une année..." />
+                              </template>
+                              <template v-else #selected="option">
+                                {{ option }}
                               </template>
                             </v-select>
                           </div>
@@ -177,11 +183,11 @@
                       <div class="flex gap-1">
                         <div class="relative w-full">
                           <v-select class="w-full" :reduce="(key) => key.id" v-model="array_value_keys" label="libelle" :options="keys" placeholder="Selectionez les clés valeur..." multiple>
-                            <template #search="{ attributes, events }">
-                              <input class="vs__search form-input" :required="!array_value_keys || array_value_keys.length === 0" v-bind="attributes" v-on="events" placeholder="Rechercher une clé..." />
+                            <template v-if="!array_value_keys || array_value_keys.length === 0" #search="{ attributes, events }">
+                              <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher une clé..." />
                             </template>
 
-                            <template #selected="{ libelle }">
+                            <template v-else #selected="{ libelle }">
                               {{ libelle }}
                             </template>
 
@@ -243,20 +249,21 @@
                 <div class="grid grid-cols-1 gap-4">
                   <div class="flex flex-wrap items-center justify-between gap-3">
                     <div class="flex-1">
-                      <label class="form-label">Catégorie <span class="text-danger">*</span> </label>
+                      <label class="form-label">Catégorie<span class="text-danger">*</span> </label>
                       <div class="flex gap-1">
+                       
                         <div class="relative w-full">
-                          <v-select class="w-full" :reduce="(categorie) => categorie.id" v-model="payload.categorieId" :options="categories" placeholder="Selectionez une catégorie...">
-                            <template #search="{ attributes, events }">
-                              <input class="vs__search form-input" :required="!payload.categorieId" v-bind="attributes" v-on="events" placeholder="Rechercher une catégorie..." />
+                          <v-select class="w-full" :reduce="(categorie) => categorie.id" v-model="payload.categorieId" label="nom" :options="categories" placeholder="Selectionez une catégorie...">
+                            <template v-if="!payload.categorieId" #search="{ attributes, events }">
+                              <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher une catégorie..." />
                             </template>
 
-                            <template #selected="option">
-                              {{ truncateText(option.type + " " + option.indice + " " + option.nom) }}
+                            <template v-else #selected="{ nom }">
+                              {{ nom }}
                             </template>
 
-                            <template #option="option">
-                              {{ truncateText(option.type + " " + option.indice + " " + option.nom) }}
+                            <template #option="{ nom }">
+                              {{ nom }}
                             </template>
                           </v-select>
                         </div>
@@ -268,11 +275,11 @@
                       <label class="form-label">Type de variables <span class="text-danger">*</span> </label>
                       <div class="relative w-full">
                         <v-select class="w-full" :reduce="(variable) => variable.id" v-model="payload.type_de_variable" :options="payload.agreger ? type_variablees : type_variablees_agreger" label="label" placeholder="Selectionez un type de variable...">
-                          <template #search="{ attributes, events }">
-                            <input class="vs__search form-input" :required="!payload.type_de_variable" v-bind="attributes" v-on="events" placeholder="Rechercher un type..." />
+                          <template v-if="!payload.type_de_variable" #search="{ attributes, events }">
+                            <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher un type..." />
                           </template>
 
-                          <template #selected="option">
+                          <template v-else #selected="option">
                             {{ option.label }}
                           </template>
 
@@ -289,8 +296,11 @@
                       <label class="form-label">Méthode de la collecte des données</label>
                       <div class="relative w-full">
                         <v-select class="w-full" v-model="payload.methode_de_la_collecte" :options="methodeCollecte" placeholder="Selectionez une methode...">
-                          <template #search="{ attributes, events }">
-                            <input class="vs__search form-input" :required="!payload.methode_de_la_collecte" v-bind="attributes" v-on="events" placeholder="Rechercher une méthode..." />
+                          <template v-if="!payload.methode_de_la_collecte" #search="{ attributes, events }">
+                            <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher une méthode..." />
+                          </template>
+                          <template v-else #selected="option">
+                            {{ option }}
                           </template>
                         </v-select>
                       </div>
@@ -300,8 +310,11 @@
                       <label class="form-label">Fréquence de la collecte de données</label>
                       <div class="relative w-full">
                         <v-select class="w-full" v-model="payload.frequence_de_la_collecte" :options="frequenceCollecte" placeholder="Selectionez une fréquence...">
-                          <template #search="{ attributes, events }">
-                            <input class="vs__search form-input" :required="!payload.frequence_de_la_collecte" v-bind="attributes" v-on="events" placeholder="Rechercher une fréquence..." />
+                          <template v-if="!payload.frequence_de_la_collecte" #search="{ attributes, events }">
+                            <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher une fréquence..." />
+                          </template>
+                          <template v-else #selected="option">
+                            {{ option }}
                           </template>
                         </v-select>
                       </div>
@@ -312,11 +325,11 @@
                     <label class="form-label">UG <span class="text-danger">*</span> </label>
                     <div class="relative w-full">
                       <v-select class="w-full" :reduce="(ug) => ug.id" v-model="responsablesForm.ug" label="nom" :options="ugs" placeholder="Selectionez un UG...">
-                        <template #search="{ attributes, events }">
-                          <input class="vs__search form-input" :required="!responsablesForm.ug" v-bind="attributes" v-on="events" placeholder="Rechercher un UG..." />
+                        <template v-if="!responsablesForm.ug" #search="{ attributes, events }">
+                          <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher un UG..." />
                         </template>
 
-                        <template #selected="option">
+                        <template v-else #selected="option">
                           {{ option.nom }}
                         </template>
 
@@ -332,11 +345,11 @@
                       <label class="form-label">Responsables <span class="text-danger">*</span> </label>
                       <div class="relative w-full">
                         <v-select class="w-full" :reduce="(responsable) => responsable.id" v-model="responsablesForm.organisations" label="nom" :options="responsables" placeholder="Selectionez un responsable..." multiple>
-                          <template #search="{ attributes, events }">
-                            <input class="vs__search form-input" :required="!responsablesForm.organisations || responsablesForm.organisations.length === 0" v-bind="attributes" v-on="events" placeholder="Rechercher un responsable..." />
+                          <template v-if="!responsablesForm.organisations || responsablesForm.organisations.length === 0" #search="{ attributes, events }">
+                            <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher un responsable..." />
                           </template>
 
-                          <template #selected="option">
+                          <template v-else #selected="option">
                             {{ option.nom }}
                           </template>
 
@@ -352,11 +365,11 @@
                       <div class="flex gap-1">
                         <div class="relative w-full">
                           <v-select class="w-full" :reduce="(unite) => unite.id" v-model="payload.uniteeMesureId" label="nom" :options="unites" placeholder="Selectionez une unité de mesure...">
-                            <template #search="{ attributes, events }">
-                              <input class="vs__search form-input" :required="!payload.uniteeMesureId" v-bind="attributes" v-on="events" placeholder="Rechercher une unité..." />
+                            <template v-if="!payload.uniteeMesureId" #search="{ attributes, events }">
+                              <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher une unité..." />
                             </template>
 
-                            <template #selected="option">
+                            <template v-else #selected="option">
                               {{ option.nom }}
                             </template>
 
@@ -376,11 +389,11 @@
                       <div class="flex gap-1">
                         <div class="relative w-full">
                           <v-select class="w-full" :reduce="(site) => site.id" v-model="payload.sites" label="nom" :options="sites" placeholder="Selectionez les sites..." multiple>
-                            <template #search="{ attributes, events }">
-                              <input class="vs__search form-input" :required="!payload.sites || payload.sites.length === 0" v-bind="attributes" v-on="events" placeholder="Rechercher un site..." />
+                            <template v-if="!payload.sites || payload.sites.length === 0" #search="{ attributes, events }">
+                              <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher un site..." />
                             </template>
 
-                            <template #selected="option">
+                            <template v-else #selected="option">
                               {{ option.nom }}
                             </template>
 
@@ -397,8 +410,11 @@
                       <label class="form-label">Source de données</label>
                       <div class="relative w-full">
                         <v-select class="w-full" v-model="payload.sources_de_donnee" :options="sourcesDonnees" placeholder="Selectionez une source...">
-                          <template #search="{ attributes, events }">
-                            <input class="vs__search form-input" :required="!payload.sources_de_donnee" v-bind="attributes" v-on="events" placeholder="Rechercher une source..." />
+                          <template v-if="!payload.sources_de_donnee" #search="{ attributes, events }">
+                            <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher une source..." />
+                          </template>
+                          <template v-else #selected="option">
+                            {{ option }}
                           </template>
                         </v-select>
                       </div>
@@ -450,8 +466,11 @@
                   <label class="form-label">Année</label>
                   <div class="relative w-full">
                     <v-select class="w-full" v-model="currentAnneeCible.annee" :options="annees" placeholder="Selectionez une année...">
-                      <template #search="{ attributes, events }">
-                        <input class="vs__search form-input" :required="!currentAnneeCible.annee" v-bind="attributes" v-on="events" placeholder="Rechercher une année..." />
+                      <template v-if="!currentAnneeCible.annee" #search="{ attributes, events }">
+                        <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher une année..." />
+                      </template>
+                      <template v-else #selected="option">
+                        {{ option }}
                       </template>
                     </v-select>
                   </div>
