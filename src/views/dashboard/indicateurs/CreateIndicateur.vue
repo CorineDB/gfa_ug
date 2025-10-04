@@ -168,7 +168,7 @@
                         <div class="flex-1">
                           <label class="form-label">Année cible <span class="text-danger">*</span> </label>
                           <div class="relative w-full">
-                            <v-select class="w-full" v-model="currentAnneeCibleNotAgreger.annee" :options="annees" placeholder="Selectionez une année...">
+                            <v-select class="w-full" v-model="currentAnneeCibleNotAgreger.annee" :options="anneesCibleDisponiblesNotAgreger" placeholder="Selectionez une année...">
                               <template v-if="!currentAnneeCibleNotAgreger.annee" #search="{ attributes, events }">
                                 <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher une année..." />
                               </template>
@@ -182,7 +182,7 @@
                         <div class="flex flex-1 gap-1">
                           <input type="number" class="form-control" id="valeur_cible" placeholder="Valeur cible"
                             v-model="currentAnneeCibleNotAgreger.valeurCible" />
-                          <button @click.prevent="addAnneeCibleNotAgreger" class="btn btn-primary h-9">
+                          <button type="button" @click.prevent="addAnneeCibleNotAgreger" class="btn btn-primary h-9">
                             <PlusIcon class="mr-1 size-3" />
                           </button>
                         </div>
@@ -194,17 +194,72 @@
                     </div>
                   </div>
                   <div v-if="!payload.agreger && payloadNotAgreger.anneesCible.length > 0"
-                    class="flex flex-wrap items-center w-full gap-3">
-                    <p>Années cible:</p>
-                    <div :title="annee.valeurCible"
-                      class="flex items-center justify-between gap-1 px-2 py-0.5 text-sm font-normal bg-white rounded-full shadow cursor-pointer text-primary"
-                      v-for="(annee, index) in payloadNotAgreger.anneesCible" :key="index">
-                      <span class="font-medium">{{ annee.annee }} : <span class="font-normal text-slate-600">{{
-                        annee.valeurCible }} </span></span>
-                      <button @click.prevent="deleteAnneeCibleNotAgreger(index)"
-                        class="p-1.5 transition-colors rounded-full hover:bg-red-100">
-                        <XIcon class="size-4 text-danger" />
-                      </button>
+                    class="w-full space-y-3" data-annees-cibles>
+                    <p class="font-medium text-slate-700">Années cibles configurées :</p>
+                    <div class="grid gap-2 grid-cols-[repeat(auto-fill,_minmax(250px,_1fr))]">
+                      <div v-for="(annee, index) in payloadNotAgreger.anneesCible" :key="index" class="flex flex-col">
+                        <div class="group flex flex-col gap-2 p-2 bg-white rounded border transition-all duration-200"
+                          :class="isAnneeCibleInvalide(annee.annee) ? 'bg-red-50 border-red-300' : 'border-gray-200'">
+                          <!-- Ligne Année -->
+                          <div class="flex items-center justify-between">
+                            <span class="text-xs font-medium text-slate-500">Année :</span>
+                            <div class="relative flex items-center">
+                              <!-- Mode édition année -->
+                              <div v-if="isFieldEditing(`notAgreger-${index}`, 'annee')">
+                                <select v-model="annee.annee"
+                                  @change="toggleFieldEdit(`notAgreger-${index}`, 'annee')"
+                                  class="text-sm font-semibold text-slate-900 border border-blue-500 text-right focus:bg-blue-50 focus:ring-1 focus:ring-blue-500 rounded px-2 py-1 w-24 transition-all mr-6">
+                                  <option v-for="year in anneesCibleDisponiblesNotAgreger" :key="year" :value="year">{{ year }}</option>
+                                  <option :value="annee.annee">{{ annee.annee }}</option>
+                                </select>
+                              </div>
+                              <!-- Mode affichage année -->
+                              <span v-else class="text-sm font-semibold w-24 text-right"
+                                :class="isAnneeCibleInvalide(annee.annee) ? 'text-red-700' : 'text-slate-900'">
+                                {{ isAnneeCibleInvalide(annee.annee) ? '⚠️ ' : '' }}{{ annee.annee }}
+                              </span>
+                              <!-- Bouton d'édition année -->
+                              <button type="button" @click.prevent="toggleFieldEdit(`notAgreger-${index}`, 'annee')"
+                                class="absolute right-0 p-1 transition-all rounded hover:bg-blue-100 group-hover:opacity-100"
+                                :class="isFieldEditing(`notAgreger-${index}`, 'annee') ? 'bg-blue-100 opacity-100' : 'opacity-0'"
+                                title="Modifier l'année">
+                                <Edit3Icon class="size-3 text-blue-600" />
+                              </button>
+                            </div>
+                          </div>
+                          <!-- Ligne Valeur cible -->
+                          <div class="flex items-center justify-between">
+                            <span class="text-xs font-medium text-slate-500">Valeur cible :</span>
+                            <div class="relative flex items-center">
+                              <!-- Mode édition valeur -->
+                              <div v-if="isFieldEditing(`notAgreger-${index}`, 'valeurCible')">
+                                <input type="number" v-model="annee.valeurCible"
+                                  @keyup.enter.prevent.stop="toggleFieldEdit(`notAgreger-${index}`, 'valeurCible')"
+                                  @focus="$event.target.select()"
+                                  class="text-sm font-semibold text-slate-900 border border-blue-500 text-right focus:bg-blue-50 focus:ring-1 focus:ring-blue-500 rounded px-2 py-1 w-24 transition-all mr-6"
+                                  placeholder="0" step="any" />
+                              </div>
+                              <!-- Mode affichage valeur -->
+                              <span v-else class="text-sm font-semibold text-slate-900 w-24 text-right">
+                                {{ annee.valeurCible || '0' }}
+                              </span>
+                              <!-- Bouton d'édition valeur -->
+                              <button type="button" @click.prevent="toggleFieldEdit(`notAgreger-${index}`, 'valeurCible')"
+                                class="absolute right-0 p-1 transition-all rounded hover:bg-blue-100 group-hover:opacity-100"
+                                :class="isFieldEditing(`notAgreger-${index}`, 'valeurCible') ? 'bg-blue-100 opacity-100' : 'opacity-0'"
+                                :title="isFieldEditing(`notAgreger-${index}`, 'valeurCible') ? 'Valider' : 'Modifier la valeur'">
+                                <CheckIcon v-if="isFieldEditing(`notAgreger-${index}`, 'valeurCible')" class="size-3 text-blue-600" />
+                                <Edit3Icon v-else class="size-3 text-blue-600" />
+                              </button>
+                            </div>
+                          </div>
+                          <!-- Bouton de suppression -->
+                          <button type="button" @click.prevent="deleteAnneeCibleNotAgreger(index)"
+                            class="absolute top-2 right-2 p-1 transition-colors rounded hover:bg-red-100 group-hover:opacity-100 opacity-0">
+                            <XIcon class="size-4 text-danger" />
+                          </button>
+                        </div>
+                      </div>
                     </div>
                     <div v-if="errors.valeurDeBase" class="mt-2 text-danger">{{ getFieldErrors(errors.valeurDeBase) }}
                     </div>
@@ -231,7 +286,7 @@
                             </template>
                           </v-select>
                         </div>
-                        <button class="flex-1 text-sm btn btn-primary" @click.prevent="(showModalKey = true), handleParentClick()"><PlusIcon class="mr-1 size-3" /></button>
+                        <button type="button" class="flex-1 text-sm btn btn-primary" @click.prevent="(showModalKey = true), handleParentClick()"><PlusIcon class="mr-1 size-3" /></button>
                       </div>
 
                       <div v-if="errors.value_keys" class="mt-2 text-danger">{{ getFieldErrors(errors.value_keys) }}
@@ -241,57 +296,90 @@
                   <div v-if="array_value_keys.length > 0 && payload.agreger" class="">
                     <label class="form-label">Valeur de base</label>
                     <div class="grid gap-3 grid-cols-[repeat(auto-fill,_minmax(350px,_1fr))]">
-                      <div v-for="(base, index) in filterValueKeys" :key="index" class="input-group">
-                        <div class="flex items-center justify-center text-sm input-group-text">{{ base.libelle }}</div>
-                        <input type="text" v-model="valeur[base.id]" class="form-control" placeholder="valeur"
-                          aria-label="valeur" aria-describedby="input-group-valeur" />
+                      <div v-for="(base, index) in filterValueKeys" :key="index" class="flex flex-col">
+                        <div class="input-group"
+                          :class="{ 'ring-2 ring-red-400': hasEmptyBaseValue(base.id) }">
+                          <div class="flex items-center justify-center text-sm input-group-text"
+                            :class="{ 'bg-red-50 text-red-700': hasEmptyBaseValue(base.id) }">
+                            {{ base.libelle }}
+                            <span v-if="hasEmptyBaseValue(base.id)" class="ml-1">⚠️</span>
+                          </div>
+                          <input type="text" v-model="valeur[base.id]"
+                            class="form-control"
+                            :class="{ 'border-red-400 focus:border-red-500 focus:ring-red-500': hasEmptyBaseValue(base.id) }"
+                            placeholder="valeur"
+                            aria-label="valeur" aria-describedby="input-group-valeur" />
+                        </div>
+                        <div v-if="hasEmptyBaseValue(base.id)" class="mt-2 text-danger">
+                          Ce champ doit être rempli
+                        </div>
                       </div>
                     </div>
                   </div>
                   <div v-if="payload.agreger" class="space-y-3">
-                    <button v-show="array_value_keys.length > 0" class="text-sm btn btn-primary"
+                    <button type="button" v-show="array_value_keys.length > 0" class="text-sm btn btn-primary"
                       @click.prevent="openAddAnneeCibleModal">
                       <PlusIcon class="mr-1 size-3" /> Ajouter une année cible
                     </button>
                   </div>
-                  <div v-if="payload.agreger && anneesCible.length > 0" class="w-full space-y-3">
+                  <div v-if="payload.agreger && anneesCible.length > 0" class="w-full space-y-3" data-annees-cibles>
                     <p class="font-medium text-slate-700">Années cibles configurées :</p>
                     <div class="space-y-3">
                       <div v-for="(annee, index) in anneesCible" :key="index"
-                        class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        class="p-4 rounded-lg border"
+                        :class="isAnneeCibleInvalide(annee.annee) ? 'bg-red-50 border-red-300' : 'bg-gray-50 border-gray-200'">
                         <div class="flex items-center justify-between mb-3">
-                          <h4 class="font-semibold text-lg text-primary">Année {{ annee.annee }}</h4>
                           <div class="flex items-center gap-2">
-                            <button @click.prevent="editAnneeCible(index)"
-                              class="p-2 transition-colors rounded-lg hover:bg-blue-100 bg-blue-50" title="Modifier">
-                              <Edit3Icon class="size-4 text-blue-600" />
+                            <h4 class="font-semibold text-lg" :class="isAnneeCibleInvalide(annee.annee) ? 'text-red-600' : 'text-primary'">Année {{ annee.annee }}</h4>
+                            <span v-if="isAnneeCibleInvalide(annee.annee)" class="px-2 py-1 text-xs font-medium text-red-700 bg-red-100 rounded-full">
+                              ⚠️ Invalide (< année de base)
+                            </span>
+                          </div>
+                          <div class="flex items-center gap-2">
+                            <button type="button" @click.prevent="editAnneeCible(index)"
+                              class="p-2 transition-colors rounded-lg hover:bg-purple-100 bg-purple-50" title="Modifier dans le modal">
+                              <EditIcon class="size-4 text-purple-600" />
                             </button>
-                            <button @click.prevent="deleteAnneeCible(index)"
+                            <button type="button" @click.prevent="deleteAnneeCible(index)"
                               class="p-2 transition-colors rounded-lg hover:bg-red-100 bg-red-50" title="Supprimer">
                               <XIcon class="size-4 text-red-600" />
                             </button>
                           </div>
                         </div>
                         <div class="grid gap-2 grid-cols-[repeat(auto-fill,_minmax(250px,_1fr))]">
-                          <div v-for="valeur in annee.valeurCible" :key="valeur.keyId"
-                            class="group flex items-center justify-between gap-2 p-2 bg-white rounded border hover:border-blue-300 transition-all duration-200"
-                            :class="{ 'border-green-300 bg-green-50': isNewlyAddedKey(valeur.keyId) }">
-                            <span class="text-sm font-medium text-slate-600 flex-shrink-0"
-                              :class="{ 'text-green-700': isNewlyAddedKey(valeur.keyId) }">
-                              {{ getKeyLabel(valeur.keyId) }}
-                              <span v-if="isNewlyAddedKey(valeur.keyId)"
-                                class="ml-1 text-xs text-green-600 font-medium">(nouveau)</span>
-                            </span>
-                            <div class="relative">
-                              <input type="number" v-model="valeur.value" @blur="onValeurChange"
-                                @keyup.enter="$event.target.blur()" @focus="$event.target.select()"
-                                class="text-sm font-semibold text-slate-900 bg-transparent border-0 text-right focus:bg-blue-50 focus:ring-1 focus:ring-blue-500 rounded px-2 py-1 w-24 transition-all"
-                                :class="{ 'focus:bg-green-50 focus:ring-green-500': isNewlyAddedKey(valeur.keyId) }"
-                                placeholder="0" step="any" />
-                              <div
-                                class="absolute inset-y-0 right-0 flex items-center pr-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <EditIcon class="w-3 h-3 text-slate-400" />
+                          <div v-for="valeur in annee.valeurCible" :key="valeur.keyId" class="flex flex-col">
+                            <div class="group flex items-center justify-between gap-2 p-2 bg-white rounded border transition-all duration-200"
+                              :class="{ 'border-red-300 bg-red-50': hasEmptyTargetValue(valeur.keyId, index) }">
+                              <span class="text-sm font-medium text-slate-600 truncate max-w-[150px]"
+                                :class="{ 'text-red-700': hasEmptyTargetValue(valeur.keyId, index) }"
+                                :title="getKeyLabel(valeur.keyId)">
+                                {{ getKeyLabel(valeur.keyId) }}
+                              </span>
+                              <div class="relative flex items-center">
+                                <!-- Mode édition -->
+                                <div v-if="isFieldEditing(index, valeur.keyId)">
+                                  <input type="number" v-model="valeur.value"
+                                    @keyup.enter.prevent.stop="toggleFieldEdit(index, valeur.keyId)" @focus="$event.target.select()"
+                                    class="text-sm font-semibold text-slate-900 border border-blue-500 text-right focus:bg-blue-50 focus:ring-1 focus:ring-blue-500 rounded px-2 py-1 w-24 transition-all mr-6"
+                                    :class="{ 'focus:bg-green-50 focus:ring-green-500': hasEmptyTargetValue(valeur.keyId, index) }"
+                                    placeholder="0" step="any" />
+                                </div>
+                                <!-- Mode affichage -->
+                                <span v-else class="text-sm font-semibold text-slate-900 w-24 text-right">
+                                  {{ valeur.value || '0' }}
+                                </span>
+                                <!-- Bouton d'édition inline pour ce champ -->
+                                <button type="button" @click.prevent="toggleFieldEdit(index, valeur.keyId)"
+                                  class="absolute right-0 p-1 transition-all rounded hover:bg-blue-100 group-hover:opacity-100"
+                                  :class="isFieldEditing(index, valeur.keyId) ? 'bg-blue-100 opacity-100' : 'opacity-0'"
+                                  :title="isFieldEditing(index, valeur.keyId) ? 'Valider' : 'Modifier'">
+                                  <CheckIcon v-if="isFieldEditing(index, valeur.keyId)" class="size-3 text-blue-600" />
+                                  <Edit3Icon v-else class="size-3 text-blue-600" />
+                                </button>
                               </div>
+                            </div>
+                            <div v-if="hasEmptyTargetValue(valeur.keyId, index)" class="mt-2 text-danger">
+                              Ce champ doit être rempli
                             </div>
                           </div>
                         </div>
@@ -329,7 +417,7 @@
                             </template>
                           </v-select>
                         </div>
-                        <button class="flex-1 text-sm btn btn-primary" @click.prevent="showModalCategorie = true"><PlusIcon class="mr-1 size-3" /></button>
+                        <button type="button" class="flex-1 text-sm btn btn-primary" @click.prevent="showModalCategorie = true"><PlusIcon class="mr-1 size-3" /></button>
                       </div>
                     </div>
                     <div class="flex-1">
@@ -439,7 +527,7 @@
                             </template>
                           </v-select>
                         </div>
-                        <button class="flex-1 text-sm btn btn-primary" @click.prevent="showModalUniteMesure = true"><PlusIcon class="mr-1 size-3" /></button>
+                        <button type="button" class="flex-1 text-sm btn btn-primary" @click.prevent="showModalUniteMesure = true"><PlusIcon class="mr-1 size-3" /></button>
                       </div>
                       <div v-if="errors.uniteeMesureId" class="mt-2 text-danger">{{
                         getFieldErrors(errors.uniteeMesureId) }}</div>
@@ -465,7 +553,7 @@
                             </template>
                           </v-select>
                         </div>
-                        <button class="flex-1 text-sm btn btn-primary" @click.prevent="showModalZone = true"><PlusIcon class="mr-1 size-3" /></button>
+                        <button type="button" class="flex-1 text-sm btn btn-primary" @click.prevent="showModalZone = true"><PlusIcon class="mr-1 size-3" /></button>
                       </div>
                       <div v-if="errors.sites" class="mt-2 text-danger">{{ getFieldErrors(errors.sites) }}</div>
                     </div>
@@ -499,16 +587,16 @@
               </div>
               <!-- END -->
               <div class="flex justify-end gap-3 py-4 mt-5">
-                <button @click.prevent="prevStep"
+                <button type="button" @click.prevent="prevStep"
                   :class="[currentStep == 1 ? ' opacity-50 cursor-not-allowed pointer-events-none' : '']"
                   class="flex items-center justify-center mr-1 btn btn-outline-primary">
                   <ChevronsLeftIcon class="size-4" />
                 </button>
-                <button v-for="step in steps" :key="step.id"
+                <button type="button" v-for="step in steps" :key="step.id"
                   :class="[step.id == currentStep ? 'btn-primary' : 'btn-outline-primary']"
                   @click.prevent="goToStep(step.id)" class="flex items-center justify-center rounded-full btn size-8">{{
                     step.id }}</button>
-                <button @click.prevent="nextStep"
+                <button type="button" @click.prevent="nextStep"
                   :class="[currentStep == steps.length ? ' opacity-50 cursor-not-allowed pointer-events-none' : '']"
                   class="flex items-center justify-center ml-1 text-black btn btn-outline-primary">
                   <ChevronsRightIcon class="text-black size-4" />
@@ -541,7 +629,7 @@
                 <div class="flex-1">
                   <label class="form-label">Année</label>
                   <div class="relative w-full">
-                    <v-select class="w-full" v-model="currentAnneeCible.annee" :options="annees" placeholder="Selectionez une année...">
+                    <v-select class="w-full" v-model="currentAnneeCible.annee" :options="anneesModalDisponibles" placeholder="Selectionez une année...">
                       <template v-if="!currentAnneeCible.annee" #search="{ attributes, events }">
                         <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher une année..." />
                       </template>
@@ -554,12 +642,22 @@
                 <!-- Champs dynamiques pour les valeurs -->
                 <div v-if="array_value_keys.length > 0" class="">
                   <div class="grid gap-3 grid-cols-[repeat(auto-fill,_minmax(350px,_1fr))]">
-                    <div v-for="(key, index) in filterValueKeys" :key="key.id" class="input-group">
-                      <div class="flex items-center justify-center text-sm input-group-text">
-                        {{ key.libelle }}
+                    <div v-for="(key, index) in filterValueKeys" :key="key.id" class="flex flex-col">
+                      <div class="input-group"
+                        :class="{ 'ring-2 ring-red-400': hasEmptyModalValue(index) }">
+                        <div class="flex items-center justify-center text-sm input-group-text"
+                          :class="{ 'bg-red-50 text-red-700': hasEmptyModalValue(index) }">
+                          {{ key.libelle }}
+                          <span v-if="hasEmptyModalValue(index)" class="ml-1">⚠️</span>
+                        </div>
+                        <input type="text" v-model="currentAnneeCible.valeurCible[index].value"
+                          class="form-control"
+                          :class="{ 'border-red-400 focus:border-red-500 focus:ring-red-500': hasEmptyModalValue(index) }"
+                          placeholder="valeur" aria-label="valeur" />
                       </div>
-                      <input type="text" v-model="currentAnneeCible.valeurCible[index].value" class="form-control"
-                        placeholder="valeur" aria-label="valeur" />
+                      <div v-if="hasEmptyModalValue(index)" class="mt-2 text-danger">
+                        Ce champ doit être rempli
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -674,8 +772,7 @@ const anneesCible = ref([]);
 // Variables pour la modification des années cibles
 const isEditingAnneeCible = ref(false);
 const editingAnneeCibleIndex = ref(-1);
-// Tracker les nouvelles clés ajoutées récemment
-const recentlyAddedKeys = ref(new Set());
+const editingFields = ref(new Set()); // Pour tracker les champs en édition inline (format: "indexAnnee-keyId")
 // Objet réactif pour stocker les valeurs des champs saisis
 const valeur = ref({});
 
@@ -753,9 +850,43 @@ const annees = computed(() => {
   return annees;
 });
 
+// Années filtrées pour les années cibles (>= année de base)
+const anneesCibleDisponibles = computed(() => {
+  if (!payload.anneeDeBase) return annees.value;
+  return annees.value.filter(annee => annee >= payload.anneeDeBase);
+});
+
+// Années disponibles dans le modal (exclure les années déjà configurées)
+const anneesModalDisponibles = computed(() => {
+  const anneesBase = anneesCibleDisponibles.value;
+
+  // Si en mode ajout
+  if (!isEditingAnneeCible.value) {
+    const anneesDejaConfigurees = anneesCible.value.map(a => a.annee);
+    return anneesBase.filter(annee => !anneesDejaConfigurees.includes(annee));
+  }
+
+  // Si en mode modification : exclure toutes sauf l'année en cours de modification
+  const anneesDejaConfigurees = anneesCible.value
+    .filter((_, index) => index !== editingAnneeCibleIndex.value)
+    .map(a => a.annee);
+  return anneesBase.filter(annee => !anneesDejaConfigurees.includes(annee));
+});
+
+// Années disponibles pour les indicateurs non agrégés (exclure les années déjà configurées)
+const anneesCibleDisponiblesNotAgreger = computed(() => {
+  const anneesBase = anneesCibleDisponibles.value;
+  const anneesDejaConfigurees = payloadNotAgreger.anneesCible.map(a => a.annee);
+  return anneesBase.filter(annee => !anneesDejaConfigurees.includes(annee));
+});
+
 const addAnneeCibleNotAgreger = () => {
   if (!currentAnneeCibleNotAgreger.value.annee || !currentAnneeCibleNotAgreger.value.valeurCible) {
     toast.info("Veuillez entrer une année et sa valeur !");
+    return;
+  }
+  if (currentAnneeCibleNotAgreger.value.annee < payload.anneeDeBase) {
+    toast.error("L'année cible ne peut pas être inférieure à l'année de base !");
     return;
   }
   if (payloadNotAgreger.anneesCible.includes(currentAnneeCibleNotAgreger.value.annee)) {
@@ -830,6 +961,9 @@ const resetForm = () => {
   payload.valeurDeBase = [];
   payload.anneesCible = [];
   payload.hypothese = "";
+  // Réinitialiser les valeurs de base et les années cibles
+  valeur.value = {};
+  anneesCible.value = [];
   showModalCreate.value = false;
   errors.value = {};
 };
@@ -881,41 +1015,7 @@ const updateUnites = (datas) => {
   unites.value = datas; // Stocke les données reçues
 };
 const updateKeys = (datas) => {
-  const oldKeys = keys.value;
   keys.value = datas; // Stocke les données reçues
-
-  // Détecter les nouvelles clés ajoutées
-  if (oldKeys.length > 0 && datas.length > oldKeys.length) {
-    const newKeys = datas.filter(newKey =>
-      !oldKeys.some(oldKey => oldKey.id === newKey.id)
-    );
-
-    if (newKeys.length > 0) {
-      // Auto-sélectionner les nouvelles clés créées
-      newKeys.forEach(newKey => {
-        if (!array_value_keys.value.includes(newKey.id)) {
-          array_value_keys.value.push(newKey.id);
-        }
-        // Ajouter au tracker des nouvelles clés
-        recentlyAddedKeys.value.add(newKey.id);
-      });
-
-      // Retirer le marquage "nouveau" après 10 secondes
-      setTimeout(() => {
-        newKeys.forEach(newKey => {
-          recentlyAddedKeys.value.delete(newKey.id);
-        });
-      }, 10000);
-
-      // Informer l'utilisateur
-      const msg = newKeys.length === 1
-        ? `La nouvelle clé "${newKeys[0].libelle}" a été créée et ajoutée automatiquement`
-        : `${newKeys.length} nouvelles clés ont été créées et ajoutées automatiquement`;
-      toast.success(msg);
-
-      // Note: Les années cibles seront automatiquement mises à jour grâce au watch sur array_value_keys
-    }
-  }
 };
 
 const updateCategories = (datas) => {
@@ -1078,6 +1178,11 @@ const addAnneeCible = () => {
     return;
   }
 
+  if (currentAnneeCible.value.annee < payload.anneeDeBase) {
+    toast.error("L'année cible ne peut pas être inférieure à l'année de base !");
+    return;
+  }
+
   if (isEditingAnneeCible.value) {
     // Mode modification : remplacer l'année cible existante
     anneesCible.value[editingAnneeCibleIndex.value] = { ...currentAnneeCible.value };
@@ -1122,9 +1227,46 @@ const onValeurChange = () => {
   // Pour l'instant, la réactivité de Vue gère automatiquement la mise à jour
 };
 
-// Vérifier si une clé a été récemment ajoutée
-const isNewlyAddedKey = (keyId) => {
-  return recentlyAddedKeys.value.has(keyId);
+// Vérifier si une clé a une valeur de base vide
+const hasEmptyBaseValue = (keyId) => {
+  if (!array_value_keys.value.includes(keyId)) return false;
+  const value = valeur.value[keyId];
+  return !value || value.toString().trim() === '';
+};
+
+// Vérifier si une clé a une valeur cible vide pour une année donnée
+const hasEmptyTargetValue = (keyId, anneeIndex) => {
+  if (!array_value_keys.value.includes(keyId)) return false;
+  if (!anneesCible.value[anneeIndex]) return false;
+  const valeurCible = anneesCible.value[anneeIndex].valeurCible.find(v => v.keyId === keyId);
+  if (!valeurCible) return true;
+  return !valeurCible.value || valeurCible.value.toString().trim() === '';
+};
+
+// Vérifier si une valeur dans le modal est vide
+const hasEmptyModalValue = (valueIndex) => {
+  if (!currentAnneeCible.value.valeurCible[valueIndex]) return true;
+  const value = currentAnneeCible.value.valeurCible[valueIndex].value;
+  return !value || value.toString().trim() === '';
+};
+
+// Vérifier si une année cible est invalide (< année de base)
+const isAnneeCibleInvalide = (annee) => {
+  return payload.anneeDeBase && annee < payload.anneeDeBase;
+};
+
+// Fonctions pour gérer l'édition inline des champs individuels
+const toggleFieldEdit = (anneeIndex, keyId) => {
+  const fieldId = `${anneeIndex}-${keyId}`;
+  if (editingFields.value.has(fieldId)) {
+    editingFields.value.delete(fieldId);
+  } else {
+    editingFields.value.add(fieldId);
+  }
+};
+
+const isFieldEditing = (anneeIndex, keyId) => {
+  return editingFields.value.has(`${anneeIndex}-${keyId}`);
 };
 
 // Calculer le nombre total de pages
@@ -1139,6 +1281,8 @@ const paginatedData = computed(() => {
 
 const datasSearch = computed(() => {
   // Retourner les groupes filtrés
+  if (!search.value || !cadreRendement.value) return cadreRendement.value || [];
+
   return cadreRendement.value
     .map((group) => {
       const filteredIndicateurs = group.indicateurs.filter((indicateur) => indicateur.nom.toLowerCase().includes(search.value.toLowerCase()));
@@ -1148,8 +1292,8 @@ const datasSearch = computed(() => {
 });
 
 const dataAvailable = computed(() => {
-  if (search.value.length > 0) return datasSearch.value;
-  else return paginatedData.value;
+  if (search.value && search.value.length > 0) return datasSearch.value;
+  else return paginatedData.value || [];
 });
 
 const countAnneeCible = computed(() => {
@@ -1219,6 +1363,44 @@ watch(
     }
   },
   { immediate: true }
+);
+
+// Watch sur l'année de base pour détecter les années cibles invalides
+watch(
+  () => payload.anneeDeBase,
+  (newAnneeBase, oldAnneeBase) => {
+    if (!newAnneeBase || !oldAnneeBase || newAnneeBase === oldAnneeBase) return;
+
+    // Pour les indicateurs agrégés
+    if (payload.agreger && anneesCible.value.length > 0) {
+      const anneesInvalides = anneesCible.value.filter(annee => annee.annee < newAnneeBase);
+      if (anneesInvalides.length > 0) {
+        toast.warning(`${anneesInvalides.length} année(s) cible(s) sont maintenant invalides. Veuillez les corriger.`);
+        // Scroll vers la section des années cibles
+        setTimeout(() => {
+          const element = document.querySelector('[data-annees-cibles]');
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 100);
+      }
+    }
+
+    // Pour les indicateurs non agrégés
+    if (!payload.agreger && payloadNotAgreger.anneesCible.length > 0) {
+      const anneesInvalides = payloadNotAgreger.anneesCible.filter(annee => annee.annee < newAnneeBase);
+      if (anneesInvalides.length > 0) {
+        toast.warning(`${anneesInvalides.length} année(s) cible(s) sont maintenant invalides. Veuillez les corriger.`);
+        // Scroll vers la section des années cibles
+        setTimeout(() => {
+          const element = document.querySelector('[data-annees-cibles]');
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 100);
+      }
+    }
+  }
 );
 // Fetch data on component mount
 onMounted(async () => {
