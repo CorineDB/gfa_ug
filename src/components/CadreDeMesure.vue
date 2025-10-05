@@ -3,8 +3,6 @@
     <ExportationIndicateur :data="data" :years="years" />
   </div>
 
-  <!-- <pre>{{  data }}</pre> -->
-
   <TabGroup>
     <TabList class="space-x-4 font-bold uppercase nav-boxed-tabs">
       <Tab class="w-full py-2 bg-white" tag="button">Cadre logique</Tab>
@@ -45,159 +43,21 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <template v-for="(result, i) in data" :key="result.id">
-                    <tr class="uppercase" v-if="result.indicateurs && result.indicateurs.length > 0" :class="[result.type == 'produit' ? 'text-black' : 'text-white']" :style="{ 'background-color': findColorCadreMesure(result.type) }">
-                      <td :colspan="14 + years.length * 2" class="font-semibold">{{ result.type }} {{ result.indice }}</td>
-                    </tr>
-                    <template v-for="(indicateur, j) in result.indicateurs" :key="indicateur.id">
-                      <tr>
-                        <!-- Première colonne fixe -->
-                        <td class="font-semibold sticky-column" v-if="j === 0" :rowspan="result.indicateurs.length" style="left: 0">
-                          {{ result.nom }}
-                        </td>
-
-                        <!-- Deuxième colonne fixe -->
-                        <td class="font-semibold sticky-column-second" style="left: 500px">Ind {{ indicateur.code }}</td>
-
-                        <!-- Troisième colonne fixe -->
-                        <td class="">
-                          {{ indicateur.nom }}
-                        </td>
-
-                        <!-- Colonnes restantes -->
-                        <td>{{ indicateur.description ?? "" }}</td>
-                        <td v-html="formatObject(indicateur.valeurDeBase)"></td>
-                        <td v-for="(year, index) in years" :key="index">
-                          <span v-html="formatObject(indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeurCible)"></span>
-                        </td>
-                        <td v-html="formatObject(indicateur.valeurCibleTotal)"></td>
-                        <td v-for="(year, index) in years" :key="index">
-                          <span v-html="formatObject(indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeur_realiser)"></span>
-                        </td>
-                        <td v-html="formatObject(indicateur.valeurRealiserTotal)"></td>
-                        <td v-html="formatObject(indicateur.taux_realisation)"></td>
-                        <td>{{ indicateur.sources_de_donnee }}</td>
-                          <td>{{ indicateur.hypothese }}</td>
-                        <td>{{ indicateur.methode_de_la_collecte }}</td>
-                        <td>{{ indicateur.frequence_de_la_collecte }}</td>
-                        <td>
-                          <span v-html="formatResponsable(indicateur.organisations_responsable)"></span><br />
-                          {{ indicateur.ug_responsable?.nom ?? "" }}
-                          {{}}
-                        </td>
-                        <td class="space-x-1">
-                          <button v-if="verifyPermission('creer-un-suivi-indicateur')" title="Suivre" @click="handleSuivi(indicateur)" class="btn text-primary"><CornerUpLeftIcon class="size-5" /></button>
-                          <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Voir" @click="goToDetailSuivi(indicateur.id)" class="btn text-primary"><EyeIcon class="size-5" /></button>
-                          <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Ajouter Structure" @click="handleStructure(indicateur.id)" class="btn text-primary"><PlusIcon class="size-5" />structure</button>
-                          <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Ajouter Structure" @click="handleYearCible(indicateur)" class="btn text-primary"><PlusIcon class="size-5" />année cible</button>
-                          <button v-if="verifyPermission('supprimer-un-suivi-indicateur')" title="Modifier" @click="handleEdit(indicateur)" class="btn text-pending"><Edit3Icon class="size-5" /></button>
-                          <button v-if="verifyPermission('supprimer-un-suivi-indicateur')" title="Supprimer" @click="handleDelete(indicateur)" class="btn text-danger"><TrashIcon class="size-5" /></button>
-                        </td>
-                      </tr>
-                    </template>
-                    <template v-for="(result, i) in result.categories" :key="result.id">
-                      <tr class="uppercase" v-if="result.indicateurs && result.indicateurs.length > 0" :class="[result.type == 'produit' ? 'text-black' : 'text-white']" :style="{ 'background-color': findColorCadreMesure(result.type) }">
-                        <td :colspan="14 + years.length * 2" class="font-semibold">{{ result.type }} {{ result.indice }}</td>
-                      </tr>
-                      <template v-for="(indicateur, j) in result.indicateurs" :key="indicateur.id">
-                        <tr>
-                          <!-- Première colonne fixe -->
-                          <td class="font-semibold sticky-column" v-if="j === 0" :rowspan="result.indicateurs.length" style="left: 0">
-                            {{ result.nom }}
-                          </td>
-
-                          <!-- Deuxième colonne fixe -->
-                          <td class="font-semibold sticky-column-second" style="left: 500px">Ind {{ indicateur.code }}</td>
-
-                          <!-- Troisième colonne fixe -->
-                          <td class="">
-                            {{ indicateur.nom }}
-                          </td>
-
-                          <!-- Colonnes restantes -->
-                          <td>{{ indicateur.description ?? "" }}</td>
-                          <td v-html="formatObject(indicateur.valeurDeBase)"></td>
-                          <td v-for="(year, index) in years" :key="index">
-                            <span v-html="formatObject(indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeurCible)"></span>
-                          </td>
-                          <td v-html="formatObject(indicateur.valeurCibleTotal)"></td>
-                          <td v-for="(year, index) in years" :key="index">
-                            <span v-html="formatObject(indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeur_realiser)"></span>
-                          </td>
-                          <td v-html="formatObject(indicateur.valeurRealiserTotal)"></td>
-                          <td v-html="formatObject(indicateur.taux_realisation)"></td>
-                          <td>{{ indicateur.sources_de_donnee }}</td>
-                          <td>{{ indicateur.hypothese }}</td>
-                          <td>{{ indicateur.methode_de_la_collecte }}</td>
-                          <td>{{ indicateur.frequence_de_la_collecte }}</td>
-                          <td>
-                            <span v-html="formatResponsable(indicateur.organisations_responsable)"></span><br />
-                            {{ indicateur.ug_responsable?.nom ?? "" }}
-                            {{}}
-                          </td>
-                          <td class="space-x-1">
-                            <button v-if="verifyPermission('creer-un-suivi-indicateur')" title="Suivre" @click="handleSuivi(indicateur)" class="btn text-primary"><CornerUpLeftIcon class="size-5" /></button>
-                            <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Voir" @click="goToDetailSuivi(indicateur.id)" class="btn text-primary"><EyeIcon class="size-5" /></button>
-                            <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Ajouter Structure" @click="handleStructure(indicateur.id)" class="btn text-primary"><PlusIcon class="size-5" />structure</button>
-                            <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Ajouter Structure" @click="handleYearCible(indicateur)" class="btn text-primary"><PlusIcon class="size-5" />année cible</button>
-                            <button v-if="verifyPermission('supprimer-un-suivi-indicateur')" title="Modifier" @click="handleEdit(indicateur)" class="btn text-pending"><Edit3Icon class="size-5" /></button>
-                            <button v-if="verifyPermission('supprimer-un-suivi-indicateur')" title="Supprimer" @click="handleDelete(indicateur)" class="btn text-danger"><TrashIcon class="size-5" /></button>
-                          </td>
-                        </tr>
-                      </template>
-                      <template v-for="(result, i) in result.categories" :key="result.id">
-                        <tr class="uppercase" v-if="result.indicateurs && result.indicateurs.length > 0" :class="[result.type == 'produit' ? 'text-black' : 'text-white']" :style="{ 'background-color': findColorCadreMesure(result.type) }">
-                          <td :colspan="14 + years.length * 2" class="font-semibold">{{ result.type }} {{ result.indice }}</td>
-                        </tr>
-                        <template v-for="(indicateur, j) in result.indicateurs" :key="indicateur.id">
-                          <tr>
-                            <!-- Première colonne fixe -->
-                            <td class="font-semibold sticky-column" v-if="j === 0" :rowspan="result.indicateurs.length" style="left: 0">
-                              {{ result.nom }}
-                            </td>
-
-                            <!-- Deuxième colonne fixe -->
-                            <td class="font-semibold sticky-column-second" style="left: 500px">Ind {{ indicateur.code }}</td>
-
-                            <!-- Troisième colonne fixe -->
-                            <td class="">
-                              {{ indicateur.nom }}
-                            </td>
-
-                            <!-- Colonnes restantes -->
-                            <td>{{ indicateur.description ?? "" }}</td>
-                            <td v-html="formatObject(indicateur.valeurDeBase)"></td>
-                            <td v-for="(year, index) in years" :key="index">
-                              <span v-html="formatObject(indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeurCible)"></span>
-                            </td>
-                            <td v-html="formatObject(indicateur.valeurCibleTotal)"></td>
-                            <td v-for="(year, index) in years" :key="index">
-                              <span v-html="formatObject(indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeur_realiser)"></span>
-                            </td>
-                            <td v-html="formatObject(indicateur.valeurRealiserTotal)"></td>
-                            <td v-html="formatObject(indicateur.taux_realisation)"></td>
-                            <td>{{ indicateur.sources_de_donnee }}</td>
-                            <td>{{ indicateur.hypothese }}</td>
-                            <td>{{ indicateur.methode_de_la_collecte }}</td>
-                            <td>{{ indicateur.frequence_de_la_collecte }}</td>
-                            <td>
-                              <span v-html="formatResponsable(indicateur.organisations_responsable)"></span><br />
-                              {{ indicateur.ug_responsable?.nom ?? "" }}
-                              {{}}
-                            </td>
-                            <td class="space-x-1">
-                              <button v-if="verifyPermission('creer-un-suivi-indicateur')" title="Suivre" @click="handleSuivi(indicateur)" class="btn text-primary"><CornerUpLeftIcon class="size-5" /></button>
-                              <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Voir" @click="goToDetailSuivi(indicateur.id)" class="btn text-primary"><EyeIcon class="size-5" /></button>
-                              <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Ajouter Structure" @click="handleStructure(indicateur.id)" class="btn text-primary"><PlusIcon class="size-5" />structure</button>
-                              <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Ajouter Structure" @click="handleYearCible(indicateur)" class="btn text-primary"><PlusIcon class="size-5" />année cible</button>
-                              <button v-if="verifyPermission('supprimer-un-suivi-indicateur')" title="Modifier" @click="handleEdit(indicateur)" class="btn text-pending"><Edit3Icon class="size-5" /></button>
-                              <button v-if="verifyPermission('supprimer-un-suivi-indicateur')" title="Supprimer" @click="handleDelete(indicateur)" class="btn text-danger"><TrashIcon class="size-5" /></button>
-                            </td>
-                          </tr>
-                        </template>
-                      </template>
-                    </template>
-                  </template>
+                  <CadreLogiqueRowGroup
+                    :data="data"
+                    :years="years"
+                    :verify-permission="verifyPermission"
+                    :find-color-cadre-mesure="findColorCadreMesure"
+                    :format-object="formatObject"
+                    :format-responsable="formatResponsable"
+                    @suivi="handleSuivi"
+                    @detail-suivi="goToDetailSuivi"
+                    @structure="handleStructure"
+                    @year-cible="handleYearCible"
+                    @edit="handleEdit"
+                    @comprehensive-edit="openComprehensiveEditModal"
+                    @delete="handleDelete"
+                  />
                 </tbody>
               </table>
             </div>
@@ -221,7 +81,6 @@
                 <AccordionGroup :selectedIndex="indexAccordion2" class="space-y-6 py-4">
                   <AccordionItem class="" v-for="(indicateur, j) in result.indicateurs" :key="indicateur.id">
                     <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white">
-                      <!-- <pre>{{ result }}</pre> -->
                       <div class="grid grid-cols-12 gap-5 text-gray-700">
                         <div class="col-span-12 p-5 cursor-pointer sm:col-span-4 2xl:col-span-4 box zoom-in">
                           <div class="text-base font-medium">Catégorie</div>
@@ -290,8 +149,6 @@
               </TomSelect>
               <div v-if="errors.anneeDeBase" class="mt-2 text-danger">{{ getFieldErrors(errors.anneeDeBase) }}</div>
             </div>
-
-            <!-- <InputForm v-if="!isAgregerCurrentIndicateur" class="flex-1" label="Valeur de base" :required="false" :control="getFieldErrors(errors.valeurDeBase)" v-model="payloadNotAgreger.valeurDeBase" type="number" /> -->
           </div>
 
           <div class="flex flex-wrap items-center justify-between gap-3">
@@ -409,17 +266,6 @@
     <form @submit.prevent="submitYearCible">
       <ModalBody>
         <div class="grid grid-cols-1 gap-4">
-          <!-- <div v-if="payload.agreger" class="space-y-3">
-            <button v-show="array_value_keys.length > 0" class="text-sm btn btn-primary" @click.prevent="showModalAnnee = true"><PlusIcon class="mr-1 size-3" /> Ajouter une année cible</button>
-          </div>
-          <div v-if="payload.agreger && anneesCible.length > 0" class="flex flex-wrap items-center w-full gap-3">
-            <p>Années cible:</p>
-            <div class="flex items-center justify-between gap-2 px-2 py-0.5 text-sm font-medium bg-white rounded-full shadow cursor-pointer text-primary" v-for="(annee, index) in anneesCible" :key="index">
-              <span>{{ annee.annee }} </span>
-              <button @click.prevent="deleteAnneeCible(index)" class="p-1.5 transition-colors rounded-full hover:bg-red-100"><XIcon class="size-4 text-danger" /></button>
-            </div>
-            <div v-if="errors.anneesCible" class="mt-2 text-danger">{{ getFieldErrors(errors.anneesCible) }}</div>
-          </div> -->
         </div>
       </ModalBody>
       <ModalFooter>
@@ -447,7 +293,6 @@
             </TomSelect>
             <div v-if="errors.annee" class="mt-2 text-danger">{{ getFieldErrors(errors.annee) }}</div>
           </div>
-          <!-- <InputForm label="Année de suivi" class="flex-1" v-model="payloadSuivi.annee" :control="getFieldErrors(errors.annee)" type="number" /> -->
           <div v-if="!isAgregerCurrentIndicateur" class="flex flex-wrap items-center justify-between gap-3">
             <InputForm label="Valeur cible" class="flex-1" v-model="payloadSuivi.valeurCible" :control="getFieldErrors(errors.valeurCible)" type="number" />
             <InputForm label="Valeur réalisée" class="flex-1" v-model="payloadSuivi.valeurRealise" :control="getFieldErrors(errors.valeurRealise)" type="number" />
@@ -535,10 +380,27 @@
   </Modal>
 
   <AddYearCibleIndicateur v-show="showModalAddYear" v-model:showModalCreate="showModalAddYear" :currentIndicateur="currentIndicateur" />
+
+  <!-- New Comprehensive Edit Form Modal -->
+  <IndicatorForm
+    v-if="showComprehensiveEditModal"
+    :show="showComprehensiveEditModal"
+    @update:show="showComprehensiveEditModal = $event"
+    @submit="handleUpdateSubmit"
+    :is-create="false"
+    :initial-data="indicatorToEdit"
+    :categories="categories"
+    :unites="unites"
+    :keys="[]" 
+    :ugs="ugs"
+    :responsables="ongs"
+    :sites="propSites"
+    :annees="years"
+  />
 </template>
 
 <script setup>
-import { computed, onMounted, reactive, ref } from "vue";
+import { onMounted, reactive, ref } from "vue";
 import VButton from "@/components/news/VButton.vue";
 import InputForm from "@/components/news/InputForm.vue";
 import IndicateursService from "@/services/modules/indicateur.service";
@@ -553,8 +415,31 @@ import ExportationIndicateur from "./news/ExportationIndicateur.vue";
 import verifyPermission from "@/utils/verifyPermission";
 import AddYearCibleIndicateur from "./AddYearCibleIndicateur.vue";
 import ChartDetailIndicateur from "./news/ChartDetailIndicateur.vue";
+import IndicatorForm from "@/components/forms/IndicatorForm.vue";
 import { jsPDF } from "jspdf";
+
+const showComprehensiveEditModal = ref(false);
+const indicatorToEdit = ref(null);
+
+const openComprehensiveEditModal = (data) => {
+  indicatorToEdit.value = data;
+  showComprehensiveEditModal.value = true;
+};
+
+const handleUpdateSubmit = async ({ payload, id }) => {
+  try {
+    await IndicateursService.updateComplet(id, payload);
+    toast.success(`Indicateur modifié avec succès.`);
+    showComprehensiveEditModal.value = false;
+    emit("update-datas");
+  } catch (e) {
+    toast.error("Échec de la modification. Veuillez vérifier le formulaire.");
+    console.error(e);
+  }
+};
+
 import autoTable from "jspdf-autotable";
+import CadreLogiqueRowGroup from "./CadreLogiqueRowGroup.vue";
 
 // ANCIENNE VERSION
 // const emit = defineEmits(["refreshData", "update-datas"]);
@@ -564,8 +449,8 @@ const emit = defineEmits(["refreshData", "update-datas", "edit-indicator"]);
 
 
 const getCurrentQuarter = function () {
-  const month = new Date().getMonth() + 1; // Les mois sont indexés à partir de 0
-  return Math.ceil(month / 3); // Calcul du trimestre actuel
+  const month = new Date().getMonth() + 1;
+  return Math.ceil(month / 3);
 }
 
 const props = defineProps({
@@ -598,117 +483,6 @@ const props = defineProps({
   },
 });
 
-const data2 = ref([]);
-
-const generatePDF = () => {
-  const doc = new jsPDF({ 
-    orientation: "landscape", 
-    format: "a0",
-    unit: 'mm'
-  });
-
-
-  const pageWidth = doc.internal.pageSize.width;
-  
-
-  // Get current date and time
-  const now = new Date();
-  const dateStr = now.toLocaleDateString();
-  const timeStr = now.toLocaleTimeString();
-
-  // Add date and time to the top right corner
-  doc.setFontSize(12);
-  const dateTimeStr = `Générer le: ${dateStr} à ${timeStr}`;
-  const textXOffset = pageWidth - doc.getTextWidth(dateTimeStr) - 10;
-  doc.text(dateTimeStr, textXOffset, 10);
-
-   
-
-  // Configuration des styles pour le tableau
-  const tableConfig = {
-    html: "#my-table",
-    startY: 30,
-    theme: 'plain', // Utiliser 'plain' pour personnaliser complètement les couleurs
-    styles: {
-      fontSize: 8,
-      cellPadding: 3,
-      lineColor: [0, 0, 0], // Couleur des bordures (noir)
-      lineWidth: 0.1,
-    },
-    headStyles: {
-      fillColor: [15, 52, 96], // Couleur de fond de l'en-tête (bleu primaire)
-      textColor: [255, 255, 255], // Couleur du texte de l'en-tête (blanc)
-      fontStyle: 'bold',
-      halign: 'center',
-      valign: 'middle'
-    },
-    bodyStyles: {
-      textColor: [0, 0, 0], // Couleur du texte du corps (noir)
-      fillColor: [255, 255, 255], // Couleur de fond par défaut (blanc)
-    },
-    alternateRowStyles: {
-      fillColor: [248, 249, 250] // Couleur alternée pour les lignes (gris clair)
-    },
-    didParseCell: function(data) {
-      // Personnaliser les couleurs selon le type de résultat
-      const cellText = data.cell.text.join('');
-      
-      // Détecter les lignes de catégories (PRODUIT, EFFET, etc.)
-      if (cellText.includes('PRODUIT') || cellText.includes('EFFET') || 
-          cellText.includes('IMPACT') || cellText.includes('OUTCOME')) {
-        
-        // Appliquer la couleur selon le type
-        const backgroundColor = getBackgroundColorFromText(cellText);
-        if (backgroundColor) {
-          data.cell.styles.fillColor = backgroundColor;
-          
-          // Ajuster la couleur du texte selon le fond
-          if (cellText.includes('PRODUIT')) {
-            data.cell.styles.textColor = [0, 0, 0]; // Texte noir pour produit
-          } else {
-            data.cell.styles.textColor = [255, 255, 255]; // Texte blanc pour les autres
-          }
-          data.cell.styles.fontStyle = 'bold';
-        }
-      }
-      
-      // Styliser les colonnes fixes (première et deuxième colonne)
-      if (data.column.index === 0 || data.column.index === 1) {
-        data.cell.styles.fontStyle = 'bold';
-        data.cell.styles.fillColor = [240, 240, 240]; // Gris clair pour les colonnes fixes
-      }
-    },
-    margin: { top: 20, left: 10, right: 10 }
-  };
-
-  // Fonction pour obtenir la couleur de fond basée sur le texte
-  function getBackgroundColorFromText(text) {
-    // Utiliser la même logique que votre fonction findColorCadreMesure
-    if (text.includes('PRODUIT')) {
-      return [255, 255, 0]; // Jaune ou la couleur que vous utilisez pour produit
-    } else if (text.includes('EFFET')) {
-      return [0, 128, 255]; // Bleu ou la couleur que vous utilisez pour effet
-    } else if (text.includes('IMPACT')) {
-      return [255, 0, 128]; // Rouge/Rose ou la couleur que vous utilisez pour impact
-    } else if (text.includes('OUTCOME')) {
-      return [0, 255, 128]; // Vert ou la couleur que vous utilisez pour outcome
-    }
-    return null;
-  }
-
-  // Ajouter le titre
-  doc.setFontSize(16);
-  doc.setFont('helvetica', 'bold');
-  doc.text("Cadre logique", 14, 15);
-
-  // Générer le tableau avec les styles personnalisés
-  autoTable(doc, tableConfig);
-
-  // Sauvegarder le PDF
-  doc.save("cadre_logique.pdf");
-};
-
-// Version alternative si vous voulez plus de contrôle sur les couleurs
 const generatePDFAdvanced = () => {
   
   const doc = new jsPDF({ 
@@ -719,25 +493,19 @@ const generatePDFAdvanced = () => {
 
   const pageWidth = doc.internal.pageSize.width;
   
-
-  // Get current date and time
   const now = new Date();
   const dateStr = now.toLocaleDateString();
   const timeStr = now.toLocaleTimeString();
 
-  // Add date and time to the top right corner
   doc.setFontSize(12);
   const dateTimeStr = `Générer le: ${dateStr} à ${timeStr}`;
   const textXOffset = pageWidth - doc.getTextWidth(dateTimeStr) - 10;
   doc.text(dateTimeStr, textXOffset, 10);
 
-
-  // Récupérer les données du tableau depuis le DOM
   const table = document.getElementById('my-table');
   const rows = [];
   const headers = [];
 
-  // Extraire les en-têtes
   const headerRows = table.querySelectorAll('thead tr');
   headerRows.forEach(row => {
     const headerRow = [];
@@ -751,7 +519,6 @@ const generatePDFAdvanced = () => {
     headers.push(headerRow);
   });
 
-  // Extraire les données du corps
   const bodyRows = table.querySelectorAll('tbody tr');
   bodyRows.forEach(row => {
     const rowData = [];
@@ -773,7 +540,6 @@ const generatePDFAdvanced = () => {
     }
   });
 
-  // Fonction pour convertir hex/rgb en tableau RGB
   function hexToRgb(color) {
     if (color.startsWith('rgb')) {
       const matches = color.match(/\d+/g);
@@ -788,12 +554,10 @@ const generatePDFAdvanced = () => {
     return [255, 255, 255];
   }
 
-  // Ajouter le titre
   doc.setFontSize(16);
   doc.setFont('helvetica', 'bold');
   doc.text("Cadre logique", 14, 15);
 
-  // Configuration du tableau
   autoTable(doc, {
     head: headers,
     body: rows,
@@ -812,7 +576,6 @@ const generatePDFAdvanced = () => {
       halign: 'center'
     },
     didParseCell: function(data) {
-      // Appliquer les styles personnalisés pour chaque cellule
       if (data.row.raw && data.row.raw[data.column.index] && data.row.raw[data.column.index].styles) {
         Object.assign(data.cell.styles, data.row.raw[data.column.index].styles);
       }
@@ -822,8 +585,6 @@ const generatePDFAdvanced = () => {
   doc.save("cadre_logique_avance.pdf");
 };
 
-
-
 const router = useRouter();
 const trimestres = [1, 2, 3, 4];
 const optionsSuivi = [
@@ -831,8 +592,6 @@ const optionsSuivi = [
   { label: "Par trimestre", id: "trimestre" },
 ];
 const tableWrapper = ref(null);
-const scrollWrapper = ref(null);
-const scrollBar = ref(null);
 const idSelect = ref("");
 const nameSelect = ref("");
 const valueKeysIndicateurSuivi = ref([]);
@@ -849,11 +608,6 @@ const errors = ref({});
 const responsablesForm = ref({ organisations: [], ug: "" });
 const payloadStructure = reactive({ responsables: responsablesForm.value });
 const payloadYearCible = reactive({});
-const updateIsAgreer = ref(false);
-const payloadNotAgreger = reactive({
-  valeurDeBase: "",
-  anneesCible: [],
-});
 
 const indexAccordion = ref(0);
 const indexAccordion2 = ref(0);
@@ -870,7 +624,6 @@ const payloadUpdate = reactive({
   uniteeMesureId: "",
   indice: "",
   hypothese: "",
-  // valeurDeBase: [],
 });
 const payloadSuivi = reactive({
   annee: `${new Date().getFullYear()}`,
@@ -883,7 +636,6 @@ const payloadSuivi = reactive({
   sources_de_donnee: "",
 });
 const suiviOption = ref(optionsSuivi[0].id);
-// État réactif pour stocker les valeurs des inputs
 const valeurCible = ref([]);
 const valeurRealise = ref([]);
 
@@ -907,7 +659,6 @@ const updateValueRealiser = (keyId, newValue) => {
 };
 
 const resetValues = () => {
-  // Sauvegarder les valeurs actuelles avant de les réinitialiser
   const currentValeurCible = valeurCible.value;
   const currentValeurRealise = valeurRealise.value;
 
@@ -932,7 +683,6 @@ const resetFormUpdate = () => {
     payloadUpdate[key] = "";
   });
   showModalEdit.value = false;
-  // (payloadUpdate.responsables = { organisations: [], ug: "" }), (showModalEdit.value = false);
   errors.value = {};
 };
 const resetFormAddYearCible = () => {
@@ -959,28 +709,12 @@ const resetFormSuivi = async () => {
   showModalSuivi.value = false;
   errors.value = {};
 };
-// Submit data (create or update)
-const submitData = async () => {
-  isLoading.value = true;
-  const action = IndicateursService.createSuivi(payloadSuivi);
-  try {
-    await action;
-    toast.success(`Suivi Ajouté avec succès.`);
-    // getDatas();
-    await resetFormSuivi();
-    emit("refreshData");
-  } catch (e) {
-    toast.error(getAllErrorMessages(e));
-  } finally {
-    isLoading.value = false;
-  }
-};
+
 const submitUpdate = async () => {
   isLoading.value = true;
   const action = IndicateursService.update(idSelect.value, payloadUpdate);
   try {
     await action;
-    // getDatas();
     resetFormUpdate();
     toast.success(`Indicateur modifié avec succès.`);
     setTimeout(() => {
@@ -997,17 +731,12 @@ const submitUpdate = async () => {
   }
 };
 const submitStructure = async () => {
-  console.log(payloadStructure.responsables.organisations.length);
-  console.log(payloadStructure.responsables.ug.length);
-  console.log(payloadStructure.responsables.organisations.length || payloadStructure.responsables.ug.length);
-  console.log(payloadStructure.responsables.organisations.length && payloadStructure.responsables.ug.length);
   if (!payloadStructure.responsables.organisations.length && !payloadStructure.responsables.ug.length) return toast.error("Veuillez choisir au moins une structure");
   isLoading.value = true;
   const action = IndicateursService.addStructure(idSelect.value, payloadStructure);
   try {
     await action;
     toast.success(`Structure ajouté avec succès.`);
-    // getDatas();
     resetFormAddStructure();
     setTimeout(() => {
       emit("update-datas");
@@ -1029,7 +758,6 @@ const submitYearCible = async () => {
   try {
     await action;
     toast.success(`Années cibles  ajouté avec succès.`);
-    // getDatas();
     resetFormAddYearCible();
     showModalYearCible.value = false;
     setTimeout(() => {
@@ -1064,7 +792,6 @@ const submitSuivi = async () => {
   try {
     await action;
     toast.success(`Suivi Ajouté avec succès.`);
-    // getDatas();
     await resetFormSuivi();
     
     emit("refreshData");
@@ -1079,14 +806,11 @@ const submitSuivi = async () => {
   }
 };
 
-// Delete data
 const deleteData = async () => {
   try {
     isLoading.value = true;
     await IndicateursService.destroy(idSelect.value);
     toast.success("Indicateur supprimé avec succès.");
-    // getDatas();
-
     setTimeout(() => {
       emit("update-datas");
     }, 500);
@@ -1099,10 +823,8 @@ const deleteData = async () => {
   }
 };
 
-// Handle edit action
 // ANCIENNE VERSION - Édition avec modal interne
 // const handleEdit = (data) => {
-//   console.log(data.anneeDeBase);
 //   isAgregerCurrentIndicateur.value = data.agreger;
 //   idSelect.value = data.id;
 //   payloadUpdate.nom = data.nom;
@@ -1125,12 +847,9 @@ const handleEdit = (data) => {
   emit("edit-indicator", data);
 };
 const handleSuivi = (data) => {
-
-  console.log(data.valeursCible);
   valeurCible.value = data.valeursCible.filter((valeurCible) => valeurCible.annee === Number(payloadSuivi.annee)).map((v) => v.valeurCible);
   isAgregerCurrentIndicateur.value = data.agreger;
   if(isAgregerCurrentIndicateur.value == false){
-    // Vérifier que valeurCible.value[0] existe et n'est pas null/undefined
     if (valeurCible.value && valeurCible.value.length > 0 && valeurCible.value[0]) {
       Object.keys(valeurCible.value[0]).forEach((key) => {
         payloadSuivi.valeurCible = valeurCible.value[0][key];
@@ -1144,7 +863,6 @@ const handleSuivi = (data) => {
   showModalSuivi.value = true;
 };
 
-// Handle delete action
 const handleDelete = (data) => {
   idSelect.value = data.id;
   nameSelect.value = data.nom;
@@ -1170,7 +888,6 @@ const truncateText = (text, maxLength = 100) => {
   }
   return text;
 };
-const closeModal = () => (showModalEdit.value = false);
 const closeDeleteModal = () => (deleteModalPreview.value = false);
 
 function formatResponsable(responsable) {
@@ -1186,79 +903,49 @@ function formatObject(obj) {
 </script>
 
 <style scoped>
-table td {
-  border: 1px solid white;
+.table-wrapper {
+  overflow: auto;
+  max-height: 75vh;
+}
+
+.editor_listing_table {
+  border-collapse: separate; /* Required for sticky header/column with borders */
+  border-spacing: 0;
+}
+
+.editor_listing_table th,
+.editor_listing_table td {
+  border: 1px solid #ddd;
   padding-block: 8px;
 }
 
-/* Optionnel : Ajout d'une bordure pour les colonnes fixes */
-.sticky-column,
-.sticky-column-second,
-.stick-column-third {
-  border-right: 1px solid #f3f3f3;
-}
-
-.table-container {
-  position: relative;
-  max-height: 75vh; /* Ajustez selon vos besoins */
-  overflow: hidden;
-}
-
-.table-wrapper {
-  overflow-y: auto;
-  overflow-x: auto;
-  max-height: calc(75vh - 20px); /* Ajustez selon vos besoins */
-}
-.sticky-header {
-  background-color: rgb(15 52 96) !important;
-}
-.sticky-heade {
+/* --- Vertical Sticky Header --- */
+.editor_listing_table thead th {
   position: sticky;
   top: 0;
-  background-color: #f8f9fa;
+  z-index: 2;
+  background-color: rgb(15 52 96);
+  color: white;
+}
+
+/* --- Horizontal Sticky Columns --- */
+.editor_listing_table .sticky-column,
+.editor_listing_table .sticky-column-second,
+.editor_listing_table .sticky-column-third {
+  position: sticky;
+  background-color: #ffffff; /* Crucial for body cells */
   z-index: 1;
-  border-bottom: 2px solid #ddd;
-  padding: 10px;
-  text-align: left;
 }
 
-/* Fixe l'en-tête du tableau */
-.editor_listing_table thead th {
-  position: sticky; /* Garde l'en-tête en haut */
-  top: 0; /* Positionnement par rapport au haut */
-  background-color: #ffffff; /* Assure un fond blanc pour l'en-tête */
-  z-index: 10; /* Évite que les lignes passent par-dessus */
-  box-shadow: 0 2px 2px -1px rgba(0, 0, 0); /* Optionnel : effet d'ombre pour séparation visuelle */
+.editor_listing_table th.sticky-column,
+.editor_listing_table th.sticky-column-second,
+.editor_listing_table th.sticky-column-third {
+    z-index: 3; /* Header sticky columns must be above body sticky columns */
+    background-color: rgb(15 52 96);
 }
 
-/* Style des colonnes collantes */
-.sticky-column {
-  position: sticky;
-  left: 0;
-  background-color: #ffffff;
-  z-index: 5;
-  border-right: 1px solid #ccc;
-}
+.sticky-column { left: 0; }
+.sticky-column-second { left: 500px; }
+.sticky-column-third { left: 580px; }
 
-.sticky-column-second {
-  position: sticky;
-  left: 500px; /* Ajuster selon vos besoins */
-  background-color: #ffffff;
-  z-index: 5;
-  border-right: 1px solid #ccc;
-}
-
-.sticky-column-third {
-  position: sticky;
-  left: 580px; /* Ajuster selon vos besoins */
-  background-color: #ffffff;
-  z-index: 5;
-  border-right: 1px solid #ccc;
-}
-
-/* Ajout de bordures pour les lignes */
-.editor_listing_table td,
-.editor_listing_table th {
-  border: 1px solid #ddd; /* Bordures légères */
-}
 </style>
