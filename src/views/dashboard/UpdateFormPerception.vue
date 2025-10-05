@@ -1284,7 +1284,7 @@ onMounted(async () => {
               <tr>
                 <td class="font-semibold" v-if="qIndex === 0" :rowspan="principe_de_gouvernance.questions_operationnelle.length">{{ principe_de_gouvernance.position }} - {{ principe_de_gouvernance.nom }}</td>
 
-                <td>{{ question_operationnelle.position }} - {{ question_operationnelle.nom }}</td>
+                <td>{{ principe_de_gouvernance.position }}.{{ question_operationnelle.position }} - {{ question_operationnelle.nom }}</td>
 
                 <template v-for="(option_de_reponse, optionIdx) in previewOptionResponses.options_de_reponse" :key="option_de_reponse.id">
                   <td class="border border-slate-900 text-center">{{}}</td>
@@ -1411,7 +1411,7 @@ onMounted(async () => {
   <!-- END: Modal Content -->
 </template>
 
-<style>
+<style >
 .accordion .accordion-item .accordion-header .accordion-button:not(.collapsed) {
   background: rgb(var(--color-primary)) !important;
 }

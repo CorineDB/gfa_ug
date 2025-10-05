@@ -221,8 +221,8 @@ onMounted(getDatas);
 <template>
   <div :class="[isAvailable ? '' : 'opacity-50 pointer-events-none']">
     <!-- Button to open modal -->
-    <div class="flex items-center justify-between gap-2 mb-4">
-      <input type="text" class="form-control form-control-sm max-w-[300px]" placeholder="Rechercher..." v-model="search" />
+    <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+      <input type="text" class="form-control form-control-sm min-w-[300px]" placeholder="Rechercher..." v-model="search" />
       <div class="flex gap-2">
         <button class="text-sm btn btn-outline-primary" @click="selectAll" :class="{ 'btn-warning': isPartiallySelected, 'btn-success': isAllSelected }">
           {{ isAllSelected ? "Désélectionner tout" : "Sélectionner tout" }}

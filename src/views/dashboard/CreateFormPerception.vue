@@ -1283,9 +1283,9 @@ onMounted(() => {
           <template v-for="principe_de_gouvernance in previewPrincipesGouvernance.principes_de_gouvernance" :key="principe_de_gouvernance.id">
             <template v-for="(question_operationnelle, qIndex) in principe_de_gouvernance.questions_operationnelle" :key="question_operationnelle.id">
               <tr>
-                <td class="font-semibold" v-if="qIndex === 0" :rowspan="principe_de_gouvernance.questions_operationnelle.length">{{ principe_de_gouvernance.position }} - {{ principe_de_gouvernance.nom }}</td>
+                <td class="font-semibold" v-if="qIndex === 0" :rowspan="principe_de_gouvernance.questions_operationnelle.length">{{ principe_de_gouvernance.position }}-{{ principe_de_gouvernance.nom }}</td>
 
-                <td>{{ qIndex + 1 }} - {{ question_operationnelle.nom }}</td>
+                <td>{{ principe_de_gouvernance.position }}.{{ qIndex + 1 }}-{{ question_operationnelle.nom }}</td>
 
                 <template v-for="(option_de_reponse, optionIdx) in previewOptionResponses.options_de_reponse" :key="option_de_reponse.id">
                   <td class="border border-slate-900 text-center">

@@ -1945,7 +1945,7 @@ onMounted(() => {
             <th class="py-3 border border-slate-900">Critères</th>
             <th class="py-3 border border-slate-900">Indicateurs</th>
             <th class="py-3 border border-slate-900">
-              Réponses <br />( <template v-for="(options_de_reponse, idx) in previewOptionResponses.options_de_reponse" :key="options_de_reponse.id"> {{ options_de_reponse.libelle }} {{ idx < previewOptionResponses.options_de_reponse.length - 1 ? " / " : "" }} </template>)
+             Option de Réponse <br />( <template v-for="(options_de_reponse, idx) in previewOptionResponses.options_de_reponse" :key="options_de_reponse.id"> {{ options_de_reponse.libelle }} {{ idx < previewOptionResponses.options_de_reponse.length - 1 ? " / " : "" }} </template>)
             </th>
             <th class="py-3 border border-slate-900">Source de validation</th>
             <!-- 
@@ -1958,20 +1958,20 @@ onMounted(() => {
         <tbody>
           <template v-for="type_de_gouvernance in previewTypesGouvernance.types_de_gouvernance" :key="type_de_gouvernance.id">
             <tr class="bg-green-100">
-              <td colspan="7" class="font-semibold">{{ type_de_gouvernance.nom }}</td>
+              <td colspan="7" class="font-semibold">{{ type_de_gouvernance.position }}.{{ type_de_gouvernance.nom }}</td>
             </tr>
             <template v-for="principe_de_gouvernance in type_de_gouvernance.principes_de_gouvernance" :key="principe_de_gouvernance.id">
               <template v-for="(critere_de_gouvernance, scIndex) in principe_de_gouvernance.criteres_de_gouvernance" :key="critere_de_gouvernance.id">
                 <template v-for="(indicateur_de_gouvernance, qIndex) in critere_de_gouvernance.indicateurs_de_gouvernance" :key="indicateur_de_gouvernance.id">
                   <tr>
                     <!-- Première cellule de catégorie principale avec rowspan -->
-                    <td class="font-semibold text-center" v-if="scIndex === 0 && qIndex === 0" :rowspan="principe_de_gouvernance.criteres_de_gouvernance.reduce((sum, sc) => sum + sc.indicateurs_de_gouvernance.length, 0)">{{ principe_de_gouvernance.position }} {{ principe_de_gouvernance.nom }}</td>
+                    <td class="font-semibold text-center" v-if="scIndex === 0 && qIndex === 0" :rowspan="principe_de_gouvernance.criteres_de_gouvernance.reduce((sum, sc) => sum + sc.indicateurs_de_gouvernance.length, 0)">{{ type_de_gouvernance.position }}.{{ principe_de_gouvernance.position }}.{{ principe_de_gouvernance.nom }}</td>
 
                     <!-- Première cellule de sous-catégorie avec rowspan -->
                     <td class="text-center" v-if="qIndex === 0" :rowspan="critere_de_gouvernance.indicateurs_de_gouvernance.length">
-                      {{ critere_de_gouvernance.nom }}
+                     {{ type_de_gouvernance.position }}.{{ principe_de_gouvernance.position }}.{{ critere_de_gouvernance.position }}.{{ critere_de_gouvernance.nom }}
                     </td>
-                    <td>{{ indicateur_de_gouvernance.position }} - {{ indicateur_de_gouvernance.nom }}</td>
+                    <td>{{ type_de_gouvernance.position }}.{{ principe_de_gouvernance.position }}.{{ critere_de_gouvernance.position }}.{{ indicateur_de_gouvernance.position }} - {{ indicateur_de_gouvernance.nom }}</td>
                     <td>{{}}</td>
                     <td>{{}}</td>
                   </tr>
@@ -2127,5 +2127,10 @@ onMounted(() => {
 
 .accordion .accordion-item:first-child {
   margin-top: 0 !important;
+}
+
+td {
+  vertical-align: top;
+  padding-top: 8px;
 }
 </style>

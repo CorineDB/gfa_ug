@@ -1767,7 +1767,7 @@ export default {
   },
 
   watch: {
-    sites: function (sites) {
+    sites: function () {
       this.sites.forEach((site, index) => {
         const latitude = parseFloat(site.latitude);
         const longitude = parseFloat(site.longitude);
