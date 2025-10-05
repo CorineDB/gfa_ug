@@ -148,9 +148,7 @@
                 <label class="form-label">Clé valeur</label>
                 <div class="flex gap-1">
                   <div class="relative w-full">
-                    <!-- ANCIENNE VERSION : :options="keys" (permettait de sélectionner les clés déjà choisies) -->
-                    <!-- NOUVELLE VERSION : :options="availableKeys" (filtre les clés déjà sélectionnées) -->
-                    <v-select class="w-full" :reduce="(key) => key.id" v-model="array_value_keys" label="libelle" :options="availableKeys" placeholder="Selectionez les clés valeur..." multiple>
+                    <v-select class="w-full" :reduce="(key) => key.id" v-model="array_value_keys" label="libelle" :options="keys" placeholder="Selectionez les clés valeur..." multiple>
                        <template #search="{ attributes, events }">
                          <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher une clé..." />
                        </template>
