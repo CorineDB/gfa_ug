@@ -47,7 +47,7 @@ Modifier la fonction `ouvrirModalSuiviFinancierActivite()` pour gérer les deux 
 const activiteId = item.activiteId || item.activite?.id || item.id;
 
 if (!activiteId) {
-  console.error("Impossible de récupérer l'ID de l'activité", item);
+  console.error("Impossible de récupérer l'''ID de l'''activité", item);
   return;
 }
 ```
@@ -67,7 +67,7 @@ if (!activiteId) {
 const activiteId = item.activiteId || item.activite?.id || item.id;
 
 if (!activiteId) {
-  console.error("Impossible de récupérer l'ID de l'activité", item);
+  console.error("Impossible de récupérer l'''ID de l'''activité", item);
   return;
 }
 ```
@@ -160,3 +160,20 @@ this.listeSuivi = data.data.data; // au lieu de data.data.data.suiviFinanciers
 
 ---
 *Log créé automatiquement par Claude Code*
+
+---
+
+### 2025-10-04
+
+- **Refactoring `TabulatorCadreMesure.vue`**
+  - **Goal:** Improve readability and maintainability of the component responsible for displaying the logical framework.
+  - **Actions:**
+    1. Created a new recursive component `src/components/CadreLogiqueRowGroup.vue` to handle the nested rendering of categories and indicators, eliminating significant code duplication.
+    2. Created a new main component `src/components/CadreDeMesure.vue` as a replacement for `TabulatorCadreMesure.vue`.
+    3. The new `CadreDeMesure.vue` uses `CadreLogiqueRowGroup.vue` for a cleaner and more maintainable template.
+    4. Updated `src/views/dashboard/indicateurs/CreateIndicateur.vue` to use the new `CadreDeMesure.vue` component instead of the old `TabulatorCadreMesure.vue`.
+  - **Files Created:**
+    - `src/components/CadreLogiqueRowGroup.vue`
+    - `src/components/CadreDeMesure.vue`
+  - **Files Modified:**
+    - `src/views/dashboard/indicateurs/CreateIndicateur.vue`

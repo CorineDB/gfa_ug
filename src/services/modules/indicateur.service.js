@@ -50,6 +50,16 @@ const IndicateursService = {
     return ApiService.update("/gfa/indicateurs", slug, params);
   },
 
+  // ANCIENNE VERSION - POST
+  // updateComplet(id, params) {
+  //   return ApiService.post(`/gfa/indicateurs/${id}/complet`, params);
+  // },
+
+  // NOUVELLE VERSION - PUT (comme demandé par le backend)
+  updateComplet(id, params) {
+    return ApiService.put(`/gfa/indicateurs/${id}/complet`, params);
+  },
+
   destroy(slug) {
     return ApiService.delete(`/gfa/indicateurs/${slug}`);
   },
