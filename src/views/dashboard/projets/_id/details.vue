@@ -548,8 +548,8 @@ const extractProperties = (data) => {
   // Retourner dans l'ordre : effectue, enRetard, enCours
   return [
     data.effectue || 0,
+    data.enCours || 0 ,
     data.enRetard || 0, 
-    data.enCours || 0
   ];
 }
 

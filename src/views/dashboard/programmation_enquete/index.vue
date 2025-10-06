@@ -425,7 +425,7 @@ onMounted(async () => {
                     </DropdownToggle>
                     <DropdownMenu class="w-40 bg-white rounded-md shadow-lg">
                       <DropdownContent>
-                        <DropdownItem @click="handleObjectif(item)"> <PlusIcon class="w-4 h-4 mr-2 text-gray-600" /> Ajouter Objectifs </DropdownItem>
+                        <!-- <DropdownItem @click="handleObjectif(item)"> <PlusIcon class="w-4 h-4 mr-2 text-gray-600" /> Ajouter Objectifs </DropdownItem> -->
                         <DropdownItem v-if="verifyPermission('modifier-une-evaluation-de-gouvernance')" @click="handleEdit(item)"> <Edit2Icon class="w-4 h-4 mr-2 text-gray-600" /> Modifier </DropdownItem>
                         <DropdownItem v-if="verifyPermission('supprimer-une-evaluation-de-gouvernance')" @click="handleDelete(item)"> <TrashIcon class="w-4 h-4 mr-2 text-red-500" /> Supprimer </DropdownItem>
                       </DropdownContent>

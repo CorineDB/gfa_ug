@@ -29,6 +29,8 @@ import AuthService from "@/services/modules/auth.service";
 
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
 import { useRoute, useRouter } from "vue-router";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const yearsStore = useYearsStore();
 
@@ -49,6 +51,120 @@ const tabs = [
 ];
 
 const currentTab = ref(0);
+
+//generer pdf
+const generatePDFAdvanced = () => {
+  
+  const doc = new jsPDF({ 
+    orientation: "landscape", 
+    format: "a2",
+    unit: 'mm'
+  });
+
+  const pageWidth = doc.internal.pageSize.width;
+  
+
+  // Get current date and time
+  const now = new Date();
+  const dateStr = now.toLocaleDateString();
+  const timeStr = now.toLocaleTimeString();
+
+  // Add date and time to the top right corner
+  doc.setFontSize(12);
+  const dateTimeStr = `Générer le: ${dateStr} à ${timeStr}`;
+  const textXOffset = pageWidth - doc.getTextWidth(dateTimeStr) - 10;
+  doc.text(dateTimeStr, textXOffset, 10);
+
+
+  // Récupérer les données du tableau depuis le DOM
+  const table = document.getElementById('my-table-factuel-update');
+  const rows = [];
+  const headers = [];
+
+  // Extraire les en-têtes
+  const headerRows = table.querySelectorAll('thead tr');
+  headerRows.forEach(row => {
+    const headerRow = [];
+    row.querySelectorAll('th').forEach(th => {
+      headerRow.push({
+        content: th.textContent.trim(),
+        colSpan: th.colSpan || 1,
+        rowSpan: th.rowSpan || 1
+      });
+    });
+    headers.push(headerRow);
+  });
+
+  // Extraire les données du corps
+  const bodyRows = table.querySelectorAll('tbody tr');
+  bodyRows.forEach(row => {
+    const rowData = [];
+    const backgroundColor = row.style.backgroundColor;
+    const textColor = window.getComputedStyle(row).color;
+    
+    row.querySelectorAll('td').forEach(td => {
+      rowData.push({
+        content: td.textContent.trim(),
+        styles: {
+          fillColor: backgroundColor ? hexToRgb(backgroundColor) : [255, 255, 255],
+          textColor: textColor ? hexToRgb(textColor) : [0, 0, 0]
+        }
+      });
+    });
+    
+    if (rowData.length > 0) {
+      rows.push(rowData);
+    }
+  });
+
+  // Fonction pour convertir hex/rgb en tableau RGB
+  function hexToRgb(color) {
+    if (color.startsWith('rgb')) {
+      const matches = color.match(/\d+/g);
+      return matches ? matches.map(Number) : [255, 255, 255];
+    } else if (color.startsWith('#')) {
+      const hex = color.substring(1);
+      const r = parseInt(hex.substr(0, 2), 16);
+      const g = parseInt(hex.substr(2, 2), 16);
+      const b = parseInt(hex.substr(4, 2), 16);
+      return [r, g, b];
+    }
+    return [255, 255, 255];
+  }
+
+  // Ajouter le titre
+  doc.setFontSize(16);
+  doc.setFont('helvetica', 'bold');
+  doc.text("Formulaire factuel de gouvernance", 14, 15);
+
+  // Configuration du tableau
+  autoTable(doc, {
+    head: headers,
+    body: rows,
+    startY: 20,
+    theme: 'plain',
+    styles: {
+      fontSize: 8,
+      cellPadding: 3,
+      lineColor: [0, 0, 0],
+      lineWidth: 0.1,
+    },
+    headStyles: {
+      fillColor: [15, 52, 96],
+      textColor: [255, 255, 255],
+      fontStyle: 'bold',
+      halign: 'center'
+    },
+    didParseCell: function(data) {
+      // Appliquer les styles personnalisés pour chaque cellule
+      if (data.row.raw && data.row.raw[data.column.index] && data.row.raw[data.column.index].styles) {
+        Object.assign(data.cell.styles, data.row.raw[data.column.index].styles);
+      }
+    }
+  });
+
+  doc.save("formulaiez factuel sz gouvernance.pdf");
+};
 
 // Navigation functions
 const selectTab = (index) => {
@@ -1745,7 +1861,7 @@ onMounted(async () => {
         <tbody v-if="previewTypesGouvernance?.types_de_gouvernance?.length">
           <template v-for="type_de_gouvernance in previewTypesGouvernance.types_de_gouvernance" :key="type_de_gouvernance.id">
             <tr class="bg-green-100 list-data">
-              <td colspan="3" class="font-semibold">{{ type_de_gouvernance.position }} - {{ type_de_gouvernance.nom }} - {{ type_de_gouvernance.id }}</td>
+              <td colspan="3" class="font-semibold">{{ type_de_gouvernance.position }} - {{ type_de_gouvernance.nom }}</td>
 
               <td class="items-center transition-all opacity-0 container-buttons">
                 <template v-if="canEditType[type_de_gouvernance.key]">
@@ -1768,7 +1884,7 @@ onMounted(async () => {
                     <!-- Première cellule de catégorie principale avec rowspan -->
                     <td class="font-semibold list-data" v-if="scIndex === 0 && qIndex === 0" :rowspan="principe_de_gouvernance.criteres_de_gouvernance.reduce((sum, sc) => sum + sc.indicateurs_de_gouvernance.length, 0)">
                       <div class="flex items-center gap-1">{{ type_de_gouvernance.position }}.{{ principe_de_gouvernance.position }} - {{ principe_de_gouvernance.nom }}</div>
-                      <div>{{ type_de_gouvernance.id }}</div>
+                      
                       <div class="items-center transition-all opacity-0 container-buttons">
                         <template v-if="canEditPrincipe[principe_de_gouvernance.key]">
                           <input type="number" min="1" step="1" name="position" :value="principe_de_gouvernance.position" @keyup.enter="editTemporyFormElement(principe_de_gouvernance.key, $event.target.value, 'principe')" class="w-2/5 form-control" />
@@ -1789,7 +1905,7 @@ onMounted(async () => {
                     <!-- Première cellule de sous-catégorie avec rowspan -->
                     <td class="list-data" v-if="qIndex === 0" :rowspan="critere_de_gouvernance.indicateurs_de_gouvernance.length">
                       <div class="flex items-center gap-1">{{ type_de_gouvernance.position }}.{{ principe_de_gouvernance.position }}.{{ critere_de_gouvernance.position }} - {{ critere_de_gouvernance.nom }}</div>
-                      <div>{{ principe_de_gouvernance.id }}</div>
+                      
                       <div class="flex items-center transition-all opacity-0 container-buttons">
                         <template v-if="canEditCritere[critere_de_gouvernance.key]">
                           <input type="number" min="1" step="1" name="position" :value="critere_de_gouvernance.position" @keyup.enter="editTemporyFormElement(critere_de_gouvernance.key, $event.target.value, 'critere')" class="w-2/5 form-control" />
@@ -1808,8 +1924,7 @@ onMounted(async () => {
                       </div>
                     </td>
                     <td>
-                      {{ type_de_gouvernance.position }}.{{ principe_de_gouvernance.position }}.{{ critere_de_gouvernance.position }}.{{ indicateur_de_gouvernance.position }} - {{ indicateur_de_gouvernance.nom }} -
-                      <div>{{ indicateur_de_gouvernance.id }}</div>
+                      {{ type_de_gouvernance.position }}.{{ principe_de_gouvernance.position }}.{{ critere_de_gouvernance.position }}.{{ indicateur_de_gouvernance.position }} - {{ indicateur_de_gouvernance.nom }}
                     </td>
 
                     <td>
@@ -1861,7 +1976,10 @@ onMounted(async () => {
       <h2 class="mr-auto text-base font-medium">Formulaire factuel de gouvernance</h2>
     </ModalHeader>
     <ModalBody class="space-y-5">
-      <table class="w-full border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
+      <div class="text-right">
+        <button @click="generatePDFAdvanced" class="btn btn-primary text-left">Télécharger PDF</button>
+      </div>
+      <table id="my-table-factuel-update" class="w-full border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
         <thead class="text-white bg-blue-900">
           <tr>
             <th class="py-3 border border-slate-900">Principes</th>

@@ -1,5 +1,9 @@
 <template>
-  <Chart type="doughnut" :width="width" :height="height" :data="data" :activite="activite" :options="options" />
+  <div>
+     <!-- <pre>{{ activite }}</pre> -->
+    <Chart type="doughnut" :width="width" :height="height" :data="data" :activite="activite" :options="options" />
+  </div>
+ 
 </template>
 
 <script setup>

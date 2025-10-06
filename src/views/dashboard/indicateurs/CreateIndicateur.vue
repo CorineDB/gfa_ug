@@ -34,7 +34,7 @@
       </button>
 
       <div class="flex items-center justify-between gap-2 my-2">
-        <h2 class="text-lg font-medium intro-y">Liste des indicateurs</h2>
+        <h2 class="text-lg font-medium intro-y">Liste des indicateurs shjds</h2>
         <div v-if="verifyPermission('voir-un-indicateur')" class="flex items-center justify-end gap-2">
           <button class="text-base btn btn-primary" @click="openCreateModal">
             <Plus class="mr-1 size-4" />Ajouter

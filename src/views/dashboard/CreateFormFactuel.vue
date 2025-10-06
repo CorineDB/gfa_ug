@@ -29,6 +29,8 @@ import AuthService from "@/services/modules/auth.service";
 import { useRoute, useRouter } from "vue-router";
 import { getFieldErrors } from "../../utils/helpers";
 import { useYearsStore } from "@/stores/years";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 // import { helper as $h } from "@/utils/helper";
 
 const yearsStore = useYearsStore();
@@ -1564,6 +1566,122 @@ const loadAvailableParents = async (type, currentData) => {
   }
 };
 
+
+//generer pdf
+// Version alternative si vous voulez plus de contrôle sur les couleurs
+const generatePDFAdvanced = () => {
+  
+  const doc = new jsPDF({ 
+    orientation: "landscape", 
+    format: "a2",
+    unit: 'mm'
+  });
+
+  const pageWidth = doc.internal.pageSize.width;
+  
+
+  // Get current date and time
+  const now = new Date();
+  const dateStr = now.toLocaleDateString();
+  const timeStr = now.toLocaleTimeString();
+
+  // Add date and time to the top right corner
+  doc.setFontSize(12);
+  const dateTimeStr = `Générer le: ${dateStr} à ${timeStr}`;
+  const textXOffset = pageWidth - doc.getTextWidth(dateTimeStr) - 10;
+  doc.text(dateTimeStr, textXOffset, 10);
+
+
+  // Récupérer les données du tableau depuis le DOM
+  const table = document.getElementById('my-table-factuel');
+  const rows = [];
+  const headers = [];
+
+  // Extraire les en-têtes
+  const headerRows = table.querySelectorAll('thead tr');
+  headerRows.forEach(row => {
+    const headerRow = [];
+    row.querySelectorAll('th').forEach(th => {
+      headerRow.push({
+        content: th.textContent.trim(),
+        colSpan: th.colSpan || 1,
+        rowSpan: th.rowSpan || 1
+      });
+    });
+    headers.push(headerRow);
+  });
+
+  // Extraire les données du corps
+  const bodyRows = table.querySelectorAll('tbody tr');
+  bodyRows.forEach(row => {
+    const rowData = [];
+    const backgroundColor = row.style.backgroundColor;
+    const textColor = window.getComputedStyle(row).color;
+    
+    row.querySelectorAll('td').forEach(td => {
+      rowData.push({
+        content: td.textContent.trim(),
+        styles: {
+          fillColor: backgroundColor ? hexToRgb(backgroundColor) : [255, 255, 255],
+          textColor: textColor ? hexToRgb(textColor) : [0, 0, 0]
+        }
+      });
+    });
+    
+    if (rowData.length > 0) {
+      rows.push(rowData);
+    }
+  });
+
+  // Fonction pour convertir hex/rgb en tableau RGB
+  function hexToRgb(color) {
+    if (color.startsWith('rgb')) {
+      const matches = color.match(/\d+/g);
+      return matches ? matches.map(Number) : [255, 255, 255];
+    } else if (color.startsWith('#')) {
+      const hex = color.substring(1);
+      const r = parseInt(hex.substr(0, 2), 16);
+      const g = parseInt(hex.substr(2, 2), 16);
+      const b = parseInt(hex.substr(4, 2), 16);
+      return [r, g, b];
+    }
+    return [255, 255, 255];
+  }
+
+  // Ajouter le titre
+  doc.setFontSize(16);
+  doc.setFont('helvetica', 'bold');
+  doc.text("Formulaires Factuel", 14, 15);
+
+  // Configuration du tableau
+  autoTable(doc, {
+    head: headers,
+    body: rows,
+    startY: 20,
+    theme: 'plain',
+    styles: {
+      fontSize: 8,
+      cellPadding: 3,
+      lineColor: [0, 0, 0],
+      lineWidth: 0.1,
+    },
+    headStyles: {
+      fillColor: [15, 52, 96],
+      textColor: [255, 255, 255],
+      fontStyle: 'bold',
+      halign: 'center'
+    },
+    didParseCell: function(data) {
+      // Appliquer les styles personnalisés pour chaque cellule
+      if (data.row.raw && data.row.raw[data.column.index] && data.row.raw[data.column.index].styles) {
+        Object.assign(data.cell.styles, data.row.raw[data.column.index].styles);
+      }
+    }
+  });
+
+  doc.save("Formulaire factuel de gouvernance.pdf");
+};
+
 // Fonction pour appliquer la modification
 const applyModification = () => {
   if (!modifyElement.newParentId) {
@@ -1590,6 +1708,7 @@ const applyModification = () => {
   
   // Mettre à jour l'affichage
   updateAllTypesGouvernance();
+
   
   // Sauvegarder
   localStorage.setItem('globalFormFactuelData', JSON.stringify(globalFormFactuelData.value));
@@ -1810,8 +1929,7 @@ onMounted(() => {
       </div>
     </div>
     <div class="max-h-[80vh] py-2 border-t overflow-y-auto mb-10 my-2">
-      <!-- <pre>{{ previewTypesGouvernance }}</pre> -->
-      <table class="w-full border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
+      <table id="my-table" class="w-full border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
         <thead class="text-white bg-blue-900">
           <tr>
             <th class="py-3 border border-slate-900">Principes</th>
@@ -1938,7 +2056,10 @@ onMounted(() => {
       <h2 class="mr-auto text-base font-medium">Formulaire factuel de gouvernance</h2>
     </ModalHeader>
     <ModalBody class="space-y-5">
-      <table class="w-full border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
+      <div class="text-right">
+        <button @click="generatePDFAdvanced" class="btn btn-primary text-left">Télécharger PDF</button>
+      </div>
+      <table id="my-table-factuel" class="w-full border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
         <thead class="text-white bg-blue-900">
           <tr>
             <th class="py-3 border border-slate-900">Principes</th>
