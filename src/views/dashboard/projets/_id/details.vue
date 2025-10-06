@@ -8,15 +8,11 @@
     <!-- Header -->
     <div class="flex items-center justify-between">
       <div class="">
-        <!-- <pre>{{ graphiqueData }}</pre> -->
+        
         <h1 class="text-xl font-semibold text-gray-800"> {{graphiqueData?.codePta}} - {{ graphiqueData?.nom }}</h1>
         <p class="text-sm text-gray-600" v-if="graphiqueData?.description">{{ graphiqueData?.description }}.</p>
       </div>
-      <!-- <div class="">
-        <p class="text-sm text-gray-600">
-          Manager: <span class="font-medium text-primary">{{ graphiqueData?.projet_manager ?? "" }}</span>
-        </p>
-      </div> -->
+     
     </div>
     <div class="grid grid-cols-12 gap-6 mt-5">
       <div class="col-span-12 sm:col-span-6 xl:col-span-4 intro-y">
@@ -127,29 +123,7 @@
         </div>
       </div>
 
-      <!-- <div class="col-span-12 sm:col-span-6 xl:col-span-4 intro-y">
-        <div class="report-box zoom-in">
-          <div class="p-5 text-center box">
-            <div class="flex items-center justify-between">
-              <PercentIcon class="size-10 text-warning" />
-              <div class="mt-2 text-lg font-medium leading-8">Évolution</div>
-            </div>
-            <div class="flex items-center justify-around mt-4">
-              <div class="flex gap-2 text-lg text-left">
-                <div class="mt-1 text-primary">
-                  TEP:
-                  <span class="font-semibold"> {{ graphiqueData?.tep ?? 0 }} % </span>
-                </div>
-                <div class="w-px h-8 bg-slate-400"></div>
-                <div class="mt-1 text-primary">
-                  TEF:
-                  <span class="font-semibold"> {{ graphiqueData?.tef ?? 0 }} % </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div> -->
+     
     </div>
 
     <!-- Content Grid -->
@@ -158,13 +132,14 @@
         <p class="text-xl font-bold text-center">Activités</p>
         <div class="relative mt-8">
           <!-- v-if="graphiqueData?.statistiqueActivite > 0" -->
+          
           <ReportDonutChart2 v-if="graphiqueData?.statistiqueActivite" :activite="extractProperties(graphiqueData?.statistiqueActivite || [0, 0, 0])" :height="215" />
           <div class="absolute top-0 left-0 flex flex-col items-center justify-center w-full h-full">
             <div class="text-xl font-medium 2xl:text-2xl">{{ graphiqueData?.statistiqueActivite?.total }}</div>
             <div class="text-slate-500 mt-0.5">Total Activités</div>
           </div>
         </div>
-        <div class="flex items-center justify-center w-full gap-2 mx-auto mt-8">
+        <div class="flex items-center justify-center flex-wrap w-full gap-2 mx-auto mt-8">
           <div class="flex items-center">
             <div class="w-2 h-2 mr-3 rounded-full bg-primary"></div>
             <span class="truncate">Terminer : {{ graphiqueData?.statistiqueActivite?.effectue }}/{{ graphiqueData?.statistiqueActivite?.total }}</span>
@@ -176,6 +151,10 @@
           <div class="flex items-center">
             <div class="w-2 h-2 mr-3 rounded-full bg-warning"></div>
             <span class="truncate">En retard : {{ graphiqueData?.statistiqueActivite?.enRetard }}/{{ graphiqueData?.statistiqueActivite?.total }}</span>
+          </div>
+          <div class="flex items-center">
+            <div class="w-2 h-2 mr-3 rounded-full bg-secondary"></div>
+            <span class="truncate">Non démarrer : {{ graphiqueData?.statistiqueActivite?.nonDemarree }}/{{ graphiqueData?.statistiqueActivite?.total }}</span>
           </div>
         </div>
       </div>
@@ -542,7 +521,7 @@ const markerLatLng = ref([47.31322, -1.319482]);
 // Fonction pour extraire les propriétés sous forme de tableau
 const extractProperties = (data) => {
   if (!data || typeof data !== 'object') {
-    return [0, 0, 0]; // valeurs par défaut
+    return [0, 0, 0,0]; // valeurs par défaut
   }
   
   // Retourner dans l'ordre : effectue, enRetard, enCours
@@ -550,6 +529,7 @@ const extractProperties = (data) => {
     data.effectue || 0,
     data.enCours || 0 ,
     data.enRetard || 0, 
+    data.nonDemarree || 0, 
   ];
 }
 
@@ -561,6 +541,7 @@ const getStat = function () {
   ProjetService.statistiques(route.params.id)
     .then((data) => {
       graphiqueData.value = data.data.data;
+      graphiqueData.value.statistiqueActivite.nonDemarree = graphiqueData.value.statistiqueActivite.total - (graphiqueData.value.statistiqueActivite.effectue + graphiqueData.value.statistiqueActivite.enCours + graphiqueData.value.statistiqueActivite.enRetard);
       initTabulator();
       if (graphiqueData.value?.sites?.length > 0) {
         // alert("ok");
