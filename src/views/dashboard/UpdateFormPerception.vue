@@ -25,6 +25,107 @@ import LoaderSnipper from "@/components/LoaderSnipper.vue";
 import { useRoute, useRouter } from "vue-router";
 import { useYearsStore } from "@/stores/years";
 import AuthService from "@/services/modules/auth.service";
+import autoTable from "jspdf-autotable";
+import html2canvas from 'html2canvas';
+
+
+const tableRefUpdate = ref(null);
+const isGeneratingPDF = ref(false)
+
+const exportTableToPDF = async () => {
+  if (!tableRefUpdate.value) {
+    console.error('Table reference not found')
+    return
+  }
+
+  isGeneratingPDF.value = true
+
+  try {
+    // Configuration html2canvas
+    const canvas = await html2canvas(tableRefUpdate.value, {
+      scale: 2, // Meilleure qualité
+      useCORS: true,
+      logging: false,
+      backgroundColor: '#ffffff',
+      onclone: (clonedDoc) => {
+        // Appliquer des styles spécifiques pour le rendu PDF
+        const clonedTable = clonedDoc.getElementById('my-table-perception-form-update')
+        if (clonedTable) {
+          clonedTable.style.width = '100%'
+          clonedTable.style.fontSize = '12px'
+        }
+      }
+    })
+
+    // Configuration PDF
+    const pdf = new jsPDF('p', 'mm', 'a4')
+    
+    // Ajouter le titre et la date/heure
+    const now = new Date()
+    const dateString = now.toLocaleDateString('fr-FR')
+    const timeString = now.toLocaleTimeString('fr-FR')
+    
+    // Styles pour le titre
+    pdf.setFontSize(18)
+    pdf.setFont('helvetica', 'bold')
+    pdf.text('TABLEAU DE PERCEPTION', 105, 20, { align: 'center' })
+    
+    // Sous-titre avec date et heure
+    pdf.setFontSize(11)
+    pdf.setFont('helvetica', 'normal')
+    pdf.text(`Généré le ${dateString} à ${timeString}`, 105, 28, { align: 'center' })
+    
+    // Ligne séparatrice
+    pdf.setDrawColor(200, 200, 200)
+    pdf.line(10, 32, 200, 32)
+
+    const imgWidth = 190 // Largeur utile sur A4 (marges incluses)
+    const pageHeight = 277 // Hauteur utile sur A4
+    const imgHeight = (canvas.height * imgWidth) / canvas.width
+    
+    let position = 35 // Position de départ après le titre
+    let heightLeft = imgHeight
+    let pageCount = 1
+
+    // Première page
+    pdf.addImage(canvas, 'PNG', 10, position, imgWidth, imgHeight, '', 'FAST')
+    heightLeft -= (pageHeight - position)
+
+    // Pages supplémentaires si nécessaire
+    while (heightLeft >= 0) {
+      position = heightLeft - imgHeight
+      pdf.addPage()
+      pageCount++
+      
+      // Ajouter l'en-tête sur les pages suivantes
+      pdf.setFontSize(10)
+      pdf.setFont('helvetica', 'italic')
+      pdf.text(`Tableau de Perception - Page ${pageCount}`, 105, 15, { align: 'center' })
+      
+      pdf.addImage(canvas, 'PNG', 10, 20, imgWidth, imgHeight, '', 'FAST')
+      heightLeft -= pageHeight
+    }
+
+    // Ajouter le pied de page sur toutes les pages
+    const totalPages = pdf.getNumberOfPages()
+    for (let i = 1; i <= totalPages; i++) {
+      pdf.setPage(i)
+      pdf.setFontSize(8)
+      pdf.setFont('helvetica', 'normal')
+      pdf.text(`Page ${i}/${totalPages}`, 105, 285, { align: 'center' })
+    }
+
+    // Téléchargement
+    const fileName = `tableau-perception-${now.toISOString().split('T')[0]}.pdf`
+    pdf.save(fileName)
+
+  } catch (error) {
+    console.error('Erreur lors de la génération du PDF:', error)
+    alert('Une erreur est survenue lors de la génération du PDF')
+  } finally {
+    isGeneratingPDF.value = false
+  }
+}
 
 const yearsStore = useYearsStore();
 
@@ -1244,6 +1345,15 @@ onMounted(async () => {
       <h2 class="mr-auto text-base font-medium">Formulaire de perception de gouvernance</h2>
     </ModalHeader>
     <ModalBody class="space-y-5">
+       <button 
+          @click="exportTableToPDF" 
+          :disabled="isGeneratingPDF"
+          class="btn btn-primary"
+        >
+          <span v-if="isGeneratingPDF">⏳</span>
+          <span v-else>📊</span>
+          {{ isGeneratingPDF ? 'Génération...' : 'Exporter en PDF' }}
+        </button>
       <table class="w-full border-collapse table-auto border-slate-500" border="1" cellspacing="0" cellpadding="8" style="border-collapse: collapse; font-family: Arial, sans-serif">
         <tr>
           <td rowspan="3"><strong>Vous êtes :</strong></td>
@@ -1262,7 +1372,7 @@ onMounted(async () => {
         </tr>
       </table>
 
-      <table class="w-full mt-5 border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
+      <table id="my-table-perception-form-update" ref="tableRefUpdate" class="w-full mt-5 border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
         <thead class="text-white bg-blue-900">
           <!-- First header row -->
           <tr>

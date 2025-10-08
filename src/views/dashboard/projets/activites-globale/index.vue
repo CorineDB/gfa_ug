@@ -116,6 +116,7 @@ export default {
       plageDureeActivite: [],
       trimestres: [],
       trimestreYears: [],
+      openedAccordion : null,
     };
   },
 
@@ -246,6 +247,9 @@ export default {
   },
 
   methods: {
+    toggleAccordion (id) {
+      this.openedAccordion = this.openedAccordion === id ? null : id
+    },
     filteredTrimestresForPlan(annee) {
       if (!annee) {
         return this.trimestres;
@@ -1143,24 +1147,66 @@ export default {
           <h2 class="text-base font-bold">Activites</h2>
         </div>
         <div class="flex">
-          <button class="mr-2 shadow-md btn btn-primary" v-permission="['creer-une-activite']" @click="addActivite()"><PlusIcon class="w-4 h-4 mr-3" />Ajouter une Activité</button>
+          <button
+            class="mr-2 shadow-md btn btn-primary"
+            v-permission="['creer-une-activite']"
+            @click="addActivite()"
+          >
+            <PlusIcon class="w-4 h-4 mr-3" />
+            Ajouter une Activité
+          </button>
         </div>
       </div>
 
       <div class="flex flex-wrap items-center justify-between col-span-12">
         <div class="flex flex-wrap space-x-2 md:space-x-4">
-          <span :class="{ 'border-primary border-b-4 font-bold': seeActivitiesOfState == 3 }" @click="seeTypeActivities(3)" class="inline-block cursor-pointer text-xs sm:text-sm uppercase py-2 mb-2">Tout</span>
+          <span
+            :class="{ 'border-primary border-b-4 font-bold': seeActivitiesOfState == 3 }"
+            @click="seeTypeActivities(3)"
+            class="inline-block cursor-pointer text-xs sm:text-sm uppercase py-2 mb-2"
+          >
+            Tout
+          </span>
 
-          <span :class="{ 'border-primary border-b-4 font-bold': seeActivitiesOfState == -1 }" @click="seeTypeActivities(-1)" class="inline-block cursor-pointer text-xs sm:text-sm uppercase py-2 mb-2">Non demarre</span>
-          <span :class="{ 'border-primary border-b-4 font-bold': seeActivitiesOfState == 0 }" @click="seeTypeActivities(0)" class="inline-block cursor-pointer text-xs sm:text-sm uppercase py-2 mb-2">En cours </span>
+          <span
+            :class="{ 'border-primary border-b-4 font-bold': seeActivitiesOfState == -1 }"
+            @click="seeTypeActivities(-1)"
+            class="inline-block cursor-pointer text-xs sm:text-sm uppercase py-2 mb-2"
+          >
+            Non demarre
+          </span>
+          <span
+            :class="{ 'border-primary border-b-4 font-bold': seeActivitiesOfState == 0 }"
+            @click="seeTypeActivities(0)"
+            class="inline-block cursor-pointer text-xs sm:text-sm uppercase py-2 mb-2"
+          >
+            En cours
+          </span>
 
-          <span :class="{ 'border-primary border-b-4 font-bold': seeActivitiesOfState == 1 }" @click="seeTypeActivities(1)" class="inline-block cursor-pointer text-xs sm:text-sm uppercase py-2 mb-2">En retard </span>
+          <span
+            :class="{ 'border-primary border-b-4 font-bold': seeActivitiesOfState == 1 }"
+            @click="seeTypeActivities(1)"
+            class="inline-block cursor-pointer text-xs sm:text-sm uppercase py-2 mb-2"
+          >
+            En retard
+          </span>
 
-          <span :class="{ 'border-primary border-b-4 font-bold': seeActivitiesOfState == 2 }" @click="seeTypeActivities(2)" class="inline-block cursor-pointer text-xs sm:text-sm uppercase py-2 mb-2">Termine </span>
+          <span
+            :class="{ 'border-primary border-b-4 font-bold': seeActivitiesOfState == 2 }"
+            @click="seeTypeActivities(2)"
+            class="inline-block cursor-pointer text-xs sm:text-sm uppercase py-2 mb-2"
+          >
+            Termine
+          </span>
         </div>
         <div class="flex">
           <div class="relative text-slate-500">
-            <input v-model="search" type="text" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
+            <input
+              v-model="search"
+              type="text"
+              class="w-56 pr-10 form-control box"
+              placeholder="Recherche..."
+            />
             <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
           </div>
         </div>
@@ -1170,131 +1216,238 @@ export default {
     <!-- Results or other components -->
     <div class="mt-6">
       <LoaderSnipper v-if="isLoadingData" />
+      <div
+        v-if="!isLoadingData"
+        class="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+      >
+        <!-- Aucun enregistrement -->
+        <NoRecordsMessage
+          v-if="!paginatedAndFilteredData.length"
+          class="col-span-full"
+          title="Aucune activité trouvée"
+          description="Il semble qu'il n'y ait pas d'activités à afficher. Veuillez en créer une."
+        />
 
-      <div v-if="!isLoadingData" class="grid grid-cols-12 gap-6 mt-5">
-        <NoRecordsMessage class="col-span-12" v-if="!paginatedAndFilteredData.length" title="Aucune activité trouvée" description="Il semble qu'il n'y ait pas d'activités à afficher. Veuillez en créer un." />
-        <div v-else v-for="(item, index) in paginatedAndFilteredData" :key="index" class="col-span-12 p-4 md:col-span-6 lg:col-span-4">
-          <div v-if="verifyPermission('voir-une-activite')" class="p-5 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-105 hover:bg-gray-50 cursor-pointer">
-            <div class="relative flex items-start pt-5">
-              <div class="flex flex-col items-center w-full lg:flex-row">
-                <div class="flex flex-col items-center w-full lg:flex-row">
-                  <div class="flex items-center justify-center w-[90px] h-[90px] text-white rounded-full shadow-md bg-primary flex-shrink-0 mr-4">
+        <!-- Liste des activités -->
+         <div
+            v-else
+            v-for="(item, index) in paginatedAndFilteredData"
+            :key="index"
+            class="p-4"
+          >
+            <div
+              v-if="verifyPermission('voir-une-activite')"
+              class="bg-white border-l-4 border-primary rounded-lg shadow-md hover:shadow-lg hover:scale-[1.02] transform transition duration-300 cursor-pointer flex flex-col h-full"
+            >
+              <!-- En-tête -->
+              <div class="relative flex items-start justify-between p-4">
+                <div class="flex items-center gap-4">
+                  <div
+                    class="flex items-center justify-center w-20 h-20 rounded-full bg-primary text-white font-semibold shadow-md flex-shrink-0"
+                  >
                     {{ item.codePta }}
-                    <!-- <img alt="Midone Tailwind HTML Admin Template" class="rounded-full" :src="faker.photos[0]" /> -->
                   </div>
-                  <div class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary _truncate text-center lg:text-left">
-                    <a href="" class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary">{{ item.nom }} </a>
-                  </div>
-                </div>
-
-                <!-- créer un bouton pour navigateToTasks(item.id, item.nom) -->
-                <button @click.stop="navigateToTasks(item.id, item.nom)" class="ml-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors flex items-center gap-2 text-sm font-medium shadow-md" title="Cliquer pour voir les tâches de cette activité">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                  </svg>
-                  Tâches
-                </button>
-              </div>
-              <Dropdown class="absolute top-0 right-0 mt-3 mr-5">
-                <DropdownToggle tag="a" class="block w-5 h-5" href="javascript:;">
-                  <MoreVerticalIcon class="w-5 h-5 text-slate-500" />
-                </DropdownToggle>
-                <DropdownMenu class="w-40">
-                  <DropdownContent>
-                    <DropdownItem v-if="verifyPermission('modifier-une-activite')" @click="modifierActivite(item)"> <Edit2Icon class="w-4 h-4 mr-2" /> Modifier </DropdownItem>
-                    <DropdownItem v-if="verifyPermission('prolonger-une-activite')" @click="ouvrirModalProlongerActivite(item)"> <CalendarIcon class="w-4 h-4 mr-2" /> Prolonger </DropdownItem>
-
-                    <!-- Loader pendant le changement de statut -->
-                    <DropdownItem v-if="loaderStatut" class="opacity-50 cursor-not-allowed">
-                      <svg class="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <div class="flex flex-col">
+                    <h3
+                      class="text-lg font-semibold text-gray-800 hover:text-primary truncate max-w-[200px]"
+                    >
+                      {{ item.nom }}
+                    </h3>
+                    <button
+                      @click.stop="navigateToTasks(item.id, item.nom)"
+                      class="mt-2 px-3 py-1.5 bg-primary text-white rounded-md text-xs flex items-center gap-2 hover:bg-primary/90 shadow"
+                      title="Voir les tâches de cette activité"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="w-4 h-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+                        />
                       </svg>
-                      Changement en cours...
-                    </DropdownItem>
-
-                    <!-- Boutons de changement de statut -->
-                    <DropdownItem
-                      title="cliquer pour marquer l'activité comme terminée"
-                      v-if="!loaderStatut && verifyPermission('modifier-une-activite') && item.statut == 0"
-                      @click="changerStatut(item, 2)">
-                      <CalendarIcon class="w-4 h-4 mr-2" /> Terminer
-                    </DropdownItem>
-                    <DropdownItem
-                      title="cliquer pour marquer l'activité comme pas démarré"
-                      v-if="!loaderStatut && verifyPermission('modifier-une-activite') && item.statut == 0"
-                      @click="changerStatut(item, -1)">
-                      <CalendarIcon class="w-4 h-4 mr-2" /> Pas Démarrer
-                    </DropdownItem>
-
-                    <DropdownItem
-                      title="cliquer pour démarrer l'activité"
-                      v-else-if="!loaderStatut && verifyPermission('modifier-une-activite') && item.statut !== 0"
-                      @click="changerStatut(item, 0)">
-                      <CalendarIcon class="w-4 h-4 mr-2" /> Démarrer
-                    </DropdownItem>
-
-                    <DropdownItem v-if="verifyPermission('creer-un-plan-de-decaissement')" @click="ouvrirModalPlanDeDecaissementActivite(item)"> <CalendarIcon class="w-4 h-4 mr-2" /> Plan de decaissement </DropdownItem>
-
-                    <!-- <a v-if="verifyPermission('prolonger-un-projet')" class="flex items-center mr-auto text-primary" href="javascript:;" @click="ouvrirModalProlongerProjet(item)" title="Prolonger la date du projet"> <CalendarIcon class="w-4 h-4 mr-1" /><span class="hidden sm:block"> Étendre </span></a> -->
-
-                    <DropdownItem v-if="verifyPermission('supprimer-une-activite')" @click="supprimerComposant(item)"> <TrashIcon class="w-4 h-4 mr-2" /> Supprimer </DropdownItem>
-                  </DropdownContent>
-                </DropdownMenu>
-              </Dropdown>
-            </div>
-
-            <div class="mt-5 text-center lg:text-left">
-              <p class="mb-3 text-lg font-semibold text-primary">Description</p>
-              <p class="p-3 text-gray-600 rounded-lg shadow-sm bg-gray-50">
-                {{ item.description == null ? "Aucune description" : item.description }}
-              </p>
-
-              <div class="mt-5 space-y-3 text-gray-600">
-                <div class="flex items-center">
-                  <LinkIcon class="w-4 h-4 mr-2" /> Fonds propre: {{ item.budgetNational == null || item.budgetNational == 0 ? 0 : $h.formatCurrency(item.budgetNational) }}
-                  <div class="ml-2 italic font-bold">Fcfa</div>
-                </div>
-
-                <div class="flex items-center">
-                  <LinkIcon class="w-4 h-4 mr-2" /> Subvention: {{ item.pret == null || item.pret == 0 ? 0 : $h.formatCurrency(item.pret) }}
-                  <div class="ml-2 italic font-bold">Fcfa</div>
-                </div>
-
-                
-               
-                <div class="flex items-center text-sm font-medium text-gray-700">
-                  <CheckSquareIcon class="w-4 h-4 mr-2 text-primary" /> Statut:
-                  <span v-if="item.statut == -2" class="ml-2 text-gray-900">Non validé</span>
-                  <span v-else-if="item.statut == -1" class="ml-2 text-gray-900">Pas démarré</span>
-                  <span v-else-if="item.statut == 0" class="ml-2 text-gray-900">En cours</span>
-                  <span v-else-if="item.statut == 1" class="ml-2 text-gray-900">En retard</span>
-                  <span v-else-if="item.statut == 2" class="ml-2 text-gray-900">Terminé</span>
-                </div>
-                <div class="flex items-center mt-2">
-                  <ClockIcon class="w-4 h-4 mr-2" />
-                  <div>
-                    Date : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(item.debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(item.fin) }}</span>
+                      Tâches
+                    </button>
                   </div>
                 </div>
-                <div class="flex items-center mt-2" v-for="(plage, t) in item.durees" :key="t">
-                  <ClockIcon class="w-4 h-4 mr-2" v-if="t <= item.durees.length - 1" />
 
-                  <div v-if="t <= item.durees.length - 1">
-                    Plage de date {{ t + 1 }} : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(plage.debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(plage.fin) }}</span>
+                <!-- Menu -->
+                <Dropdown class="absolute top-3 right-3">
+                  <DropdownToggle tag="a" href="javascript:;" class="block w-5 h-5">
+                    <MoreVerticalIcon class="w-5 h-5 text-slate-500" />
+                  </DropdownToggle>
+                  <DropdownMenu class="w-40">
+                    <DropdownContent>
+                      <DropdownItem
+                        v-if="verifyPermission('modifier-une-activite')"
+                        @click="modifierActivite(item)"
+                      >
+                        <Edit2Icon class="w-4 h-4 mr-2" /> Modifier
+                      </DropdownItem>
+
+                      <DropdownItem
+                        v-if="verifyPermission('prolonger-une-activite')"
+                        @click="ouvrirModalProlongerActivite(item)"
+                      >
+                        <CalendarIcon class="w-4 h-4 mr-2" /> Prolonger
+                      </DropdownItem>
+
+                      <DropdownItem
+                        v-if="verifyPermission('creer-un-plan-de-decaissement')"
+                        @click="ouvrirModalPlanDeDecaissementActivite(item)"
+                      >
+                        <CalendarIcon class="w-4 h-4 mr-2" /> Plan de décaissement
+                      </DropdownItem>
+
+                      <DropdownItem
+                        v-if="verifyPermission('supprimer-une-activite')"
+                        @click="supprimerComposant(item)"
+                      >
+                        <TrashIcon class="w-4 h-4 mr-2" /> Supprimer
+                      </DropdownItem>
+                    </DropdownContent>
+                  </DropdownMenu>
+                </Dropdown>
+              </div>
+
+              <!-- Corps avec scroll interne -->
+              <div class="flex flex-col justify-between flex-grow p-4 border-t">
+                <!-- Section avec scroll: Description + Plages horaires -->
+                <div class="overflow-y-auto max-h-[300px] pr-2 custom-scrollbar">
+                  <!-- Description -->
+                  <div class="mb-4">
+                    <p class="text-primary font-semibold mb-2">Description</p>
+                    <p class="text-sm text-gray-600 bg-gray-50 p-2 rounded shadow-sm">
+                      {{ item.description || "Aucune description" }}
+                    </p>
                   </div>
 
-                  <button class="p-1.5 text-primary" @click="editModalProlongerActivite(item, plage)">
-                    <Edit3Icon class="size-5" />
-                  </button>
+                  <!-- Plages horaires -->
+                  <div class="space-y-2 text-gray-700 text-sm">
+                    <!-- Si une seule plage, on affiche directement -->
+                    <div v-if="item.durees.length === 1" class="flex items-center">
+                      <ClockIcon class="w-4 h-4 mr-2 text-primary" />
+                      <div>
+                        Plage 1 :
+                        <span class="font-semibold">{{ $h.reformatDate(item.durees[0].debut) }}</span>
+                        -
+                        <span class="font-semibold">{{ $h.reformatDate(item.durees[0].fin) }}</span>
+                      </div>
+                      <button
+                        class="p-1.5 ml-2 text-primary hover:text-primary/70"
+                        @click="editModalProlongerActivite(item, item.durees[0])"
+                      >
+                        <Edit3Icon class="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    <div v-else class="border rounded-lg divide-y divide-gray-200">
+                      <button
+                        class="w-full flex items-center justify-between px-3 py-2 text-left font-medium text-primary hover:bg-gray-50"
+                        @click="toggleAccordion(item.id)"
+                      >
+                        <span>Plages horaires ({{ item.durees.length }})</span>
+                        <ChevronDownIcon
+                          class="w-4 h-4 transform transition-transform duration-300"
+                          :class="{ 'rotate-180': openedAccordion === item.id }"
+                        />
+                      </button>
+
+                      <transition name="accordion">
+                        <div v-if="openedAccordion === item.id" class="p-2 space-y-1">
+                          <div
+                            v-for="(plage, t) in item.durees"
+                            :key="t"
+                            class="flex items-center text-sm"
+                          >
+                            <ClockIcon class="w-4 h-4 mr-2 text-primary" />
+                            <div>
+                              Plage {{ t + 1 }} :
+                              <span class="font-semibold">{{ $h.reformatDate(plage.debut) }}</span>
+                              -
+                              <span class="font-semibold">{{ $h.reformatDate(plage.fin) }}</span>
+                            </div>
+                            <button
+                              class="p-1.5 ml-2 text-primary hover:text-primary/70"
+                              @click="editModalProlongerActivite(item, plage)"
+                            >
+                              <Edit3Icon class="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      </transition>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Section fixe en bas: Budget et dates -->
+                <div class="mt-4 pt-4 border-t space-y-2 text-gray-700 text-sm flex-shrink-0">
+                  <div class="flex items-center">
+                    <LinkIcon class="w-4 h-4 mr-2 text-primary" />
+                    Fonds propre :
+                    <span class="font-semibold ml-1">{{
+                      $h.formatCurrency(item.budgetNational || 0)
+                    }}</span>
+                    <span class="italic ml-1">Fcfa</span>
+                  </div>
+
+                  <div class="flex items-center">
+                    <LinkIcon class="w-4 h-4 mr-2 text-primary" />
+                    Subvention :
+                    <span class="font-semibold ml-1">{{
+                      $h.formatCurrency(item.pret || 0)
+                    }}</span>
+                    <span class="italic ml-1">Fcfa</span>
+                  </div>
+
+                  <div class="flex items-center">
+                    <CheckSquareIcon class="w-4 h-4 mr-2 text-primary" />
+                    Statut :
+                    <span class="ml-1 font-semibold">{{
+                      item.statut == -2
+                        ? "Non validé"
+                        : item.statut == -1
+                        ? "Pas démarré"
+                        : item.statut == 0
+                        ? "En cours"
+                        : item.statut == 1
+                        ? "En retard"
+                        : "Terminé"
+                    }}</span>
+                  </div>
+
+                  <div class="flex items-center">
+                    <ClockIcon class="w-4 h-4 mr-2 text-primary" />
+                    Date :
+                    <span class="ml-1 font-semibold">{{
+                      $h.reformatDate(item.debut)
+                    }}</span>
+                    au
+                    <span class="ml-1 font-semibold">{{
+                      $h.reformatDate(item.fin)
+                    }}</span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
       </div>
     </div>
-    <pagination class="col-span-12" :total-items="totalItems" :items-per-page="itemsPerPage" :is-loading="isLoadingProjets" @page-changed="onPageChanged" @items-per-page-changed="onItemsPerPageChanged">
+    
+    <pagination
+      class="col-span-12"
+      :total-items="totalItems"
+      :items-per-page="itemsPerPage"
+      :is-loading="isLoadingProjets"
+      @page-changed="onPageChanged"
+      @items-per-page-changed="onItemsPerPageChanged"
+    >
       <!-- Slots personnalisés (facultatif) -->
       <template #prev-icon>
         <span>&laquo; Précédent</span>
@@ -1640,4 +1793,34 @@ export default {
   </Modal>
 </template>
 
-<style></style>
+<style scoped>
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Animation pour l'accordéon */
+.accordion-enter-active,
+.accordion-leave-active {
+  transition: all 0.3s ease;
+}
+
+.accordion-enter-from,
+.accordion-leave-to {
+  opacity: 0;
+  max-height: 0;
+}
+</style>
