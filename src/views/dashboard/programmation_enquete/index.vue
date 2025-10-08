@@ -456,10 +456,10 @@ onMounted(async () => {
 
                     <div class="flex items-center text-sm font-medium text-gray-700">
                       <BarChart2Icon class="w-4 h-4 mr-2 text-primary" /> Total soumissions:
-                      <span class="ml-2 font-semibold text-gray-900">{{ item.total_soumissions_de_perception + item.total_soumissions_factuel }}</span>
+                      <span class="ml-2 font-semibold text-gray-900">{{ item.pourcentage_evolution_perception_organisations + item.pourcentage_evolution_factuel_organisations }}</span>
                     </div>
                     <div class="flex items-center text-sm font-medium text-gray-700">
-                      <ProgressBar :percent="item.pourcentage_evolution" />
+                      <ProgressBar :percent="item.pourcentage_evolution_organisations" />
                     </div>
                   </div>
                 </div>
