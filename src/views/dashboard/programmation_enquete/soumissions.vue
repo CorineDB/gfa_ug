@@ -324,7 +324,7 @@ onMounted(async () => {
           <h2 class="mr-5 text-lg font-medium truncate">Statistiques</h2>
         </div>
 
-        <div class="grid grid-cols-12 gap-6 mt-5">
+        <div class="grid grid-cols-12 gap-6 mt-5"><!-- 
           <div class="col-span-12 sm:col-span-6 xl:col-span-3 intro-y">
             <div class="report-box zoom-in">
               <div class="p-5 text-center box">
@@ -345,14 +345,14 @@ onMounted(async () => {
                 </div>
               </div>
             </div>
-          </div>
+          </div> -->
           <div class="col-span-12 sm:col-span-6 xl:col-span-3 intro-y">
             <div class="report-box zoom-in">
               <div class="p-5 text-center box">
                 <div class="flex items-center justify-between">
                   <UsersIcon class="size-10 text-pending" />
 
-                  <div class="mt-2 text-lg font-medium leading-8">Participant</div>
+                  <div class="mt-2 text-lg font-medium leading-8">Participants</div>
                 </div>
                 <div class="flex items-center justify-around mt-4">
                   <div class="flex gap-2 text-lg text-left">
@@ -407,6 +407,34 @@ onMounted(async () => {
             <div class="report-box zoom-in">
               <div class="p-5 text-center box">
                 <div class="flex items-center justify-between">
+                  <BarChart2Icon class="size-10 text-success" />
+                  <div class="mt-2 text-lg font-medium leading-8">Soumissions Incompletes</div>
+                </div>
+                <div class="flex items-center justify-around mt-4">
+                  <div class="flex gap-2 text-lg text-left">
+                    <div class="mt-1 text-primary">
+                      Factuel:
+                      <span class="font-semibold">
+                        {{ statistiques?.total_soumissions_factuel_incompletes }}
+                      </span>
+                    </div>
+                    <div class="w-px h-8 bg-slate-400"></div>
+                    <div class="mt-1 text-primary">
+                      Perception:
+                      <span class="font-semibold">
+                        {{ statistiques?.total_soumissions_de_perception_incompletes }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-span-12 sm:col-span-6 xl:col-span-3 intro-y">
+            <div class="report-box zoom-in">
+              <div class="p-5 text-center box">
+                <div class="flex items-center justify-between">
                   <PercentIcon class="size-10 text-warning" />
                   <div class="mt-2 text-lg font-medium leading-8">Évolution</div>
                 </div>
@@ -414,12 +442,12 @@ onMounted(async () => {
                   <div class="flex gap-2 text-lg text-left">
                     <div class="mt-1 text-primary">
                       Factuel:
-                      <span class="font-semibold"> {{ Math.round(statistiques?.pourcentage_evolution_des_soumissions_factuel) }}% </span>
+                      <span class="font-semibold"> {{ Math.round(statistiques?.pourcentage_evolution_factuel_organisations) }}% </span>
                     </div>
                     <div class="w-px h-8 bg-slate-400"></div>
                     <div class="mt-1 text-primary">
                       Perception:
-                      <span class="font-semibold"> {{ Math.round(statistiques?.pourcentage_evolution_des_soumissions_de_perception) }}% </span>
+                      <span class="font-semibold"> {{ Math.round(statistiques?.pourcentage_evolution_perception_organisations) }}% </span>
                     </div>
                   </div>
                 </div>
