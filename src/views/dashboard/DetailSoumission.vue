@@ -94,6 +94,77 @@ const goBack = () => {
 
 const filterOptions = computed(() => soumission.value?.options_de_reponse);
 
+// Calculer les statistiques agrégées pour les soumissions de perception
+const perceptionStats = computed(() => {
+  if (!soumission.value || soumission.value.length === 0) return null;
+
+  // Récupérer les options de réponse depuis la première organisation qui a des données de perception
+  const firstOrgWithPerception = soumission.value.find(org => org.perception && org.perception.length > 0);
+  if (!firstOrgWithPerception) return null;
+
+  const optionsDeReponse = firstOrgWithPerception.perception[0]?.options_de_reponse || [];
+  const categoriesDeGouvernance = firstOrgWithPerception.perception[0]?.categories_de_gouvernance || [];
+
+  // Créer une structure pour stocker les comptages
+  const stats = {
+    options_de_reponse: optionsDeReponse,
+    categories_de_gouvernance: []
+  };
+
+  // Pour chaque catégorie (principe)
+  categoriesDeGouvernance.forEach(categorie => {
+    const categorieStats = {
+      id: categorie.id,
+      nom: categorie.nom,
+      questions_de_gouvernance: []
+    };
+
+    // Pour chaque question
+    if (categorie.questions_de_gouvernance) {
+      categorie.questions_de_gouvernance.forEach(question => {
+        const questionStats = {
+          id: question.id,
+          nom: question.nom,
+          reponses_count: {}
+        };
+
+        // Initialiser les compteurs pour chaque option
+        optionsDeReponse.forEach(option => {
+          questionStats.reponses_count[option.id] = {
+            note: option.point,
+            count: 0
+          };
+        });
+
+        // Compter les réponses de toutes les organisations
+        soumission.value.forEach(org => {
+          if (org.perception && org.perception.length > 0) {
+            const perceptionData = org.perception[0];
+            // Trouver la catégorie correspondante
+            const orgCategorie = perceptionData.categories_de_gouvernance?.find(c => c.id === categorie.id);
+            if (orgCategorie) {
+              // Trouver la question correspondante
+              const orgQuestion = orgCategorie.questions_de_gouvernance?.find(q => q.id === question.id);
+              if (orgQuestion && orgQuestion.reponse_de_la_collecte) {
+                const optionId = orgQuestion.reponse_de_la_collecte.optionDeReponseId;
+                if (questionStats.reponses_count[optionId]) {
+                  questionStats.reponses_count[optionId].count++;
+                }
+              }
+            }
+          }
+        });
+
+        categorieStats.questions_de_gouvernance.push(questionStats);
+      });
+    }
+
+    stats.categories_de_gouvernance.push(categorieStats);
+  });
+
+  return stats;
+});
+
 onMounted(() => {
   getSoumission();
 });
@@ -110,8 +181,8 @@ onMounted(() => {
 
     <TabGroup>
       <TabList class="space-x-4 font-bold uppercase nav-boxed-tabs">
-        <Tab class="w-full py-2 bg-white" tag="button">Soumission Factuel</Tab><!-- 
-        <Tab class="w-full py-2 bg-white" tag="button">Soumission de Perception</Tab> -->
+        <Tab class="w-full py-2 bg-white" tag="button">Soumission Factuel</Tab>
+        <Tab class="w-full py-2 bg-white" tag="button">Soumission de Perception</Tab>
       </TabList>
 
       <TabPanels class="mt-5">
@@ -292,48 +363,75 @@ onMounted(() => {
           </table> -->
         </TabPanel>
         <!-- Perception-->
-        <!-- <TabPanel class="leading-relaxed">
+        <TabPanel class="leading-relaxed">
           <div class="w-full py-2 font-bold text-center text-white rounded bg-primary">
-            RECAPITULATIF SOUMISSION DE PERCEPTION GOUVERNANCE</div>
-          <div class="flex justify-end my-4 sm:flex-row sm:items-end xl:items-start">
-            <div class="flex mt-5 sm:mt-0">
-              <ExportationSynthesePerception v-if="!isLoading && currentPerception" :org="currentOrganisation?.nom"
-                :pointfocal="`${currentOrganisation?.nom_point_focal}  ${currentOrganisation?.prenom_point_focal}`"
-                :dateevaluation="currentPerception?.evaluatedAt" :current-perception="currentPerception" class="mr-3" />
-              <button
-                @click="generateMultiTablePDF(['my-table10', 'my-table13'], 'FICHE_SYNTHESE_SCORE_DE_PERCEPTION_GOUVERNANCE', 'A4', info2)"
-                class="btn btn-primary text-left">Télécharger PDF</button>
-            </div>
+            RECAPITULATIF SOUMISSION DE PERCEPTION GOUVERNANCE
           </div>
-          <table id="my-table10" class="w-full mt-12 text-sm border-collapse table-fixed">
-            <tbody>
-              <tr class="border-b rounded-sm border-slate-300 bg-slate-300">
-                <td class="p-2 font-medium">Structure :</td>
-                <td>
-                  <TomSelect v-model="idSelectStructure" :options="{
-                    placeholder: 'Sélectionner la structure',
-                  }" class="w-full" @change="changeStructure">
-                    <option v-for="(structure, index) in organisationsOfEvaluation" :key="index" :value="structure.id">
+
+          <div v-if="!isLoading && perceptionStats">
+            <table class="w-full my-10 border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
+              <thead>
+                <!-- Première ligne : Pondérations -->
+                <tr class="text-white bg-blue-900">
+                  <th rowspan="2" class="py-3 border border-slate-900">Questions opérationnelles</th>
+                  <th colspan="2" v-for="(option, index) in perceptionStats.options_de_reponse" :key="index"
+                      class="py-3 text-center border border-slate-900">
+                    {{ option.libelle }}
+                  </th>
+                  <th rowspan="2" class="py-3 text-center border border-slate-900">Moyenne pondérée</th>
+                </tr>
+                <!-- Deuxième ligne : Note(x) et Nbre de réponses -->
+                <tr class="text-white bg-blue-900">
+                  <template v-for="(option, index) in perceptionStats.options_de_reponse" :key="index">
+                    <th class="py-2 text-center border border-slate-900">Note({{ String.fromCharCode(97 + index) }})</th>
+                    <th class="py-2 text-center border border-slate-900">Nbre de réponses ({{ String.fromCharCode(97 + index) }})</th>
+                  </template>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Pour chaque principe -->
+                <template v-for="principe in perceptionStats.categories_de_gouvernance" :key="principe.id">
+                  <tr class="bg-blue-100">
+                    <td colspan="100" class="p-2 font-bold">{{ principe.nom }}</td>
+                  </tr>
+
+                  <!-- Pour chaque question du principe -->
+                  <tr v-for="question in principe.questions_de_gouvernance" :key="question.id">
+                    <td class="py-2 px-3 border border-slate-600">{{ question.nom }}</td>
+
+                    <!-- Pour chaque option de réponse -->
+                    <template v-for="option in perceptionStats.options_de_reponse" :key="option.id">
+                      <td class="py-2 text-center border border-slate-600 bg-gray-50">
+                        {{ question.reponses_count[option.id]?.note || 0 }}
+                      </td>
+                      <td class="py-2 text-center border border-slate-600 font-semibold">
+                        {{ question.reponses_count[option.id]?.count || 0 }}
+                      </td>
+                    </template>
+
+                    <!-- Moyenne pondérée -->
+                    <td class="py-2 text-center border border-slate-600 bg-red-500 text-white font-bold">
                       {{
-                        structure.nom }}</option>
-                  </TomSelect>
-                </td>
-              </tr>
-              <tr class="border-b border-slate-300">
-                <td class="p-2 font-medium">Nom, Prénom et qualité du point focal Gouvernance :</td>
-                <td>{{ currentOrganisation?.nom_point_focal }} {{ currentOrganisation?.prenom_point_focal }}</td>
-              </tr>
-              <tr class="border-b border-slate-300">
-                <td class="p-2 font-medium">Date d’auto-évaluation :</td>
-                <td class="pl-2">{{ currentPerception?.submitted_at }}</td>
-              </tr>
-            </tbody>
-          </table>
-          <-- Tableau de synthese Perception ->
-          <TabulatorSynthesePerception :data="currentPerception?.synthese"
-            :indicegouvernace="currentPerception?.indice_de_gouvernance"
-            v-if="!isLoading && currentPerception?.synthese" />
-        </TabPanel> -->
+                        (() => {
+                          let totalPondere = 0;
+                          let totalReponses = 0;
+                          perceptionStats.options_de_reponse.forEach(option => {
+                            const data = question.reponses_count[option.id];
+                            if (data) {
+                              totalPondere += (data.note * data.count);
+                              totalReponses += data.count;
+                            }
+                          });
+                          return totalReponses > 0 ? (totalPondere / totalReponses).toFixed(2) : '0.00';
+                        })()
+                      }}
+                    </td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+        </TabPanel>
       </TabPanels>
       <LoaderSnipper v-if="isLoading" />
     </TabGroup>
