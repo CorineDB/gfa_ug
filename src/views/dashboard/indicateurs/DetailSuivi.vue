@@ -289,43 +289,51 @@ const years = computed(() => {
 const barChart = ref(null);
 let chartInstance = null;
 
- 
-
-// Méthode pour formater les données du graphique
-const formatChartData = () => {
+ // Méthode pour formater les données du graphique
+/*const formatChartData = () => {
   if (!datas.value || datas.value.length === 0) return null;
 
+  const isAgregated = datas.value[0]?.valeurCible?.indicateur?.agreger;
+
+  if (isAgregated) {
+    // Pour les indicateurs agrégés : afficher chaque clé séparément
+    return formatAgregatedChartData();
+  } else {
+    // Pour les indicateurs non agrégés : comportement actuel
+    return formatSimpleChartData();
+  }
+};
+
+// Format des données pour indicateurs non agrégés (comportement actuel)
+const formatSimpleChartData = () => {
   const labels = datas.value.map((item) => {
     const trimestre = item.trimestre || 'N/A';
     const annee = item.valeurCible?.annee || new Date(item.dateSuivie).getFullYear();
     return `T${trimestre} - ${annee}`;
   });
 
-  // Extraction des valeurs avec gestion des différents formats
   const realisedValues = datas.value.map((item) => {
     const valeurRealise = item.valeurRealise;
-    if (typeof valeurRealise === 'object' && valeurRealise.moy !== undefined) {
-      return valeurRealise.moy;
-    } else if (typeof valeurRealise === 'number') {
-      return valeurRealise;
-    } else {
-      // Si c'est un objet avec des clés dynamiques, prendre la première valeur numérique
-      const values = Object.values(valeurRealise || {});
+    if (valeurRealise == null) return 0;
+    if (typeof valeurRealise === 'number') return valeurRealise;
+    if (typeof valeurRealise === 'object') {
+      if (valeurRealise.moy !== undefined) return valeurRealise.moy;
+      const values = Object.values(valeurRealise);
       return values.find(v => typeof v === 'number') || 0;
     }
+    return 0;
   });
 
   const targetValues = datas.value.map((item) => {
     const valeurCible = item.valeurCible?.valeurCible;
-    if (typeof valeurCible === 'object' && valeurCible.moy !== undefined) {
-      return valeurCible.moy;
-    } else if (typeof valeurCible === 'number') {
-      return valeurCible;
-    } else {
-      // Si c'est un objet avec des clés dynamiques, prendre la première valeur numérique
-      const values = Object.values(valeurCible || {});
+    if (valeurCible == null) return 0;
+    if (typeof valeurCible === 'number') return valeurCible;
+    if (typeof valeurCible === 'object') {
+      if (valeurCible.moy !== undefined) return valeurCible.moy;
+      const values = Object.values(valeurCible);
       return values.find(v => typeof v === 'number') || 0;
     }
+    return 0;
   });
 
   return {
@@ -353,6 +361,529 @@ const formatChartData = () => {
   };
 };
 
+
+// Format des données pour indicateurs agrégés
+const formatAgregatedChartData = () => {
+  const labels = datas.value.map((item) => {
+    const trimestre = item.trimestre || 'N/A';
+    const annee = item.valeurCible?.annee || new Date(item.dateSuivie).getFullYear();
+    return `T${trimestre} - ${annee}`;
+  });
+
+  // Récupérer toutes les clés uniques depuis les données
+  const allKeys = new Set();
+  datas.value.forEach(item => {
+    if (item.valeurCible?.valeurCible && typeof item.valeurCible.valeurCible === 'object') {
+      Object.keys(item.valeurCible.valeurCible).forEach(key => allKeys.add(key));
+    }
+    if (item.valeurRealise && typeof item.valeurRealise === 'object') {
+      Object.keys(item.valeurRealise).forEach(key => allKeys.add(key));
+    }
+  });
+
+  const keys = Array.from(allKeys);
+  
+  // Couleurs pour les différentes clés
+  const colorPalette = [
+    { bg: 'rgba(75, 192, 192, 0.6)', border: 'rgba(75, 192, 192, 1)' },
+    { bg: 'rgba(239, 68, 68, 0.6)', border: 'rgba(239, 68, 68, 1)' },
+    { bg: 'rgba(153, 102, 255, 0.6)', border: 'rgba(153, 102, 255, 1)' },
+    { bg: 'rgba(255, 159, 64, 0.6)', border: 'rgba(255, 159, 64, 1)' },
+    { bg: 'rgba(54, 162, 235, 0.6)', border: 'rgba(54, 162, 235, 1)' },
+    { bg: 'rgba(255, 99, 132, 0.6)', border: 'rgba(255, 99, 132, 1)' },
+  ];
+
+  const datasets = [];
+
+  // Ajouter les datasets pour les valeurs réalisées par clé
+  keys.forEach((key, index) => {
+    const color = colorPalette[index % colorPalette.length];
+    const data = datas.value.map(item => {
+      const valeurRealise = item.valeurRealise;
+      if (valeurRealise && typeof valeurRealise === 'object' && valeurRealise[key] !== undefined) {
+        return valeurRealise[key];
+      }
+      return 0;
+    });
+
+    datasets.push({
+      label: `Réalisé - ${key}`,
+      data: data,
+      backgroundColor: color.bg,
+      borderColor: color.border,
+      borderWidth: 2,
+      barThickness: 20,
+      borderRadius: 4,
+    });
+  });
+
+  // Ajouter les datasets pour les valeurs cibles par clé (en ligne)
+  keys.forEach((key, index) => {
+    const color = colorPalette[index % colorPalette.length];
+    const data = datas.value.map(item => {
+      const valeurCible = item.valeurCible?.valeurCible;
+      if (valeurCible && typeof valeurCible === 'object' && valeurCible[key] !== undefined) {
+        return valeurCible[key];
+      }
+      return 0;
+    });
+
+    datasets.push({
+      label: `Cible - ${key}`,
+      data: data,
+      borderColor: color.border,
+      borderWidth: 3,
+      borderDash: [5, 5],
+      fill: false,
+      type: 'line',
+      pointRadius: 4,
+      pointHoverRadius: 6,
+    });
+  });
+
+  return {
+    labels,
+    datasets,
+  };
+};
+*/
+
+// Méthode pour formater les données du graphique
+/* const formatChartData = () => {
+  if (!datas.value || datas.value.length === 0) return null;
+
+  const labels = datas.value.map((item) => {
+    const trimestre = item.trimestre || 'N/A';
+    const annee = item.valeurCible?.annee || new Date(item.dateSuivie).getFullYear();
+    return `T${trimestre} - ${annee}`;
+  });
+
+  console.log(datas.value);
+
+  // Extraction des valeurs réalisées avec gestion des différents formats
+  const realisedValues = datas.value.map((item) => {
+    const valeurRealise = item.valeurRealise;
+
+    // Si null ou undefined
+    if (valeurRealise == null) return 0;
+
+    // Si c'est déjà un nombre simple (valeur non agrégée)
+    if (typeof valeurRealise === 'number') {
+      return valeurRealise;
+    }
+
+    // Si c'est un objet
+    if (typeof valeurRealise === 'object') {
+      // Si c'est un objet avec une moyenne (valeur agrégée)
+      if (valeurRealise.moy !== undefined) {
+        return valeurRealise.moy;
+      }
+      // Si c'est un objet avec des clés dynamiques, prendre la première valeur numérique
+      const values = Object.values(valeurRealise);
+      return values.find(v => typeof v === 'number') || 0;
+    }
+
+    return 0;
+  });
+
+  // Extraction des valeurs cibles avec gestion des différents formats
+  const targetValues = datas.value.map((item) => {
+    const valeurCible = item.valeurCible?.valeurCible;
+
+    // Si null ou undefined
+    if (valeurCible == null) return 0;
+
+    // Si c'est déjà un nombre simple (valeur non agrégée)
+    if (typeof valeurCible === 'number') {
+      return valeurCible;
+    }
+
+    // Si c'est un objet
+    if (typeof valeurCible === 'object') {
+      // Si c'est un objet avec une moyenne (valeur agrégée)
+      if (valeurCible.moy !== undefined) {
+        return valeurCible.moy;
+      }
+      // Si c'est un objet avec des clés dynamiques, prendre la première valeur numérique
+      const values = Object.values(valeurCible);
+      return values.find(v => typeof v === 'number') || 0;
+    }
+
+    return 0;
+  });
+
+  return {
+    labels,
+    datasets: [
+      {
+        label: "Valeur Réalisée",
+        data: realisedValues,
+        backgroundColor: "rgba(75, 192, 192, 0.6)",
+        borderColor: "rgba(75, 192, 192, 1)",
+        borderWidth: 2,
+        barThickness: 30,
+        borderRadius: 4,
+      },
+      {
+        label: "Valeur Cible",
+        data: targetValues,
+        backgroundColor: "rgba(239, 68, 68, 0.6)",
+        borderColor: "rgba(239, 68, 68, 1)",
+        borderWidth: 2,
+        barThickness: 30,
+        borderRadius: 4,
+      },
+    ],
+  };
+};
+*/
+
+// Méthode pour formater les données du graphique
+const formatChartData = () => {
+  if (!datas.value || datas.value.length === 0) return null;
+
+  // Déterminer si l'indicateur est agrégé en regardant le premier élément
+  const isAgregated = datas.value[0]?.indicateur?.agreger;
+  const valueKeys = datas.value[0]?.indicateur?.value_keys || [];
+
+  if (isAgregated && valueKeys.length > 0) {
+    // Pour les indicateurs agrégés : afficher chaque clé séparément
+    return formatAgregatedChartData();
+  } else {
+    // Pour les indicateurs non agrégés : comportement actuel
+    return formatSimpleChartData();
+  }
+};
+
+// Format des données pour indicateurs non agrégés
+const formatSimpleChartData = () => {
+  // Récupérer les informations de l'indicateur depuis le premier élément
+  const indicateurInfo = datas.value[0]?.indicateur;
+  const nomIndicateur = indicateurInfo?.nom || "Indicateur";
+  const uniteMesure = indicateurInfo?.unitee_mesure?.nom || "";
+
+  const labels = datas.value.map((item) => {
+    const trimestre = item.trimestre || 'N/A';
+    const annee = item.valeurCible?.annee || new Date(item.dateSuivie).getFullYear();
+    return `T${trimestre} - ${annee}`;
+  });
+
+  // Extraction des valeurs réalisées pour indicateurs non agrégés
+  const realisedValues = datas.value.map((item) => {
+    const valeurRealise = item.valeurRealise;
+    
+    // Si null ou undefined
+    if (valeurRealise == null) return 0;
+    
+    // Si c'est déjà un nombre simple
+    if (typeof valeurRealise === 'number') return valeurRealise;
+    
+    // Si c'est un objet (comme { "H": 74 })
+    if (typeof valeurRealise === 'object') {
+      // Prendre la première valeur numérique de l'objet
+      const values = Object.values(valeurRealise);
+      const numericValue = values.find(v => {
+        const num = parseFloat(v);
+        return !isNaN(num);
+      });
+      return numericValue ? parseFloat(numericValue) : 0;
+    }
+    
+    // Si c'est une chaîne, essayer de la convertir en nombre
+    const num = parseFloat(valeurRealise);
+    return isNaN(num) ? 0 : num;
+  });
+
+  // Extraction des valeurs cibles pour indicateurs non agrégés
+  const targetValues = datas.value.map((item) => {
+    const valeurCible = item.valeurCible?.valeurCible;
+    
+    // Si null ou undefined
+    if (valeurCible == null) return 0;
+    
+    // Si c'est déjà un nombre simple
+    if (typeof valeurCible === 'number') return valeurCible;
+    
+    // Si c'est un objet (comme { "H": 70 })
+    if (typeof valeurCible === 'object') {
+      // Prendre la première valeur numérique de l'objet
+      const values = Object.values(valeurCible);
+      const numericValue = values.find(v => {
+        const num = parseFloat(v);
+        return !isNaN(num);
+      });
+      return numericValue ? parseFloat(numericValue) : 0;
+    }
+    
+    // Si c'est une chaîne, essayer de la convertir en nombre
+    const num = parseFloat(valeurCible);
+    return isNaN(num) ? 0 : num;
+  });
+
+  return {
+    labels,
+    datasets: [
+      {
+        label: "Valeur Réalisée",
+        data: realisedValues,
+        backgroundColor: "rgba(75, 192, 192, 0.6)",
+        borderColor: "rgba(75, 192, 192, 1)",
+        borderWidth: 2,
+        barThickness: 30,
+        borderRadius: 4,
+      },
+      {
+        label: "Valeur Cible",
+        data: targetValues,
+        backgroundColor: "rgba(239, 68, 68, 0.6)",
+        borderColor: "rgba(239, 68, 68, 1)",
+        borderWidth: 2,
+        barThickness: 30,
+        borderRadius: 4,
+      },
+    ],
+    // Informations supplémentaires pour le titre ou la légende
+    indicateurInfo: {
+      nom: nomIndicateur,
+      uniteMesure: uniteMesure,
+      estAgrege: false
+    }
+  };
+};
+
+// Format des données pour indicateurs agrégés
+const formatAgregatedChartData = () => {
+  // Récupérer les informations de l'indicateur depuis le premier élément
+  const indicateurInfo = datas.value[0]?.indicateur;
+  const nomIndicateur = indicateurInfo?.nom || "Indicateur";
+  const uniteMesure = indicateurInfo?.unitee_mesure?.nom || "";
+  const valueKeys = indicateurInfo?.value_keys || [];
+
+  const labels = datas.value.map((item) => {
+    const trimestre = item.trimestre || 'N/A';
+    const annee = item.valeurCible?.annee || new Date(item.dateSuivie).getFullYear();
+    return `${item.indicateur.nom} : `+ `T${trimestre} - ${annee}`;
+  });
+
+  // Récupérer les clés depuis les value_keys de l'indicateur
+  //const valueKeys = datas.value[0]?.indicateur?.value_keys || [];
+  
+  // Si pas de value_keys, essayer de les déduire des données
+  const allKeys = new Set();
+  if (valueKeys.length === 0) {
+    datas.value.forEach(item => {
+      if (item.valeurRealise && typeof item.valeurRealise === 'object') {
+        Object.keys(item.valeurRealise).forEach(key => allKeys.add(key));
+      }
+      if (item.valeurCible?.valeurCible && typeof item.valeurCible.valeurCible === 'object') {
+        Object.keys(item.valeurCible.valeurCible).forEach(key => allKeys.add(key));
+      }
+    });
+  } else {
+    valueKeys.forEach(keyObj => allKeys.add(keyObj.key));
+  }
+
+  const keys = Array.from(allKeys);
+  
+  // Palette de couleurs étendue
+  const colorPalette = [
+    { bg: 'rgba(75, 192, 192, 0.6)', border: 'rgba(75, 192, 192, 1)' },
+    { bg: 'rgba(239, 68, 68, 0.6)', border: 'rgba(239, 68, 68, 1)' },
+    { bg: 'rgba(153, 102, 255, 0.6)', border: 'rgba(153, 102, 255, 1)' },
+    { bg: 'rgba(255, 159, 64, 0.6)', border: 'rgba(255, 159, 64, 1)' },
+    { bg: 'rgba(54, 162, 235, 0.6)', border: 'rgba(54, 162, 235, 1)' },
+    { bg: 'rgba(255, 99, 132, 0.6)', border: 'rgba(255, 99, 132, 1)' },
+    { bg: 'rgba(201, 203, 207, 0.6)', border: 'rgba(201, 203, 207, 1)' },
+    { bg: 'rgba(255, 205, 86, 0.6)', border: 'rgba(255, 205, 86, 1)' },
+  ];
+
+  const datasets = [];
+
+  // Ajouter les datasets pour les valeurs réalisées par clé (barres)
+  keys.forEach((key, index) => {
+    const color = colorPalette[index % colorPalette.length];
+    
+    // Trouver le libellé correspondant dans value_keys
+    const keyInfo = valueKeys.find(k => k.key === key);
+    const displayName = keyInfo?.libelle || key;
+    
+    const data = datas.value.map(item => {
+      const valeurRealise = item.valeurRealise;
+      if (valeurRealise && typeof valeurRealise === 'object' && valeurRealise[key] !== undefined) {
+        const value = valeurRealise[key];
+        // Convertir en nombre si c'est une chaîne
+        return typeof value === 'string' ? parseFloat(value) || 0 : value;
+      }
+      return 0;
+    });
+
+    datasets.push({
+      label: `Réalisé - ${displayName}`,
+      data: data,
+      backgroundColor: color.bg,
+      borderColor: color.border,
+      borderWidth: 2,
+      barThickness: 20,
+      borderRadius: 4,
+    });
+  });
+
+  // Ajouter les datasets pour les valeurs cibles par clé (lignes pointillées)
+  keys.forEach((key, index) => {
+    const color = colorPalette[index % colorPalette.length];
+    
+    // Trouver le libellé correspondant dans value_keys
+    const keyInfo = valueKeys.find(k => k.key === key);
+    const displayName = keyInfo?.libelle || key;
+    
+    const data = datas.value.map(item => {
+      const valeurCible = item.valeurCible?.valeurCible;
+      if (valeurCible && typeof valeurCible === 'object' && valeurCible[key] !== undefined) {
+        const value = valeurCible[key];
+        // Convertir en nombre si c'est une chaîne
+        return typeof value === 'string' ? parseFloat(value) || 0 : value;
+      }
+      return 0;
+    });
+
+    datasets.push({
+      label: `Cible - ${displayName}`,
+      data: data,
+      borderColor: color.border,
+      borderWidth: 3,
+      borderDash: [5, 5],
+      fill: false,
+      type: 'line',
+      pointRadius: 4,
+      pointHoverRadius: 6,
+      pointBackgroundColor: color.border,
+    });
+  });
+
+  return {
+    labels,
+    datasets,
+    // Informations supplémentaires pour le titre ou la légende
+    indicateurInfo: {
+      nom: nomIndicateur,
+      uniteMesure: uniteMesure,
+      estAgrege: true,
+      nombreCles: keys.length
+    }
+  };
+};
+
+// Méthode pour rendre le graphique
+const renderChart = () => {
+  if (!barChart.value) return;
+
+  if (chartInstance) {
+    chartInstance.destroy();
+  }
+
+  const chartData = formatChartData();
+  if (!chartData) return;
+
+  // Utiliser les informations de l'indicateur pour le titre
+  const indicateurInfo = chartData.indicateurInfo;
+  const titreGraphique = indicateurInfo?.nom || "Suivi des valeurs";
+  const uniteMesure = indicateurInfo?.uniteMesure ? `(${indicateurInfo.uniteMesure})` : "";
+
+  chartInstance = new Chart(barChart.value, {
+    type: "bar",
+    data: chartData,
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        title: {
+          display: true,
+          text: titreGraphique,
+          font: {
+            size: 16,
+            weight: 'bold'
+          },
+          padding: 20
+        },
+        legend: {
+          position: "top",
+          labels: {
+            usePointStyle: true,
+            padding: 15,
+            boxWidth: 12,
+            font: {
+              size: 11
+            }
+          },
+        },
+        tooltip: {
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          titleColor: 'white',
+          bodyColor: 'white',
+          borderColor: 'rgba(255, 255, 255, 0.1)',
+          borderWidth: 1,
+          cornerRadius: 8,
+          mode: 'index',
+          intersect: false,
+          callbacks: {
+            label: function(context) {
+              let label = context.dataset.label || '';
+              if (label) {
+                label += ': ';
+              }
+              if (context.parsed.y !== null) {
+                label += new Intl.NumberFormat().format(context.parsed.y);
+                if (uniteMesure && !label.includes('(%)')) {
+                  label += ` ${uniteMesure}`;
+                }
+              }
+              return label;
+            }
+          }
+        },
+      },
+      scales: {
+        x: {
+          title: {
+            display: true,
+            text: "Période (Trimestre - Année)",
+            font: {
+              size: 12,
+              weight: 'bold',
+            },
+          },
+          grid: {
+            display: false,
+          },
+          ticks: {
+            maxRotation: 45,
+            minRotation: 0,
+          },
+        },
+        y: {
+          title: {
+            display: true,
+            text: `Valeurs ${uniteMesure}`,
+            font: {
+              size: 12,
+              weight: 'bold',
+            },
+          },
+          beginAtZero: true,
+          grid: {
+            color: 'rgba(0, 0, 0, 0.1)',
+          },
+        },
+      },
+      interaction: {
+        intersect: false,
+        mode: 'index',
+      },
+    },
+  });
+};
+
+/*
 // Méthode pour rendre le graphique
 const renderChart = () => {
   if (!barChart.value) return;
@@ -426,7 +957,7 @@ const renderChart = () => {
       },
     },
   });
-};
+};*/
 
 // Watcher pour re-rendre le graphique quand les données changent
 watch(
@@ -451,6 +982,22 @@ const isAgregerCurrentIndicateur = ref(false);
 
 const valeurCible = ref([]);
 const valeurRealise = ref([]);
+
+// Computed pour déterminer si les champs doivent être désactivés
+const shouldDisableNonAgregerFields = computed(() => {
+  if (isAgregerCurrentIndicateur.value) return false;
+
+  const valeur = payloadSuivi.valeurCible;
+  // Vérifier que la valeur existe et n'est pas vide (0 est accepté comme valeur valide)
+  return valeur !== "" && valeur !== null && valeur !== undefined && String(valeur).trim() !== "";
+});
+
+// Computed pour désactiver les champs de valeurs cibles agrégées
+const shouldDisableAgregerFields = computed(() => {
+  return isAgregerCurrentIndicateur.value &&
+         valeurCible.value.length > 0 &&
+         valeurCible.value.some(item => item.value !== "" && item.value !== null && item.value !== undefined);
+});
 
 const optionsSuivi = [
   { label: "Par date", id: "date" },
@@ -520,12 +1067,20 @@ const handleEditSuivi = (data) => {
 
 const handleSuivi = (data) => {
   console.log(data);
+
+  // Récupérer les valeurs cibles
   valeurCible.value = data.valeurCible.valeurCible;
+
   isAgregerCurrentIndicateur.value = data.valeurCible.indicateur.agreger;
+
+  // Si l'indicateur n'est pas agrégé, pré-remplir la valeur cible simple
   if (isAgregerCurrentIndicateur.value == false) {
-    Object.keys(valeurCible.value).forEach((key) => {
-      payloadSuivi.valeurCible = valeurCible.value[key];
-    });
+    // Vérifier que valeurCible.value existe et n'est pas null/undefined
+    if (valeurCible.value) {
+      Object.keys(valeurCible.value).forEach((key) => {
+        payloadSuivi.valeurCible = valeurCible.value[key];
+      });
+    }
   }
 
   payloadSuivi.indicateurId = data.valeurCible.indicateur.id;
@@ -775,11 +1330,11 @@ onMounted(() => {
       </div>
       
       <!-- Conteneur du graphique avec hauteur fixe -->
-      <div class="relative" style="height: 400px;">
+      <div class="relative" style="height: 500px;">
         <canvas 
           ref="barChart" 
           class="w-full h-full"
-          style="max-height: 400px !important;"
+          style="max-height: 500px !important;"
         ></canvas>
       </div>
     </div>
@@ -857,7 +1412,7 @@ onMounted(() => {
           <!-- <InputForm label="Année de suivi" class="flex-1" v-model="payloadSuivi.annee" type="number" /> -->
           <div v-if="!isAgregerCurrentIndicateur" class="flex flex-wrap items-center justify-between gap-3">
             <div class="flex-1">
-              <InputForm label="Valeur cible" v-model="payloadSuivi.valeurCible" type="number" />
+              <InputForm label="Valeur cible" v-model="payloadSuivi.valeurCible" type="number" :disabled="shouldDisableNonAgregerFields" />
               <div v-if="formErrors.valeurCible" class="mt-1 text-sm text-red-600">
                 <p v-for="error in formErrors.valeurCible" :key="error">{{ error }}</p>
               </div>
@@ -875,7 +1430,7 @@ onMounted(() => {
             <div class="grid gap-3 grid-cols-[repeat(auto-fill,_minmax(300px,_1fr))]">
               <div v-for="(base, index) in valueKeysIndicateurSuivi" :key="index" class="input-group">
                 <div class="flex items-center justify-center text-sm truncate input-group-text">{{ base.libelle }}</div>
-                <input type="number" class="form-control" v-model="valeurCible.find((item) => item.keyId === base.id).value" @input="updateValueCible(base.id, $event.target.value)" placeholder="valeur cible" aria-label="valeur" aria-describedby="input-group-valeur" />
+                <input type="number" class="form-control" v-model="valeurCible.find((item) => item.keyId === base.id).value" @input="updateValueCible(base.id, $event.target.value)" placeholder="valeur cible" aria-label="valeur" aria-describedby="input-group-valeur" :disabled="shouldDisableAgregerFields" />
               </div>
             </div>
           </div>

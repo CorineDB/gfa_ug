@@ -135,7 +135,7 @@
           <div v-if="getFieldErrors(errors.annee)" class="mt-2 text-danger">{{ getFieldErrors(errors.annee) }}</div>
           <!-- <InputForm label="Année de suivi" class="flex-1" v-model="payloadSuivi.annee" :control="getFieldErrors(errors.annee)" type="number" /> -->
           <div v-if="!isAgregerCurrentIndicateur" class="flex flex-wrap items-center justify-between gap-3">
-            <InputForm label="Valeur cible" class="flex-1" v-model="payloadSuivi.valeurCible" :control="getFieldErrors(errors.valeurCible)" type="number" />
+            <InputForm label="Valeur cible" class="flex-1" v-model="payloadSuivi.valeurCible" :control="getFieldErrors(errors.valeurCible)" type="number" :disabled="c" />
             <InputForm label="Valeur réalisée" class="flex-1" v-model="payloadSuivi.valeurRealise" :control="getFieldErrors(errors.valeurRealise)" type="number" />
           </div>
 
@@ -144,7 +144,7 @@
             <div class="grid gap-3 grid-cols-[repeat(auto-fill,_minmax(300px,_1fr))]">
               <div v-for="(base, index) in valueKeysIndicateurSuivi" :key="index" class="input-group">
                 <div class="flex items-center justify-center text-sm truncate input-group-text">{{ base.libelle }}</div>
-                <input type="number" class="form-control" v-model.number="valeurCible.find((item) => item.keyId === base.id).value" @input="updateValueCible(base.id, $event.target.value)" placeholder="valeur cible" aria-label="valeur" aria-describedby="input-group-valeur" />
+                <input type="number" class="form-control" :disabled="shouldDisableAgregerFields" v-model.number="valeurCible.find((item) => item.keyId === base.id).value" @input="updateValueCible(base.id, $event.target.value)" placeholder="valeur cible" aria-label="valeur" aria-describedby="input-group-valeur" />
               </div>
             </div>
             <div v-if="errors.valeurCible" class="mt-2 text-danger">{{ getFieldErrors(errors.valeurCible) }}</div>
@@ -273,6 +273,23 @@ const suiviOption = ref(optionsSuivi[0].id);
 const valeurCible = ref([]);
 const valeurRealise = ref([]);
 
+// Computed pour déterminer si les champs doivent être désactivés
+const c = computed(() => {
+  if (isAgregerCurrentIndicateur.value) return false;
+
+  const valeur = payloadSuivi.valeurCible;
+  // Vérifier que la valeur existe et n'est pas vide (0 est accepté comme valeur valide)
+  return valeur !== "" && valeur !== null && valeur !== undefined && String(valeur).trim() !== "";
+});
+
+// Computed pour désactiver les champs de valeurs cibles agrégées
+const shouldDisableAgregerFields = computed(() => {
+  if (!isAgregerCurrentIndicateur.value) return false;
+
+  return valeurCible.value.length > 0 &&
+         valeurCible.value.some(item => item.value !== "" && item.value !== null && item.value !== undefined);
+});
+
 const goToDetailSuivi = (id) => {
   router.push({
     name: "Détail du suivi",
@@ -389,7 +406,22 @@ const handleEdit = (data) => {
   showModalEdit.value = true;
 };
 const handleSuivi = (data) => {
+  // Récupérer les valeurs cibles pour l'année sélectionnée
+  console.log(data.valeursCible);
+  valeurCible.value = data.valeursCible.filter((valeurCible) => valeurCible.annee === Number(payloadSuivi.annee)).map((v) => v.valeurCible);
+
   isAgregerCurrentIndicateur.value = data.agreger;
+
+  // Si l'indicateur n'est pas agrégé, pré-remplir la valeur cible simple
+  if(isAgregerCurrentIndicateur.value == false){
+    // Vérifier que valeurCible.value[0] existe et n'est pas null/undefined
+    if (valeurCible.value && valeurCible.value.length > 0 && valeurCible.value[0]) {
+      Object.keys(valeurCible.value[0]).forEach((key) => {
+        payloadSuivi.valeurCible = valeurCible.value[0][key];
+      });
+    }
+  }
+
   payloadSuivi.indicateurId = data.id;
   valueKeysIndicateurSuivi.value = data.value_keys;
   resetValues();
