@@ -1,0 +1,225 @@
+<script setup>
+import { onMounted } from "vue";
+import { ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { toast } from "vue3-toastify";
+//import EvaluationService from "../../services/modules/evaluation.gouvernance.service";
+import EvaluationService from "@/services/modules/enquetes_de_gouvernance/evaluation.gouvernance.service";
+import LoaderSnipper from "@/components/LoaderSnipper.vue";
+import { computed } from "vue";
+import ProgressBar from "../../components/news/ProgressBar.vue";
+import ExportationDetailSoumissionPerception from "../../components/news/ExportationDetailSoumissionPerception.vue";
+import ExportationDetailSoumissionFactuel from "../../components/news/ExportationDetailSoumissionFactuel.vue";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+
+//generer pdf
+const generatePDF = () => {
+  const doc = new jsPDF({ orientation: "landscape", format: "a4" });
+
+  doc.setFontSize(24); // Set font size for the title
+  const title = "Détail Soumission";
+  const pageWidth = doc.internal.pageSize.width;
+  const textWidth = doc.getTextWidth(title);
+  const xOffset = (pageWidth - textWidth) / 2;
+  doc.text(title, xOffset, 20);
+
+  // Get current date and time
+  const now = new Date();
+  const dateStr = now.toLocaleDateString();
+  const timeStr = now.toLocaleTimeString();
+
+  // Add date and time to the top right corner
+  doc.setFontSize(12);
+  const dateTimeStr = `Générer le: ${dateStr} at ${timeStr}`;
+  const textXOffset = pageWidth - doc.getTextWidth(dateTimeStr) - 10;
+  doc.text(dateTimeStr, textXOffset, 10);
+
+  autoTable(doc, { html: "#my-tab2", startY: 30 });
+
+  // doc.text("Détail Soumission", 10, 10);
+
+  doc.save("Détail Soumission");
+};
+
+const generatePDF2 = () => {
+  const doc = new jsPDF({ orientation: "landscape", format: "a4" });
+
+  doc.setFontSize(24); // Set font size for the title
+  const title = "Détail Soumission";
+  const pageWidth = doc.internal.pageSize.width;
+  const textWidth = doc.getTextWidth(title);
+  const xOffset = (pageWidth - textWidth) / 2;
+  doc.text(title, xOffset, 20);
+
+  // Get current date and time
+  const now = new Date();
+  const dateStr = now.toLocaleDateString();
+  const timeStr = now.toLocaleTimeString();
+
+  // Add date and time to the top right corner
+  doc.setFontSize(12);
+  const dateTimeStr = `Générer le: ${dateStr} at ${timeStr}`;
+  const textXOffset = pageWidth - doc.getTextWidth(dateTimeStr) - 10;
+  doc.text(dateTimeStr, textXOffset, 10);
+
+  autoTable(doc, { html: "#my-tab3", startY: 30 });
+
+  doc.save("Détail Soumission");
+};
+
+const route = useRoute();
+const router = useRouter();
+const idEvaluation = route.params.e;
+const idSoumission = route.params.s;
+const type = route.query.type;
+const isLoading = ref(true);
+const soumission = ref({});
+const filterSoumission = ref([]);
+
+const getSoumission = async () => {
+  await EvaluationService.getOneSoumissionsEvaluation(idEvaluation, idSoumission, type)
+    .then((result) => {
+      soumission.value = result.data.data;
+      filterSoumission.value = soumission.value?.categories_de_gouvernance;
+      isLoading.value = false;
+    })
+    .catch((e) => {
+      console.error(e);
+      isLoading.value = false;
+      toast.error("Une erreur est survenue: Détail soumission.");
+    });
+};
+
+const goBack = () => {
+  router.push({ name: "SoumissionsEnqueteDeCollecte", params: { id: idEvaluation }, query: { ong: soumission.value.organisationId } });
+  // router.back();
+};
+
+const filterOptions = computed(() => soumission.value?.options_de_reponse);
+
+onMounted(() => getSoumission());
+</script>
+<template>
+  <div>
+    <nav aria-label="breadcrumb" class="h-full mt-4 mr-auto -intro-x">
+      <ol class="breadcrumb breadcrumb-dark">
+        <li class="cursor-pointer breadcrumb-item"><span @click="$router.go(-2)">Évaluations</span></li>
+        <li class="cursor-pointer breadcrumb-item"><span @click="$router.back()">Soumissions</span></li>
+        <li class="breadcrumb-item active" aria-current="page">Détail Soumissions</li>
+      </ol>
+    </nav>
+    <div v-if="!isLoading">
+      <h2 class="flex items-center justify-between gap-2 mt-5 text-lg font-medium intro-y">
+        <span>Détail Soumissions</span>
+        <div class="space-y-1" v-if="soumission?.pourcentage_evolution">
+          <p class="text-sm">Évolution soumissions</p>
+          <ProgressBar :percent="soumission.pourcentage_evolution" class="max-w-[300px]" />
+        </div>
+      </h2>
+      <div class="flex flex-wrap items-center justify-between col-span-12 mt-4 intro-y sm:flex-nowrap">
+        <div class="flex items-center justify-between w-full">
+          <button @click="goBack()" class="mr-2 shadow-md btn btn-outline-primary"><ArrowLeftIcon class="w-4 h-4 mr-3" />Retour</button>
+
+          <div class="flex items-center justify-center">
+            <ExportationDetailSoumissionFactuel v-if="type == 'factuel'" :filter-soumission="filterSoumission" class="inline-block mr-3" />
+            <ExportationDetailSoumissionPerception v-else :filter-soumission="filterSoumission" :filter-options="filterOptions" class="mr-3" />
+            <button v-if="type == 'factuel'" @click="generatePDF" class="btn btn-primary text-left">Télécharger PDF</button>
+            <button v-else @click="generatePDF2" class="btn btn-primary text-left">Télécharger PDF</button>
+          </div>
+        </div>
+      </div>
+
+      <table id="my-tab2" v-if="type == 'factuel'" class="w-full my-10 border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
+        <thead class="text-white bg-blue-900">
+          <tr>
+            <th class="py-3 border border-slate-900">Principes</th>
+            <th class="py-3 border border-slate-900">Critères</th>
+            <th class="py-3 border border-slate-900">Indicateurs</th>
+            <th class="py-3 border border-slate-900">Réponses</th>
+            <th class="py-3 border border-slate-900">Note</th>
+            <th class="py-3 border border-slate-900">Source de validation</th>
+            <th class="py-3 border border-slate-900 max-w-[200px]">Preuves</th>
+          </tr>
+        </thead>
+        <tbody>
+          <template v-for="gouvernance in filterSoumission" :key="gouvernance.id">
+            <tr class="bg-green-100">
+              <td colspan="7" class="font-semibold">{{ gouvernance.nom }}</td>
+              <!-- <td class="text-right">{{ gouvernance.indice_factuel }}</td>
+              <td class=""></td> -->
+            </tr>
+            <template v-for="categorie in gouvernance.categories_de_gouvernance" :key="categorie.id">
+              <template v-for="(sousCategorie, scIndex) in categorie.categories_de_gouvernance" :key="sousCategorie.id">
+                <template v-for="(question, qIndex) in sousCategorie.questions_de_gouvernance" :key="question.id">
+                  <tr>
+                    <!-- Première cellule de catégorie principale avec rowspan -->
+                    <td class="font-semibold text-center" v-if="scIndex === 0 && qIndex === 0" :rowspan="categorie.categories_de_gouvernance.reduce((sum, sc) => sum + sc.questions_de_gouvernance.length, 0)">
+                      {{ categorie.nom }}
+                    </td>
+                    <!-- Première cellule de sous-catégorie avec rowspan -->
+                    <td class="text-center" v-if="qIndex === 0" :rowspan="sousCategorie.questions_de_gouvernance.length">
+                      {{ sousCategorie.nom }}
+                    </td>
+                    <td>{{ question.nom }}</td>
+                    <td class="text-center">{{ question.reponse_de_la_collecte?.nom }}</td>
+                    <td class="text-center">{{ question.reponse_de_la_collecte?.point }}</td>
+                    <td class="text-center">{{ question.reponse_de_la_collecte?.sourceDeVerification }}</td>
+                    <td class="flex flex-wrap gap-1.5">
+                      <template v-if="question.reponse_de_la_collecte?.isPreuveRequired">
+                        <a v-for="(preuve, index) in question.reponse_de_la_collecte?.preuves ?? []" class="p-1 text-xs underline btn-outline-primary" :key="index" :href="preuve.url" target="_blank" rel="noopener noreferrer">Preuve {{ index + 1 }}</a>
+                      </template>
+                      <template v-else>
+                        Pas de preuve
+                      </template>
+                    </td>
+                  </tr>
+                </template>
+              </template>
+              <!-- Ligne Score factuel après chaque catégorie principale -->
+            </template>
+          </template>
+        </tbody>
+      </table>
+      <table v-else id="my-tab3" class="w-full my-12 border border-collapse table-auto border-slate-500" cellpadding="2" cellspacing="0">
+        <thead class="text-left bg-gray-400">
+          <tr class="font-semibold text-white bg-blue-900">
+            <th class="py-2 text-center border border-slate-600">Principes</th>
+            <th class="py-2 text-center border border-slate-600">Questions opérationnelles</th>
+            <th v-for="(option, index) in filterOptions" :key="index" class="py-2 text-center border border-slate-600">{{ option.libelle }}</th>
+          </tr>
+        </thead>
+        <tbody v-for="(principe, index) in filterSoumission" :key="principe.id" class="text-black">
+          <!-- Première ligne avec rowspan pour afficher le nom du principe -->
+          <tr v-if="principe.questions_de_gouvernance.length > 0">
+            <td :rowspan="principe.questions_de_gouvernance.length" class="p-2 font-semibold text-center border border-slate-600">{{ principe.nom }}</td>
+            <td class="py-2 border border-slate-600">{{ principe.questions_de_gouvernance[0].nom }}</td>
+            <td v-for="(option, index) in filterOptions" :key="index" class="py-2 text-center border border-slate-600">
+              <template v-if="principe.questions_de_gouvernance[0].reponse_de_la_collecte?.optionDeReponseId == option?.id">
+                <input class="pointer-events-none form-check-input" type="checkbox" value="" checked />
+              </template>
+            </td>
+          </tr>
+          <!-- Lignes pour afficher chaque question de gouvernance du principe -->
+          <tr v-for="(question, qIndex) in principe.questions_de_gouvernance.slice(1)" :key="question.id">
+            <td class="py-2 border border-slate-600">{{ question.nom }}</td>
+            <td v-for="(option, index) in filterOptions" :key="index" class="py-2 text-center border border-slate-600">
+              <template v-if="question.reponse_de_la_collecte?.optionDeReponseId == option.id">
+                <input :id="`n-${qIndex}-${question.id}${index}${option.id}`" class="pointer-events-none form-check-input" type="checkbox" value="" checked />
+              </template>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <LoaderSnipper v-else />
+  </div>
+</template>
+
+<style scoped>
+table td {
+  border: 1px solid rgb(46, 46, 46);
+  padding-block: 8px;
+  padding-inline: 4px;
+}
+</style>

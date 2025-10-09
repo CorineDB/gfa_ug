@@ -47,7 +47,7 @@ export default {
       worksheet.addRow([]); // Blank row for spacing
 
       // En-tête pour l'indice de gouvernance
-      const headerRow = worksheet.addRow(["Indice factuel de gouvernance", "", this.currentPerception.indice_de_gouvernance]);
+      const headerRow = worksheet.addRow(["Indice de perception de gouvernance", "", this.currentPerception.indice_de_gouvernance]);
       headerRow.eachCell((cell) => {
         cell.alignment = { vertical: "middle", horizontal: "center" };
         cell.font = { bold: true };
