@@ -1,0 +1,1 @@
+° X>hr1src/global-components/ckeditor/DocumentEditor.vue

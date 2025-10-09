@@ -1,0 +1,1 @@
+Ü Xohr-src/components/news/ChartScroreByPrincipe.vue

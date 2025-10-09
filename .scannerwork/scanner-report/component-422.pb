@@ -1,0 +1,1 @@
+¦ 2jsXhr*src/global-components/tiny-slider/index.js

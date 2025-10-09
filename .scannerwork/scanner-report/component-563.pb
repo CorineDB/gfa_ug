@@ -1,0 +1,1 @@
+³ XØhr/src/views/reset-password/_mails/newPassword.vue
