@@ -85,13 +85,88 @@
                           {{ indicateur.ug_responsable?.nom ?? "" }}
                           {{}}
                         </td>
-                        <td class="space-x-1">
-                          <button v-if="verifyPermission('creer-un-suivi-indicateur')" title="Suivre" @click="handleSuivi(indicateur)" class="btn text-primary"><CornerUpLeftIcon class="size-5" /></button>
-                          <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Voir" @click="goToDetailSuivi(indicateur.id)" class="btn text-primary"><EyeIcon class="size-5" /></button>
-                          <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Ajouter Structure" @click="handleStructure(indicateur.id)" class="btn text-primary"><PlusIcon class="size-5" />structure</button>
-                          <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Ajouter Structure" @click="handleYearCible(indicateur)" class="btn text-primary"><PlusIcon class="size-5" />année cible</button>
-                          <button v-if="verifyPermission('supprimer-un-suivi-indicateur')" title="Modifier" @click="handleEdit(indicateur)" class="btn text-pending"><Edit3Icon class="size-5" /></button>
-                          <button v-if="verifyPermission('supprimer-un-suivi-indicateur')" title="Supprimer" @click="handleDelete(indicateur)" class="btn text-danger"><TrashIcon class="size-5" /></button>
+                         <td class="space-x-1">
+                          <div class="flex items-center space-x-1">
+                            <!-- Suivre -->
+                            <button 
+                              v-if="verifyPermission('creer-un-suivi-indicateur')" 
+                              title="Suivre" 
+                              @click="handleSuivi(indicateur)" 
+                              class="btn text-primary hidden sm:inline-flex"
+                            >
+                              Suivre
+                            </button>
+                            <button 
+                              v-if="verifyPermission('creer-un-suivi-indicateur')" 
+                              title="Suivre" 
+                              @click="handleSuivi(indicateur)" 
+                              class="btn text-primary sm:hidden"
+                            >
+                              <!-- <CornerUpLeftIcon class="size-4" /> -->
+                              Suivre
+                            </button>
+
+                            <!-- Voir -->
+                            <button 
+                              v-if="verifyPermission('voir-un-suivi-indicateur')" 
+                              title="Voir" 
+                              @click="goToDetailSuivi(indicateur.id)" 
+                              class="btn text-primary hidden sm:inline-flex"
+                            >
+                              Voir
+                            </button>
+                            <button 
+                              v-if="verifyPermission('voir-un-suivi-indicateur')" 
+                              title="Voir" 
+                              @click="goToDetailSuivi(indicateur.id)" 
+                              class="btn text-primary sm:hidden"
+                            >
+                              <!-- <EyeIcon class="size-4" /> -->
+                              Voi
+                            </button>
+
+                            <!-- Ajouter Structure -->
+                            <button 
+                              v-if="verifyPermission('voir-un-suivi-indicateur')" 
+                              title="Ajouter Structure" 
+                              @click="handleStructure(indicateur.id)" 
+                              class="btn text-primary"
+                            >
+                              <span class="hidden sm:inline">Ajouter une structure</span>
+                              <span class="sm:hidden">Structure</span>
+                            </button>
+
+                            <!-- Ajouter Année Cible -->
+                            <button 
+                              v-if="verifyPermission('voir-un-suivi-indicateur')" 
+                              title="Ajouter Structure" 
+                              @click="handleYearCible(indicateur)" 
+                              class="btn text-primary"
+                            >
+                              <span class="hidden sm:inline">Ajouter une année cible</span>
+                              <span class="sm:hidden">Année cible</span>
+                            </button>
+
+                            <!-- Modifier -->
+                            <button 
+                              v-if="verifyPermission('supprimer-un-suivi-indicateur')" 
+                              title="Modifier" 
+                              @click="handleEdit(indicateur)" 
+                              class="btn text-pending"
+                            >
+                              <Edit3Icon class="size-4 sm:size-5" />
+                            </button>
+
+                            <!-- Supprimer -->
+                            <button 
+                              v-if="verifyPermission('supprimer-un-suivi-indicateur')" 
+                              title="Supprimer" 
+                              @click="handleDelete(indicateur)" 
+                              class="btn text-danger"
+                            >
+                              <TrashIcon class="size-4 sm:size-5" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     </template>
@@ -136,12 +211,87 @@
                             {{}}
                           </td>
                           <td class="space-x-1">
-                            <button v-if="verifyPermission('creer-un-suivi-indicateur')" title="Suivre" @click="handleSuivi(indicateur)" class="btn text-primary"><CornerUpLeftIcon class="size-5" /></button>
-                            <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Voir" @click="goToDetailSuivi(indicateur.id)" class="btn text-primary"><EyeIcon class="size-5" /></button>
-                            <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Ajouter Structure" @click="handleStructure(indicateur.id)" class="btn text-primary"><PlusIcon class="size-5" />structure</button>
-                            <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Ajouter Structure" @click="handleYearCible(indicateur)" class="btn text-primary"><PlusIcon class="size-5" />année cible</button>
-                            <button v-if="verifyPermission('supprimer-un-suivi-indicateur')" title="Modifier" @click="handleEdit(indicateur)" class="btn text-pending"><Edit3Icon class="size-5" /></button>
-                            <button v-if="verifyPermission('supprimer-un-suivi-indicateur')" title="Supprimer" @click="handleDelete(indicateur)" class="btn text-danger"><TrashIcon class="size-5" /></button>
+                            <div class="flex items-center space-x-1">
+                              <!-- Suivre -->
+                              <button 
+                                v-if="verifyPermission('creer-un-suivi-indicateur')" 
+                                title="Suivre" 
+                                @click="handleSuivi(indicateur)" 
+                                class="btn text-primary hidden sm:inline-flex"
+                              >
+                                Suivre
+                              </button>
+                              <button 
+                                v-if="verifyPermission('creer-un-suivi-indicateur')" 
+                                title="Suivre" 
+                                @click="handleSuivi(indicateur)" 
+                                class="btn text-primary sm:hidden"
+                              >
+                                <!-- Remplacez par l'icône de votre choix -->
+                                <EyeIcon class="size-4" />
+                              </button>
+
+                              <!-- Voir -->
+                              <button 
+                                v-if="verifyPermission('voir-un-suivi-indicateur')" 
+                                title="Voir" 
+                                @click="goToDetailSuivi(indicateur.id)" 
+                                class="btn text-primary hidden sm:inline-flex"
+                              >
+                                Voir
+                              </button>
+                              <button 
+                                v-if="verifyPermission('voir-un-suivi-indicateur')" 
+                                title="Voir" 
+                                @click="goToDetailSuivi(indicateur.id)" 
+                                class="btn text-primary sm:hidden"
+                              >
+                                <!-- Remplacez par l'icône de votre choix -->
+                                <SearchIcon class="size-4" />
+                              </button>
+
+                              <!-- Ajouter Structure -->
+                              <button 
+                                v-if="verifyPermission('voir-un-suivi-indicateur')" 
+                                title="Ajouter Structure" 
+                                @click="handleStructure(indicateur.id)" 
+                                class="btn text-primary"
+                              >
+                                <span class="hidden sm:inline">Ajouter une structure</span>
+                                <span class="sm:hidden">Structure</span>
+                              </button>
+
+                              <!-- Ajouter Année Cible -->
+                              <button 
+                                v-if="verifyPermission('voir-un-suivi-indicateur')" 
+                                title="Ajouter Structure" 
+                                @click="handleYearCible(indicateur)" 
+                                class="btn text-primary"
+                              >
+                                <span class="hidden sm:inline">Ajouter une année cible</span>
+                                <span class="sm:hidden">Année</span>
+                              </button>
+
+                              <!-- Modifier -->
+                              <button 
+                                v-if="verifyPermission('supprimer-un-suivi-indicateur')" 
+                                title="Modifier" 
+                                @click="handleEdit(indicateur)" 
+                                class="btn text-pending"
+                              >
+                                <Edit3Icon class="size-4 sm:size-5" />
+                              </button>
+
+                              <!-- Supprimer -->
+                              <button 
+                                v-if="verifyPermission('supprimer-un-suivi-indicateur')" 
+                                title="Supprimer" 
+                                @click="handleDelete(indicateur)" 
+                                class="btn text-danger"
+                              >
+                                <TrashIcon class="size-4 sm:size-5" />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       </template>
@@ -185,13 +335,43 @@
                               {{ indicateur.ug_responsable?.nom ?? "" }}
                               {{}}
                             </td>
-                            <td class="space-x-1">
-                              <button v-if="verifyPermission('creer-un-suivi-indicateur')" title="Suivre" @click="handleSuivi(indicateur)" class="btn text-primary"><CornerUpLeftIcon class="size-5" /></button>
-                              <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Voir" @click="goToDetailSuivi(indicateur.id)" class="btn text-primary"><EyeIcon class="size-5" /></button>
-                              <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Ajouter Structure" @click="handleStructure(indicateur.id)" class="btn text-primary"><PlusIcon class="size-5" />structure</button>
-                              <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Ajouter Structure" @click="handleYearCible(indicateur)" class="btn text-primary"><PlusIcon class="size-5" />année cible</button>
-                              <button v-if="verifyPermission('supprimer-un-suivi-indicateur')" title="Modifier" @click="handleEdit(indicateur)" class="btn text-pending"><Edit3Icon class="size-5" /></button>
-                              <button v-if="verifyPermission('supprimer-un-suivi-indicateur')" title="Supprimer" @click="handleDelete(indicateur)" class="btn text-danger"><TrashIcon class="size-5" /></button>
+                           <td class="space-x-1">
+                              <div class="flex items-center space-x-1">
+                                <!-- Version desktop - texte complet -->
+                                <button v-if="verifyPermission('creer-un-suivi-indicateur')" title="Suivre" @click="handleSuivi(indicateur)" class="btn text-primary hidden sm:inline-flex">
+                                  Suivre
+                                </button>
+                                <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Voir" @click="goToDetailSuivi(indicateur.id)" class="btn text-primary hidden sm:inline-flex">
+                                  Voir
+                                </button>
+                                
+                                <!-- Version mobile - icônes seulement -->
+                                <button v-if="verifyPermission('creer-un-suivi-indicateur')" title="Suivre" @click="handleSuivi(indicateur)" class="btn text-primary sm:hidden">
+                                  <EyeIcon class="size-4" />
+                                </button>
+                                <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Voir" @click="goToDetailSuivi(indicateur.id)" class="btn text-primary sm:hidden">
+                                  <SearchIcon class="size-4" />
+                                </button>
+
+                                <!-- Boutons avec texte réduit sur mobile -->
+                                <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Ajouter Structure" @click="handleStructure(indicateur.id)" class="btn text-primary">
+                                  <span class="hidden sm:inline">Structure</span>
+                                  <span class="sm:hidden">Str</span>
+                                </button>
+
+                                <button v-if="verifyPermission('voir-un-suivi-indicateur')" title="Ajouter Structure" @click="handleYearCible(indicateur)" class="btn text-primary">
+                                  <span class="hidden sm:inline">Année cible</span>
+                                  <span class="sm:hidden">Année</span>
+                                </button>
+
+                                <button v-if="verifyPermission('supprimer-un-suivi-indicateur')" title="Modifier" @click="handleEdit(indicateur)" class="btn text-pending">
+                                  <Edit3Icon class="size-4 sm:size-5" />
+                                </button>
+
+                                <button v-if="verifyPermission('supprimer-un-suivi-indicateur')" title="Supprimer" @click="handleDelete(indicateur)" class="btn text-danger">
+                                  <TrashIcon class="size-4 sm:size-5" />
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         </template>
@@ -304,7 +484,7 @@
               <div v-if="errors.uniteeMesureId" class="mt-2 text-danger">{{ getFieldErrors(errors.uniteeMesureId) }}</div>
             </div>
             <div class="flex-1">
-              <label class="form-label">Catégorie</label>
+              <label class="form-label">Catégorie d'Impact</label>
               <TomSelect v-model="payloadUpdate.categorieId" name="category" :options="{ placeholder: 'Selectionez une catégorie' }" class="w-full">
                 <option value=""></option>
                 <option v-for="(categorie, index) in categories" :key="categorie.id" :value="categorie.id">{{ truncateText(categorie.type + " " + categorie.indice + " " + categorie.nom) }}</option>
