@@ -80,7 +80,7 @@
           <!-- <InputForm label="Année de suivi" class="flex-1" v-model="payloadSuivi.annee" type="number" /> -->
           <div v-if="!isAgregerCurrentIndicateur" class="flex flex-wrap items-center justify-between gap-3">
             <div class="flex-1">
-              <InputForm label="Valeur cible" v-model="payloadSuivi.valeurCible" type="number" />
+              <InputForm label="Valeur cible" v-model="payloadSuivi.valeurCible" type="number" :disabled="shouldDisableNonAgregerFields" />
               <div v-if="errors.valeurCible" class="mt-2 text-danger">{{ getFieldErrors(errors.valeurCible) }}</div>
             </div>
             <div class="flex-1">
@@ -94,7 +94,7 @@
             <div class="grid gap-3 grid-cols-[repeat(auto-fill,_minmax(300px,_1fr))]">
               <div v-for="(base, index) in valueKeysIndicateurSuivi" :key="index" class="input-group">
                 <div class="flex items-center justify-center text-sm truncate input-group-text">{{ base.libelle }}</div>
-                <input type="number" class="form-control" v-model="valeurCible.find((item) => item.keyId === base.id).value" @input="updateValueCible(base.id, $event.target.value)" placeholder="valeur cible" aria-label="valeur" aria-describedby="input-group-valeur" />
+                <input type="number" class="form-control" :disabled="shouldDisableAgregerFields" v-model="valeurCible.find((item) => item.keyId === base.id).value" @input="updateValueCible(base.id, $event.target.value)" placeholder="valeur cible" aria-label="valeur" aria-describedby="input-group-valeur" />
               </div>
             </div>
           </div>
@@ -322,6 +322,22 @@ const isAgregerCurrentIndicateur = ref(false);
 const valeurCible = ref([]);
 const valeurRealise = ref([]);
 
+// Computed pour déterminer si les champs doivent être désactivés
+const shouldDisableNonAgregerFields = computed(() => {
+  if (isAgregerCurrentIndicateur.value) return false;
+
+  const valeur = payloadSuivi.valeurCible;
+  // Vérifier que la valeur existe et n'est pas vide (0 est accepté comme valeur valide)
+  return valeur !== "" && valeur !== null && valeur !== undefined && String(valeur).trim() !== "";
+});
+
+// Computed pour désactiver les champs de valeurs cibles agrégées
+const shouldDisableAgregerFields = computed(() => {
+  return isAgregerCurrentIndicateur.value &&
+         valeurCible.value.length > 0 &&
+         valeurCible.value.some(item => item.value !== "" && item.value !== null && item.value !== undefined);
+});
+
 const getCurrentQuarter = function () {
   const month = new Date().getMonth() + 1; // Les mois sont indexés à partir de 0
   return Math.ceil(month / 3); // Calcul du trimestre actuel
@@ -413,12 +429,20 @@ const closeModal = () => (showModalSuivi.value = false);
 
 const handleSuivi = (data) => {
   console.log(data);
+
+  // Récupérer les valeurs cibles pour l'année sélectionnée
   valeurCible.value = data.indicateur.valeursCible.filter((valeurCible) => valeurCible.annee === Number(payloadSuivi.annee)).map((v) => v.valeurCible);
+
   isAgregerCurrentIndicateur.value = data.indicateur.agreger;
+
+  // Si l'indicateur n'est pas agrégé, pré-remplir la valeur cible simple
   if (isAgregerCurrentIndicateur.value == false) {
-    Object.keys(valeurCible.value[0]).forEach((key) => {
-      payloadSuivi.valeurCible = valeurCible.value[0][key];
-    });
+    // Vérifier que valeurCible.value[0] existe et n'est pas null/undefined
+    if (valeurCible.value && valeurCible.value.length > 0 && valeurCible.value[0]) {
+      Object.keys(valeurCible.value[0]).forEach((key) => {
+        payloadSuivi.valeurCible = valeurCible.value[0][key];
+      });
+    }
   }
 
   payloadSuivi.annee = `${new Date().getFullYear()}`;

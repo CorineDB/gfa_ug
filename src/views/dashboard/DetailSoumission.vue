@@ -94,18 +94,14 @@ const goBack = () => {
 
 const filterOptions = computed(() => soumission.value?.options_de_reponse);
 
-// Calculer les statistiques agrégées pour les soumissions de perception
+// Calculer les statistiques pour la soumission de perception de l'organisation sélectionnée
 const perceptionStats = computed(() => {
-  if (!soumission.value || soumission.value.length === 0) return null;
+  if (!currentPerception.value) return null;
 
-  // Récupérer les options de réponse depuis la première organisation qui a des données de perception
-  const firstOrgWithPerception = soumission.value.find(org => org.perception && org.perception.length > 0);
-  if (!firstOrgWithPerception) return null;
+  const optionsDeReponse = currentPerception.value.options_de_reponse || [];
+  const categoriesDeGouvernance = currentPerception.value.categories_de_gouvernance || [];
 
-  const optionsDeReponse = firstOrgWithPerception.perception[0]?.options_de_reponse || [];
-  const categoriesDeGouvernance = firstOrgWithPerception.perception[0]?.categories_de_gouvernance || [];
-
-  // Créer une structure pour stocker les comptages
+  // Créer une structure pour stocker les données
   const stats = {
     options_de_reponse: optionsDeReponse,
     categories_de_gouvernance: []
@@ -136,24 +132,13 @@ const perceptionStats = computed(() => {
           };
         });
 
-        // Compter les réponses de toutes les organisations
-        soumission.value.forEach(org => {
-          if (org.perception && org.perception.length > 0) {
-            const perceptionData = org.perception[0];
-            // Trouver la catégorie correspondante
-            const orgCategorie = perceptionData.categories_de_gouvernance?.find(c => c.id === categorie.id);
-            if (orgCategorie) {
-              // Trouver la question correspondante
-              const orgQuestion = orgCategorie.questions_de_gouvernance?.find(q => q.id === question.id);
-              if (orgQuestion && orgQuestion.reponse_de_la_collecte) {
-                const optionId = orgQuestion.reponse_de_la_collecte.optionDeReponseId;
-                if (questionStats.reponses_count[optionId]) {
-                  questionStats.reponses_count[optionId].count++;
-                }
-              }
-            }
+        // Compter la réponse de l'organisation sélectionnée
+        if (question.reponse_de_la_collecte) {
+          const optionId = question.reponse_de_la_collecte.optionDeReponseId;
+          if (questionStats.reponses_count[optionId]) {
+            questionStats.reponses_count[optionId].count = 1;
           }
-        });
+        }
 
         categorieStats.questions_de_gouvernance.push(questionStats);
       });
@@ -368,23 +353,53 @@ onMounted(() => {
             RECAPITULATIF SOUMISSION DE PERCEPTION GOUVERNANCE
           </div>
 
+          <div class="flex justify-end my-4 sm:flex-row sm:items-end xl:items-start">
+            <div class="flex mt-5 sm:mt-0">
+              <!-- Boutons d'exportation peuvent être ajoutés ici -->
+            </div>
+          </div>
+
+          <table class="w-full mt-12 text-sm border-collapse table-fixed">
+            <tbody>
+              <tr class="border-b rounded-sm border-slate-300 bg-slate-300">
+                <td class="p-2 font-medium">Structure :</td>
+                <td>
+                  <TomSelect v-model="idSelectStructure" :options="{
+                    placeholder: 'Sélectionner la structure',
+                  }" class="w-full" @change="changeStructure">
+                    <option v-for="(structure, index) in organisationsOfEvaluation" :key="index" :value="structure.id">
+                      {{ structure.nom }}</option>
+                  </TomSelect>
+                </td>
+              </tr>
+              <tr class="border-b border-slate-300">
+                <td class="p-2 font-medium">Nom, Prénom et qualité du point focal Gouvernance :</td>
+                <td>{{ currentOrganisation?.nom_point_focal }} {{ currentOrganisation?.prenom_point_focal }}</td>
+              </tr>
+              <tr class="border-b border-slate-300">
+                <td class="p-2 font-medium">Date d'auto-évaluation :</td>
+                <td class="pl-2">{{ currentPerception?.evaluatedAt }}</td>
+              </tr>
+            </tbody>
+          </table>
+
           <div v-if="!isLoading && perceptionStats">
             <table class="w-full my-10 border-collapse table-auto border-slate-500" cellpadding="10" cellspacing="0">
               <thead>
-                <!-- Première ligne : Pondérations -->
+                <!-- Première ligne : Options avec leurs notes -->
                 <tr class="text-white bg-blue-900">
                   <th rowspan="2" class="py-3 border border-slate-900">Questions opérationnelles</th>
                   <th colspan="2" v-for="(option, index) in perceptionStats.options_de_reponse" :key="index"
                       class="py-3 text-center border border-slate-900">
-                    {{ option.libelle }}
+                    {{ option.libelle }} = {{ option.point }}
                   </th>
                   <th rowspan="2" class="py-3 text-center border border-slate-900">Moyenne pondérée</th>
                 </tr>
-                <!-- Deuxième ligne : Note(x) et Nbre de réponses -->
+                <!-- Deuxième ligne : Nbre de réponses et moy -->
                 <tr class="text-white bg-blue-900">
                   <template v-for="(option, index) in perceptionStats.options_de_reponse" :key="index">
-                    <th class="py-2 text-center border border-slate-900">Note({{ String.fromCharCode(97 + index) }})</th>
                     <th class="py-2 text-center border border-slate-900">Nbre de réponses ({{ String.fromCharCode(97 + index) }})</th>
+                    <th class="py-2 text-center border border-slate-900">moy({{ String.fromCharCode(97 + index) }})</th>
                   </template>
                 </tr>
               </thead>
@@ -401,11 +416,11 @@ onMounted(() => {
 
                     <!-- Pour chaque option de réponse -->
                     <template v-for="option in perceptionStats.options_de_reponse" :key="option.id">
-                      <td class="py-2 text-center border border-slate-600 bg-gray-50">
-                        {{ question.reponses_count[option.id]?.note || 0 }}
-                      </td>
                       <td class="py-2 text-center border border-slate-600 font-semibold">
                         {{ question.reponses_count[option.id]?.count || 0 }}
+                      </td>
+                      <td class="py-2 text-center border border-slate-600 bg-gray-50">
+                        {{ question.reponses_count[option.id]?.note || 0 }}
                       </td>
                     </template>
 

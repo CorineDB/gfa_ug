@@ -245,6 +245,12 @@
                       <template #search="{ attributes, events }">
                         <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher une catégorie..." />
                       </template>
+                      <template #option="option">
+                        {{ option.type.charAt(0).toUpperCase() + option.type.slice(1) }} - {{ option.nom }}
+                      </template>
+                      <template #selected-option="option">
+                        {{ option.type.charAt(0).toUpperCase() + option.type.slice(1) }} - {{ option.nom }}
+                      </template>
                     </v-select>
                   </div>
                   <button type="button" class="flex-1 text-sm btn btn-primary" @click.prevent="showModalCategorie = true"><Plus class="mr-1 size-3" /></button>
