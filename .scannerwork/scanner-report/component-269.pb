@@ -1,0 +1,1 @@
+ XÊhr7src/components/create-indicateur/ManagmentCategorie.vue

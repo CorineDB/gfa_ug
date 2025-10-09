@@ -556,86 +556,112 @@ export default {
 
     <NoRecordsMessage class="col-span-12" v-if="!paginatedAndFilteredData.length" title="Aucun output trouvé" description="Il semble qu'il n'y ait pas d'output à afficher. Veuillez en créer un. " />
 
-    <div v-for="(item, index) in paginatedAndFilteredData" :key="index" class="col-span-12 intro-y md:col-span-6 xl:col-span-4">
-      <div 
-        v-if="verifyPermission('voir-un-output')" 
-        class="p-5 transition-transform transform bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-105 hover:bg-gray-50 cursor-pointer"
-       
-        title="Cliquer pour voir les activités de cet output"
-      >
-        <!-- En-tête avec sigle et titre -->
-        <div class="relative flex items-start pt-5">
-          <div class="relative flex flex-col md:flex-row items-center w-full pt-5 justify-between">
-            <div class="flex items-center">
-              <!-- Circle with initial or image -->
-              <div class="flex items-center justify-center w-20 h-20 text-white rounded-full shadow-md bg-primary flex-shrink-0">
-                {{ item.codePta }}
+     <div v-for="(item, index) in paginatedAndFilteredData" :key="index" 
+     class="col-span-12 intro-y p-2 sm:p-3 md:p-4 md:col-span-6 xl:col-span-4">
+          <div 
+            v-if="verifyPermission('voir-un-output')" 
+            class="p-3 sm:p-4 lg:p-5 transition-all duration-300 bg-white border-l-4 rounded-lg shadow-lg box border-primary hover:scale-[1.02] hover:bg-gray-50 cursor-pointer"
+            title="Cliquer pour voir les activités de cet output"
+          >
+
+          <!-- En-tête avec sigle et titre -->
+          <div class="relative flex items-start pt-3 sm:pt-4 lg:pt-5">
+            <div class="relative flex flex-col items-center w-full pt-3 sm:pt-4 lg:pt-5 gap-3">
+              <!-- Première ligne : Cercle + Nom + Dropdown -->
+              <div class="flex items-center justify-between w-full">
+                <div class="flex items-center gap-3 sm:gap-4">
+                  <!-- Circle with initial or image -->
+                  <div class="flex items-center justify-center w-12 h-12 xs:w-14 xs:h-14 sm:w-16 sm:h-16 md:w-18 md:h-18 lg:w-20 lg:h-20 text-xs xs:text-sm sm:text-base text-white rounded-full shadow-md bg-primary flex-shrink-0">
+                    {{ item.codePta }}
+                  </div>
+                  
+                  <div class="flex flex-col flex-1 min-w-0">
+                    <!-- Item details -->
+                    <a href="" class="text-xs xs:text-sm sm:text-base lg:text-lg font-semibold text-gray-800 hover:text-primary truncate">
+                      {{ item.nom }}
+                    </a>
+                    
+                    <!-- Bouton Voir Activités avec le même style que "Tâches" -->
+                    <button
+                      @click.stop="navigateToActivities(item.id, item.nom)"
+                      class="mt-2 px-3 py-1.5 bg-primary text-white rounded-md text-xs flex items-center gap-2 hover:bg-primary/90 shadow w-fit"
+                      title="Voir les activités de cet output"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="w-4 h-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+                        />
+                      </svg>
+                      Voir Activités
+                    </button>
+                  </div>
+                </div>
+                <!-- Dropdown for actions -->
+                <Dropdown class="flex-shrink-0 ml-2">
+                  <DropdownToggle tag="a" class="block w-4 h-4 xs:w-5 xs:h-5 cursor-pointer">
+                    <MoreVerticalIcon class="w-4 h-4 xs:w-5 xs:h-5 text-gray-400 transition-colors hover:text-gray-600" />
+                  </DropdownToggle>
+                  <DropdownMenu class="w-28 xs:w-32 sm:w-36 md:w-40 bg-white rounded-md shadow-lg z-10">
+                    <DropdownContent>
+                      <DropdownItem v-if="verifyPermission('modifier-un-output')" @click="modifierSousComposante(item)" class="text-xs xs:text-sm">
+                        <Edit2Icon class="w-3 h-3 xs:w-4 xs:h-4 mr-2 text-gray-600" /> Modifier
+                      </DropdownItem>
+                      <DropdownItem v-if="verifyPermission('supprimer-un-output')" @click="supprimerComposant(item)" class="text-xs xs:text-sm">
+                        <TrashIcon class="w-3 h-3 xs:w-4 xs:h-4 mr-2 text-red-500" /> Supprimer
+                      </DropdownItem>
+                    </DropdownContent>
+                  </DropdownMenu>
+                </Dropdown>
               </div>
-              <!-- Item details -->
-              <div class="mt-3 text-center lg:ml-4 lg:text-left lg:mt-0">
-                <a href="" class="text-lg font-semibold text-gray-800 transition-colors hover:text-primary _truncate text-center lg:text-left"> {{ item.nom }} </a>
-              </div>
+              
+               
             </div>
-            <!-- Bouton Voir Activités -->
-            <button
-              @click.stop="navigateToActivities(item.id, item.nom)"
-              class="btn btn-primary mt-3 md:mt-0"
-            >
-              Voir activités
-            </button>
           </div>
-          <!-- Dropdown for actions -->
-          <Dropdown class="absolute top-0 right-0 mt-2 mr-2">
-            <DropdownToggle tag="a" class="block w-5 h-5 cursor-pointer">
-              <MoreVerticalIcon class="w-5 h-5 text-gray-400 transition-colors hover:text-gray-600" />
-            </DropdownToggle>
-            <DropdownMenu class="w-40 bg-white rounded-md shadow-lg">
-              <DropdownContent>
-                <DropdownItem v-if="verifyPermission('modifier-un-output')" @click="modifierSousComposante(item)"> <Edit2Icon class="w-4 h-4 mr-2 text-gray-600" /> Modifier </DropdownItem>
-                <DropdownItem v-if="verifyPermission('supprimer-un-output')" @click="supprimerComposant(item)"> <TrashIcon class="w-4 h-4 mr-2 text-red-500" /> Supprimer </DropdownItem>
-              </DropdownContent>
-            </DropdownMenu>
-          </Dropdown>
-        </div>
+            
+          <!-- Description section with distinct styling -->
+            <div class="mt-4 sm:mt-5 lg:mt-6">
+              <p class="mb-2 sm:mb-3 text-base sm:text-lg font-semibold text-primary text-center lg:text-left">Description</p>
+              <p class="p-2 sm:p-3 text-sm sm:text-base text-gray-600 rounded-lg shadow-sm bg-gray-50 min-h-[60px] sm:min-h-[80px] flex items-center justify-center">
+                {{ item.description == null ? "Aucune description" : item.description }}
+              </p>
 
-        <!-- Description section with distinct styling -->
-        <div class="mt-5 text-center lg:text-left">
-          <p class="mb-3 text-lg font-semibold text-primary">Description</p>
+              <!-- Other details with iconized section headers -->
+              <div class="mt-4 sm:mt-5 space-y-2 sm:space-y-3 text-gray-600">
+                <div class="flex items-center text-sm sm:text-base">
+                  <LinkIcon class="w-3 h-3 sm:w-4 sm:h-4 mr-2 flex-shrink-0" />
+                  <span class="truncate">Fonds propre: {{ item.budgetNational == null || item.budgetNational == 0 ? 0 : $h.formatCurrency(item.budgetNational) }}</span>
+                  <div class="ml-1 sm:ml-2 italic font-bold text-xs sm:text-sm flex-shrink-0">Fcfa</div>
+                </div>
 
-          <p class="p-3 text-gray-600 rounded-lg shadow-sm bg-gray-50">{{ item.description == null ? "Aucune description" : item.description }}</p>
+                <div class="flex items-center text-sm sm:text-base">
+                  <LinkIcon class="w-3 h-3 sm:w-4 sm:h-4 mr-2 flex-shrink-0" />
+                  <span class="truncate">Subvention: {{ item.pret == null || item.pret == 0 ? 0 : $h.formatCurrency(item.pret) }}</span>
+                  <div class="ml-1 sm:ml-2 italic font-bold text-xs sm:text-sm flex-shrink-0">Fcfa</div>
+                </div>
 
-          <!-- Other details with iconized section headers -->
-          <div class="mt-5 space-y-3 text-gray-600">
-            <div class="flex items-center">
-              <LinkIcon class="w-4 h-4 mr-2" /> Fonds propre: {{ item.budgetNational == null || item.budgetNational == 0 ? 0 : $h.formatCurrency(item.budgetNational) }}
-              <div class="ml-2 italic font-bold">Fcfa</div>
+                <div class="flex items-center text-xs sm:text-sm font-medium text-gray-700">
+                  <CheckSquareIcon class="w-3 h-3 sm:w-4 sm:h-4 mr-2 text-primary flex-shrink-0" />
+                  Statut:
+                  <span v-if="item.statut == -2" class="ml-1 sm:ml-2 text-gray-900 truncate">Non validé</span>
+                  <span v-else-if="item.statut == -1" class="ml-1 sm:ml-2 text-gray-900 truncate">Pas démarré</span>
+                  <span v-else-if="item.statut == 0" class="ml-1 sm:ml-2 text-gray-900 truncate">En cours</span>
+                  <span v-else-if="item.statut == 1" class="ml-1 sm:ml-2 text-gray-900 truncate">En retard</span>
+                  <span v-else-if="item.statut == 2" class="ml-1 sm:ml-2 text-gray-900 truncate">Terminé</span>
+                </div>
+              </div>
             </div>
-
-            <div class="flex items-center">
-              <LinkIcon class="w-4 h-4 mr-2" /> Subvention: {{ item.pret == null || item.pret == 0 ? 0 : $h.formatCurrency(item.pret) }}
-              <div class="ml-2 italic font-bold">Fcfa</div>
-            </div>
-            <!-- <div class="flex items-center text-sm font-medium text-gray-700">
-              <GlobeIcon class="w-4 h-4 mr-2 text-primary" /> Taux d'exécution physique:
-              <span class="ml-2 font-semibold text-gray-900">{{ item.tep }}</span>
-            </div> -->
-            <div class="flex items-center text-sm font-medium text-gray-700">
-              <CheckSquareIcon class="w-4 h-4 mr-2 text-primary" /> Statut:
-              <span v-if="item.statut == -2" class="ml-2 text-gray-900">Non validé</span>
-              <span v-else-if="item.statut == -1" class="ml-2 text-gray-900">Pas démarré</span>
-              <span v-else-if="item.statut == 0" class="ml-2 text-gray-900">En cours</span>
-              <span v-else-if="item.statut == 1" class="ml-2 text-gray-900">En retard</span>
-              <span v-else-if="item.statut == 2" class="ml-2 text-gray-900">Terminé</span>
-            </div>
-            <!-- <div class="flex items-center text-sm font-medium text-gray-700">
-              <CheckSquareIcon class="w-4 h-4 mr-2 text-primary" /> Poids:
-              <span class="ml-2 font-semibold text-gray-900">{{ item.poids }}</span>
-            </div> -->
           </div>
         </div>
       </div>
-    </div>
-  </div>
   <pagination class="col-span-12" :total-items="totalItems" :items-per-page="itemsPerPage" :is-loading="isLoadingData" @page-changed="onPageChanged" @items-per-page-changed="onItemsPerPageChanged">
     <!-- Slots personnalisés (facultatif) -->
     <template #prev-icon>
