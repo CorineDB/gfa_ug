@@ -425,8 +425,8 @@ export default {
     title="Cliquer pour voir les outputs de cet outcome"
   >
     <!-- En-tête avec sigle et titre -->
-    <div class="relative flex items-start pt-3 sm:pt-4 lg:pt-5">
-      <div class="flex items-center gap-3 sm:gap-4">
+    <div class="relative flex items-start p-4">
+      <div class="flex items-center gap-3 sm:gap-4 cursor-pointer"    @click.stop="navigateToOutputs(item.id, item.nom)" >
         <!-- Circle with initial or image -->
         <div class="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 text-xs sm:text-sm md:text-base text-white rounded-full shadow-md bg-primary flex-shrink-0">
           {{ item.codePta }}
@@ -434,12 +434,12 @@ export default {
         
         <div class="flex flex-col flex-1 min-w-0">
           <!-- Item details -->
-          <a href="" class="text-sm sm:text-base lg:text-lg font-semibold text-gray-800 hover:text-primary truncate">
+          <h3 class="text-xs sm:text-sm md:text-base font-semibold text-gray-800 hover:text-primary break-words break-all w-11/12">
             {{ item.nom }}
-          </a>
+          </h3>
           
           <!-- Bouton Voir Outputs avec le même style que "Tâches" -->
-          <button
+          <!-- <button
             @click.stop="navigateToOutputs(item.id, item.nom)"
             class="mt-2 px-3 py-1.5 bg-primary text-white rounded-md text-xs flex items-center gap-2 hover:bg-primary/90 shadow w-fit"
             title="Voir les outputs de cet outcome"
@@ -459,7 +459,7 @@ export default {
               />
             </svg>
             Voir Outputs
-          </button>
+          </button> -->
         </div>
       </div>
       <!-- Dropdown for actions -->

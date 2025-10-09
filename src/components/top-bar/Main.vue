@@ -82,30 +82,7 @@ const finProgramme = ref("");
 
 let inactivityTimer;
 
-// const resetInactivityTimer = () => {
-//   clearTimeout(inactivityTimer);
-//   inactivityTimer = setTimeout(() => {
-//     toast.info("Déconnexion automatique après inactivité.");
-//     // logout();
-//   }, 30* 60 * 1000); // 30 minutes
-// };
-
-// Événements utilisateurs à écouter
-// const userEvents = ["mousemove", "keydown", "click", "touchstart"];
-
-// const setupInactivityListeners = () => {
-//   userEvents.forEach((event) =>
-//     window.addEventListener(event, resetInactivityTimer)
-//   );
-//   // resetInactivityTimer(); // Lancer le timer au départ
-// };
-
-// const removeInactivityListeners = () => {
-//   userEvents.forEach((event) =>
-//     window.removeEventListener(event, resetInactivityTimer)
-//   );
-//   // clearTimeout(inactivityTimer);
-// };
+ 
 
 
 const getcurrentUser = async () => {
