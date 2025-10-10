@@ -389,7 +389,7 @@ onMounted(() => {
                 <!-- Première ligne : Options avec leurs notes -->
                 <tr class="text-white bg-blue-900">
                   <th rowspan="2" class="py-3 border border-slate-900">Questions opérationnelles</th>
-                  <th colspan="2" v-for="(option, index) in perceptionStats.options_de_reponse" :key="index"
+                  <th colspan="2" v-for="(option, index) in perceptionStats?.options_de_reponse" :key="index"
                       class="py-3 text-center border border-slate-900">
                     {{ option.libelle }} = {{ option.point }}
                   </th>
@@ -397,7 +397,7 @@ onMounted(() => {
                 </tr>
                 <!-- Deuxième ligne : Nbre de réponses et moy -->
                 <tr class="text-white bg-blue-900">
-                  <template v-for="(option, index) in perceptionStats.options_de_reponse" :key="index">
+                  <template v-for="(option, index) in perceptionStats?.options_de_reponse" :key="index">
                     <th class="py-2 text-center border border-slate-900">Nbre de réponses ({{ String.fromCharCode(97 + index) }})</th>
                     <th class="py-2 text-center border border-slate-900">moy({{ String.fromCharCode(97 + index) }})</th>
                   </template>
