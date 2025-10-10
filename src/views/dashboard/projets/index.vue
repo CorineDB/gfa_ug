@@ -641,6 +641,7 @@ export default {
         organisationId: "",
         nombreEmploie: 0,
         budgetNational: 0,
+        codePta : ''
       },
       sitesId: [],
       dropzoneMultipleRef: null,
@@ -1474,11 +1475,13 @@ export default {
       this.formData.organisationId = projet.owner.id;
       this.formData.nombreEmploie = 0;
       this.formData.budgetNational = projet.budgetNational;
+      this.formData.codePta = projet.codePta
 
       // if (projet.sites.length > 0)
       //   projet.sites.forEach((item) => {
       //     this.formData.push(item);
       //   });
+      
 
       console.log("this.formData", this.formData);
 

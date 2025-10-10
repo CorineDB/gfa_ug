@@ -40,7 +40,8 @@
               </div>
             </div>
             <div class="flex flex-wrap items-center justify-center gap-1 pt-2 mt-2 border-t lg:justify-end border-slate-200/60">
-              <button class="flex items-center mr-auto text-xs btn btn-outline-primary" @click="handleCopy(item)"><CopyIcon class="mr-1 size-4" /> Copier URL</button>
+              
+              <button class="flex items-center mr-auto text-xs btn btn-outline-primary" @click="copyPersonnalLink(item.survey_form_link_token)"><CopyIcon class="mr-1 size-4" /> Copier URL</button>
               <button class="flex items-center mr-3 text-xs btn btn-outline-pending" @click="handleEdit(item)"><CheckSquareIcon class="mr-1 size-4" /> Modifier</button>
               <button class="flex items-center text-xs btn btn-outline-danger" @click="handleDelete(item)"><Trash2Icon class="mr-1 size-4" /> Supprimer</button>
             </div>
@@ -267,6 +268,20 @@ const getStatusText = (param) => {
   }
 };
 
+
+const copyPersonnalLink = async (links) => {
+  try {
+    //const link = `${window.location.origin}/tools-perception/${statistiques.value.formulaire_de_perception_de_gouvernance?.token || idEvaluation}`;
+
+    const link = `${window.location.origin}/form-individuel/${links}`; 
+    await navigator.clipboard.writeText(link);
+    toast.success("Lien de soumission copié !");
+  } catch (error) {
+    console.error("Erreur lors de la copie:", error);
+    toast.error("Impossible de copier le lien");
+  }
+};
+
 function gotoSoumissions(evaluation) {
   router.push({ name: "detail_evaluation_individuel", params: { id: evaluation.id } });
 }
@@ -301,6 +316,7 @@ const handleCopy = (data) => {
   } else {
     navigator.clipboard.writeText(data.survey_form_link);
     toast.success("URL copié");
+    debugger;
   }
 };
 
