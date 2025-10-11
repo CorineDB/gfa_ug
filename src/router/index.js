@@ -178,11 +178,7 @@ const routes = [
         name: "suivi_indicateur",
         component: SuiviIndicateur,
       },
-      {
-        path: "form-individuel/:id",
-        name: "view_survey",
-        component: SurveyFormView,
-      },
+     
       {
         path: "evaluation-individuel/:id",
         name: "detail_evaluation_individuel",
@@ -447,6 +443,11 @@ const routes = [
     path: "/",
     name: "login",
     component: Login,
+  },
+  {
+    path: "/form-individuel/:id",
+    name: "view_survey",
+    component: SurveyFormView,
   },
 
   {

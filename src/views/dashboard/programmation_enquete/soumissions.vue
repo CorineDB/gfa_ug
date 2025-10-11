@@ -280,6 +280,19 @@ function changeOrganisationScore() {
   yearSelectedOng.value = yearsCurrentScore.value[0];
 }
 
+const copyPerceptionLink = async (links) => {
+  try {
+    //const link = `${window.location.origin}/tools-perception/${statistiques.value.formulaire_de_perception_de_gouvernance?.token || idEvaluation}`;
+
+    const link = `${window.location.origin}/tools-perception/${links}`; 
+    await navigator.clipboard.writeText(link);
+    toast.success("Lien de soumission copié !");
+  } catch (error) {
+    console.error("Erreur lors de la copie:", error);
+    toast.error("Impossible de copier le lien");
+  }
+};
+
 const currentOrganisation = computed(() => datas.value.find((item) => item.id == idCurrentOng.value));
 const statsOptions = computed(() => statistiques.value.options_de_reponse_stats);
 const organisations = computed(() => datas.value.map((item) => ({ nom: item.nom, id: item.id })));
@@ -496,10 +509,15 @@ onMounted(async () => {
               </div>
             </div>
 
+             <button v-if="ong.lien_perception_token" @click.stop="copyPerceptionLink(ong.lien_perception_token)" class="flex items-center justify-center w-full gap-2 py-2.5 text-base font-medium text-white bg-success">
+              Copier le lien de soumission
+              <CopyIcon class="ml-2 size-5" />
+            </button>
             <div class="flex flex-col items-end justify-end w-full border-t border-slate-200/60 dark:border-darkmode-400">
               <div class="flex items-center justify-end w-full border-t border-slate-200/60 dark:border-darkmode-400">
                 <button v-if="ong.factuel && ong.factuel[0]?.statut && ong.factuel && ong.factuel[0]?.pourcentage_evolution >= 100" @click.self="goToPageSyntheseWithOng(ong.id)" class="flex items-center justify-center w-full gap-2 py-2.5 flex-1 text-base font-medium bg-outline-primary">Fiche de synthèse <ArrowRightIcon class="ml-2 size-5" /></button>
                 <button v-else class="w-full gap-2 py-[22px]"></button>
+                 
                 <!-- <button class="flex items-center justify-center w-full gap-2 py-2.5 text-base font-medium bg-outline-primary">Marqueur de gouvernance <ArrowRightIcon class="ml-2 size-5" /></button> -->
               </div>
               <button class="flex items-center justify-center w-full gap-2 py-2.5 text-base font-medium text-white bg-primary">Afficher les soumissions <ExternalLinkIcon class="ml-2 size-5" /></button>

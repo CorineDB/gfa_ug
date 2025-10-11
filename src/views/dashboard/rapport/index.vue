@@ -202,7 +202,7 @@
             </div>
             <div class="ml-4">
               <button
-                @click="generatePDF(email.rapport)"
+                @click="generatePDF(email)"
                 class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors duration-150"
               >
                 <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -229,6 +229,7 @@ import VButton from "@/components/news/VButton.vue";
 import html2pdf from "html2pdf.js";
 import { toast } from "vue3-toastify";
 import { helper as $h } from "@/utils/helper";
+import logo1 from "@/assets/images/logo3.webp";
 
 //import ExportPdf from '@ckeditor/ckeditor5-export-pdf/src/exportpdf';
 
@@ -321,16 +322,175 @@ export default {
           }
         });
     },
+    formatRapportForPDF(rapportData) {
+      // Déterminer si c'est un objet complet ou juste du contenu HTML
+      const isFullObject = typeof rapportData === 'object' && rapportData !== null;
+      const objet = isFullObject ? rapportData.objet : 'Rapport';
+      const contenu = isFullObject ? rapportData.rapport : rapportData;
+      const date = isFullObject && rapportData.created_at
+        ? new Date(rapportData.created_at).toLocaleDateString('fr-FR', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          })
+        : new Date().toLocaleDateString('fr-FR', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          });
+      const destinataires = isFullObject ? rapportData.destinataires : '';
+
+      return `
+        <div style="font-family: Arial, sans-serif; max-width: 210mm; margin: 0 auto; background: white; color: #000;">
+          <!-- En-tête avec logo -->
+          <div style="background: linear-gradient(135deg, #0f3460 0%, #1a4d7a 100%); padding: 15px 20px; margin-bottom: 25px;">
+            <div style="display: flex; align-items: center; gap: 15px;">
+              <img src="${logo1}" alt="Logo Programme" style="height: 45px; width: auto; object-fit: contain;" />
+              <h2 style="margin: 0; font-size: 14px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: white; flex: 1;">
+                Programme Redevabilité Phase 3
+              </h2>
+            </div>
+          </div>
+
+          <!-- Informations du rapport -->
+          <div style="border-left: 4px solid #0f3460; padding: 15px 20px; margin: 0 20px 30px 20px; background: #f8f9fa;">
+            <h1 style="color: #0f3460; font-size: 24px; margin: 0 0 15px 0; font-weight: bold;">
+              ${objet}
+            </h1>
+            <div style="color: #495057; font-size: 13px; line-height: 1.8;">
+              <p style="margin: 5px 0;">
+                <strong style="color: #0f3460;">Date de génération:</strong> ${date}
+              </p>
+              ${destinataires ? `
+                <p style="margin: 5px 0;">
+                  <strong style="color: #0f3460;">Destinataires:</strong> ${destinataires}
+                </p>
+              ` : ''}
+            </div>
+          </div>
+
+          <!-- Contenu du rapport -->
+          <div style="padding: 0 20px; line-height: 1.8; color: #212529;">
+            ${contenu}
+          </div>
+
+          <!-- Pied de page -->
+          <div style="margin-top: 50px; padding: 20px; background: #0f3460; color: white; text-align: center; font-size: 11px;">
+            <p style="margin: 5px 0; font-weight: 600;">Programme Redevabilité Phase 3</p>
+            <p style="margin: 5px 0; opacity: 0.9;">Document généré automatiquement - ${date}</p>
+            <p style="margin: 5px 0; opacity: 0.8;">© ${new Date().getFullYear()} - Tous droits réservés</p>
+          </div>
+        </div>
+      `;
+    },
+
     generatePDF(content) {
+      // Formater le contenu avec les métadonnées
+      const formattedContent = this.formatRapportForPDF(content);
+
+      // Créer un conteneur temporaire pour le contenu du PDF
+      const wrapper = document.createElement('div');
+      wrapper.style.cssText = `
+        padding: 20px;
+        background: white;
+        font-family: Arial, sans-serif;
+        color: #000;
+        line-height: 1.6;
+      `;
+      wrapper.innerHTML = formattedContent;
+
+      // Appliquer des styles aux images pour qu'elles s'adaptent bien
+      const images = wrapper.querySelectorAll('img');
+      images.forEach(img => {
+        img.style.maxWidth = '100%';
+        img.style.height = 'auto';
+        img.style.display = 'block';
+        img.style.margin = '10px auto';
+      });
+
+      // Appliquer des styles aux tableaux
+      const tables = wrapper.querySelectorAll('table');
+      tables.forEach(table => {
+        table.style.borderCollapse = 'collapse';
+        table.style.width = '100%';
+        table.style.marginBottom = '15px';
+        table.style.border = '1px solid #E5E7EB';
+
+        // Styliser les cellules
+        const cells = table.querySelectorAll('td, th');
+        cells.forEach(cell => {
+          cell.style.border = '1px solid #E5E7EB';
+          cell.style.padding = '8px';
+        });
+
+        // Styliser les en-têtes
+        const headers = table.querySelectorAll('th');
+        headers.forEach(th => {
+          th.style.backgroundColor = '#F3F4F6';
+          th.style.fontWeight = 'bold';
+        });
+      });
+
+      // Appliquer des styles aux listes
+      const lists = wrapper.querySelectorAll('ul, ol');
+      lists.forEach(list => {
+        list.style.marginLeft = '20px';
+        list.style.marginBottom = '15px';
+      });
+
+      // Appliquer des styles aux paragraphes
+      const paragraphs = wrapper.querySelectorAll('p');
+      paragraphs.forEach(p => {
+        p.style.marginBottom = '10px';
+        p.style.textAlign = 'justify';
+      });
+
+      // Générer un nom de fichier basé sur l'objet si disponible
+      let filename = 'rapport';
+      if (typeof content === 'object' && content.objet) {
+        filename = content.objet
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-|-$/g, '');
+      }
+      filename = `${filename}_${new Date().toISOString().split('T')[0]}.pdf`;
+
       const options = {
-        margin: 1,
-        filename: "rapport.pdf",
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+        margin: [0.5, 0.5, 0.5, 0.5],
+        filename: filename,
+        image: { type: "jpeg", quality: 0.95 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          letterRendering: true,
+          logging: false,
+          backgroundColor: '#ffffff'
+        },
+        jsPDF: {
+          unit: "in",
+          format: "a4",
+          orientation: "portrait",
+          compress: true
+        },
+        pagebreak: {
+          mode: ['avoid-all', 'css', 'legacy'],
+          before: '.page-break-before',
+          after: '.page-break-after'
+        }
       };
 
-      html2pdf().set(options).from(content).save();
+      // Générer et télécharger le PDF
+      html2pdf()
+        .set(options)
+        .from(wrapper)
+        .save()
+        .then(() => {
+          toast.success("PDF généré avec succès");
+        })
+        .catch((error) => {
+          console.error("Erreur lors de la génération du PDF:", error);
+          toast.error("Erreur lors de la génération du PDF");
+        });
     },
 
     generateReport(data, content) {

@@ -23,5 +23,6 @@
   
   const downloadPDF = () => {
     $h.generatePDF(props.tableIds, props.pageName, props.format);
+    
   };
   </script>

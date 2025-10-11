@@ -156,42 +156,42 @@
           </div>
         </div>
       </div>
+       <div class="flex flex-col items-center p-6 mb-3 bg-white rounded-md shadow">
+        <p class="text-xl font-bold text-center">TEP</p>
+        <ChartJauge label="TEP" :temperature="graphiqueData?.tep ?? 0" />
+      </div>
+      <div class="flex flex-col items-center p-6 mb-3 bg-white rounded-md shadow">
+        <p class="text-xl font-bold text-center">TEF</p>
+        <ChartJauge label="TEF" :temperature="graphiqueData?.tef ?? 0" />
+      </div>
 
       <!-- Map and Data -->
-      <div class="col-span-2 p-6 bg-white rounded-md shadow" v-if="graphiqueData?.sites?.length > 0">
+      <div class="col-span-12 p-6 bg-white rounded-md shadow" v-if="graphiqueData?.sites?.length > 0">
         <h2 class="mb-4 text-lg font-semibold text-gray-700">Cartes géographiques</h2>
-        <div class="grid grid-cols-2 gap-4">
-          <!-- Map -->
-          <!-- <div  style="height: 40vh"></div> -->
-          <div>
-            <div id="map" class="h-48 mb-4 bg-gray-200 rounded-md"></div>
-            <p class="text-sm text-gray-500">Total Number of Sessions within Date Range Users</p>
-          </div>
-          <!-- Data Table -->
-          <div>
-            <table class="w-full text-sm text-gray-600">
-              <thead>
-                <tr class="text-left bg-gray-100">
-                  <th class="px-4 py-2">Sites</th>
-                  <th class="px-4 py-2">Longitudes</th>
-                  <th class="px-4 py-2">Latitudes</th>
-                </tr>
-              </thead>
-              <tbody v-for="(item, index) in graphiqueData.sites" :key="index">
-                <tr>
-                  <td class="px-4 py-2">{{ item.nom }}</td>
-                  <td class="px-4 py-2">{{ item.latitude }}</td>
-                  <td class="px-4 py-2 text-red-500">{{ item.longitude }}</td>
-                </tr>
-                <!-- <tr>
-                  <td class="px-4 py-2">Seoul</td>
-                  <td class="px-4 py-2">454</td>
-                  <td class="px-4 py-2 text-green-500">+5.64%</td>
-                </tr> -->
-                <!-- Add more rows as needed -->
-              </tbody>
-            </table>
-          </div>
+
+        <!-- Map - Full Width -->
+        <div class="mb-6">
+          <div id="map" class="w-full h-64 md:h-80 lg:h-96 bg-gray-200 rounded-md"></div>
+        </div>
+
+        <!-- Data Table - Full Width -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm text-gray-600">
+            <thead>
+              <tr class="text-left bg-gray-100">
+                <th class="px-4 py-2">Sites</th>
+                <th class="px-4 py-2">Longitude</th>
+                <th class="px-4 py-2">Latitude</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(item, index) in graphiqueData.sites" :key="index" class="border-b border-gray-100 hover:bg-gray-50">
+                <td class="px-4 py-2 font-medium">{{ item.nom }}</td>
+                <td class="px-4 py-2">{{ item.longitude }}</td>
+                <td class="px-4 py-2">{{ item.latitude }}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
       <!-- </section> -->
@@ -485,6 +485,8 @@ const markerLatLng = ref([47.31322, -1.319482]);
 
 const loadingOption = ref(true);
 const graphiqueData = ref([]);
+
+ 
 const getStat = function () {
   //console.log(JSON.parse(localStorage.getItem("authenticateUser")).projet.id);
   console.log(localStorage.getItem("authenticateUser"));
@@ -497,48 +499,76 @@ const getStat = function () {
       ProjetService.statistiques(ongId)
         .then((data) => {
           graphiqueData.value = data.data.data;
+
           initTabulator();
-          // Initialiser l'icône
-          myIcon.value = L.icon({
-            iconUrl: icon,
-            iconSize: [30, 30],
-            iconAnchor: [22, 94],
-            popupAnchor: [-3, -76],
-            shadowUrl: markerShadow,
-            shadowSize: [60, 30],
-            shadowAnchor: [22, 94],
-          });
 
-          // Initialiser la carte
-          initialMap.value = L.map("map", {
-            zoomControl: true,
-            zoom: 1,
-            zoomAnimation: false,
-            fadeAnimation: true,
-            markerZoomAnimation: true,
-          }).setView([6.8041, 2.4152], 6);
-
-          L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-            maxZoom: 19,
-            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-          }).addTo(initialMap.value);
-
-          // Ajouter des marqueurs seulement si des sites existent
+              // Initialize map if sites exist
           if (graphiqueData.value?.sites?.length > 0) {
-            const markers = L.markerClusterGroup();
-
-            graphiqueData.value.sites.forEach((site) => {
-              const marker = new L.marker([parseFloat(site.latitude), parseFloat(site.longitude)], { icon: myIcon.value });
-              markers.addLayer(marker);
-            });
-
-            initialMap.value.addLayer(markers);
+            setTimeout(() => initializeMap(), 200); // Add delay for DOM
           }
+
+          
         })
         .catch((error) => {
           console.log(error);
         });
     }
+  }
+};
+
+// Initialize map function
+const initializeMap = () => {
+  try {
+    if (!document.getElementById('map')) {
+      console.warn('Map container not found');
+      return;
+    }
+    
+    // Clear existing map if any
+    if (initialMap.value) {
+      initialMap.value.remove();
+    }
+    
+    myIcon.value = L.icon({
+      iconUrl: icon,
+      iconSize: [30, 30],
+      iconAnchor: [15, 30],
+      popupAnchor: [0, -30],
+      shadowUrl: markerShadow,
+      shadowSize: [41, 41],
+      shadowAnchor: [13, 41],
+    });
+
+    // Initialize map
+    initialMap.value = L.map("map", {
+      zoomControl: true,
+      zoom: 7,
+      zoomAnimation: false,
+      fadeAnimation: true,
+      markerZoomAnimation: true,
+    }).setView([6.8041, 2.4152], 7);
+
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(initialMap.value);
+
+    // Add markers for project sites
+    if (graphiqueData.value?.sites?.length > 0) {
+      graphiqueData.value.sites.forEach((site, index) => {
+        if (site.latitude && site.longitude) {
+          const lat = parseFloat(site.latitude);
+          const lng = parseFloat(site.longitude);
+          if (!isNaN(lat) && !isNaN(lng)) {
+            L.marker([lat, lng], { icon: myIcon.value })
+              .bindPopup(`<strong>${site.nom}</strong><br>Lat: ${site.latitude}<br>Lng: ${site.longitude}`)
+              .addTo(initialMap.value);
+          }
+        }
+      });
+    }
+  } catch (error) {
+    console.error('Error initializing map:', error);
   }
 };
 
