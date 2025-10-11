@@ -3,7 +3,7 @@
   <div class="min-h-screen p-6 bg-gradient-to-br from-gray-50 to-blue-50">
     <div class="flex justify-between my-4 items-center">
       <div>
-        <h2 class="text-2xl font-bold text-gray-800 intro-y">📊 Dashboard Projet Avancé</h2>
+        <h2 class="text-2xl font-bold text-gray-800 intro-y">📊 Dashboard Projet Avancé </h2>
         <p class="text-sm text-gray-600 mt-1">Analyses, projections et prédictions en temps réel</p>
       </div>
       <div class="flex space-x-2">
@@ -208,12 +208,12 @@
         
         <div class="bg-white rounded-xl shadow-lg p-6" v-if="graphiqueData?.tep !== undefined">
           <p class="text-xl font-bold text-center mb-4">🎯 TEP</p>
-          <ChartJauge label="TEP" :temperature="graphiqueData?.tep * 100 ?? 0" />
+          <ChartJauge label="TEP" :temperature="graphiqueData?.tep ?? 0" />
         </div>
-        
+
         <div class="bg-white rounded-xl shadow-lg p-6" v-if="graphiqueData?.tef !== undefined">
           <p class="text-xl font-bold text-center mb-4">💰 TEF</p>
-          <ChartJauge label="TEF" :temperature="graphiqueData?.tef * 100 ?? 0" />
+          <ChartJauge label="TEF" :temperature="graphiqueData?.tef ?? 0" />
         </div>
 
         <!-- Map and Data -->

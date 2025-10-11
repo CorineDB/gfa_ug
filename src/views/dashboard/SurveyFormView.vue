@@ -176,19 +176,19 @@ const send = async (results) => {
   }
 };
 
-survey.value.onComplete.add((sender) => {
-  const results = sender.data; // Données soumises par l'utilisateur
+// survey.value.onComplete.add((sender) => {
+//   const results = sender.data; // Données soumises par l'utilisateur
 
-  const finalData = {
-    idParticipant: participantId.value,
-    response_data: results,
-    surveyId: form.value.id,
-    commentaire: "",
-  };
+//   const finalData = {
+//     idParticipant: participantId.value,
+//     response_data: results,
+//     surveyId: form.value.id,
+//     commentaire: "",
+//   };
 
-  // Envoi au backend
-  send(finalData);
-});
+//   // Envoi au backend
+//   send(finalData);
+// });
 
 function buildpayLoadPersonaliser(forms) {
   const state = {};

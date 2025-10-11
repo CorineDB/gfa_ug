@@ -16,7 +16,9 @@
           Export Excel (XLSX)
         </button>
 
-        <DownloadPDFButton :tableIds="['ptaTable34']" pageName="Plan d'action" format="a0" />
+        <!-- <DownloadPDFButton :tableIds="['ptaTable34']" pageName="Plan d'action" format="a0" /> -->
+        <DownloadPDFWithStylesButton :tableIds="['ptaTable34']" pageName="Plan d'action" format="a0" />
+
        
         <button class="ml-2 btn btn-primary" title="Retour" @click="$router.go(-1)">
           <CornerDownLeftIcon class="w-5 h-5" />
@@ -911,13 +913,14 @@ import ActiviteService from "@/services/modules/activite.service";
 import PlanDecaissementComponent from "@/components/PlanDecaissement.vue";
 import PlanDeCaissement from "@/services/modules/plan.decaissement.service";
 import DownloadPDFButton from "../../../components/DownloadPDFButton.vue";
+import DownloadPDFWithStylesButton from "../../../components/DownloadPDFWithStylesButton.vue";
 import ExportationResultatSynthese from "@/components/news/ExportationResultatSynthese.vue";
 import Tabulator from "tabulator-tables";
 import { getAllErrorMessages } from "@/utils/gestion-error";
 
 export default {
   props: ["ppm"],
-  components: { VButton, NoRecordsMessage, InputForm, DownloadPDFButton, ExportationResultatSynthese },
+  components: { VButton, NoRecordsMessage, InputForm, DownloadPDFButton, ExportationResultatSynthese , DownloadPDFWithStylesButton },
   data() {
     return {
       searchs: '',
@@ -1005,6 +1008,7 @@ export default {
       listeSuivi: [],
       loaderListePlan: false,
       loaderListeSuivi: false,
+      isLoading : false
     };
   },
   computed: {
@@ -1018,9 +1022,9 @@ export default {
         let anneeFin = parseInt(`${this.finProgramme.split("-")[0]}`);
         let annees = [];
         for (let annee = anneeDebut; annee <= anneeFin; annee++) {
-          if (annee <= new Date().getFullYear()) {
+          // if (annee <= new Date().getFullYear()) {
             annees.push(annee);
-          }
+          // }
         }
 
         console.log("annees", annees);
@@ -2676,14 +2680,17 @@ export default {
     },
     getPta(data) {
       this.active();
+      this.isLoading = true
       PtabService.getOrganisationPta(data)
         .then((data) => {
+           this.isLoading = false
           this.showModalFiltre = false;
           this.ptab = data.data.data;
           this.disabled();
           toast.success("Filtre éffectuer avec succès");
         })
         .catch((e) => {
+          this.isLoading = false
           toast.error("Erreur lors du filtrage des informations");
           this.disabled();
         });

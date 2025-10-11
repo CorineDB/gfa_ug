@@ -10,7 +10,7 @@
       </div>
       <div class="flex">
         <button class="mr-2 shadow-md btn btn-primary" @click="showModalFiltre = true">
-          <FilterIcon class="w-4 h-4 mr-3" />Filtrer le PA
+          <FilterIcon class="w-4 h-4 mr-3" />Filtrer le PA 
         </button>
         <!-- v-if="!isLoadingData && currentOrganisation?.profile_de_gouvernance" :org="currentOrganisation?.nom" :pointfocal="`${currentOrganisation?.nom_point_focal}  ${currentOrganisation?.prenom_point_focal}`" :dateevaluation="currentFactuel?.evaluatedAt" -->
         <!-- <ExportationResultatSynthese :datas="dataNew" class="mr-3" /> -->
@@ -24,7 +24,7 @@
           Export Excel (XLSX)
         </button>
 
-        <DownloadPDFButton :tableIds="['ptaTable34']" pageName="Plan d'action" format="a0" />
+        <DownloadPDFWithStylesButton :tableIds="['ptaTable34']" pageName="Plan d'action" format="a0" />
       </div>
     </div>
   </div>
@@ -1302,11 +1302,12 @@ import ActiviteService from "@/services/modules/activite.service";
 import PlanDecaissementComponent from "@/components/PlanDecaissement.vue";
 import PlanDeCaissement from "@/services/modules/plan.decaissement.service";
 import DownloadPDFButton from "../../../components/DownloadPDFButton.vue";
+import DownloadPDFWithStylesButton from "../../../components/DownloadPDFWithStylesButton.vue";
 import ExportationResultatSynthese from "@/components/news/ExportationResultatSynthese.vue";
 
 export default {
   props: ["ppm"],
-  components: { VButton, NoRecordsMessage, InputForm, DownloadPDFButton, ExportationResultatSynthese },
+  components: { VButton, NoRecordsMessage, InputForm, DownloadPDFButton, DownloadPDFWithStylesButton, ExportationResultatSynthese },
   data() {
     return {
       searchs: "",
@@ -1388,6 +1389,7 @@ export default {
       listeSuivi: [],
       loaderListePlan: false,
       loaderListeSuivi: false,
+      isLoading : false 
     };
   },
   computed: {
@@ -1401,12 +1403,15 @@ export default {
         let anneeFin = parseInt(`${this.finProgramme.split("-")[0]}`);
         let annees = [];
         for (let annee = anneeDebut; annee <= anneeFin; annee++) {
-          if (annee <= new Date().getFullYear()) {
-            annees.push(annee);
-          }
+          annees.push(annee);
+          // if (annee <= new Date().getFullYear()) {
+            
+          // }
         }
 
         console.log("annees", annees);
+
+        // debugger
 
         return annees;
       },
@@ -2998,14 +3003,17 @@ export default {
     },
     getPta(data) {
       this.active();
+      this.isLoading = true
       PtabService.getOrganisationPta(data)
         .then((data) => {
+          this.isLoading = false
           this.showModalFiltre = false;
           this.ptab = data.data.data;
           this.disabled();
           toast.success("Filtre éffectuer avec succès");
         })
         .catch((e) => {
+          this.isLoading = false
           toast.error("Erreur lors du filtrage des informations");
           this.disabled();
         });
