@@ -1,7 +1,19 @@
 <template>
   <div class="min-h-screen bg-white">
-    <!-- Form Content -->
-    <div v-if="!isLoadingData && !isFinished" class="max-w-4xl mx-auto px-4 py-8">
+    <div v-if="isLoadingData" class="flex justify-center items-center min-h-screen">
+      <LoaderSnipper />
+    </div>
+    <div v-else> 
+      
+      <div v-if="!form.survey_form" class="flex w-full justify-center items-center h-[40vh]">
+      <Alert class="w-full max-w-screen-md mb-2 alert-primary">
+        <div class="flex items-center">
+          <div class="text-xl font-medium">Enquete Individuelle</div>
+        </div>
+        <div class="mt-3 text-lg">Formulaire déjà remplir. Merci</div>
+      </Alert>
+      </div>
+      <div v-else class="max-w-4xl mx-auto px-4 py-8">
       <!-- Header -->
       <div class="mb-8 text-center">
         <h1 class="text-2xl font-bold text-gray-800 mb-2">{{ form.survey_form?.libelle || "Formulaire d'enquête" }}</h1>
@@ -108,22 +120,9 @@
           <p>Aucun contenu de formulaire à afficher</p>
         </div>
       </div>
-    </div>
+      </div>
 
-    <!-- Loading State -->
-    <div v-if="isLoadingData && !isFinished" class="flex justify-center items-center min-h-screen">
-      <LoaderSnipper />
-    </div>
-
-    <!-- Finished State -->
-    <div v-if="isFinished" class="flex w-full justify-center items-center h-[40vh]">
-      <Alert class="w-full max-w-screen-md mb-2 alert-primary">
-        <div class="flex items-center">
-          <div class="text-xl font-medium">Enquete Individuelle</div>
-        </div>
-        <div class="mt-3 text-lg">Formulaire déjà remplir. Merci</div>
-      </Alert>
-    </div>
+    </div>   
   </div>
 </template>
 
@@ -176,19 +175,7 @@ const send = async (results) => {
   }
 };
 
-// survey.value.onComplete.add((sender) => {
-//   const results = sender.data; // Données soumises par l'utilisateur
-
-//   const finalData = {
-//     idParticipant: participantId.value,
-//     response_data: results,
-//     surveyId: form.value.id,
-//     commentaire: "",
-//   };
-
-//   // Envoi au backend
-//   send(finalData);
-// });
+ 
 
 function buildpayLoadPersonaliser(forms) {
   const state = {};
@@ -207,22 +194,7 @@ const payLoadPersonaliser = reactive({
   commentaire: "",
 });
 
-// {
-//     "statut": "error",
-//     "message": "Erreur de validation du formulaire",
-//     "errors": {
-//         "response_data": [
-//             "The response data field is required."
-//         ],
-//         "surveyId": [
-//             "The survey id field is required."
-//         ],
-//         "idParticipant": [
-//             "The id participant field is required."
-//         ]
-//     },
-//     "statutCode": 422
-// }
+ 
 
 const getDataForm = async () => {
   await EnqueteIndividuelService.getFormEvaluation(token, participantId.value)
@@ -230,16 +202,18 @@ const getDataForm = async () => {
       form.value = result.data.data;
 
      
-      if (form.value.survey_response.response_data) {
+      if (form.value.statut) {
         isFinished.value = true;
-        
         return;
       }
 
       payLoadPersonaliser.surveyId = form.value.id;
       payLoadPersonaliser.idParticipant = participantId.value;
 
-      Object.assign(payLoadPersonaliser.response_data , buildpayLoadPersonaliser(form.value.survey_form.form_data.forms));
+      if(form.value.survey_form){
+         Object.assign(payLoadPersonaliser.response_data , buildpayLoadPersonaliser(form.value.survey_form.form_data.forms));
+      }
+
 
     
       isLoadingData.value = false
@@ -251,6 +225,9 @@ const getDataForm = async () => {
     .catch((e) => {
       toast.error(getAllErrorMessages(e));
       isLoadingData.value = false;
+
+      debugger
+      
     });
 };
 
