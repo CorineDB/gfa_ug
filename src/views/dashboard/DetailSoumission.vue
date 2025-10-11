@@ -94,12 +94,16 @@ const goBack = () => {
 
 const filterOptions = computed(() => soumission.value?.options_de_reponse);
 
-// Calculer les statistiques pour la soumission de perception de l'organisation sélectionnée
+// Calculer les statistiques pour toutes les soumissions de perception de l'organisation sélectionnée
 const perceptionStats = computed(() => {
-  if (!currentPerception.value) return null;
+  if (!currentOrganisation.value || !currentOrganisation.value.perception || currentOrganisation.value.perception.length === 0) {
+    return null;
+  }
 
-  const optionsDeReponse = currentPerception.value.options_de_reponse || [];
-  const categoriesDeGouvernance = currentPerception.value.categories_de_gouvernance || [];
+  // Prendre la première soumission pour la structure (options_de_reponse et structure des catégories)
+  const premiereSoumission = currentOrganisation.value.perception[0];
+  const optionsDeReponse = premiereSoumission.options_de_reponse || [];
+  const categoriesDeGouvernance = premiereSoumission.categories_de_gouvernance || [];
 
   // Créer une structure pour stocker les données
   const stats = {
@@ -132,13 +136,21 @@ const perceptionStats = computed(() => {
           };
         });
 
-        // Compter la réponse de l'organisation sélectionnée
-        if (question.reponse_de_la_collecte) {
-          const optionId = question.reponse_de_la_collecte.optionDeReponseId;
-          if (questionStats.reponses_count[optionId]) {
-            questionStats.reponses_count[optionId].count = 1;
+        // Parcourir TOUTES les soumissions de perception de l'organisation sélectionnée
+        currentOrganisation.value.perception.forEach(soumission => {
+          // Trouver la catégorie correspondante dans cette soumission
+          const categorieInSoumission = soumission.categories_de_gouvernance?.find(cat => cat.id === categorie.id);
+          if (categorieInSoumission) {
+            // Trouver la question correspondante dans cette catégorie
+            const questionInSoumission = categorieInSoumission.questions_de_gouvernance?.find(q => q.id === question.id);
+            if (questionInSoumission && questionInSoumission.reponse_de_la_collecte) {
+              const optionId = questionInSoumission.reponse_de_la_collecte.optionDeReponseId;
+              if (questionStats.reponses_count[optionId]) {
+                questionStats.reponses_count[optionId].count += 1;
+              }
+            }
           }
-        }
+        });
 
         categorieStats.questions_de_gouvernance.push(questionStats);
       });
