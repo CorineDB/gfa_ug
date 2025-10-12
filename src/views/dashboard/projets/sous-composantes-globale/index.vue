@@ -21,6 +21,7 @@ export default {
     LoaderSnipper,
     NoRecordsMessage,
   },
+  
   data() {
     return {
       selectedIds: {

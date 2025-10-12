@@ -23,6 +23,7 @@ export default {
     NoRecordsMessage,
     LoaderSnipper,
   },
+
   data() {
     return {
       search: "",
@@ -60,6 +61,7 @@ export default {
       dateFinMax: "",
     };
   },
+
   computed: {
     ...mapGetters("auths", { currentUser: "GET_AUTHENTICATE_USER" }),
     paginatedAndFilteredData() {
@@ -91,6 +93,7 @@ export default {
       // Retourne le nom ou `null` si non trouvé
     },
   },
+  
   watch: {
     // projetId(newValue, oldValue) {
     //   if (this.projets.length > 0) {

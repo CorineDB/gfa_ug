@@ -250,12 +250,14 @@ export default {
     toggleAccordion (id) {
       this.openedAccordion = this.openedAccordion === id ? null : id
     },
+
     filteredTrimestresForPlan(annee) {
       if (!annee) {
         return this.trimestres;
       }
       return this.trimestres.filter((trimestre) => trimestre.annee == annee);
     },
+    
     receiveMontantRestantADecaisser() {
       const montantRestantADecaisser = this.montantADecaisser - this.sommeDesPlanDeDecaissement;
       return montantRestantADecaisser;

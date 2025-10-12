@@ -166,9 +166,11 @@ export default {
       // Charger les données pour la page actuelle
       // this.loadDataForPage(newPage);
     },
+
     onItemsPerPageChanged(itemsPerPage) {
       this.itemsPerPage = itemsPerPage;
     },
+
     clearObjectValues(obj) {
       for (let key in obj) {
         if (obj.hasOwnProperty(key)) {
@@ -191,11 +193,14 @@ export default {
         }
       }
     },
+
     verifyPermission,
+
     supprimerComposant(data) {
       this.showDeleteModal = true;
       this.composantsId = data.id;
     },
+
     deleteComposants() {
       this.deleteLoader = true;
       ComposantesService.destroy(this.composantsId)
@@ -210,6 +215,7 @@ export default {
           toast.error("Erreur lors de la suppression");
         });
     },
+    
     modifierComposante(data) {
        
       this.messageErreur = {};

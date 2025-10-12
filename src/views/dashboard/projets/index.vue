@@ -871,6 +871,7 @@ import markerShadow from "./marker-shadow.png"; // ../../utils/helpers"
 
 export default {
   components: { LoaderSnipper, NoRecordsMessage, InputForm, VButton, LMap, LTileLayer, LMarker, LPolygon, LPopup, pagination },
+
   data() {
     return {
       markerLatLng: [9.30769,2.315834],
@@ -1077,6 +1078,7 @@ export default {
       //bailleurs: "bailleurs/getBailleurs",
       currentUser: "auths/GET_AUTHENTICATE_USER",
     }),
+
     paginatedAndFilteredData() {
       const { paginatedData, totalFilteredItems } = $h.filterData({
         itemsPerPage: this.itemsPerPage,
@@ -1091,11 +1093,13 @@ export default {
 
       return paginatedData;
     },
+
     filteredCommunes() {
       if (!this.payloadSites.departement) return [];
       this.selectedDepartementData = this.departements.find((dep) => dep.lib_dep === this.payloadSites.departement);
       return this.selectedDepartementData ? this.selectedDepartementData.communes : [];
     },
+    
     filteredArrondissements() {
       if (!this.payloadSites.commune || !this.selectedDepartementData) return [];
       const communeData = this.selectedDepartementData.communes.find((com) => com.lib_com === this.payloadSites.commune);
