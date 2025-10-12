@@ -696,6 +696,7 @@ onMounted(() => {
                     <div v-if="errors.quartier" class="mt-2 text-danger">{{ getFieldErrors(errors.quartier) }}</div>
                   </div>
                 </div>
+                
                 <div v-if="!isBenin" class="grid grid-cols-2 gap-4">
                   <InputForm :required="false" :optionel="false" label="Département" name="Département" v-model="payload.departement" :control="getFieldErrors(errors.departement)" />
                   <InputForm :required="false" :optionel="false" label="Commune" name="Commune" v-model="payload.commune" :control="getFieldErrors(errors.commune)" />

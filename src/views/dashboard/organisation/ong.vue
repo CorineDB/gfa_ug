@@ -786,7 +786,7 @@ export default {
 
   <Modal backdrop="static" :show="showModal" @hidden="showModal = false">
     <ModalHeader>
-      <h2 v-if="!update" class="mr-auto text-base font-medium">Ajouter une organisation</h2>
+      <h2 v-if="!update" class="mr-auto text-base font-medium">Ajouter une organisation jkh jhk</h2>
       <h2 v-else class="mr-auto text-base font-medium">Modifier une organisation</h2>
     </ModalHeader>
     <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
@@ -848,7 +848,7 @@ export default {
   </Modal>
 
   <div class="flex flex-col items-center mt-8 intro-y sm:flex-row">
-    <h2 class="mr-auto text-lg font-medium">Organisation test</h2>
+    <h2 class="mr-auto text-lg font-medium">Organisation</h2>
     <div class="flex w-full mt-4 sm:w-auto sm:mt-0">
       <button class="mr-2 shadow-md btn btn-primary" @click="(showModal = true), (labels = 'Ajouter')">Ajouter une organisation</button>
     </div>

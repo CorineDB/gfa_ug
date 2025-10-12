@@ -212,24 +212,46 @@
         </div>
 
         <div class="col-span-12 md:col-span-6">
-          <label class="form-label">Organisation*</label>
-
-          <!-- organisation Select Dropdown -->
+           
+            <label class="form-label">Organisation*</label>
+          
+          <!-- Organisation Select Dropdown -->
           <div class="relative w-full">
-            <v-select class="w-full" :reduce="(ong) => ong.id" v-model="formData.organisationId" label="nom" :options="ongs" placeholder="Selectionner une organisation...">
-              <template v-if="!formData.organisationId || formData.organisationId.length === 0" #search="{ attributes, events }">
-                <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher une organisation..." />
-              </template>
+            <div class="flex items-center justify-between mb-2">
+                <v-select 
+                  class="w-full mr-3" 
+                  :reduce="(ong) => ong.id" 
+                  v-model="formData.organisationId" 
+                  label="nom" 
+                  :options="ongs" 
+                  placeholder="Selectionner une organisation..."
+                >
+                  <template v-if="!formData.organisationId || formData.organisationId.length === 0" #search="{ attributes, events }">
+                    <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher une organisation..." />
+                  </template>
 
-              <!-- Selected value display -->
-              <template v-else #selected="{ nom }">
-                {{ nom }}
-              </template>
-              <!-- Custom option template to show organization name -->
-              <template #option="{ nom }">
-                {{ nom }}
-              </template>
-            </v-select>
+                  <!-- Selected value display -->
+                  <template v-else #selected="{ nom }">
+                    {{ nom }}
+                  </template>
+                  
+                  <!-- Custom option template to show organization name -->
+                  <template #option="{ nom }">
+                    {{ nom }}
+                  </template>
+                </v-select>
+                <button 
+                  type="button" 
+                  @click="openOrganisationModal"
+                  class="inline-flex items-center justify-center w-8 h-8 text-sm font-medium text-white bg-primary rounded-full hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors"
+                  title="Ajouter une nouvelle organisation"
+                >
+                  <span class="sr-only">Ajouter une organisation</span>
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                  </svg>
+                </button>
+            </div>
             <div v-if="errors.organisationId" class="mt-2 text-danger">{{ getFieldErrors(errors.organisationId) }}</div>
           </div>
         </div>
@@ -347,7 +369,7 @@
 
       <!-- Carte Leaflet -->
       <div class="w-full h-96 rounded-lg border border-gray-300" style="min-height: 400px">
-        <LMap ref="map" :zoom="13" :center="markerLatLng" @click="onMapClick" style="height: 100%; width: 100%">
+        <LMap ref="map" :zoom="6" :center="markerLatLng" @click="onMapClick" style="height: 100%; width: 100%">
           <LTileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='&amp;copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors' />
           <LMarker :lat-lng="markerLatLng" :draggable="true" @dragend="onMarkerDragEnd">
             <LPopup>
@@ -372,95 +394,189 @@
   <LoaderSnipper v-if="isLoadingProjets" />
   <NoRecordsMessage class="col-span-12" v-if="!paginatedAndFilteredData.length" title="Aucun projet trouvé" description="Il semble qu'il n'y ait pas de projet à afficher. Veuillez en créer un." />
 
-  <div v-if="verifyPermission('voir-un-projet') && !isLoadingProjets" class="grid grid-cols-1 gap-6 mt-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
-    <div href="#" class="relative transition-all duration-500 border-l-4 shadow-2xl box group _bg-white zoom-in border-primary hover:border-secondary" v-for="(item, index) in paginatedAndFilteredData" :key="index">
-      <div class="relative m-5 bg-white flex justify-between">
-        <div class="text-[#171a1d] group-hover:text-[#007580] font-medium text-[14px] md:text-[16px] lg:text-[18px] leading-[30px] pt-[10px]">{{ item.codePta }} - {{ item.nom }} </div>
-        <button class="btn btn-primary" @click="voirOutCome(item.id)">Voir Outcomes</button>
-      </div>
+   <div
+      v-if="verifyPermission('voir-un-projet') && !isLoadingProjets"
+      class="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 3xl:grid-cols-4 gap-4 md:gap-6 mt-6"
+    >
+      <div
+        v-for="(item, index) in paginatedAndFilteredData"
+        :key="index"
+        class="relative bg-white border-l-4 border-primary hover:border-secondary rounded-xl shadow-md hover:shadow-xl transition-all duration-500 group overflow-hidden"
+      >
+        <!-- Header -->
+        <div class="flex justify-between items-center p-4 sm:p-5">
+          <h3 class="text-[#171a1d] group-hover:text-[#007580] font-semibold text-sm md:text-base lg:text-lg leading-tight">
+            {{ item.codePta }} - {{ item.nom }}
+          </h3>
+          <button
+            class="btn btn-primary text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2"
+            @click="voirOutCome(item.id)"
+          >
+            Voir Outcomes
+          </button>
+        </div>
 
-      <div class="relative mt-[12px] m-5 h-40 2xl:h-56 image-fit rounded-md overflow-hidden before:block before:absolute before:w-full before:h-full before:top-0 before:left-0 before:z-10 before:bg-gradient-to-t before:from-black before:to-black/10">
-        <div class="absolute top-0 left-0 w-1/2 h-0 group-hover:h-full bg-[#02008052] transition-all duration-[.5s]"></div>
-        <div class="absolute bottom-0 right-0 w-1/2 h-0 group-hover:h-full bg-[#02008052] transition-all duration-[.5s]"></div>
-
-        <div class="relative h-64 overflow-hidden group/hw hway hway-active">
-          <img class="object-contain group-hover:opacity-30 transition-all duration-[.5s] h-auto" :src="item.image == null ? projetsImg[0] : item.image.url" alt="" />
-          <!-- Description cachée avec effet de survol -->
-          <div class="absolute inset-0 flex items-start justify-center p-5 text-white transition-opacity duration-500 bg-black opacity-0 bg-opacity-80 group-hover:opacity-100">
+        <!-- Image + Description -->
+        <div class="relative mx-4 mb-4 aspect-video rounded-md overflow-hidden">
+          <img
+            class="object-cover w-full h-full group-hover:opacity-40 transition-all duration-500"
+            :src="item.image == null ? projetsImg[0] : item.image.url"
+            alt=""
+          />
+          <div
+            class="absolute inset-0 flex items-start justify-center p-4 text-white text-center bg-black bg-opacity-70 opacity-0 group-hover:opacity-100 transition-opacity duration-500 overflow-y-auto"
+          >
             <div>
-              <p class="text-base font-bold lg:text-lg">Description du projet</p>
-              <p class="px-2 text-sm lg:text-base line-clamp-7">{{ item.description }} {{ item.key }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="m-5 text-slate-600 dark:text-slate-500">
-        <div class="flex items-center">
-          <LinkIcon class="w-4 h-4 mr-2" /> Fond propre: {{ item.budgetNational == null || item.budgetNational == 0 ? 0 : $h.formatCurrency(item.budgetNational) }}
-          <div class="ml-2 italic font-bold">Fcfa</div>
-        </div>
-        <div class="flex items-center">
-          <LinkIcon class="w-4 h-4 mr-2" /> Subvention: {{ item.pret == null || item.pret == 0 ? 0 : $h.formatCurrency(item.pret) }}
-          <div class="ml-2 italic font-bold">Fcfa</div>
-        </div>
-        <div v-if="item.owner !== null" class="flex items-center">
-          <GlobeIcon class="w-4 h-4 mr-2" /> Organisation:
-          <span class="p-1 pl-2 text-white bg-green-400 rounded-md shadow-md">{{ item.owner.user.nom }}</span>
-        </div>
-        <div class="flex items-center mt-2">
-          <ClockIcon class="w-4 h-4 mr-2" />
-          <div>
-            Date : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(item.debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(item.fin) }}</span>
-          </div>
-        </div>
-        <div class="flex items-center mt-2">
-          <CheckSquareIcon class="w-4 h-4 mr-2" /> Statut :
-          <span class="p-1 pl-2 text-white bg-black rounded-md shadow-md" v-if="item.statut == -2"> Non validé </span>
-          <span class="p-1 pl-2 text-white bg-green-500 rounded-md shadow-md" v-else-if="item.statut == -1"> Pas démarré </span>
-          <span class="p-1 pl-1 text-white bg-yellow-500 rounded-md shadow-md" v-else-if="item.statut == 0"> En cours </span>
-          <span class="p-1 pl-1 text-white bg-red-500 rounded-md shadow-md" v-else-if="item.statut == 1"> En retard </span>
-          <span class="pl-2" v-else-if="item.statut == 2">Terminé</span>
-        </div>
-
-        <!-- Budget restant -->
-        <div class="mt-4 p-3 bg-gray-50 rounded-lg">
-          <h4 class="text-xs font-semibold text-gray-700 mb-2">Budget disponible</h4>
-          <div class="grid grid-cols-2 gap-2">
-            <div class="text-center">
-              <p class="text-xs text-gray-500">Fond propre restant</p>
-              <p class="text-sm font-bold" :class="getFondRestant(item) >= 0 ? 'text-green-600' : 'text-red-600'">
-                {{ getFondRestant(item) === 0 ? '0' : $h.formatCurrency(getFondRestant(item)) }} FCFA
-              </p>
-            </div>
-            <div class="text-center">
-              <p class="text-xs text-gray-500">Subvention restante</p>
-              <p class="text-sm font-bold" :class="getSubventionRestant(item) >= 0 ? 'text-green-600' : 'text-red-600'">
-                {{ getSubventionRestant(item) === 0 ? '0' : $h.formatCurrency(getSubventionRestant(item)) }} FCFA
+              <p class="font-bold text-sm sm:text-base">Description du projet</p>
+              <p class="mt-2 text-xs sm:text-sm leading-snug line-clamp-6">
+                {{ item.description }} {{ item.key }}
               </p>
             </div>
           </div>
         </div>
-      </div>
 
-      <div class="flex items-center justify-between p-5 border-t lg:justify-end border-slate-200/60 dark:border-darkmode-400">
-        <a v-if="verifyPermission('voir-details-projet')" class="flex items-center mr-auto text-primary" href="javascript:;" @click="goToDetail(item)"> <EyeIcon class="w-4 h-4 mr-1" title="voir détail" /> <span class="hidden sm:block"> Détail </span> </a>
-        <a v-if="verifyPermission('prolonger-un-projet')" class="flex items-center mr-auto text-primary" href="javascript:;" @click="ouvrirModalProlongerProjet(item)" title="Prolonger la date du projet"> <CalendarIcon class="w-4 h-4 mr-1" /><span class="hidden sm:block"> Étendre </span> </a>
-        <a v-if="verifyPermission('modifier-un-projet')" class="flex items-center mr-auto" href="javascript:;" @click="modifierProjet(item)"> <CheckSquareIcon class="w-4 h-4 mr-1" title="modifier le projet" /><span class="hidden sm:block"> Modifier </span> </a>
-        <a v-if="verifyPermission('supprimer-un-projet')" class="flex items-center text-danger mr-auto" href="javascript:;" @click="supprimerProjet(item)"> <Trash2Icon class="w-4 h-4 mr-1" title="supprimer le projet" /><span class="hidden sm:block"> Supprimer </span> </a>
-      </div>
+        <!-- Infos principales -->
+        <div class="px-4 pb-4 text-slate-700 space-y-2 text-sm sm:text-base">
+          <div class="flex items-center">
+            <LinkIcon class="w-4 h-4 mr-2" />
+            Fond propre :
+            <span class="ml-1 font-semibold">
+              {{ item.budgetNational ? $h.formatCurrency(item.budgetNational) : 0 }}
+            </span>
+            <span class="ml-1 italic text-xs font-bold">Fcfa</span>
+          </div>
 
-      <div class="absolute bottom-0 flex w-full">
-        <div class="w-1/3 p-1 bg-green-500"></div>
-        <div class="flex flex-col w-2/3">
-          <div class="p-0.5 bg-yellow-500"></div>
-          <div class="p-0.5 bg-red-500"></div>
+          <div class="flex items-center">
+            <LinkIcon class="w-4 h-4 mr-2" />
+            Subvention :
+            <span class="ml-1 font-semibold">
+              {{ item.pret ? $h.formatCurrency(item.pret) : 0 }}
+            </span>
+            <span class="ml-1 italic text-xs font-bold">Fcfa</span>
+          </div>
+
+          <div v-if="item.owner" class="flex items-center">
+            <GlobeIcon class="w-4 h-4 mr-2" />
+            Organisation :
+            <span class="ml-1 px-2 py-0.5 text-white bg-green-500 rounded-md shadow-sm text-xs sm:text-sm">
+              {{ item.owner.user.nom }}
+            </span>
+          </div>
+
+          <div class="flex items-center">
+            <ClockIcon class="w-4 h-4 mr-2" />
+            <span>
+              Du <b>{{ $h.reformatDate(item.debut) }}</b> au <b>{{ $h.reformatDate(item.fin) }}</b>
+            </span>
+          </div>
+
+          <div class="flex items-center">
+            <CheckSquareIcon class="w-4 h-4 mr-2" />
+            Statut :
+            <span
+              class="ml-2 px-2 py-0.5 text-white rounded-md shadow-sm text-xs sm:text-sm"
+              :class="{
+                'bg-gray-500': item.statut == -2,
+                'bg-green-500': item.statut == -1,
+                'bg-yellow-500': item.statut == 0,
+                'bg-red-500': item.statut == 1,
+                'bg-black': item.statut == 2
+              }"
+            >
+              {{
+                item.statut == -2
+                  ? 'Non validé'
+                  : item.statut == -1
+                  ? 'Pas démarré'
+                  : item.statut == 0
+                  ? 'En cours'
+                  : item.statut == 1
+                  ? 'En retard'
+                  : 'Terminé'
+              }}
+            </span>
+          </div>
+
+          <!-- Budget restant -->
+          <div class="mt-4 p-3 bg-gray-50 rounded-lg text-center sm:text-left">
+            <h4 class="text-xs font-semibold text-gray-700 mb-2 uppercase">
+              Budget disponible
+            </h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <p class="text-xs text-gray-500">Fond propre restant</p>
+                <p
+                  class="text-sm font-bold"
+                  :class="getFondRestant(item) >= 0 ? 'text-green-600' : 'text-red-600'"
+                >
+                  {{
+                    getFondRestant(item) === 0
+                      ? '0'
+                      : $h.formatCurrency(getFondRestant(item))
+                  }}
+                  FCFA
+                </p>
+              </div>
+              <div>
+                <p class="text-xs text-gray-500">Subvention restante</p>
+                <p
+                  class="text-sm font-bold"
+                  :class="getSubventionRestant(item) >= 0 ? 'text-green-600' : 'text-red-600'"
+                >
+                  {{
+                    getSubventionRestant(item) === 0
+                      ? '0'
+                      : $h.formatCurrency(getSubventionRestant(item))
+                  }}
+                  FCFA
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div
+          class="flex flex-wrap items-center justify-between sm:justify-end p-4 border-t border-slate-200"
+        >
+          <a
+            v-if="verifyPermission('voir-details-projet')"
+            href="javascript:;"
+            class="flex items-center text-primary text-xs sm:text-sm mr-3"
+            @click="goToDetail(item)"
+          >
+            <EyeIcon class="w-4 h-4 mr-1" /> Détail
+          </a>
+
+          <a
+            v-if="verifyPermission('prolonger-un-projet')"
+            href="javascript:;"
+            class="flex items-center text-primary text-xs sm:text-sm mr-3"
+            @click="ouvrirModalProlongerProjet(item)"
+          >
+            <CalendarIcon class="w-4 h-4 mr-1" /> Étendre
+          </a>
+
+          <a
+            v-if="verifyPermission('modifier-un-projet')"
+            href="javascript:;"
+            class="flex items-center text-primary text-xs sm:text-sm mr-3"
+            @click="modifierProjet(item)"
+          >
+            <CheckSquareIcon class="w-4 h-4 mr-1" /> Modifier
+          </a>
+
+          <a
+            v-if="verifyPermission('supprimer-un-projet')"
+            href="javascript:;"
+            class="flex items-center text-red-600 text-xs sm:text-sm"
+            @click="supprimerProjet(item)"
+          >
+            <Trash2Icon class="w-4 h-4 mr-1" /> Supprimer
+          </a>
         </div>
       </div>
     </div>
-
-    <!-- <pagination totalItems="30" itemsPerPage="10" :isLoading="false" /> -->
-  </div>
 
   <pagination v-if="paginatedAndFilteredData.length > 0" class="col-span-12" :total-items="totalItems" :items-per-page="itemsPerPage" :is-loading="isLoadingProjets" @page-changed="onPageChanged" @items-per-page-changed="onItemsPerPageChanged">
     <!-- Slots personnalisés (facultatif) -->
@@ -476,6 +592,293 @@
     <!-- <h3>An interactive leaflet map</h3> -->
     <div id="map" style="height: 70vh"></div>
   </div>
+
+  <!-- Modal d'ajout d'organisation -->
+  <Modal size="modal-xl" backdrop="static" :show="showModalOrganisation" @hidden="closeModalOrganisation">
+    <ModalHeader>
+      <h2 class="mr-auto text-base font-medium">Ajouter une organisation</h2>
+    </ModalHeader>
+    <form @submit.prevent="submitOrganisationData">
+      <ModalBody class="space-y-3">
+        <!-- Indicateur d'étapes -->
+        <ol class="items-center justify-center w-full mb-3 space-y-4 sm:flex sm:space-x-8 sm:space-y-0 rtl:space-x-reverse">
+          <li v-for="step in visibleStepsOrganisation" @click="goToStepOrganisation(step.id)" :key="step.id"
+              :class="[currentStepOrganisation == step.id ? 'text-blue-800' : 'text-gray-500']"
+              class="flex cursor-pointer items-center space-x-2.5 rtl:space-x-reverse">
+            <span :class="[currentStepOrganisation == step.id ? 'border-blue-800' : 'border-gray-500']"
+                  class="flex items-center justify-center w-8 h-8 border rounded-full shrink-0">
+              {{ step.id }}
+            </span>
+            <span>
+              <h3 class="font-medium leading-tight">Étape {{ step.id }}</h3>
+              <p class="text-sm">{{ step.label }}</p>
+            </span>
+          </li>
+        </ol>
+
+        <!-- Étape 1: Informations Générales -->
+        <div v-show="currentStepOrganisation == 1" class="">
+          <p class="mb-3 text-lg text-semibold">Informations générales</p>
+          <div class="space-y-3">
+            <div class="grid grid-cols-2 gap-4">
+              <InputForm :required="true" label="Nom" v-model="payloadOrganisation.nom"
+                         :control="getFieldErrorsOrganisation(errorsOrganisation.nom)" />
+              <InputForm :required="true" label="Email" v-model="payloadOrganisation.email" type="email"
+                         :control="getFieldErrorsOrganisation(errorsOrganisation.email)" />
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <InputForm :required="true" label="Sigle" v-model="payloadOrganisation.sigle"
+                         :control="getFieldErrorsOrganisation(errorsOrganisation.sigle)" />
+              <InputForm :control="getFieldErrorsOrganisation(errorsOrganisation.contact)"
+                         label="Contact" v-model="payloadOrganisation.contact"
+                         maxlength="13" placeholder="+229xxxxxxxxxx" type="text" />
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <InputForm label="Code" :control="getFieldErrorsOrganisation(errorsOrganisation.code)"
+                         v-model.number="payloadOrganisation.code" type="number" />
+              <div v-if="payloadOrganisation.type !== 'autre_osc'">
+                <label class="form-label">Domaine D'intervention <span class="text-danger">*</span></label>
+                <TomSelect v-model="payloadOrganisation.secteurActivite"
+                           :options="{ placeholder: 'Sélectionnez un secteur' }" class="w-full">
+                  <option value=""></option>
+                  <option v-for="(secteur, index) in secteursActivitesOrganisation" :key="index" :value="secteur">
+                    {{ secteur }}
+                  </option>
+                </TomSelect>
+                <div v-if="errorsOrganisation.secteurActivite" class="mt-2 text-danger">
+                  {{ getFieldErrorsOrganisation(errorsOrganisation.secteurActivite) }}
+                </div>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="form-label">Types<span class="text-danger">*</span></label>
+                <TomSelect v-model="payloadOrganisation.type"
+                           :options="{ placeholder: 'Sélectionnez un type' }" class="w-full">
+                  <option value=""></option>
+                  <option v-for="(type, index) in typesOrganisation" :key="index" :value="type.id">
+                    {{ type.label }}
+                  </option>
+                </TomSelect>
+                <div v-if="errorsOrganisation.type" class="mt-2 text-danger">
+                  {{ getFieldErrorsOrganisation(errorsOrganisation.type) }}
+                </div>
+              </div>
+              <div v-if="payloadOrganisation.type == 'osc_fosir' && payloadOrganisation.type !== ''">
+                <label class="form-label">Fonds <span class="text-danger">*</span></label>
+                <TomSelect v-model="payloadOrganisation.fondId"
+                           :options="{ placeholder: 'Sélectionnez un fond' }" class="w-full">
+                  <option value=""></option>
+                  <option v-for="(fond, index) in fondsOrganisation" :key="index" :value="fond.id">
+                    {{ fond.nom_du_fond }} ({{ fond.fondDisponible }})
+                  </option>
+                </TomSelect>
+                <div v-if="errorsOrganisation.fondId" class="mt-2 text-danger">
+                  {{ getFieldErrorsOrganisation(errorsOrganisation.fondId) }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Étape 2: Informations Localisation -->
+        <div v-show="currentStepOrganisation == 2" class="">
+          <div v-if="payloadOrganisation.type !== 'autre_osc'">
+            <p class="mb-3 text-lg text-semibold">Informations Localisation</p>
+            <div class="space-y-3">
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="form-label">Pays</label>
+                  <div class="relative w-full">
+                    <v-select class="w-full" :reduce="(country) => country"
+                              v-model="payloadOrganisation.pays" :options="paysOrganisation"
+                              placeholder="Sélectionnez un pays..."
+                              @option:selected="changeCountryOrganisation">
+                      <template #search="{ attributes, events }">
+                        <input class="vs__search form-input" v-bind="attributes" v-on="events"
+                               placeholder="Rechercher un pays..." />
+                      </template>
+                    </v-select>
+                  </div>
+                  <div v-if="errorsOrganisation.pays" class="mt-2 text-danger">
+                    {{ getFieldErrorsOrganisation(errorsOrganisation.pays) }}
+                  </div>
+                </div>
+                <InputForm :required="false" label="Adresse" name="Adresse"
+                           :control="getFieldErrorsOrganisation(errorsOrganisation.addresse)"
+                           v-model="payloadOrganisation.addresse" />
+              </div>
+
+              <!-- Si Bénin est sélectionné -->
+              <div v-if="isBeninOrganisation" class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="form-label">Départements<span class="text-danger">*</span></label>
+                  <div class="relative w-full">
+                    <v-select class="w-full" :reduce="(dep) => dep.lib_dep"
+                              v-model="payloadOrganisation.departement" :options="departementsOrganisation"
+                              label="lib_dep" placeholder="Sélectionnez un département..."
+                              @option:selected="updateCommunesOrganisation">
+                      <template #search="{ attributes, events }">
+                        <input class="vs__search form-input" v-bind="attributes" v-on="events"
+                               placeholder="Rechercher un département..." />
+                      </template>
+                    </v-select>
+                  </div>
+                  <div v-if="errorsOrganisation.departement" class="mt-2 text-danger">
+                    {{ getFieldErrorsOrganisation(errorsOrganisation.departement) }}
+                  </div>
+                </div>
+                <div :class="[!showCommuneOrganisation ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
+                  <label class="form-label">Communes<span class="text-danger">*</span></label>
+                  <div class="relative w-full">
+                    <v-select class="w-full" :reduce="(commune) => commune.lib_com"
+                              v-model="payloadOrganisation.commune" :options="filteredCommunesOrganisation"
+                              label="lib_com" placeholder="Sélectionner la commune..."
+                              @option:selected="updateArrondissementsOrganisation">
+                      <template #search="{ attributes, events }">
+                        <input class="vs__search form-input" v-bind="attributes" v-on="events"
+                               placeholder="Rechercher une commune..." />
+                      </template>
+                    </v-select>
+                  </div>
+                  <div v-if="errorsOrganisation.commune" class="mt-2 text-danger">
+                    {{ getFieldErrorsOrganisation(errorsOrganisation.commune) }}
+                  </div>
+                </div>
+              </div>
+
+              <div v-if="isBeninOrganisation" class="grid grid-cols-2 gap-4">
+                <div :class="[!showArrondissementOrganisation ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
+                  <label class="form-label">Arrondissement<span class="text-danger">*</span></label>
+                  <div class="relative w-full">
+                    <v-select class="w-full" :reduce="(arrond) => arrond.lib_arrond"
+                              v-model="payloadOrganisation.arrondissement" :options="filteredArrondissementsOrganisation"
+                              label="lib_arrond" placeholder="Sélectionnez un arrondissement..."
+                              @option:selected="updateQuartiersOrganisation">
+                      <template #search="{ attributes, events }">
+                        <input class="vs__search form-input" v-bind="attributes" v-on="events"
+                               placeholder="Rechercher un arrondissement..." />
+                      </template>
+                    </v-select>
+                  </div>
+                  <div v-if="errorsOrganisation.arrondissement" class="mt-2 text-danger">
+                    {{ getFieldErrorsOrganisation(errorsOrganisation.arrondissement) }}
+                  </div>
+                </div>
+                <div :class="[!showQuatierOrganisation ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
+                  <label class="form-label">Quartier<span class="text-danger">*</span></label>
+                  <div class="relative w-full">
+                    <v-select class="w-full" :reduce="(quart) => quart.lib_quart"
+                              v-model="payloadOrganisation.quartier" :options="filteredQuartiersOrganisation"
+                              label="lib_quart" placeholder="Sélectionner le quartier...">
+                      <template #search="{ attributes, events }">
+                        <input class="vs__search form-input" v-bind="attributes" v-on="events"
+                               placeholder="Rechercher un quartier..." />
+                      </template>
+                    </v-select>
+                  </div>
+                  <div v-if="errorsOrganisation.quartier" class="mt-2 text-danger">
+                    {{ getFieldErrorsOrganisation(errorsOrganisation.quartier) }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Si autre pays -->
+              <div v-if="!isBeninOrganisation" class="grid grid-cols-2 gap-4">
+                <InputForm :required="false" :optionel="false" label="Département" name="Département"
+                           v-model="payloadOrganisation.departement"
+                           :control="getFieldErrorsOrganisation(errorsOrganisation.departement)" />
+                <InputForm :required="false" :optionel="false" label="Commune" name="Commune"
+                           v-model="payloadOrganisation.commune"
+                           :control="getFieldErrorsOrganisation(errorsOrganisation.commune)" />
+              </div>
+
+              <div v-if="!isBeninOrganisation" class="grid grid-cols-2 gap-4">
+                <InputForm :required="false" :optionel="false" label="Arrondissement" name="Arrondissement"
+                           v-model="payloadOrganisation.arrondissement"
+                           :control="getFieldErrorsOrganisation(errorsOrganisation.arrondissement)" />
+                <InputForm :required="false" :optionel="false" label="Quartier" name="Quartier"
+                           v-model="payloadOrganisation.quartier"
+                           :control="getFieldErrorsOrganisation(errorsOrganisation.quartier)" />
+              </div>
+
+              <div class="grid grid-cols-2 gap-4">
+                <InputForm :required="false" :optionel="false" label="Longitude" name="Longitude" step="0.1"
+                           :control="getFieldErrorsOrganisation(errorsOrganisation.longitude)"
+                           v-model.text="payloadOrganisation.longitude" type="number" />
+                <InputForm :required="false" :optionel="false" label="Latitude" name="Latitude" step="0.1"
+                           :control="getFieldErrorsOrganisation(errorsOrganisation.latitude)"
+                           v-model.text="payloadOrganisation.latitude" type="number" />
+              </div>
+            </div>
+          </div>
+          <!-- Si type = autre_osc, afficher infos point focal -->
+          <div v-else>
+            <p class="mb-3 text-lg text-semibold">Informations Point focal</p>
+            <div class="space-y-3">
+              <div class="grid grid-cols-2 gap-4">
+                <InputForm :required="false" label="Nom point focal" name="Nom point focal"
+                           :control="getFieldErrorsOrganisation(errorsOrganisation.nom_point_focal)"
+                           v-model="payloadOrganisation.nom_point_focal" />
+                <InputForm :required="false" label="Prénom point focal" name="Prénom point focal"
+                           :control="getFieldErrorsOrganisation(errorsOrganisation.prenom_point_focal)"
+                           v-model="payloadOrganisation.prenom_point_focal" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Étape 3: Informations Point Focal -->
+        <div v-show="currentStepOrganisation == 3" class="">
+          <p class="mb-3 text-lg text-semibold">Informations Point focal</p>
+          <div class="space-y-3">
+            <div class="grid grid-cols-2 gap-4">
+              <InputForm :required="false" label="Nom point focal" name="Nom point focal"
+                         :control="getFieldErrorsOrganisation(errorsOrganisation.nom_point_focal)"
+                         v-model="payloadOrganisation.nom_point_focal" />
+              <InputForm :required="false" label="Prénom point focal" name="Prénom point focal"
+                         :control="getFieldErrorsOrganisation(errorsOrganisation.prenom_point_focal)"
+                         v-model="payloadOrganisation.prenom_point_focal" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation entre les étapes -->
+        <div class="flex justify-end gap-3 py-4">
+          <button @click.prevent="prevStepOrganisation"
+                  :class="[currentStepOrganisation == 1 ? 'opacity-50 cursor-not-allowed pointer-events-none' : '']"
+                  class="flex items-center justify-center mr-1 btn btn-outline-primary">
+            <ChevronsLeftIcon class="size-4" />
+          </button>
+          <button v-for="step in visibleStepsOrganisation" :key="step.id"
+                  :class="[step.id == currentStepOrganisation ? 'btn-primary' : 'btn-outline-primary']"
+                  @click.prevent="goToStepOrganisation(step.id)"
+                  class="flex items-center justify-center rounded-full btn size-8">
+            {{ step.id }}
+          </button>
+          <button @click.prevent="nextStepOrganisation"
+                  :class="[currentStepOrganisation == visibleStepsOrganisation.length ? 'opacity-50 cursor-not-allowed pointer-events-none' : '']"
+                  class="flex items-center justify-center ml-1 text-black btn btn-outline-primary">
+            <ChevronsRightIcon class="text-black size-4" />
+          </button>
+        </div>
+      </ModalBody>
+
+      <ModalFooter>
+        <div class="flex gap-2">
+          <button type="button" @click="closeModalOrganisation"
+                  class="w-full px-2 py-2 my-3 btn btn-outline-secondary">
+            Annuler
+          </button>
+          <VButton v-if="currentStepOrganisation == visibleStepsOrganisation.length"
+                   :loading="isLoadingOrganisation" label="Ajouter" />
+          <VButton v-else :loading="isLoadingOrganisation" @click.prevent="nextStepOrganisation"
+                   :class="[currentStepOrganisation == visibleStepsOrganisation.length ? 'opacity-50 cursor-not-allowed pointer-events-none' : '']"
+                   label="Suivant" />
+        </div>
+      </ModalFooter>
+    </form>
+  </Modal>
 </template>
 
 <script>
@@ -492,9 +895,15 @@ import VButton from "@/components/news/VButton.vue";
 import pagination from "@/components/news/pagination.vue";
 import OngService from "@/services/modules/ong.service.js";
 import SiteService from "@/services/modules/site.service.js";
+import FondsService from "@/services/modules/fond.service";
 import { helper as $h } from "@/utils/helper";
 import { toast } from "vue3-toastify";
+import { getFieldErrors } from "@/utils/helpers";
+import { secteursActivites } from "@/utils/constants";
+import { getAllErrorMessages } from "@/utils/gestion-error";
 import verifyPermission from "@/utils/verifyPermission";
+import decoupage from "@/decoupage_territorial_benin.json";
+import contries from "@/pays.json";
 import "leaflet/dist/leaflet.css";
 import * as L from "leaflet";
 import { LMap, LTileLayer, LMarker, LPolygon, LPopup } from "@vue-leaflet/vue-leaflet";
@@ -504,16 +913,14 @@ import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import "leaflet.markercluster";
 import { addressPoints } from "./markerDemo";
 import icon from "./icon.png";
-import contries from "@/pays.json";
 import markerShadow from "./marker-shadow.png"; // ../../utils/helpers"
 // import { getFieldErrors } from "../../../utils/helpers"; // Fonction définie localement
-import decoupage from "@/decoupage_territorial_benin.json";
 
 export default {
   components: { LoaderSnipper, NoRecordsMessage, InputForm, VButton, LMap, LTileLayer, LMarker, LPolygon, LPopup, pagination },
   data() {
     return {
-      markerLatLng: [6.3703, 2.3912],
+      markerLatLng: [9.30769,2.315834],
       showMapModal: false,
       map: null,
       selectedDepartementData: "",
@@ -577,9 +984,12 @@ export default {
       zoom: 2,
       initialMap: null,
       myIcon: null,
+       beninBounds: [
+        [6.225, 0.774], // Sud-Ouest
+        [12.418, 3.851]  // Nord-Est
+      ],
       //markerLatLng: [47.31322, -1.319482],
-      markerLatLng: [0, 0],
-
+      markerLatLng: [9.3077, 2.3158],
       savedInput: [],
       base_url: API_BASE_URL,
       showModal: false,
@@ -659,6 +1069,44 @@ export default {
       prolongerModal: false,
       loadingProlonger: false,
       erreurProlongation: null,
+      showModalOrganisation : false ,
+      payloadOrganisation: {
+        nom: "",
+        email: "",
+        contact: "",
+        fondId: "",
+        nom_point_focal: "",
+        prenom_point_focal: "",
+        contact_point_focal: "",
+        sigle: "",
+        code: "",
+        longitude: "",
+        latitude: "",
+        addresse: "",
+        quartier: "",
+        type: "",
+        arrondissement: "",
+        commune: "",
+        departement: "",
+        pays: "",
+        secteurActivite: "",
+      },
+      isLoadingOrganisation: false,
+      currentStepOrganisation: 1,
+      fondsOrganisation: [],
+      typesOrganisation: [
+        { label: "OSC FOSIR", id: "osc_fosir" },
+        { label: "OSC Partenaire", id: "osc_partenaire" },
+        { label: "Autre OSC", id: "autre_osc" },
+        { label: "Acteurs", id: "acteurs" },
+        { label: "Structures étatiques", id: "structure_etatique" },
+      ],
+      secteursActivitesOrganisation: [],
+      departementsOrganisation: [],
+      paysOrganisation: [],
+      selectedDepartementDataOrganisation: null,
+      isBeninOrganisation: false,
+      errorsOrganisation: {},
     };
   },
 
@@ -743,9 +1191,244 @@ export default {
         return arrondissementData ? arrondissementData.quartiers : [];
       };
     },
+
+    // Computed properties pour l'organisation
+    filteredCommunesOrganisation() {
+      if (!this.payloadOrganisation.departement) return [];
+      this.selectedDepartementDataOrganisation = this.departementsOrganisation.find(
+        (dep) => dep.lib_dep === this.payloadOrganisation.departement
+      );
+      return this.selectedDepartementDataOrganisation ? this.selectedDepartementDataOrganisation.communes : [];
+    },
+    filteredArrondissementsOrganisation() {
+      if (!this.payloadOrganisation.commune || !this.selectedDepartementDataOrganisation) return [];
+      const communeData = this.selectedDepartementDataOrganisation.communes.find(
+        (com) => com.lib_com === this.payloadOrganisation.commune
+      );
+      return communeData ? communeData.arrondissements : [];
+    },
+    filteredQuartiersOrganisation() {
+      if (!this.payloadOrganisation.arrondissement) return [];
+      const arrondissementData = this.filteredArrondissementsOrganisation.find(
+        (arrond) => arrond.lib_arrond === this.payloadOrganisation.arrondissement
+      );
+      return arrondissementData ? arrondissementData.quartiers : [];
+    },
+    showCommuneOrganisation() {
+      return !this.payloadOrganisation.departement;
+    },
+    showArrondissementOrganisation() {
+      return !this.payloadOrganisation.commune;
+    },
+    showQuatierOrganisation() {
+      return !this.payloadOrganisation.arrondissement;
+    },
+    visibleStepsOrganisation() {
+      const steps = [
+        { label: "Informations Générale", id: 1 },
+        { label: "Informations Localisation", id: 2 },
+        { label: "Informations Point Focal", id: 3 },
+      ];
+      return steps.filter((step) => {
+        // si type = autre_osc on supprime l'étape 3
+        if (step.id === 3 && this.payloadOrganisation.type === "autre_osc") {
+          return false;
+        }
+        return true;
+      }).map((step) => {
+        // si type = autre_osc et étape 2 => changer label
+        if (step.id === 2 && this.payloadOrganisation.type === "autre_osc") {
+          return { ...step, label: "Informations Point Focal" };
+        }
+        return step;
+      });
+    },
   },
 
   methods: {
+     initializeMapBounds() {
+      const map = this.$refs.map?.leafletObject;
+      if (map) {
+        // Définir les limites de la carte
+        map.setMaxBounds(this.beninBounds);
+        
+        // Empêcher le zoom trop éloigné
+        map.setMinZoom(7);
+        map.setMaxZoom(18);
+      }
+    },
+    isInBenin(lat, lng) {
+      const [sw, ne] = this.beninBounds;
+      return (
+        lat >= sw[0] && 
+        lat <= ne[0] && 
+        lng >= sw[1] && 
+        lng <= ne[1]
+      );
+    },
+    ouvrirModalAjoutOrganisation(){
+       this.showModalOrganisation = true
+    },
+
+    // Fonctions de navigation pour les étapes du formulaire organisation
+    goToStepOrganisation(index) {
+      this.currentStepOrganisation = index;
+    },
+
+    prevStepOrganisation() {
+      if (this.currentStepOrganisation > 1) {
+        this.currentStepOrganisation--;
+      } else {
+        this.currentStepOrganisation = 1;
+      }
+    },
+
+    nextStepOrganisation() {
+      // Vous pouvez ajouter une logique pour déterminer le nombre maximum d'étapes
+      const maxSteps = 3; // À ajuster selon vos besoins
+      if (this.currentStepOrganisation < maxSteps) {
+        this.currentStepOrganisation++;
+      } else {
+        this.currentStepOrganisation = maxSteps;
+      }
+    },
+
+    resetFormOrganisation() {
+      this.payloadOrganisation = {
+        nom: "",
+        email: "",
+        contact: "",
+        fondId: "",
+        nom_point_focal: "",
+        prenom_point_focal: "",
+        contact_point_focal: "",
+        sigle: "",
+        code: "",
+        longitude: "",
+        latitude: "",
+        addresse: "",
+        quartier: "",
+        type: "",
+        arrondissement: "",
+        commune: "",
+        departement: "",
+        pays: "",
+        secteurActivite: "",
+      };
+      this.currentStepOrganisation = 1;
+      this.isLoadingOrganisation = false;
+    },
+
+    // Fonctions de mise à jour pour la localisation organisation
+    changeCountryOrganisation() {
+      if (this.payloadOrganisation.pays === "Bénin") {
+        this.isBeninOrganisation = true;
+        this.updateCommunesOrganisation();
+      } else {
+        this.payloadOrganisation.quartier = "";
+        this.payloadOrganisation.arrondissement = "";
+        this.payloadOrganisation.commune = "";
+        this.payloadOrganisation.departement = "";
+        this.isBeninOrganisation = false;
+      }
+    },
+
+    updateCommunesOrganisation() {
+      this.payloadOrganisation.commune = "";
+      this.payloadOrganisation.arrondissement = "";
+      this.payloadOrganisation.quartier = "";
+    },
+
+    updateArrondissementsOrganisation() {
+      this.payloadOrganisation.arrondissement = "";
+      this.payloadOrganisation.quartier = "";
+    },
+
+    updateQuartiersOrganisation() {
+      this.payloadOrganisation.quartier = "";
+    },
+
+    getFieldErrorsOrganisation(error) {
+      if (Array.isArray(error)) {
+        return error.join(", ");
+      }
+      return error || "";
+    },
+
+    // Fonction pour charger les fonds
+    async getFondsOrganisation() {
+      try {
+        const result = await FondsService.get();
+        this.fondsOrganisation = result.data.data;
+      } catch (e) {
+        console.error(e);
+        toast.error("Une erreur est survenue lors du chargement des fonds.");
+      }
+    },
+
+    // Fonction pour initialiser les données de localisation
+    initLocalisationDataOrganisation() {
+      this.departementsOrganisation = decoupage;
+      this.paysOrganisation = Object.values(contries);
+      this.secteursActivitesOrganisation = secteursActivites;
+    },
+
+    // Fonction de soumission du formulaire organisation
+    async submitOrganisationData() {
+      this.isLoadingOrganisation = true;
+
+      // Traitement de la longitude et latitude
+      this.payloadOrganisation.longitude = this.payloadOrganisation.longitude + "";
+      this.payloadOrganisation.latitude = this.payloadOrganisation.latitude + "";
+
+      if (this.payloadOrganisation.longitude.includes(",")) {
+        this.payloadOrganisation.longitude = this.payloadOrganisation.longitude.replace(",", ".");
+      }
+
+      if (this.payloadOrganisation.latitude.includes(",")) {
+        this.payloadOrganisation.latitude = this.payloadOrganisation.latitude.replace(",", ".");
+      }
+
+      // Retirer le + du contact s'il existe
+      if (this.payloadOrganisation.contact && this.payloadOrganisation.contact.startsWith("+")) {
+        this.payloadOrganisation.contact = this.payloadOrganisation.contact.substring(1);
+      }
+
+      // Copier le contact principal vers contact point focal
+      this.payloadOrganisation.contact_point_focal = this.payloadOrganisation.contact;
+
+      try {
+        // Créer l'organisation
+        await OngService.create(this.payloadOrganisation);
+
+        // Toast de succès
+        toast.success("Organisation créée avec succès.");
+
+        // Recharger la liste des organisations
+        await this.fetchOngs();
+
+        // Réinitialiser le formulaire et fermer le modal
+        this.resetFormOrganisation();
+        this.showModalOrganisation = false;
+      } catch (e) {
+        // Gestion des erreurs
+        if (e.response && e.response.status === 422) {
+          this.errorsOrganisation = e.response.data.errors;
+          toast.error("Veuillez corriger les erreurs dans le formulaire.");
+        } else {
+          toast.error(getAllErrorMessages(e));
+        }
+      } finally {
+        this.isLoadingOrganisation = false;
+      }
+    },
+
+    // Fonction pour fermer le modal organisation
+    closeModalOrganisation() {
+      this.showModalOrganisation = false;
+      this.resetFormOrganisation();
+    },
+
     voirOutCome(id){
       this.$router.push({ name: "ProjectDetail", params: { projectId: id } });
     },
@@ -782,7 +1465,14 @@ export default {
 
     onMapClick(event) {
       const { lat, lng } = event.latlng;
-      this.updateCoordinates(lat, lng);
+      // Vérifier si le clic est dans les limites du Bénin
+      if (this.isInBenin(lat, lng)) {
+        this.updateCoordinates(lat, lng);
+      } else {
+        toast.error("Veuillez sélectionner une position à l'intérieur du Bénin");
+        // this.showError("Veuillez sélectionner une position à l'intérieur du Bénin");
+      }
+      
     },
     resetForm() {
       this.payloadSites = this.getinitForm();
@@ -800,6 +1490,15 @@ export default {
 
     onMarkerDragEnd(event) {
       const { lat, lng } = event.target.getLatLng();
+
+      if (this.isInBenin(position.lat, position.lng)) {
+         this.updateCoordinates(lat, lng);
+      } else {
+        // Revenir à la position précédente
+       
+        toast.error("Le marqueur doit rester à l'intérieur du Bénin");
+      }
+
       this.updateCoordinates(lat, lng);
     },
 
@@ -811,7 +1510,11 @@ export default {
       if (index !== null && this.payloadsSitesMultiple[index]) {
         const site = this.payloadsSitesMultiple[index];
         if (site.latitude && site.longitude) {
-          this.markerLatLng = [parseFloat(site.latitude), parseFloat(site.longitude)];
+           if(this.isInBenin(site.latitude, site.longitude)){
+             this.markerLatLng = [parseFloat(site.latitude), parseFloat(site.longitude)];
+           }else {
+            this.markerLatLng = [9.30769, 2.315834]
+           }
         }
       } else if (this.payloadSites.latitude && this.payloadSites.longitude) {
         this.markerLatLng = [parseFloat(this.payloadSites.latitude), parseFloat(this.payloadSites.longitude)];
@@ -837,6 +1540,8 @@ export default {
       // Assignation directe pour Vue 3
       if (this.currentSiteIndex !== null && this.payloadsSitesMultiple[this.currentSiteIndex]) {
         // Mettre à jour le site en cours d'édition dans le tableau
+        this.payloadsSitesMultiple[this.currentSiteIndex].latitude = 0
+        this.payloadsSitesMultiple[this.currentSiteIndex].longitude = 0
         this.payloadsSitesMultiple[this.currentSiteIndex].latitude = lat.toFixed(6);
         this.payloadsSitesMultiple[this.currentSiteIndex].longitude = lng.toFixed(6);
       } else {
@@ -1578,6 +2283,7 @@ export default {
               this.resetAllProjetFields();
 
               this.fetchProjets();
+              this.fetchOngs()
               toast.success("Modification éffectuée avec succès");
               this.showModal = false;
             }
@@ -1636,6 +2342,7 @@ export default {
 
               console.log(this.programmeId);
               this.fetchProjets(this.programmeId);
+              this.fetchOngs()
             }
           })
           .catch((e) => {
@@ -1662,6 +2369,7 @@ export default {
             }
           });
       }
+     
     },
 
     validerProjet(id) {
@@ -1767,6 +2475,10 @@ export default {
     // Initialiser Dropzone après le montage du composant
     //  this.initializeDropzone();
     this.fetchOngs();
+
+    // Initialiser les données pour l'organisation
+    this.initLocalisationDataOrganisation();
+    this.getFondsOrganisation();
   },
 
   watch: {

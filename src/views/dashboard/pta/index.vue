@@ -1,5 +1,5 @@
 <template>
-  <h2 class="mt-10 text-lg font-medium intro-y">Plan d'Action dsjhds</h2>
+  <h2 class="mt-10 text-lg font-medium intro-y">Plan d'Action </h2>
   <div class="grid grid-cols-12 gap-6 my-5">
     <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
       <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
@@ -10,7 +10,7 @@
       </div>
       <div class="flex">
         <button class="mr-2 shadow-md btn btn-primary" @click="showModalFiltre = true">
-          <FilterIcon class="w-4 h-4 mr-3" />Filtrer le PA 
+          <FilterIcon class="w-4 h-4 mr-3" />Filtrer le PA
         </button>
         <!-- v-if="!isLoadingData && currentOrganisation?.profile_de_gouvernance" :org="currentOrganisation?.nom" :pointfocal="`${currentOrganisation?.nom_point_focal}  ${currentOrganisation?.prenom_point_focal}`" :dateevaluation="currentFactuel?.evaluatedAt" -->
         <!-- <ExportationResultatSynthese :datas="dataNew" class="mr-3" /> -->
@@ -19,7 +19,7 @@
           <DownloadIcon class="w-4 h-4" />
         </download-excel> -->
 
-        <button @click="exportToExcel" class="mr-2 btn btn-primary">
+        <button @click="exportToExcel" class="mr-2 btn btn-primary" :disabled="isLoading">
           <DownloadIcon class="w-4 h-4 mr-2" />
           Export Excel (XLSX)
         </button>
@@ -28,8 +28,17 @@
       </div>
     </div>
   </div>
+
+  <!-- Loader -->
+  <div v-if="isLoading" class="flex items-center justify-center py-20">
+    <div class="text-center">
+      <div class="inline-block w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      <p class="mt-4 text-lg font-medium text-gray-700">Chargement du plan d'action...</p>
+    </div>
+  </div>
+
   <!-- <pre>{{ dataNew }}</pre> -->
-  <div v-if="currentPage && ptaVisible" class="current">
+  <div v-if="!isLoading && currentPage && ptaVisible" class="current">
     <div style="max-height: 80vh" class="relative flex overflow-y-auto">
       <div style="position: sticky; left: 0; background: transparent; z-index: 1; margin-right: 1%">
         <table class="top-0 left-0 block w-full text-sm text-left table-fixed border-collaspe table1">
