@@ -394,189 +394,142 @@
   <LoaderSnipper v-if="isLoadingProjets" />
   <NoRecordsMessage class="col-span-12" v-if="!paginatedAndFilteredData.length" title="Aucun projet trouvé" description="Il semble qu'il n'y ait pas de projet à afficher. Veuillez en créer un." />
 
-   <div
-      v-if="verifyPermission('voir-un-projet') && !isLoadingProjets"
-      class="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 3xl:grid-cols-4 gap-4 md:gap-6 mt-6"
-    >
-      <div
-        v-for="(item, index) in paginatedAndFilteredData"
-        :key="index"
-        class="relative bg-white border-l-4 border-primary hover:border-secondary rounded-xl shadow-md hover:shadow-xl transition-all duration-500 group overflow-hidden"
-      >
-        <!-- Header -->
-        <div class="flex justify-between items-center p-4 sm:p-5">
-          <h3 class="text-[#171a1d] group-hover:text-[#007580] font-semibold text-sm md:text-base lg:text-lg leading-tight">
-            {{ item.codePta }} - {{ item.nom }}
-          </h3>
-          <button
-            class="btn btn-primary text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2"
-            @click="voirOutCome(item.id)"
-          >
-            Voir Outcomes
-          </button>
+   <div v-if="verifyPermission('voir-un-projet') && !isLoadingProjets" class="grid grid-cols-1 gap-4 mt-6 sm:gap-5 _md:grid-cols-2 lg:grid-cols-2 3xl:grid-cols-3 2xl:gap-6">
+    <div href="#" class="relative transition-all duration-500 border-l-4 shadow-lg md:shadow-xl lg:shadow-2xl box group _bg-white zoom-in border-primary hover:border-secondary" v-for="(item, index) in paginatedAndFilteredData" :key="index">
+      
+      <!-- Header avec titre et bouton -->
+      <div class="relative p-4 bg-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div class="text-[#171a1d] group-hover:text-[#007580] font-medium text-sm sm:text-base lg:text-lg leading-tight sm:leading-normal line-clamp-2 flex-1 min-w-0">
+          {{ item.codePta }} - {{ item.nom }}
+        </div>
+        <button class="btn btn-primary w-full sm:w-auto text-xs sm:text-sm px-3 py-2" @click="voirOutCome(item.id)">
+          Voir Outcomes
+        </button>
+      </div>
+
+      <!-- Image et description -->
+      <div class="relative mx-4 mt-3 h-32 sm:h-40 md:h-48 lg:h-56 xl:h-48 2xl:h-56 image-fit rounded-md overflow-hidden before:block before:absolute before:w-full before:h-full before:top-0 before:left-0 before:z-10 before:bg-gradient-to-t before:from-black before:to-black/10">
+        <div class="absolute top-0 left-0 w-1/2 h-0 group-hover:h-full bg-[#02008052] transition-all duration-[.5s]"></div>
+        <div class="absolute bottom-0 right-0 w-1/2 h-0 group-hover:h-full bg-[#02008052] transition-all duration-[.5s]"></div>
+
+        <div class="relative h-full overflow-hidden group/hw hway hway-active">
+          <img class="object-cover w-full h-full group-hover:opacity-30 transition-all duration-[.5s]" :src="item.image == null ? projetsImg[0] : item.image.url" alt="" />
+          <!-- Description cachée avec effet de survol -->
+          <div class="absolute inset-0 flex items-start justify-center p-3 sm:p-4 text-white transition-opacity duration-500 bg-black opacity-0 bg-opacity-80 group-hover:opacity-100 overflow-y-auto">
+            <div class="w-full">
+              <p class="text-sm font-bold sm:text-base lg:text-lg mb-2">Description du projet</p>
+              <p class="text-xs sm:text-sm lg:text-base line-clamp-5 sm:line-clamp-6 leading-relaxed">{{ item.description }} {{ item.key }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Informations du projet -->
+      <div class="p-4 text-slate-600 dark:text-slate-500 space-y-3">
+        <!-- Budgets -->
+        <div class="space-y-2">
+          <div class="flex items-center text-xs sm:text-sm">
+            <LinkIcon class="w-3 h-3 sm:w-4 sm:h-4 mr-2 flex-shrink-0" />
+            <span class="truncate">Fond propre: {{ item.budgetNational == null || item.budgetNational == 0 ? 0 : $h.formatCurrency(item.budgetNational) }}</span>
+            <span class="ml-1 italic font-bold flex-shrink-0">Fcfa</span>
+          </div>
+          <div class="flex items-center text-xs sm:text-sm">
+            <LinkIcon class="w-3 h-3 sm:w-4 sm:h-4 mr-2 flex-shrink-0" />
+            <span class="truncate">Subvention: {{ item.pret == null || item.pret == 0 ? 0 : $h.formatCurrency(item.pret) }}</span>
+            <span class="ml-1 italic font-bold flex-shrink-0">Fcfa</span>
+          </div>
         </div>
 
-        <!-- Image + Description -->
-        <div class="relative mx-4 mb-4 aspect-video rounded-md overflow-hidden">
-          <img
-            class="object-cover w-full h-full group-hover:opacity-40 transition-all duration-500"
-            :src="item.image == null ? projetsImg[0] : item.image.url"
-            alt=""
-          />
-          <div
-            class="absolute inset-0 flex items-start justify-center p-4 text-white text-center bg-black bg-opacity-70 opacity-0 group-hover:opacity-100 transition-opacity duration-500 overflow-y-auto"
-          >
-            <div>
-              <p class="font-bold text-sm sm:text-base">Description du projet</p>
-              <p class="mt-2 text-xs sm:text-sm leading-snug line-clamp-6">
-                {{ item.description }} {{ item.key }}
+        <!-- Organisation -->
+        <div v-if="item.owner !== null" class="flex items-center text-xs sm:text-sm">
+          <GlobeIcon class="w-3 h-3 sm:w-4 sm:h-4 mr-2 flex-shrink-0" />
+          <span class="truncate mr-2">Organisation:</span>
+          <span class="px-2 py-1 text-white bg-green-400 rounded-md shadow-md text-xs truncate flex-shrink-0">{{ item.owner.user.nom }}</span>
+        </div>
+
+        <!-- Dates -->
+        <div class="flex items-start text-xs sm:text-sm">
+          <ClockIcon class="w-3 h-3 sm:w-4 sm:h-4 mr-2 mt-0.5 flex-shrink-0" />
+          <div class="flex-1 min-w-0">
+            <span class="block sm:inline">Du </span>
+            <span class="font-bold whitespace-nowrap">{{ $h.reformatDate(item.debut) }}</span>
+            <span class="block sm:inline"> au </span>
+            <span class="font-bold whitespace-nowrap">{{ $h.reformatDate(item.fin) }}</span>
+          </div>
+        </div>
+
+        <!-- Statut -->
+        <div class="flex items-center text-xs sm:text-sm">
+          <CheckSquareIcon class="w-3 h-3 sm:w-4 sm:h-4 mr-2 flex-shrink-0" />
+          <span class="mr-2">Statut :</span>
+          <span class="px-2 py-1 text-white rounded-md shadow-md text-xs whitespace-nowrap flex-shrink-0"
+                :class="{
+                  'bg-black': item.statut == -2,
+                  'bg-green-500': item.statut == -1,
+                  'bg-yellow-500': item.statut == 0,
+                  'bg-red-500': item.statut == 1,
+                  'bg-blue-500': item.statut == 2
+                }">
+            <span v-if="item.statut == -2">Non validé</span>
+            <span v-else-if="item.statut == -1">Pas démarré</span>
+            <span v-else-if="item.statut == 0">En cours</span>
+            <span v-else-if="item.statut == 1">En retard</span>
+            <span v-else-if="item.statut == 2">Terminé</span>
+          </span>
+        </div>
+
+        <!-- Budget restant -->
+        <div class="p-3 bg-gray-50 rounded-lg mt-3">
+          <h4 class="text-xs font-semibold text-gray-700 mb-2">Budget disponible</h4>
+          <div class="grid grid-cols-2 gap-2 sm:gap-3">
+            <div class="text-center">
+              <p class="text-xs text-gray-500 mb-1">Fond propre</p>
+              <p class="text-xs sm:text-sm font-bold" :class="getFondRestant(item) >= 0 ? 'text-green-600' : 'text-red-600'">
+                {{ getFondRestant(item) === 0 ? '0' : $h.formatCurrency(getFondRestant(item)) }}
+                <span class="text-xs">FCFA</span>
+              </p>
+            </div>
+            <div class="text-center">
+              <p class="text-xs text-gray-500 mb-1">Subvention</p>
+              <p class="text-xs sm:text-sm font-bold" :class="getSubventionRestant(item) >= 0 ? 'text-green-600' : 'text-red-600'">
+                {{ getSubventionRestant(item) === 0 ? '0' : $h.formatCurrency(getSubventionRestant(item)) }}
+                <span class="text-xs">FCFA</span>
               </p>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Infos principales -->
-        <div class="px-4 pb-4 text-slate-700 space-y-2 text-sm sm:text-base">
-          <div class="flex items-center">
-            <LinkIcon class="w-4 h-4 mr-2" />
-            Fond propre :
-            <span class="ml-1 font-semibold">
-              {{ item.budgetNational ? $h.formatCurrency(item.budgetNational) : 0 }}
-            </span>
-            <span class="ml-1 italic text-xs font-bold">Fcfa</span>
-          </div>
+      <!-- Actions -->
+      <div class="flex flex-wrap items-center justify-between p-4 border-t gap-2 border-slate-200/60 dark:border-darkmode-400">
+        <a v-if="verifyPermission('voir-details-projet')" class="flex items-center text-primary text-xs sm:text-sm px-2 py-1 rounded hover:bg-gray-100 transition-colors" href="javascript:;" @click="goToDetail(item)">
+          <EyeIcon class="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" title="voir détail" />
+          <span class="hidden xs:inline">Détail</span>
+        </a>
+        <a v-if="verifyPermission('prolonger-un-projet')" class="flex items-center text-primary text-xs sm:text-sm px-2 py-1 rounded hover:bg-gray-100 transition-colors" href="javascript:;" @click="ouvrirModalProlongerProjet(item)" title="Prolonger la date du projet">
+          <CalendarIcon class="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+          <span class="hidden xs:inline">Étendre</span>
+        </a>
+        <a v-if="verifyPermission('modifier-un-projet')" class="flex items-center text-primary text-xs sm:text-sm px-2 py-1 rounded hover:bg-gray-100 transition-colors" href="javascript:;" @click="modifierProjet(item)">
+          <CheckSquareIcon class="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" title="modifier le projet" />
+          <span class="hidden xs:inline">Modifier</span>
+        </a>
+        <a v-if="verifyPermission('supprimer-un-projet')" class="flex items-center text-danger text-xs sm:text-sm px-2 py-1 rounded hover:bg-gray-100 transition-colors" href="javascript:;" @click="supprimerProjet(item)">
+          <Trash2Icon class="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" title="supprimer le projet" />
+          <span class="hidden xs:inline">Supprimer</span>
+        </a>
+      </div>
 
-          <div class="flex items-center">
-            <LinkIcon class="w-4 h-4 mr-2" />
-            Subvention :
-            <span class="ml-1 font-semibold">
-              {{ item.pret ? $h.formatCurrency(item.pret) : 0 }}
-            </span>
-            <span class="ml-1 italic text-xs font-bold">Fcfa</span>
-          </div>
-
-          <div v-if="item.owner" class="flex items-center">
-            <GlobeIcon class="w-4 h-4 mr-2" />
-            Organisation :
-            <span class="ml-1 px-2 py-0.5 text-white bg-green-500 rounded-md shadow-sm text-xs sm:text-sm">
-              {{ item.owner.user.nom }}
-            </span>
-          </div>
-
-          <div class="flex items-center">
-            <ClockIcon class="w-4 h-4 mr-2" />
-            <span>
-              Du <b>{{ $h.reformatDate(item.debut) }}</b> au <b>{{ $h.reformatDate(item.fin) }}</b>
-            </span>
-          </div>
-
-          <div class="flex items-center">
-            <CheckSquareIcon class="w-4 h-4 mr-2" />
-            Statut :
-            <span
-              class="ml-2 px-2 py-0.5 text-white rounded-md shadow-sm text-xs sm:text-sm"
-              :class="{
-                'bg-gray-500': item.statut == -2,
-                'bg-green-500': item.statut == -1,
-                'bg-yellow-500': item.statut == 0,
-                'bg-red-500': item.statut == 1,
-                'bg-black': item.statut == 2
-              }"
-            >
-              {{
-                item.statut == -2
-                  ? 'Non validé'
-                  : item.statut == -1
-                  ? 'Pas démarré'
-                  : item.statut == 0
-                  ? 'En cours'
-                  : item.statut == 1
-                  ? 'En retard'
-                  : 'Terminé'
-              }}
-            </span>
-          </div>
-
-          <!-- Budget restant -->
-          <div class="mt-4 p-3 bg-gray-50 rounded-lg text-center sm:text-left">
-            <h4 class="text-xs font-semibold text-gray-700 mb-2 uppercase">
-              Budget disponible
-            </h4>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <p class="text-xs text-gray-500">Fond propre restant</p>
-                <p
-                  class="text-sm font-bold"
-                  :class="getFondRestant(item) >= 0 ? 'text-green-600' : 'text-red-600'"
-                >
-                  {{
-                    getFondRestant(item) === 0
-                      ? '0'
-                      : $h.formatCurrency(getFondRestant(item))
-                  }}
-                  FCFA
-                </p>
-              </div>
-              <div>
-                <p class="text-xs text-gray-500">Subvention restante</p>
-                <p
-                  class="text-sm font-bold"
-                  :class="getSubventionRestant(item) >= 0 ? 'text-green-600' : 'text-red-600'"
-                >
-                  {{
-                    getSubventionRestant(item) === 0
-                      ? '0'
-                      : $h.formatCurrency(getSubventionRestant(item))
-                  }}
-                  FCFA
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Actions -->
-        <div
-          class="flex flex-wrap items-center justify-between sm:justify-end p-4 border-t border-slate-200"
-        >
-          <a
-            v-if="verifyPermission('voir-details-projet')"
-            href="javascript:;"
-            class="flex items-center text-primary text-xs sm:text-sm mr-3"
-            @click="goToDetail(item)"
-          >
-            <EyeIcon class="w-4 h-4 mr-1" /> Détail
-          </a>
-
-          <a
-            v-if="verifyPermission('prolonger-un-projet')"
-            href="javascript:;"
-            class="flex items-center text-primary text-xs sm:text-sm mr-3"
-            @click="ouvrirModalProlongerProjet(item)"
-          >
-            <CalendarIcon class="w-4 h-4 mr-1" /> Étendre
-          </a>
-
-          <a
-            v-if="verifyPermission('modifier-un-projet')"
-            href="javascript:;"
-            class="flex items-center text-primary text-xs sm:text-sm mr-3"
-            @click="modifierProjet(item)"
-          >
-            <CheckSquareIcon class="w-4 h-4 mr-1" /> Modifier
-          </a>
-
-          <a
-            v-if="verifyPermission('supprimer-un-projet')"
-            href="javascript:;"
-            class="flex items-center text-red-600 text-xs sm:text-sm"
-            @click="supprimerProjet(item)"
-          >
-            <Trash2Icon class="w-4 h-4 mr-1" /> Supprimer
-          </a>
+      <!-- Barre colorée en bas -->
+      <div class="absolute bottom-0 flex w-full">
+        <div class="w-1/3 p-1 bg-green-500"></div>
+        <div class="flex flex-col w-2/3">
+          <div class="p-0.5 bg-yellow-500"></div>
+          <div class="p-0.5 bg-red-500"></div>
         </div>
       </div>
     </div>
+  </div>
 
   <pagination v-if="paginatedAndFilteredData.length > 0" class="col-span-12" :total-items="totalItems" :items-per-page="itemsPerPage" :is-loading="isLoadingProjets" @page-changed="onPageChanged" @items-per-page-changed="onItemsPerPageChanged">
     <!-- Slots personnalisés (facultatif) -->
@@ -1472,7 +1425,7 @@ export default {
         toast.error("Veuillez sélectionner une position à l'intérieur du Bénin");
         // this.showError("Veuillez sélectionner une position à l'intérieur du Bénin");
       }
-      
+          
     },
     resetForm() {
       this.payloadSites = this.getinitForm();
