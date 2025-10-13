@@ -147,7 +147,7 @@ watch(
 onMounted(() => {
   const usersInfo = JSON.parse(localStorage.getItem("authenticateUser"));
 
-  console.log("permissions", usersInfo.roles);
+  
 
   if (usersInfo) {
     let permissions = usersInfo.role[0].permissions;

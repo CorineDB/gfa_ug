@@ -293,11 +293,9 @@ watch(bigTable.value, (newValue, oldValue) => {
 });
 
 watch(etape.value, (newValue, oldValue) => {
-  console.log(newValue);
 });
 
 const soumettre = function () {
-  console.log(bigTable.value);
   const submit = [];
   for (let element = 0; element < bigTable.value.length; element++) {
     for (let y = 0; y < bigTable.value[element].length; y++) {
@@ -305,10 +303,8 @@ const soumettre = function () {
     }
   }
 
-  console.log(submit);
   PrincipeService.submit( { reponse :submit })
     .then((data) => {
-      // console.log(data);
     })
     .catch((e) => {});
   factuelStore.setSubmitTable(submit);

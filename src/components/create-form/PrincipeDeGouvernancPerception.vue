@@ -78,7 +78,6 @@ const deleteData = async () => {
     toast.success("Principe supprimé avec succès.");
     getDatas();
   } catch (e) {
-    console.error(e);
     toast.error(getAllErrorMessages(e));
   } finally {
     isLoading.value = false;

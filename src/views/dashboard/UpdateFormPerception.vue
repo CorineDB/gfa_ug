@@ -34,7 +34,6 @@ const isGeneratingPDF = ref(false)
 
 const exportTableToPDF = async () => {
   if (!tableRefUpdate.value) {
-    console.error('Table reference not found')
     return
   }
 
@@ -120,7 +119,6 @@ const exportTableToPDF = async () => {
     pdf.save(fileName)
 
   } catch (error) {
-    console.error('Erreur lors de la génération du PDF:', error)
     alert('Une erreur est survenue lors de la génération du PDF')
   } finally {
     isGeneratingPDF.value = false
@@ -167,7 +165,6 @@ const loadMapFromStorage = (storageKey) => {
       const parsed = JSON.parse(stored);
       return new Map(Object.entries(parsed));
     } catch (e) {
-      console.error(`Error loading ${storageKey} from localStorage:`, e);
       return new Map();
     }
   }
@@ -180,7 +177,6 @@ const saveMapToStorage = (map, storageKey) => {
     const obj = Object.fromEntries(map);
     localStorage.setItem(storageKey, JSON.stringify(obj));
   } catch (e) {
-    console.error(`Error saving ${storageKey} to localStorage:`, e);
   }
 };
 
@@ -231,7 +227,6 @@ const getcurrentUser = async () => {
       finProgramme.value = result.data.data.programme.fin;
     })
     .catch((e) => {
-      console.error(e);
       toast.error("Une erreur est survenue: Utilisateur connecté .");
     });
 };
@@ -561,9 +556,6 @@ const getQuestion = (questions) => {
 const addNewIndicator = () => {
   const sessionKeys = new Set();
 
-  console.log("currentGlobalPerceptionFormDataArray.value", currentGlobalPerceptionFormDataArray.value);
-  console.log("currentPreviewPerceptionFormDataArray.value", currentPreviewPerceptionFormDataArray.value);
-
   currentGlobalPerceptionFormDataArray.value.forEach((item, index) => {
     const allKeys = new Set([...uniqueKeys.keys(), ...sessionKeys]);
 
@@ -857,7 +849,6 @@ const loadAvailableParents = async (type, currentData) => {
       modifyElement.availableParents = response.data.data || [];
     }
   } catch (error) {
-    console.error('Erreur lors du chargement des parents disponibles:', error);
     toast.error('Erreur lors du chargement des données');
   }
 };
@@ -938,17 +929,12 @@ const excludedQuestions = computed(() => {
 
 // Fonction pour supprimer un indicateur
 const removeIndicator = (key) => {
-  console.log("🗑️ Tentative de suppression avec clé:", key);
-  console.log("📋 Clés disponibles dans globalFormPerceptionData:", 
-    globalFormPerceptionData.value.map(item => ({ key: item.key, indicateur: item.indicateur, principe: item.principe })));
-  console.log("📋 Clés disponibles dans previewFormPerceptionData:", 
-    previewFormPerceptionData.value.map(item => ({ key: item.key, indicateur: item.indicateur?.id, principe: item.principe?.id })));
+  
 
   // 1. Chercher dans les données persistées (globalFormPerceptionData)
   let index = globalFormPerceptionData.value.findIndex((s) => s.key === key);
 
   if (index !== -1) {
-    console.log("✅ Trouvé dans globalFormPerceptionData à l'index:", index);
     globalFormPerceptionData.value.splice(index, 1);
     // Chercher l'index correspondant dans previewFormPerceptionData
     const previewIndex = previewFormPerceptionData.value.findIndex((s) => s.key === key);
@@ -974,7 +960,6 @@ const removeIndicator = (key) => {
   // 2. Chercher dans previewFormPerceptionData (pour les éléments avec clés longues)
   index = previewFormPerceptionData.value.findIndex((s) => s.key === key);
   if (index !== -1) {
-    console.log("✅ Trouvé dans previewFormPerceptionData à l'index:", index);
     previewFormPerceptionData.value.splice(index, 1);
     // Chercher et supprimer dans globalFormPerceptionData aussi
     const globalIndex = globalFormPerceptionData.value.findIndex((s) => s.key === key);
@@ -1001,7 +986,6 @@ const removeIndicator = (key) => {
   }
 
   if (indice !== -1) {
-    console.log("✅ Trouvé dans currentPreviewPerceptionFormDataArray à l'index:", indice);
     currentPreviewPerceptionFormDataArray.value.splice(indice, 1);
     
     // Chercher et supprimer dans currentGlobalPerceptionFormDataArray
@@ -1014,7 +998,6 @@ const removeIndicator = (key) => {
     return;
   }
 
-  console.log("❌ Élément non trouvé");
   toast.error("Impossible de supprimer cet élément.");
 };
 
@@ -1074,7 +1057,6 @@ const removeElement = (key) => {
   localStorage.setItem("globalFormPerceptionData", JSON.stringify(globalFormPerceptionData.value));
   localStorage.setItem("previewFormPerceptionData", JSON.stringify(previewFormPerceptionData.value));
 
-  console.log(`🔓 Principe et ses ${keysToDelete.length} questions libérés`);
   toast.success(`Principe supprimé avec ${keysToDelete.length} question(s).`);
 };
 
@@ -1106,13 +1088,11 @@ const getOneForm = async () => {
   try {
     const { data } = await FormulaireDePerception.getOne(idForm);
     currentForm.value = data.data;
-    console.log(currentForm.value);
     matchDataUpdateWithCurrentDatas(currentForm.value.categories_de_gouvernance);
     payload.libelle = currentForm.value.libelle;
     payload.annee_exercice = currentForm.value.annee_exercice;
   } catch (e) {
     toast.error("Erreur récupération du  formulaire.");
-    console.log(e);
   } finally {
     isLoadingOneForm.value = false;
   }
@@ -1121,16 +1101,10 @@ const getOneForm = async () => {
 const updateForm = async () => {
   isLoadingForm.value = true;
 
-  console.log(previewPrincipesGouvernance.value.principes_de_gouvernance);
-
   payload.perception.options_de_reponse = previewOptionResponses.value.options_de_reponse;
 
   payload.perception.principes_de_gouvernance = globalPrincipesGouvernance.value.principes_de_gouvernance;
-
-  // console.log(payload);
-
-  //alert("1");
-
+ 
   try {
     await FormulaireDePerception.update(idForm, payload);
     toast.success(`Formulaire Modifiée avec succès.`);
@@ -1142,7 +1116,6 @@ const updateForm = async () => {
     router.push({ name: "Ajouter_un_formulaire_Perception", query: { tab: 1 } });
   } catch (e) {
     toast.error(getAllErrorMessages(e));
-    console.log(e);
   } finally {
     isLoadingForm.value = false;
   }

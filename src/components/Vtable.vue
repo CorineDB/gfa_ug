@@ -112,17 +112,7 @@ export default {
       },
       listes() {
           return this.datas;
-          // let datas = [];
-          // if (this.filtered() != undefined) {
-          //     for (let index = this.perPage * this.currentPage - this.perPage; index < this.perPage * this.currentPage; index++) {
-          //         if (index <= this.totalPages - 1) {
-          //             const element = this.filtered()[index];
-          //             //console.log(index)
-          //             datas.push(element);
-          //         }
-          //     }
-
-          // }
+         
       },
   },
   methods: {
@@ -230,7 +220,7 @@ export default {
                       if (data[header.props] != null) {
                           if (data[header.props][header.cle]) {
                               if (data[header.props][header.cle].toString().toLowerCase().indexOf(self.search.toLowerCase()) >= 0) {
-                                  //console.log(data)
+                                   
                                   if (self.total) {
                                       self.totalFiltre = parseFloat(data[self.total]) + parseFloat(self.totalFiltre);
                                       self.$emit("retour", self.totalFiltre);

@@ -380,7 +380,6 @@ const getcurrentUser = async () => {
       finProgramme.value = result.data.data.programme.fin;
     })
     .catch((e) => {
-      console.error(e);
       toast.error("Une erreur est survenue: Utilisateur connecté .");
     });
 };
@@ -435,7 +434,6 @@ const deleteData = async () => {
     toast.success("Indicateur supprimée avec succès.");
     getDatas();
   } catch (e) {
-    console.error(e);
     toast.error(getAllErrorMessages(e));
   } finally {
     isLoading.value = false;
@@ -594,7 +592,6 @@ watch(
         value: "",
       }));
     } else {
-      console.warn("array_value_keys n'est pas un tableau valide :", newKeys);
       currentAnneeCible.value.valeurCible = [];
     }
   },
@@ -615,7 +612,7 @@ watch(showModalCreate, (newValue) => {
 
 // Fetch data on component mount
 onMounted(async () => {
-  // console.log("currentIndicateur", props.currentIndicateur);
+   
   idSelect.value = props.currentIndicateur.id;
   await getcurrentUser();
   // getDatasCadre();

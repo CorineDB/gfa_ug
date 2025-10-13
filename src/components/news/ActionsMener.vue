@@ -36,7 +36,6 @@ const validateData = async () => {
     })
     .catch((e) => {
       isLoading.value = false;
-      console.error(e);
       toast.error("Vérifier les informations et ressayer.");
     });
 };
@@ -48,7 +47,6 @@ const getDatas = async () => {
       isLoadingData.value = false;
     })
     .catch((e) => {
-      console.error(e);
       isLoadingData.value = false;
       toast.error("Une erreur est survenue: Liste des actions.");
     });

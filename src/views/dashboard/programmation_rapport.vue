@@ -416,10 +416,8 @@ const storeProgrammation = function () {
         successNotificationToggle()
       } else if (error.request) {
         // Demande effectuée mais aucune réponse n'est reçue du serveur.
-        //console.log(error.request);
       } else {
         // Une erreur s'est produite lors de la configuration de la demande
-        //console.log('dernier message', error.message);
       }
     })
   }
@@ -449,7 +447,6 @@ const deleteProgrammation = function () {
       successNotificationToggle()
     } else if (error.request) {
       // Demande effectuée mais aucune réponse n'est reçue du serveur.
-      //console.log(error.request);
     } else {
       // Une erreur s'est produite lors de la configuration de la demande
     }
@@ -490,10 +487,8 @@ const updateProgrammation = function () {
         successNotificationToggle()
       } else if (error.request) {
         // Demande effectuée mais aucune réponse n'est reçue du serveur.
-        //console.log(error.request);
       } else {
         // Une erreur s'est produite lors de la configuration de la demande
-        //console.log('dernier message', error.message);
       }
     })
   }

@@ -1088,10 +1088,7 @@ const submitUpdate = async () => {
   }
 };
 const submitStructure = async () => {
-  console.log(payloadStructure.responsables.organisations.length);
-  console.log(payloadStructure.responsables.ug.length);
-  console.log(payloadStructure.responsables.organisations.length || payloadStructure.responsables.ug.length);
-  console.log(payloadStructure.responsables.organisations.length && payloadStructure.responsables.ug.length);
+ 
   if (!payloadStructure.responsables.organisations.length && !payloadStructure.responsables.ug.length) return toast.error("Veuillez choisir au moins une structure");
   isLoading.value = true;
   const action = IndicateursService.addStructure(idSelect.value, payloadStructure);
@@ -1182,7 +1179,6 @@ const deleteData = async () => {
       emit("update-datas");
     }, 500);
   } catch (e) {
-    console.error(e);
     toast.error(getAllErrorMessages(e));
   } finally {
     isLoading.value = false;
@@ -1190,34 +1186,16 @@ const deleteData = async () => {
   }
 };
 
-// Handle edit action
-// ANCIENNE VERSION - Édition avec modal interne
-// const handleEdit = (data) => {
-//   console.log(data.anneeDeBase);
-//   isAgregerCurrentIndicateur.value = data.agreger;
-//   idSelect.value = data.id;
-//   payloadUpdate.nom = data.nom;
-//   payloadUpdate.indice = data.indice.toString();
-//   payloadUpdate.description = data.description ?? "";
-//   payloadUpdate.frequence_de_la_collecte = data.frequence_de_la_collecte ?? "";
-//   payloadUpdate.methode_de_la_collecte = data.methode_de_la_collecte ?? "";
-//   payloadUpdate.sources_de_donnee = data.sources_de_donnee ?? "";
-//   payloadUpdate.type_de_variable = data.type_de_variable ?? "";
-//   payloadUpdate.uniteeMesureId = data.unitee_mesure.id ?? "";
-//   payloadUpdate.anneeDeBase = data.anneeDeBase ? data.anneeDeBase.toString() : "";
-//   payloadUpdate.categorieId = data.categorieId ?? "";
-//   payloadUpdate.hypothese = data.hypothese ?? "";
-//   showModalEdit.value = true;
-// };
+ 
 
 // NOUVELLE VERSION - Émettre l'événement vers le parent pour utiliser IndicatorForm
 const handleEdit = (data) => {
-  console.log("Edit indicator:", data);
+  
   emit("edit-indicator", data);
 };
 const handleSuivi = (data) => {
 
-  console.log(data.valeursCible);
+ 
   valeurCible.value = data.valeursCible.filter((valeurCible) => valeurCible.annee === Number(payloadSuivi.annee)).map((v) => v.valeurCible);
   isAgregerCurrentIndicateur.value = data.agreger;
   if(isAgregerCurrentIndicateur.value == false){

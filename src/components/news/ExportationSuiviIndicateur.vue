@@ -105,7 +105,6 @@ export default {
         sheet.mergeCells(1, 5 + 2 * this.years.length + 1, 2, 5 + 2 * this.years.length + 1); // Taux de réalisation
         sheet.mergeCells(1, 5 + 2 * this.years.length + 2, 2, 5 + 2 * this.years.length + 2); // Date de suivie
       } catch (error) {
-        console.error("Erreur de fusion des cellules :", error.message);
       }
 
       // Appliquer le style aux en-têtes

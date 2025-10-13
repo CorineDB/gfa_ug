@@ -112,17 +112,17 @@ const sendMail = async () => {
     try {
       const result = await resetPassword.get(email.value);
       if (result.data.statut === "success") {
-        console.log("Success");
+       
         chargement.value = false;
         emailSend.value = true;
         showFormSuccess.value = true;
       } else {
-        console.log("No Success");
+        
         showFormError.value = true;
         errorMessageForm.value = result.data.data?.message || "Une erreur est survenue.";
       }
     } catch (error) {
-      console.log("Error");
+     
       chargement.value = false;
       showFormError.value = true;
       errorMessageForm.value = error.response?.data?.message || "Une erreur est survenue.";
@@ -144,7 +144,7 @@ const sendMailExp = async () => {
         errorMessageFormExp.value = result.data?.message || "Une erreur est survenue.";
       }
     } catch (error) {
-      console.log("Response", error);
+     
       chargement.value = false;
       showFormErrorExp.value = true;
       errorMessageFormExp.value = error.response?.data?.message || "Une erreur est survenue.";

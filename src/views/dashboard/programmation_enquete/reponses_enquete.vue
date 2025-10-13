@@ -40,7 +40,6 @@ const createData = async () => {
     })
     .catch((e) => {
       isLoading.value = false;
-      console.error(e);
       toast.error("Vérifier les informations et ressayer.");
     });
 };
@@ -49,11 +48,9 @@ const getDatas = async () => {
   await AppreciationResultatEnqueteService.chargerAppreciationsDeResulatEnquete(route.query.enquete, organisations.value[0].id)
     .then((result) => {
       datas.value = result.data.data;
-      console.log(datas.value);
       isLoadingData.value = false;
     })
     .catch((e) => {
-      console.error(e);
       isLoadingData.value = false;
       toast.error("Une erreur est survenue: Liste des appreciations.");
     });
@@ -66,7 +63,6 @@ const getOrganisations = async () => {
       organisations.value = result.data.data;
     })
     .catch((e) => {
-      console.error(e);
       toast.error("Une erreur est survenue: Liste des organisayion.");
     });
 };
@@ -82,7 +78,6 @@ const updateData = async () => {
     })
     .catch((e) => {
       isLoading.value = false;
-      console.error(e);
       toast.error("Vérifier les informations et ressayer.");
     });
 };
@@ -98,7 +93,6 @@ const deleteData = async () => {
     })
     .catch((e) => {
       isLoading.value = false;
-      console.error(e);
       toast.error("Une erreur est survenue, ressayer");
     });
 };

@@ -126,7 +126,7 @@
             for (let index = this.perPage * this.currentPage - this.perPage; index < this.perPage * this.currentPage; index++) {
               if(index <= this.totalPages-1) {
                 const element = this.datas[index];
-                //console.log(index)
+                 
                 datas.push(element)
               }
             }

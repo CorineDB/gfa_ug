@@ -92,22 +92,22 @@ const canEditType = ref(false);
 const canEditIndicateur = ref([]);
 
 function handleDelete(key) {
-  console.log(key);
+ 
   emit("deleteIndicateur", key);
 }
 
 function handleDeleteType(key) {
-  console.log(key);
+  
   emit("deletePrincipe", key, "type", true);
 }
 
 function handleDeletePrincipe(key) {
-  console.log(key);
+  
   emit("deletePrincipe", key, "principe", true);
 }
 
 function handleDeleteCritere(key) {
-  console.log(key);
+ 
   emit("deleteCritere", key, "critere", true);
 }
 
@@ -127,25 +127,25 @@ function editCritere(key) {
 }
 
 function updateTemporyType(id, position) {
-  console.log(id, position);
+  
   emit("updateTemporyElement", id, position, true, "type");
   canEditType.value = false;
 }
 
 function updateTemporyPrincipe(id, position) {
-  console.log(id, position);
+  
   emit("updateTemporyElement", id, position, true, "principe");
   canEditPrincipe.value = false;
 }
 
 function updateTemporyCritere(id, position) {
-  console.log(id, position);
+  
   emit("updateTemporyElement", id, position, true, "critere");
   canEditCritere.value = false;
 }
 
 function updateTemporyIndicateur(key, position) {
-  console.log(key, position);
+ 
   emit("updatePositionIndicateur", key, position, true);
   canEditIndicateur.value[key] = false;
 }

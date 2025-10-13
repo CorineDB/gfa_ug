@@ -26,7 +26,7 @@ export default {
     },
 
     findESuivi : state => ({key, value}) => {
-        //console.log(this.getESuivis(state))
+         
         return this.getESuivis(state).find(item => item[key] === value);
     }
 }

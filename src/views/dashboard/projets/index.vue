@@ -313,8 +313,8 @@
 
       <ModalFooter>
         <div class="flex items-center justify-center">
-          <button type="button" @click="showModal = false" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
-          <VButton class="inline-block" :label="title" :loading="isLoading" :type="submit" />
+          <button type="button" @click="closeProjetModal" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
+          <VButton class="inline-block" :label="title" :loading="isLoading" type="submit" />
         </div>
       </ModalFooter>
     </form>
@@ -332,8 +332,8 @@
       </ModalBody>
       <ModalFooter>
         <div class="flex items-center justify-center">
-          <button type="button" @click="prolongerModal = false" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
-          <VButton class="inline-block" label="Prolonger" :loading="loadingProlonger" :type="submit" />
+          <button type="button" @click="closeProlongerDateModal" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
+          <VButton class="inline-block" label="Prolonger" :loading="loadingProlonger" type="submit" />
         </div>
       </ModalFooter>
     </form>
@@ -347,7 +347,7 @@
         <div class="mt-2 text-slate-500">Voulez vous supprimer le projet ? <br />Cette action ne peut être annulé</div>
       </div>
       <div class="flex gap-2 px-5 pb-8 text-center">
-        <button type="button" @click="deleteModal = false" class="w-full my-3 mr-1 btn btn-outline-secondary">Annuler</button>
+        <button type="button" @click="closeDeleteProjetModal" class="w-full my-3 mr-1 btn btn-outline-secondary">Annuler</button>
         <VButton :loading="isLoading" label="Supprimer" @click="deleteProjets" />
       </div>
     </ModalBody>
@@ -504,19 +504,19 @@
       <div class="flex flex-wrap items-center justify-between p-4 border-t gap-2 border-slate-200/60 dark:border-darkmode-400">
         <a v-if="verifyPermission('voir-details-projet')" class="flex items-center text-primary text-xs sm:text-sm px-2 py-1 rounded hover:bg-gray-100 transition-colors" href="javascript:;" @click="goToDetail(item)">
           <EyeIcon class="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" title="voir détail" />
-          <span class="hidden xs:inline">Détail</span>
+          <span class="xs:hidden md:inline">Détail</span>
         </a>
         <a v-if="verifyPermission('prolonger-un-projet')" class="flex items-center text-primary text-xs sm:text-sm px-2 py-1 rounded hover:bg-gray-100 transition-colors" href="javascript:;" @click="ouvrirModalProlongerProjet(item)" title="Prolonger la date du projet">
           <CalendarIcon class="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
-          <span class="hidden xs:inline">Étendre</span>
+          <span class="xs:hidden md:inline">Étendre</span>
         </a>
         <a v-if="verifyPermission('modifier-un-projet')" class="flex items-center text-primary text-xs sm:text-sm px-2 py-1 rounded hover:bg-gray-100 transition-colors" href="javascript:;" @click="modifierProjet(item)">
           <CheckSquareIcon class="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" title="modifier le projet" />
-          <span class="hidden xs:inline">Modifier</span>
+          <span class="xs:hidden md:inline">Modifier</span>
         </a>
         <a v-if="verifyPermission('supprimer-un-projet')" class="flex items-center text-danger text-xs sm:text-sm px-2 py-1 rounded hover:bg-gray-100 transition-colors" href="javascript:;" @click="supprimerProjet(item)">
           <Trash2Icon class="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" title="supprimer le projet" />
-          <span class="hidden xs:inline">Supprimer</span>
+          <span class="xs:hidden md:inline">Supprimer</span>
         </a>
       </div>
 
@@ -1070,7 +1070,7 @@ export default {
       identifiant: (state) => state.auths.identifiant,
       projet: (state) => state.projets.projet,
       loading: (state) => state.loading,
-      errors: (state) => state.errors,
+      // errors: (state) => state.errors,
     }),
 
     ...mapGetters({
@@ -1203,6 +1203,18 @@ export default {
   },
 
   methods: {
+    closeDeleteProjetModal(){
+      document.activeElement.blur();
+      this.deleteModal = false
+    },
+    closeProlongerDateModal(){
+      document.activeElement.blur();
+      this.prolongerModal = false
+    },
+    closeProjetModal(){
+      document.activeElement.blur();
+      this.showModal = false
+    },
      initializeMapBounds() {
       const map = this.$refs.map?.leafletObject;
       if (map) {
@@ -1318,7 +1330,6 @@ export default {
         const result = await FondsService.get();
         this.fondsOrganisation = result.data.data;
       } catch (e) {
-        console.error(e);
         toast.error("Une erreur est survenue lors du chargement des fonds.");
       }
     },
@@ -1638,7 +1649,6 @@ export default {
           toast.success(`Site ${index + 1} créé avec succès.`);
         } catch (e) {
           errorCount++;
-          console.error(`Erreur pour le site ${index + 1}:`, e);
 
           // Gestion des erreurs de validation (422)
           if (e.response && e.response.status === 422) {
@@ -1700,7 +1710,6 @@ export default {
         })
         .catch((e) => {
           this.isLoadingSite = false;
-          console.error(e);
 
           // Gestion des erreurs de validation (422)
           if (e.response && e.response.status === 422) {
@@ -1721,7 +1730,6 @@ export default {
     },
     removeFile(index) {
       // Supprime le fichier à l'index donné
-      console.log("this.selectedFile2", this.selectedFile2);
       //  delete this.selectedFile2[index];
       this.selectedFile2.splice(index, 1);
       this.files.splice(index, 1);
@@ -1737,8 +1745,7 @@ export default {
       this.imagePreview = null;
     },
     goToDetail(projet) {
-      console.log(projet);
-      this.$router.push({ name: "Détails Projets", params: { id: projet.id, projet: projet } });
+      this.$router.push({ name: "Détails Projets", params: { id: projet.id } });
     },
     verifyPermission,
     resetFileInput() {
@@ -1807,7 +1814,6 @@ export default {
       // this.selectedFile2 = event.target.files;
       this.selectedFile2 = Array.from(event.target.files);
 
-      console.log("this.selectedFile2", this.selectedFile2);
 
       for (const file of this.selectedFile2) {
         this.files.push(file);
@@ -1831,7 +1837,6 @@ export default {
 
           this.ongs = datas.filter((ong) => ong.type !== "autre_osc" && (ong.projet == null || ong.projet == "null") );
 
-          console.log("this.ongs", this.ongs);
         })
         .catch((error) => {
           // this.disabled();
@@ -1841,7 +1846,6 @@ export default {
             // this.$toast.error(message);
           } else if (error.request) {
             // Demande effectuée mais aucune réponse n'est reçue du serveur.
-            //console.log(error.request);
           } else {
             // Une erreur s'est produite lors de la configuration de la demande
           }
@@ -1864,7 +1868,6 @@ export default {
             // this.$toast.error(message);
           } else if (error.request) {
             // Demande effectuée mais aucune réponse n'est reçue du serveur.
-            //console.log(error.request);
           } else {
             // Une erreur s'est produite lors de la configuration de la demande
           }
@@ -1903,11 +1906,9 @@ export default {
         // this.FormProjet.append("fichier[]", file);
 
         // this.FormProjet.forEach((value, key) => {
-        //   console.log(`${key}: ${value}`);
         // });
       });
       this.dropzoneMultipleRef = dropzoneRef;
-      console.log(this.dropzoneMultipleRef);
     },
     getFile(data) {
       this.champs[7].data = data;
@@ -1968,7 +1969,6 @@ export default {
       this.$store.dispatch("disabled");
     },
     fetchProjets() {
-      // console.log("ok");
       this.active();
 
       this.isLoadingProjets = true;
@@ -1991,7 +1991,6 @@ export default {
             this.$toast.error(message);
           } else if (error.request) {
             // Demande effectuée mais aucune réponse n'est reçue du serveur.
-            //console.log(error.request);
           } else {
             // Une erreur s'est produite lors de la configuration de la demande
           }
@@ -1999,7 +1998,6 @@ export default {
     },
     onPageChanged(newPage) {
       this.currentPage = newPage;
-      console.log("Page actuelle :", this.currentPage);
       // Charger les données pour la page actuelle
       // this.loadDataForPage(newPage);
     },
@@ -2009,7 +2007,6 @@ export default {
 
     loadDataForPage(page) {
       // Logique pour charger les données correspondantes à la page
-      console.log(`Charger les données pour la page ${page}`);
     },
 
     //Charger les fonctions de communication avec le serveur
@@ -2028,18 +2025,15 @@ export default {
     // ...mapActions('bailleurs', { fetchBailleurs: 'FETCH_LIST_BAILLEUR_OF_PROGRAMME' }),
 
     ouvrirModalProlongerProjet(item) {
-      console.log("item", item);
 
       this.dateFinOld = item.fin;
       this.projetId = item.id;
       this.prolongerModal = true;
 
-      console.log("this.dateFinOld", this.dateFinOld);
     },
     prolongerProjet() {
       this.loadingProlonger = true;
 
-      console.log("this.dateFin", this.dateFin);
 
       let payLoad = {
         fin: this.dateFin,
@@ -2110,15 +2104,11 @@ export default {
       this.isUpdate = false;
       this.showCloseModal(true);
       //alert("ok");
-      console.log(this.sites);
-      console.log(this.ongs);
     },
 
     modifierProjet(projet) {
-      console.log("projet", projet);
       this.messageErreur = {};
       this.formData = {};
-      console.log(projet);
       this.isUpdate = true;
       this.title = "Modifier";
       this.showModal = true;
@@ -2145,7 +2135,6 @@ export default {
       //   });
       
 
-      console.log("this.formData", this.formData);
 
       this.showCloseModal(true);
     },
@@ -2169,7 +2158,6 @@ export default {
           this.fetchProjets();
         })
         .catch((error) => {
-          console.log(error);
           this.isLoading = false;
           toast.error("Echecde l'opération");
           if (error.response) {
@@ -2178,7 +2166,6 @@ export default {
             this.$toast.error(message);
           } else if (error.request) {
             // Demande effectuée mais aucune réponse n'est reçue du serveur.
-            //console.log(error.request);
           } else {
             // Une erreur s'est produite lors de la configuration de la demande
           }
@@ -2220,12 +2207,10 @@ export default {
     },
 
     sendForm() {
-      console.log(this.formData.organisationId);
 
       if (this.formData.organisationId == "") {
         delete this.formData.organisationId;
       }
-      console.log(this.formData);
 
       if (this.isUpdate) {
         this.isLoading = true;
@@ -2247,7 +2232,6 @@ export default {
           })
           .catch((errors) => {
             this.isLoading = false;
-            console.log(errors);
 
             if (errors.response && errors.response.data && Object.keys(errors.response.data.errors).length > 0) {
               this.messageErreur = errors.response.data.errors;
@@ -2297,7 +2281,6 @@ export default {
 
               toast.success("Ajout éffectuée avec succès");
 
-              console.log(this.programmeId);
               this.fetchProjets(this.programmeId);
               this.fetchOngs()
             }
@@ -2305,8 +2288,6 @@ export default {
           .catch((e) => {
             this.isLoading = false;
 
-            console.log(e);
-            console.log(e.response.data.message);
             toast.error(e.response.data.message);
 
             // Gestion des erreurs de validation (422)
@@ -2346,10 +2327,8 @@ export default {
             this.$toast.error(message);
           } else if (error.request) {
             // Demande effectuée mais aucune réponse n'est reçue du serveur.
-            //console.log(error.request);
           } else {
             // Une erreur s'est produite lors de la configuration de la demande
-            //console.log('dernier message', error.message);
           }
         });
     },
@@ -2422,7 +2401,6 @@ export default {
   },
   beforeMount() {
     this.pays = Object.values(contries);
-    console.log(this.pays);
     this.departements = decoupage;
   },
   mounted() {

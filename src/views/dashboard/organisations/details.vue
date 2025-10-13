@@ -477,7 +477,6 @@ const dataAvailable = computed(() => {
 const getDatasCadre = async () => {
   //isLoadingDataCadre.value = true;
   try {
-    console.log(graphiqueData.value);
     //const { data } = await ResultatCadreRendementService.mesureRendementProjet(route.params.id);
 
     const { data } = await IndicateursService.getAllSuivis();
@@ -498,7 +497,6 @@ const getcurrentUser = async () => {
       getDatasCadre();
     })
     .catch((e) => {
-      console.error(e);
       toast.error("Une erreur est survenue: Utilisateur connecté .");
     });
 };
@@ -553,7 +551,6 @@ const extractProperties = (data) => {
   ];
 }
 
-//console.log("projetId", route.params.id);
 
 const loadingOption = ref(true);
 const graphiqueData = ref([]);
@@ -605,7 +602,6 @@ const getStat = function () {
       }
     })
     .catch((error) => {
-      console.log(error);
     });
 };
 

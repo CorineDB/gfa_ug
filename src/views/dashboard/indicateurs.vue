@@ -47,7 +47,6 @@ const createData = async () => {
     })
     .catch((e) => {
       isLoading.value = false;
-      console.error(e);
       toast.error("Vérifier les informations et ressayer.");
     });
 };
@@ -59,7 +58,6 @@ const getDatas = async () => {
       isLoadingData.value = false;
     })
     .catch((e) => {
-      console.error(e);
       isLoadingData.value = false;
       toast.error("Une erreur est survenue: Liste des indicateurs de gouvernance.");
     });
@@ -76,7 +74,6 @@ const updateData = async () => {
     })
     .catch((e) => {
       isLoading.value = false;
-      console.error(e);
       toast.error("Vérifier les informations et ressayer.");
     });
 };
@@ -92,7 +89,6 @@ const deleteData = async () => {
     })
     .catch((e) => {
       isLoading.value = false;
-      console.error(e);
       toast.error("Une erreur est survenue, ressayer");
     });
 };
@@ -102,7 +98,6 @@ const getPrincipes = () => {
       principes.value = result.data.data;
     })
     .catch((e) => {
-      console.error(e);
       toast.error("Une erreur est survenue: Liste des Principes.");
     });
 };
@@ -112,7 +107,6 @@ const getCriteres = () => {
       criteres.value = result.data.data;
     })
     .catch((e) => {
-      console.error(e);
       toast.error("Une erreur est survenue: Liste des Criteres.");
     });
 };
@@ -122,7 +116,6 @@ const getOptions = () => {
       optionsReponses.value = result.data.data;
     })
     .catch((e) => {
-      console.error(e);
       toast.error("Une erreur est survenue: Liste des Reponses.");
     });
 };
@@ -179,7 +172,6 @@ const handleEdit = (params) => {
   payload.type = params.type;
   payload.can_have_multiple_reponse = params.can_have_multiple_reponse;
   payload.options_de_reponse = params.options_de_reponse.map((item) => item.id);
-  console.log(payload.options_de_reponse);
 
   payload.principeable_id = params.principeable.id;
   showModalCreate.value = true;

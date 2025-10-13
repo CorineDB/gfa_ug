@@ -85,7 +85,6 @@ const getSoumission = async () => {
       isLoading.value = false;
     })
     .catch((e) => {
-      console.error(e);
       isLoading.value = false;
       toast.error("Une erreur est survenue: Détail soumission.");
     });

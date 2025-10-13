@@ -26,7 +26,7 @@ export default {
     },
 
     findPap : state => ({key, value}) => {
-        //console.log(this.getPaps(state))
+        
         return this.getPaps(state).find(item => item[key] === value);
     }
 }

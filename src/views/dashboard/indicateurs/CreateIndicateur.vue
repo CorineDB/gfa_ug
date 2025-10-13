@@ -163,7 +163,7 @@ const refreshDatasCadreSilently = async () => {
   try {
     const { data } = await ResultatCadreRendementService.getCadreRendement(idProgramme.value);
     cadreRendement.value = data.data;
-  } catch (e) { console.error(e); }
+  } catch (e) {  }
 };
 
 const getCategories = async () => {
@@ -273,30 +273,7 @@ const openEditModal = (indicator) => {
 
 const isSubmitting = ref(false);
 
-// ANCIENNE VERSION - Seulement création
-// const handleCreateSubmit = async ({ payload, onSuccess, onError }) => {
-//   if (isSubmitting.value) return;
-//   isSubmitting.value = true;
-//   formErrors.value = {};
-//   try {
-//     await IndicateursService.create(payload);
-//     toast.success(`Indicateur créé avec succès.`);
-//     refreshDatasCadreSilently();
-//     showModalCreate.value = false;
-//     if (onSuccess) onSuccess();
-//   } catch (e) {
-//     if (e.response && e.response.status === 422) {
-//       formErrors.value = e.response.data.errors || {};
-//       if (onError) onError(formErrors.value);
-//     } else {
-//       toast.error(getAllErrorMessages(e));
-//       if (onError) onError({});
-//     }
-//     console.error(e);
-//   } finally {
-//     isSubmitting.value = false;
-//   }
-// };
+ 
 
 // NOUVELLE VERSION - Création et modification
 const handleSubmit = async ({ payload, onSuccess, onError }) => {
@@ -333,7 +310,6 @@ const handleSubmit = async ({ payload, onSuccess, onError }) => {
       toast.error(getAllErrorMessages(e));
       if (onError) onError({});
     }
-    console.error(e);
   } finally {
     isSubmitting.value = false;
   }

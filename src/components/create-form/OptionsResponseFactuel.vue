@@ -57,7 +57,7 @@ const getDatas = async () => {
     isLoadingData.value = true;
     const { data } = await OptionReponse.factuel();
     datas.value = data.data;
-    console.log(datas.value);
+   
   } catch (e) {
     toast.error("Erreur lors de la récupération des données.");
   } finally {
@@ -93,7 +93,6 @@ const deleteData = async () => {
     toast.success("Option de réponse supprimée avec succès.");
     getDatas();
   } catch (e) {
-    console.error(e);
     toast.error(getAllErrorMessages(e));
   } finally {
     isLoading.value = false;
@@ -166,7 +165,7 @@ const getOneForm = async () => {
     updateOptionsResponse.value = data.data.options_de_reponse;
   } catch (e) {
     toast.error("Erreur récupération du  formulaire.");
-    console.log(e);
+    
   } finally {
   }
 };

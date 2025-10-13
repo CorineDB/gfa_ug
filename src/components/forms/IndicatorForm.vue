@@ -629,15 +629,12 @@ watch(() => [props.show, props.initialData, props.isCreate], ([show, initialData
 
       // Backend: agreger=true → avec clés, agreger=false → simple
 
-      console.log("Loading indicator data:", data);
-      console.log("Backend agreger value:", data.agreger);
-      console.log("valeurDeBase:", data.valeurDeBase);
-      console.log("valeursCible:", data.valeursCible);
+     
 
       // CORRECTION: Backend agreger=true → avec clés, agreger=false → simple
       if(data.agreger) {
         // Backend agreger=true → avec clés-valeurs
-        console.log("Charger les clés-valeurs (backend agreger=true)");
+       
         array_value_keys.value = data.value_keys?.map(vk => vk.id) ?? [];
         const baseValues = {};
         if (data.valeurDeBase) {
@@ -647,7 +644,7 @@ watch(() => [props.show, props.initialData, props.isCreate], ([show, initialData
             });
         }
         valeur.value = baseValues;
-        console.log("valeur.value chargé:", valeur.value);
+        
 
         anneesCible.value = data.valeursCible?.map(vc => ({
             annee: vc.annee,
@@ -656,18 +653,18 @@ watch(() => [props.show, props.initialData, props.isCreate], ([show, initialData
                 value: vc.valeurCible ? vc.valeurCible[vk.libelle] : ""
             }))
         })) ?? [];
-        console.log("anneesCible.value chargé:", anneesCible.value);
+        
       } else {
         // Backend agreger=false → valeurs simples
-        console.log("Charger les valeurs simples (backend agreger=false)");
+       
         payloadNotAgreger.valeurDeBase = data.valeurDeBase ? Object.values(data.valeurDeBase)[0] : "";
-        console.log("payloadNotAgreger.valeurDeBase chargé:", payloadNotAgreger.valeurDeBase);
+        
 
         payloadNotAgreger.anneesCible = data.valeursCible?.map(vc => ({
             annee: vc.annee,
             valeurCible: vc.valeurCible ? Object.values(vc.valeurCible)[0] : ""
         })) ?? [];
-        console.log("payloadNotAgreger.anneesCible chargé:", payloadNotAgreger.anneesCible);
+        
       }
     } else {
       resetForm();

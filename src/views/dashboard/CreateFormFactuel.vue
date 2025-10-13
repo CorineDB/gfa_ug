@@ -120,7 +120,6 @@ const getcurrentUser = async () => {
       finProgramme.value = result.data.data.programme.fin;
     })
     .catch((e) => {
-      console.error(e);
       toast.error("Une erreur est survenue: Utilisateur connecté .");
     });
 };
@@ -264,7 +263,7 @@ const resetCurrentPreviewFactuelFormData = () => {
   currentPreviewFactuelFormData.indicateur = { id: "", nom: "", key: "", position: 0 };
   currentPreviewFactuelFormData.type = { id: "", nom: "", key: "", position: 0 };
 
-  console.log(currentPreviewFactuelFormDataArray.value);
+  
 
   currentPreviewFactuelFormDataArray.value = [];
 };
@@ -450,10 +449,7 @@ const getIndicateurs = (indicateur) => {
 
   let position = indicateursPersistes.length + indicateursEnCours.length + 1;
 
-  console.log("🔢 Calcul position dans getIndicateurs:");
-  console.log("   indicateursPersistes:", indicateursPersistes.length);
-  console.log("   indicateursEnCours:", indicateursEnCours.length);
-  console.log("   position calculée:", position);
+ 
 
   const typeKey = currentGlobalFactuelFormData?.typeKey != "" ? currentGlobalFactuelFormData?.typeKey : "";
   const principeKey = currentGlobalFactuelFormData?.principeKey != "" ? currentGlobalFactuelFormData?.principeKey : "";
@@ -477,7 +473,7 @@ const getIndicateurs = (indicateur) => {
 
   currentGlobalFactuelFormDataArray.value.push(form);
 
-  console.log("currentGlobalFactuelFormDataArray.value", currentGlobalFactuelFormDataArray.value);
+  
 
   currentPreviewFactuelFormData.indicateur = { id: indicateur.id, nom: indicateur.nom, key: key, position: position };
 
@@ -505,7 +501,7 @@ const getIndicateurs = (indicateur) => {
 
   currentPreviewFactuelFormDataArray.value.push(form2);
 
-  console.log("currentPreviewFactuelFormDataArray.value", currentPreviewFactuelFormDataArray.value);
+  
 };
 
 // ===========================================
@@ -602,7 +598,7 @@ const addNewIndicator = () => {
     // Utiliser la position déjà calculée dans getIndicateurs
     const indicateurPosition = item.indicateurPosition || 1;
     
-    console.log(`📍 Utilisation position pré-calculée: ${indicateurPosition} pour indicateur ${item.indicateur}`);
+    
 
     // Génération des clés hiérarchiques avec les positions calculées
     const typeKey = `type_${typePosition}`;
@@ -610,8 +606,7 @@ const addNewIndicator = () => {
     const critereKey = `${principeKey}_critere_${criterePosition}`;
     const indicateurKey = `${critereKey}_indicateur_${indicateurPosition}`;
 
-    console.log(`Positions calculées: Type(${typePosition}), Principe(${principePosition}), Critère(${criterePosition}), Indicateur(${indicateurPosition})`);
-
+    
     sessionKeys.add(indicateurKey);
 
     // Vérifier unicité
@@ -636,8 +631,7 @@ const addNewIndicator = () => {
         indicateur: { ...currentPreviewFactuelFormDataArray.value[index].indicateur, key: indicateurKey, position: indicateurPosition },
       };
 
-      console.log("Ajout de l'indicateur avec clé:", indicateurKey);
-
+     
       // Ajouter aux données
       globalFormFactuelData.value.unshift({ ...updatedItem });
       previewFormFactuelData.value.unshift(JSON.parse(JSON.stringify(preview)));
@@ -679,7 +673,6 @@ const addNewIndicator = () => {
     uniqueKeys.set(indicateurKey, true);
   });
 
-  console.log("Ajout terminé avec succès");
 };
 
 // ===========================================
@@ -1166,7 +1159,6 @@ const resetAllFormWithDataLocalStorage = () => {
 
 const updateElement = (key, type = "critere", isCurrent = false) => {
   if (!isCurrent) {
-    console.log(key);
     const typeKey = type + "Key";
   } else {
   }
@@ -1286,7 +1278,6 @@ const recalculatePositions = () => {
 
 const removeElement = (key, type = "critere", isCurrent = false) => {
   if (!isCurrent) {
-    console.log(key);
     const typeKey = type + "Key";
 
     // Remove from globalFormFactuelData
@@ -1445,14 +1436,12 @@ const createForm = async () => {
       };
     });
   } catch (e) {
-    console.error("Erreur lors de la récupération des options complètes:", e);
     // En cas d'erreur, on utilise les données sans enrichissement
     payload.factuel.options_de_reponse = globalOptionResponses.value.options_de_reponse;
   }
 
   payload.factuel.types_de_gouvernance = previewTypesGouvernance.value.types_de_gouvernance;
 
-  console.log(payload.factuel);
 
   try {
     await FormulaireFactuel.create(payload);
@@ -1471,7 +1460,6 @@ const createForm = async () => {
     } else {
       toast.error(getAllErrorMessages(e));
     }
-    console.log(e);
   } finally {
     isLoadingForm.value = false;
   }
@@ -1516,14 +1504,12 @@ onBeforeUnmount(() => {
 });
 
 watch(() => {
-  console.log(route.query.tab);
-  console.log(currentTab.value);
+
   if (route.query.tab) {
     currentTab.value = Number(route.query.tab);
   } else {
     currentTab.value = 0;
   }
-  console.log(currentTab.value);
 });
 
 // Fonction pour ouvrir le modal de modification
@@ -1561,7 +1547,6 @@ const loadAvailableParents = async (type, currentData) => {
       modifyElement.availableParents = response.data.data || [];
     }
   } catch (error) {
-    console.error('Erreur lors du chargement des parents disponibles:', error);
     toast.error('Erreur lors du chargement des données');
   }
 };
@@ -1826,7 +1811,6 @@ onMounted(() => {
     globalFormFactuelData.value = JSON.parse(globalData);
     previewFormFactuelData.value = JSON.parse(previewData);
 
-    console.log("previewTypesGouvernance.value", previewFormFactuelData.value);
   }
   updateAllTypesGouvernance();
   getcurrentUser();

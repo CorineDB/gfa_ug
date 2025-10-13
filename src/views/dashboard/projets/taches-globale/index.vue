@@ -47,6 +47,7 @@ export default {
       isLoadingData: false,
       showModal: false,
       isUpdate: false,
+      update : false,
       isLoading: false,
       formData: this.getInitialFormData(),
       composantsId: {},
@@ -95,28 +96,7 @@ export default {
   },
   
   watch: {
-    // projetId(newValue, oldValue) {
-    //   if (this.projets.length > 0) {
-    //     console.log(newValue);
-
-    //     this.getProjetById(newValue.id);
-    //   }
-    // },
-    // composantsId(newValue, oldValue) {
-    //   if (this.composants.length > 0) {
-    //     this.getComposantById(newValue.id);
-    //   }
-    // },
-    // sousComposantId(newValue, oldValue) {
-    //   if (this.sousComposants.length > 0) {
-    //     this.getComposantById(newValue.id);
-    //   }
-    // },
-    // activitesId(newValue, oldValue) {
-    //   if (this.activites.length > 0) {
-    //     this.getActiviteById(newValue.id);
-    //   }
-    // },
+    
     projetId(newId) {
       if (newId) {
         this.loadProjetDetails(newId);
@@ -152,12 +132,19 @@ export default {
   },
 
   methods: {
+     closeDeleteTacheModal(){
+      document.activeElement.blur()
+      this.showDeleteModal = false
+    },
+     closeAddTacheModal(){
+      document.activeElement.blur()
+      this.showModal = false
+    },
     handleChange(data) {
       this.getPlageActivite(data);
     },
     onPageChanged(newPage) {
       this.currentPage = newPage;
-      console.log("Page actuelle :", this.currentPage);
       // Charger les données pour la page actuelle
       // this.loadDataForPage(newPage);
     },
@@ -222,7 +209,6 @@ export default {
       this.tacheId = data.id;
     },
     addTache() {
-      console.log(this.isUpdate);
       this.update = false;
       this.messageErreur = {};
       this.resetFormData();
@@ -280,7 +266,6 @@ export default {
         TachesService.create(data)
           .then((response) => {
             if (response.status == 200 || response.status == 201) {
-              console.log(this.selectedIds.activiteId);
               this.loadActiviteDetails();
               this.isLoading = false;
               toast.success("Ajout éffectué");
@@ -327,24 +312,20 @@ export default {
         this.projetId = this.projets[0]?.id || "";
         this.isLoadingData = false;
       } catch (error) {
-        console.error("Erreur lors du chargement des projets", error);
       } finally {
         this.isLoadingData = false;
       }
     },
     async loadProjetDetails(projetId) {
       this.isLoadingData = true;
-      // console.log("this.selectedIds.composantId1", this.selectedIds.composantId);
       try {
         const response = await ProjetService.getDetailProjet(projetId);
         this.isLoadingData = false;
         this.composants = response.data.data.composantes;
         this.selectedIds.composantId = this.composants[0]?.id || "";
 
-        console.log("this.selectedIds.composantId2", this.selectedIds.composantId);
       } catch (error) {
         this.isLoadingData = false;
-        console.error("Erreur lors du chargement des détails du projet", error);
       }
     },
     async loadComposantDetails() {
@@ -357,7 +338,6 @@ export default {
         const composantData = response.data.data;
         this.isLoadingData = false;
         this.sousComposants = composantData.souscomposantes || [];
-        console.log("this.sousComposants", this.sousComposants);
         this.activites = composantData.activites || [];
 
         if (this.sousComposants.length > 0) {
@@ -368,7 +348,6 @@ export default {
           this.updateActivitesList(this.activites);
         }
       } catch (error) {
-        console.error("Erreur lors du chargement des détails du composant", error);
       }
     },
     async loadSousComposantDetails() {
@@ -378,13 +357,10 @@ export default {
         const response = await ComposantesService.detailComposant(this.selectedIds.sousComposantId);
         const sousComposantData = response.data.data;
         this.isLoadingData = false;
-        console.log("sousComposantData", sousComposantData);
 
         this.updateActivitesList(sousComposantData.activites || []);
       } catch (error) {
         this.isLoadingData = false;
-        console.log("erreur", error);
-        console.error("Erreur lors du chargement des détails du sous-composant", error);
       }
     },
     updateActivitesList(activites) {
@@ -417,8 +393,6 @@ export default {
         this.isLoadingData = false;
       } catch (error) {
         this.isLoadingData = false;
-        console.log("erreur", error);
-        console.error("Erreur lors du chargement des détails du sous-composant", error);
       }
     },
     resetSousComposantsId() {
@@ -730,7 +704,7 @@ export default {
 
       <ModalFooter>
         <div class="flex items-center justify-center">
-          <button type="button" @click="showModal = false" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
+          <button type="button" @click="closeAddTacheModal" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
           <VButton class="inline-block" :label="labels" :loading="isLoading" @click="sendForm" />
         </div>
       </ModalFooter>
@@ -745,7 +719,7 @@ export default {
         <div class="mt-2 text-slate-500">Voulez vous supprimer la tache ? <br />Cette action ne peut être annulé</div>
       </div>
       <div class="flex gap-2 px-5 pb-8 text-center">
-        <button type="button" @click="showDeleteModal = false" class="w-full my-3 mr-1 btn btn-outline-secondary">Annuler</button>
+        <button type="button" @click="closeDeleteTacheModal" class="w-full my-3 mr-1 btn btn-outline-secondary">Annuler</button>
         <VButton :loading="deleteLoader" label="Supprimer" @click="deleteTache" />
       </div>
     </ModalBody>

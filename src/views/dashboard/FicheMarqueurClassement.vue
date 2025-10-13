@@ -29,8 +29,6 @@ const getOngClassement = async () => {
       loadingClassement.value = false;
     })
     .catch((e) => {
-      console.error(e);
-      loadingClassement.value = false;
       toast.error("Une erreur est survenue: Liste des classemnt des organsations.");
     });
 };

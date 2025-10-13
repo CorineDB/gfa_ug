@@ -65,7 +65,6 @@ const createData = async () => {
     })
     .catch((e) => {
       isLoading.value = false;
-      console.error(e);
       toast.error("Vérifier les informations et ressayer.");
     });
 };
@@ -76,10 +75,8 @@ const getDatas = async () => {
     .then((result) => {
       datas.value = result.data.data;
       isLoadingData.value = false;
-      console.log(datas.value);
     })
     .catch((e) => {
-      console.error(e);
       isLoadingData.value = false;
       toast.error("Une erreur est survenue: Liste des soumissions.");
     });
@@ -91,7 +88,6 @@ const getClassement = async () => {
       isLoadingClassement.value = false;
     })
     .catch((e) => {
-      console.error(e);
       isLoadingClassement.value = false;
       toast.error("Une erreur est survenue: Liste des classements.");
     });
@@ -107,7 +103,6 @@ const resultatSynthese = async () => {
       isLoadingResultat.value = false;
     })
     .catch((e) => {
-      console.error(e);
       isLoadingResultat.value = false;
       toast.error("Une erreur est survenue: Liste des resultats.");
     });
@@ -118,14 +113,12 @@ const getEvaluation = async () => {
   await EvaluationService.findEvaluation(idEvaluation)
     .then((result) => {
       statistiques.value = result.data.data;
-      console.log( statistiques.value);
       currentOrganisationsOptions.value = statistiques.value.options_de_reponse_stats[0]?.id || null;
 
       changeOrganisationOptions();
       isLoadingStats.value = false;
     })
     .catch((e) => {
-      console.error(e);
       isLoadingStats.value = false;
       toast.error("Une erreur est survenue: Statistiques.");
     });
@@ -142,7 +135,6 @@ const updateData = async () => {
     })
     .catch((e) => {
       isLoading.value = false;
-      console.error(e);
       toast.error("Vérifier les informations et ressayer.");
     });
 };
@@ -159,7 +151,6 @@ const deleteData = async () => {
     })
     .catch((e) => {
       isLoading.value = false;
-      console.error(e);
       toast.error("Une erreur est survenue, ressayer");
     });
 };
@@ -179,16 +170,7 @@ function gotoAppreciations(enquete) {
 }
 
 const handleEdit = (params) => {
-  /*console.log(params);
-
-  isCreate.value = false;
-  idSelect.value = params.id;
-  payload.nom = params.nom;
-  payload.description = params.description;
-  payload.objectif = params.objectif;
-  payload.debut = params.debut;
-  payload.fin = params.fin;
-  showModalCreate.value = true;*/
+  
   router.push({ name: "ToolsFactuel", query: { enqueteId: route.params.id } });
 };
 
@@ -288,7 +270,6 @@ const copyPerceptionLink = async (links) => {
     await navigator.clipboard.writeText(link);
     toast.success("Lien de soumission copié !");
   } catch (error) {
-    console.error("Erreur lors de la copie:", error);
     toast.error("Impossible de copier le lien");
   }
 };

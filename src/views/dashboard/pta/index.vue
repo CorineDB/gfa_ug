@@ -948,7 +948,7 @@
         <div class="flex items-center justify-center">
           <button type="button" @click="resetModalSuiviFinancierActivite"
             class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
-          <VButton class="inline-block" label="Enregistrer" :loading="loadingSuiviFinancier" :type="submit"
+          <VButton class="inline-block" label="Enregistrer" :loading="loadingSuiviFinancier" type="submit"
             :disabled="loaderListeSuivi" />
         </div>
       </ModalFooter>
@@ -1086,7 +1086,7 @@
                     <tr v-if="loadListeSuivi || loaderListeSuivi">
                       <td colspan="9" class="text-center py-12 border-gray-300">
                         <div class="flex justify-center items-center">
-                          <LoaderSnipper />
+                          <!-- <LoaderSnipper /> -->
                           <span class="ml-3 text-gray-600">Chargement des suivis financiers...</span>
                         </div>
                       </td>
@@ -1284,7 +1284,7 @@
         <div class="flex items-center justify-center">
           <button type="button" @click="showModalPlanDeDecaissement = false"
             class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
-          <VButton class="inline-block" label="Enregistrer" :loading="loadingPlanDeDecaissement" :type="submit"
+          <VButton class="inline-block" label="Enregistrer" :loading="loadingPlanDeDecaissement" type="submit"
             :disabled="loaderListePlan" />
         </div>
       </ModalFooter>
@@ -1398,7 +1398,8 @@ export default {
       listeSuivi: [],
       loaderListePlan: false,
       loaderListeSuivi: false,
-      isLoading : false 
+      isLoading : false ,
+      isLoadingFilterSuiviFinancier : false ,
     };
   },
   computed: {
@@ -1406,8 +1407,6 @@ export default {
     ...mapState({
       loading: (state) => state.loading,
       years() {
-        console.log("debut", `${this.debutProgramme.split("-")}`);
-        console.log("fin", `${this.finProgramme.split("-")}`);
         let anneeDebut = parseInt(`${this.debutProgramme.split("-")[0]}`);
         let anneeFin = parseInt(`${this.finProgramme.split("-")[0]}`);
         let annees = [];
@@ -1418,7 +1417,6 @@ export default {
           // }
         }
 
-        console.log("annees", annees);
 
          
 
@@ -2450,7 +2448,6 @@ export default {
 
         toast.success("Export Excel réussi !");
       } catch (error) {
-        console.error("Erreur lors de l'export Excel:", error);
         toast.error("Erreur lors de l'export Excel");
       }
     },
@@ -2524,10 +2521,8 @@ export default {
       }
 
       if (this.planDeDecaissement.length > 0) {
-        console.log("this.planDeDecaissement", this.planDeDecaissement);
 
         if (errorIndex.length > 0) {
-          console.log("errorIndex", errorIndex);
           errorIndex.forEach((item) => {
             this.removePlan(item);
           });
@@ -2535,7 +2530,6 @@ export default {
       }
     },
     ouvrirModalPlanDeDecaissementActivite(data) {
-      // console.log(data)
 
       const newItem = {
         activiteId: data.activiteId,
@@ -2546,7 +2540,6 @@ export default {
         id: Date.now() + "-" + Math.random().toString(36).substr(2, 9),
       };
 
-      console.log("data.id", data.activiteId);
 
       this.getListePlanDeDecaissement(data.activiteId);
 
@@ -2561,7 +2554,6 @@ export default {
           this.finProgramme = result.data.data.programme.fin;
         })
         .catch((e) => {
-          console.error(e);
           toast.error("Une erreur est survenue: Utilisateur connecté .");
         });
     },
@@ -2590,19 +2582,16 @@ export default {
         trimestre: trimestre
       };
 
-      console.log("Payload du filtre:", payload);
 
       await SuiviFinancierService.filtre(payload)
         .then((result) => {
           // Garder la même structure que getListeDataSuivi()
           this.listeSuivi = result.data.data;
-          console.log("this.listeSuivi", this.listeSuivi);
           this.isLoadingFilterSuiviFinancier = false;
           this.resetFilterModalSuivi();
           toast.success("Suivi Financier filtré.");
         })
         .catch((e) => {
-          console.log(e);
           this.isLoadingFilterSuiviFinancier = false;
           toast.error("Vérifier les informations et ressayer.");
         });
@@ -2614,15 +2603,12 @@ export default {
     },
     getCurrentQuarter() {
       const month = new Date().getMonth() + 1; // Les mois sont indexés à partir de 0
-      console.log("Math.ceil(month / 3)", Math.ceil(month / 3));
       return Math.ceil(month / 3); // Calcul du trimestre actuel
     },
     openFilterModalSuiviFinancier() {
       this.filterPayloadSuiviFinancier.trimestre = this.getCurrentQuarter();
       this.showModalFiltreSuiviFinancier = true;
 
-      console.log("this.filterPayloadSuiviFinancier", this.filterPayloadSuiviFinancier);
-      console.log("this.showModalFiltreSuiviFinancier", this.showModalFiltreSuiviFinancier);
     },
     async getListeDataSuivi() {
       this.loadListeSuivi = true;
@@ -2630,11 +2616,9 @@ export default {
         .then((result) => {
           this.listeSuivi = result.data.data;
 
-          console.log(this.listeSuivi);
           this.loadListeSuivi = false;
         })
         .catch((e) => {
-          console.error(e);
           this.loadListeSuivi = false;
           toast.error("Une erreur est survenue: Liste des type des options.");
         });
@@ -2694,7 +2678,6 @@ export default {
         })
         .catch((error) => {
           this.loaderListeSuivi = false;
-          //console.log(error);
         });
     },
     getListePlanDeDecaissement(id) {
@@ -2703,14 +2686,11 @@ export default {
       ActiviteService.plansDeDecaissement(id)
         .then((data) => {
           this.loaderListePlan = false;
-          //console.log(data.data.data);
           this.listePlanDeDecaissement = data.data.data;
 
-          console.log("this.listePlanDeDecaissement", this.listePlanDeDecaissement);
         })
         .catch((error) => {
           this.loaderListePlan = false;
-          //console.log(error);
         });
     },
     miseAjourTabSuivi(payLoad, index) {
@@ -2721,7 +2701,6 @@ export default {
         annee: taille > 1 ? payLoad : this.suiviFinancier[index].annee,
       };
 
-      console.log("form", form);
 
       this.filterSuiviFinancierActiviteParAnnee(form);
     },
@@ -2731,18 +2710,15 @@ export default {
 
       let errorIndex = [];
 
-      console.log("this.listeSuivi", this.listeSuivi);
 
       for (let index = 0; index < this.suiviFinancier.length; index++) {
         // let suivi = this.listeSuivi.filter((suivi) => suivi.annee == this.suiviFinancier[index].annee && suivi.trimestre == this.suiviFinancier[index].trimestre && suivi.activite.id == this.suiviFinancier[index].activiteId);
 
-        // console.log("suivi", suivi);
 
         let payload = this.suiviFinancier[index];
 
         delete payload.id;
 
-        // console.log("payload", payload);
 
         // const action = suivi.length > 0 ? SuiviFinancier.update(suivi[0]?.activite.id, this.suiviFinancier[index]) : SuiviFinancierService.create(payload);
 
@@ -2755,7 +2731,6 @@ export default {
 
           errorIndex.push(index);
 
-          console.log("index === this.suiviFinancier.length - 1", index === this.suiviFinancier.length - 1);
 
           if (index === this.suiviFinancier.length - 1) {
             this.showModalSuiviFinancier = false;
@@ -2769,7 +2744,6 @@ export default {
           // getDatasCadre();
           // resetForm();
         } catch (error) {
-          console.log("error", error);
 
           this.loadingSuiviFinancier = false;
 
@@ -2786,10 +2760,8 @@ export default {
         }
 
         if (this.suiviFinancier.length > 0) {
-          console.log("this.suiviFinancier", this.suiviFinancier);
 
           if (errorIndex.length > 0) {
-            console.log("errorIndex", errorIndex);
             errorIndex.forEach((item) => {
               this.removeSuivi(item);
             });
@@ -2809,7 +2781,6 @@ export default {
       const activiteId = item.activiteId || item.activite?.id || item.id;
 
       if (!activiteId) {
-        console.error("Impossible de récupérer l'ID de l'activité", item);
         return;
       }
 
@@ -2826,7 +2797,6 @@ export default {
         annee: new Date().getFullYear(),
       };
 
-      console.log("activiteId trouvé:", activiteId);
 
       this.filterSuiviFinancierActiviteParAnnee(payLoad);
 
@@ -2841,7 +2811,6 @@ export default {
       deleteModalPreview.value = true;
     },
     handleEdit(params) {
-      console.log(params);
       showModalCreate.value = true;
     },
     filtreParAnnee(datas) {
@@ -2871,10 +2840,8 @@ export default {
             toast.error(message);
           } else if (error.request) {
             // Demande effectuée mais aucune réponse n'est reçue du serveur.
-            //console.log(error.request);
           } else {
             // Une erreur s'est produite lors de la configuration de la demande
-            //console.log('dernier message', error.message);
           }
         });
       this.chargement = false;
@@ -2911,40 +2878,23 @@ export default {
             toast.error(message);
           } else if (error.request) {
             // Demande effectuée mais aucune réponse n'est reçue du serveur.
-            console.log(error.request);
           } else {
             // Une erreur s'est produite lors de la configuration de la demande
-            console.log("dernier message", error.message);
           }
         });
       //}
       this.chargement = false;
     },
-    // exportToExcel() {
-    //   //  console.log('gghghghgh');
-    //   //  console.log(this.dataNew);
-
-    //   const tableDataWithColors = this.dataNew.map((row) => {
-    //     return {
-    //       ...row,
-    //       bailleur: "bg-red-500",
-    //     };
-    //   });
-
-    //   const worksheet = XLSX.utils.json_to_sheet(tableDataWithColors);
-    //   const workbook = XLSX.utils.book_new();
-    //   XLSX.utils.book_append_sheet(workbook, worksheet, "Tableau de données");
-    //   XLSX.writeFile(workbook, "tableau.xlsx");
-    // },
+    
     generateReport() {
       this.$refs.html2Pdf.generatePdf();
     },
     ...mapActions("revisionPtab", {
       fetchProgrammeScopes: "FETCH_PROGRAMME_SCOPES",
     }),
-    chargement(bool) {
-      this.$store.dispatch("SET_LOADER", bool);
-    },
+    // chargement(bool) {
+    //   this.$store.dispatch("SET_LOADER", bool);
+    // },
     active() {
       this.$store.dispatch("active");
     },
@@ -3135,7 +3085,6 @@ export default {
     this.getPermission();
 
     if (this.revisionVisible || this.ppmVisible || this.ptaVisible) {
-      console.log(this.$route.params.ongId);
       let data = {};
       data = {
         organisationId: this.$route.params.ongId,

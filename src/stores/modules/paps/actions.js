@@ -43,7 +43,7 @@ export default {
     },
 
     async STORE_PAP ({ commit }, payload) {
-        console.log('ok');
+       
         const { data, status } = await PapService.create(payload);
 
         commit(ADD_PAP, data.data);

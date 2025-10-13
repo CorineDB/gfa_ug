@@ -42,7 +42,6 @@ const getDataFormFactuel = async () => {
       // }
     })
     .catch((e) => {
-      console.error(e);
       isLoadingDataFactuel.value = false;
       toast.error("Une erreur est survenue: Liste du formulaire Perception .");
     });
@@ -53,7 +52,6 @@ const getOrganizations = async () => {
       organisations.value = result.data.data;
     })
     .catch((e) => {
-      console.error(e);
       toast.error("Une erreur est survenue: Liste des organisations .");
     });
 };
@@ -68,7 +66,6 @@ const getcurrentUserAndFetchOrganization = async () => {
       nomProgram.value = result.data.data.programme.nom;
     })
     .catch((e) => {
-      console.error(e);
       toast.error("Une erreur est survenue: Utilisateur connecté .");
     });
 };
@@ -91,7 +88,6 @@ const submitData = async () => {
       toast.success(`${result.data.message}`);
     })
     .catch((e) => {
-      console.error(e);
       isLoading.value = false;
       // payload.response_data = [];
       toast.error("Erreur pour la collecte des données");

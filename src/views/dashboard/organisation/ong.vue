@@ -159,10 +159,8 @@ export default {
     supprimer(data) {
       this.showDeleteModal = true;
       this.ongsId = data.id;
-      console.log(this.showDeleteModal);
     },
     modifierOrganisation(data) {
-      console.log(data);
       this.ongsId = data.id;
       this.labels = "Modifier";
       this.showModal = true;
@@ -221,7 +219,6 @@ export default {
             // this.$toast.error(message);
           } else if (error.request) {
             // Demande effectuée mais aucune réponse n'est reçue du serveur.
-            //console.log(error.request);
           } else {
             // Une erreur s'est produite lors de la configuration de la demande
           }
@@ -244,7 +241,6 @@ export default {
             const message = error.response.data.message;
           } else if (error.request) {
             // Demande effectuée mais aucune réponse n'est reçue du serveur.
-            //console.log(error.request);
           } else {
             // Une erreur s'est produite lors de la configuration de la demande
           }
@@ -309,7 +305,6 @@ export default {
             // this.$toast.error(message);
           } else if (error.request) {
             // Demande effectuée mais aucune réponse n'est reçue du serveur.
-            //console.log(error.request);
           } else {
             // Une erreur s'est produite lors de la configuration de la demande
           }
@@ -462,7 +457,6 @@ export default {
                `;
             },
             cellClick: (e, cell) => {
-              console.log(e);
               // Utilisation d'une fonction fléchée pour garder le contexte de `this`
               const rowData = cell.getRow().getData();
               if (e.target.classList.contains("btn-modifier")) {
@@ -557,7 +551,6 @@ export default {
               this.$toast.error(message);
             } else if (error.request) {
               // Demande effectuée mais aucune réponse n'est reçue du serveur.
-              //console.log(error.request);
             } else {
               // Une erreur s'est produite lors de la configuration de la demande
             }
@@ -567,7 +560,6 @@ export default {
     },
     sendForm() {
       if (this.update) {
-        console.log("ongId", this.ongsId);
         this.ajoutLoading = true;
         this.updateOng({ ong: this.formData, id: this.ongsId })
           .then((response) => {
@@ -583,7 +575,6 @@ export default {
             }
           })
           .catch((error) => {
-            console.log(error);
             this.ajoutLoading = false;
             toast.error(error.message);
             // this.setErrors({ message: error?.response?.data?.message, errors: error?.response?.data?.data?.errors });
@@ -660,7 +651,6 @@ export default {
           this.fetchOngs();
         })
         .catch((error) => {
-          console.log(error);
           if (error.response) {
             // Requête effectuée mais le serveur a répondu par une erreur.
             const message = error.response.data.message;
@@ -668,7 +658,6 @@ export default {
             toast.success(message);
           } else if (error.request) {
             // Demande effectuée mais aucune réponse n'est reçue du serveur.
-            //console.log(error.request);
           } else {
             // Une erreur s'est produite lors de la configuration de la demande
           }

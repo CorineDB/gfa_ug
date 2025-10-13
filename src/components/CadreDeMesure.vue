@@ -434,7 +434,6 @@ const handleUpdateSubmit = async ({ payload, id }) => {
     emit("update-datas");
   } catch (e) {
     toast.error("Échec de la modification. Veuillez vérifier le formulaire.");
-    console.error(e);
   }
 };
 
@@ -815,7 +814,6 @@ const deleteData = async () => {
       emit("update-datas");
     }, 500);
   } catch (e) {
-    console.error(e);
     toast.error(getAllErrorMessages(e));
   } finally {
     isLoading.value = false;
@@ -843,7 +841,7 @@ const deleteData = async () => {
 
 // NOUVELLE VERSION - Émettre l'événement vers le parent pour utiliser IndicatorForm
 const handleEdit = (data) => {
-  console.log("Edit indicator:", data);
+   
   emit("edit-indicator", data);
 };
 const handleSuivi = (data) => {

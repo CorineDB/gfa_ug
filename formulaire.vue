@@ -1252,7 +1252,6 @@ export default {
         localStorage.setItem('formulaire_idee_projet', JSON.stringify(form))
         alert('✅ Formulaire sauvegardé avec succès!')
       } catch (error) {
-        console.error('Erreur de sauvegarde:', error)
         alert('❌ Erreur lors de la sauvegarde: ' + (error.message || 'Erreur inconnue'))
       } finally {
         isLoading.value = false
@@ -1282,13 +1281,12 @@ export default {
         const result = await formulaireIdeeProjetService.saveFormulaireIdeeProjet(form)
         
         alert('✅ Formulaire soumis avec succès!')
-        console.log('Réponse du serveur:', result)
+         
         
         // Optionnel: réinitialiser le formulaire après succès
         // form.sections = []
         
       } catch (error) {
-        console.error('Erreur de soumission:', error)
         
         // Gestion des erreurs selon le type
         if (error.message) {
@@ -1406,7 +1404,6 @@ export default {
           formKey.value += 1
         }
       } catch (error) {
-        console.error('Erreur lors du chargement:', error)
       }
     }
 
@@ -1575,7 +1572,6 @@ export default {
         
       } catch (error) {
         jsonError.value = `Erreur lors de la sauvegarde: ${error.message}`
-        console.error('Erreur détaillée:', error)
       } finally {
         isLoading.value = false
       }

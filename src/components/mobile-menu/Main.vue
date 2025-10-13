@@ -121,7 +121,7 @@ const usersProfileImage = ref("");
 onMounted(() => {
   const usersInfo = JSON.parse(localStorage.getItem("authenticateUser"));
 
-  console.log("permissions", usersInfo.roles);
+  
 
   let permissions = usersInfo.role[0].permissions;
 

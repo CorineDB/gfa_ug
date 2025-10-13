@@ -13,6 +13,7 @@ import NoRecordsMessage from "@/components/NoRecordsMessage.vue";
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
 
 import { toast } from "vue3-toastify";
+import { update } from "lodash";
 export default {
   components: {
     InputForm,
@@ -26,7 +27,7 @@ export default {
       search: "",
       isLoadingOutcome: true,
       itemsPerPage: 3, // Nombre d'éléments par page
-      totalItems: null,
+      totalItems: 0,
       currentPage: 1, // Page courante
       messageErreur: {},
       projets: [],
@@ -35,6 +36,7 @@ export default {
       isLoadingData: false,
       showModal: false,
       isUpdate: false,
+      update:false,
       isLoading: false,
       formData: {
         nom: "",
@@ -50,8 +52,8 @@ export default {
       deleteLoader: false,
       fondPropreProjet: 0,
       SubventionProjet: 0,
-      fondRestant: 0,
-      subventionRestant: 0,
+      // fondRestant: 0,
+      // subventionRestant: 0,
     };
   },
   computed: {
@@ -79,27 +81,13 @@ export default {
 
       return obj ? obj : null;
     },
-    // getFondRestant() {
-    //   let totalFond = 0;
-    //   let totalPret = 0;
-
-    //   this.composants.forEach((item) => {
-    //     totalFond += item.budgetNational ? item.budgetNational : 0;
-    //     totalPret += item.pret ? item.pret : 0;
-    //   });
-
-    //   this.fondRestant = ;
-    //   this.budgetRestant = this.getPlageProjet ? (this.getPlageProjet.budgetExterne ? this.getPlageProjet.budgetExterne : 0) - totalPret : 0;
-
-    //   return this.fondRestant;
-    // },
+     
     getBudgetRestant() {
       return this.budgetRestant;
     },
     fondRestant() {
       let totalFondUtilise = 0;
 
-      console.log(this.composants);
 
       if (this.composants.length == 0) {
         return this.fondPropreProjet;
@@ -109,13 +97,11 @@ export default {
         totalFondUtilise += item.budgetNational ? item.budgetNational : 0;
       });
 
-      console.log(this.fondPropreProjet - totalFondUtilise);
       return this.fondPropreProjet - totalFondUtilise;
     },
     subventionRestant() {
       let totalSubventionUtilise = 0;
 
-      console.log(this.composants);
 
       if (this.composants.length == 0) {
         return this.SubventionProjet;
@@ -125,7 +111,6 @@ export default {
         totalSubventionUtilise += item.pret ? item.pret : 0;
       });
 
-      console.log(this.SubventionProjet - totalSubventionUtilise);
       return this.SubventionProjet - totalSubventionUtilise;
     },
   },
@@ -148,6 +133,10 @@ export default {
   },
 
   methods: {
+    closeDeleteOutputModal(){
+     document.activeElement.blur();
+     this.showDeleteModal = false
+    },
     text() {},
     cancel() {
       this.formData = {
@@ -157,12 +146,11 @@ export default {
         pret: 0,
         budgetNational: 0,
       };
-
+      document.activeElement.blur();
       this.showModal = false;
     },
     onPageChanged(newPage) {
       this.currentPage = newPage;
-      console.log("Page actuelle :", this.currentPage);
       // Charger les données pour la page actuelle
       // this.loadDataForPage(newPage);
     },
@@ -219,7 +207,6 @@ export default {
     modifierComposante(data) {
        
       this.messageErreur = {};
-      console.log(data);
       this.labels = "Modifier";
       this.showModal = true;
       
@@ -230,9 +217,7 @@ export default {
       this.formData.pret = data.pret ?? "";
       this.formData.projetId = data.projetId;
       this.formData.budgetNational = data.budgetNational;
-      console.log("formData", this.formData);
       this.composantsId = data.id;
-      console.log("composantsId", this.composantsId);
     },
     addComposants() {
       this.messageErreur = {};
@@ -243,7 +228,6 @@ export default {
       
     },
     sendForm() {
-      console.log(this.formData);
 
       if (this.update) {
         ComposantesService.update(this.composantsId, this.formData)
@@ -261,7 +245,6 @@ export default {
             }
           })
           .catch((error) => {
-            console.log(error);
             this.isLoading = false;
             if (error.response && error.response.data && Object.keys(error.response.data.errors).length > 0) {
               this.messageErreur = error.response.data.errors;
@@ -292,7 +275,6 @@ export default {
           })
           .catch((error) => {
             this.isLoading = false;
-            console.log("error", error);
 
             if (error.response && error.response.data && Object.keys(error.response.data.errors).length > 0) {
               this.messageErreur = error.response.data.errors;
@@ -301,7 +283,6 @@ export default {
                 this.messageErreur[key] = $h.extractContentFromArray(this.messageErreur[key]);
               });
 
-              console.log("this.messageErreur", this.messageErreur);
               toast.error("Une erreur s'est produite.Vérifier le formulaire de soumission");
             } else {
               toast.error(error.response.data.message);
@@ -319,7 +300,6 @@ export default {
         })
         .catch((error) => {
           this.isLoadingOutcome = false;
-          console.log(error);
         });
     },
     getProjetById() {
@@ -328,8 +308,6 @@ export default {
         this.fondPropreProjet = this.projets[0].budgetNational;
         this.SubventionProjet = this.projets[0].pret;
 
-        console.log(this.fondPropreProjet);
-        console.log(this.SubventionProjet);
       }
 
       ProjetService.getDetailProjet(this.projetId)
@@ -341,13 +319,10 @@ export default {
           // this.fondRestant
           // this.subventionRestant
 
-          console.log(this.fondPropreProjet);
-          console.log(this.SubventionProjet);
           this.isLoadingOutcome = false;
         })
         .catch((error) => {
           this.isLoadingOutcome = false;
-          console.log(error);
         });
     },
     getListeComposants(data) {
@@ -606,10 +581,10 @@ export default {
       <div class="p-5 text-center">
         <XCircleIcon class="w-16 h-16 mx-auto mt-3 text-danger" />
         <div class="mt-5 text-3xl">Etes vous sûr?</div>
-        <div class="mt-2 text-slate-500">Voulez vous supprimer l'organisation ? <br />Cette action ne peut être annulé</div>
+        <div class="mt-2 text-slate-500">Voulez vous supprimer l'outcome ? <br />Cette action ne peut être annulé</div>
       </div>
       <div class="flex gap-2 px-5 pb-8 text-center">
-        <button type="button" @click="showDeleteModal = false" class="w-full my-3 mr-1 btn btn-outline-secondary">Annuler</button>
+        <button type="button" @click="closeDeleteOutputModal" class="w-full my-3 mr-1 btn btn-outline-secondary">Annuler</button>
         <VButton :loading="deleteLoader" label="Supprimer" @click="deleteComposants" />
       </div>
     </ModalBody>

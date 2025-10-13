@@ -422,7 +422,6 @@ const getDatasCadre = async () => {
 
     const { data } = await IndicateursService.getAllSuivis();
     suivis.value = data.data;
-    console.log("suivis.value : ", suivis.value);
   } catch (e) {
     toast.error("Erreur lors de la récupération des données.");
   } finally {
@@ -433,14 +432,12 @@ const getDatasCadre = async () => {
 const getcurrentUser = async () => {
   await AuthService.getCurrentUser()
     .then((result) => {
-      console.log("result.data.data", result.data.data);
       idProgramme.value = result.data.data.programme.id;
       debutProgramme.value = result.data.data.programme.debut;
       finProgramme.value = result.data.data.programme.fin;
       getDatasCadre();
     })
     .catch((e) => {
-      console.error(e);
       toast.error("Une erreur est survenue: Utilisateur connecté .");
     });
 };
@@ -481,15 +478,12 @@ const myIcon = ref(null);
 const initialMap = ref(null);
 const markerLatLng = ref([47.31322, -1.319482]);
 
-//console.log("projetId", route.params.id);
 
 const loadingOption = ref(true);
 const graphiqueData = ref([]);
 
  
 const getStat = function () {
-  //console.log(JSON.parse(localStorage.getItem("authenticateUser")).projet.id);
-  console.log(localStorage.getItem("authenticateUser"));
 
   if (localStorage.getItem("authenticateUser")) {
     const ongId = route.params.projetId;
@@ -510,7 +504,6 @@ const getStat = function () {
           
         })
         .catch((error) => {
-          console.log(error);
         });
     }
   }
@@ -520,7 +513,6 @@ const getStat = function () {
 const initializeMap = () => {
   try {
     if (!document.getElementById('map')) {
-      console.warn('Map container not found');
       return;
     }
     
@@ -568,7 +560,6 @@ const initializeMap = () => {
       });
     }
   } catch (error) {
-    console.error('Error initializing map:', error);
   }
 };
 

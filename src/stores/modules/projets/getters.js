@@ -26,7 +26,7 @@ export default {
     },
 
     findProjet : state => ({key, value}) => {
-        //console.log(this.getProjets(state))
+        
         return this.getProjets(state).find(item => item[key] === value);
     }
 }

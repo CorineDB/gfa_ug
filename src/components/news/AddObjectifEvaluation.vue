@@ -83,7 +83,7 @@ const resetForm = () => {
 
 const submitObjectifs = async () => {
   payload.objectifsAttendu = Object.values(responses);
-  console.log("payload", payload);
+  
   isLoading.value = true;
   const action = EvaluationService.addObjectifPrincipe(prop.evaluation.id, payload);
   try {

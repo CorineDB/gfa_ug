@@ -30,12 +30,10 @@ const getSoumission = async () => {
     .then((result) => {
       soumission.value = result.data.data;
       idSelectStructure.value = soumission.value[0]?.id ?? "";
-      // console.log("Soumission factuel : ", result.data.data);
       //filterSoumission.value = soumission.value?.categories_de_gouvernance;
       isLoading.value = false;
     })
     .catch((e) => {
-      console.error(e);
       isLoading.value = false;
       toast.error("Une erreur est survenue: Détail soumission.");
     });
@@ -68,7 +66,6 @@ const getSoumissions = async () => {
       soumission.value = result.data.data.factuel;
       filterSoumission.value = soumission.value?.categories_de_gouvernance;
 
-      console.log("getDatas", soumission.value);
 
       /* if (datas.value.factuel?.comite_members) {
         localStorage.setItem("member", JSON.stringify(datas.value.factuel.comite_members));
@@ -77,7 +74,6 @@ const getSoumissions = async () => {
       isLoading.value = false;
     })
     .catch((e) => {
-      console.error(e);
       isLoading.value = false;
       toast.error("Une erreur est survenue: Liste des enquêtes.");
     });

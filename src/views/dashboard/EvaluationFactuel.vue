@@ -58,7 +58,6 @@ const getDataFormFactuel = async () => {
     initializeFormData();
     getFilesFormData();
   } catch (e) {
-    console.log(e);
     toast.error("Erreur lors de la récupération des données.");
   } finally {
     isLoadingDataFactuel.value = false;
@@ -82,7 +81,6 @@ const getcurrentUserAndFetchOrganization = async () => {
       }
     })
     .catch((e) => {
-      console.error(e);
       toast.error("Une erreur est survenue: Utilisateur connecté .");
     });
 };
@@ -144,7 +142,6 @@ const submitData = async () => {
       if (isValidate.value) toast.success(`${result.data.message}`);
       // await getDataFormFactuel();
     } catch (e) {
-      console.error(e);
       if (isValidate.value) toast.error(getAllErrorMessages(e));
     } finally {
       isLoading.value = false;

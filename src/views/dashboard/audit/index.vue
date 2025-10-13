@@ -38,13 +38,11 @@ const itemsPerPage = ref(3);
 const currentPage = ref(1);
 
 const onPageChanged = function (newPage) {
-  console.log(newPage);
 
   currentPage.value = newPage;
 };
 
 const onItemsPerPageChanged = function (itemsPerPage) {
-  console.log("itemsPerPage.value ", itemsPerPage.value);
   itemsPerPage.value = itemsPerPage;
 };
 
@@ -120,22 +118,17 @@ const getProjet = function () {
   ProjetService.get(programmeId)
     .then((data) => {
       projets.value = data.data.data;
-      // console.log(users.value);
     })
     .catch((error) => {
-      console.log(error);
     });
 };
 
 const getUserListe = function () {
-  console.log("id du programme", programmeId);
   ProgrammeService.getUsers(programmeId)
     .then((data) => {
       users.value = data.data.data;
-      console.log(users.value);
     })
     .catch((error) => {
-      console.log(error);
     });
 };
 
@@ -166,7 +159,6 @@ const createData = async () => {
   }
 
   // Ajouter manuellement le tableau `sites` à FormData
-  console.log("userId", usersId.value);
   if (usersId.value.length > 0) {
     usersId.value.forEach((item) => {
       FormAjout.append(`sharedId[]`, item);
@@ -197,7 +189,6 @@ const createData = async () => {
       toast.success("audit créer.");
     })
     .catch((error) => {
-      console.log(e);
       isLoading.value = false;
 
       if (error.response && error.response.data && Object.keys(error.response.data.errors).length > 0) {
@@ -260,7 +251,6 @@ const updateData = async () => {
       } else {
         toast.error(error.response.data.errors.message);
       }
-      console.error(e);
     })
     .finally(() => {
       isLoading.value = false;
@@ -309,7 +299,6 @@ const handleEdit = (params) => {
   payload.projetId = params.projet.id;
   // payload.categorie = params.categorie;
 
-  console.log(payload);
 
   showModalCreate.value = true;
 };

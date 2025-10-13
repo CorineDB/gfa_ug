@@ -36,13 +36,13 @@ function editPrincipe(data) {
 }
 
 function updateTemporyPrincipe(id, position) {
-  console.log(id, position);
+  
   emit("editPositionPrincipe", id, position, true);
   canEditPrincipe.value = false;
 }
 
 function updateTemporyQuestion(key, position) {
-  console.log(key, position);
+ 
   emit("editPositionQuestion", key, position, true);
   canEditQuestion.value[key] = false;
 }

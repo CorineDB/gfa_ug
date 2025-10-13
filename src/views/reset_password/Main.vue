@@ -89,7 +89,6 @@ const payload = reactive({
 });
 
 const traiterInfo = (info) => {
-  console.log("Info reçue du composant enfant :", info);
 };
 
 const options = {
@@ -161,7 +160,6 @@ function goPageRequest() {
 
 onMounted(async () => {
   payload.email = localStorage.getItem("newmail");
-  console.log(payload.email);
   // activeAccount();
 });
 </script>

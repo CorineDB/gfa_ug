@@ -315,10 +315,8 @@ export default {
             toast.error(message);
           } else if (error.request) {
             // Demande effectuée mais aucune réponse n'est reçue du serveur.
-            //console.log(error.request);
           } else {
             // Une erreur s'est produite lors de la configuration de la demande
-            //console.log('dernier message', error.message);
           }
         });
     },
@@ -488,13 +486,11 @@ export default {
           toast.success("PDF généré avec succès");
         })
         .catch((error) => {
-          console.error("Erreur lors de la génération du PDF:", error);
           toast.error("Erreur lors de la génération du PDF");
         });
     },
 
     generateReport(data, content) {
-      console.log(content);
       document.getElementById(data).innerHTML = content;
       this.$refs.element[data].generatePdf();
     },
@@ -523,10 +519,8 @@ export default {
             toast.error(message);
           } else if (error.request) {
             // Demande effectuée mais aucune réponse n'est reçue du serveur.
-            //console.log(error.request);
           } else {
             // Une erreur s'est produite lors de la configuration de la demande
-            //console.log('dernier message', error.message);
           }
         });
     },
@@ -559,7 +553,6 @@ export default {
             toast.error(message);
           } else if (error.request) {
             // Demande effectuée mais aucune réponse n'est reçue du serveur.
-            //console.log(error.request);
           }
         });
     },
@@ -623,7 +616,6 @@ export default {
 
               this.messageErreurs = errors.response.data.errors;
 
-              console.log("tableau d'erreurs", this.messageErreurs);
 
               toast.error("Une erreur s'est produite dans votre formulaire");
             } else {
@@ -648,16 +640,13 @@ export default {
       this.rapportId = index2;
       this.rapport = data;
 
-      console.log(data);
       this.showRapport = true;
-      // console.log(this.$refs.modalRapport)
 
       // this.$refs.modalRapport[index2].innerHTML = data
     },
 
     editRapport(data) {
       this.Update = true;
-      console.log(data);
       this.edit.nom = data.nom;
       this.edit.Data = data.rapport;
       this.edit.id = data.id;
@@ -691,7 +680,6 @@ export default {
               toast.error(message);
             } else if (error.request) {
               // Demande effectuée mais aucune réponse n'est reçue du serveur.
-              //console.log(error.request);
             }
           });
       }
@@ -710,7 +698,6 @@ export default {
             toast.error(message);
           } else if (error.request) {
             // Demande effectuée mais aucune réponse n'est reçue du serveur.
-            //console.log(error.request);
           }
         });
     },

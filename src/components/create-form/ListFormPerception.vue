@@ -33,7 +33,7 @@ const getListForm = async () => {
     listForms.value = data.data;
   } catch (e) {
     toast.error("Erreur récupération liste des formulaires.");
-    console.log(e);
+    
   } finally {
     isLoading.value = false;
   }
@@ -46,7 +46,7 @@ const getOneForm = async () => {
     previewForm.value = data.data;
   } catch (e) {
     toast.error("Erreur récupération du  formulaire.");
-    console.log(e);
+    
   } finally {
     isLoadingOneForm.value = false;
   }
@@ -60,7 +60,7 @@ const deleteOneForm = async () => {
     getListForm();
   } catch (e) {
     toast.error("Erreur lors de la suppression.");
-    console.log(e);
+    
   } finally {
     isLoadingOneForm.value = false;
   }

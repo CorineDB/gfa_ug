@@ -26,7 +26,7 @@ export default {
     },
 
     findEActivite : state => ({key, value}) => {
-        //console.log(this.getEActivites(state))
+        
         return this.getEActivites(state).find(item => item[key] === value);
     }
 }

@@ -47,7 +47,6 @@ Modifier la fonction `ouvrirModalSuiviFinancierActivite()` pour gérer les deux 
 const activiteId = item.activiteId || item.activite?.id || item.id;
 
 if (!activiteId) {
-  console.error("Impossible de récupérer l'''ID de l'''activité", item);
   return;
 }
 ```
@@ -67,7 +66,6 @@ if (!activiteId) {
 const activiteId = item.activiteId || item.activite?.id || item.id;
 
 if (!activiteId) {
-  console.error("Impossible de récupérer l'''ID de l'''activité", item);
   return;
 }
 ```

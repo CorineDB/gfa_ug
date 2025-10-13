@@ -46,7 +46,7 @@ const ActiviteService = {
       return ApiService.post(`gfa/activites/${slug}/modifierDuree/${dureeId}`, params);
     },
     changerStatut(slug, params) {
-      console.log("params", params);
+      
       return ApiService.post(`gfa/activites/${slug}/changeStatut`, params);
     },
 

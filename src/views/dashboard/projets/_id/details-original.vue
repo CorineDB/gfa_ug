@@ -661,7 +661,6 @@ const initTabulator = () => {
   try {
     const tableElement = document.getElementById("activity");
     if (!tableElement) {
-      console.warn('Activity table element not found');
       return;
     }
     
@@ -714,7 +713,6 @@ const initTabulator = () => {
       ],
     });
   } catch (error) {
-    console.error('Error initializing tabulator:', error);
   }
 };
 
@@ -868,7 +866,6 @@ const dataAvailable = computed(() => {
 const getDatasCadre = async () => {
   isLoadingDataCadre.value = true;
   try {
-    console.log(graphiqueData.value);
     //const { data } = await ResultatCadreRendementService.mesureRendementProjet(route.params.id);
 
     const { data } = await IndicateursService.getAllSuivis();
@@ -888,7 +885,6 @@ const getcurrentUser = async () => {
       getDatasCadre();
     })
     .catch((e) => {
-      console.error(e);
       toast.error("Une erreur est survenue: Utilisateur connecté .");
     });
 };
@@ -944,7 +940,6 @@ const extractProperties = (data) => {
   ];
 }
 
-//console.log("projetId", route.params.id);
 
 const loadingOption = ref(true);
 const graphiqueData = ref([]);
@@ -965,7 +960,6 @@ const calculateProjectScore = () => {
     const score = (completionRate * 0.5) + (budgetEfficiency * 0.3) + ((100 - delayPenalty) * 0.2);
     return Math.max(0, Math.min(100, score)).toFixed(0);
   } catch (error) {
-    console.warn('Error calculating project score:', error);
     return 0;
   }
 };
@@ -1004,7 +998,6 @@ const calculateBudgetUsagePercentage = () => {
     const completion = stats.effectue / stats.total;
     return Math.min(100, (completion * 85) + (Math.random() * 15)).toFixed(1);
   } catch (error) {
-    console.warn('Error calculating budget usage:', error);
     return 0;
   }
 };
@@ -1025,14 +1018,12 @@ const formatCompactCurrency = (value) => {
     }
     return new Intl.NumberFormat('fr-FR').format(numValue);
   } catch (error) {
-    console.warn('Error formatting currency:', error);
     return '0';
   }
 };
 const getStat = function () {
   ProjetService.statistiques(route.params.id)
     .then((response) => {
-      console.log('API Response:', response.data); // Debug log
       graphiqueData.value = response.data.data || response.data;
       
       // Safely calculate nonDemarree if statistiqueActivite exists
@@ -1055,7 +1046,6 @@ const getStat = function () {
       }
     })
     .catch((error) => {
-      console.error('Error loading project data:', error);
       toast.error('Erreur lors du chargement des données du projet');
     });
 };
@@ -1064,7 +1054,6 @@ const getStat = function () {
 const initializeMap = () => {
   try {
     if (!document.getElementById('map')) {
-      console.warn('Map container not found');
       return;
     }
     
@@ -1112,7 +1101,6 @@ const initializeMap = () => {
       });
     }
   } catch (error) {
-    console.error('Error initializing map:', error);
   }
 };
 
@@ -1120,7 +1108,6 @@ const initializeMap = () => {
 const generateSampleData = () => {
   try {
     if (!graphiqueData.value?.debut) {
-      console.warn('No start date available for trend data generation');
       return;
     }
     
@@ -1157,7 +1144,6 @@ const generateSampleData = () => {
       }
     }
   } catch (error) {
-    console.warn('Error generating sample data:', error);
   }
 };
 
@@ -1244,12 +1230,10 @@ watch(activeTab, (newTab) => {
   }
   
   // Track analytics for tab usage
-  console.log(`Tab switched to: ${newTab}`);
   
   // Lazy load data for specific tabs if needed
   if (newTab === 'comparison') {
     // Could trigger additional data loading for comparison
-    console.log('Loading comparison data...');
   }
 });
 

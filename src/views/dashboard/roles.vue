@@ -36,7 +36,6 @@ const getInfoUsers = async () => {
       // isLoadingData.value = false;
     })
     .catch((e) => {
-      console.error(e);
       // isLoadingData.value = false;
       toast.error("Une erreur est survenue: Liste des type des options.");
     });
@@ -54,7 +53,6 @@ const createData = async () => {
     })
     .catch((e) => {
       isLoading.value = false;
-      console.error(e);
       toast.error("Vérifier les informations et ressayer.");
       if (e.response && e.response.data && e.response.data.errors) {
         messageErreur.value = e.response.data.errors;
@@ -71,7 +69,6 @@ const getDatas = async () => {
       isLoadingData.value = false;
     })
     .catch((e) => {
-      console.error(e);
       isLoadingData.value = false;
       toast.error("Une erreur est survenue: Liste des type des options.");
     });
@@ -86,7 +83,6 @@ const getPermissionDatas = async () => {
       //isLoadingData.value = false;
     })
     .catch((e) => {
-      console.error(e);
       //isLoadingData.value = false;
       toast.error("Une erreur est survenue: Liste des type des options.");
     });
@@ -103,7 +99,6 @@ const updateData = async () => {
     })
     .catch((e) => {
       isLoading.value = false;
-      console.error(e);
       toast.error("Vérifier les informations et ressayer.");
       if (e.response && e.response.data && e.response.data.errors) {
         messageErreur.value = e.response.data.errors;
@@ -134,7 +129,6 @@ const getProgrammes = () => {
       programmes.value = result.data.data;
     })
     .catch((e) => {
-      console.error(e);
       toast.error("Une erreur est survenue: Liste des Programmes.");
     });
 };
@@ -210,7 +204,6 @@ const handleEdit = (params) => {
   payload.description = params.description;
   payload.permissions = params.permissions.map((permission) => permission.id);
 
-  console.log("permisions", payload.permissions);
   // payload.programmeId = params.programmeId;
   showModalCreate.value = true;
 };

@@ -67,7 +67,6 @@ const deleteData = async () => {
     toast.success("Unité de mesure supprimée avec succès.");
     getDatas();
   } catch (e) {
-    console.error(e);
     toast.error(getAllErrorMessages(e));
   } finally {
     isLoading.value = false;

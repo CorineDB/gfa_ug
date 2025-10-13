@@ -53,7 +53,6 @@ const helpers = {
       const logoImg = await this.loadImage(logoPath);
       doc.addImage(logoImg, 'WEBP', 10, 5, 25, 25); // Logo à gauche
     } catch (error) {
-      console.warn('Logo non chargé:', error);
     }
 
     // Program title - "Programme redevabilité phase 3"
@@ -89,7 +88,6 @@ const helpers = {
       const tableElement = document.getElementById(tableId);
 
       if (!tableElement) {
-        console.warn(`Table with id "${tableId}" not found`);
         continue;
       }
 
@@ -137,7 +135,6 @@ const helpers = {
         currentY += imgHeight + 10;
 
       } catch (error) {
-        console.error(`Error capturing table "${tableId}":`, error);
 
         // Fallback to autoTable if html2canvas fails
         autoTable(doc, {
@@ -220,7 +217,7 @@ const helpers = {
   },
   supprimerFichier(form, fileKey, refDropzone) {
     if (form.has(fileKey)) {
-      console.log("tableau fichier", form.getAll(fileKey));
+      
       form.getAll(fileKey).forEach(() => {
         refDropzone.removeAllFiles();
       });
@@ -236,7 +233,7 @@ const helpers = {
     });
   },
   ajouterObjetDansFormData(objet, formData) {
-    console.log("formdata", formData);
+    
     for (let key in objet) {
       if (objet.hasOwnProperty(key)) {
         formData.append(key, objet[key]);
@@ -257,7 +254,7 @@ const helpers = {
     if (JSON.parse(localStorage.getItem("authenticateUser"))) {
       var permissions = JSON.parse(localStorage.getItem("authenticateUser")).permissions;
     }
-    console.log(permissions);
+  
 
     var tab = permissions
       ? permissions.filter((item) => {

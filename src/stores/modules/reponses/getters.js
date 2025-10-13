@@ -26,7 +26,7 @@ export default {
     },
 
     findReponse : state => ({key, value}) => {
-        //console.log(this.getReponses(state))
+        
         return this.getReponses(state).find(item => item[key] === value);
     }
 }

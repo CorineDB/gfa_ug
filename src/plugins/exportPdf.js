@@ -56,7 +56,6 @@ async function extractTableData(tableId) {
   
   const table = document.getElementById(tableId);
   if (!table) {
-    console.warn(`Tableau avec l'ID "${tableId}" non trouvé`);
     return null;
   }
 
@@ -213,7 +212,7 @@ function addTableToPDF(doc, tableData, startY, tableTitle) {
 // Fonction principale
 async function generateMultiTablePDF(tableIds, documentName = "rapport_multi_tableaux", format = "a4", options = {}) {
   try {
-    console.log('Début de génération du PDF...');
+    
     
     const defaultOptions = {
       orientation: "portrait",
@@ -255,7 +254,7 @@ async function generateMultiTablePDF(tableIds, documentName = "rapport_multi_tab
     }
 
     for (const [index, tableId] of tableIds.entries()) {
-      console.log(`Traitement du tableau: ${tableId}`);
+      
       
       const tableData = await extractTableData(tableId);
       
@@ -266,9 +265,8 @@ async function generateMultiTablePDF(tableIds, documentName = "rapport_multi_tab
     }
 
     doc.save(`${documentName}.pdf`);
-    console.log(`PDF "${documentName}.pdf" généré avec succès!`);
+    
   } catch (error) {
-    console.error('Erreur lors de la génération du PDF:', error);
   }
 }
 
