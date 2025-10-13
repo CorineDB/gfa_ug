@@ -385,7 +385,6 @@ const deleteData = async () => {
     toast.success("Indicateur supprimé avec succès.");
     // getDatas();
   } catch (e) {
-    console.error(e);
     toast.error(getAllErrorMessages(e));
   } finally {
     isLoading.value = false;
@@ -407,7 +406,7 @@ const handleEdit = (data) => {
 };
 const handleSuivi = (data) => {
   // Récupérer les valeurs cibles pour l'année sélectionnée
-  console.log(data.valeursCible);
+ 
   valeurCible.value = data.valeursCible.filter((valeurCible) => valeurCible.annee === Number(payloadSuivi.annee)).map((v) => v.valeurCible);
 
   isAgregerCurrentIndicateur.value = data.agreger;

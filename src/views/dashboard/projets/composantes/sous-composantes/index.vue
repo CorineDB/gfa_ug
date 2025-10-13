@@ -73,7 +73,6 @@ export default {
               this.$toast.error(message)
               } else if (error.request) {
                 // Demande effectuée mais aucune réponse n'est reçue du serveur.
-                //console.log(error.request);
               } else {
               // Une erreur s'est produite lors de la configuration de la demande
               }
@@ -88,7 +87,6 @@ export default {
         this.getSComposante(datas[0].id)
        
       }).catch((e) => {
-        console.log(e)
       })
     },
      getSComposante(id) {
@@ -98,7 +96,6 @@ export default {
         this.sous_composantes = datas
         this.disabled()
       }).catch((e) => {
-        console.log(e)
         this.disabled()
       })
     },

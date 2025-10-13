@@ -24,8 +24,6 @@ const getCurrentQuarter = () => {
 };
 
 const years = computed(() => {
-  console.log("debut", `${debutProgramme.value.split("-")}`);
-  console.log("fin", `${finProgramme.value.split("-")}`);
   let anneeDebut = parseInt(`${debutProgramme.value.split("-")[0]}`);
   let anneeFin = parseInt(`${finProgramme.value.split("-")[0]}`);
   let annees = [];
@@ -44,7 +42,6 @@ const getcurrentUser = async () => {
       finProgramme.value = result.data.data.programme.fin;
     })
     .catch((e) => {
-      console.error(e);
       toast.error("Une erreur est survenue: Utilisateur connecté .");
     });
 };
@@ -102,13 +99,11 @@ const filterSuiviFinancierActivite = async () => {
     .then((result) => {
       datas.value = result.data.data;
       initTabulator();
-      console.log(datas.value);
       isLoadingFilter.value = false;
       resetFilterModal();
       toast.success("Suivi Financier filtrer.");
     })
     .catch((e) => {
-      console.log(e);
       isLoadingFilter.value = false;
       toast.error("Vérifier les informations et ressayer.");
     });
@@ -132,7 +127,6 @@ const createData = async () => {
     })
     .catch((e) => {
       isLoading.value = false;
-      console.error(e);
       toast.error(getAllErrorMessages(e));
 
       if (e.response && e.response.data && e.response.data.errors) {
@@ -150,7 +144,6 @@ const getDatas = async () => {
       isLoadingData.value = false;
     })
     .catch((e) => {
-      console.error(e);
       isLoadingData.value = false;
       toast.error("Une erreur est survenue: Liste de sources.");
     });
@@ -167,7 +160,6 @@ const updateData = async () => {
     })
     .catch((e) => {
       isLoading.value = false;
-      console.error(e);
       toast.error(getAllErrorMessages(e));
 
       if (e.response && e.response.data && e.response.data.errors) {
@@ -189,7 +181,6 @@ const deleteData = async () => {
     })
     .catch((e) => {
       isLoading.value = false;
-      console.error(e);
       toast.error("Une erreur est survenue, ressayer");
     });
 };
@@ -262,7 +253,6 @@ const applyFilter = () => {
   }
 };
 const handleEdit = (params) => {
-  console.log(params);
   isCreate.value = false;
   idSelect.value = params.id;
   //payload.activiteId = params.id;

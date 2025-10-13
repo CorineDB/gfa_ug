@@ -720,7 +720,7 @@
       <ModalFooter>
         <div class="flex items-center justify-center">
           <button type="button" @click="resetModalSuiviFinancierActivite" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
-          <VButton class="inline-block" label="Enregistrer" :loading="loadingSuiviFinancier" :type="submit" :disabled="loadingSuiviFinancier == true" />
+          <VButton class="inline-block" label="Enregistrer" :loading="loadingSuiviFinancier" type="submit" :disabled="loadingSuiviFinancier == true" />
         </div>
       </ModalFooter>
     </form>
@@ -872,7 +872,7 @@
       <ModalFooter>
         <div class="flex items-center justify-center">
           <button type="button" @click="showModalPlanDeDecaissement = false" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
-          <VButton class="inline-block" label="Enregistrer" :loading="loadingPlanDeDecaissement" :type="submit" :disabled="loaderListePlan" />
+          <VButton class="inline-block" label="Enregistrer" :loading="loadingPlanDeDecaissement" type="submit" :disabled="loaderListePlan" />
         </div>
       </ModalFooter>
     </form>
@@ -1016,8 +1016,6 @@ export default {
     ...mapState({
       loading: (state) => state.loading,
       years() {
-        console.log("debut", `${this.debutProgramme.split("-")}`);
-        console.log("fin", `${this.finProgramme.split("-")}`);
         let anneeDebut = parseInt(`${this.debutProgramme.split("-")[0]}`);
         let anneeFin = parseInt(`${this.finProgramme.split("-")[0]}`);
         let annees = [];
@@ -1027,7 +1025,6 @@ export default {
           // }
         }
 
-        console.log("annees", annees);
 
         return annees;
       },
@@ -2062,7 +2059,6 @@ export default {
 
         toast.success("Export Excel réussi !");
       } catch (error) {
-        console.error("Erreur lors de l'export Excel:", error);
         toast.error("Erreur lors de l'export Excel");
       }
     },
@@ -2136,10 +2132,8 @@ export default {
       }
 
       if (this.planDeDecaissement.length > 0) {
-        console.log("this.planDeDecaissement", this.planDeDecaissement);
 
         if (errorIndex.length > 0) {
-          console.log("errorIndex", errorIndex);
           errorIndex.forEach((item) => {
             this.removePlan(item);
           });
@@ -2147,7 +2141,6 @@ export default {
       }
     },
     ouvrirModalPlanDeDecaissementActivite(data) {
-      // console.log(data)
 
       const newItem = {
         activiteId: data.activiteId,
@@ -2158,7 +2151,6 @@ export default {
         id: Date.now() + "-" + Math.random().toString(36).substr(2, 9),
       };
 
-      console.log("data.id", data.activiteId);
 
       this.getListePlanDeDecaissement(data.activiteId);
 
@@ -2173,7 +2165,6 @@ export default {
           this.finProgramme = result.data.data.programme.fin;
         })
         .catch((e) => {
-          console.log(e);
           toast.error("Une erreur est survenue: Utilisateur connecté .");
         });
     },
@@ -2181,7 +2172,6 @@ export default {
     async filterSuiviFinancierActivite() {
       this.isLoadingFilterSuiviFinancier = true;
 
-      // console.log(filterPayload.annee);
 
       this.filterPayloadSuiviFinancier.annee = parseInt(this.filterPayloadSuiviFinancier.annee);
       this.filterPayloadSuiviFinancier.trimestre = parseInt(this.filterPayloadSuiviFinancier.trimestre);
@@ -2190,9 +2180,6 @@ export default {
       await SuiviFinancier.getSuiviByActivite(this.filterPayloadSuiviFinancier.activiteId, this.filterPayloadSuiviFinancier)
         .then((result) => {
           this.suivisFinancierActivite = result.data.data;
-          console.log("this.suivisFinancierActivite", this.suivisFinancierActivite);
-          console.log(this.filterPayloadSuiviFinancier.activiteId);
-          console.log(this.suivisFinancierActivite);
           this.isLoadingFilterSuiviFinancier = false;
           //this.initTabulator();
 
@@ -2201,27 +2188,12 @@ export default {
           toast.success("Suivi Financier filtrer.");
         })
         .catch((e) => {
-          console.log(e);
           toast.error(e.response.data.message);
           this.isLoadingFilterSuiviFinancier = false;
           //toast.error("Une erreur est survenue: Liste de sources.");
         });
 
-      /* await SuiviFinancier.getSuiviByActivite(this.filterPayloadSuiviFinancier.activiteId, this.filterPayloadSuiviFinancier)
-        .then((result) => {
-          // Utiliser la même variable que Tabulator pour l'affichage
-          this.suivisFinancierActivite = result.data.data;
-          console.log("this.suivisFinancierActivite", this.suivisFinancierActivite);
-          this.isLoadingFilterSuiviFinancier = false;
-          this.initTabulator();
-          this.resetFilterModalSuivi();
-          toast.success("Suivi Financier filtrer.");
-        })
-        .catch((e) => {
-          console.log(e);
-          this.isLoadingFilterSuiviFinancier = false;
-          toast.error("Vérifier les informations et ressayer.");
-        }); */
+       
     },
 
     resetFilterModalSuivi() {
@@ -2230,7 +2202,6 @@ export default {
     },
     getCurrentQuarter() {
       const month = new Date().getMonth() + 1; // Les mois sont indexés à partir de 0
-      console.log("Math.ceil(month / 3)", Math.ceil(month / 3));
       return Math.ceil(month / 3); // Calcul du trimestre actuel
     },
     openFilterModalSuiviFinancier() {
@@ -2243,8 +2214,6 @@ export default {
 
       this.showModalFiltreSuiviFinancier = true;
 
-      console.log("this.filterPayloadSuiviFinancier", this.filterPayloadSuiviFinancier);
-      console.log("this.showModalFiltreSuiviFinancier", this.showModalFiltreSuiviFinancier);
     },
     async getListeDataSuivi() {
       this.loadListeSuivi = true;
@@ -2252,11 +2221,9 @@ export default {
         .then((result) => {
           this.listeSuivi = result.data.data;
 
-          console.log(this.listeSuivi);
           this.loadListeSuivi = false;
         })
         .catch((e) => {
-          console.log(e);
           this.loadListeSuivi = false;
           toast.error("Une erreur est survenue: Liste des type des options.");
         });
@@ -2264,17 +2231,14 @@ export default {
     },
     voirSuiviActivite(data) {
       //this.getListeDataSuivi();
-      console.log("voirSuiviActivite called with data:", data);
 
       if (!data) {
-        console.error("Aucun activiteId fourni à voirSuiviActivite");
         toast.error("Impossible d'identifier l'activité sélectionnée");
         return;
       }
 
       this.filterPayloadSuiviFinancier.activiteId = data;
       this.suiviFinancierPayload.activiteId = data;
-      console.log("filterPayloadSuiviFinancier mis à jour:", this.filterPayloadSuiviFinancier);
 
       // Ouvrir le modal d'abord (DOM disponible), puis charger les données
       this.voirSuiviModal = true;
@@ -2283,10 +2247,7 @@ export default {
         this.getSuiviFinancierDatas(data);
       });
 
-      //this.getSuiviFinancierDatas(data);
-      // this.getcurrentUser()
-      //this.voirSuiviModal = true;
-      // this.$router.push({ name: "finances_suivi" });
+      
     },
     mode() {
       return this.isCreate ? "Ajouter" : "Modifier";
@@ -2327,7 +2288,6 @@ export default {
         })
         .catch((error) => {
           this.loaderListeSuivi = false;
-          //console.log(error);
         });
     },
     getListePlanDeDecaissement(id) {
@@ -2336,14 +2296,11 @@ export default {
       ActiviteService.plansDeDecaissement(id)
         .then((data) => {
           this.loaderListePlan = false;
-          //console.log(data.data.data);
           this.listePlanDeDecaissement = data.data.data;
 
-          console.log("this.listePlanDeDecaissement", this.listePlanDeDecaissement);
         })
         .catch((error) => {
           this.loaderListePlan = false;
-          //console.log(error);
         });
     },
     editSuivi(index, type = "consommer", value) {
@@ -2357,7 +2314,6 @@ export default {
         annee: taille > 1 ? payLoad : this.suiviFinancier[index].annee,
       };
 
-      console.log("form", form);
 
       this.filterSuiviFinancierActiviteParAnnee(form);
     },
@@ -2368,13 +2324,11 @@ export default {
       for (let index = 0; index < this.suiviFinancier.length; index++) {
         // let suivi = this.listeSuivi.filter((suivi) => suivi.annee == this.suiviFinancier[index].annee && suivi.trimestre == this.suiviFinancier[index].trimestre && suivi.activite.id == this.suiviFinancier[index].activiteId);
 
-        // console.log("suivi", suivi);
 
         let payload = this.suiviFinancier[index];
 
         delete payload.id;
 
-        // console.log("payload", payload);
 
         // const action = suivi.length > 0 ? SuiviFinancier.update(suivi[0]?.activite.id, this.suiviFinancier[index]) : SuiviFinancierService.create(payload);
 
@@ -2385,7 +2339,6 @@ export default {
             this.showModalSuiviFinancier = false;
           })
           .catch((error) => {
-            console.log(error);
 
             // Mettre à jour les messages d'erreurs dynamiquement
             if (error.response && error.response.data && error.response.data.errors.length > 0) {
@@ -2402,14 +2355,8 @@ export default {
           });
 
         if (this.suiviFinancier.length > 0) {
-          console.log("this.suiviFinancier", this.suiviFinancier); /* 
 
-          if (errorIndex.length > 0) {
-            console.log("errorIndex", errorIndex);
-            errorIndex.forEach((item) => {
-              this.removeSuivi(item);
-            });
-          } */
+        
         }
       }
 
@@ -2441,7 +2388,6 @@ export default {
         }
 
       if (!activiteId) {
-        console.error("Impossible de récupérer l'ID de l'activité", item);
         return;
       }
 
@@ -2453,7 +2399,6 @@ export default {
         id: Date.now() + "-" + Math.random().toString(36).substr(2, 9),
       };
 
-      console.log("activiteId trouvé:", activiteId);
 
       this.suiviFinancierPayload.activiteId = activiteId;
       this.suiviFinancierPayload.trimestre = this.getCurrentQuarter();
@@ -2468,7 +2413,6 @@ export default {
       deleteModalPreview.value = true;
     },
     handleEdit(params) {
-      console.log(params);
       showModalCreate.value = true;
     },
     filtreParAnnee(datas) {
@@ -2498,10 +2442,8 @@ export default {
             this.$toast.error(message);
           } else if (error.request) {
             // Demande effectuée mais aucune réponse n'est reçue du serveur.
-            //console.log(error.request);
           } else {
             // Une erreur s'est produite lors de la configuration de la demande
-            //console.log('dernier message', error.message);
           }
         });
       this.chargement = false;
@@ -2529,11 +2471,9 @@ export default {
       //this.greentoggle=true;
       this.translatetoggle = false;
 
-      //console.log(this.tabletoggle[id]);
 
       this.chargement = true;
 
-      //  console.log(id)
       /* if (pta.poidsActuel > 0) {
         this.tabletoggle[pta.id] = 0;
         TacheService.deleteSuivis(pta.id)
@@ -2550,10 +2490,8 @@ export default {
               this.$toast.error(message);
             } else if (error.request) {
               // Demande effectuée mais aucune réponse n'est reçue du serveur.
-              //console.log(error.request);
             } else {
               // Une erreur s'est produite lors de la configuration de la demande
-              //console.log('dernier message', error.message);
             }
           });
       } else { */
@@ -2579,31 +2517,14 @@ export default {
             this.$toast.error(message);
           } else if (error.request) {
             // Demande effectuée mais aucune réponse n'est reçue du serveur.
-            console.log(error.request);
           } else {
             // Une erreur s'est produite lors de la configuration de la demande
-            console.log("dernier message", error.message);
           }
         });
       //}
       this.chargement = false;
     },
-    // exportToExcel() {
-    //   //  console.log('gghghghgh');
-    //   //  console.log(this.dataNew);
-
-    //   const tableDataWithColors = this.dataNew.map((row) => {
-    //     return {
-    //       ...row,
-    //       bailleur: "bg-red-500",
-    //     };
-    //   });
-
-    //   const worksheet = XLSX.utils.json_to_sheet(tableDataWithColors);
-    //   const workbook = XLSX.utils.book_new();
-    //   XLSX.utils.book_append_sheet(workbook, worksheet, "Tableau de données");
-    //   XLSX.writeFile(workbook, "tableau.xlsx");
-    // },
+     
     generateReport() {
       this.$refs.html2Pdf.generatePdf();
     },
@@ -2799,7 +2720,6 @@ export default {
     },
     initTabulator() {
       // Si l'instance existe déjà, mettre à jour les données
-      console.log("Suivi financier : ", (this.suivisFinancierActivite));
       if (this.tabulator && typeof this.tabulator.setData === "function") {
         this.tabulator.setData(this.suivisFinancierActivite);
         return;
@@ -2863,21 +2783,16 @@ export default {
           },
         ],
       });
-      console.log("Suivi financier :", this.suivisFinancierActivite);
       const container = document.getElementById("tabulator");
       if (!container) {
-        console.warn("Tabulator container introuvable, annulation de l'init.");
         return;
       }
     },
     async getSuiviFinancierDatas(activiteId) {
       this.isLoadingFilterSuiviFinancier = true;
-      console.log(this.filterPayloadSuiviFinancier);
       await SuiviFinancier.getSuiviByActivite(activiteId, this.filterPayloadSuiviFinancier)
         .then((result) => {
           this.suivisFinancierActivite = result.data.data;
-          console.log(activiteId);
-          console.log(this.suivisFinancierActivite);
           this.isLoadingFilterSuiviFinancier = false;
           //this.initTabulator();
 
@@ -2885,7 +2800,6 @@ export default {
           this.$nextTick(() => this.initTabulator());
         })
         .catch((e) => {
-          console.log(e);
           toast.error(e.response.data.message);
           this.isLoadingFilterSuiviFinancier = false;
           //toast.error("Une erreur est survenue: Liste de sources.");
@@ -2935,7 +2849,6 @@ export default {
         })
         .catch((e) => {
           this.loadingSuiviFinancier = false;
-          console.error(e.response.data.message);
           toast.error("Une erreur est survenue, ressayer");
         });
     },
@@ -2946,7 +2859,6 @@ export default {
       const payload = this.suiviFinancier[0];
       this.erreurSuiviFinancier = [];
 
-      console.log(payload);
 
       await SuiviFinancier.update(this.suiviFinancierPayload.id, payload)
         .then(() => {
@@ -2959,7 +2871,6 @@ export default {
         })
         .catch((e) => {
           this.loadingSuiviFinancier = false;
-          console.log(e);
           toast.error(getAllErrorMessages(e));
 
           if (e.response && e.response.data && e.response.data.errors) {
@@ -2974,7 +2885,6 @@ export default {
     this.getPermission();
 
     if (this.revisionVisible || this.ppmVisible || this.ptaVisible) {
-      console.log(this.$route.params.ongId);
       let data = {};
       data = {
         organisationId: this.$route.params.ongId,

@@ -52,7 +52,7 @@ function choiceOption(data, isChecked) {
       let selectedItems = datas.value.filter((item) => idsChecked.value.includes(item.id));
       // Prendre le dernier élément ajouté
       selectedItems = selectedItems[selectedItems.length - 1] || {};
-      console.log(selectedItems);
+     
       // Émettre l'événement "selected" avec cet élément
       emit("selected", selectedItems);
     }
@@ -109,7 +109,6 @@ const deleteData = async () => {
     toast.success("Question supprimée avec succès.");
     getDatas();
   } catch (e) {
-    console.error(e);
     toast.error(getAllErrorMessages(e));
   } finally {
     isLoading.value = false;

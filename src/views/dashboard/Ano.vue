@@ -142,7 +142,7 @@ export default {
             this.$toast.error(message);
           } else if (error.request) {
             // Demande effectuée mais aucune réponse n'est reçue du serveur.
-            //console.log(error.request);
+            
           } else {
             // Une erreur s'est produite lors de la configuration de la demande
           }
@@ -207,7 +207,7 @@ export default {
             this.$toast.error(message);
           } else if (error.request) {
             // Demande effectuée mais aucune réponse n'est reçue du serveur.
-            //console.log(error.request);
+            
           } else {
             // Une erreur s'est produite lors de la configuration de la demande
           }
@@ -266,14 +266,14 @@ export default {
       this.updateFilter();
     },
     initTabulator() {
-      // console.log(this.anos);
+       
       this.tabulator = new Tabulator("#tabulator", {
         data: this.anos,
         rowClickMenu: [
           {
             label: "Modifier",
             action: function (e, row) {
-              console.log(row);
+              
               row.delete();
             },
           },
@@ -455,7 +455,7 @@ export default {
               this.$toast.error(message);
             } else if (error.request) {
               // Demande effectuée mais aucune réponse n'est reçue du serveur.
-              //console.log(error.request);
+              
             } else {
               // Une erreur s'est produite lors de la configuration de la demande
             }
@@ -585,7 +585,7 @@ export default {
             this.$toast.error(message);
           } else if (error.request) {
             // Demande effectuée mais aucune réponse n'est reçue du serveur.
-            //console.log(error.request);
+            
           } else {
             // Une erreur s'est produite lors de la configuration de la demande
           }
@@ -647,12 +647,7 @@ export default {
       }
       this.fetchAnos();
     }
-    //this.programmeId = JSON.parse(localStorage.getItem('authenticateUser')).users.programme.id;
-    // this.programmeId = JSON.parse(localStorage.getItem('authenticateUser')).users.programme.id;
-    // this.fetchBailleurs(this.programmeId);
-    // this.fetchAnos();
-
-    //.then((value) => { console.log(value), console.log('content bailleur ' + this.bailleurs) });
+    
   },
 
   watch: {

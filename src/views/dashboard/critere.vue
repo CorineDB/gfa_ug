@@ -35,7 +35,6 @@ const createData = async () => {
     })
     .catch((e) => {
       isLoading.value = false;
-      console.error(e);
       toast.error("Vérifier les informations et ressayer.");
     });
 };
@@ -47,7 +46,6 @@ const getDatas = async () => {
       isLoadingData.value = false;
     })
     .catch((e) => {
-      console.error(e);
       isLoadingData.value = false;
       toast.error("Une erreur est survenue: Liste des Critère de gouvernance.");
     });
@@ -64,7 +62,6 @@ const updateData = async () => {
     })
     .catch((e) => {
       isLoading.value = false;
-      console.error(e);
       toast.error("Vérifier les informations et ressayer.");
     });
 };
@@ -80,7 +77,6 @@ const deleteData = async () => {
     })
     .catch((e) => {
       isLoading.value = false;
-      console.error(e);
       toast.error("Une erreur est survenue, ressayer");
     });
 };
@@ -90,7 +86,6 @@ const getPrincipes = () => {
       principes.value = result.data.data;
     })
     .catch((e) => {
-      console.error(e);
       toast.error("Une erreur est survenue: Liste des Programmes.");
     });
 };
@@ -140,7 +135,6 @@ const initTabulator = () => {
   });
 };
 const handleEdit = (params) => {
-  console.log(params);
 
   isCreate.value = false;
   idSelect.value = params.id;

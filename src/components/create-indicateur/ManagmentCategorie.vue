@@ -73,7 +73,6 @@ const deleteData = async () => {
     toast.success("Catégorie supprimée avec succès.");
     getDatas();
   } catch (e) {
-    console.error(e);
     toast.error(getAllErrorMessages(e));
   } finally {
     isLoading.value = false;

@@ -156,7 +156,6 @@ const parsedFormData = computed(() => {
     }
     return null;
   } catch (error) {
-    console.error("Erreur lors du parsing de form_data:", error);
     return null;
   }
 });
@@ -170,7 +169,6 @@ const send = async (results) => {
     // generatevalidateKey("formIndividuel");
     isFinished.value = true;
   } catch (error) {
-    console.error("Erreur lors de l'envoi des résultats :", error);
     toast.error(getAllErrorMessages(e));
   }
 };

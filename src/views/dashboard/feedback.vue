@@ -185,7 +185,6 @@ onMounted(function () {
 
   formData.refresh = userInfo.value.users.entreprise.refresh;
 
-  console.log(formData.refresh);
 });
 
 const getData = function () {
@@ -239,7 +238,6 @@ const updateRefresh = function () {
       .then((data) => {
         formData.refresh = data.data.data;
 
-        console.log(formData.refresh);
         userInfo.value.users.entreprise.refresh = formData.refresh;
 
         localStorage.setItem("authenticateUser", JSON.stringify(userInfo.value));
@@ -261,10 +259,8 @@ const updateRefresh = function () {
           successNotificationToggle();
         } else if (error.request) {
           // Demande effectuée mais aucune réponse n'est reçue du serveur.
-          //console.log(error.request);
         } else {
           // Une erreur s'est produite lors de la configuration de la demande
-          //console.log('dernier message', error.message);
         }
       });
   }

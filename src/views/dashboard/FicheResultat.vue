@@ -28,7 +28,6 @@ const getDataCollection = async () => {
     })
     .catch((e) => {
       isLoadingData.value = false;
-      console.error(e);
       toast.error("Une erreur est survenue: Resultats des collections .");
     });
 };
@@ -41,7 +40,6 @@ const getDataCollectionPerception = async () => {
     })
     .catch((e) => {
       isLoadingData.value = false;
-      console.error(e);
       toast.error("Une erreur est survenue: Resultats des collections .");
     });
 };
@@ -52,7 +50,6 @@ const getStructure = async () => {
       structures.value = result.data.data;
     })
     .catch((e) => {
-      console.error(e);
       toast.error("Une erreur est survenue: Liste des structures .");
     });
 };
@@ -74,7 +71,6 @@ onMounted(() => {
 });
 
 onBeforeMount(() => {
-  console.log(route.query.enqueteId, route.query.organisationId);
 });
 </script>
 <template>

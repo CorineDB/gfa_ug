@@ -306,10 +306,8 @@ const addGroupe = function () {
 //         successNotificationToggle()
 //       } else if (error.request) {
 //         // Demande effectuée mais aucune réponse n'est reçue du serveur.
-//         //console.log(error.request);
 //       } else {
 //         // Une erreur s'est produite lors de la configuration de la demande
-//         //console.log('dernier message', error.message);
 //       }
 //     })
 //   }
@@ -337,10 +335,8 @@ const storeGroupe = function () {
           successNotificationToggle();
         } else if (error.request) {
           // Demande effectuée mais aucune réponse n'est reçue du serveur.
-          //console.log(error.request);
         } else {
           // Une erreur s'est produite lors de la configuration de la demande
-          //console.log('dernier message', error.message);
         }
       });
   }
@@ -371,7 +367,6 @@ const supprimer = function (index, data) {
 //       successNotificationToggle()
 //     } else if (error.request) {
 //       // Demande effectuée mais aucune réponse n'est reçue du serveur.
-//       //console.log(error.request);
 //     } else {
 //       // Une erreur s'est produite lors de la configuration de la demande
 //     }
@@ -397,7 +392,6 @@ const deleteGroupe = function () {
         successNotificationToggle();
       } else if (error.request) {
         // Demande effectuée mais aucune réponse n'est reçue du serveur.
-        //console.log(error.request);
       } else {
         // Une erreur s'est produite lors de la configuration de la demande
       }
@@ -436,10 +430,8 @@ const modifier = function (index, data) {
 //         successNotificationToggle()
 //       } else if (error.request) {
 //         // Demande effectuée mais aucune réponse n'est reçue du serveur.
-//         //console.log(error.request);
 //       } else {
 //         // Une erreur s'est produite lors de la configuration de la demande
-//         //console.log('dernier message', error.message);
 //       }
 //     })
 //   }
@@ -472,10 +464,8 @@ const updateGroupe = function () {
           successNotificationToggle();
         } else if (error.request) {
           // Demande effectuée mais aucune réponse n'est reçue du serveur.
-          //console.log(error.request);
         } else {
           // Une erreur s'est produite lors de la configuration de la demande
-          //console.log('dernier message', error.message);
         }
       });
   }
@@ -486,7 +476,6 @@ const updateGroupe = function () {
 // }
 
 const voirPrincipe = function (index, id) {
-  console.log(id);
   router.push({ name: "Principe", params: { id: id } });
 };
 

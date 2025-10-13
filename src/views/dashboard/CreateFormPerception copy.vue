@@ -86,7 +86,6 @@ const getcurrentUser = async () => {
       finProgramme.value = result.data.data.programme.fin;
     })
     .catch((e) => {
-      console.error(e);
       toast.error("Une erreur est survenue: Utilisateur connecté .");
     });
 };
@@ -220,8 +219,6 @@ const resetCurrentPreviewPerceptionFormData = () => {
 
   currentPreviewPerceptionFormDataArray.value = [];
 
-  console.log(currentPreviewPerceptionFormData);
-  console.log(currentPreviewPerceptionFormDataArray.value);
 };
 
 const resetCurrentGlobalPerceptionFormData = () => {
@@ -248,8 +245,6 @@ const updateAllTypesGouvernance = () => {
   //globalPrincipesGouvernance.value = organiseGlobalFormPerceptionData(globalFormPerceptionData.value);
   globalPrincipesGouvernance.value = organiseGlobalFormPerceptionData(previewFormPerceptionData.value);
   previewPrincipesGouvernance.value = organisePreviewFormPerceptionData(previewFormPerceptionData.value);
-  // console.log("GLOBAL", globalTypesGouvernance.value);
-  // console.log("PREVIEW", previewTypesGouvernance.value);
 };
 
 const changeIndexAccordion = (index) => {
@@ -306,7 +301,6 @@ const getQuestion = (question) => {
 
   currentGlobalPerceptionFormDataArray.value.push(form);
 
-  console.log("currentGlobalPerceptionFormDataArray.value", currentGlobalPerceptionFormDataArray.value);
 
   currentPreviewPerceptionFormData.indicateur = { id: question.id, nom: question.nom, position: 1 };
 
@@ -330,13 +324,10 @@ const getQuestion = (question) => {
     return a.principe.position - b.principe.position || a.indicateur.position - b.indicateur.position;
   });
 
-  console.log("currentPreviewPerceptionFormDataArray.value", currentPreviewPerceptionFormDataArray.value);
 };
 
 const addNewIndicator = () => {
-  console.log("currentGlobalPerceptionFormDataArray.value", currentGlobalPerceptionFormDataArray.value);
 
-  console.log("currentPreviewPerceptionFormDataArray.value", currentPreviewPerceptionFormDataArray.value);
 
   currentGlobalPerceptionFormDataArray.value.forEach((item, index) => {
     const key = generateKey(item.indicateur + item.principe);
@@ -515,17 +506,13 @@ const updateTemporyQuestions = (key, position, isCurrent = false) => {
 };
 
 const removeIndicator = (key) => {
-  console.log("🗑️ Tentative de suppression avec clé:", key);
-  console.log("📋 Clés disponibles dans globalFormPerceptionData:", 
     globalFormPerceptionData.value.map(item => ({ key: item.key, indicateur: item.indicateur, principe: item.principe })));
-  console.log("📋 Clés disponibles dans previewFormPerceptionData:", 
     previewFormPerceptionData.value.map(item => ({ key: item.key, indicateur: item.indicateur?.id, principe: item.principe?.id })));
 
   // 1. Chercher dans les données persistées (globalFormPerceptionData)
   let index = globalFormPerceptionData.value.findIndex((s) => s.key === key);
 
   if (index !== -1) {
-    console.log("✅ Trouvé dans globalFormPerceptionData à l'index:", index);
     globalFormPerceptionData.value.splice(index, 1);
     // Chercher l'index correspondant dans previewFormPerceptionData
     const previewIndex = previewFormPerceptionData.value.findIndex((s) => s.key === key);
@@ -551,7 +538,6 @@ const removeIndicator = (key) => {
   // 2. Chercher dans previewFormPerceptionData (pour les éléments avec clés longues)
   index = previewFormPerceptionData.value.findIndex((s) => s.key === key);
   if (index !== -1) {
-    console.log("✅ Trouvé dans previewFormPerceptionData à l'index:", index);
     previewFormPerceptionData.value.splice(index, 1);
     // Chercher et supprimer dans globalFormPerceptionData aussi
     const globalIndex = globalFormPerceptionData.value.findIndex((s) => s.key === key);
@@ -581,10 +567,8 @@ const removeIndicator = (key) => {
     });
     
     if (indice !== -1) {
-      console.log("✅ Trouvé dans currentPreviewPerceptionFormDataArray avec variante de clé à l'index:", indice);
     }
   } else {
-    console.log("✅ Trouvé dans currentPreviewPerceptionFormDataArray à l'index:", indice);
   }
 
   if (indice !== -1) {
@@ -602,7 +586,6 @@ const removeIndicator = (key) => {
     return;
   }
 
-  console.error("❌ Impossible de trouver l'élément à supprimer avec la clé:", key);
   toast.error("Impossible de supprimer cet élément.");
 };
 
@@ -666,7 +649,6 @@ const createForm = async () => {
     } else {
       toast.error(getAllErrorMessages(e));
     }
-    console.log(e);
   } finally {
     isLoadingForm.value = false;
   }
@@ -710,14 +692,11 @@ const selectTab = function (tab) {
 };
 
 watch(() => {
-  console.log(route.query.tab);
-  console.log(currentTab.value);
   if (route.query.tab) {
     currentTab.value = Number(route.query.tab);
   } else {
     currentTab.value = 0;
   }
-  console.log(currentTab.value);
 });
 
 onBeforeUnmount(() => {

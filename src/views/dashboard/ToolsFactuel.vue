@@ -216,7 +216,6 @@ const getOrganizations = async () => {
       organisations.value = result.data.data;
     })
     .catch((e) => {
-      console.error(e);
       toast.error("Une erreur est survenue: Liste des organisations .");
     });
 };
@@ -231,7 +230,6 @@ const getcurrentUserAndFetchOrganization = async () => {
       nomProgram.value = result.data.data.programme.nom;
     })
     .catch((e) => {
-      console.error(e);
       toast.error("Une erreur est survenue: Utilisateur connecté .");
     });
 };
@@ -246,7 +244,6 @@ const submitData = async () => {
     })),
   };
   payload.response_data = response;
-  console.log("response:", response);
   await EvaluationService.create(idEvaluation, payload)
     .then((result) => {
       isLoading.value = false;
@@ -254,13 +251,11 @@ const submitData = async () => {
       toast.success(`${result.data.message}`);
     })
     .catch((e) => {
-      console.error(e);
       isLoading.value = false;
       // payload.response_data = [];
       toast.error("Erreur pour la collecte des données");
     });
 
-  console.log("payload:", payload);
 };
 const initializeFormData = () => {
   // Initialisation des réponses

@@ -26,7 +26,7 @@ export default {
     },
 
     findSuiviFinancier : state => ({key, value}) => {
-        //console.log(this.getSuiviFinanciers(state))
+       
         return this.getSuiviFinanciers(state).find(item => item[key] === value);
     }
 }

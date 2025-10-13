@@ -94,7 +94,6 @@ const getcurrentUser = async () => {
       years();
     })
     .catch((e) => {
-      console.error(e);
       toast.error("Une erreur est survenue: Utilisateur connecté .");
     });
 };
@@ -109,9 +108,9 @@ const years = () => {
     }
   }
 
-  // console.log("annees", annees);
+  
   yearsStore.setYears(annees);
-  console.log(yearsStore.getYears);
+  
   return annees;
 };
 
@@ -145,7 +144,7 @@ onMounted(() => {
 
   getcurrentUser();
 
-  // console.log('usersInfo' , usersInfo)
+  
 
   if (usersInfo) {
     // usersProfileImage.value = API_BASE_URL + usersInfo.users.profil
@@ -181,7 +180,7 @@ const logout = () => {
       setTimeout(() => {
         router.push("/");
       }, 100);
-      console.log(error);
+     
 
       // Afficher le message d'erreur du serveur
       const errorMessage = error.response?.data?.message || "Erreur de déconnexion";

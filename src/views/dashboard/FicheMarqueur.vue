@@ -111,7 +111,6 @@ const getDataCollection = async () => {
     })
     .catch((e) => {
       isLoadingData.value = false;
-      console.error(e);
       toast.error("Une erreur est survenue: Resultats des synthese .");
     });
 };

@@ -26,7 +26,6 @@ export default {
       // Vérification de la présence des données
       if (props.datas && Array.isArray(props.datas) && props.datas.length > 0) {
       } else {
-        console.error("Aucune donnée reçue ou les données sont mal formattées.");
       }
 
       nextTick(() => {
@@ -97,7 +96,6 @@ export default {
             },
           });
         } else {
-          console.error("Le contexte du canvas est introuvable");
         }
       });
     });

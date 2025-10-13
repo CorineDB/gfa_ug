@@ -129,10 +129,8 @@ export default {
     },
     modifierComposante(data) {
       this.messageErreur = {};
-      console.log(data);
       this.labels = "Modifier";
       this.showModal = true;
-      console.log("showModal", this.showModal);
       this.update = true;
       this.formData.nom = data.nom;
       this.formData.description = data.description;
@@ -140,9 +138,7 @@ export default {
       this.formData.pret = data.pret ?? "";
       this.formData.projetId = data.projetId;
       this.formData.budgetNational = data.budgetNational;
-      console.log("formData", this.formData);
       this.composantsId = data.id;
-      console.log("composantsId", this.composantsId);
     },
     addComposants() {
       this.showModal = true;
@@ -152,7 +148,6 @@ export default {
       this.labels = "Ajouter";
     },
     sendForm() {
-      console.log(this.formData);
 
       if (this.update) {
         ComposantesService.update(this.composantsId, this.formData)
@@ -170,7 +165,6 @@ export default {
             }
           })
           .catch((error) => {
-            console.log(error);
             this.isLoading = false;
             if (error.response && error.response.data && Object.keys(error.response.data.errors).length > 0) {
               this.messageErreur = error.response.data.errors;
@@ -202,7 +196,6 @@ export default {
           })
           .catch((error) => {
             this.isLoading = false;
-            console.log("error", error);
 
             if (error.response && error.response.data && Object.keys(error.response.data.errors).length > 0) {
               this.messageErreur = error.response.data.errors;
@@ -211,7 +204,6 @@ export default {
                 this.messageErreur[key] = $h.extractContentFromArray(this.messageErreur[key]);
               });
 
-              console.log("this.messageErreur", this.messageErreur);
               toast.error("Une erreur s'est produite.Vérifier le formulaire de soumission");
             } else {
               toast.error(error.response.data.message);
@@ -220,7 +212,6 @@ export default {
       }
     },
     getProjetById() {
-      console.log("this.projectId", this.projectId);
 
       ProjetService.getDetailProjet(this.projectId)
         .then((data) => {
@@ -229,7 +220,6 @@ export default {
         })
         .catch((error) => {
           this.isLoadingOutcome = false;
-          console.log(error);
         });
     },
     getListeComposants(data) {

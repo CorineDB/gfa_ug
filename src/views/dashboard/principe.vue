@@ -325,10 +325,8 @@ const storePrincipe = function () {
           successNotificationToggle();
         } else if (error.request) {
           // Demande effectuée mais aucune réponse n'est reçue du serveur.
-          //console.log(error.request);
         } else {
           // Une erreur s'est produite lors de la configuration de la demande
-          //console.log('dernier message', error.message);
         }
       });
   }
@@ -359,7 +357,6 @@ const deletePrincipe = function () {
         successNotificationToggle();
       } else if (error.request) {
         // Demande effectuée mais aucune réponse n'est reçue du serveur.
-        //console.log(error.request);
       } else {
         // Une erreur s'est produite lors de la configuration de la demande
       }
@@ -367,7 +364,6 @@ const deletePrincipe = function () {
 };
 
 const modifier = function (index, data) {
-  console.log(data.id);
 
   saveUpdate.nom = data.nom;
   saveUpdate.description = data.description;
@@ -378,7 +374,6 @@ const modifier = function (index, data) {
   isUpdate.value = true;
 };
 const updatePrincipe = function () {
-  console.log(saveUpdate.principe_id);
 
   if (chargement.value == false) {
     chargement.value = true;
@@ -407,17 +402,14 @@ const updatePrincipe = function () {
           successNotificationToggle();
         } else if (error.request) {
           // Demande effectuée mais aucune réponse n'est reçue du serveur.
-          //console.log(error.request);
         } else {
           // Une erreur s'est produite lors de la configuration de la demande
-          //console.log('dernier message', error.message);
         }
       });
   }
 };
 
 const voirCritere = function (index, id) {
-  console.log(id);
   router.push({ name: "Critere", params: { id: id } });
 };
 

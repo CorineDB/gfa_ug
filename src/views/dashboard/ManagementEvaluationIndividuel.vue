@@ -247,7 +247,6 @@ const deleteData = async () => {
     toast.success("Évaluation supprimée avec succès.");
     getDatas();
   } catch (e) {
-    console.error(e);
     toast.error(getAllErrorMessages(e));
   } finally {
     isLoading.value = false;
@@ -277,7 +276,6 @@ const copyPersonnalLink = async (links) => {
     await navigator.clipboard.writeText(link);
     toast.success("Lien de soumission copié !");
   } catch (error) {
-    console.error("Erreur lors de la copie:", error);
     toast.error("Impossible de copier le lien");
   }
 };

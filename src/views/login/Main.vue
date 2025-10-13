@@ -182,7 +182,6 @@ export default {
               }
             })
             .catch((error) => {
-              console.log(error);
 
               // Afficher le message d'erreur du serveur
               const errorMessage = error.response?.data?.message || "Identifiants incorrects !!!";

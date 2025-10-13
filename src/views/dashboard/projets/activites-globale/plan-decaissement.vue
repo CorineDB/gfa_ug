@@ -232,11 +232,9 @@ export default {
           }
         })
         .catch((error) => {
-          console.log(error);
         });
     },
     getProjetById(data = null) {
-      console.log(data);
       if (data == null) {
         data = this.projetId = this.projetId ?? this.currentUser.projet.id;
         //this.projetId = this.projets[0].id;
@@ -254,12 +252,10 @@ export default {
           }
         })
         .catch((error) => {
-          console.log(error);
         });
     },
     triggerGetProjetDetailsById(data = null) {
       // Emit the event with the projetId as payload
-      console.log("Emit");
       this.$emit("getProjetById", data ?? this.projetId);
     },
     getComposantById(data) {
@@ -283,7 +279,6 @@ export default {
           }
         })
         .catch((error) => {
-          console.log(error);
         });
     },
 
@@ -293,7 +288,6 @@ export default {
           this.planDeDecaissement = response.data.data;
         })
         .catch((error) => {
-          console.log(error);
         });
     },
 
@@ -302,7 +296,6 @@ export default {
 
   created() {},
   mounted() {
-    console.log("Mont");
   },
 };
 </script>

@@ -27,7 +27,6 @@ const getDataCollection = async () => {
     })
     .catch((e) => {
       isLoadingData.value = false;
-      console.error(e);
       toast.error("Une erreur est survenue: Resultats des synthese .");
     });
 };
@@ -38,7 +37,6 @@ const getStructure = async () => {
       structures.value = result.data.data;
     })
     .catch((e) => {
-      console.error(e);
       toast.error("Une erreur est survenue: Liste des structures .");
     });
 };

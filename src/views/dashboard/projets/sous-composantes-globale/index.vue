@@ -21,6 +21,7 @@ export default {
     LoaderSnipper,
     NoRecordsMessage,
   },
+  
   data() {
     return {
       selectedIds: {
@@ -40,6 +41,7 @@ export default {
       isLoadingData: false,
       showModal: false,
       isUpdate: false,
+      update:false,
       isLoading: false,
       formData: {
         nom: "",
@@ -76,7 +78,6 @@ export default {
         keys: ["nom"],
       });
 
-      // Mettre à jour le total pour recalculer la pagination
       this.totalItems = totalFilteredItems;
 
       return paginatedData;
@@ -107,7 +108,6 @@ export default {
         });
       }
 
-      console.log((this.composantData?.budgetNational || 0) - totalBudgetUtilise);
       // Soustraire du fond propre de l'outcome
       return (this.composantData?.budgetNational || 0) - totalBudgetUtilise;
     },
@@ -159,6 +159,10 @@ export default {
   },
 
   methods: {
+    closeOutputDeleteModal(){
+      document.activeElement.blur()
+      this.showDeleteModal = false
+    },
     mettreAjoutOutcome(id) {
       //alert("ok")
       this.selectedIds.composantId = id;
@@ -195,7 +199,6 @@ export default {
     },
     onPageChanged(newPage) {
       this.currentPage = newPage;
-      console.log("Page actuelle :", this.currentPage);
       // Charger les données pour la page actuelle
       // this.loadDataForPage(newPage);
     },
@@ -304,7 +307,6 @@ export default {
         this.formData.budgetNational = parseInt(this.formData.budgetNational);
         this.formData.pret = parseInt(this.formData.pret);
         this.selectedIds.composantId = this.formData.composanteId;
-        console.log(this.selectedIds.composantId);
         ComposantesService.create(this.formData)
           .then((response) => {
             if (response.status == 200 || response.status == 201) {
@@ -345,7 +347,6 @@ export default {
           this.getProjetById(this.projetId.id);
         })
         .catch((error) => {
-          console.log(error);
           this.isLoadingData = false;
         });
     },
@@ -357,7 +358,7 @@ export default {
         composanteId: "",
         budgetNational: 0,
       };
-
+      document.activeElement.blur()
       this.showModal = false;
     },
     async loadProjets() {
@@ -370,7 +371,6 @@ export default {
         this.isLoadingData = false;
       } catch (error) {
         this.isLoadingData = false;
-        console.error("Erreur lors du chargement des projets", error);
       } finally {
         if (this.projetId == "") this.isLoadingData = false;
       }
@@ -380,7 +380,6 @@ export default {
       this.sousComposants = [];
       // this.activites = [];
       this.isLoadingData = true;
-      // console.log("this.selectedIds.composantId1", this.selectedIds.composantId);
       try {
         this.isLoadingData = false;
         const response = await ProjetService.getDetailProjet(projetId);
@@ -388,11 +387,9 @@ export default {
 
         this.selectedIds.composantId = this.composants[0]?.id || "";
 
-        console.log("this.selectedIds.composantId2", this.selectedIds.composantId);
         // alert("ok");
       } catch (error) {
         this.isLoadingData = false;
-        console.error("Erreur lors du chargement des détails du projet", error);
       } finally {
         if (this.selectedIds.composantId == "") this.isLoadingData = false;
       }
@@ -445,7 +442,6 @@ export default {
         this.sousComposants = this.composantData.souscomposantes || [];
       } catch (error) {
         this.isLoadingData = false;
-        console.error("Erreur lors du chargement des détails du composant", error);
       } finally {
         this.isLoadingData = false;
       }
@@ -735,7 +731,7 @@ export default {
         <div class="mt-2 text-slate-500">Voulez vous supprimer l'organisation ? <br />Cette action ne peut être annulé</div>
       </div>
       <div class="flex gap-2 px-5 pb-8 text-center">
-        <button type="button" @click="showDeleteModal = false" class="w-full my-3 mr-1 btn btn-outline-secondary">Annuler</button>
+        <button type="button" @click="closeOutputDeleteModal" class="w-full my-3 mr-1 btn btn-outline-secondary">Annuler</button>
         <VButton :loading="deleteLoader" label="Supprimer" @click="deleteComposants" />
       </div>
     </ModalBody>

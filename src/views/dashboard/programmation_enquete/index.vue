@@ -50,7 +50,6 @@ const getcurrentUser = async () => {
       finProgramme.value = result.data.data.programme.fin;
     })
     .catch((e) => {
-      console.error(e);
       toast.error("Une erreur est survenue: Utilisateur connecté .");
     });
 };
@@ -112,8 +111,6 @@ const createData = async () => {
 
   //payload.formulaires_de_gouvernance = forms;
 
-  console.log(payload);
-  console.log(payload.formulaires_de_gouvernance);
   
   isLoading.value = true;
   
@@ -131,7 +128,6 @@ const createData = async () => {
       } else {
         toast.error(getAllErrorMessages(e));
       }
-      console.error(e);
     });
 };
 
@@ -146,7 +142,6 @@ const copierLien = async (lien) => {
       copié.value = false;
     }, 2000);
   } catch (err) {
-    console.error("Échec de la copie : ", err);
   }
 };
 
@@ -242,13 +237,11 @@ const updateData = async () => {
       } else {
         toast.error(getAllErrorMessages(e));
       }
-      console.error(e);
     })
     .finally(() => {
       isLoading.value = false;
     });
 };
-//const submitData = () => console.log("Submit data");
 const submitData = () => (isCreate.value ? createData() : updateData());
 const deleteData = async () => {
   isLoading.value = true;
@@ -261,7 +254,6 @@ const deleteData = async () => {
     })
     .catch((e) => {
       isLoading.value = false;
-      console.error("e", e);
       toast.error(e.response.data.message);
     });
 };
@@ -302,7 +294,6 @@ function fetchOrganisationsAndFormulaires() {
 
 const handleEdit = (params) => {
 
-  console.log(params);
   fetchOrganisationsAndFormulaires();
 
   isCreate.value = false;

@@ -48,7 +48,7 @@ const getUniteMesure = async () => {
     const { data } = await UniteeDeMesureService.get();
     unitesMesure.value = data.data;
   } catch (e) {
-    console.log(e);
+    
     toast.error("Erreur lors de la récupération des données.");
   }
 };
@@ -95,7 +95,6 @@ const deleteData = async () => {
     toast.success("Clé valeur supprimée avec succès.");
     getDatas();
   } catch (e) {
-    console.error(e);
     toast.error(getAllErrorMessages(e));
   } finally {
     isLoading.value = false;

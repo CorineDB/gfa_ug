@@ -265,7 +265,6 @@ const saveProfil = function() {
 
       localStorage.setItem('authenticateUser', JSON.stringify(UserInfo.value))
 
-      console.log( localStorage.getItem('bsdInfo') )
 
 
       message.type = response.data.statut
@@ -298,7 +297,6 @@ const editUserInfo = () => {
      
       chargement2.value = false
 
-      console.log(response.data)
 
       message.type = response.data.statut
       message.message = response.data.message

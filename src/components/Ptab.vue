@@ -1029,10 +1029,10 @@ export default {
             this.$toast.error(message);
           } else if (error.request) {
             // Demande effectuée mais aucune réponse n'est reçue du serveur.
-            //console.log(error.request);
+            
           } else {
             // Une erreur s'est produite lors de la configuration de la demande
-            //console.log('dernier message', error.message);
+             
           }
         });
       this.chargement = false;
@@ -1060,13 +1060,13 @@ export default {
       //this.greentoggle=true;
       this.translatetoggle = false;
 
-      //console.log(this.tabletoggle[id]);
+      
 
       this.chargement = true;
       var form = {
         tacheId: pta.id,
       };
-      //  console.log(id)
+     
       if (pta.poidsActuel > 0) {
         this.tabletoggle[pta.id] = 0;
         TacheService.deleteSuivis(pta.id)
@@ -1083,10 +1083,10 @@ export default {
               this.$toast.error(message);
             } else if (error.request) {
               // Demande effectuée mais aucune réponse n'est reçue du serveur.
-              //console.log(error.request);
+               
             } else {
               // Une erreur s'est produite lors de la configuration de la demande
-              //console.log('dernier message', error.message);
+               
             }
           });
       } else {
@@ -1106,18 +1106,17 @@ export default {
               this.$toast.error(message);
             } else if (error.request) {
               // Demande effectuée mais aucune réponse n'est reçue du serveur.
-              //console.log(error.request);
+              
             } else {
               // Une erreur s'est produite lors de la configuration de la demande
-              //console.log('dernier message', error.message);
+              
             }
           });
       }
       this.chargement = false;
     },
     exportToExcel() {
-      //  console.log('gghghghgh');
-      //  console.log(this.dataNew);
+      
 
       const tableDataWithColors = this.dataNew.map((row) => {
         return {

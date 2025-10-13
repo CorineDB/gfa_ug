@@ -19,22 +19,22 @@ const canEditType = ref(false);
 const canEditIndicateur = ref(false);
 
 function handleDelete(key) {
-  console.log(key);
+  
   emit("deleteIndicateur", key);
 }
 
 function handleDeleteType(key) {
-  console.log(key);
+  
   emit("deletePrincipe", key, 'type', true);
 }
 
 function handleDeletePrincipe(key) {
-  console.log(key);
+  
   emit("deletePrincipe", key, 'principe', true);
 }
 
 function handleDeleteCritere(key) {
-  console.log(key);
+  
   emit("deleteCritere", key, 'critere', true);
 }
 
@@ -55,25 +55,25 @@ function editCritere(key) {
 
 
 function updateTemporyType(id, position) {
-  console.log(id, position);
+  
   emit("updateTemporyElement", id, position, true, 'type');
   canEditType.value = false;
 }
 
 function updateTemporyPrincipe(id, position) {
-  console.log(id, position);
+  
   emit("updateTemporyElement", id, position, true, 'principe');
   canEditPrincipe.value = false;
 }
 
 function updateTemporyCritere(id, position) {
-  console.log(id, position);
+  
   emit("updateTemporyElement", id, position, true, 'critere');
   canEditCritere.value = false;
 }
 
 function updateTemporyIndicateur(key, position) {
-  console.log(key, position);
+  
   emit("updatePositionIndicateur", key, position, true);
   canEditIndicateur.value = false;
 }
@@ -86,11 +86,7 @@ const handleEdit = (data) => {
 </script>
 <template>
   <div class="flex flex-col-reverse items-start w-full gap-2">
-    <!-- 
-      <div :class="[type ? 'text-black border-yellow-200 border-l-2 bg-white rounded shadow' : 'border-dashed border-gray-400 text-gray-600 border-2']" class="w-[91%] px-2 py-2.5 text-base font-medium truncate transition-all">{{ type || type?.length < 0 ? type : "Type de gouvernance" }}</div>
-      <div :class="[principe ? 'text-black border-yellow-200 border-l-2 bg-white rounded shadow' : 'border-dashed border-gray-400 text-gray-600 border-2']" class="w-[94%] px-2 py-2.5 text-base truncate font-medium transition-all">{{ principe || principe?.length < 0 ? principe : "Principe" }}</div>
-      <div :class="[critere ? 'text-black border-yellow-200 border-l-2 bg-white rounded shadow' : 'border-dashed border-gray-400 text-gray-600 border-2']" class="w-[97%] px-2 py-2.5 text-base truncate font-medium transition-all">{{ critere || critere?.length < 0 ? critere : "Critère" }}</div>
-    -->
+   
     
     <div
       :class="[type.id ? 'text-black border-yellow-200 border-l-2 bg-white rounded shadow' : 'border-dashed border-gray-400 text-gray-600 border-2']"

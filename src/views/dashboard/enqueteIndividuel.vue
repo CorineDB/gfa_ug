@@ -661,7 +661,6 @@ const parsedFormData = computed(() => {
     }
     return null;
   } catch (error) {
-    console.error("Erreur lors du parsing de form_data:", error);
     return null;
   }
 });
@@ -958,7 +957,6 @@ const clearForm = () => {
   payload.form_data = "";
   toast.success("Formulaire vidé");
 
-  console.log("Formulaire vidé:", form);
 };
 
 const copyJson = async () => {
@@ -966,7 +964,6 @@ const copyJson = async () => {
     await navigator.clipboard.writeText(formJson.value);
     toast.success("JSON copié dans le presse-papier");
   } catch (err) {
-    console.error("Erreur lors de la copie:", err);
     toast.error("Erreur lors de la copie du JSON");
   }
 };
@@ -1001,7 +998,6 @@ const saveForm = async () => {
 
     toast.success("JSON du formulaire sauvegardé");
   } catch (error) {
-    console.error("Erreur lors de la sauvegarde:", error);
     toast.error("Erreur lors de la sauvegarde");
   } finally {
     isSaving.value = false;
@@ -1046,7 +1042,6 @@ const loadDraftOnStartup = () => {
                   form.sections = formData.sections;
                 }
               } catch (e) {
-                console.error("Erreur lors du chargement du brouillon:", e);
               }
             }
 
@@ -1059,7 +1054,6 @@ const loadDraftOnStartup = () => {
       }
     }
   } catch (error) {
-    console.error("Erreur lors du chargement du brouillon:", error);
   }
 };
 
@@ -1107,7 +1101,6 @@ const loadDraft = () => {
           form.sections = formData.sections;
         }
       } catch (e) {
-        console.error("Erreur lors du chargement du brouillon:", e);
         toast.error("Erreur lors du chargement du brouillon");
         return;
       }
@@ -1115,7 +1108,6 @@ const loadDraft = () => {
 
     toast.info("Brouillon JSON chargé avec succès");
   } catch (error) {
-    console.error("Erreur lors du chargement du brouillon:", error);
     toast.error("Erreur lors du chargement du brouillon");
   }
 };
@@ -1129,7 +1121,6 @@ const clearDraft = () => {
       lastSaved.value = null;
       toast.success("Sauvegarde supprimée avec succès");
     } catch (error) {
-      console.error("Erreur lors de la suppression de la sauvegarde:", error);
       toast.error("Erreur lors de la suppression de la sauvegarde");
     }
   }
@@ -1138,8 +1129,6 @@ const clearDraft = () => {
 
 const updateFormDataFromBuilder = () => {
 
-  console.log(form)
-  console.log(formJson.value)
   if (form.sections.length > 0 && form.sections.some((section) => section.elements.length > 0)) {
     payload.form_data = formJson.value;
     toast.success("Données du formulaire mises à jour depuis le créateur");
@@ -1227,7 +1216,6 @@ const getDatas = async () => {
     const { data } = await EnqueteIndividuelService.get();
     datas.value = data.data;
 
-    console.log(datas.value);
   } catch (e) {
     toast.error("Erreur lors de la récupération des données.");
   } finally {
@@ -1267,7 +1255,6 @@ const deleteData = async () => {
     toast.success("Formulaire supprimé avec succès.");
     getDatas();
   } catch (e) {
-    console.error(e);
     toast.error(getAllErrorMessages(e));
   } finally {
     isLoading.value = false;
@@ -1307,14 +1294,12 @@ const handleEditJson = (data) => {
     // Charger automatiquement dans l'éditeur
     loadDraft();
   } catch (error) {
-    console.error("Erreur lors de la sauvegarde:", error);
     toast.error("Erreur lors de la sauvegarde du brouillon");
   }
 };
 
 const handlePreview = (data) => {
   currentForm.value = data;
-  console.log(data);
   showModalPreview.value = true;
 };
 

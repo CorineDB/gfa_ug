@@ -287,7 +287,7 @@
       <ModalFooter>
         <div class="flex items-center justify-center">
           <button type="button" @click="resetModalSuiviFinancierActivite" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
-          <VButton class="inline-block" label="Enregistrer" :loading="loadingSuiviFinancier" :type="submit" />
+          <VButton class="inline-block" label="Enregistrer" :loading="loadingSuiviFinancier" type="submit" />
         </div>
       </ModalFooter>
     </form>
@@ -1379,7 +1379,6 @@ export default {
           this.finProgramme = result.data.data.programme.fin;
         })
         .catch((e) => {
-          console.error(e);
           toast.error("Une erreur est survenue: Utilisateur connecté .");
         });
     },
@@ -1413,7 +1412,6 @@ export default {
             // getDatas();
           })
           .catch((error) => {
-            console.log(error);
             this.loadingSuiviFinancier = false;
 
             if (error.response && error.response.data && error.response.data.errors) {
@@ -1442,7 +1440,6 @@ export default {
     },
 
     ouvrirModalSuiviFinancierActivite(item) {
-      console.log(item.activiteId);
       this.suiviFinancierPayload.activiteId = item.activiteId;
       this.suiviFinancierPayload.trimestre = this.getCurrentQuarter();
       this.suiviFinancier.push(this.suiviFinancierPayload);
@@ -1454,7 +1451,6 @@ export default {
       deleteModalPreview.value = true;
     },
     handleEdit(params) {
-      console.log(params);
       showModalCreate.value = true;
     },
     filtreParAnnee(datas) {
@@ -1483,10 +1479,8 @@ export default {
             this.$toast.error(message);
           } else if (error.request) {
             // Demande effectuée mais aucune réponse n'est reçue du serveur.
-            //console.log(error.request);
           } else {
             // Une erreur s'est produite lors de la configuration de la demande
-            //console.log('dernier message', error.message);
           }
         });
       this.chargement = false;
@@ -1514,13 +1508,11 @@ export default {
       //this.greentoggle=true;
       // this.translatetoggle = false;
 
-      //console.log(this.tabletoggle[id]);
 
       this.chargement = true;
       var form = {
         tacheId: pta.id,
       };
-      //  console.log(id)
       if (pta.poidsActuel > 50) {
         this.tabletoggle[pta.id] = 0;
         TacheService.deleteSuivis(pta.id)
@@ -1537,10 +1529,8 @@ export default {
               this.$toast.error(message);
             } else if (error.request) {
               // Demande effectuée mais aucune réponse n'est reçue du serveur.
-              //console.log(error.request);
             } else {
               // Une erreur s'est produite lors de la configuration de la demande
-              //console.log('dernier message', error.message);
             }
           });
       } else {
@@ -1560,18 +1550,14 @@ export default {
               this.$toast.error(message);
             } else if (error.request) {
               // Demande effectuée mais aucune réponse n'est reçue du serveur.
-              //console.log(error.request);
             } else {
               // Une erreur s'est produite lors de la configuration de la demande
-              //console.log('dernier message', error.message);
             }
           });
       }
       this.chargement = false;
     },
     // exportToExcel() {
-    //   //  console.log('gghghghgh');
-    //   //  console.log(this.dataNew);
 
     //   const tableDataWithColors = this.dataNew.map((row) => {
     //     return {
@@ -1669,7 +1655,6 @@ export default {
           toast.success("Filtre éffectuer avec succès");
         })
         .catch((e) => {
-          console.log(e);
           toast.error("Erreur lors du filtrage des informations");
           this.disabled();
         });
@@ -1782,7 +1767,6 @@ export default {
     this.getPermission();
 
     if (this.revisionVisible || this.ppmVisible || this.ptaVisible) {
-      console.log(this.$route.params.ongId);
       let data = {};
       data = {
         organisationId: this.$route.params.ongId,

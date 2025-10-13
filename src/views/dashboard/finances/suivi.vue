@@ -88,7 +88,6 @@ const planDeDecaissementActivite = async function () {
       }
     } catch (error) {
       hasErrors = true;
-      console.error(`Erreur pour le plan ${index + 1}:`, error);
 
       // Initialiser le tableau d'erreurs si nécessaire
       if (!erreurPlanDeDecaissement.value) {
@@ -170,7 +169,6 @@ const planDeDecaissementActivite = async function () {
       }
     }
   } catch (error) {
-    console.error("Erreur lors du rechargement des données:", error);
     toast.error("Erreur lors du rechargement des données");
   } finally {
     loadingPlanDeDecaissement.value = false;
@@ -222,19 +220,19 @@ const getListePlanDeDecaissement = (id) => {
   ActiviteService.plansDeDecaissement(id)
     .then((data) => {
       loaderListePlan.value = false;
-      //console.log(data.data.data);
+      //
       listePlanDeDecaissement.value = data.data.data;
 
-      // console.log("listePlanDeDecaissement.value", listePlanDeDecaissement);
+      // 
     })
     .catch((error) => {
       loaderListePlan.value = false;
-      //console.log(error);
+      //
     });
 };
 
 const ouvrirModalPlanDeDecaissementActivite = function (data) {
-  console.log(data);
+  
 
   planDeDecaissement.value = [];
 
@@ -252,7 +250,7 @@ const ouvrirModalPlanDeDecaissementActivite = function (data) {
   showModalPlanDeDecaissement.value = true;
   planDeDecaissementPayload.value = newItem;
 
-  console.log("planDeDecaissementPayload.value", planDeDecaissementPayload.value);
+  
   planDeDecaissement.value.push(planDeDecaissementPayload.value);
   showModalPlanDeDecaissement.value = true;
 };
@@ -291,7 +289,7 @@ const getPlageActivitePlan = computed(() => {
     obj = datas.value.suiviFinanciers?.find((item) => item.activite.id === planDeDecaissementPayload.value.activiteId);
   }
 
-  console.log("obj", obj);
+  
 
   return obj ? obj : null;
   // Retourne le nom ou `null` si non trouvé
@@ -300,15 +298,15 @@ const getPlageActivitePlan = computed(() => {
 const getPlageActivite = computed(() => {
   let obj = null;
 
-  console.log("payload.activiteId", payload.activiteId);
+  
 
-  console.log("datas.value.suiviFinanciers", datas.value.suiviFinanciers);
+  
 
   if (suiviFinancierPayload.activiteId !== "") {
     obj = datas.value.suiviFinanciers?.find((item) => item.activite.id === suiviFinancierPayload.activiteId);
   }
 
-  console.log("obj", obj);
+  
 
   return obj ? obj : null;
   // Retourne le nom ou `null` si non trouvé
@@ -345,8 +343,8 @@ const finProgramme = ref("");
 // const years = ref([]);
 
 const years = computed(() => {
-  console.log("debut", `${debutProgramme.value.split("-")}`);
-  console.log("fin", `${finProgramme.value.split("-")}`);
+  
+  
   let anneeDebut = parseInt(`${debutProgramme.value.split("-")[0]}`);
   let anneeFin = parseInt(`${finProgramme.value.split("-")[0]}`);
   let annees = [];
@@ -364,19 +362,18 @@ const getcurrentUser = async () => {
       // responsablesForm.value.ug = result.data.data.profil.id;
       // ugs.value.push({ id: result.data.data.profil.id, nom: result.data.data.profil.nom });
       // idProgramme.value = result.data.data.programme.id;
-      console.log("debut", result.data.data.programme.debut);
-      console.log("fin", result.data.data.programme.debut);
+      
+      
       debutProgramme.value = result.data.data.programme.debut;
       finProgramme.value = result.data.data.programme.fin;
     })
     .catch((e) => {
-      console.error(e);
       toast.error("Une erreur est survenue: Utilisateur connecté .");
     });
 };
 
 const createData = async () => {
-  console.log("payload", payload);
+  
   isLoading.value = true;
   await SuiviFinancierService.create(payload)
     .then(() => {
@@ -386,7 +383,7 @@ const createData = async () => {
       toast.success("Suivi Financier créer.");
     })
     .catch((e) => {
-      console.log(e);
+      
       isLoading.value = false;
       toast.error("Vérifier les informations et ressayer.");
     });
@@ -396,11 +393,10 @@ const getDatas = async () => {
   await SuiviFinancierService.get()
     .then((result) => {
       datas.value = result.data.data;
-      console.log(datas.value);
+      
       isLoadingData.value = false;
     })
     .catch((e) => {
-      console.error(e);
       isLoadingData.value = false;
       toast.error("Une erreur est survenue: Liste des type des options.");
     });
@@ -417,7 +413,6 @@ const updateData = async () => {
     })
     .catch((e) => {
       isLoading.value = false;
-      console.error(e);
       toast.error("Vérifier les informations et ressayer.");
     });
 };
@@ -433,13 +428,12 @@ const deleteData = async () => {
     })
     .catch((e) => {
       isLoading.value = false;
-      console.error(e);
       toast.error("Une erreur est survenue, ressayer");
     });
 };
 
 const handleInput = function (data) {
-  console.log(data);
+  
   getactivites(data);
 };
 
@@ -449,7 +443,6 @@ const getactivites = (year) => {
       activites.value = result.data.data;
     })
     .catch((e) => {
-      console.error(e);
       toast.error("Une erreur est survenue: Liste des Programmes.");
     });
 };
@@ -495,7 +488,7 @@ const initTabulator = () => {
           };
 
           const voirDetail = createButton("Voir détail", "btn btn-primary", () => {
-            console.log("cell.getData().id", cell.getData().id);
+            
             handleDetail(cell.getData().id);
           });
 
@@ -512,7 +505,7 @@ const initTabulator = () => {
   });
 };
 const handleDetail = (data) => {
-  // console.log("handleDetail id", id);
+  // 
   router.push({
     name: "Détail du suivi financier",
     params: { id: data.activite.id },
@@ -544,7 +537,7 @@ const openCreateModal = () => {
     years.value.push(annee);
   }
 
-  console.log("years", years.value);
+  
 
   showModalCreate.value = true;
   isCreate.value = true;
@@ -566,41 +559,41 @@ const filterSuiviFinancierActiviteParAnnee = async function (id, payload, index)
     .then((data) => {
       loaderListeSuivi.value = false;
 
-      console.log(data.data.data);
+      
 
       listeSuivi.value = data.data.data;
 
       tableauListeSuivi.value[index] = listeSuivi.value;
 
-      console.log("tableauListeSuivi.value", tableauListeSuivi.value);
+      
     })
     .catch((error) => {
       loaderListeSuivi.value = false;
-      //console.log(error);
+      //
     });
 };
 
 const miseAjourTabSuivi = function (id, payLoad, index) {
-  console.log("payLoad.length", payLoad.length);
-  console.log("index", index);
+  
+  
 
   let taille = payLoad.length;
 
-  console.log("tableauListeSuivi[index]", tableauListeSuivi.value[index]);
+  
 
   let form = {
     trimestre: taille < 2 ? payLoad : suiviFinancier.value[index].trimestre,
     annee: taille > 1 ? payLoad : suiviFinancier.value[index].annee,
   };
 
-  console.log("form", form);
+  
 
   filterSuiviFinancierActiviteParAnnee(id, form, index);
 };
 
 const ouvrirModalSuiviFinancierActivite = (item) => {
   suiviFinancier.value = [];
-  console.log(item);
+  
   const newItem = {
     activiteId: item.activite.id,
     trimestre: getCurrentQuarter(),
@@ -614,7 +607,7 @@ const ouvrirModalSuiviFinancierActivite = (item) => {
     annee: new Date().getFullYear(),
   };
 
-  console.log("item.id", item.activiteId);
+  
 
   filterSuiviFinancierActiviteParAnnee(item.activite.id, payLoad, 0);
 
@@ -656,9 +649,9 @@ const addSuivi = function () {
     annee: new Date().getFullYear(),
   };
 
-  console.log("suiviFinancierPayload.id", suiviFinancierPayload.id);
+  
 
-  console.log("suiviFinancier.value.length - 1", suiviFinancier.value.length - 1);
+  
 
   filterSuiviFinancierActiviteParAnnee(suiviFinancier.value[0].activiteId, payLoad, suiviFinancier.value.length - 1);
 };
@@ -689,12 +682,12 @@ const suiviFinancierActivite = async () => {
 
   let errorIndex = [];
 
-  console.log("suiviFinancier.value.length", suiviFinancier.value.length);
+  
 
   for (let index = 0; index < suiviFinancier.value.length; index++) {
     let suivi = tableauListeSuivi.value.filter((suivi) => suivi.annee == suiviFinancier.value[index].annee && suivi.trimestre == suiviFinancier.value[index].trimestre);
 
-    // console.log("suivi[0]?.id", suivi[0]?.id);
+    // 
 
     const action = suivi.length > 0 ? SuiviFinancier.update(suivi[0]?.id, suiviFinancier.value[index]) : SuiviFinancierService.create(suiviFinancier.value[index]);
 
@@ -705,7 +698,7 @@ const suiviFinancierActivite = async () => {
 
       errorIndex.push(index);
 
-      console.log("index === suiviFinancier.value.length - 1", index === suiviFinancier.value.length - 1);
+      
 
       if (index === suiviFinancier.value.length - 1) {
         //showModalSuiviFinancier = false;
@@ -719,7 +712,7 @@ const suiviFinancierActivite = async () => {
       // getDatasCadre();
       // resetForm();
     } catch (error) {
-      console.log("error", error);
+      
 
       loadingSuiviFinancier.value = false;
 
@@ -736,10 +729,10 @@ const suiviFinancierActivite = async () => {
     }
 
     if (suiviFinancier.value.length > 0) {
-      console.log("suiviFinancier.value", suiviFinancier.value);
+      
 
       if (errorIndex.length > 0) {
-        console.log("errorIndex", errorIndex);
+        
         errorIndex.forEach((item) => {
           removeSuivi(item);
         });
@@ -762,7 +755,7 @@ const filteredSuiviFinanciers = computed(() => {
 });
 
 const openFilterModal = () => {
-  console.log(filterPayload.annee);
+  
   filterPayload.trimestre = 3; //getCurrentQuarter();
   showModalFiltre.value = true;
 };
@@ -770,7 +763,7 @@ const openFilterModal = () => {
 const filterSuiviFinancierActivite = async () => {
   isLoadingFilter.value = true;
 
-  console.log(filterPayload.annee);
+  
 
   filterPayload.annee = parseInt(filterPayload.annee);
   filterPayload.trimestre = parseInt(filterPayload.trimestre);
@@ -782,7 +775,7 @@ const filterSuiviFinancierActivite = async () => {
       toast.success("Suivi Financier filtrer.");
     })
     .catch((e) => {
-      console.log(e);
+      
       isLoadingFilter.value = false;
       toast.error("Vérifier les informations et ressayer.");
     });
@@ -1217,7 +1210,7 @@ onMounted(() => {
       <ModalFooter>
         <div class="flex items-center justify-center">
           <button type="button" @click="resetModalSuiviFinancierActivite" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
-          <VButton class="inline-block" label="Enregistrer" :loading="loadingSuiviFinancier" :type="submit" />
+          <VButton class="inline-block" label="Enregistrer" :loading="loadingSuiviFinancier" type="submit" />
         </div>
       </ModalFooter>
     </form>

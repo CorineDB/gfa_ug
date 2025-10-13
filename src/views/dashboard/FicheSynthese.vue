@@ -142,14 +142,12 @@ const getDataCollection = async () => {
   await ResultatSyntheseService.getForEvaluation(idEvaluation)
     .then((result) => {
       dataForAllOrganisation.value = result.data.data;
-      console.log(dataForAllOrganisation);
       datasFactuel.value = dataForAllOrganisation.value.factuel;
       datasPerception.value = dataForAllOrganisation.value.perception;
       isLoadingData.value = false;
     })
     .catch((e) => {
       isLoadingData.value = false;
-      console.error(e);
       toast.error("Une erreur est survenue: Resultats des synthese .");
     });
 };

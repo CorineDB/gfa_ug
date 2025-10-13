@@ -308,7 +308,6 @@ function getCampagne() {
     campagnes.value = data.data.data[0]
 
 
-    console.log(data.data.data)
 
     entrepriseLogo.value = API_BASE_URL + campagnes.value[0].entreprise.admin.profil
 
@@ -395,7 +394,6 @@ const hideImageAfterDelay = () => {
   setTimeout(() => {
     showImage.value = false;
 
-    //  console.log('ok')
   }, 1500);
 };
 // show emoticon   -------------------------------->
@@ -514,7 +512,6 @@ function voter(value) {
             message.type = 'success'
             message.message = 'Merci pour le temps que vous nous avez accordé ,Aurevoir'
 
-            console.log(message.message)
             successNotificationToggles()
             const audiotest = new SpeechSynthesisUtterance(message.message);
             window.speechSynthesis.speak(audiotest);
@@ -568,7 +565,6 @@ function voter(value) {
       }
 
 
-      console.log(verification.value)
 
       if (verification.value) {
 
@@ -597,7 +593,6 @@ function voter(value) {
             message.type = 'success'
             message.message = 'Merci pour le temps que vous nous avez accordé ,Aurevoir'
 
-            console.log(message.message)
             successNotificationToggles()
             const audiotest = new SpeechSynthesisUtterance(message.message);
             window.speechSynthesis.speak(audiotest);
@@ -719,7 +714,6 @@ function voter(value) {
               message.type = 'success'
               message.message = 'Merci pour le temps que vous nous avez accordé ,Aurevoir'
 
-              console.log(message.message)
               successNotificationToggles()
               const audiotest = new SpeechSynthesisUtterance(message.message);
               window.speechSynthesis.speak(audiotest);
@@ -831,7 +825,6 @@ function envoyerCommentaire() {
 
 
   CampagneService.addComment(campagneEnCours.id, { contenu: plainte.value }).then((comment) => {
-    console.log(campagneEnCours.id)
     plainte.value = ""
     message.type = 'success'
     message.message = 'Plainte envoyée avec succès'

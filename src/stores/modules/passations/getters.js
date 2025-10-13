@@ -26,7 +26,7 @@ export default {
     },
 
     findPassation : state => ({key, value}) => {
-        //console.log(this.getPassations(state))
+         
         return this.getPassations(state).find(item => item[key] === value);
     }
 }

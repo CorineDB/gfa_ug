@@ -49,16 +49,13 @@ export default {
           const created_at = element.created_at
           this.dataTable.push({tache:tache,codePta:codePta,poidsInitial:poidsInitial,poidsActuel:poidsActuel,created_at:created_at})
         })
-        console.log("les suiivs",this.dataTable)
       }).catch((e) => {
-        console.log(e)
       })
     },
     currentTache() {
       TacheService.get(this.$route.params.id).then((data) => {
         this.taches= data.data.data
       }).catch((e) => {
-        console.log(e)
       })
     }
   },

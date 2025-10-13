@@ -104,7 +104,6 @@ export default {
               this.$toast.error(message)
               } else if (error.request) {
                 // Demande effectuée mais aucune réponse n'est reçue du serveur.
-                //console.log(error.request);
               } else {
               // Une erreur s'est produite lors de la configuration de la demande
               }
@@ -137,7 +136,6 @@ export default {
         this.composantes = datas
         this.getSComposante(datas[0].id)
       }).catch((e) => {
-        console.log(e)
       })
     },
     getSComposante(id) {
@@ -147,7 +145,6 @@ export default {
         this.getActivite(datas[0].id)
        
       }).catch((e) => {
-        console.log(e)
       })
     },
      getActivite(id) {
@@ -159,7 +156,6 @@ export default {
         this.getTache(datas[0].id)
        this.disabled()
       }).catch((e) => {
-        console.log(e)
         this.disabled()
       })
     },
@@ -169,7 +165,6 @@ export default {
         this.taches = datas
        
       }).catch((e) => {
-        console.log(e)
       })
     },
 

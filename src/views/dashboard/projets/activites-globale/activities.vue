@@ -165,7 +165,6 @@ export default {
     },
 
     modifierActivite(data) {
-      console.log(data);
       this.labels = "Modifier";
       this.showModal = true;
       this.update = true;
@@ -207,7 +206,6 @@ export default {
         this.formData.pret = parseInt(this.formData.pret);
         this.formData.budgetNational = parseInt(this.formData.budgetNational);
         this.formData.type = "pta";
-        console.log(this.formData);
         ActiviteService.create(this.formData)
           .then((response) => {
             if (response.status == 200 || response.status == 201) {
@@ -228,15 +226,12 @@ export default {
 
     triggerGetProjetDetailsById(data = null) {
       // Emit the event with the projetId as payload
-      console.log("Emit");
       this.$emit("getProjetById", data ?? this.projetId);
     },
     getComposantById(data) {
       ComposantesService.detailComposant(data)
         .then((data) => {
-          /* this.activites = data.data.data.activites;
-          console.log(this.activites); */
-
+          
           if (data.data.data.souscomposantes.length > 0) {
             this.sousComposants = data.data.data.souscomposantes;
 
@@ -245,13 +240,10 @@ export default {
             }
             this.haveSousComposantes = true;
           } else {
-            console.log("Fetch sous composantes");
-            console.log(data.data.data.activites);
             this.activites = data.data.data.activites;
           }
         })
         .catch((error) => {
-          console.log(error);
         });
     },
 

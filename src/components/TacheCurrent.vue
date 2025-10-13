@@ -294,10 +294,10 @@ export default {
               this.$toast.error(message)
             } else if (error.request) {
               // Demande effectuée mais aucune réponse n'est reçue du serveur.
-              //console.log(error.request);
+               
             } else {
               // Une erreur s'est produite lors de la configuration de la demande
-              //console.log('dernier message', error.message);
+               
             }
 
           })
@@ -432,10 +432,10 @@ export default {
           this.$toast.error(message)
         } else if (error.request) {
           // Demande effectuée mais aucune réponse n'est reçue du serveur.
-          //console.log(error.request);
+           
         } else {
           // Une erreur s'est produite lors de la configuration de la demande
-          //console.log('dernier message', error.message);
+          
         }
       })
       this.chargement = false
@@ -456,10 +456,10 @@ export default {
           this.$toast.error(message)
         } else if (error.request) {
           // Demande effectuée mais aucune réponse n'est reçue du serveur.
-          //console.log(error.request);
+           
         } else {
           // Une erreur s'est produite lors de la configuration de la demande
-          //console.log('dernier message', error.message);
+          
         }
       })
       this.chargement = false
@@ -484,10 +484,10 @@ export default {
           this.$toast.error(message)
         } else if (error.request) {
           // Demande effectuée mais aucune réponse n'est reçue du serveur.
-          //console.log(error.request);
+          
         } else {
           // Une erreur s'est produite lors de la configuration de la demande
-          //console.log('dernier message', error.message);
+          
         }
       })
     },
@@ -572,7 +572,7 @@ export default {
           this.$toast.error(message)
         } else if (error.request) {
           // Demande effectuée mais aucune réponse n'est reçue du serveur.
-          //console.log(error.request);
+          
         } else {
           // Une erreur s'est produite lors de la configuration de la demande
         }
@@ -773,7 +773,7 @@ export default {
           this.$toast.error(message)
         } else if (error.request) {
           // Demande effectuée mais aucune réponse n'est reçue du serveur.
-          //console.log(error.request);
+          
         } else {
           // Une erreur s'est produite lors de la configuration de la demande
         }

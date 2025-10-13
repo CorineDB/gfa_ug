@@ -564,7 +564,6 @@ const getInfoUsers = async () => {
       permissions.value = result.data.data.role[0].permissions;
     })
     .catch((e) => {
-      console.error(e);
 
       toast.error("Une erreur est survenue: Liste des type des options.");
     });
@@ -581,7 +580,6 @@ const createData = async () => {
     })
     .catch((e) => {
       isLoading.value = false;
-      console.error(e);
       toast.error("Vérifier les informations et ressayer.");
       if (e.response && e.response.data && e.response.data.errors) {
         messageErreur.value = e.response.data.errors;
@@ -603,7 +601,6 @@ const messageErreur = ref({});
 
 const openUpdateModal = function (data) {
   messageErreur.value = {};
-  console.log(data);
   updateModal.value = true;
   formEdit.nom = data.nom;
   formEdit.prenom = data.prenom;
@@ -611,7 +608,6 @@ const openUpdateModal = function (data) {
   formEdit.email = data.email;
   formEdit.poste = data.poste;
   userId.value = data.id;
-  console.log("role.id", data.roles[0].id);
   formEdit.roles = data.roles.map((role) => role.id);
 };
 
@@ -637,7 +633,6 @@ const submitUpdateData = function () {
   }
 
   isLoading.value = true;
-  console.log(formData);
   UsersService.update(userId.value, formEdit)
     .then((data) => {
       toast.success("Utilisateur modifié avec succès");
@@ -809,7 +804,6 @@ const storeUser = function () {
     }
 
     chargement.value = true;
-    console.log(formData);
     UsersService.addUsers(formData)
       .then((data) => {
         toast.success("Utilisateur ajouté avec succès");
@@ -818,7 +812,6 @@ const storeUser = function () {
         chargement.value = false;
       })
       .catch((error) => {
-        console.log(error);
         chargement.value = false;
         toast.error("Vérifier les informations et ressayer.");
         if (error.response && error.response.data && error.response.data.errors) {
@@ -860,7 +853,6 @@ const deleteUser = function () {
         successNotificationToggle();
       } else if (error.request) {
         // Demande effectuée mais aucune réponse n'est reçue du serveur.
-        //console.log(error.request);
       } else {
         // Une erreur s'est produite lors de la configuration de la demande
       }

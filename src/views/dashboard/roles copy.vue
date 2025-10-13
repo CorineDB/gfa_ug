@@ -256,7 +256,6 @@ onMounted(function () {
     // formData.entrepriseId = usersInfo.users.entrepriseId
     // saveUpdate.entrepriseId = usersInfo.users.id
   }
-  console.log(usersInfo);
   getData();
 });
 
@@ -353,7 +352,6 @@ const deleteRole = function () {
         successNotificationToggle();
       } else if (error.request) {
         // Demande effectuée mais aucune réponse n'est reçue du serveur.
-        //console.log(error.request);
       } else {
         // Une erreur s'est produite lors de la configuration de la demande
       }

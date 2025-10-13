@@ -105,7 +105,6 @@ const requestLink = async () => {
     try {
       const result = await resetPassword.get(payload.email);
       if (result.data.statut == "success") {
-        console.log("Season 1");
         localStorage.setItem("newmail", JSON.stringify(payload.email));
         chargement.value = false;
         showFormSuccess.value = true;

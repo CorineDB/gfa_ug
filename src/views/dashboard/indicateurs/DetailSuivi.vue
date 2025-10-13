@@ -44,7 +44,6 @@ const getDatas = async () => {
       isLoadingData.value = false;
     })
     .catch((e) => {
-      console.error(e);
       isLoadingData.value = false;
       toast.error("Une erreur est survenue: Liste de sources.");
     });
@@ -184,7 +183,6 @@ const validateData = async () => {
     })
     .catch((e) => {
       isLoading.value = false;
-      console.error(e);
       toast.error("Pas la permission pour valider");
     });
 };
@@ -199,7 +197,6 @@ const getCurrentQuarter = function () {
 };
 
 const openFilterModal = () => {
-  console.log(filterPayload.annee);
   filterPayload.trimestre = `${getCurrentQuarter()}`;
   showModalFiltre.value = true;
 };
@@ -236,16 +233,13 @@ const filterSuiviIndicateur = async () => {
   filterPayload.annee = parseInt(filterPayload.annee);
   filterPayload.trimestre = parseInt(filterPayload.trimestre);
 
-  console.log(filterPayload);
 
   await IndicateurSuivisService.filtre(filterPayload)
     .then((result) => {
       datas.value = result.data.data;
-      console.log(datas.value);
       resetFilterModal();
     })
     .catch((e) => {
-      console.log(e);
       isLoadingFilter.value = false;
       toast.error("Vérifier les informations et ressayer.");
     });
@@ -266,7 +260,6 @@ const getcurrentUser = async () => {
       finProgramme.value = result.data.data.programme.fin;
     })
     .catch((e) => {
-      console.error(e);
       toast.error("Une erreur est survenue: Utilisateur connecté .");
     });
 };
@@ -458,7 +451,6 @@ const formatAgregatedChartData = () => {
     return `T${trimestre} - ${annee}`;
   });
 
-  console.log(datas.value);
 
   // Extraction des valeurs réalisées avec gestion des différents formats
   const realisedValues = datas.value.map((item) => {
@@ -1017,7 +1009,6 @@ const payloadSuivi = reactive({
 });
 
 const handleEditSuivi = (data) => {
-  console.log(data);
   isCreate.value = false;
   idSelect.value = data.id;
 
@@ -1062,11 +1053,9 @@ const handleEditSuivi = (data) => {
   }
 
   showModalSuivi.value = true;
-  console.log(payloadSuivi);
 };
 
 const handleSuivi = (data) => {
-  console.log(data);
 
   // Récupérer les valeurs cibles
   valeurCible.value = data.valeurCible.valeurCible;
@@ -1139,7 +1128,6 @@ const resetFormSuivi = () => {
 };
 // Submit data (create or update)
 const submitData = async () => {
-  console.log(isCreate.value);
   isCreate.value ? submitSuivi() : submitUpdateSuivi();
 };
 
@@ -1156,7 +1144,6 @@ const submitSuivi = async () => {
     payloadSuivi.valeurRealise = valeurRealise.value;
   }
 
-  console.log(payloadSuivi);
 
   isLoading.value = true;
   const action = IndicateursService.createSuivi(payloadSuivi);
@@ -1170,7 +1157,6 @@ const submitSuivi = async () => {
     //emit("refreshData", data);
   } catch (e) {
     isLoading.value = false;
-    console.log(e);
 
     // Capture validation errors if available
     if (e.response && e.response.data && e.response.data.errors) {
@@ -1197,7 +1183,6 @@ const submitUpdateSuivi = async () => {
     payloadSuivi.valeurRealise = valeurRealise.value;
   }
 
-  console.log(payloadSuivi);
 
   isLoading.value = true;
   const action = IndicateurSuivisService.update(idSelect.value, payloadSuivi);
@@ -1209,7 +1194,6 @@ const submitUpdateSuivi = async () => {
     showModalSuivi.value = false;
     isLoading.value = false;
   } catch (e) {
-    console.log(e);
     isLoading.value = false;
 
     // Capture validation errors if available
@@ -1244,7 +1228,6 @@ const deleteSuivi = async () => {
     getDatas();
     deleteSuiviModalPreview.value = false;
   } catch (e) {
-    console.error(e);
     toast.error(getAllErrorMessages(e));
   } finally {
     isLoading.value = false;

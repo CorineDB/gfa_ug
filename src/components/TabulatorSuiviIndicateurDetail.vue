@@ -268,7 +268,6 @@ const deleteData = async () => {
     toast.success("Indicateur supprimé avec succès.");
     // getDatas();
   } catch (e) {
-    console.error(e);
     toast.error(getAllErrorMessages(e));
   } finally {
     isLoading.value = false;

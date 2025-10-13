@@ -50,7 +50,7 @@ export default {
         .join(",");
     },
     async generateExcelTable() {
-      console.log(this.data);
+      
       const workbook = new ExcelJS.Workbook();
       const sheet = workbook.addWorksheet("Rapport");
 

@@ -33,7 +33,6 @@ const downloadPDF = async () => {
     // Utilise la nouvelle méthode avec html2canvas pour capturer les styles CSS
     await $h.generatePDFWithStyles(props.tableIds, props.pageName, props.format);
   } catch (error) {
-    console.error('Erreur lors de la génération du PDF:', error);
     alert('Une erreur est survenue lors de la génération du PDF. Veuillez réessayer.');
   } finally {
     isGenerating.value = false;

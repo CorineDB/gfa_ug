@@ -1267,7 +1267,6 @@ function convert(value) {
   let month = (date.getMonth() + 1).toString().padStart(2, "0");
   let day = date.getDate().toString().padStart(2, "0");
   let formattedDate = `${year}-${month}-${day}`;
-  console.log();
 
   return formattedDate;
 }
@@ -1429,7 +1428,6 @@ const getCampagne = function () {
 
 function generateReport() {
   // this.$refs.html2Pdf.generatePdf()
-  console.log("ok");
 }
 </script>
 

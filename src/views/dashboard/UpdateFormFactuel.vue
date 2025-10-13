@@ -221,7 +221,6 @@ const loadMapFromStorage = (storageKey) => {
       const parsed = JSON.parse(stored);
       return new Map(Object.entries(parsed));
     } catch (e) {
-      console.warn(`Erreur lors du chargement de ${storageKey}:`, e);
     }
   }
   return new Map();
@@ -233,7 +232,6 @@ const saveMapToStorage = (map, storageKey) => {
     const obj = Object.fromEntries(map);
     localStorage.setItem(storageKey, JSON.stringify(obj));
   } catch (e) {
-    console.warn(`Erreur lors de la sauvegarde de ${storageKey}:`, e);
   }
 };
 
@@ -321,7 +319,6 @@ const getcurrentUser = async () => {
       finProgramme.value = result.data.data.programme.fin;
     })
     .catch((e) => {
-      console.error(e);
       toast.error("Une erreur est survenue: Utilisateur connecté .");
     });
 };
@@ -380,7 +377,6 @@ const organiseGlobalFormFactuelData = (submissions) => {
     // Trouver ou créer le critère de gouvernance
     let critere = principe.criteres_de_gouvernance.find((c) => c.id === submission.critere);
     if (!critere) {
-      console.log(submission.critereKey);
       critere = { id: submission.critere, key: submission.critereKey, position: Number(submission.criterePosition), indicateurs_de_gouvernance: [] };
       principe.criteres_de_gouvernance.push(critere);
     } /* 
@@ -398,7 +394,6 @@ const organiseGlobalFormFactuelData = (submissions) => {
     }
   });
 
-  console.log(organisedData);
   return organisedData;
 };
 
@@ -429,7 +424,6 @@ const organisePreviewFormFactuelData = (submissions) => {
     // Trouver ou créer le critère de gouvernance
     let critere = principe.criteres_de_gouvernance.find((c) => c.id === submission.critere.id);
     if (!critere) {
-      console.log(submission.critere.key);
       critere = { id: submission.critere.id, nom: submission.critere.nom, key: submission.critere.key, position: Number(submission.critere.position), indicateurs_de_gouvernance: [] };
       principe.criteres_de_gouvernance.push(critere);
     }
@@ -445,7 +439,6 @@ const organisePreviewFormFactuelData = (submissions) => {
     }
   });
 
-  console.log(organisedData);
 
   return organisedData;
 };
@@ -457,7 +450,6 @@ const resetCurrentPreviewFactuelFormData = () => {
   currentPreviewFactuelFormData.indicateur = { id: "", nom: "", key: "", position: 0 };
   currentPreviewFactuelFormData.type = { id: "", nom: "", key: "", position: 0 };
 
-  console.log(currentPreviewFactuelFormDataArray.value);
 
   currentPreviewFactuelFormDataArray.value = [];
 };
@@ -622,9 +614,6 @@ function matchDataUpdateWithCurrentDatas(typesCurrent) {
 }
 
 const updateAllTypesGouvernance = () => {
-  console.log(globalFormFactuelData.value);
-  console.log(previewFormFactuelData.value);
-  console.log("currentPreviewFactuelFormDataArray:", currentPreviewFactuelFormDataArray.value);
 
   globalTypesGouvernance.value = organiseGlobalFormFactuelData(globalFormFactuelData.value);
 
@@ -636,10 +625,6 @@ const updateAllTypesGouvernance = () => {
 
   previewTypesGouvernance.value = organisePreviewFormFactuelData(allPreviewData);
 
-  console.log("Combined preview data:", allPreviewData);
-  console.log(globalTypesGouvernance.value);
-  console.log(previewTypesGouvernance.value);
-  // console.log("PREVIEW", previewTypesGouvernance.value);
 };
 
 const getTypes = (type) => {
@@ -764,10 +749,6 @@ const getIndicateurs = (indicateur) => {
 
   let position = new Set(tousIndicateurs).size;
 
-  console.log("indicateursPersistes:", indicateursPersistes);
-  console.log("indicateursEnCours:", indicateursEnCours);
-  console.log("tousIndicateurs:", tousIndicateurs);
-  console.log("position:", position);
 
   position = position + 1;
 
@@ -793,7 +774,6 @@ const getIndicateurs = (indicateur) => {
 
   currentGlobalFactuelFormDataArray.value.push(form);
 
-  console.log("currentGlobalFactuelFormDataArray.value", currentGlobalFactuelFormDataArray.value);
 
   currentPreviewFactuelFormData.indicateur = { id: indicateur.id, nom: indicateur.nom, key: key, position: position };
 
@@ -821,7 +801,6 @@ const getIndicateurs = (indicateur) => {
 
   currentPreviewFactuelFormDataArray.value.push(form2);
 
-  console.log("currentPreviewFactuelFormDataArray.value", currentPreviewFactuelFormDataArray.value);
 };
 
 const getIndicateur = (indicateur) => {
@@ -888,7 +867,6 @@ const addNewIndicator = () => {
     // Utiliser la position déjà calculée dans getIndicateurs
     const indicateurPosition = item.indicateurPosition || 1;
     
-    console.log(`📍 Utilisation position pré-calculée: ${indicateurPosition} pour indicateur ${item.indicateur}`);
 
     // Génération des clés hiérarchiques avec les positions calculées
     const typeKey = `type_${typePosition}`;
@@ -896,7 +874,6 @@ const addNewIndicator = () => {
     const critereKey = `${principeKey}_critere_${criterePosition}`;
     const indicateurKey = `${critereKey}_indicateur_${indicateurPosition}`;
 
-    console.log(`Positions calculées: Type(${typePosition}), Principe(${principePosition}), Critère(${criterePosition}), Indicateur(${indicateurPosition})`);
 
     sessionKeys.add(indicateurKey);
 
@@ -922,7 +899,6 @@ const addNewIndicator = () => {
         indicateur: { ...currentPreviewFactuelFormDataArray.value[index].indicateur, key: indicateurKey, position: indicateurPosition },
       };
 
-      console.log("Ajout de l'indicateur avec clé:", indicateurKey);
 
       // Ajouter aux données
       globalFormFactuelData.value.unshift({ ...updatedItem });
@@ -965,12 +941,9 @@ const addNewIndicator = () => {
     }
   });
 
-  console.log("currentGlobalFactuelFormDataArray.value", currentGlobalFactuelFormDataArray.value);
-  console.log("currentPreviewFactuelFormDataArray.value", currentPreviewFactuelFormDataArray.value);
 };
 
 const removeIndicator = (key) => {
-  console.log("remove key", key);
 
   // Trouver l'index de la soumission à supprimer
   const index = globalFormFactuelData.value.findIndex((s) => s.indicateurKey === key);
@@ -1481,7 +1454,6 @@ const loadAvailableParents = async (type, currentData) => {
       modifyElement.availableParents = response.data.data || [];
     }
   } catch (error) {
-    console.error('Erreur lors du chargement des parents disponibles:', error);
     toast.error('Erreur lors du chargement des données');
   }
 };
@@ -1638,7 +1610,6 @@ const getOneForm = async () => {
   try {
     const { data } = await FormulaireFactuel.getOne(idForm);
     currentForm.value = data.data;
-    console.log("currentForm.value", currentForm.value);
 
     previewOptionResponses.value.options_de_reponse = currentForm.value.options_de_reponse;
 
@@ -1647,7 +1618,6 @@ const getOneForm = async () => {
     payload.annee_exercice = currentForm.value.annee_exercice;
   } catch (e) {
     toast.error("Erreur récupération du  formulaire.");
-    console.log(e);
   } finally {
     isLoadingOneForm.value = false;
   }
@@ -1691,7 +1661,6 @@ const updateForm = async () => {
 
   payload.factuel.types_de_gouvernance = globalTypesGouvernance.value.types_de_gouvernance;
 
-  console.log(payload);
 
   try {
     await FormulaireFactuel.update(idForm, payload);
@@ -1710,14 +1679,12 @@ const updateForm = async () => {
     } else {
       toast.error(getAllErrorMessages(e));
     }
-    console.log(e);
   } finally {
     isLoadingForm.value = false;
   }
 };
 
 const previewForm = () => {
-  console.log("click");
   if (globalOptionResponses.value.options_de_reponse.length >= 2) {
     modalForm.value = true;
   } else {

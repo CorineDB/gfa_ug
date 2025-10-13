@@ -114,13 +114,10 @@ const currentStep = ref(1);
 const selectedDepartementData = ref("");
 
 const initTabulator = () => {
-  console.log("initTabulator called with data:", datas.value);
   const element = document.getElementById("tabulator");
   if (!element) {
-    console.error("Element #tabulator not found in DOM");
     return;
   }
-  console.log("DOM element found:", element);
   tabulator.value = new Tabulator("#tabulator", {
     data: datas.value,
     placeholder: "Aucune donnée disponible.",
@@ -236,9 +233,7 @@ const getDatas = async () => {
     isLoadingData.value = true;
     const { data } = await OngService.get();
     datas.value = data.data;
-    console.log("Data loaded:", data.data);
   } catch (e) {
-    console.error("Error loading data:", e);
     toast.error("Erreur lors de la récupération des Organisations.");
   } finally {
     isLoadingData.value = false;
@@ -253,7 +248,6 @@ const getFonds = async () => {
       fonds.value = result.data.data;
     })
     .catch((e) => {
-      console.error(e);
       toast.error("Une erreur est survenue: Liste des type des options.");
     });
 };
@@ -335,7 +329,6 @@ const deleteData = async () => {
     toast.success("Organisation supprimé avec succès.");
     getDatas();
   } catch (e) {
-    console.error(e);
     toast.error(getAllErrorMessages(e));
   } finally {
     isLoading.value = false;
@@ -345,7 +338,6 @@ const deleteData = async () => {
 
 // Handle edit action
 const handleEdit = (data) => {
-  console.log(data);
   isCreate.value = false;
   idSelect.value = data.id;
   payload.nom = data.nom;
@@ -382,7 +374,6 @@ const goToPta = (data) => {
 };
 
 const goToDashboard = (data) => {
-  console.log(data);
   router.push({ name: "Dashboard Organisation", params: { projetId: data.projet.id } });
 };
 
@@ -696,6 +687,7 @@ onMounted(() => {
                     <div v-if="errors.quartier" class="mt-2 text-danger">{{ getFieldErrors(errors.quartier) }}</div>
                   </div>
                 </div>
+                
                 <div v-if="!isBenin" class="grid grid-cols-2 gap-4">
                   <InputForm :required="false" :optionel="false" label="Département" name="Département" v-model="payload.departement" :control="getFieldErrors(errors.departement)" />
                   <InputForm :required="false" :optionel="false" label="Commune" name="Commune" v-model="payload.commune" :control="getFieldErrors(errors.commune)" />

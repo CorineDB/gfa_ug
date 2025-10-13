@@ -33,7 +33,7 @@
         <ModalFooter>
           <div class="flex items-center justify-center">
             <button type="button" @click="showModal = false" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
-            <VButton class="inline-block" label="Enregistrer et fermer" :loading="chargement" :type="submit" />
+            <VButton class="inline-block" label="Enregistrer et fermer" :loading="chargement" type="submit" />
           </div>
         </ModalFooter>
       </form>
@@ -610,10 +610,8 @@ export default {
             toast.error(message);
           } else if (error.request) {
             // Demande effectuée mais aucune réponse n'est reçue du serveur.
-            //console.log(error.request);
           } else {
             // Une erreur s'est produite lors de la configuration de la demande
-            //console.log('dernier message', error.message);
           }
         });
     },
@@ -630,10 +628,8 @@ export default {
             toast.error(message);
           } else if (error.request) {
             // Demande effectuée mais aucune réponse n'est reçue du serveur.
-            //console.log(error.request);
           } else {
             // Une erreur s'est produite lors de la configuration de la demande
-            //console.log('dernier message', error.message);
           }
         });
     },

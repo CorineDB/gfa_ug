@@ -48,9 +48,7 @@ export default {
     getSuivi() {
       ComposanteService.mySuivis().then((data) => {
         this.suivis = data.data.data
-        console.log('mes suivis',this.suivis)
       }).catch((e) => {
-        console.log(e)
       })
     },
   },

@@ -51,16 +51,13 @@ export default {
           const created_at = element.created_at
           this.dataTable.push({activte:activite,codePta:codePta,poidsInitial:poidsInitial,poidsActuel:poidsActuel,created_at:created_at})
         })
-        console.log("les suiivs",this.dataTable)
       }).catch((e) => {
-        console.log(e)
       })
     },
     currentActivite() {
       ActiviteService.get(this.$route.params.id).then((data) => {
         this.activite= data.data.data
       }).catch((e) => {
-        console.log(e)
       })
     }
   },

@@ -439,7 +439,7 @@ const submitSuivi = async () => {
     payloadSuivi.valeurRealise = valeurRealise.value;
   }
 
-  console.log(payloadSuivi);
+ 
 
   isLoading.value = true;
   errors.value = {}; // Reset errors
@@ -453,7 +453,7 @@ const submitSuivi = async () => {
     emit("refreshData", data);
   } catch (e) {
     isLoading.value = false;
-    console.log(e);
+    
 
     // Gestion des erreurs de validation (422)
     if (e.response && e.response.status === 422) {
@@ -476,7 +476,7 @@ const submitSuivi = async () => {
 const closeModal = () => (showModalSuivi.value = false);
 
 const handleSuivi = (data) => {
-  console.log(data);
+  
 
   // Récupérer les valeurs cibles pour l'année sélectionnée
   valeurCible.value = data.indicateur.valeursCible.filter((valeurCible) => valeurCible.annee === Number(payloadSuivi.annee)).map((v) => v.valeurCible);
@@ -548,7 +548,7 @@ const updateValueRealiser = (keyId, newValue) => {
 };
 
 const goToDetailSuivi = (id) => {
-  console.log(id);
+  
   router.push({
     name: "Détail du suivi",
     params: { id },

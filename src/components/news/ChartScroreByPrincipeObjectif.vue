@@ -139,7 +139,6 @@ export default {
           },
         });
       } else {
-        console.error("Le contexte du canvas est introuvable");
       }
     };
 

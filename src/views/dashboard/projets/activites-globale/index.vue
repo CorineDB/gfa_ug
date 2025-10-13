@@ -247,15 +247,33 @@ export default {
   },
 
   methods: {
+    closeAddActiviteModal(){
+      document.activeElement.blur()
+      this.showModal = false
+    },
+     closeAddProlongemetActiviteModal(){
+      document.activeElement.blur()
+      this.showModalProlongement = false
+    },
+     closeAddPlanDeDecaissementActiviteModal(){
+      document.activeElement.blur()
+      this.showModalPlanDeDecaissement = false
+    },
+     closeDeleteActiviteModal(){
+      document.activeElement.blur()
+      this.showDeleteModal = false
+    },
     toggleAccordion (id) {
       this.openedAccordion = this.openedAccordion === id ? null : id
     },
+
     filteredTrimestresForPlan(annee) {
       if (!annee) {
         return this.trimestres;
       }
       return this.trimestres.filter((trimestre) => trimestre.annee == annee);
     },
+    
     receiveMontantRestantADecaisser() {
       const montantRestantADecaisser = this.montantADecaisser - this.sommeDesPlanDeDecaissement;
       return montantRestantADecaisser;
@@ -268,7 +286,6 @@ export default {
           this.finProgramme = result.data.data.programme.fin;
         })
         .catch((e) => {
-          console.error(e);
           toast.error("Une erreur est survenue: Utilisateur connecté .");
         });
     },
@@ -292,17 +309,14 @@ export default {
           //montantRestantADecaisser = montantADecaisser - sommeDesPlanDeDecaissement
           this.montantRestantADecaisser = this.montantADecaisser - this.sommeDesPlanDeDecaissement;
 
-          console.log("this.listePlanDeDecaissement", this.listePlanDeDecaissement);
         })
         .catch((error) => {
           this.loaderListePlan = false;
-          //console.log(error);
         });
     },
     changeActiviteId(id) {
       this.selectedIds.activiteId = id;
 
-      // console.log("this.selectedIds.activiteId", this.selectedIds.activiteId);
     },
     receiveSommeDesPlanDeDecaissement(somme) {
       this.sommeDesPlanDeDecaissement = somme;
@@ -311,7 +325,6 @@ export default {
       if (id !== null && id !== "") {
         ActiviteService.get(id)
           .then((response) => {
-            console.log(response.data.data);
             this.activiteTep = response.data.data.tep;
             this.activiteTef = response.data.data.tef;
 
@@ -350,11 +363,8 @@ export default {
             //recuperer montantADecaisser
             this.montantADecaisser = response.data.data.pret + response.data.data.budgetNational;
 
-            console.log("this.activiteTep ", this.activiteTep);
-            console.log("this.activiteTef ", this.activiteTef);
           })
           .catch((error) => {
-            console.log(error);
           });
       }
     },
@@ -410,7 +420,6 @@ export default {
     verifyPermission,
     onPageChanged(newPage) {
       this.currentPage = newPage;
-      // console.log("Page actuelle :", this.currentPage);
       // // Charger les données pour la page actuelle
       // this.loadDataForPage(newPage);
     },
@@ -429,11 +438,9 @@ export default {
       if (state == 3) {
         this.activites = [...this.allActivite];
       } else {
-        console.log("state", state);
 
         this.activites = this.allActivite.filter((item) => item.statut == state);
 
-        console.log("activites", this.activites);
       }
     },
 
@@ -475,7 +482,6 @@ export default {
     },
 
     modifierActivite(data) {
-      console.log("data ", data);
       this.messageErreur = {};
       this.labels = "Modifier";
       this.showModal = true;
@@ -528,7 +534,6 @@ export default {
             delete this.formData.description;
           }
 
-          console.log("data", data);
           await ActiviteService.update(this.selectedIds.activiteId, this.formData);
           toast.success("Modification effectuée");
           this.loadComposantDetails();
@@ -553,7 +558,6 @@ export default {
 
         this.showModal = false;
       } catch (error) {
-        console.log(error);
 
         this.isLoading = false;
 
@@ -570,7 +574,6 @@ export default {
 
     async loadProjets() {
       this.isLoadingData = true;
-      console.log(this.projets);
       try {
         const response = await ProjetService.get();
         this.projets = response.data.data;
@@ -578,7 +581,6 @@ export default {
         this.isLoadingData = false;
       } catch (error) {
         this.isLoadingData = false;
-        console.error("Erreur lors du chargement des projets", error);
       } finally {
         if (this.projetId == "") this.isLoadingData = false;
       }
@@ -595,9 +597,7 @@ export default {
         this.composants = response.data.data.composantes;
         this.selectedIds.composantId = this.composants[0]?.id || "";
 
-        console.log("this.selectedIds.composantId2", this.selectedIds.composantId);
       } catch (error) {
-        console.error("Erreur lors du chargement des détails du projet", error);
       } finally {
         this.isLoadingData = false;
       }
@@ -619,7 +619,6 @@ export default {
 
         this.isLoadingData = false;
         this.sousComposants = composantData.souscomposantes || [];
-        console.log("this.sousComposants", this.sousComposants);
         this.activites = composantData.activites || [];
 
         if (this.sousComposants.length > 0) {
@@ -631,7 +630,6 @@ export default {
           this.updateActivitesList(this.activites);
         }
       } catch (error) {
-        console.error("Erreur lors du chargement des détails du composant", error);
       }
     },
 
@@ -651,13 +649,10 @@ export default {
 
         //recupere fondPropre et subvention de output
 
-        console.log("sousComposantData", sousComposantData);
 
         // Mettre à jour les activités du sous-composant
         this.updateActivitesList(sousComposantData.activites || []);
       } catch (error) {
-        console.log("erreur", error);
-        console.error("Erreur lors du chargement des détails du sous-composant", error);
       }
     },
 
@@ -665,7 +660,6 @@ export default {
       this.activites = activites;
       this.allActivite = [...activites]; // Copie du tableau pour éviter la référence partagée
       this.currentPage = 1;
-      console.log(this.activites);
     },
 
     seeActivities() {
@@ -740,7 +734,6 @@ export default {
         .catch((error) => {
           this.loadingProlonger = false;
 
-          console.log(error);
           toast.error(error.response.data.message);
 
           // Mettre à jour les messages d'erreurs dynamiquement
@@ -783,7 +776,6 @@ export default {
         .catch((error) => {
           this.loadingProlonger = false;
 
-          console.log(error);
           toast.error(error.response.data.message);
 
           // Mettre à jour les messages d'erreurs dynamiquement
@@ -829,7 +821,6 @@ export default {
         .catch((error) => {
           this.loaderStatut = false;
 
-          console.log(error);
           toast.error(error.response.data.message);
 
           // Mettre à jour les messages d'erreurs dynamiquement
@@ -885,13 +876,11 @@ export default {
         id: Date.now() + "-" + Math.random().toString(36).substr(2, 9),
       };
 
-      console.log("newItem", newItem);
 
       this.planDeDecaissementPayload.activiteId = item.id;
       this.getListePlanDeDecaissement(this.planDeDecaissementPayload.activiteId);
       this.planDeDecaissement.push(newItem);
 
-      console.log("this.planDeDecaissement", this.planDeDecaissement);
 
       this.showModalPlanDeDecaissement = true;
     },
@@ -908,7 +897,6 @@ export default {
       this.planDeDecaissement.push(newItem);
     },
     removePlan(index) {
-      console.log("index", index);
       this.planDeDecaissement.splice(index, 1);
     },
 
@@ -971,10 +959,8 @@ export default {
       }
 
       if (this.planDeDecaissement.length > 0) {
-        console.log("this.planDeDecaissement", this.planDeDecaissement);
 
         if (errorIndex.length > 0) {
-          console.log("errorIndex", errorIndex);
           errorIndex.forEach((item) => {
             this.removePlan(item);
           });
@@ -1563,7 +1549,7 @@ export default {
       </ModalBody>
       <ModalFooter>
         <div class="flex items-center justify-center">
-          <button type="button" @click="showModal = false" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
+          <button type="button" @click="closeAddActiviteModal" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
           <VButton class="inline-block" :label="labels" :loading="isLoading" />
         </div>
       </ModalFooter>
@@ -1578,7 +1564,7 @@ export default {
         <div class="mt-2 text-slate-500">Voulez vous supprimer l'activité ? <br />Cette action ne peut être annulé</div>
       </div>
       <div class="flex gap-2 px-5 pb-8 text-center">
-        <button type="button" @click="showDeleteModal = false" class="w-full my-3 mr-1 btn btn-outline-secondary">Annuler</button>
+        <button type="button" @click="closeDeleteActiviteModal" class="w-full my-3 mr-1 btn btn-outline-secondary">Annuler</button>
         <VButton :loading="deleteLoader" label="Supprimer" @click="deleteComposants" />
       </div>
     </ModalBody>
@@ -1618,8 +1604,8 @@ export default {
       </ModalBody>
       <ModalFooter>
         <div class="flex items-center justify-center">
-          <button type="button" @click="showModalProlongement = false" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
-          <VButton class="inline-block" :label="editDuree ? 'Modifier' : 'Prolonger'" :loading="loadingProlonger" :type="submit" />
+          <button type="button" @click="closeAddProlongemetActiviteModal" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
+          <VButton class="inline-block" :label="editDuree ? 'Modifier' : 'Prolonger'" :loading="loadingProlonger" type="submit" />
         </div>
       </ModalFooter>
     </form>
@@ -1752,8 +1738,8 @@ export default {
       </ModalBody>
       <ModalFooter>
         <div class="flex items-center justify-center">
-          <button type="button" @click="showModalPlanDeDecaissement = false" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
-          <VButton class="inline-block" label="Enregistrer" :loading="loadingPlanDeDecaissement" :disabled="loaderListePlan" :type="submit" />
+          <button type="button" @click="closeAddPlanDeDecaissementActiviteModal" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
+          <VButton class="inline-block" label="Enregistrer" :loading="loadingPlanDeDecaissement" :disabled="loaderListePlan" type="submit" />
         </div>
       </ModalFooter>
     </form>

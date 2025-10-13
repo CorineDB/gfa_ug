@@ -445,7 +445,6 @@ const getcurrentUser = async () => {
       getDatasCadre();
     })
     .catch((e) => {
-      console.error(e);
       toast.error("Une erreur est survenue: Utilisateur connecté .");
     });
 };
@@ -486,7 +485,6 @@ const myIcon = ref(null);
 const initialMap = ref(null);
 const markerLatLng = ref([47.31322, -1.319482]);
 
-//console.log("projetId", route.params.id);
 
 const loadingOption = ref(true);
 const graphiqueData = ref([]);
@@ -538,7 +536,6 @@ const getStat = function () {
       }
     })
     .catch((error) => {
-      console.log(error);
     });
 };
 

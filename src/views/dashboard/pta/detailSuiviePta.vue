@@ -59,32 +59,7 @@ const handleFileChange = function (event) {
 };
 
 const programmeId = JSON.parse(localStorage.getItem("authenticateUser")).programme.id;
-// const users = ref([]);
-// const projets = ref([]);
-
-// const getProjet = function () {
-//   ProjetService.get(programmeId)
-//     .then((data) => {
-//       projets.value = data.data.data;
-//       // console.log(users.value);
-//     })
-//     .catch((error) => {
-//       console.log(error);
-//     });
-// };
-
-// const getUserListe = function () {
-//   console.log("id du programme", programmeId);
-//   ProgrammeService.getUsers(programmeId)
-//     .then((data) => {
-//       users.value = data.data.data;
-//       console.log(users.value);
-//     })
-//     .catch((error) => {
-//       console.log(error);
-//     });
-// };
-
+ 
 const tabulator = ref();
 const idSelect = ref("");
 const showModalCreate = ref(false);
@@ -109,7 +84,6 @@ const createData = async () => {
       toast.success(" suivi créer.");
     })
     .catch((e) => {
-      console.log(e);
       isLoading.value = false;
       if (e.response && e.response.status === 422) {
         errors.value = e.response.data.errors;
@@ -126,7 +100,6 @@ const getActivitesDatas = async () => {
 
   await ActiviteService.get(route.params.activiteId)
     .then((result) => {
-      console.log(result.data.data);
       infoActivite.value = result.data.data;
       // isLoadingData.value = false;
     })
@@ -167,7 +140,6 @@ const updateData = async () => {
       } else {
         toast.error(getAllErrorMessages(e));
       }
-      console.error(e);
     })
     .finally(() => {
       isLoading.value = false;
@@ -185,13 +157,11 @@ const deleteData = async () => {
     })
     .catch((e) => {
       isLoading.value = false;
-      console.error(e);
       toast.error("Une erreur est survenue, ressayer");
     });
 };
 
 const handleEdit = (params) => {
-  console.log(params);
   //fetchOrganisationsAndFormulaires();
   isCreate.value = false;
   idSelect.value = params.id;
@@ -201,7 +171,6 @@ const handleEdit = (params) => {
   payload.consommer = params.consommer;
   payload.type = params.type;
 
-  console.log(payload);
 
   showModalCreate.value = true;
 };

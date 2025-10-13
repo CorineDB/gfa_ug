@@ -30,19 +30,19 @@ const getListForm = async () => {
   try {
     const { data } = await FormulaireFactuel.get();
 
-    console.log("!localStorage.getItem archive", !localStorage.getItem("archive"));
+    
 
     if (!localStorage.getItem("achive")) {
       listForms.value = data.data;
     } else {
-      console.log("localStorage.getItem archive", JSON.parse(localStorage.getItem("achive")));
+      
       listForms.value = data.data.filter((objA) => !JSON.parse(localStorage.getItem("achive")).some((objB) => objA.id === objB.id));
     }
 
-    console.log("listForm", listForms.value);
+   
   } catch (e) {
     toast.error("Erreur récupération liste des formulaires.");
-    console.log(e);
+    
   } finally {
     isLoading.value = false;
   }
@@ -54,10 +54,10 @@ const getOneForm = async () => {
     const { data } = await FormulaireFactuel.getOne(idSelectedForm.value);
     previewForm.value = data.data;
 
-    console.log("previewForm", previewForm.value);
+    
   } catch (e) {
     toast.error("Erreur récupération du  formulaire.");
-    console.log(e);
+    
   } finally {
     isLoadingOneForm.value = false;
   }
@@ -71,7 +71,7 @@ const deleteOneForm = async () => {
     getListForm();
   } catch (e) {
     toast.error("Erreur lors de la suppression.");
-    console.log(e);
+    
   } finally {
     isLoadingOneForm.value = false;
   }
@@ -216,7 +216,7 @@ const handleDelete = (params) => {
 
 const handleArchiver = (params) => {
   let achive = [];
-  console.log(localStorage.getItem("achive"));
+ 
   if (!localStorage.getItem("achive")) {
     achive.push(params);
     localStorage.setItem("achive", JSON.stringify(achive));

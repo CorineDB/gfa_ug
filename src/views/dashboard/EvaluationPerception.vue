@@ -78,7 +78,6 @@ const getcurrentUserAndFetchOrganization = async () => {
       }
     })
     .catch((e) => {
-      console.error(e);
       toast.error("Une erreur est survenue: Utilisateur connecté .");
     });
 };
@@ -109,7 +108,6 @@ const submitData = async () => {
       }
       errors.value = {};
     } catch (e) {
-      console.error(e);
       if (isValidate.value) {
         if (e.response && e.response.status === 422) {
           errors.value = e.response.data.errors;

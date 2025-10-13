@@ -303,7 +303,6 @@ export default {
         
         this.isLoading = false
       } catch (error) {
-        console.error('Error initializing map:', error)
         this.isLoading = false
       }
     },

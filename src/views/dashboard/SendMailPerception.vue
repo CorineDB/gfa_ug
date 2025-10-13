@@ -51,7 +51,6 @@ const addEmail = () => {
 };
 
 const addPhone = () => {
-  console.log(currentPhone.value && isValid.value);
   if (currentPhone.value && isValid.value) {
     if (!payload.participants.phone.includes(currentPhone.value)) {
       payload.participants.phone.unshift(currentPhone.value);

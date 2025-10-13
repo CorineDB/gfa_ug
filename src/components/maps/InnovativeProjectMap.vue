@@ -451,7 +451,6 @@ const initializeInnovativeMap = () => {
     
     isLoading.value = false
   } catch (error) {
-    console.error('Error initializing innovative map:', error)
     isLoading.value = false
   }
 }
@@ -636,11 +635,11 @@ const onMapModeChange = () => {
 }
 
 const updateAnalyticsLayer = () => {
-  console.log('Updating analytics layer:', analyticsLayer.value)
+  
 }
 
 const filterByTime = () => {
-  console.log('Filtering by time:', timeFilter.value)
+  
 }
 
 const zoomToOptimalView = () => {

@@ -108,7 +108,6 @@ onBeforeMount(function () {
 
   token.value = route.query.token
 
-  console.log(token.value, email.value)
 
 })
 
