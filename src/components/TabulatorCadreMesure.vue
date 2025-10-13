@@ -66,16 +66,52 @@
 
                         <!-- Colonnes restantes -->
                         <td>{{ indicateur.description ?? "" }}</td>
-                        <td v-html="formatObject(indicateur.valeurDeBase)"></td>
-                        <td v-for="(year, index) in years" :key="index">
-                          <span v-html="formatObject(indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeurCible)"></span>
+                        <td class="p-2">
+                          <div class="text-center">
+                            <div class="font-medium text-gray-700" v-html="formatObject(indicateur.valeurDeBase)"></div>
+                            <div class="text-xs text-gray-500 mt-1">Base</div>
+                          </div>
                         </td>
-                        <td v-html="formatObject(indicateur.valeurCibleTotal)"></td>
-                        <td v-for="(year, index) in years" :key="index">
-                          <span v-html="formatObject(indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeur_realiser)"></span>
+                        <td v-for="(year, index) in years" :key="index" class="p-2">
+                          <div class="text-center">
+                            <div class="font-semibold text-green-600" v-html="formatObject(indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeurCible)"></div>
+                            <div class="text-xs text-gray-500 mt-1">Cible</div>
+                          </div>
                         </td>
-                        <td v-html="formatObject(indicateur.valeurRealiserTotal)"></td>
-                        <td v-html="formatObject(indicateur.taux_realisation)"></td>
+                        <td class="p-2">
+                          <div class="text-center">
+                            <div class="font-bold text-green-700" v-html="formatObject(indicateur.valeurCibleTotal)"></div>
+                            <div class="text-xs text-gray-500 mt-1">Total Cible</div>
+                          </div>
+                        </td>
+                        <td v-for="(year, index) in years" :key="index" class="p-2">
+                          <div class="text-center">
+                            <div class="font-semibold text-blue-600" v-html="formatObject(indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeur_realiser)"></div>
+                            <div class="text-xs text-gray-500 mt-1">Réalisé</div>
+                          </div>
+                        </td>
+                        <td class="p-2">
+                          <div class="text-center">
+                            <div class="font-bold text-blue-700" v-html="formatObject(indicateur.valeurRealiserTotal)"></div>
+                            <div class="text-xs text-gray-500 mt-1">Total Réalisé</div>
+                          </div>
+                        </td>
+                        <td class="p-3">
+                          <div class="flex items-center space-x-2">
+                            <div class="flex-1">
+                              <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div 
+                                  class="h-2 rounded-full transition-all duration-300"
+                                  :class="getProgressBarClass(indicateur.taux_realisation?.moy || 0)"
+                                  :style="{ width: Math.min(100, Math.max(0, parseFloat(indicateur.taux_realisation?.moy || 0))) + '%' }"
+                                ></div>
+                              </div>
+                            </div>
+                            <div class="text-sm font-semibold min-w-[50px]" :class="getPerformanceTextClass(indicateur.taux_realisation?.moy || 0)">
+                              {{ Math.round(parseFloat(indicateur.taux_realisation?.moy || 0)) }}%
+                            </div>
+                          </div>
+                        </td>
                         <td>{{ indicateur.sources_de_donnee }}</td>
                           <td>{{ indicateur.hypothese }}</td>
                         <td>{{ indicateur.methode_de_la_collecte }}</td>
@@ -191,16 +227,46 @@
 
                           <!-- Colonnes restantes -->
                           <td>{{ indicateur.description ?? "" }}</td>
-                          <td v-html="formatObject(indicateur.valeurDeBase)"></td>
+                          <td class="p-2">
+                          <div class="text-center">
+                            <div class="font-medium text-gray-700" v-html="formatObject(indicateur.valeurDeBase)"></div>
+                            <div class="text-xs text-gray-500 mt-1">Base</div>
+                          </div>
+                        </td>
                           <td v-for="(year, index) in years" :key="index">
                             <span v-html="formatObject(indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeurCible)"></span>
                           </td>
-                          <td v-html="formatObject(indicateur.valeurCibleTotal)"></td>
+                          <td class="p-2">
+                          <div class="text-center">
+                            <div class="font-bold text-green-700" v-html="formatObject(indicateur.valeurCibleTotal)"></div>
+                            <div class="text-xs text-gray-500 mt-1">Total Cible</div>
+                          </div>
+                        </td>
                           <td v-for="(year, index) in years" :key="index">
                             <span v-html="formatObject(indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeur_realiser)"></span>
                           </td>
-                          <td v-html="formatObject(indicateur.valeurRealiserTotal)"></td>
-                          <td v-html="formatObject(indicateur.taux_realisation)"></td>
+                          <td class="p-2">
+                          <div class="text-center">
+                            <div class="font-bold text-blue-700" v-html="formatObject(indicateur.valeurRealiserTotal)"></div>
+                            <div class="text-xs text-gray-500 mt-1">Total Réalisé</div>
+                          </div>
+                        </td>
+                          <td class="p-3">
+                          <div class="flex items-center space-x-2">
+                            <div class="flex-1">
+                              <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div 
+                                  class="h-2 rounded-full transition-all duration-300"
+                                  :class="getProgressBarClass(indicateur.taux_realisation?.moy || 0)"
+                                  :style="{ width: Math.min(100, Math.max(0, parseFloat(indicateur.taux_realisation?.moy || 0))) + '%' }"
+                                ></div>
+                              </div>
+                            </div>
+                            <div class="text-sm font-semibold min-w-[50px]" :class="getPerformanceTextClass(indicateur.taux_realisation?.moy || 0)">
+                              {{ Math.round(parseFloat(indicateur.taux_realisation?.moy || 0)) }}%
+                            </div>
+                          </div>
+                        </td>
                           <td>{{ indicateur.sources_de_donnee }}</td>
                           <td>{{ indicateur.hypothese }}</td>
                           <td>{{ indicateur.methode_de_la_collecte }}</td>
@@ -316,16 +382,46 @@
 
                             <!-- Colonnes restantes -->
                             <td>{{ indicateur.description ?? "" }}</td>
-                            <td v-html="formatObject(indicateur.valeurDeBase)"></td>
+                            <td class="p-2">
+                          <div class="text-center">
+                            <div class="font-medium text-gray-700" v-html="formatObject(indicateur.valeurDeBase)"></div>
+                            <div class="text-xs text-gray-500 mt-1">Base</div>
+                          </div>
+                        </td>
                             <td v-for="(year, index) in years" :key="index">
                               <span v-html="formatObject(indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeurCible)"></span>
                             </td>
-                            <td v-html="formatObject(indicateur.valeurCibleTotal)"></td>
+                            <td class="p-2">
+                          <div class="text-center">
+                            <div class="font-bold text-green-700" v-html="formatObject(indicateur.valeurCibleTotal)"></div>
+                            <div class="text-xs text-gray-500 mt-1">Total Cible</div>
+                          </div>
+                        </td>
                             <td v-for="(year, index) in years" :key="index">
                               <span v-html="formatObject(indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeur_realiser)"></span>
                             </td>
-                            <td v-html="formatObject(indicateur.valeurRealiserTotal)"></td>
-                            <td v-html="formatObject(indicateur.taux_realisation)"></td>
+                            <td class="p-2">
+                          <div class="text-center">
+                            <div class="font-bold text-blue-700" v-html="formatObject(indicateur.valeurRealiserTotal)"></div>
+                            <div class="text-xs text-gray-500 mt-1">Total Réalisé</div>
+                          </div>
+                        </td>
+                            <td class="p-3">
+                          <div class="flex items-center space-x-2">
+                            <div class="flex-1">
+                              <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div 
+                                  class="h-2 rounded-full transition-all duration-300"
+                                  :class="getProgressBarClass(indicateur.taux_realisation?.moy || 0)"
+                                  :style="{ width: Math.min(100, Math.max(0, parseFloat(indicateur.taux_realisation?.moy || 0))) + '%' }"
+                                ></div>
+                              </div>
+                            </div>
+                            <div class="text-sm font-semibold min-w-[50px]" :class="getPerformanceTextClass(indicateur.taux_realisation?.moy || 0)">
+                              {{ Math.round(parseFloat(indicateur.taux_realisation?.moy || 0)) }}%
+                            </div>
+                          </div>
+                        </td>
                             <td>{{ indicateur.sources_de_donnee }}</td>
                             <td>{{ indicateur.hypothese }}</td>
                             <td>{{ indicateur.methode_de_la_collecte }}</td>
@@ -1274,12 +1370,59 @@ function formatObject(obj) {
     .map(([key, value]) => (key === "moy" ? value : `${key}: ${value}`))
     .join("<br>");
 }
+
+// Fonctions pour les couleurs et styles des barres de progression
+const getProgressBarClass = (rate) => {
+  const percentage = parseFloat(rate || 0);
+  if (percentage >= 100) return 'bg-green-500';
+  if (percentage >= 80) return 'bg-blue-500';
+  if (percentage >= 60) return 'bg-yellow-500';
+  if (percentage >= 40) return 'bg-orange-500';
+  return 'bg-red-500';
+};
+
+const getPerformanceTextClass = (rate) => {
+  const percentage = parseFloat(rate || 0);
+  if (percentage >= 100) return 'text-green-600';
+  if (percentage >= 80) return 'text-blue-600';
+  if (percentage >= 60) return 'text-yellow-600';
+  if (percentage >= 40) return 'text-orange-600';
+  return 'text-red-600';
+};
+
+const getPerformanceBadge = (rate) => {
+  const percentage = parseFloat(rate || 0);
+  if (percentage >= 100) return { text: 'Excellent', class: 'bg-green-100 text-green-800' };
+  if (percentage >= 80) return { text: 'Bon', class: 'bg-blue-100 text-blue-800' };
+  if (percentage >= 60) return { text: 'Moyen', class: 'bg-yellow-100 text-yellow-800' };
+  if (percentage >= 40) return { text: 'Faible', class: 'bg-orange-100 text-orange-800' };
+  return { text: 'Critique', class: 'bg-red-100 text-red-800' };
+};
 </script>
 
 <style scoped>
 table td {
   border: 1px solid white;
   padding-block: 8px;
+}
+
+/* Amélioration des cellules avec des transitions */
+table td {
+  transition: background-color 0.2s ease;
+}
+
+table td:hover {
+  background-color: #f8fafc;
+}
+
+/* Style pour les badges de performance */
+.performance-badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+/* Animation pour les barres de progression */
+.progress-bar {
+  transition: width 0.3s ease-in-out;
 }
 
 /* Optionnel : Ajout d'une bordure pour les colonnes fixes */
@@ -1291,18 +1434,20 @@ table td {
 
 .table-container {
   position: relative;
-  max-height: 75vh; /* Ajustez selon vos besoins */
+  max-height: 75vh;
   overflow: hidden;
 }
 
 .table-wrapper {
   overflow-y: auto;
   overflow-x: auto;
-  max-height: calc(75vh - 20px); /* Ajustez selon vos besoins */
+  max-height: calc(75vh - 20px);
 }
+
 .sticky-header {
   background-color: rgb(15 52 96) !important;
 }
+
 .sticky-heade {
   position: sticky;
   top: 0;
@@ -1315,11 +1460,11 @@ table td {
 
 /* Fixe l'en-tête du tableau */
 .editor_listing_table thead th {
-  position: sticky; /* Garde l'en-tête en haut */
-  top: 0; /* Positionnement par rapport au haut */
-  background-color: #ffffff; /* Assure un fond blanc pour l'en-tête */
-  z-index: 10; /* Évite que les lignes passent par-dessus */
-  box-shadow: 0 2px 2px -1px rgba(0, 0, 0); /* Optionnel : effet d'ombre pour séparation visuelle */
+  position: sticky;
+  top: 0;
+  background-color: #ffffff;
+  z-index: 10;
+  box-shadow: 0 2px 2px -1px rgba(0, 0, 0);
 }
 
 /* Style des colonnes collantes */
@@ -1333,7 +1478,7 @@ table td {
 
 .sticky-column-second {
   position: sticky;
-  left: 500px; /* Ajuster selon vos besoins */
+  left: 500px;
   background-color: #ffffff;
   z-index: 5;
   border-right: 1px solid #ccc;
@@ -1341,15 +1486,48 @@ table td {
 
 .sticky-column-third {
   position: sticky;
-  left: 580px; /* Ajuster selon vos besoins */
+  left: 580px;
   background-color: #ffffff;
   z-index: 5;
   border-right: 1px solid #ccc;
 }
 
-/* Ajout de bordures pour les lignes */
+/* Amélioration des bordures */
 .editor_listing_table td,
 .editor_listing_table th {
-  border: 1px solid #ddd; /* Bordures légères */
+  border: 1px solid #e5e7eb;
+}
+
+/* Style pour les lignes d'en-tête de type */
+tr[data-result-type] {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+  font-weight: bold;
+}
+
+/* Style pour améliorer la lisibilité */
+.editor_listing_table tbody tr:nth-child(even) {
+  background-color: #f9fafb;
+}
+
+.editor_listing_table tbody tr:hover {
+  background-color: #f3f4f6;
+  transition: background-color 0.2s ease;
+}
+
+/* Style pour les cellules numériques */
+.numeric-cell {
+  font-family: 'Courier New', monospace;
+  text-align: right;
+}
+
+/* Amélioration des boutons d'action */
+.action-buttons {
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.action-buttons:hover {
+  opacity: 1;
 }
 </style>

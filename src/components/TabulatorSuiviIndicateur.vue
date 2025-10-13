@@ -31,12 +31,21 @@
       <tbody>
         <LoaderSnipper v-if="isDataLoading" />
         <template v-else v-for="(suiviIndicateur, j) in data" :key="suiviIndicateur.id">
-          <tr>
-            <td class="font-semibold p-2">
-              {{ suiviIndicateur.indicateur.nom }}
+          <tr class="hover:bg-blue-50 transition-colors">
+            <td class="font-semibold p-3 border-l-4" :class="getBorderClass(parseFloat(suiviIndicateur.indicateur.taux_realisation?.moy || 0))">
+              <div class="flex items-center space-x-2">
+                <div :class="getStatusIcon(parseFloat(suiviIndicateur.indicateur.taux_realisation?.moy || 0))" class="w-3 h-3 rounded-full"></div>
+                <span>{{ suiviIndicateur.indicateur.nom }}</span>
+              </div>
             </td>
-            <td class="text-center">{{ suiviIndicateur.trimestre }}</td>
-            <td class="text-center">{{ suiviIndicateur.cumul.join(", ") }}</td>
+            <td class="text-center p-3">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                T{{ suiviIndicateur.trimestre }}
+              </span>
+            </td>
+            <td class="text-center p-3">
+              <span class="text-sm text-gray-600">{{ suiviIndicateur.cumul.join(", ") }}</span>
+            </td>
             <td class="text-center" v-for="(year, index) in years" :key="index">
               <span v-html="formatObject(suiviIndicateur.indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeurCible)"></span>
             </td>
@@ -46,15 +55,54 @@
               <span v-html="formatObject(suiviIndicateur.indicateur.valeursCible.find((valeur) => valeur.annee === year)?.valeur_realiser)"></span>
             </td>
             <td class="text-center" v-html="formatObject(suiviIndicateur.indicateur.valeurRealiserTotal)"></td>
-            <td class="text-center" v-html="formatObject(suiviIndicateur.indicateur.taux_realisation)"></td>
+            <td class="text-center p-3">
+              <div class="flex items-center space-x-2">
+                <div class="flex-1">
+                  <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      class="h-2 rounded-full transition-all duration-300"
+                      :class="getProgressBarClass(parseFloat(suiviIndicateur.indicateur.taux_realisation?.moy || 0))"
+                      :style="{ width: Math.min(100, Math.max(0, parseFloat(suiviIndicateur.indicateur.taux_realisation?.moy || 0))) + '%' }"
+                    ></div>
+                  </div>
+                </div>
+                <div class="text-sm font-semibold min-w-[50px]" :class="getTextClass(parseFloat(suiviIndicateur.indicateur.taux_realisation?.moy || 0))">
+                  {{ Math.round(parseFloat(suiviIndicateur.indicateur.taux_realisation?.moy || 0)) }}%
+                </div>
+              </div>
+            </td>
             <!-- <td class="">{{ indicateur.sources_de_donnee }}</td>
             <td class="">{{ indicateur.indicateur.frequence_de_la_collecte }}</td>
             <td class="">{{ indicateur.indicateur.methode_de_la_collecte }}</td> -->
-            <td class="text-center">{{ formatDateOnly(suiviIndicateur.dateSuivie) }}</td>
+            <td class="text-center p-3">
+              <div class="text-sm">
+                <div class="font-medium text-gray-900">{{ formatDateOnly(suiviIndicateur.dateSuivie) }}</div>
+                <div class="text-gray-500">{{ getDateAgo(suiviIndicateur.dateSuivie) }}</div>
+              </div>
+            </td>
 
-            <td class="space-x-3 p-2 text-center">
-              <button title="Suivre" @click="handleSuivi(suiviIndicateur)" class="btn text-primary">Suivi</button>
-              <button title="Voir" @click="goToDetailSuivi(suiviIndicateur.indicateur.id)" class="btn text-primary">Details</button>
+            <td class="space-x-2 p-2 text-center">
+              <button 
+                title="Suivre" 
+                @click="handleSuivi(suiviIndicateur)" 
+                class="btn btn-sm btn-primary text-white hover:bg-blue-700 transition-colors"
+              >
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Suivi
+              </button>
+              <button 
+                title="Voir détails" 
+                @click="goToDetailSuivi(suiviIndicateur.indicateur.id)" 
+                class="btn btn-sm btn-outline-primary hover:bg-blue-50 transition-colors"
+              >
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                </svg>
+                Détails
+              </button>
             </td>
           </tr>
         </template>
@@ -520,6 +568,50 @@ function formatResponsable(responsable) {
 function valeurCibleForYear(year, valeur_cible) {
   return valeur_cible.find((valeur) => valeur.annee === year)?.valeurCible;
 }
+
+// Fonctions pour l'amélioration visuelle
+const getProgressBarClass = (rate) => {
+  if (rate >= 100) return 'bg-green-500';
+  if (rate >= 80) return 'bg-blue-500';
+  if (rate >= 60) return 'bg-yellow-500';
+  return 'bg-red-500';
+};
+
+const getTextClass = (rate) => {
+  if (rate >= 100) return 'text-green-700';
+  if (rate >= 80) return 'text-blue-700';
+  if (rate >= 60) return 'text-yellow-700';
+  return 'text-red-700';
+};
+
+const getBorderClass = (rate) => {
+  if (rate >= 100) return 'border-green-500';
+  if (rate >= 80) return 'border-blue-500';
+  if (rate >= 60) return 'border-yellow-500';
+  return 'border-red-500';
+};
+
+const getStatusIcon = (rate) => {
+  if (rate >= 100) return 'bg-green-500';
+  if (rate >= 80) return 'bg-blue-500';
+  if (rate >= 60) return 'bg-yellow-500';
+  return 'bg-red-500';
+};
+
+const getDateAgo = (dateString) => {
+  if (!dateString) return '';
+  
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffTime = Math.abs(now - date);
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+  if (diffDays === 1) return 'Hier';
+  if (diffDays <= 7) return `Il y a ${diffDays} jours`;
+  if (diffDays <= 30) return `Il y a ${Math.ceil(diffDays / 7)} semaines`;
+  if (diffDays <= 365) return `Il y a ${Math.ceil(diffDays / 30)} mois`;
+  return `Il y a ${Math.ceil(diffDays / 365)} ans`;
+};
 </script>
 
 <style scoped>
