@@ -237,7 +237,7 @@ onMounted(() => {
     <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
       <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
         <div class="relative w-56 text-slate-500">
-          <input type="text" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
+          <input type="text" id="search_indicateur_gouvernance" name="search_indicateur_gouvernance" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
           <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
         </div>
       </div>
@@ -285,13 +285,15 @@ onMounted(() => {
           <InputForm label="Nom" v-model="payload.nom" />
           <InputForm label="Description" v-model="payload.description" />
           <div class="form-check">
-            <input v-model="payload.can_have_multiple_reponse" id="is-multiple" class="form-check-input" type="checkbox" value="" />
+            <input v-model="payload.can_have_multiple_reponse" id="is-multiple" name="is-multiple" class="form-check-input" type="checkbox" value="" />
             <label class="form-check-label" for="is-multiple">Réponses Multiple</label>
           </div>
 
           <div>
-            <label class="form-label">Options de réponse </label>
+            <label class="form-label" for="options_reponse">Options de réponse </label>
             <TomSelect
+              id="options_reponse"
+              name="options_reponse"
               v-model="payload.options_de_reponse"
               :options="{
                 placeholder: 'Selectionner option de reponse',
@@ -315,21 +317,21 @@ onMounted(() => {
             </TomSelect>
           </div> -->
           <div>
-            <label>Type</label>
+            <label for="type_indicateur">Type</label>
             <div class="flex flex-col mt-2 sm:flex-row">
               <div class="mr-2 form-check">
-                <input v-model="payload.type" id="factuel" class="form-check-input" type="radio" name="type" value="factuel" />
+                <input v-model="payload.type" id="factuel" name="type" class="form-check-input" type="radio" value="factuel" />
                 <label class="form-check-label" for="factuel">Factuel</label>
               </div>
               <div class="mt-2 mr-2 form-check sm:mt-0">
-                <input v-model="payload.type" id="perception" class="form-check-input" type="radio" name="type" value="perception" />
+                <input v-model="payload.type" id="perception" name="type" class="form-check-input" type="radio" value="perception" />
                 <label class="form-check-label" for="perception">Perception</label>
               </div>
             </div>
           </div>
           <div class="">
-            <label class="form-label">Critères ou Principes </label>
-            <TomSelect v-model="payload.principeable_id" :options="{ placeholder: 'Selectionez une option' }" class="w-full">
+            <label class="form-label" for="principeable_id">Critères ou Principes </label>
+            <TomSelect id="principeable_id" name="principeable_id" v-model="payload.principeable_id" :options="{ placeholder: 'Selectionez une option' }" class="w-full">
               <option v-for="(item, index) in principeable" :key="index" :value="item.id">{{ item.nom }}</option>
             </TomSelect>
           </div>

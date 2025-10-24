@@ -801,7 +801,7 @@ onMounted(() => {
     <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
       <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
         <div class="relative w-56 text-slate-500">
-          <input type="text" v-model="searchs" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
+          <input type="text" id="recherche-suivi" name="recherche-suivi" v-model="searchs" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
           <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
         </div>
       </div>
@@ -1035,8 +1035,8 @@ onMounted(() => {
 
           <!-- Sélection de l'année -->
           <div class="col-span-12 mt-3">
-            <label class="form-label">Année</label>
-            <TomSelect v-model="plan.annee" :options="{ placeholder: 'Sélectionnez une année' }" class="w-full" :class="{ 'border-red-500': erreurPlanDeDecaissement?.[index]?.annee }" @change="clearFieldError(index, 'annee')">
+            <label for="'annee_plan_' + index" class="form-label">Année</label>
+            <TomSelect :id="'annee_plan_' + index" :name="'annee_plan_' + index" v-model="plan.annee" :options="{ placeholder: 'Sélectionnez une année' }" class="w-full" :class="{ 'border-red-500': erreurPlanDeDecaissement?.[index]?.annee }" @change="clearFieldError(index, 'annee')">
               <option v-for="(year, yearIndex) in years" :key="yearIndex" :value="year">{{ year }}</option>
             </TomSelect>
             <p class="text-red-500 text-xs mt-1" v-if="erreurPlanDeDecaissement?.[index]?.annee">
@@ -1046,8 +1046,8 @@ onMounted(() => {
 
           <!-- Sélection du trimestre -->
           <div class="w-full mt-3">
-            <label class="form-label">Sélectionnez le trimestre</label>
-            <TomSelect v-model="plan.trimestre" :options="{ placeholder: 'Sélectionnez le trimestre' }" class="w-full" :class="{ 'border-red-500': erreurPlanDeDecaissement?.[index]?.trimestre }" @change="clearFieldError(index, 'trimestre')">
+            <label for="'trimestre_plan_' + index" class="form-label">Sélectionnez le trimestre</label>
+            <TomSelect :id="'trimestre_plan_' + index" :name="'trimestre_plan_' + index" v-model="plan.trimestre" :options="{ placeholder: 'Sélectionnez le trimestre' }" class="w-full" :class="{ 'border-red-500': erreurPlanDeDecaissement?.[index]?.trimestre }" @change="clearFieldError(index, 'trimestre')">
               <option value="1">Trimestre 1</option>
               <option value="2">Trimestre 2</option>
               <option value="3">Trimestre 3</option>
@@ -1162,8 +1162,8 @@ onMounted(() => {
           </div> -->
 
           <div class="w-full mt-3">
-            <label class="form-label">Sélectionnez le trimestre</label>
-            <TomSelect v-model="suivi.trimestre" :options="{ placeholder: 'Selectionez le trimestre' }" class="w-full" @change="miseAjourTabSuivi(suivi.activiteId, suivi.trimestre, index)">
+            <label for="'trimestre_suivi_' + index" class="form-label">Sélectionnez le trimestre</label>
+            <TomSelect :id="'trimestre_suivi_' + index" :name="'trimestre_suivi_' + index" v-model="suivi.trimestre" :options="{ placeholder: 'Selectionez le trimestre' }" class="w-full" @change="miseAjourTabSuivi(suivi.activiteId, suivi.trimestre, index)">
               <option value="1">Trimestre 1</option>
               <option value="2">Trimestre 2</option>
               <option value="3">Trimestre 3</option>
@@ -1182,8 +1182,8 @@ onMounted(() => {
           </div> -->
 
           <div class="col-span-12 mt-3">
-            <label class="form-label">Année</label>
-            <TomSelect v-model="suivi.annee" :options="{ placeholder: 'Selectionez une année' }" class="w-full" @change="miseAjourTabSuivi(suivi.activiteId, suivi.annee, index)">
+            <label for="'annee_suivi_' + index" class="form-label">Année</label>
+            <TomSelect :id="'annee_suivi_' + index" :name="'annee_suivi_' + index" v-model="suivi.annee" :options="{ placeholder: 'Selectionez une année' }" class="w-full" @change="miseAjourTabSuivi(suivi.activiteId, suivi.annee, index)">
               <option v-for="(year, index) in years" :key="index" :value="year">{{ year }}</option>
             </TomSelect>
             <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurSuiviFinancier?.[index]?.trimestre">
@@ -1226,14 +1226,14 @@ onMounted(() => {
         <div class="grid grid-cols-1 gap-4">
           <!-- <pre>{{years}}</pre> -->
           <div class="">
-            <label class="form-label">Année</label>
-            <TomSelect v-model="filterPayload.annee" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+            <label for="filtre-annee" class="form-label">Année</label>
+            <TomSelect id="filtre-annee" name="filtre-annee" v-model="filterPayload.annee" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
               <option v-for="(year, index) in years" :key="index" :value="year">{{ year }}</option>
             </TomSelect>
           </div>
           <div class="">
-            <label class="form-label">Trimestre</label>
-            <TomSelect v-model="filterPayload.trimestre" :options="{ placeholder: 'Selectionez le trimestre' }" class="w-full">
+            <label for="filtre-trimestre" class="form-label">Trimestre</label>
+            <TomSelect id="filtre-trimestre" name="filtre-trimestre" v-model="filterPayload.trimestre" :options="{ placeholder: 'Selectionez le trimestre' }" class="w-full">
               <option v-for="(i, index2) in 4" :key="index2" :value="i">Trimestre {{ i }}</option>
             </TomSelect>
           </div>

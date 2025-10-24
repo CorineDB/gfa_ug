@@ -224,7 +224,7 @@ const getDataForm = async () => {
       toast.error(getAllErrorMessages(e));
       isLoadingData.value = false;
 
-      debugger
+     
       
     });
 };

@@ -184,22 +184,49 @@ onMounted(() => {
       <ModalHeader>
         <h2 class="mr-auto text-base font-medium">{{ modeText }} une clé valeur</h2>
       </ModalHeader>
-      <form @submit.prevent="submitData">
+       <form @submit.prevent="submitData">
         <ModalBody>
           <div class="grid grid-cols-1 gap-4">
-            <InputForm label="Nom" v-model="payload.libelle" :control="getFieldErrors(errors.libelle)" />
-            <InputForm label="Clé" v-model="payload.key" :control="getFieldErrors(errors.key)" />
+            <InputForm 
+              id="nom-libelle"
+              name="libelle"
+              label="Nom" 
+              v-model="payload.libelle" 
+              :control="getFieldErrors(errors.libelle)" 
+            />
+            
+            <InputForm 
+              id="cle-valeur"
+              name="key"
+              label="Clé" 
+              v-model="payload.key" 
+              :control="getFieldErrors(errors.key)" 
+            />
+            
             <div class="flex-1">
-              <label class="form-label" for="description">Description</label>
+              <label class="form-label" for="description-libelle">Description</label>
               <div class="">
-                <textarea name="description" class="form-control" id="description" v-model="payload.description" cols="30" rows="3"></textarea>
+                <textarea 
+                  id="description-libelle"
+                  name="description"
+                  class="form-control" 
+                  v-model="payload.description" 
+                  cols="30" 
+                  rows="3"
+                ></textarea>
                 <div v-if="errors.description" class="mt-2 text-danger">{{ getFieldErrors(errors.description) }}</div>
               </div>
             </div>
 
             <div>
-              <label class="form-label">Unité de mesure</label>
-              <TomSelect v-model="payload.uniteeMesureId" :options="{ placeholder: 'Selectionez une unité', create: false, onOptionAdd: text() }" class="w-full">
+              <label class="form-label" for="unite-mesure-libelle">Unité de mesure</label>
+              <TomSelect 
+                id="unite-mesure-libelle"
+                name="uniteeMesureId"
+                v-model="payload.uniteeMesureId" 
+                :options="{ placeholder: 'Selectionez une unité', create: false, onOptionAdd: text() }" 
+                class="w-full"
+              >
                 <option value=""></option>
                 <option v-for="(unite, index) in unitesMesure" :key="index" :value="unite.id">{{ unite.nom }}</option>
               </TomSelect>
@@ -209,8 +236,20 @@ onMounted(() => {
         </ModalBody>
         <ModalFooter>
           <div class="flex gap-2">
-            <button type="button" @click="resetForm" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
-            <VButton :loading="isLoading" :label="modeText" />
+            <button 
+              type="button" 
+              @click="resetForm" 
+              class="w-full px-2 py-2 my-3 btn btn-outline-secondary"
+              id="annuler-libelle"
+            >
+              Annuler
+            </button>
+            <VButton 
+              id="soumettre-libelle"
+              :loading="isLoading" 
+              :label="modeText" 
+              type="submit"
+            />
           </div>
         </ModalFooter>
       </form>

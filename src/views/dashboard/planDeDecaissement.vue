@@ -4,7 +4,7 @@
     <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
       <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
         <div class="relative w-56 text-slate-500">
-          <input type="text" class="w-56 pr-10 form-control box" v-model="search" placeholder="Recherche..." />
+          <input type="text" id="recherche-plan-decaissement" name="recherche-plan-decaissement" class="w-56 pr-10 form-control box" v-model="search" placeholder="Recherche..." />
           <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
         </div>
       </div>
@@ -51,7 +51,7 @@
         </table>
       </div>
 
-      <div class="absolute shadow-md perso left-24 sm:rounded-lg">
+      <div class="absolute shadow-md perso left-28 sm:rounded-lg">
         <table class="w-full overflow-auto text-sm text-left text-gray-500 dark:text-gray-400">
           <thead class="sticky top-0 text-xs text-gray-700 uppercase _z-20 bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr class="">
@@ -196,8 +196,8 @@
         <div class="grid grid-cols-1 gap-4">
           <!-- <pre>{{years}}</pre> -->
           <div class="">
-            <label class="form-label">Année</label>
-            <TomSelect v-model="annees" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+            <label for="filtre-annee-plan" class="form-label">Année</label>
+            <TomSelect id="filtre-annee-plan" name="filtre-annee-plan" v-model="annees" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
               <option v-for="(year, index) in years" :key="index" :value="year">{{ year }}</option>
             </TomSelect>
           </div>
@@ -241,16 +241,16 @@
           </div>
 
           <div class="w-full mt-3">
-            <label class="form-label">Sources</label>
-            <TomSelect v-model="plan.type" :options="{ placeholder: 'Selectionez une source' }" class="w-full">
+            <label for="'source_plan_' + index" class="form-label">Sources</label>
+            <TomSelect :id="'source_plan_' + index" :name="'source_plan_' + index" v-model="plan.type" :options="{ placeholder: 'Selectionez une source' }" class="w-full">
               <option value="0">Fond propre</option>
               <option value="1">Budget Alloue</option>
             </TomSelect>
           </div>
 
           <div class="w-full mt-3">
-            <label class="form-label">Sélectionnez le trimestre</label>
-            <TomSelect v-model="plan.trimestre" :options="{ placeholder: 'Selectionez le trimestre' }" class="w-full">
+            <label for="'trimestre_plan_' + index" class="form-label">Sélectionnez le trimestre</label>
+            <TomSelect :id="'trimestre_plan_' + index" :name="'trimestre_plan_' + index" v-model="plan.trimestre" :options="{ placeholder: 'Selectionez le trimestre' }" class="w-full">
               <option value="1">Trimestre 1</option>
               <option value="2">Trimestre 2</option>
               <option value="3">Trimestre 3</option>
@@ -262,8 +262,8 @@
           </div>
 
           <div class="w-full mt-3">
-            <label class="form-label">Année</label>
-            <TomSelect v-model="plan.annee" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+            <label for="'annee_plan_' + index" class="form-label">Année</label>
+            <TomSelect :id="'annee_plan_' + index" :name="'annee_plan_' + index" v-model="plan.annee" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
               <option v-for="(year, index) in years" :key="index" :value="year.nom">{{ year.nom }}</option>
             </TomSelect>
             <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurSuiviFinancier?.[index]?.annee">

@@ -121,29 +121,65 @@
       <ModalBody>
         <div class="grid grid-cols-1 gap-4">
           <div class="flex flex-wrap items-center justify-between gap-3">
-            <InputForm class="flex-1" :control="getFieldErrors(errors.nom)" label="Nom" v-model="payloadUpdate.nom" />
+            <InputForm 
+              id="nom-indicateur-update"
+              name="nom"
+              class="flex-1" 
+              :control="getFieldErrors(errors.nom)" 
+              label="Nom" 
+              v-model="payloadUpdate.nom" 
+            />
             <div class="flex-1">
-              <label class="form-label" for="description">Description</label>
+              <label class="form-label" for="description-indicateur-update">Description</label>
               <div class="">
-                <textarea name="description" class="form-control" id="description" v-model="payloadUpdate.description" cols="30" rows="1"></textarea>
+                <textarea 
+                  id="description-indicateur-update"
+                  name="description"
+                  class="form-control" 
+                  v-model="payloadUpdate.description" 
+                  cols="30" 
+                  rows="1"
+                ></textarea>
               </div>
               <div v-if="errors.description" class="mt-2 text-danger">{{ getFieldErrors(errors.description) }}</div>
             </div>
           </div>
 
           <div class="flex-1">
-            <label class="form-label">Type de données</label>
-            <TomSelect v-model="payloadUpdate.type_de_variable" name="type_variable" :options="{ placeholder: 'Selectionez un type de données' }" class="w-full">
+            <label class="form-label" for="type-donnees-update">Type de données</label>
+            <TomSelect 
+              id="type-donnees-update"
+              name="type_de_variable"
+              v-model="payloadUpdate.type_de_variable" 
+              :options="{ placeholder: 'Selectionez un type de données' }" 
+              class="w-full"
+            >
               <option value=""></option>
               <option v-for="(variable, index) in isAgregerCurrentIndicateur ? type_variablees : type_variablees_agreger" :key="index" :value="variable.id">{{ variable.label }}</option>
             </TomSelect>
             <div v-if="errors.type_de_variable" class="mt-2 text-danger">{{ getFieldErrors(errors.type_de_variable) }}</div>
           </div>
+          
           <div class="flex flex-wrap items-center justify-between gap-3">
-            <InputForm class="flex-1" label="Indice" v-model="payloadUpdate.indice" :required="false" :control="getFieldErrors(errors.indice)" type="number" />
+            <InputForm 
+              id="indice-update"
+              name="indice"
+              class="flex-1" 
+              label="Indice" 
+              v-model="payloadUpdate.indice" 
+              :required="false" 
+              :control="getFieldErrors(errors.indice)" 
+              type="number" 
+            />
             <div class="flex-1">
-              <label class="form-label">Année de base</label>
-              <TomSelect v-model="payloadUpdate.anneeDeBase" name="annee_suivi" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+              <label class="form-label" for="annee-base-update">Année de base</label>
+              <TomSelect 
+                id="annee-base-update"
+                name="anneeDeBase"
+                v-model="payloadUpdate.anneeDeBase" 
+                :options="{ placeholder: 'Selectionez une année' }" 
+                class="w-full"
+              >
                 <option value=""></option>
                 <option v-for="annee in years" :key="annee" :value="annee">{{ annee }}</option>
               </TomSelect>
@@ -153,55 +189,96 @@
 
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div class="flex-1">
-              <label class="form-label">Unité de mesure</label>
-              <TomSelect v-model="payloadUpdate.uniteeMesureId" name="unite" :options="{ placeholder: 'Selectionez une unité de mesure' }" class="w-full">
+              <label class="form-label" for="unite-mesure-update">Unité de mesure</label>
+              <TomSelect 
+                id="unite-mesure-update"
+                name="uniteeMesureId"
+                v-model="payloadUpdate.uniteeMesureId" 
+                :options="{ placeholder: 'Selectionez une unité de mesure' }" 
+                class="w-full"
+              >
                 <option value=""></option>
                 <option v-for="(unite, index) in unites" :key="index" :value="unite.id">{{ unite.nom }}</option>
               </TomSelect>
               <div v-if="errors.uniteeMesureId" class="mt-2 text-danger">{{ getFieldErrors(errors.uniteeMesureId) }}</div>
             </div>
             <div class="flex-1">
-              <label class="form-label">Catégorie</label>
-              <TomSelect v-model="payloadUpdate.categorieId" name="category" :options="{ placeholder: 'Selectionez une catégorie' }" class="w-full">
+              <label class="form-label" for="categorie-update">Catégorie</label>
+              <TomSelect 
+                id="categorie-update"
+                name="categorieId"
+                v-model="payloadUpdate.categorieId" 
+                :options="{ placeholder: 'Selectionez une catégorie' }" 
+                class="w-full"
+              >
                 <option value=""></option>
                 <option v-for="(categorie, index) in categories" :key="categorie.id" :value="categorie.id">{{ truncateText(categorie.type + " " + categorie.indice + " " + categorie.nom) }}</option>
               </TomSelect>
               <div v-if="errors.categorieId" class="mt-2 text-danger">{{ getFieldErrors(errors.categorieId) }}</div>
             </div>
           </div>
+          
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div class="flex-1">
-              <label class="form-label">Méthode de la collecte des données</label>
-              <TomSelect v-model="payloadUpdate.methode_de_la_collecte" name="method" :options="{ placeholder: 'Selectionez une methode' }" class="w-full">
+              <label class="form-label" for="methode-collecte-update">Méthode de la collecte des données</label>
+              <TomSelect 
+                id="methode-collecte-update"
+                name="methode_de_la_collecte"
+                v-model="payloadUpdate.methode_de_la_collecte" 
+                :options="{ placeholder: 'Selectionez une methode' }" 
+                class="w-full"
+              >
                 <option value=""></option>
                 <option v-for="(methode, index) in methodeCollecte" :key="index" :value="methode">{{ methode }}</option>
               </TomSelect>
               <div v-if="errors.methode_de_la_collecte" class="mt-2 text-danger">{{ getFieldErrors(errors.methode_de_la_collecte) }}</div>
             </div>
             <div class="flex-1">
-              <label class="form-label">Fréquence de la collecte de données</label>
-              <TomSelect v-model="payloadUpdate.frequence_de_la_collecte" :options="{ placeholder: 'Selectionez une fréquence' }" class="w-full">
+              <label class="form-label" for="frequence-collecte-update">Fréquence de la collecte de données</label>
+              <TomSelect 
+                id="frequence-collecte-update"
+                name="frequence_de_la_collecte"
+                v-model="payloadUpdate.frequence_de_la_collecte" 
+                :options="{ placeholder: 'Selectionez une fréquence' }" 
+                class="w-full"
+              >
                 <option value=""></option>
                 <option v-for="(frequence, index) in frequenceCollecte" :key="index" :value="frequence">{{ frequence }}</option>
               </TomSelect>
               <div v-if="errors.frequence_de_la_collecte" class="mt-2 text-danger">{{ getFieldErrors(errors.frequence_de_la_collecte) }}</div>
             </div>
           </div>
+          
           <div class="flex flex-wrap items-center justify-between w-full gap-3">
             <div class="flex-1">
-              <label class="form-label">Source de données</label>
-              <TomSelect v-model="payloadUpdate.sources_de_donnee" name="source" :options="{ placeholder: 'Selectionez une source' }" class="w-full">
+              <label class="form-label" for="source-donnees-update">Source de données</label>
+              <TomSelect 
+                id="source-donnees-update"
+                name="sources_de_donnee"
+                v-model="payloadUpdate.sources_de_donnee" 
+                :options="{ placeholder: 'Selectionez une source' }" 
+                class="w-full"
+              >
                 <option value=""></option>
                 <option v-for="(source, index) in sourcesDonnees" :key="index" :value="source">{{ source }}</option>
               </TomSelect>
               <div v-if="errors.sources_de_donnee" class="mt-2 text-danger">{{ getFieldErrors(errors.sources_de_donnee) }}</div>
             </div>
           </div>
+          
           <div class="flex flex-wrap items-center justify-between w-full gap-3">
             <div class="flex-1">
-              <label class="form-label" for="hypothese_update">Hypothèses et risques</label>
+              <label class="form-label" for="hypothese-update">Hypothèses et risques</label>
               <div class="">
-                <textarea name="hypothese" class="form-control" id="hypothese_update" v-model="payloadUpdate.hypothese" cols="30" rows="3" placeholder="Décrivez les hypothèses et risques liés à cet indicateur"></textarea>
+                <textarea 
+                  id="hypothese-update"
+                  name="hypothese"
+                  class="form-control" 
+                  v-model="payloadUpdate.hypothese" 
+                  cols="30" 
+                  rows="3" 
+                  placeholder="Décrivez les hypothèses et risques liés à cet indicateur"
+                ></textarea>
               </div>
               <div v-if="errors.hypothese" class="mt-2 text-danger">{{ getFieldErrors(errors.hypothese) }}</div>
             </div>
@@ -210,8 +287,20 @@
       </ModalBody>
       <ModalFooter>
         <div class="flex gap-2">
-          <button type="button" @click="showModalEdit = false" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
-          <VButton :loading="isLoading" label="Modifier" />
+          <button 
+            type="button" 
+            @click="showModalEdit = false" 
+            class="w-full px-2 py-2 my-3 btn btn-outline-secondary"
+            id="annuler-modification-indicateur"
+          >
+            Annuler
+          </button>
+          <VButton 
+            id="modifier-indicateur"
+            :loading="isLoading" 
+            label="Modifier" 
+            type="submit"
+          />
         </div>
       </ModalFooter>
     </form>
@@ -231,16 +320,29 @@
 
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div class="flex-1">
-              <label class="form-label">UG</label>
-              <TomSelect v-model="responsablesForm.ug" name="ug" :options="{ placeholder: 'Selectionez un UG' }" class="w-full">
+              <label class="form-label" for="ug-structure">UG</label>
+              <TomSelect 
+                id="ug-structure"
+                name="ug"
+                v-model="responsablesForm.ug" 
+                :options="{ placeholder: 'Selectionez un UG' }" 
+                class="w-full"
+              >
                 <option value=""></option>
                 <option v-for="(ug, index) in ugs" :key="index" :value="ug.id">{{ ug.nom }}</option>
               </TomSelect>
               <div v-if="errors.responsables" class="mt-2 text-danger">{{ getFieldErrors(errors.responsables) }}</div>
             </div>
             <div class="flex-1">
-              <label class="form-label">Organisation</label>
-              <TomSelect v-model="responsablesForm.organisations" name="responsable" multiple :options="{ placeholder: 'Selectionez un responsable' }" class="w-full">
+              <label class="form-label" for="organisations-structure">Organisation</label>
+              <TomSelect 
+                id="organisations-structure"
+                name="organisations"
+                v-model="responsablesForm.organisations" 
+                multiple 
+                :options="{ placeholder: 'Selectionez un responsable' }" 
+                class="w-full"
+              >
                 <option value=""></option>
                 <option v-for="(responsable, index) in ongs" :key="index" :value="responsable.id">{{ responsable.nom }}</option>
               </TomSelect>
@@ -251,8 +353,20 @@
       </ModalBody>
       <ModalFooter>
         <div class="flex gap-2">
-          <button type="button" @click="resetFormAddStructure" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
-          <VButton :loading="isLoading" label="Modifier" />
+          <button 
+            type="button" 
+            @click="resetFormAddStructure" 
+            class="w-full px-2 py-2 my-3 btn btn-outline-secondary"
+            id="annuler-structure"
+          >
+            Annuler
+          </button>
+          <VButton 
+            id="modifier-structure"
+            :loading="isLoading" 
+            label="Modifier" 
+            type="submit"
+          />
         </div>
       </ModalFooter>
     </form>
@@ -282,86 +396,180 @@
     <ModalHeader>
       <h2 class="mr-auto text-base font-medium">Enregistrer un suivi</h2>
     </ModalHeader>
-    <form @submit.prevent="submitSuivi">
-      <ModalBody>
-        <div class="grid grid-cols-1 gap-5">
-          <div class="flex-1">
-            <label class="form-label">Année de suivi<span class="text-danger">*</span> </label>
-            <TomSelect v-model="payloadSuivi.annee" name="annee_suivi" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
-              <option value=""></option>
-              <option v-for="annee in years" :key="annee" :value="annee">{{ annee }}</option>
-            </TomSelect>
-            <div v-if="errors.annee" class="mt-2 text-danger">{{ getFieldErrors(errors.annee) }}</div>
-          </div>
-          <div v-if="!isAgregerCurrentIndicateur" class="flex flex-wrap items-center justify-between gap-3">
-            <InputForm label="Valeur cible" class="flex-1" v-model="payloadSuivi.valeurCible" :control="getFieldErrors(errors.valeurCible)" type="number" />
-            <InputForm label="Valeur réalisée" class="flex-1" v-model="payloadSuivi.valeurRealise" :control="getFieldErrors(errors.valeurRealise)" type="number" />
-          </div>
+     <form @submit.prevent="submitSuivi">
+        <ModalBody>
+          <div class="grid grid-cols-1 gap-5">
+            <div class="flex-1">
+              <label class="form-label" for="annee-suivi">Année de suivi<span class="text-danger">*</span> </label>
+              <TomSelect 
+                id="annee-suivi"
+                name="annee_suivi"
+                v-model="payloadSuivi.annee" 
+                :options="{ placeholder: 'Selectionez une année' }" 
+                class="w-full"
+              >
+                <option value=""></option>
+                <option v-for="annee in years" :key="annee" :value="annee">{{ annee }}</option>
+              </TomSelect>
+              <div v-if="errors.annee" class="mt-2 text-danger">{{ getFieldErrors(errors.annee) }}</div>
+            </div>
+            
+            <div v-if="!isAgregerCurrentIndicateur" class="flex flex-wrap items-center justify-between gap-3">
+              <InputForm 
+                id="valeur-cible-simple"
+                name="valeurCible"
+                label="Valeur cible" 
+                class="flex-1" 
+                v-model="payloadSuivi.valeurCible" 
+                :control="getFieldErrors(errors.valeurCible)" 
+                type="number" 
+              />
+              <InputForm 
+                id="valeur-realisee-simple"
+                name="valeurRealise"
+                label="Valeur réalisée" 
+                class="flex-1" 
+                v-model="payloadSuivi.valeurRealise" 
+                :control="getFieldErrors(errors.valeurRealise)" 
+                type="number" 
+              />
+            </div>
 
-          <div v-if="valueKeysIndicateurSuivi.length > 0 && isAgregerCurrentIndicateur" class="">
-            <label class="form-label">Valeur Cible <span class="text-danger">*</span> </label>
-            <div class="grid gap-3 grid-cols-[repeat(auto-fill,_minmax(300px,_1fr))]">
-              <div v-for="(base, index) in valueKeysIndicateurSuivi" :key="index" class="input-group">
-                <div class="flex items-center justify-center text-sm truncate input-group-text">{{ base.libelle }}</div>
-                <input type="number" class="form-control" v-model.number="valeurCible.find((item) => item.keyId === base.id).value" @input="updateValueCible(base.id, $event.target.value)" placeholder="valeur cible" aria-label="valeur" aria-describedby="input-group-valeur" />
+            <div v-if="valueKeysIndicateurSuivi.length > 0 && isAgregerCurrentIndicateur" class="">
+              <label class="form-label">Valeur Cible <span class="text-danger">*</span> </label>
+              <div class="grid gap-3 grid-cols-[repeat(auto-fill,_minmax(300px,_1fr))]">
+                <div v-for="(base, index) in valueKeysIndicateurSuivi" :key="index" class="input-group">
+                  <div class="flex items-center justify-center text-sm truncate input-group-text">{{ base.libelle }}</div>
+                  <input 
+                    :id="`valeur-cible-agregee-${base.id}`"
+                    :name="`valeurCible_${base.id}`"
+                    type="number" 
+                    class="form-control" 
+                    v-model.number="valeurCible.find((item) => item.keyId === base.id).value" 
+                    @input="updateValueCible(base.id, $event.target.value)" 
+                    placeholder="valeur cible" 
+                    aria-label="valeur" 
+                    aria-describedby="input-group-valeur" 
+                  />
+                </div>
+              </div>
+              <div v-if="errors.valeurCible" class="mt-2 text-danger">{{ getFieldErrors(errors.valeurCible) }}</div>
+            </div>
+            
+            <div v-if="valueKeysIndicateurSuivi.length > 0 && isAgregerCurrentIndicateur" class="">
+              <label class="form-label">Valeur Réalisée <span class="text-danger">*</span> </label>
+              <div class="grid gap-3 grid-cols-[repeat(auto-fill,_minmax(300px,_1fr))]">
+                <div v-for="(base, index) in valueKeysIndicateurSuivi" :key="index" class="input-group">
+                  <div class="flex items-center justify-center text-sm truncate input-group-text">{{ base.libelle }}</div>
+                  <input 
+                    :id="`valeur-realisee-agregee-${base.id}`"
+                    :name="`valeurRealise_${base.id}`"
+                    type="number" 
+                    class="form-control" 
+                    v-model.number="valeurRealise.find((item) => item.keyId === base.id).value" 
+                    @input="updateValueRealiser(base.id, $event.target.value)" 
+                    placeholder="valeur réalisée" 
+                    aria-label="valeur" 
+                    aria-describedby="input-group-valeur" 
+                  />
+                </div>
+              </div>
+              <div v-if="errors.valeurRealise" class="mt-2 text-danger">{{ getFieldErrors(errors.valeurRealise) }}</div>
+            </div>
+
+            <div class="flex-1">
+              <label id="label-option-suivi">Suivi par date ou trimestre?</label>
+              <div class="flex flex-col gap-3 mt-2 sm:flex-row">
+                <div v-for="(item, index) in optionsSuivi" :key="index" class="mr-2 form-check">
+                  <input 
+                    :id="`option-suivi-${item.id}`" 
+                    class="form-check-input" 
+                    type="radio" 
+                    name="option_suivi" 
+                    v-model="suiviOption" 
+                    :value="item.id" 
+                  />
+                  <label class="form-check-label" :for="`option-suivi-${item.id}`">{{ item.label }}</label>
+                </div>
               </div>
             </div>
-            <div v-if="errors.valeurCible" class="mt-2 text-danger">{{ getFieldErrors(errors.valeurCible) }}</div>
-          </div>
-          <div v-if="valueKeysIndicateurSuivi.length > 0 && isAgregerCurrentIndicateur" class="">
-            <label class="form-label">Valeur Réalisée <span class="text-danger">*</span> </label>
-            <div class="grid gap-3 grid-cols-[repeat(auto-fill,_minmax(300px,_1fr))]">
-              <div v-for="(base, index) in valueKeysIndicateurSuivi" :key="index" class="input-group">
-                <div class="flex items-center justify-center text-sm truncate input-group-text">{{ base.libelle }}</div>
-                <input type="number" class="form-control" v-model.number="valeurRealise.find((item) => item.keyId === base.id).value" @input="updateValueRealiser(base.id, $event.target.value)" placeholder="valeur réalisée" aria-label="valeur" aria-describedby="input-group-valeur" />
-              </div>
+            
+            <div v-if="suiviOption == 'trimestre'" class="flex-1">
+              <label class="form-label" for="trimestre-suivi">Trimestre<span class="text-danger">*</span> </label>
+              <TomSelect 
+                id="trimestre-suivi"
+                name="trimestre_suivi"
+                v-model="payloadSuivi.trimestre" 
+                :options="{ placeholder: 'Selectionez un trimestre' }" 
+                class="w-full"
+              >
+                <option value=""></option>
+                <option v-for="trimestre in trimestres" :key="trimestre" :value="trimestre">Trimestre {{ trimestre }}</option>
+              </TomSelect>
+              <div v-if="errors.trimestre" class="mt-2 text-danger">{{ getFieldErrors(errors.trimestre) }}</div>
             </div>
-            <div v-if="errors.valeurRealise" class="mt-2 text-danger">{{ getFieldErrors(errors.valeurRealise) }}</div>
-          </div>
 
-          <div class="flex-1">
-            <label>Suivi par date ou trimestre?</label>
-            <div class="flex flex-col gap-3 mt-2 sm:flex-row">
-              <div v-for="(item, index) in optionsSuivi" :key="index" class="mr-2 form-check">
-                <input :id="item.id" class="form-check-input" type="radio" name="option_suivi" v-model="suiviOption" :value="item.id" />
-                <label class="form-check-label" :for="item.id">{{ item.label }}</label>
+            <InputForm 
+              v-else 
+              id="date-suivi"
+              name="dateSuivie"
+              label="Date de suivi" 
+              class="flex-1" 
+              v-model="payloadSuivi.dateSuivie" 
+              :control="getFieldErrors(errors.dateSuivie)" 
+              type="date" 
+            />
+            
+            <div class="flex-1">
+              <label class="form-label" for="source-donnees-suivi">Source de données <span class="text-danger">*</span> </label>
+              <TomSelect 
+                id="source-donnees-suivi"
+                name="sources_de_donnee"
+                v-model="payloadSuivi.sources_de_donnee" 
+                :options="{ placeholder: 'Selectionez une source' }" 
+                class="w-full"
+              >
+                <option value=""></option>
+                <option v-for="(source, index) in sourcesDonnees" :key="index" :value="source">{{ source }}</option>
+              </TomSelect>
+              <div v-if="errors.sources_de_donnee" class="mt-2 text-danger">{{ getFieldErrors(errors.sources_de_donnee) }}</div>
+            </div>
+            
+            <div class="flex-1">
+              <label class="form-label" for="commentaire-suivi">Commentaire</label>
+              <div class="">
+                <textarea 
+                  id="commentaire-suivi"
+                  name="commmentaire"
+                  class="form-control" 
+                  v-model="payloadSuivi.commmentaire" 
+                  cols="30" 
+                  rows="2"
+                ></textarea>
               </div>
+              <div v-if="errors.commmentaire" class="mt-2 text-danger">{{ getFieldErrors(errors.commmentaire) }}</div>
             </div>
           </div>
-          <div v-if="suiviOption == 'trimestre'" class="flex-1">
-            <label class="form-label">Trimestre<span class="text-danger">*</span> </label>
-            <TomSelect v-model="payloadSuivi.trimestre" name="trimestre_suivi" :options="{ placeholder: 'Selectionez un trimestre' }" class="w-full">
-              <option value=""></option>
-              <option v-for="trimestre in trimestres" :key="trimestre" :value="trimestre">Trimestre {{ trimestre }}</option>
-            </TomSelect>
-            <div v-if="errors.trimestre" class="mt-2 text-danger">{{ getFieldErrors(errors.trimestre) }}</div>
+        </ModalBody>
+        <ModalFooter>
+          <div class="flex gap-2">
+            <button 
+              type="button" 
+              @click="resetFormSuivi" 
+              class="w-full px-2 py-2 my-3 btn btn-outline-secondary"
+              id="annuler-suivi"
+            >
+              Annuler
+            </button>
+            <VButton 
+              id="enregistrer-suivi"
+              :loading="isLoading" 
+              label="Enrégistrer" 
+              type="submit"
+            />
           </div>
-
-          <InputForm v-else label="Date de suivi" class="flex-1" v-model="payloadSuivi.dateSuivie" :control="getFieldErrors(errors.dateSuivie)" type="date" />
-          <div class="flex-1">
-            <label class="form-label">Source de données <span class="text-danger">*</span> </label>
-            <TomSelect v-model="payloadSuivi.sources_de_donnee" name="source" :options="{ placeholder: 'Selectionez une source' }" class="w-full">
-              <option value=""></option>
-              <option v-for="(source, index) in sourcesDonnees" :key="index" :value="source">{{ source }}</option>
-            </TomSelect>
-            <div v-if="errors.sources_de_donnee" class="mt-2 text-danger">{{ getFieldErrors(errors.sources_de_donnee) }}</div>
-          </div>
-          <div class="flex-1">
-            <label class="form-label" for="description">Commentaire</label>
-            <div class="">
-              <textarea name="description" class="form-control" id="description" v-model="payloadSuivi.commmentaire" cols="30" rows="2"></textarea>
-            </div>
-            <div v-if="errors.commmentaire" class="mt-2 text-danger">{{ getFieldErrors(errors.commmentaire) }}</div>
-          </div>
-        </div>
-      </ModalBody>
-      <ModalFooter>
-        <div class="flex gap-2">
-          <button type="button" @click="resetFormSuivi" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
-          <VButton :loading="isLoading" label="Enrégistrer" />
-        </div>
-      </ModalFooter>
-    </form>
+        </ModalFooter>
+      </form>
   </Modal>
 
   <!-- Modal for deleting -->

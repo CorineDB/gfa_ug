@@ -14,6 +14,8 @@ import pagination from "@/components/news/pagination.vue";
 import { helper as $h } from "@/utils/helper";
 import NoRecordsMessage from "@/components/NoRecordsMessage.vue";
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
+import TacheService from "@/services/modules/tache.service.js";
+
 
 export default {
   components: {
@@ -132,6 +134,30 @@ export default {
   },
 
   methods: {
+     togglesuivie(pta) {
+      var form = {
+        tacheId: pta.id,
+        poidsActuel: pta.poids,
+      };
+
+      TacheService.suiviTache(form)
+        .then((data) => {
+          toast.success("suivie éffectué avec succès");
+        })
+        .catch((error) => {
+          if (error.response) {
+            // Requête effectuée mais le serveur a répondu par une erreur.
+            const message = error.response.data.message;
+            toast.error(message);
+          } else if (error.request) {
+            // Demande effectuée mais aucune réponse n'est reçue du serveur.
+          } else {
+            // Une erreur s'est produite lors de la configuration de la demande
+          }
+        });
+      //}
+      this.chargement = false;
+    },
      closeDeleteTacheModal(){
       document.activeElement.blur()
       this.showDeleteModal = false
@@ -439,8 +465,10 @@ export default {
       <div class="grid grid-cols-2 gap-4">
         <!-- v-if="projets.length > 0" -->
         <div class="flex col-span-6">
-          <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Projets</label>
+          <label for="filtre-projets-taches" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Projets</label>
           <TomSelect
+            id="filtre-projets-taches"
+            name="filtre-projets-taches"
             v-model="projetId"
             :options="{
               placeholder: 'Choisir un Output',
@@ -457,8 +485,10 @@ export default {
 
         <!-- v-if="composants.length > 0" -->
         <div class="flex col-span-6">
-          <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Outcomes</label>
+          <label for="filtre-outcomes-taches" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Outcomes</label>
           <TomSelect
+            id="filtre-outcomes-taches"
+            name="filtre-outcomes-taches"
             v-model="selectedIds.composantId"
             :options="{
               placeholder: 'Choisir un Outcome',
@@ -474,8 +504,10 @@ export default {
         <!-- v-if="composants.length > 0 && sousComposants.length > 0" -->
         <div class="col-span-6 flex items-center justify-center">
           <div class="flex w-full mr-4">
-            <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Output</label>
+            <label for="filtre-outputs-taches" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Output</label>
             <TomSelect
+              id="filtre-outputs-taches"
+              name="filtre-outputs-taches"
               v-model="selectedIds.sousComposantId"
               :options="{
                 placeholder: 'Choisir un Output',
@@ -494,8 +526,10 @@ export default {
 
         <!-- v-if="activites.length > 0 && (sousComposants.length > 0 || composants.length > 0)" -->
         <div class="flex col-span-6">
-          <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Activités</label>
+          <label for="filtre-activites-taches" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Activités</label>
           <TomSelect
+            id="filtre-activites-taches"
+            name="filtre-activites-taches"
             v-model="selectedIds.activiteId"
             :options="{
               placeholder: 'Choisir une activité',
@@ -542,7 +576,7 @@ export default {
     <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y">
       <div class="w-auto">
         <div class="relative w-56 text-slate-500">
-          <input type="text" v-model="search" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
+          <input id="recherche-taches" name="recherche-taches" type="text" v-model="search" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
           <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
         </div>
       </div>
@@ -559,6 +593,7 @@ export default {
     <!-- <pre>{{sousComposants}}</pre>   -->
     <NoRecordsMessage class="col-span-12" v-if="!paginatedAndFilteredData.length" title="Aucune tâche trouvée" description="Il semble qu'il n'y ait pas de tâche à afficher. Veuillez en créer un." />
     <div v-for="(item, index) in paginatedAndFilteredData" :key="index" class="col-span-12 intro-y md:col-span-6 xl:col-span-4">
+      <!-- <pre>{{ item }}</pre> -->
       <div v-if="verifyPermission('voir-une-tache')" class="p-5 box">
         <div class="flex items-start pt-5 _px-5">
           <div class="_flex _flex-col _items-center w-full _lg:flex-row">
@@ -591,6 +626,14 @@ export default {
               <span class="px-2 py-1 m-5 text-xs text-white rounded bg-pending/80" v-else-if="item.statut == 0"> En cours </span>
               <span class="px-2 py-1 m-5 text-xs text-white rounded bg-danger/80" v-else-if="item.statut == 1"> En retard </span>
               <span class="pl-2" v-else-if="item.statut == 2">Terminé</span>
+            </div>
+            <div class="suivi-container">
+              <span class="suivi-label">Suivre</span>
+              <select :id="'suivi-tache-' + item.id" :name="'suivi-tache-' + item.id" class="suivi-select" aria-label="Niveau de suivi" @change="togglesuivie(item)">
+                <option :value="0">0%</option>
+                <option :value="50">50%</option>
+                <option :value="100">100%</option>
+              </select>
             </div>
             <div class="flex items-center mt-2">
               <ClockIcon class="w-4 h-4 mr-2" />
@@ -627,24 +670,45 @@ export default {
       <h2 v-if="!update" class="mr-auto text-base font-medium">Ajouter une tache</h2>
       <h2 v-else class="mr-auto text-base font-medium">Modifier une tache</h2>
     </ModalHeader>
-    <form>
+    <form @submit.prevent="sendForm">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
         <!-- Nom -->
         <div class="col-span-12 md:col-span-6">
-          <InputForm v-model="formData.nom" class="col-span-6" type="text" required="required" placeHolder="Nom de la tache" label="Nom" />
+          <InputForm 
+            id="nom-tache"
+            name="nom"
+            v-model="formData.nom" 
+            class="col-span-6" 
+            type="text" 
+            required="required" 
+            placeHolder="Nom de la tache" 
+            label="Nom" 
+          />
           <p class="text-red-500 text-[12px] mt-2 col-span-6" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
         </div>
 
         <!-- Description (pleine ligne) -->
         <div class="input-form _mt-3 col-span-12 md:col-span-6">
-          <label class="form-label w-full"> Description </label>
-          <textarea v-model="formData.description" class="form-control w-full" name="comment" placeholder="Ajouter une description"></textarea>
+          <label for="description-tache" class="form-label w-full"> Description </label>
+          <textarea 
+            id="description-tache"
+            name="description"
+            v-model="formData.description" 
+            class="form-control w-full" 
+            placeholder="Ajouter une description"
+          ></textarea>
         </div>
 
         <!-- Projets -->
         <div class="col-span-12 md:col-span-6 mt-4" v-if="!update">
-          <label class="form-label">Projets</label>
-          <TomSelect v-model="projetId" :options="{ placeholder: 'Choisir un projet', create: false, onOptionAdd: text() }" class="w-full">
+          <label for="projet-selection" class="form-label">Projets</label>
+          <TomSelect 
+            id="projet-selection"
+            name="projetId"
+            v-model="projetId" 
+            :options="{ placeholder: 'Choisir un projet', create: false, onOptionAdd: text() }" 
+            class="w-full"
+          >
             <option value="">Choisir un projet</option>
             <option v-for="(element, index) in projets" :key="index" :value="element.id">{{ element.codePta }}-{{ element.nom }}</option>
           </TomSelect>
@@ -652,16 +716,28 @@ export default {
 
         <!-- Outcomes -->
         <div class="col-span-12 md:col-span-6 mt-4" v-if="!update">
-          <label class="form-label">Outcomes</label>
-          <TomSelect v-model="selectedIds.composantId" :options="{ placeholder: 'Choisir un Outcome', create: false, onOptionAdd: text() }" class="w-full">
+          <label for="outcome-selection" class="form-label">Outcomes</label>
+          <TomSelect 
+            id="outcome-selection"
+            name="composantId"
+            v-model="selectedIds.composantId" 
+            :options="{ placeholder: 'Choisir un Outcome', create: false, onOptionAdd: text() }" 
+            class="w-full"
+          >
             <option v-for="(element, index) in composants" :key="index" :value="element.id">{{ element.codePta }}-{{ element.nom }}</option>
           </TomSelect>
         </div>
 
         <!-- Output -->
         <div class="col-span-12 md:col-span-6 mt-4" v-if="!update">
-          <label class="form-label">Outputs</label>
-          <TomSelect v-model="selectedIds.sousComposantId" :options="{ placeholder: 'Choisir un Output', create: false, onOptionAdd: text() }" class="w-full">
+          <label for="output-selection" class="form-label">Outputs</label>
+          <TomSelect 
+            id="output-selection"
+            name="sousComposantId"
+            v-model="selectedIds.sousComposantId" 
+            :options="{ placeholder: 'Choisir un Output', create: false, onOptionAdd: text() }" 
+            class="w-full"
+          >
             <option value="">Choisir un Output</option>
             <option v-for="(element, index) in sousComposants" :key="index" :value="element.id">{{ element.codePta }}-{{ element.nom }}</option>
           </TomSelect>
@@ -669,8 +745,15 @@ export default {
 
         <!-- Activités -->
         <div class="col-span-12 md:col-span-6 mt-4" v-if="!update">
-          <label class="form-label">Activités</label>
-          <TomSelect v-model="formData.activiteId" :options="{ placeholder: 'Choisir une activité', create: false, onOptionAdd: text() }" class="w-full" title="Veuillez sélectionner une activité pour afficher son plan de décaissement">
+          <label for="activite-selection-tache" class="form-label">Activités</label>
+          <TomSelect 
+            id="activite-selection-tache"
+            name="activiteId"
+            v-model="formData.activiteId" 
+            :options="{ placeholder: 'Choisir une activité', create: false, onOptionAdd: text() }" 
+            class="w-full" 
+            title="Veuillez sélectionner une activité pour afficher son plan de décaissement"
+          >
             <option value="">Choisir une activité</option>
             <option v-for="(element, index) in activites" :key="index" :value="element.id">{{ element.codePta }}-{{ element.nom }}</option>
           </TomSelect>
@@ -679,13 +762,35 @@ export default {
 
         <!-- Date début -->
         <div class="col-span-12 md:col-span-6">
-          
-          <InputForm v-model="formData.debut" class="col-span-6" type="date" required="required" placeHolder="Entrer la date de début" label="Début de la tâche" :min="dateDebutMin" :max="dateFinMax" />
+          <InputForm 
+            id="date-debut-tache"
+            name="debut"
+            v-model="formData.debut" 
+            class="col-span-6" 
+            type="date" 
+            required="required" 
+            placeHolder="Entrer la date de début" 
+            label="Début de la tâche" 
+            :min="dateDebutMin" 
+            :max="dateFinMax" 
+          />
           <p class="text-red-500 text-[12px] mt-2 col-span-6" v-if="messageErreur.debut">{{ messageErreur.debut }}</p>
         </div>
+        
         <!-- Date fin -->
         <div class="col-span-12 md:col-span-6">
-          <InputForm v-model="formData.fin" class="col-span-6" type="date" required="required" placeHolder="Entrer la date de fin" label="Fin de la tâche" :min="dateDebutMin" :max="dateFinMax" />
+          <InputForm 
+            id="date-fin-tache"
+            name="fin"
+            v-model="formData.fin" 
+            class="col-span-6" 
+            type="date" 
+            required="required" 
+            placeHolder="Entrer la date de fin" 
+            label="Fin de la tâche" 
+            :min="dateDebutMin" 
+            :max="dateFinMax" 
+          />
           <p class="text-red-500 text-[12px] mt-2 col-span-6" v-if="messageErreur.fin">{{ messageErreur.fin }}</p>
         </div>
 
@@ -704,8 +809,21 @@ export default {
 
       <ModalFooter>
         <div class="flex items-center justify-center">
-          <button type="button" @click="closeAddTacheModal" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
-          <VButton class="inline-block" :label="labels" :loading="isLoading" @click="sendForm" />
+          <button 
+            type="button" 
+            @click="closeAddTacheModal" 
+            class="w-full mr-1 btn btn-outline-secondary"
+            id="annuler-tache"
+          >
+            Annuler
+          </button>
+          <VButton 
+            id="enregistrer-tache"
+            class="inline-block" 
+            :label="labels" 
+            :loading="isLoading" 
+            type="submit"
+          />
         </div>
       </ModalFooter>
     </form>
@@ -726,4 +844,74 @@ export default {
   </Modal>
 </template>
 
-<style></style>
+<style scoped>
+.suivi-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.suivi-container:hover {
+  background: #ffffff;
+  border-color: #0F3460;
+  box-shadow: 0 0 0 2px rgba(15, 52, 96, 0.1);
+}
+
+.suivi-label {
+  font-weight: 600;
+  color: #0F3460;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.suivi-select {
+  padding: 6px 32px 6px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #ffffff url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%230F3460' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e") no-repeat right 8px center;
+  background-size: 16px;
+  font-size: 14px;
+  color: #0F3460;
+  cursor: pointer;
+  appearance: none;
+  min-width: 80px;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.suivi-select:focus {
+  outline: none;
+  border-color: #0F3460;
+  box-shadow: 0 0 0 2px rgba(15, 52, 96, 0.15);
+}
+
+.suivi-select:hover {
+  border-color: #0F3460;
+  background-color: #f8fafc;
+}
+
+/* Style pour les options */
+.suivi-select option {
+  padding: 8px;
+  background: #ffffff;
+  color: #0F3460;
+}
+
+/* Style pour l'option sélectionnée */
+.suivi-select option:checked {
+  background: #0F3460 linear-gradient(0deg, #0F3460 0%, #0F3460 100%);
+  color: #ffffff;
+}
+
+/* Style au focus pour accessibilité */
+.suivi-select:focus-visible {
+  outline: 2px solid #0F3460;
+  outline-offset: 1px;
+}
+
+</style>

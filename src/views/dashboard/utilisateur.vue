@@ -37,25 +37,25 @@
         <ModalBody class="p-10">
           <div class="grid grid-cols-2 gap-4">
             <div class="col-span-6">
-              <label for="regular-form-1" class="form-label">Nom</label>
-              <input id="regular-form-1" type="text" required v-model="formData.nom" class="form-control" placeholder="Nom" />
+              <label for="nom_user" class="form-label">Nom</label>
+              <input id="nom_user" name="nom_user" type="text" required v-model="formData.nom" class="form-control" placeholder="Nom" />
               <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
             </div>
             <div class="col-span-6">
-              <label for="regular-form-1" class="form-label">Prenoms</label>
-              <input id="regular-form-1" type="text" required v-model="formData.prenom" class="form-control" placeholder="Prenoms" />
+              <label for="prenom_user" class="form-label">Prenoms</label>
+              <input id="prenom_user" name="prenom_user" type="text" required v-model="formData.prenom" class="form-control" placeholder="Prenoms" />
               <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.prenom">{{ messageErreur.prenom }}</p>
             </div>
 
             <div class="col-span-6">
-              <label for="regular-form-1" class="form-label">Email</label>
-              <input id="regular-form-1" type="email" required v-model="formData.email" class="form-control" placeholder="Email" />
+              <label for="email_user" class="form-label">Email</label>
+              <input id="email_user" name="email_user" type="email" required v-model="formData.email" class="form-control" placeholder="Email" />
               <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.email">{{ messageErreur.email }}</p>
             </div>
 
             <div class="col-span-6">
-              <label for="regular-form-1" class="form-label">Contact</label>
-              <input id="regular-form-1" type="text" required v-model="formData.contact" class="form-control" placeholder="Contact" />
+              <label for="contact_user" class="form-label">Contact</label>
+              <input id="contact_user" name="contact_user" type="text" required v-model="formData.contact" class="form-control" placeholder="Contact" />
               <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.contact">{{ messageErreur.contact }}</p>
 
               <!-- Message de validation avec animation -->
@@ -76,16 +76,16 @@
             </div>
 
             <div class="col-span-6">
-              <label for="regular-form-1" class="form-label">Poste</label>
-              <input id="regular-form-1" type="text" required v-model="formData.poste" class="form-control" placeholder="Poste" />
+              <label for="poste_user" class="form-label">Poste</label>
+              <input id="poste_user" name="poste_user" type="text" required v-model="formData.poste" class="form-control" placeholder="Poste" />
               <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.poste">{{ messageErreur.poste }}</p>
             </div>
 
             <div class="col-span-6">
               <div class="">
-                <label class="form-label">Roles</label>
+                <label for="roles_user" class="form-label">Roles</label>
                 <div class="flex w-full">
-                  <TomSelect v-model="formData.roles" multiple :options="{ placeholder: 'Selectionez les roles' }" class="w-11/12 pr-3">
+                  <TomSelect id="roles_user" name="roles_user" v-model="formData.roles" multiple :options="{ placeholder: 'Selectionez les roles' }" class="w-11/12 pr-3">
                     <option v-for="(role, index) in roles" :key="index" :value="role.id">{{ role.nom }}</option>
                   </TomSelect>
                   <button @click="openCreateModal" class="btn w-10 h-10 btn-primary mr-1 mb-2">
@@ -110,7 +110,7 @@
     <!-- BEGIN: Modal Toggle -->
     <div class="flex justify-between">
       <div class="search hidden sm:block">
-        <input type="text" class="search__input form-control border-transparent" v-model="searchs" placeholder="Recherche..." />
+        <input type="text" id="search_utilisateurs" name="search_utilisateurs" class="search__input form-control border-transparent" v-model="searchs" placeholder="Recherche..." />
         <SearchIcon class="search__icon dark:text-slate-500" />
       </div>
       <div class="flex items-center space-x-2">
@@ -407,8 +407,8 @@
           <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
 
           <div class="my-2">
-            <label for="regular-form-2" class="form-label">Description</label>
-            <textarea id="regular-form-2" placeholder="Description du role" required v-model="payload.description" class="w-full px-3 py-2 mt-1 border-2 border-gray-300 form-control focus:outline-none focus:ring-2 focus:border-transparent" rows="2"></textarea>
+            <label for="description_role" class="form-label">Description</label>
+            <textarea id="description_role" name="description_role" placeholder="Description du role" required v-model="payload.description" class="w-full px-3 py-2 mt-1 border-2 border-gray-300 form-control focus:outline-none focus:ring-2 focus:border-transparent" rows="2"></textarea>
             <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.description">{{ messageErreur.description }}</p>
           </div>
 
@@ -443,25 +443,25 @@
       <ModalBody>
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label for="regular-form-1" class="form-label">Nom</label>
-            <input id="regular-form-1" type="text" required v-model="formEdit.nom" class="form-control" placeholder="Nom" />
+            <label for="nom_user_edit" class="form-label">Nom</label>
+            <input id="nom_user_edit" name="nom_user_edit" type="text" required v-model="formEdit.nom" class="form-control" placeholder="Nom" />
             <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
           </div>
           <div>
-            <label for="regular-form-1" class="form-label">Prenoms</label>
-            <input id="regular-form-1" type="text" required v-model="formEdit.prenom" class="form-control" placeholder="Prenoms" />
+            <label for="prenom_user_edit" class="form-label">Prenoms</label>
+            <input id="prenom_user_edit" name="prenom_user_edit" type="text" required v-model="formEdit.prenom" class="form-control" placeholder="Prenoms" />
             <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.prenom">{{ messageErreur.prenom }}</p>
           </div>
 
           <div>
-            <label for="regular-form-1" class="form-label">Email</label>
-            <input id="regular-form-1" type="email" required v-model="formEdit.email" class="form-control" placeholder="Email" />
+            <label for="email_user_edit" class="form-label">Email</label>
+            <input id="email_user_edit" name="email_user_edit" type="email" required v-model="formEdit.email" class="form-control" placeholder="Email" />
             <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.email">{{ messageErreur.email }}</p>
           </div>
 
           <div>
-            <label for="regular-form-1" class="form-label">Contact</label>
-            <input id="regular-form-1" type="text" v-model="formEdit.contact" class="form-control" placeholder="Contact" />
+            <label for="contact_user_edit" class="form-label">Contact</label>
+            <input id="contact_user_edit" name="contact_user_edit" type="text" v-model="formEdit.contact" class="form-control" placeholder="Contact" />
             <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.contact">{{ messageErreur.contact }}</p>
 
             <!-- Message de validation avec animation -->
@@ -482,14 +482,14 @@
           </div>
 
           <div>
-            <label for="regular-form-1" class="form-label">Poste</label>
-            <input id="regular-form-1" type="text" v-model="formEdit.poste" class="form-control" placeholder="Poste" />
+            <label for="poste_user_edit" class="form-label">Poste</label>
+            <input id="poste_user_edit" name="poste_user_edit" type="text" v-model="formEdit.poste" class="form-control" placeholder="Poste" />
             <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.poste">{{ messageErreur.poste }}</p>
           </div>
 
           <div class="">
-            <label class="form-label">Roles</label>
-            <TomSelect v-model="formEdit.roles" multiple :options="{ placeholder: 'Selectionez les roles' }" class="w-full">
+            <label for="roles_user_edit" class="form-label">Roles</label>
+            <TomSelect id="roles_user_edit" name="roles_user_edit" v-model="formEdit.roles" multiple :options="{ placeholder: 'Selectionez les roles' }" class="w-full">
               <option v-for="(role, index) in roles" :key="index" :value="role.id">{{ role.nom }}</option>
             </TomSelect>
             <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.roles">{{ messageErreur.roles }}</p>

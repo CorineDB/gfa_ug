@@ -471,6 +471,8 @@ export default {
         <div class="flex col-span-12 md:col-span-6">
           <!-- :reduce="(projet) => projet.id" -->
           <TomSelect
+            id="filtre-projets-outputs"
+            name="filtre-projets-outputs"
             v-model="projetId"
             :options="{
               placeholder: 'Choisir un Output',
@@ -487,10 +489,12 @@ export default {
               <input class="vs__search form-input" :required="!projetId" v-bind="attributes" v-on="events" />
             </template>
           </v-select> -->
-          <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Projets</label>
+          <label for="filtre-projets-outputs" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Projets</label>
         </div>
         <div class="flex col-span-12 md:col-span-6">
           <TomSelect
+            id="filtre-outcomes-outputs"
+            name="filtre-outcomes-outputs"
             v-model="selectedIds.composantId"
             :options="{
               placeholder: 'Choisir un Outcome',
@@ -501,7 +505,7 @@ export default {
           >
             <option v-for="(element, index) in composants" :key="index" :value="element.id">{{ element.codePta }} {{ element.nom }}</option>
           </TomSelect>
-          <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OUtComes</label>
+          <label for="filtre-outcomes-outputs" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OUtComes</label>
         </div>
       </div>
 
@@ -535,7 +539,7 @@ export default {
     <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y">
       <div class="w-auto">
         <div class="relative w-56 text-slate-500">
-          <input type="text" v-model="search" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
+          <input id="recherche-outputs" name="recherche-outputs" type="text" v-model="search" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
           <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
         </div>
       </div>
@@ -657,70 +661,105 @@ export default {
       <h2 v-if="!update" class="mr-auto text-base font-medium">Ajouter un Output</h2>
       <h2 v-else class="mr-auto text-base font-medium">Modifier un Output</h2>
     </ModalHeader>
-    <form @submit.prevent="sendForm">
-      <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
-        <InputForm v-model="formData.nom" class="col-span-12 mt-4" type="text" required="required" label="Nom" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
+     <form @submit.prevent="sendForm">
+        <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
+          <InputForm
+            id="nom-output"
+            name="nom"
+            v-model="formData.nom"
+            class="col-span-12 mt-4"
+            type="text"
+            required="required"
+            label="Nom"
+          />
+          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
 
-        <div class="input-form mt-3 col-span-12">
-          <label for="validation-form-6" class="form-label w-full"> Description </label>
-          <textarea v-model="formData.description" class="form-control w-full" name="comment" placeholder="Ajouter une description"></textarea>
-        </div>
-
-        <InputForm v-model="formData.budgetNational" class="col-span-12 mt-4 no-spin" type="number" required="required" placeHolder="Ex : 2" label="Fond propre" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.budgetNational">{{ messageErreur.budgetNational }}</p>
-
-        <InputForm v-model="formData.pret" class="col-span-12 mt-4 no-spin" type="number" required="required" placeHolder="Fond propre" label="Subvention" />
-        <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pret">{{ messageErreur.pret }}</p>
-
-        <!-- <pre>{{ formData.composanteId }}</pre> -->
-        <div class="flex col-span-12 mt-4">
-          <TomSelect
-            @change="mettreAjoutOutcome(formData.composanteId)"
-            v-model="formData.composanteId"
-            :options="{
-              placeholder: 'Choisir un Outcome',
-              create: false,
-              onOptionAdd: text(),
-            }"
-            class="w-full"
-          >
-            <option value=""></option>
-            <option v-for="(element, index) in composants" :key="index" :value="element.id">{{ element.codePta }} {{ element.nom }}</option>
-          </TomSelect>
-
-          <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-bold duration-100 ease-linear -translate-y-3 bg-white _font-medium form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OutComes</label>
-        </div>
-        <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.composanteId">{{ messageErreur.composanteId }}</p>
-
-        <div v-if="getPlageProjet" class="flex items-center mt-2 col-span-12">
-          <ClockIcon class="w-4 h-4 mr-2" />
-          <div>
-            Durée du projet : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(getPlageProjet.debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(getPlageProjet.fin) }}</span>
+          <div class="input-form mt-3 col-span-12">
+            <label for="description-output" class="form-label w-full"> Description </label>
+            <textarea
+              id="description-output"
+              name="description"
+              v-model="formData.description"
+              class="form-control w-full"
+              placeholder="Ajouter une description"
+            ></textarea>
           </div>
-        </div>
-        <!-- Affiche fondRestantOutcome et subventionRestantOutcome-->
-        <div class="col-span-12 mt-4 p-4 bg-gray-50 rounded-lg">
-          <h3 class="text-sm font-semibold text-gray-700 mb-3">Budget disponible (Outcome)</h3>
-          <div class="grid grid-cols-2 gap-4">
-            <div class="text-center">
-              <p class="text-xs text-gray-500">Fond propre restant</p>
-              <p class="text-lg font-bold" :class="fondRestantOutcome >= 0 ? 'text-green-600' : 'text-red-600'">{{ fondRestantOutcome === 0 ? "0" : $h.formatCurrency(fondRestantOutcome) }} FCFA</p>
-            </div>
-            <div class="text-center">
-              <p class="text-xs text-gray-500">Subvention restante</p>
-              <p class="text-lg font-bold" :class="subventionRestantOutcome >= 0 ? 'text-green-600' : 'text-red-600'">{{ subventionRestantOutcome === 0 ? "0" : $h.formatCurrency(subventionRestantOutcome) }} FCFA</p>
+
+          <InputForm
+            id="budget-national-output"
+            name="budgetNational"
+            v-model="formData.budgetNational"
+            class="col-span-12 mt-4 no-spin"
+            type="number"
+            required="required"
+            placeHolder="Ex : 2"
+            label="Fond propre"
+          />
+          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.budgetNational">{{ messageErreur.budgetNational }}</p>
+
+          <InputForm
+            id="pret-output"
+            name="pret"
+            v-model="formData.pret"
+            class="col-span-12 mt-4 no-spin"
+            type="number"
+            required="required"
+            placeHolder="Fond propre"
+            label="Subvention"
+          />
+          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.pret">{{ messageErreur.pret }}</p>
+
+          <!-- <pre>{{ formData.composanteId }}</pre> -->
+          <div class="flex col-span-12 mt-4">
+            <TomSelect
+              id="outcome-output"
+              name="composanteId"
+              @change="mettreAjoutOutcome(formData.composanteId)"
+              v-model="formData.composanteId"
+              :options="{
+                placeholder: 'Choisir un Outcome',
+                create: false,
+                onOptionAdd: text(),
+              }"
+              class="w-full"
+            >
+              <option value=""></option>
+              <option v-for="(element, index) in composants" :key="index" :value="element.id">{{ element.codePta }} {{ element.nom }}</option>
+            </TomSelect>
+
+            <label for="outcome-output" class="absolute z-10 px-3 ml-1 text-sm font-bold duration-100 ease-linear -translate-y-3 bg-white _font-medium form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">OutComes</label>
+          </div>
+          <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.composanteId">{{ messageErreur.composanteId }}</p>
+
+          <div v-if="getPlageProjet" class="flex items-center mt-2 col-span-12">
+            <ClockIcon class="w-4 h-4 mr-2" />
+            <div>
+              Durée du projet : Du <span class="pr-1 font-bold"> {{ $h.reformatDate(getPlageProjet.debut) }}</span> au <span class="font-bold"> {{ $h.reformatDate(getPlageProjet.fin) }}</span>
             </div>
           </div>
-        </div>
-      </ModalBody>
-      <ModalFooter>
-        <div class="flex items-center justify-center">
-          <button type="button" @click="cancel" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
-          <VButton class="inline-block" :label="labels" :loading="isLoading" />
-        </div>
-      </ModalFooter>
-    </form>
+          
+          <!-- Affiche fondRestantOutcome et subventionRestantOutcome-->
+          <div class="col-span-12 mt-4 p-4 bg-gray-50 rounded-lg">
+            <h3 class="text-sm font-semibold text-gray-700 mb-3">Budget disponible (Outcome)</h3>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="text-center">
+                <p class="text-xs text-gray-500">Fond propre restant</p>
+                <p class="text-lg font-bold" :class="fondRestantOutcome >= 0 ? 'text-green-600' : 'text-red-600'">{{ fondRestantOutcome === 0 ? "0" : $h.formatCurrency(fondRestantOutcome) }} FCFA</p>
+              </div>
+              <div class="text-center">
+                <p class="text-xs text-gray-500">Subvention restante</p>
+                <p class="text-lg font-bold" :class="subventionRestantOutcome >= 0 ? 'text-green-600' : 'text-red-600'">{{ subventionRestantOutcome === 0 ? "0" : $h.formatCurrency(subventionRestantOutcome) }} FCFA</p>
+              </div>
+            </div>
+          </div>
+        </ModalBody>
+        <ModalFooter>
+          <div class="flex items-center justify-center">
+            <button type="button" @click="cancel" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
+            <VButton class="inline-block" :label="labels" :loading="isLoading" />
+          </div>
+        </ModalFooter>
+      </form>
   </Modal>
 
   <Modal backdrop="static" :show="showDeleteModal" @hidden="showDeleteModal = false">

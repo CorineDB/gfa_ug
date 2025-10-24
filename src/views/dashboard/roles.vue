@@ -255,7 +255,7 @@ onMounted(() => {
     <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
       <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
         <div class="relative w-56 text-slate-500">
-          <input type="text" v-model="searchValue" @input="applyFilter" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
+          <input type="text" id="search_roles" name="search_roles" v-model="searchValue" @input="applyFilter" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
           <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
         </div>
       </div>
@@ -323,13 +323,13 @@ onMounted(() => {
           <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
 
           <div class="my-2">
-            <label for="regular-form-2" class="form-label">Description</label>
-            <textarea id="regular-form-2" placeholder="Description du role" required v-model="payload.description" class="w-full px-3 py-2 mt-1 border-2 border-gray-300 form-control focus:outline-none focus:ring-2 focus:border-transparent" rows="2"></textarea>
+            <label for="description_role" class="form-label">Description</label>
+            <textarea id="description_role" name="description_role" placeholder="Description du role" required v-model="payload.description" class="w-full px-3 py-2 mt-1 border-2 border-gray-300 form-control focus:outline-none focus:ring-2 focus:border-transparent" rows="2"></textarea>
             <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.description">{{ messageErreur.description }}</p>
           </div>
           <div>
-            <label class="form-label">Permissions <span class="text-danger">*</span> </label>
-            <TomSelect v-model="payload.permissions" multiple :options="{ placeholder: 'Selectionez  un secteur' }" class="w-full">
+            <label for="permissions_role" class="form-label">Permissions <span class="text-danger">*</span> </label>
+            <TomSelect id="permissions_role" name="permissions_role" v-model="payload.permissions" multiple :options="{ placeholder: 'Selectionez  un secteur' }" class="w-full">
               <option value=""></option>
               <option v-for="(permission, index) in permissions" :key="index" :value="permission.id">{{ permission.nom }}</option>
             </TomSelect>

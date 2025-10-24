@@ -306,8 +306,10 @@ export default {
     <!-- Combined Filter Section -->
     <div class="relative p-6 mt-3 space-y-3 bg-white rounded-lg shadow-md">
       <div class="flex w-full">
-        <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-base font-bold duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Activites</label>
+        <label for="select-activite" class="absolute z-10 px-3 ml-1 text-base font-bold duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Activites</label>
         <TomSelect
+          id="select-activite"
+          name="select-activite"
           v-model="activitesId"
           :options="{
             placeholder: 'Choisir une activite',
@@ -333,7 +335,7 @@ export default {
         <div class="flex space-x-2 md:space-x-4"></div>
         <div class="flex">
           <div class="relative text-slate-500">
-            <input type="text" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
+            <input type="text" id="recherche-activite" name="recherche-activite" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
             <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
           </div>
         </div>
@@ -415,29 +417,96 @@ export default {
       <h2 v-if="!update" class="mr-auto text-base font-medium">Ajouter une tache</h2>
       <h2 v-else class="mr-auto text-base font-medium">Modifier une tache</h2>
     </ModalHeader>
-    <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
-      <InputForm v-model="formData.annee" class="col-span-12" type="number" required="required" placeHolder="Ex : 2024" label="Annee de base" />
-      <InputForm v-model="formData.trimestre" class="col-span-12" type="number" required="required" placeHolder="Ex : 2" label="Trimestre" />
+    <form @submit.prevent="sendForm">
+      <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
+        <InputForm 
+          id="annee-base"
+          name="annee"
+          v-model="formData.annee" 
+          class="col-span-12" 
+          type="number" 
+          required="required" 
+          placeHolder="Ex : 2024" 
+          label="Annee de base" 
+        />
+        
+        <InputForm 
+          id="trimestre"
+          name="trimestre"
+          v-model="formData.trimestre" 
+          class="col-span-12" 
+          type="number" 
+          required="required" 
+          placeHolder="Ex : 2" 
+          label="Trimestre" 
+        />
 
-      <InputForm v-model="formData.budgetNational" class="col-span-12" type="number" required="required" placeHolder="Ex : 500000" label="Fond propre" />
+        <InputForm 
+          id="fond-propre-trimestre"
+          name="budgetNational"
+          v-model="formData.budgetNational" 
+          class="col-span-12" 
+          type="number" 
+          required="required" 
+          placeHolder="Ex : 500000" 
+          label="Fond propre" 
+        />
 
-      <InputForm v-model="formData.pret" class="col-span-12" type="number" required="required" placeHolder="Ex : 2000000" label="Montant financier" />
+        <InputForm 
+          id="montant-financier-trimestre"
+          name="pret"
+          v-model="formData.pret" 
+          class="col-span-12" 
+          type="number" 
+          required="required" 
+          placeHolder="Ex : 2000000" 
+          label="Montant financier" 
+        />
 
-      <div class="flex mt-2 col-span-12">
-        <v-select class="w-full" :reduce="(activite) => activite.id" v-model="formData.activiteId" label="nom" :options="activites">
-          <template #search="{ attributes, events }">
-            <input class="vs__search form-input" :required="!formData.activiteId" v-bind="attributes" v-on="events" />
-          </template>
-        </v-select>
-        <label for="_input-wizard-10" class="absolute z-10 px-3 ml-1 text-sm font-bold duration-100 ease-linear -translate-y-3 bg-white _font-medium form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Activites</label>
-      </div>
-    </ModalBody>
-    <ModalFooter>
-      <div class="flex items-center justify-center">
-        <button type="button" @click="showModal = false" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
-        <VButton class="inline-block" :label="labels" :loading="isLoading" @click="sendForm" />
-      </div>
-    </ModalFooter>
+        <div class="flex mt-2 col-span-12">
+          <v-select 
+            id="activite-selection"
+            name="activiteId"
+            class="w-full" 
+            :reduce="(activite) => activite.id" 
+            v-model="formData.activiteId" 
+            label="nom" 
+            :options="activites"
+          >
+            <template #search="{ attributes, events }">
+              <input 
+                class="vs__search form-input" 
+                :required="!formData.activiteId" 
+                v-bind="attributes" 
+                v-on="events" 
+              />
+            </template>
+          </v-select>
+          <label for="activite-selection" class="absolute z-10 px-3 ml-1 text-sm font-bold duration-100 ease-linear -translate-y-3 bg-white _font-medium form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">
+            Activites
+          </label>
+        </div>
+      </ModalBody>
+      <ModalFooter>
+        <div class="flex items-center justify-center">
+          <button 
+            type="button" 
+            @click="showModal = false" 
+            class="w-full mr-1 btn btn-outline-secondary"
+            id="annuler-trimestre"
+          >
+            Annuler
+          </button>
+          <VButton 
+            id="enregistrer-trimestre"
+            class="inline-block" 
+            :label="labels" 
+            :loading="isLoading" 
+            type="submit"
+          />
+        </div>
+      </ModalFooter>
+    </form>
   </Modal>
 
   <Modal :show="showDeleteModal" @hidden="showDeleteModal = false">

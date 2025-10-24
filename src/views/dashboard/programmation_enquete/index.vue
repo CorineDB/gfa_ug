@@ -386,7 +386,7 @@ onMounted(async () => {
     <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
       <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
         <div class="relative w-56 text-slate-500">
-          <input type="text" v-model="search" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
+          <input type="text" id="search_evaluation" name="search_evaluation" v-model="search" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
           <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
         </div>
       </div>
@@ -472,8 +472,8 @@ onMounted(async () => {
               <div class="w-full max-w-full box">
                 <p class="p-3 text-lg font-medium">Résultats synthetique par année</p>
                 <div class="!w-[250px] p-3">
-                  <label class="form-label">Organisation</label>
-                  <TomSelect name="organisations" v-model="ongSelectedScore" @change="changeOrganisationScore" :options="{ placeholder: 'Selectionez une organisation' }">
+                  <label for="organisation_score" class="form-label">Organisation</label>
+                  <TomSelect id="organisation_score" name="organisation_score" v-model="ongSelectedScore" @change="changeOrganisationScore" :options="{ placeholder: 'Selectionez une organisation' }">
                     <option value=""></option>
                     <option v-for="organisation in ongsProgramme" :key="organisation.id" :value="organisation.id">{{ organisation.nom }}</option>
                   </TomSelect>
@@ -492,8 +492,8 @@ onMounted(async () => {
               <div class="w-full max-w-full box">
                 <p class="p-3 text-lg font-medium">Score des indices par principe</p>
                 <div class="!w-[250px] p-3">
-                  <label class="form-label">Année</label>
-                  <TomSelect name="years" v-model="yearSelectedOng" :options="{ placeholder: 'Selectionez une organisation' }">
+                  <label for="annee_score" class="form-label">Année</label>
+                  <TomSelect id="annee_score" name="annee_score" v-model="yearSelectedOng" :options="{ placeholder: 'Selectionez une organisation' }">
                     <option value=""></option>
                     <option v-for="year in annees" :key="year" :value="year">{{ year }}</option>
                   </TomSelect>
@@ -520,20 +520,20 @@ onMounted(async () => {
         <div class="grid grid-cols-12 gap-4">
           <!-- Nom -->
           <div class="col-span-12 md:col-span-6">
-            <InputForm label="Nom" v-model="payload.intitule" :control="getFieldErrors(errors.intitule)" />
+            <InputForm id="nom_evaluation" name="nom_evaluation" label="Nom" v-model="payload.intitule" :control="getFieldErrors(errors.intitule)" />
           </div>
 
           <!-- Description -->
           <div class="col-span-12 md:col-span-6">
-            <label class="form-label" for="description">Description</label>
-            <textarea name="description" class="form-control w-full" id="description" v-model="payload.description" rows="3"></textarea>
+            <label class="form-label" for="description_evaluation">Description</label>
+            <textarea name="description_evaluation" class="form-control w-full" id="description_evaluation" v-model="payload.description" rows="3"></textarea>
             <div v-if="errors.description" class="mt-2 text-danger">{{ getFieldErrors(errors.description) }}</div>
           </div>
 
           <!-- Année -->
           <div class="col-span-12 md:col-span-6">
-            <label class="form-label">Année</label>
-            <TomSelect v-model="payload.annee_exercice" :options="{ placeholder: 'Sélectionnez une année' }" class="w-full">
+            <label for="annee_exercice_evaluation" class="form-label">Année</label>
+            <TomSelect id="annee_exercice_evaluation" name="annee_exercice_evaluation" v-model="payload.annee_exercice" :options="{ placeholder: 'Sélectionnez une année' }" class="w-full">
               <option v-for="(year, index) in annees" :key="index" :value="year">{{ year }}</option>
             </TomSelect>
             <div v-if="errors.annee_exercice" class="mt-2 text-danger">{{ getFieldErrors(errors.annee_exercice) }}</div>
@@ -541,16 +541,16 @@ onMounted(async () => {
 
           <!-- Dates début/fin -->
           <div class="col-span-12 md:col-span-6">
-            <InputForm label="Début de l'enquête" v-model="payload.debut" type="date" :control="getFieldErrors(errors.debut)" />
+            <InputForm id="debut_enquete" name="debut_enquete" label="Début de l'enquête" v-model="payload.debut" type="date" :control="getFieldErrors(errors.debut)" />
           </div>
           <div class="col-span-12 md:col-span-6">
-            <InputForm label="Fin de l'enquête" v-model="payload.fin" type="date" :control="getFieldErrors(errors.fin)" />
+            <InputForm id="fin_enquete" name="fin_enquete" label="Fin de l'enquête" v-model="payload.fin" type="date" :control="getFieldErrors(errors.fin)" />
           </div>
 
           <!-- Formulaire Factuel -->
           <div class="col-span-12 md:col-span-6">
-            <label class="form-label">Formulaire Factuel <span class="text-danger">*</span></label>
-            <TomSelect v-model="idFormFactuel" :options="{ placeholder: 'Sélectionnez un formulaire' }" class="w-full">
+            <label for="formulaire_factuel" class="form-label">Formulaire Factuel <span class="text-danger">*</span></label>
+            <TomSelect id="formulaire_factuel" name="formulaire_factuel" v-model="idFormFactuel" :options="{ placeholder: 'Sélectionnez un formulaire' }" class="w-full">
               <option v-for="(form, index) in formulairesFactuel" :key="index" :value="form.id">{{ form.libelle }}</option>
             </TomSelect>
             <div v-if="errors.formulaires_de_gouvernance" class="mt-2 text-danger">{{ getFieldErrors(errors.formulaires_de_gouvernance) }}</div>
@@ -558,8 +558,8 @@ onMounted(async () => {
 
           <!-- Formulaire de perception -->
           <div class="col-span-12 md:col-span-6">
-            <label class="form-label">Formulaire de perception <span class="text-danger">*</span></label>
-            <TomSelect v-model="idFormPerception" :options="{ placeholder: 'Sélectionnez un formulaire' }" class="w-full">
+            <label for="formulaire_perception" class="form-label">Formulaire de perception <span class="text-danger">*</span></label>
+            <TomSelect id="formulaire_perception" name="formulaire_perception" v-model="idFormPerception" :options="{ placeholder: 'Sélectionnez un formulaire' }" class="w-full">
               <option v-for="(form, index) in formulairesPerception" :key="index" :value="form.id">{{ form.libelle }}</option>
             </TomSelect>
             <div v-if="errors.formulaires_de_gouvernance" class="mt-2 text-danger">{{ getFieldErrors(errors.formulaires_de_gouvernance) }}</div>
@@ -567,8 +567,8 @@ onMounted(async () => {
 
           <!-- Organisations -->
           <div class="col-span-12 md:col-span-6">
-            <label class="form-label">Organisations <span class="text-danger">*</span></label>
-            <TomSelect v-model="payload.organisations" multiple :options="{ placeholder: 'Sélectionnez les organisations' }" class="w-full">
+            <label for="organisations_evaluation" class="form-label">Organisations <span class="text-danger">*</span></label>
+            <TomSelect id="organisations_evaluation" name="organisations_evaluation" v-model="payload.organisations" multiple :options="{ placeholder: 'Sélectionnez les organisations' }" class="w-full">
               <option v-for="(organisation, index) in organisations" :key="index" :value="organisation.id">{{ organisation.nom }}</option>
             </TomSelect>
             <div v-if="errors.organisations" class="mt-2 text-danger">{{ getFieldErrors(errors.organisations) }}</div>

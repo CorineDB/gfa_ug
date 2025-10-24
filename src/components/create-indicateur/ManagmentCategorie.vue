@@ -156,36 +156,76 @@ onMounted(getDatas);
       <ModalHeader>
         <h2 class="mr-auto text-base font-medium">{{ modeText }} une catégorie</h2>
       </ModalHeader>
-      <form @submit.prevent="submitData">
-        <ModalBody>
-          <div class="grid grid-cols-1 gap-4">
-            <InputForm label="Nom" v-model="payload.nom" :control="getFieldErrors(errors.nom)" />
-            <InputForm label="Indice" :control="getFieldErrors(errors.indice)" v-model="payload.indice" type="number" />
-            <div>
-              <label class="form-label">Type</label>
-              <TomSelect v-model="payload.type" :options="{ placeholder: 'Selectionez un type' }" class="w-full">
-                <option value=""></option>
-                <option v-for="(type, index) in types" :key="index" :value="type.id">{{ type.label }}</option>
-              </TomSelect>
-              <div v-if="errors.type" class="mt-2 text-danger">{{ getFieldErrors(errors.type) }}</div>
+       <form @submit.prevent="submitData">
+          <ModalBody>
+            <div class="grid grid-cols-1 gap-4">
+              <InputForm 
+                id="nom-categorie"
+                name="nom"
+                label="Nom" 
+                v-model="payload.nom" 
+                :control="getFieldErrors(errors.nom)" 
+              />
+              
+              <InputForm 
+                id="indice-categorie"
+                name="indice"
+                label="Indice" 
+                :control="getFieldErrors(errors.indice)" 
+                v-model="payload.indice" 
+                type="number" 
+              />
+              
+              <div>
+                <label class="form-label" for="type-categorie">Type</label>
+                <TomSelect 
+                  id="type-categorie"
+                  name="type"
+                  v-model="payload.type" 
+                  :options="{ placeholder: 'Selectionez un type' }" 
+                  class="w-full"
+                >
+                  <option value=""></option>
+                  <option v-for="(type, index) in types" :key="index" :value="type.id">{{ type.label }}</option>
+                </TomSelect>
+                <div v-if="errors.type" class="mt-2 text-danger">{{ getFieldErrors(errors.type) }}</div>
+              </div>
+              
+              <div>
+                <label class="form-label" for="categorie-parent">Catégorie</label>
+                <TomSelect 
+                  id="categorie-parent"
+                  name="categorieId"
+                  v-model="payload.categorieId" 
+                  :options="{ placeholder: 'Selectionez une catégorie' }" 
+                  class="w-full"
+                >
+                  <option value=""></option>
+                  <option v-for="(categorie, index) in datas" :key="index" :value="categorie.id">{{ categorie.nom }}</option>
+                </TomSelect>
+                <div v-if="errors.categorieId" class="mt-2 text-danger">{{ getFieldErrors(errors.categorieId) }}</div>
+              </div>
             </div>
-            <div>
-              <label class="form-label">Catégorie</label>
-              <TomSelect v-model="payload.categorieId" :options="{ placeholder: 'Selectionez une catégorie' }" class="w-full">
-                <option value=""></option>
-                <option v-for="(categorie, index) in datas" :key="index" :value="categorie.id">{{ categorie.nom }}</option>
-              </TomSelect>
-              <div v-if="errors.categorieId" class="mt-2 text-danger">{{ getFieldErrors(errors.categorieId) }}</div>
+          </ModalBody>
+          <ModalFooter>
+            <div class="flex gap-2">
+              <button 
+                type="button" 
+                @click="resetForm" 
+                class="w-full px-2 py-2 my-3 btn btn-outline-secondary"
+                id="annuler-categorie"
+              >
+                Annuler
+              </button>
+              <VButton 
+                id="soumettre-categorie"
+                :loading="isLoading" 
+                :label="modeText" 
+                type="submit"
+              />
             </div>
-          </div>
-        </ModalBody>
-        <ModalFooter>
-          <div class="flex gap-2">
-            <button type="button" @click="resetForm" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
-            <VButton :loading="isLoading" :label="modeText" />
-          </div>
-        </ModalFooter>
-      </form>
+          </ModalFooter>
+        </form>
     </Modal>
 
     <!-- Modal for deleting -->

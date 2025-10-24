@@ -134,12 +134,12 @@ const initTabulator = () => {
       {
         title: "Sigle",
         field: "sigle",
-        maxWidth: 130,
+       
       },
       {
         title: "Projet associé",
         field: "projet",
-        minWidth: 150,
+       
         hozAlign: "left",
         formatter(cell) {
           if (cell.getData().projet !== null) {
@@ -152,7 +152,7 @@ const initTabulator = () => {
       {
         title: "E-mail",
         field: "user",
-        minWidth: 150,
+         
         hozAlign: "left",
         formatter(cell) {
           const userData = cell.getData().user;
@@ -166,12 +166,12 @@ const initTabulator = () => {
       {
         title: "Type",
         field: "type",
-        maxWidth: 130,
+        
       },
       {
         title: "Contact",
         field: "user",
-        minWidth: 150,
+        
         hozAlign: "left",
         formatter(cell) {
           const userData = cell.getData().user;
@@ -184,7 +184,7 @@ const initTabulator = () => {
       },
       {
         title: "Actions",
-        minWidth: "400",
+         
         field: "actions",
         hozAlign: "left",
         formatter: (cell) => {
@@ -520,12 +520,12 @@ onMounted(() => {
         <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
           <div class="relative w-56 text-slate-500">
             <!--  -->
-            <input type="text" v-model="searchs"  @input="applyFilter" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
+            <input type="text" id="search_organisations" name="search_organisations" v-model="searchs"  @input="applyFilter" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
             <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
           </div>
         </div>
         <div class="flex">
-          <button class="mr-2 shadow-md btn btn-primary" @click="openCreateModal"><PlusIcon class="w-4 h-4 mr-3" />Ajouter une organisation</button>
+          <button class="mr-2 shadow-md btn btn-primary" @click="openCreateModal"><PlusIcon class="w-4 h-4 mr-3" />Ajouter une organisation hjgjh</button>
         </div>
       </div>
     </div>
@@ -535,7 +535,7 @@ onMounted(() => {
         <div></div>
       </div>
       <div class="overflow-scroll">
-        <div id="tabulator" ref="tableRef" class="mt-5 overflow-scroll"></div>
+        <div id="tabulator" ref="tableRef" class="mt-5 _overflow-scroll"></div>
       </div>
     </div>
     <LoaderSnipper v-if="isLoadingData" />
@@ -592,24 +592,24 @@ onMounted(() => {
               <div class="grid grid-cols-2 gap-4">
                 <InputForm label="Code" :control="getFieldErrors(errors.code)" v-model.number="payload.code" type="number" />
                 <div v-if="payload.type !== 'autre_osc'">
-                  <label class="form-label">Domaine D'intervention <span class="text-danger">*</span> </label>
-                  <TomSelect v-model="payload.secteurActivite" :options="{ placeholder: 'Selectionez  un secteur' }" class="w-full">
+                  <label for="secteur_activite" class="form-label">Domaine D'intervention <span class="text-danger">*</span> </label>
+                  <TomSelect id="secteur_activite" name="secteur_activite" v-model="payload.secteurActivite" :options="{ placeholder: 'Selectionez  un secteur' }" class="w-full">
                     <option value=""></option>
                     <option v-for="(secteur, index) in secteursActivites" :key="index" :value="secteur">{{ secteur }}</option>
                   </TomSelect>
                   <div v-if="errors.secteurActivite" class="mt-2 text-danger">{{ getFieldErrors(errors.secteurActivite) }}</div>
                 </div>
                 <div>
-                  <label class="form-label">Types<span class="text-danger">*</span> </label>
-                  <TomSelect v-model="payload.type" :options="{ placeholder: 'Selectionez  un type' }" class="w-full">
+                  <label for="type_organisation" class="form-label">Types<span class="text-danger">*</span> </label>
+                  <TomSelect id="type_organisation" name="type_organisation" v-model="payload.type" :options="{ placeholder: 'Selectionez  un type' }" class="w-full">
                     <option value=""></option>
                     <option v-for="(type, index) in types" :key="index" :value="type.id">{{ type.label }}</option>
                   </TomSelect>
                   <div v-if="errors.type" class="mt-2 text-danger">{{ getFieldErrors(errors.type) }}</div>
                 </div>
                 <div v-if="payload.type == 'osc_fosir' && payload.type !== ''">
-                  <label class="form-label">Fonds <span class="text-danger">*</span> </label>
-                  <TomSelect v-model="payload.fondId" :options="{ placeholder: 'Selectionez  un fond' }" class="w-full">
+                  <label for="fond_id" class="form-label">Fonds <span class="text-danger">*</span> </label>
+                  <TomSelect id="fond_id" name="fond_id" v-model="payload.fondId" :options="{ placeholder: 'Selectionez  un fond' }" class="w-full">
                     <option value=""></option>
                     <option v-for="(fond, index) in fonds" :key="index" :value="fond.id">{{ fond.nom_du_fond }} ({{ fond.fondDisponible }})</option>
                   </TomSelect>
@@ -626,9 +626,9 @@ onMounted(() => {
               <div class="space-y-3">
                 <div class="grid grid-cols-2 gap-4">
                   <div>
-                    <label class="form-label">Pays</label>
+                    <label for="pays" class="form-label">Pays</label>
                     <div class="relative w-full">
-                      <v-select class="w-full" :reduce="(country) => country" v-model="payload.pays" :options="pays" placeholder="Selectionez un pays..." @option:selected="changeCountry">
+                      <v-select id="pays" name="pays" class="w-full" :reduce="(country) => country" v-model="payload.pays" :options="pays" placeholder="Selectionez un pays..." @option:selected="changeCountry">
                         <template #search="{ attributes, events }">
                           <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher un pays..." />
                         </template>
@@ -636,13 +636,13 @@ onMounted(() => {
                     </div>
                     <div v-if="errors.pays" class="mt-2 text-danger">{{ getFieldErrors(errors.pays) }}</div>
                   </div>
-                  <InputForm :required="false" label="Adresse" name="Adresse" :control="getFieldErrors(errors.addresse)" v-model="payload.addresse" />
+                  <InputForm :required="false" label="Adresse" id="adresse" name="adresse" :control="getFieldErrors(errors.addresse)" v-model="payload.addresse" />
                 </div>
                 <div v-if="isBenin" class="grid grid-cols-2 gap-4">
                   <div>
-                    <label class="form-label">Départements<span class="text-danger">*</span> </label>
+                    <label for="departement" class="form-label">Départements<span class="text-danger">*</span> </label>
                     <div class="relative w-full">
-                      <v-select class="w-full" :reduce="(dep) => dep.lib_dep" v-model="payload.departement" :options="departements" label="lib_dep" placeholder="Selectionez un département..." @option:selected="updateCommunes">
+                      <v-select id="departement" name="departement" class="w-full" :reduce="(dep) => dep.lib_dep" v-model="payload.departement" :options="departements" label="lib_dep" placeholder="Selectionez un département..." @option:selected="updateCommunes">
                         <template #search="{ attributes, events }">
                           <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher un département..." />
                         </template>
@@ -651,9 +651,9 @@ onMounted(() => {
                     <div v-if="errors.departement" class="mt-2 text-danger">{{ getFieldErrors(errors.departement) }}</div>
                   </div>
                   <div :class="[!showCommune ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
-                    <label class="form-label">Communes<span class="text-danger">*</span> </label>
+                    <label for="commune" class="form-label">Communes<span class="text-danger">*</span> </label>
                     <div class="relative w-full">
-                      <v-select class="w-full" :reduce="(commune) => commune.lib_com" v-model="payload.commune" :options="filteredCommunes" label="lib_com" placeholder="Sélectionner la commune..." @option:selected="updateArrondissements">
+                      <v-select id="commune" name="commune" class="w-full" :reduce="(commune) => commune.lib_com" v-model="payload.commune" :options="filteredCommunes" label="lib_com" placeholder="Sélectionner la commune..." @option:selected="updateArrondissements">
                         <template #search="{ attributes, events }">
                           <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher une commune..." />
                         </template>
@@ -665,9 +665,9 @@ onMounted(() => {
 
                 <div v-if="isBenin" class="grid grid-cols-2 gap-4">
                   <div :class="[!showArrondissement ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
-                    <label class="form-label">Arrondissement<span class="text-danger">*</span> </label>
+                    <label for="arrondissement" class="form-label">Arrondissement<span class="text-danger">*</span> </label>
                     <div class="relative w-full">
-                      <v-select class="w-full" :reduce="(arrond) => arrond.lib_arrond" v-model="payload.arrondissement" :options="filteredArrondissements" label="lib_arrond" placeholder="Selectionez un arrondissement..." @option:selected="updateQuartiers">
+                      <v-select id="arrondissement" name="arrondissement" class="w-full" :reduce="(arrond) => arrond.lib_arrond" v-model="payload.arrondissement" :options="filteredArrondissements" label="lib_arrond" placeholder="Selectionez un arrondissement..." @option:selected="updateQuartiers">
                         <template #search="{ attributes, events }">
                           <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher un arrondissement..." />
                         </template>
@@ -676,9 +676,9 @@ onMounted(() => {
                     <div v-if="errors.arrondissement" class="mt-2 text-danger">{{ getFieldErrors(errors.arrondissement) }}</div>
                   </div>
                   <div :class="[!showQuatier ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
-                    <label class="form-label">Quartier<span class="text-danger">*</span> </label>
+                    <label for="quartier" class="form-label">Quartier<span class="text-danger">*</span> </label>
                     <div class="relative w-full">
-                      <v-select class="w-full" :reduce="(quart) => quart.lib_quart" v-model="payload.quartier" :options="filteredQuartiers" label="lib_quart" placeholder="Sélectionner le quartier...">
+                      <v-select id="quartier" name="quartier" class="w-full" :reduce="(quart) => quart.lib_quart" v-model="payload.quartier" :options="filteredQuartiers" label="lib_quart" placeholder="Sélectionner le quartier...">
                         <template #search="{ attributes, events }">
                           <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher un quartier..." />
                         </template>
@@ -689,17 +689,17 @@ onMounted(() => {
                 </div>
                 
                 <div v-if="!isBenin" class="grid grid-cols-2 gap-4">
-                  <InputForm :required="false" :optionel="false" label="Département" name="Département" v-model="payload.departement" :control="getFieldErrors(errors.departement)" />
-                  <InputForm :required="false" :optionel="false" label="Commune" name="Commune" v-model="payload.commune" :control="getFieldErrors(errors.commune)" />
+                  <InputForm :required="false" :optionel="false" label="Département" id="departement_autre" name="departement_autre" v-model="payload.departement" :control="getFieldErrors(errors.departement)" />
+                  <InputForm :required="false" :optionel="false" label="Commune" id="commune_autre" name="commune_autre" v-model="payload.commune" :control="getFieldErrors(errors.commune)" />
                 </div>
 
                 <div v-if="!isBenin" class="grid grid-cols-2 gap-4">
-                  <InputForm :required="false" :optionel="false" label="Arrondissement" name="Arrondissement" v-model="payload.arrondissement" :control="getFieldErrors(errors.arrondissement)" />
-                  <InputForm :required="false" :optionel="false" label="Quartier" name="Quartier" v-model="payload.quartier" :control="getFieldErrors(errors.quartier)" />
+                  <InputForm :required="false" :optionel="false" label="Arrondissement" id="arrondissement_autre" name="arrondissement_autre" v-model="payload.arrondissement" :control="getFieldErrors(errors.arrondissement)" />
+                  <InputForm :required="false" :optionel="false" label="Quartier" id="quartier_autre" name="quartier_autre" v-model="payload.quartier" :control="getFieldErrors(errors.quartier)" />
                 </div>
                 <div class="grid grid-cols-2 gap-4">
-                  <InputForm :required="false" :optionel="false" label="Longitude" name="Longitude" step="0.1" :control="getFieldErrors(errors.longitude)" v-model.text="payload.longitude" type="number" />
-                  <InputForm :required="false" :optionel="false" label="Latitude" name="Latitude" step="0.1" :control="getFieldErrors(errors.latitude)" v-model.text="payload.latitude" type="number" />
+                  <InputForm :required="false" :optionel="false" label="Longitude" id="longitude" name="longitude" step="0.1" :control="getFieldErrors(errors.longitude)" v-model.text="payload.longitude" type="number" />
+                  <InputForm :required="false" :optionel="false" label="Latitude" id="latitude" name="latitude" step="0.1" :control="getFieldErrors(errors.latitude)" v-model.text="payload.latitude" type="number" />
                 </div>
               </div>
             </div>
@@ -707,8 +707,8 @@ onMounted(() => {
               <p class="mb-3 text-lg text-semibold">Informations Point focal</p>
               <div class="space-y-3">
                 <div class="grid grid-cols-2 gap-4">
-                  <InputForm :required="false" label="Nom point focal" name="Nom point focal" :control="getFieldErrors(errors.nom_point_focal)" v-model="payload.nom_point_focal" />
-                  <InputForm :required="false" label="Prénom point focal" name="Prénom point focal" :control="getFieldErrors(errors.prenom_point_focal)" v-model="payload.prenom_point_focal" />
+                  <InputForm :required="false" label="Nom point focal" id="nom_point_focal" name="nom_point_focal" :control="getFieldErrors(errors.nom_point_focal)" v-model="payload.nom_point_focal" />
+                  <InputForm :required="false" label="Prénom point focal" id="prenom_point_focal" name="prenom_point_focal" :control="getFieldErrors(errors.prenom_point_focal)" v-model="payload.prenom_point_focal" />
                 </div>
                 <div>
                   <!-- <InputForm :required="false" :control="getFieldErrors(errors.contact_point_focal)" label="Contact" name="Contact" v-model="payload.contact" maxlength="13" placeholder="+229xxxxxxxxxx" type="text" />
@@ -738,8 +738,8 @@ onMounted(() => {
             <p class="mb-3 text-lg text-semibold">Informations Point focal</p>
             <div class="space-y-3">
               <div class="grid grid-cols-2 gap-4">
-                <InputForm :required="false" label="Nom point focal" name="Nom point focal" :control="getFieldErrors(errors.nom_point_focal)" v-model="payload.nom_point_focal" />
-                <InputForm :required="false" label="Prénom point focal" name="Prénom point focal" :control="getFieldErrors(errors.prenom_point_focal)" v-model="payload.prenom_point_focal" />
+                <InputForm :required="false" label="Nom point focal" id="nom_point_focal_etape3" name="nom_point_focal_etape3" :control="getFieldErrors(errors.nom_point_focal)" v-model="payload.nom_point_focal" />
+                <InputForm :required="false" label="Prénom point focal" id="prenom_point_focal_etape3" name="prenom_point_focal_etape3" :control="getFieldErrors(errors.prenom_point_focal)" v-model="payload.prenom_point_focal" />
               </div>
               <div>
                 <!-- <InputForm :required="false"  :control="getFieldErrors(errors.contact_point_focal)"  label="Contact point focal"  name="Contact point focal" v-model="payload.contact_point_focal" maxlength="13" placeholder="+229xxxxxxxxxx" type="text" />

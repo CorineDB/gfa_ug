@@ -242,27 +242,57 @@ onMounted(getDatas);
       <form @submit.prevent="submitData">
         <ModalBody>
           <div class="grid grid-cols-1 gap-4">
-            <InputForm label="Nom" v-model="payload.nom" :control="getFieldErrors(errors.nom)" class="col-span-12" />
+            <InputForm 
+              id="nom-localisation"
+              name="nom"
+              label="Nom" 
+              v-model="payload.nom" 
+              :control="getFieldErrors(errors.nom)" 
+              class="col-span-12" 
+            />
+            
             <div class="col-span-12">
-              <label class="form-label">Pays<span class="text-danger">*</span> </label>
-              <TomSelect v-model="payload.pays" @change="changeCountry" :options="{ placeholder: 'Selectionez  un pays' }" class="w-full">
+              <label class="form-label" for="pays-selection">Pays<span class="text-danger">*</span> </label>
+              <TomSelect 
+                id="pays-selection"
+                name="pays"
+                v-model="payload.pays" 
+                @change="changeCountry" 
+                :options="{ placeholder: 'Selectionez  un pays' }" 
+                class="w-full"
+              >
                 <option value=""></option>
                 <option v-for="(country, index) in pays" :key="index" :value="country">{{ country }}</option>
               </TomSelect>
               <div v-if="errors.pays" class="mt-2 text-danger">{{ getFieldErrors(errors.pays) }}</div>
             </div>
+            
             <div v-if="isBenin" class="col-span-12">
               <div class="w-full mb-4">
-                <label class="form-label">Départements<span class="text-danger">*</span> </label>
-                <TomSelect v-model="payload.departement" @change="updateCommunes" :options="{ placeholder: 'Selectionez un département' }" class="w-full">
+                <label class="form-label" for="departement-benin">Départements<span class="text-danger">*</span> </label>
+                <TomSelect 
+                  id="departement-benin"
+                  name="departement"
+                  v-model="payload.departement" 
+                  @change="updateCommunes" 
+                  :options="{ placeholder: 'Selectionez un département' }" 
+                  class="w-full"
+                >
                   <option value=""></option>
                   <option v-for="(dep, index) in departements" :key="index" :value="dep.lib_dep">{{ dep.lib_dep }}</option>
                 </TomSelect>
                 <div v-if="errors.departement" class="mt-2 text-danger">{{ getFieldErrors(errors.departement) }}</div>
               </div>
               <div class="mb-4" :class="[!showCommune ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
-                <label class="form-label">Communes<span class="text-danger">*</span> </label>
-                <TomSelect v-model="payload.commune" :options="{ placeholder: 'Sélectionner la commune' }" class="w-full" @change="updateArrondissements">
+                <label class="form-label" for="commune-benin">Communes<span class="text-danger">*</span> </label>
+                <TomSelect 
+                  id="commune-benin"
+                  name="commune"
+                  v-model="payload.commune" 
+                  :options="{ placeholder: 'Sélectionner la commune' }" 
+                  class="w-full" 
+                  @change="updateArrondissements"
+                >
                   <option v-for="commune in filteredCommunes" :key="commune.lib_com" :value="commune.lib_com">
                     {{ commune.lib_com }}
                   </option>
@@ -273,15 +303,28 @@ onMounted(getDatas);
 
             <div v-if="isBenin" class="col-span-12">
               <div class="w-full mb-4" :class="[!showArrondissement ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
-                <label class="form-label">Arrondissemnt<span class="text-danger">*</span> </label>
-                <TomSelect v-model="payload.arrondissement" @change="updateQuartiers" :options="{ placeholder: 'Selectionez  arrondissement' }" class="w-full">
+                <label class="form-label" for="arrondissement-benin">Arrondissemnt<span class="text-danger">*</span> </label>
+                <TomSelect 
+                  id="arrondissement-benin"
+                  name="arrondissement"
+                  v-model="payload.arrondissement" 
+                  @change="updateQuartiers" 
+                  :options="{ placeholder: 'Selectionez  arrondissement' }" 
+                  class="w-full"
+                >
                   <option v-for="(arrond, index) in filteredArrondissements" :key="index" :value="arrond.lib_arrond">{{ arrond.lib_arrond }}</option>
                 </TomSelect>
                 <div v-if="errors.arrondissement" class="mt-2 text-danger">{{ getFieldErrors(errors.arrondissement) }}</div>
               </div>
               <div class="w-full mb-4" :class="[!showQuatier ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
-                <label class="form-label">Quartier<span class="text-danger">*</span> </label>
-                <TomSelect v-model="payload.quartier" :options="{ placeholder: 'Sélectionner le quatier' }" class="w-full">
+                <label class="form-label" for="quartier-benin">Quartier<span class="text-danger">*</span> </label>
+                <TomSelect 
+                  id="quartier-benin"
+                  name="quartier"
+                  v-model="payload.quartier" 
+                  :options="{ placeholder: 'Sélectionner le quatier' }" 
+                  class="w-full"
+                >
                   <option v-for="quart in filteredQuartiers" :key="quart.lib_quart" :value="quart.lib_quart">
                     {{ quart.lib_quart }}
                   </option>
@@ -289,26 +332,75 @@ onMounted(getDatas);
                 <div v-if="errors.quartier" class="mt-2 text-danger">{{ getFieldErrors(errors.quartier) }}</div>
               </div>
             </div>
+            
             <div v-if="!isBenin" class="col-span-12">
-              <InputForm :required="false" :optionel="false" label="Département" v-model="payload.departement" :control="getFieldErrors(errors.departement)" class="mb-4" />
-              <InputForm :required="false" :optionel="false" label="Commune" v-model="payload.commune" :control="getFieldErrors(errors.commune)" class="mb-4" />
-              <InputForm label="Quartier" v-model="payload.quartier" :control="getFieldErrors(errors.quartier)" />
+              <InputForm 
+                id="departement-etranger"
+                name="departement"
+                :required="false" 
+                :optionel="false" 
+                label="Département" 
+                v-model="payload.departement" 
+                :control="getFieldErrors(errors.departement)" 
+                class="mb-4" 
+              />
+              <InputForm 
+                id="commune-etranger"
+                name="commune"
+                :required="false" 
+                :optionel="false" 
+                label="Commune" 
+                v-model="payload.commune" 
+                :control="getFieldErrors(errors.commune)" 
+                class="mb-4" 
+              />
+              <InputForm 
+                id="quartier-etranger"
+                name="quartier"
+                label="Quartier" 
+                v-model="payload.quartier" 
+                :control="getFieldErrors(errors.quartier)" 
+              />
             </div>
-            <!-- <InputForm label="Pays" v-model="payload.pays" :control="getFieldErrors(errors.pays)" />
-            <InputForm label="Departement" v-model="payload.departement" :control="getFieldErrors(errors.departement)" />
-            <InputForm label="Commune" v-model="payload.commune" :control="getFieldErrors(errors.commune)" />
-            <InputForm label="Arrondissement" v-model="payload.arrondissement" :control="getFieldErrors(errors.arrondissement)" />
-            <InputForm label="Quartier" v-model="payload.quartier" :control="getFieldErrors(errors.quartier)" /> -->
+            
             <div class="flex items-center justify-between gap-3 col-span-12">
-              <InputForm label="Longitude" :control="getFieldErrors(errors.longitude)" class="flex-1" v-model="payload.longitude" type="number" />
-              <InputForm label="Latitude" :control="getFieldErrors(errors.latitude)" class="flex-1" v-model="payload.latitude" type="number" />
+              <InputForm 
+                id="longitude-localisation"
+                name="longitude"
+                label="Longitude" 
+                :control="getFieldErrors(errors.longitude)" 
+                class="flex-1" 
+                v-model="payload.longitude" 
+                type="number" 
+              />
+              <InputForm 
+                id="latitude-localisation"
+                name="latitude"
+                label="Latitude" 
+                :control="getFieldErrors(errors.latitude)" 
+                class="flex-1" 
+                v-model="payload.latitude" 
+                type="number" 
+              />
             </div>
           </div>
         </ModalBody>
         <ModalFooter>
           <div class="flex gap-2">
-            <button type="button" @click="resetForm" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
-            <VButton :loading="isLoading" :label="modeText" />
+            <button 
+              type="button" 
+              @click="resetForm" 
+              class="w-full px-2 py-2 my-3 btn btn-outline-secondary"
+              id="annuler-localisation"
+            >
+              Annuler
+            </button>
+            <VButton 
+              id="soumettre-localisation"
+              :loading="isLoading" 
+              :label="modeText" 
+              type="submit"
+            />
           </div>
         </ModalFooter>
       </form>

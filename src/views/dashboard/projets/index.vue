@@ -6,7 +6,7 @@
   <div class="flex flex-col items-center justify-between mt-8 mb-4 intro-y sm:flex-row">
     <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
       <div class="relative w-56 text-slate-500">
-        <input type="text" v-model="search" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
+        <input id="recherche-projets" name="recherche-projets" type="text" v-model="search" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
         <SearchIcon class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
       </div>
     </div>
@@ -37,18 +37,18 @@
 
           <div class="grid grid-cols-1 gap-4">
             <div class="col-span-12">
-              <InputForm label="Nom" v-model="site.nom" />
+              <InputForm :id="'sites.' + index + '.nom'" :name="'sites[' + index + '].nom'" label="Nom" v-model="site.nom" />
               <div v-if="errors[`sites.${index}.nom`]" class="mt-2 text-danger">{{ getFieldErrors(errors[`sites.${index}.nom`]) }}</div>
             </div>
 
             <!-- Coordonnées avec bouton pour ouvrir la carte -->
             <div class="grid grid-cols-2 gap-4 col-span-12">
               <div>
-                <InputForm label="Longitude" type="number" step="any" v-model="site.longitude" />
+                <InputForm :id="'sites.' + index + '.longitude'" :name="'sites[' + index + '].longitude'" label="Longitude" type="number" step="any" v-model="site.longitude" />
                 <div v-if="errors[`sites.${index}.longitude`]" class="mt-2 text-danger">{{ getFieldErrors(errors[`sites.${index}.longitude`]) }}</div>
               </div>
               <div>
-                <InputForm label="Latitude" type="number" step="any" v-model.number="site.latitude" />
+                <InputForm :id="'sites.' + index + '.latitude'" :name="'sites[' + index + '].latitude'" label="Latitude" type="number" step="any" v-model.number="site.latitude" />
                 <div v-if="errors[`sites.${index}.latitude`]" class="mt-2 text-danger">{{ getFieldErrors(errors[`sites.${index}.latitude`]) }}</div>
               </div>
             </div>
@@ -66,7 +66,7 @@
 
             <div class="col-span-12">
               <label class="form-label">Pays<span class="text-danger">*</span> </label>
-              <select v-model="site.pays" @change="changeCountryForSite(index)" class="form-select w-full">
+              <select :id="'sites.' + index + '.pays'" :name="'sites[' + index + '].pays'" v-model="site.pays" @change="changeCountryForSite(index)" class="form-select w-full">
                 <option value="">Sélectionnez un pays</option>
                 <option v-for="(country, countryIndex) in pays" :key="countryIndex" :value="country">{{ country }}</option>
               </select>
@@ -77,7 +77,7 @@
             <div v-if="site.pays === 'Bénin'" class="col-span-12">
               <div class="w-full mb-4">
                 <label class="form-label">Départements<span class="text-danger">*</span> </label>
-                <select v-model="site.departement" @change="updateCommunesForSite(index)" class="form-select w-full">
+                <select :id="'sites.' + index + '.departement'" :name="'sites[' + index + '].departement'" v-model="site.departement" @change="updateCommunesForSite(index)" class="form-select w-full">
                   <option value="">Sélectionnez un département</option>
                   <option v-for="(dep, depIndex) in departements" :key="depIndex" :value="dep.lib_dep">{{ dep.lib_dep }}</option>
                 </select>
@@ -86,7 +86,7 @@
 
               <div class="mb-4" :class="[!site.departement ? 'opacity-50 cursor-not-allowed pointer-events-none' : '']">
                 <label class="form-label">Communes<span class="text-danger">*</span> </label>
-                <select v-model="site.commune" @change="updateArrondissementsForSite(index)" class="form-select w-full">
+                <select :id="'sites.' + index + '.commune'" :name="'sites[' + index + '].commune'" v-model="site.commune" @change="updateArrondissementsForSite(index)" class="form-select w-full">
                   <option value="">Sélectionner la commune</option>
                   <option v-for="commune in filteredCommunesForSite(index)" :key="commune.lib_com" :value="commune.lib_com">
                     {{ commune.lib_com }}
@@ -97,7 +97,7 @@
 
               <div class="w-full mb-4" :class="[!site.commune ? 'opacity-50 cursor-not-allowed pointer-events-none' : '']">
                 <label class="form-label">Arrondissement<span class="text-danger">*</span> </label>
-                <select v-model="site.arrondissement" @change="updateQuartiersForSite(index)" class="form-select w-full">
+                <select :id="'sites.' + index + '.arrondissement'" :name="'sites[' + index + '].arrondissement'" v-model="site.arrondissement" @change="updateQuartiersForSite(index)" class="form-select w-full">
                   <option value="">Sélectionnez arrondissement</option>
                   <option v-for="(arrond, arrondIndex) in filteredArrondissementsForSite(index)" :key="arrondIndex" :value="arrond.lib_arrond">{{ arrond.lib_arrond }}</option>
                 </select>
@@ -106,7 +106,7 @@
 
               <div class="w-full mb-4" :class="[!site.arrondissement ? 'opacity-50 cursor-not-allowed pointer-events-none' : '']">
                 <label class="form-label">Quartier<span class="text-danger">*</span> </label>
-                <select v-model="site.quartier" class="form-select w-full">
+                <select :id="'sites.' + index + '.quartier'" :name="'sites[' + index + '].quartier'" v-model="site.quartier" class="form-select w-full">
                   <option value="">Sélectionner le quartier</option>
                   <option v-for="quart in filteredQuartiersForSite(index)" :key="quart.lib_quart" :value="quart.lib_quart">
                     {{ quart.lib_quart }}
@@ -118,16 +118,16 @@
 
             <!-- Champs libres pour les autres pays -->
             <div v-if="site.pays !== 'Bénin' && site.pays !== ''" class="col-span-12">
-              <InputForm :required="false" :optionel="false" label="Département" v-model="site.departement" class="mb-4" />
+              <InputForm :id="'sites.' + index + '.departement'" :name="'sites[' + index + '].departement'" :required="false" :optionel="false" label="Département" v-model="site.departement" class="mb-4" />
               <div v-if="errors[`sites.${index}.departement`]" class="mt-2 text-danger">{{ getFieldErrors(errors[`sites.${index}.departement`]) }}</div>
 
-              <InputForm :required="false" :optionel="false" label="Commune" v-model="site.commune" class="mb-4" />
+              <InputForm :id="'sites.' + index + '.commune'" :name="'sites[' + index + '].commune'" :required="false" :optionel="false" label="Commune" v-model="site.commune" class="mb-4" />
               <div v-if="errors[`sites.${index}.commune`]" class="mt-2 text-danger">{{ getFieldErrors(errors[`sites.${index}.commune`]) }}</div>
 
-              <InputForm :required="false" :optionel="false" label="Arrondissement" v-model="site.arrondissement" class="mb-4" />
+              <InputForm :id="'sites.' + index + '.arrondissement'" :name="'sites[' + index + '].arrondissement'" :required="false" :optionel="false" label="Arrondissement" v-model="site.arrondissement" class="mb-4" />
               <div v-if="errors[`sites.${index}.arrondissement`]" class="mt-2 text-danger">{{ getFieldErrors(errors[`sites.${index}.arrondissement`]) }}</div>
 
-              <InputForm :required="false" :optionel="false" label="Quartier" v-model="site.quartier" class="mb-4" />
+              <InputForm :id="'sites.' + index + '.quartier'" :name="'sites[' + index + '].quartier'" :required="false" :optionel="false" label="Quartier" v-model="site.quartier" class="mb-4" />
               <div v-if="errors[`sites.${index}.quartier`]" class="mt-2 text-danger">{{ getFieldErrors(errors[`sites.${index}.quartier`]) }}</div>
             </div>
           </div>
@@ -159,22 +159,22 @@
     <form @submit.prevent="sendForm">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
         <div class="col-span-12 md:col-span-6">
-          <InputForm v-model="formData.nom" class="w-full" type="text" :required="true" placeHolder="Entrer le nom du projet" label="Nom du projet" />
+          <InputForm :id="'formData.nom'" :name="'formData.nom'" v-model="formData.nom" class="w-full" type="text" :required="true" placeHolder="Entrer le nom du projet" label="Nom du projet" />
           <div v-if="errors.nom" class="mt-2 text-danger">{{ getFieldErrors(errors.nom) }}</div>
         </div>
 
         <div class="col-span-12 md:col-span-6">
-          <InputForm v-model="formData.codePta" class="w-full" type="text" :required="true" placeHolder="Ex: PTA-001" label="Code PTA" />
+          <InputForm :id="'formData.codePta'" :name="'formData.codePta'" v-model="formData.codePta" class="w-full" type="text" :required="true" placeHolder="Ex: PTA-001" label="Code PTA" />
           <div v-if="errors.codePta" class="mt-2 text-danger">{{ getFieldErrors(errors.codePta) }}</div>
         </div>
 
         <div class="col-span-12 md:col-span-6">
-          <InputForm v-model="formData.debut" class="w-full" type="date" :required="true" placeHolder="Entrer la date de début" label="Début du projet" />
+          <InputForm :id="'formData.debut'" :name="'formData.debut'" v-model="formData.debut" class="w-full" type="date" :required="true" placeHolder="Entrer la date de début" label="Début du projet" />
           <div v-if="errors.debut" class="mt-2 text-danger">{{ getFieldErrors(errors.debut) }}</div>
         </div>
 
         <div class="col-span-12 md:col-span-6">
-          <InputForm v-model="formData.fin" class="w-full" type="date" :required="true" placeHolder="Entrer la date de fin" label="Fin du projet" />
+          <InputForm :id="'formData.fin'" :name="'formData.fin'" v-model="formData.fin" class="w-full" type="date" :required="true" placeHolder="Entrer la date de fin" label="Fin du projet" />
           <div v-if="errors.fin" class="mt-2 text-danger">{{ getFieldErrors(errors.fin) }}</div>
         </div>
 
@@ -182,7 +182,7 @@
           <label class="form-label">Pays*</label>
           <!-- Site Select Dropdown -->
           <div class="relative w-full">
-            <v-select class="w-full" :reduce="(country) => country" v-model="formData.pays" :options="pays" placeholder="Selectionner un pays...">
+            <v-select :id="'formData.pays'" :name="'formData.pays'" class="w-full" :reduce="(country) => country" v-model="formData.pays" :options="pays" placeholder="Selectionner un pays...">
               <template #search="{ attributes, events }">
                 <input class="vs__search form-input" :required="!formData.pays" v-bind="attributes" v-on="events" placeholder="Rechercher un pays..." />
               </template>
@@ -202,12 +202,12 @@
         </div>
 
         <div class="col-span-12 md:col-span-6">
-          <InputForm v-model="formData.budgetNational" class="w-full" type="number" :required="true" placeHolder="Ex : 100000" label="Fond Propre" />
+          <InputForm :id="'formData.budgetNational'" :name="'formData.budgetNational'" v-model="formData.budgetNational" class="w-full" type="number" :required="true" placeHolder="Ex : 100000" label="Fond Propre" />
           <div v-if="errors.budgetNational" class="mt-2 text-danger">{{ getFieldErrors(errors.budgetNational) }}</div>
         </div>
 
         <div class="col-span-12 md:col-span-6">
-          <InputForm v-model="formData.pret" class="w-full" type="number" :required="true" placeHolder="Ex : 100000" label="Subvention" />
+          <InputForm :id="'formData.pret'" :name="'formData.pret'" v-model="formData.pret" class="w-full" type="number" :required="true" placeHolder="Ex : 100000" label="Subvention" />
           <div v-if="errors.pret" class="mt-2 text-danger">{{ getFieldErrors(errors.pret) }}</div>
         </div>
 
@@ -219,6 +219,7 @@
           <div class="relative w-full">
             <div class="flex items-center justify-between mb-2">
                 <v-select 
+                  :id="'formData.organisationId'" :name="'formData.organisationId'"
                   class="w-full mr-3" 
                   :reduce="(ong) => ong.id" 
                   v-model="formData.organisationId" 
@@ -262,7 +263,7 @@
           <div class="flex w-full gap-2">
             <!-- Site Select Dropdown -->
             <div class="relative w-10/12">
-              <v-select class="w-full" :reduce="(site) => site.id" v-model="sitesId" label="nom" :options="sites" placeholder="Selectionner un site..." multiple>
+              <v-select :id="'formData.sitesId'" :name="'formData.sitesId'" class="w-full" :reduce="(site) => site.id" v-model="sitesId" label="nom" :options="sites" placeholder="Selectionner un site..." multiple>
                 <template #search="{ attributes, events }">
                   <input class="vs__search form-input" :required="!sitesId || sitesId.length === 0" v-bind="attributes" v-on="events" placeholder="Rechercher un site..." />
                 </template>
@@ -290,7 +291,7 @@
         <!-- Fichiers et images en plein largeur -->
         <div class="col-span-12 md:col-span-6" v-if="!isUpdate">
           <label class="block my-3 font-bold text-gray-700">Images de couverture</label>
-          <input type="file" ref="fileInput" @change="handleFileChange" accept="image/*" class="block w-full ..." />
+          <input id="image" name="image" type="file" ref="fileInput" @change="handleFileChange" accept="image/*" class="block w-full ..." />
           <div v-if="imagePreview" class="flex items-center mt-3">
             <img :src="imagePreview" alt="Prévisualisation" width="200" />
             <button type="button" class="ml-4 text-red-500" @click="clearFiles(index)">Supprimer</button>
@@ -300,7 +301,7 @@
 
         <div class="col-span-12 md:col-span-6" v-if="!isUpdate">
           <label class="block my-3 font-bold text-gray-700">Pièces jointes</label>
-          <input name="fichier" ref="fileInput2" type="file" multiple class="block w-full ..." @change="handleFileChange2" />
+          <input id="fichier" name="fichier" ref="fileInput2" type="file" multiple class="block w-full ..." @change="handleFileChange2" />
           <ul v-if="files.length > 0" class="mt-3 space-y-2">
             <li v-for="(file, index) in files" :key="index" class="flex justify-between bg-white p-2 shadow">
               <span>{{ file.name }}</span>
@@ -327,7 +328,7 @@
 
     <form @submit.prevent="prolongerProjet">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
-        <InputForm v-model="dateFin" :min="dateFinOld" class="col-span-12" type="date" :required="true" placeHolder="Entrer la nouvelle date de fin" label="Nouvelle Fin du projet*" />
+  <InputForm :id="'dateFin'" :name="'dateFin'" v-model="dateFin" :min="dateFinOld" class="col-span-12" type="date" :required="true" placeHolder="Entrer la nouvelle date de fin" label="Nouvelle Fin du projet*" />
         <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurProlongation !== null">{{ erreurProlongation }}</p>
       </ModalBody>
       <ModalFooter>
@@ -574,24 +575,24 @@
           <p class="mb-3 text-lg text-semibold">Informations générales</p>
           <div class="space-y-3">
             <div class="grid grid-cols-2 gap-4">
-              <InputForm :required="true" label="Nom" v-model="payloadOrganisation.nom"
+              <InputForm :id="'payloadOrganisation.nom'" :name="'payloadOrganisation.nom'" :required="true" label="Nom" v-model="payloadOrganisation.nom"
                          :control="getFieldErrorsOrganisation(errorsOrganisation.nom)" />
               <InputForm :required="true" label="Email" v-model="payloadOrganisation.email" type="email"
-                         :control="getFieldErrorsOrganisation(errorsOrganisation.email)" />
+                         :id="'payloadOrganisation.email'" :name="'payloadOrganisation.email'" :control="getFieldErrorsOrganisation(errorsOrganisation.email)" />
             </div>
             <div class="grid grid-cols-2 gap-4">
-              <InputForm :required="true" label="Sigle" v-model="payloadOrganisation.sigle"
+              <InputForm :id="'payloadOrganisation.sigle'" :name="'payloadOrganisation.sigle'" :required="true" label="Sigle" v-model="payloadOrganisation.sigle"
                          :control="getFieldErrorsOrganisation(errorsOrganisation.sigle)" />
-              <InputForm :control="getFieldErrorsOrganisation(errorsOrganisation.contact)"
+              <InputForm :id="'payloadOrganisation.contact'" :name="'payloadOrganisation.contact'" :control="getFieldErrorsOrganisation(errorsOrganisation.contact)"
                          label="Contact" v-model="payloadOrganisation.contact"
                          maxlength="13" placeholder="+229xxxxxxxxxx" type="text" />
             </div>
             <div class="grid grid-cols-2 gap-4">
-              <InputForm label="Code" :control="getFieldErrorsOrganisation(errorsOrganisation.code)"
+              <InputForm :id="'payloadOrganisation.code'" :name="'payloadOrganisation.code'" label="Code" :control="getFieldErrorsOrganisation(errorsOrganisation.code)"
                          v-model.number="payloadOrganisation.code" type="number" />
               <div v-if="payloadOrganisation.type !== 'autre_osc'">
                 <label class="form-label">Domaine D'intervention <span class="text-danger">*</span></label>
-                <TomSelect v-model="payloadOrganisation.secteurActivite"
+                <TomSelect :id="'payloadOrganisation.secteurActivite'" :name="'payloadOrganisation.secteurActivite'" v-model="payloadOrganisation.secteurActivite"
                            :options="{ placeholder: 'Sélectionnez un secteur' }" class="w-full">
                   <option value=""></option>
                   <option v-for="(secteur, index) in secteursActivitesOrganisation" :key="index" :value="secteur">
@@ -606,7 +607,7 @@
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <label class="form-label">Types<span class="text-danger">*</span></label>
-                <TomSelect v-model="payloadOrganisation.type"
+                <TomSelect :id="'payloadOrganisation.type'" :name="'payloadOrganisation.type'" v-model="payloadOrganisation.type"
                            :options="{ placeholder: 'Sélectionnez un type' }" class="w-full">
                   <option value=""></option>
                   <option v-for="(type, index) in typesOrganisation" :key="index" :value="type.id">
@@ -619,7 +620,7 @@
               </div>
               <div v-if="payloadOrganisation.type == 'osc_fosir' && payloadOrganisation.type !== ''">
                 <label class="form-label">Fonds <span class="text-danger">*</span></label>
-                <TomSelect v-model="payloadOrganisation.fondId"
+                <TomSelect :id="'payloadOrganisation.fondId'" :name="'payloadOrganisation.fondId'" v-model="payloadOrganisation.fondId"
                            :options="{ placeholder: 'Sélectionnez un fond' }" class="w-full">
                   <option value=""></option>
                   <option v-for="(fond, index) in fondsOrganisation" :key="index" :value="fond.id">
@@ -643,7 +644,7 @@
                 <div>
                   <label class="form-label">Pays</label>
                   <div class="relative w-full">
-                    <v-select class="w-full" :reduce="(country) => country"
+                    <v-select :id="'payloadOrganisation.pays'" :name="'payloadOrganisation.pays'" class="w-full" :reduce="(country) => country"
                               v-model="payloadOrganisation.pays" :options="paysOrganisation"
                               placeholder="Sélectionnez un pays..."
                               @option:selected="changeCountryOrganisation">
@@ -657,7 +658,7 @@
                     {{ getFieldErrorsOrganisation(errorsOrganisation.pays) }}
                   </div>
                 </div>
-                <InputForm :required="false" label="Adresse" name="Adresse"
+                <InputForm :id="'payloadOrganisation.addresse'" :name="'payloadOrganisation.addresse'" :required="false" label="Adresse"
                            :control="getFieldErrorsOrganisation(errorsOrganisation.addresse)"
                            v-model="payloadOrganisation.addresse" />
               </div>
@@ -667,7 +668,7 @@
                 <div>
                   <label class="form-label">Départements<span class="text-danger">*</span></label>
                   <div class="relative w-full">
-                    <v-select class="w-full" :reduce="(dep) => dep.lib_dep"
+                    <v-select :id="'payloadOrganisation.departement'" :name="'payloadOrganisation.departement'" class="w-full" :reduce="(dep) => dep.lib_dep"
                               v-model="payloadOrganisation.departement" :options="departementsOrganisation"
                               label="lib_dep" placeholder="Sélectionnez un département..."
                               @option:selected="updateCommunesOrganisation">
@@ -684,7 +685,7 @@
                 <div :class="[!showCommuneOrganisation ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
                   <label class="form-label">Communes<span class="text-danger">*</span></label>
                   <div class="relative w-full">
-                    <v-select class="w-full" :reduce="(commune) => commune.lib_com"
+                    <v-select :id="'payloadOrganisation.commune'" :name="'payloadOrganisation.commune'" class="w-full" :reduce="(commune) => commune.lib_com"
                               v-model="payloadOrganisation.commune" :options="filteredCommunesOrganisation"
                               label="lib_com" placeholder="Sélectionner la commune..."
                               @option:selected="updateArrondissementsOrganisation">
@@ -704,7 +705,7 @@
                 <div :class="[!showArrondissementOrganisation ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
                   <label class="form-label">Arrondissement<span class="text-danger">*</span></label>
                   <div class="relative w-full">
-                    <v-select class="w-full" :reduce="(arrond) => arrond.lib_arrond"
+                    <v-select :id="'payloadOrganisation.arrondissement'" :name="'payloadOrganisation.arrondissement'" class="w-full" :reduce="(arrond) => arrond.lib_arrond"
                               v-model="payloadOrganisation.arrondissement" :options="filteredArrondissementsOrganisation"
                               label="lib_arrond" placeholder="Sélectionnez un arrondissement..."
                               @option:selected="updateQuartiersOrganisation">
@@ -721,7 +722,7 @@
                 <div :class="[!showQuatierOrganisation ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
                   <label class="form-label">Quartier<span class="text-danger">*</span></label>
                   <div class="relative w-full">
-                    <v-select class="w-full" :reduce="(quart) => quart.lib_quart"
+                    <v-select :id="'payloadOrganisation.quartier'" :name="'payloadOrganisation.quartier'" class="w-full" :reduce="(quart) => quart.lib_quart"
                               v-model="payloadOrganisation.quartier" :options="filteredQuartiersOrganisation"
                               label="lib_quart" placeholder="Sélectionner le quartier...">
                       <template #search="{ attributes, events }">
@@ -738,28 +739,28 @@
 
               <!-- Si autre pays -->
               <div v-if="!isBeninOrganisation" class="grid grid-cols-2 gap-4">
-                <InputForm :required="false" :optionel="false" label="Département" name="Département"
+                <InputForm :id="'payloadOrganisation.departement'" :name="'payloadOrganisation.departement'" :required="false" :optionel="false" label="Département"
                            v-model="payloadOrganisation.departement"
                            :control="getFieldErrorsOrganisation(errorsOrganisation.departement)" />
-                <InputForm :required="false" :optionel="false" label="Commune" name="Commune"
+                <InputForm :id="'payloadOrganisation.commune'" :name="'payloadOrganisation.commune'" :required="false" :optionel="false" label="Commune"
                            v-model="payloadOrganisation.commune"
                            :control="getFieldErrorsOrganisation(errorsOrganisation.commune)" />
               </div>
 
               <div v-if="!isBeninOrganisation" class="grid grid-cols-2 gap-4">
-                <InputForm :required="false" :optionel="false" label="Arrondissement" name="Arrondissement"
+                <InputForm :id="'payloadOrganisation.arrondissement'" :name="'payloadOrganisation.arrondissement'" :required="false" :optionel="false" label="Arrondissement"
                            v-model="payloadOrganisation.arrondissement"
                            :control="getFieldErrorsOrganisation(errorsOrganisation.arrondissement)" />
-                <InputForm :required="false" :optionel="false" label="Quartier" name="Quartier"
+                <InputForm :id="'payloadOrganisation.quartier'" :name="'payloadOrganisation.quartier'" :required="false" :optionel="false" label="Quartier"
                            v-model="payloadOrganisation.quartier"
                            :control="getFieldErrorsOrganisation(errorsOrganisation.quartier)" />
               </div>
 
               <div class="grid grid-cols-2 gap-4">
-                <InputForm :required="false" :optionel="false" label="Longitude" name="Longitude" step="0.1"
+                <InputForm :id="'payloadOrganisation.longitude'" :name="'payloadOrganisation.longitude'" :required="false" :optionel="false" label="Longitude" step="0.1"
                            :control="getFieldErrorsOrganisation(errorsOrganisation.longitude)"
                            v-model.text="payloadOrganisation.longitude" type="number" />
-                <InputForm :required="false" :optionel="false" label="Latitude" name="Latitude" step="0.1"
+                <InputForm :id="'payloadOrganisation.latitude'" :name="'payloadOrganisation.latitude'" :required="false" :optionel="false" label="Latitude" step="0.1"
                            :control="getFieldErrorsOrganisation(errorsOrganisation.latitude)"
                            v-model.text="payloadOrganisation.latitude" type="number" />
               </div>
@@ -770,10 +771,10 @@
             <p class="mb-3 text-lg text-semibold">Informations Point focal</p>
             <div class="space-y-3">
               <div class="grid grid-cols-2 gap-4">
-                <InputForm :required="false" label="Nom point focal" name="Nom point focal"
+                <InputForm :id="'payloadOrganisation.nom_point_focal'" :name="'payloadOrganisation.nom_point_focal'" :required="false" label="Nom point focal"
                            :control="getFieldErrorsOrganisation(errorsOrganisation.nom_point_focal)"
                            v-model="payloadOrganisation.nom_point_focal" />
-                <InputForm :required="false" label="Prénom point focal" name="Prénom point focal"
+                <InputForm :id="'payloadOrganisation.prenom_point_focal'" :name="'payloadOrganisation.prenom_point_focal'" :required="false" label="Prénom point focal"
                            :control="getFieldErrorsOrganisation(errorsOrganisation.prenom_point_focal)"
                            v-model="payloadOrganisation.prenom_point_focal" />
               </div>

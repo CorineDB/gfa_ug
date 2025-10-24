@@ -70,20 +70,20 @@
                   <div class="grid grid-cols-1 gap-2">
                     <!-- Section selection -->
                     <div v-if="form.sections.length > 1">
-                      <label class="block text-xs font-medium text-gray-600 mb-1">Section cible</label>
-                      <select v-model="selectedSectionIndex" class="form-select text-sm">
+                      <label for="section_cible" class="block text-xs font-medium text-gray-600 mb-1">Section cible</label>
+                      <select id="section_cible" name="section_cible" v-model="selectedSectionIndex" class="form-select text-sm">
                         <option v-for="(section, index) in form.sections" :key="section.id" :value="index">
                           {{ section.intitule }}
                         </option>
                       </select>
                     </div>
 
-                    <select v-model="newField.type_champ" class="form-select text-sm">
+                    <select id="type_champ" name="type_champ" v-model="newField.type_champ" class="form-select text-sm">
                       <option value="">Sélectionner un type</option>
                       <option v-for="type in inputTypes" :key="type.type" :value="type.type">{{ type.label }}</option>
                     </select>
-                    <input v-model="newField.attribut" type="text" class="form-control text-sm" placeholder="Nom du champ" />
-                    <input v-model="newField.label" type="text" class="form-control text-sm" placeholder="Libellé" />
+                    <input id="attribut_champ" name="attribut_champ" v-model="newField.attribut" type="text" class="form-control text-sm" placeholder="Nom du champ" />
+                    <input id="label_champ" name="label_champ" v-model="newField.label" type="text" class="form-control text-sm" placeholder="Libellé" />
                     <button @click="addFieldToCurrentSection" class="btn btn-primary btn-sm w-full" :disabled="form.sections.length === 0">
                       <span v-if="form.sections.length === 0">Créer d'abord une section</span>
                       <span v-else>Ajouter à {{ form.sections[selectedSectionIndex]?.intitule || "Section" }}</span>
@@ -147,7 +147,7 @@
                       <div v-if="sectionIndex === selectedSectionIndex" class="mr-2 text-primary">
                         <span class="text-sm font-medium">🎯 Section active</span>
                       </div>
-                      <input v-model="section.intitule" type="text" class="section-title-input flex-1 text-lg font-medium border border-gray-300 rounded px-3 py-2 focus:border-primary focus:outline-none" placeholder="Titre de la section" @click="selectSectionForFields(sectionIndex)" />
+                      <input :id="'section_titre_' + sectionIndex" :name="'section_titre_' + sectionIndex" v-model="section.intitule" type="text" class="section-title-input flex-1 text-lg font-medium border border-gray-300 rounded px-3 py-2 focus:border-primary focus:outline-none" placeholder="Titre de la section" @click="selectSectionForFields(sectionIndex)" />
                     </div>
                     <div class="flex items-center gap-2 ml-3">
                       <button @click="selectSectionForFields(sectionIndex)" class="btn btn-sm" :class="sectionIndex === selectedSectionIndex ? 'btn-primary' : 'btn-outline-primary'" title="Sélectionner cette section pour ajouter des champs">🎯</button>
@@ -222,30 +222,30 @@
                 <div v-if="selectedField" class="field-properties">
                   <!-- Basic Properties -->
                   <div class="property-group mb-4">
-                    <label class="property-label">Label *</label>
-                    <input v-model="selectedField.label" type="text" class="property-input" />
+                    <label for="field_label" class="property-label">Label *</label>
+                    <input id="field_label" name="field_label" v-model="selectedField.label" type="text" class="property-input" />
                   </div>
 
                   <div class="property-group mb-4">
-                    <label class="property-label">Attribut (ID unique) *</label>
-                    <input v-model="selectedField.attribut" type="text" class="property-input" placeholder="ex: nom_utilisateur" />
+                    <label for="field_attribut" class="property-label">Attribut (ID unique) *</label>
+                    <input id="field_attribut" name="field_attribut" v-model="selectedField.attribut" type="text" class="property-input" placeholder="ex: nom_utilisateur" />
                     <small class="text-xs text-gray-500 mt-1">Cet attribut sert d'identifiant unique pour le champ</small>
                   </div>
 
                   <div class="property-group mb-4">
-                    <label class="property-label">Placeholder</label>
-                    <input v-model="selectedField.placeholder" type="text" class="property-input" />
+                    <label for="field_placeholder" class="property-label">Placeholder</label>
+                    <input id="field_placeholder" name="field_placeholder" v-model="selectedField.placeholder" type="text" class="property-input" />
                   </div>
 
                   <div class="property-group mb-4">
-                    <label class="property-label">Texte d'aide</label>
-                    <input v-model="selectedField.info" type="text" class="property-input" />
+                    <label for="field_info" class="property-label">Texte d'aide</label>
+                    <input id="field_info" name="field_info" v-model="selectedField.info" type="text" class="property-input" />
                   </div>
 
                   <div class="property-group mb-4">
                     <div class="form-check">
-                      <input v-model="selectedField.is_required" type="checkbox" class="form-check-input" id="field-required" />
-                      <label for="field-required" class="form-check-label ml-2">Champ requis</label>
+                      <input id="field_required" name="field_required" v-model="selectedField.is_required" type="checkbox" class="form-check-input" />
+                      <label for="field_required" class="form-check-label ml-2">Champ requis</label>
                     </div>
                   </div>
 
@@ -254,8 +254,8 @@
                     <h4 class="text-sm font-medium mb-3">Options de choix</h4>
                     <div class="options-manager">
                       <div v-for="(option, index) in selectedField.meta_options.configs.options" :key="index" class="option-item flex gap-2 mb-2">
-                        <input v-model="option.label" type="text" placeholder="Libellé" class="option-input flex-1" />
-                        <input v-model="option.value" type="text" placeholder="Valeur" class="option-input flex-1" />
+                        <input :id="'option_label_' + index" :name="'option_label_' + index" v-model="option.label" type="text" placeholder="Libellé" class="option-input flex-1" />
+                        <input :id="'option_value_' + index" :name="'option_value_' + index" v-model="option.value" type="text" placeholder="Valeur" class="option-input flex-1" />
                         <button @click="removeOption(selectedField, index)" type="button" class="btn btn-sm btn-danger">×</button>
                       </div>
                       <button @click="addOption(selectedField)" type="button" class="btn btn-sm btn-success w-full mt-2">+ Ajouter une option</button>
@@ -427,16 +427,16 @@
     <form @submit.prevent="submitData">
       <ModalBody>
         <div class="grid grid-cols-1 gap-4">
-          <InputForm label="Libelle" v-model="payload.libelle" :control="getFieldErrors(errors.libelle)" />
+          <InputForm id="libelle_formulaire" name="libelle_formulaire" label="Libelle" v-model="payload.libelle" :control="getFieldErrors(errors.libelle)" />
           <div class="flex-1">
-            <label class="form-label" for="description">Description</label>
+            <label class="form-label" for="description_formulaire">Description</label>
             <div class="">
-              <textarea name="description" class="form-control" id="description" v-model="payload.description" cols="30" rows="3"></textarea>
+              <textarea name="description_formulaire" class="form-control" id="description_formulaire" v-model="payload.description" cols="30" rows="3"></textarea>
               <div v-if="errors.description" class="mt-2 text-danger">{{ getFieldErrors(errors.description) }}</div>
             </div>
           </div>
           <div class="flex-1">
-            <label class="form-label" for="description">Structure Formulaire <span class="text-danger">*</span> </label>
+            <label class="form-label" for="form_data">Structure Formulaire <span class="text-danger">*</span> </label>
             <div class="">
               <div class="flex gap-2 mb-2">
                 <button type="button" @click="updateFormDataFromBuilder" class="btn btn-secondary btn-sm">Récupérer depuis le créateur</button>

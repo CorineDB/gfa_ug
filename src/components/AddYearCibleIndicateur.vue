@@ -12,24 +12,7 @@
           <!-- Information 1 -->
           <div class="">
             <div class="grid grid-cols-1 gap-4">
-              <!-- <div class="flex flex-wrap items-center justify-between gap-3">
-                <div class="flex-1 form-check">
-                  <input id="agreer" class="form-check-input" type="checkbox" v-model="payload.agreger" />
-                  <label class="form-check-label" for="agreer">Indicateur Agréger</label>
-                </div>
-              </div> -->
-              <!-- <div class="flex flex-wrap items-center justify-between gap-3">
-                    <div class="flex-1">
-                      <label class="form-label">Année de base</label>
-                      <TomSelect v-model="payload.anneeDeBase" name="annee_suivi" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
-                        <option value=""></option>
-                        <option v-for="annee in annees" :key="annee" :value="annee">{{ annee }}</option>
-                      </TomSelect>
-                      <div v-if="errors.anneeDeBase" class="mt-2 text-danger">{{ getFieldErrors(errors.anneeDeBase) }}</div>
-                    </div>
-
-                    <InputForm v-if="!payload.agreger" class="flex-1" label="Valeur de base" :required="false" :control="getFieldErrors(errors.valeurDeBase)" v-model="payloadNotAgreger.valeurDeBase" type="number" />
-                  </div> -->
+               
 
               <div class="flex flex-wrap items-center justify-between gap-3">
                 <div class="w-full" v-if="!payload.agreger">
@@ -37,14 +20,14 @@
                   <div class="flex gap-1 place-items-end">
                     <div class="flex-1">
                       <label class="form-label">Année cible<span class="text-danger">*</span> </label>
-                      <TomSelect v-model="currentAnneeCibleNotAgreger.annee" name="annee_aggrer" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+                      <TomSelect v-model="currentAnneeCibleNotAgreger.annee" id="annee_cible_not_agreger" name="annee_aggrer" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
                         <option value=""></option>
                         <option v-for="annee in annees" :key="annee" :value="annee">{{ annee }}</option>
                       </TomSelect>
                     </div>
 
                     <div class="flex flex-1 gap-1">
-                      <input type="number" class="form-control" id="valeur_cible" placeholder="Valeur cible" v-model="currentAnneeCibleNotAgreger.valeurCible" />
+                      <input type="number" class="form-control" id="valeur_cible" name="valeur_cible_not_agreger" placeholder="Valeur cible" v-model="currentAnneeCibleNotAgreger.valeurCible" />
                       <button @click.prevent="addAnneeCibleNotAgreger" class="text-xs btn btn-primary h-9"><PlusIcon class="mr-1 size-3" />Ajouter</button>
                     </div>
                   </div>
@@ -65,23 +48,9 @@
               </div>
 
               <div class="flex flex-wrap items-center justify-between gap-3">
-                <!-- <div v-if="payload.agreger" class="flex-1">
-                  <label class="form-label">Clé valeur <span class="text-danger">*</span> </label>
-                  <TomSelect v-model="array_value_keys" name="keys" multiple :options="{ placeholder: 'Selectionez les clés valeur' }" class="w-full">
-                    <option v-for="(key, index) in keys" :key="index" :value="key.id">{{ key.libelle }}</option>
-                  </TomSelect>
-                  <div v-if="errors.value_keys" class="mt-2 text-danger">{{ getFieldErrors(errors.value_keys) }}</div>
-                </div> -->
+                
               </div>
-              <!-- <div v-if="array_value_keys.length > 0 && payload.agreger" class="">
-                <label class="form-label">Valeur de base</label>
-                <div class="grid gap-3 grid-cols-[repeat(auto-fill,_minmax(350px,_1fr))]">
-                  <div v-for="(base, index) in filterValueKeys" :key="index" class="input-group">
-                    <div class="flex items-center justify-center text-sm input-group-text">{{ base.libelle }}</div>
-                    <input type="text" v-model="valeur[base.id]" class="form-control" placeholder="valeur" aria-label="valeur" aria-describedby="input-group-valeur" />
-                  </div>
-                </div>
-              </div> -->
+               
               <div v-if="payload.agreger" class="space-y-3">
                 <button v-show="array_value_keys.length > 0" class="text-sm btn btn-primary" @click.prevent="showModalAnnee = true"><PlusIcon class="mr-1 size-3" />Cliquer pour Ajouter une année cible</button>
               </div>
@@ -118,7 +87,7 @@
             <!-- <InputForm label="Année" v-model="currentAnneeCible.annee" type="number" placeholder="Entrez l'année" /> -->
             <div class="flex-1">
               <label class="form-label">Année <span class="text-danger">*</span> </label>
-              <TomSelect v-model="currentAnneeCible.annee" name="annee_aggrer" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+              <TomSelect v-model="currentAnneeCible.annee" id="annee_cible_agreger" name="annee_aggrer" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
                 <option value=""></option>
                 <option v-for="annee in annees" :key="annee" :value="annee">{{ annee }}</option>
               </TomSelect>
@@ -130,7 +99,7 @@
                   <div class="flex items-center justify-center text-sm input-group-text">
                     {{ key.libelle }}
                   </div>
-                  <input type="number" v-model="currentAnneeCible.valeurCible[index].value" class="form-control" placeholder="valeur" aria-label="valeur" />
+                  <input type="number" v-model="currentAnneeCible.valeurCible[index].value" :id="'valeur_cible_agreger_' + index" :name="'valeur_cible_agreger[' + index + ']'" class="form-control" placeholder="valeur" aria-label="valeur" />
                 </div>
               </div>
             </div>

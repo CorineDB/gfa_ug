@@ -145,19 +145,37 @@ onMounted(getDatas);
       <ModalHeader>
         <h2 class="mr-auto text-base font-medium">{{ modeText }} une unité de mesure</h2>
       </ModalHeader>
-      <form @submit.prevent="submitData">
-        <ModalBody>
-          <div class="grid grid-cols-1 gap-4">
-            <InputForm label="Nom" v-model="payload.nom" :control="getFieldErrors(errors.nom)" />
-          </div>
-        </ModalBody>
-        <ModalFooter>
-          <div class="flex gap-2">
-            <button type="button" @click="resetForm" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
-            <VButton :loading="isLoading" :label="modeText" />
-          </div>
-        </ModalFooter>
-      </form>
+       <form @submit.prevent="submitData">
+          <ModalBody>
+            <div class="grid grid-cols-1 gap-4">
+              <InputForm 
+                id="nom-generique"
+                name="nom"
+                label="Nom" 
+                v-model="payload.nom" 
+                :control="getFieldErrors(errors.nom)" 
+              />
+            </div>
+          </ModalBody>
+          <ModalFooter>
+            <div class="flex gap-2">
+              <button 
+                type="button" 
+                @click="resetForm" 
+                class="w-full px-2 py-2 my-3 btn btn-outline-secondary"
+                id="annuler-generique"
+              >
+                Annuler
+              </button>
+              <VButton 
+                id="soumettre-generique"
+                :loading="isLoading" 
+                :label="modeText" 
+                type="submit"
+              />
+            </div>
+          </ModalFooter>
+        </form>
     </Modal>
 
     <!-- Modal for deleting -->

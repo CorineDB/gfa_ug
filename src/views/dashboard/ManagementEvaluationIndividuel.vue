@@ -63,32 +63,32 @@
     <form @submit.prevent="submitData">
       <ModalBody>
         <div class="grid grid-cols-1 gap-4">
-          <InputForm label="Intitule" v-model="payload.intitule" :control="getFieldErrors(errors.intitule)" />
+          <InputForm id="intitule_eval_individuel" name="intitule_eval_individuel" label="Intitule" v-model="payload.intitule" :control="getFieldErrors(errors.intitule)" />
           <div class="flex-1">
-            <label class="form-label" for="description">Description</label>
+            <label class="form-label" for="description_eval_individuel">Description</label>
             <div class="">
-              <textarea name="description" class="form-control" id="description" v-model="payload.description" cols="30" rows="3"></textarea>
+              <textarea name="description_eval_individuel" class="form-control" id="description_eval_individuel" v-model="payload.description" cols="30" rows="3"></textarea>
               <div v-if="errors.description" class="mt-2 text-danger">{{ getFieldErrors(errors.description) }}</div>
             </div>
           </div>
           <div class="flex-1 form-check">
-            <input id="agreer" class="form-check-input" type="checkbox" v-model="payload.prive" />
-            <label class="form-check-label" for="agreer">Privé?</label>
+            <input id="prive_eval_individuel" name="prive_eval_individuel" class="form-check-input" type="checkbox" v-model="payload.prive" />
+            <label class="form-check-label" for="prive_eval_individuel">Privé?</label>
           </div>
           <div class="flex w-full gap-4">
             <div class="flex-1">
-              <label class="form-label">Formulaires <span class="text-danger">*</span> </label>
-              <TomSelect v-model="payload.surveyFormId" name="trimestre_suivi" :options="{ placeholder: 'Selectionez un formulaire' }" class="w-full">
+              <label for="formulaire_eval_individuel" class="form-label">Formulaires <span class="text-danger">*</span> </label>
+              <TomSelect id="formulaire_eval_individuel" name="formulaire_eval_individuel" v-model="payload.surveyFormId" :options="{ placeholder: 'Selectionez un formulaire' }" class="w-full">
                 <option value=""></option>
                 <option v-for="form in formulaires" :key="form.id" :value="form.id">{{ form.libelle }}</option>
               </TomSelect>
               <div v-if="errors.surveyFormId" class="mt-2 text-danger">{{ getFieldErrors(errors.surveyFormId) }}</div>
             </div>
-            <InputForm label="Nombre participant" class="flex-1" v-model="payload.nbreParticipants" type="number" :control="getFieldErrors(errors.nbreParticipants)" />
+            <InputForm id="nombre_participants" name="nombre_participants" label="Nombre participant" class="flex-1" v-model="payload.nbreParticipants" type="number" :control="getFieldErrors(errors.nbreParticipants)" />
           </div>
           <div class="flex w-full gap-4">
-            <InputForm label="Début de l'évaluation " v-model="payload.debut" type="date" :control="getFieldErrors(errors.debut)" />
-            <InputForm label="Fin de l'évaluation " v-model="payload.fin" type="date" :control="getFieldErrors(errors.fin)" />
+            <InputForm id="debut_eval_individuel" name="debut_eval_individuel" label="Début de l'évaluation " v-model="payload.debut" type="date" :control="getFieldErrors(errors.debut)" />
+            <InputForm id="fin_eval_individuel" name="fin_eval_individuel" label="Fin de l'évaluation " v-model="payload.fin" type="date" :control="getFieldErrors(errors.fin)" />
           </div>
         </div>
       </ModalBody>
@@ -314,7 +314,7 @@ const handleCopy = (data) => {
   } else {
     navigator.clipboard.writeText(data.survey_form_link);
     toast.success("URL copié");
-    debugger;
+    
   }
 };
 

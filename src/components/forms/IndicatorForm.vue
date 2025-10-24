@@ -37,25 +37,25 @@
             <div class="flex flex-wrap items-center justify-between gap-3">
               <InputForm class="flex-1" :required="false" :optionel="false" :control="getFieldErrors(errors.nom)" label="Nom" v-model="payload.nom" />
               <div class="flex-1">
-                <label class="form-label" for="description">Description</label>
+                <label class="form-label" for="indicateur_description">Description</label>
                 <div>
-                  <textarea name="description" class="form-control" id="description" v-model="payload.description" cols="30" rows="1"></textarea>
+                  <textarea name="indicateur_description" class="form-control" id="indicateur_description" v-model="payload.description" cols="30" rows="1"></textarea>
                 </div>
                 <div v-if="errors.description" class="mt-2 text-danger">{{ getFieldErrors(errors.description) }}</div>
               </div>
             </div>
             <div class="flex flex-wrap items-center justify-between gap-3">
               <div class="flex-1 form-check">
-                <input id="agreer" class="form-check-input" type="checkbox" v-model="payload.agreger" />
+                <input id="agreer" name="agreer" class="form-check-input" type="checkbox" v-model="payload.agreger" />
                 <label class="form-check-label" for="agreer">Indicateur Agréger</label>
               </div>
               <InputForm class="flex-1" label="Indice" :optionel="false" v-model="payload.indice" :required="false" :control="getFieldErrors(errors.indice)" type="number" />
             </div>
             <div class="flex flex-wrap items-center justify-between gap-3">
               <div class="flex-1">
-                <label class="form-label">Année de base</label>
+                <label class="form-label" for="annee_de_base">Année de base</label>
                 <div class="relative w-full">
-                  <v-select class="w-full" v-model="payload.anneeDeBase" :options="annees" placeholder="Selectionez une année...">
+                  <v-select id="annee_de_base" class="w-full" v-model="payload.anneeDeBase" :options="annees" placeholder="Selectionez une année...">
                     <template #search="{ attributes, events }">
                       <input class="vs__search form-input" v-bind="attributes" v-on="events"/>
                     </template>
@@ -73,9 +73,9 @@
               <div class="w-full" v-if="payload.agreger">
                 <div class="flex gap-1 place-items-end">
                   <div class="flex-1">
-                    <label class="form-label">Année cible <span class="text-danger">*</span></label>
+                    <label class="form-label" for="annee_cible_not_agreger">Année cible <span class="text-danger">*</span></label>
                     <div class="relative w-full">
-                      <v-select class="w-full" v-model="currentAnneeCibleNotAgreger.annee" :options="anneesCibleDisponiblesNotAgreger" placeholder="Selectionez une année...">
+                      <v-select id="annee_cible_not_agreger" class="w-full" v-model="currentAnneeCibleNotAgreger.annee" :options="anneesCibleDisponiblesNotAgreger" placeholder="Selectionez une année...">
                          <template #search="{ attributes, events }">
                            <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher une année..." />
                          </template>
@@ -83,7 +83,7 @@
                     </div>
                   </div>
                   <div class="flex flex-1 gap-1">
-                    <input type="number" class="form-control" id="valeur_cible" placeholder="Valeur cible" v-model="currentAnneeCibleNotAgreger.valeurCible" />
+                    <input type="number" class="form-control" id="valeur_cible_not_agreger" name="valeur_cible_not_agreger" placeholder="Valeur cible" v-model="currentAnneeCibleNotAgreger.valeurCible" />
                     <button type="button" @click.prevent="addAnneeCibleNotAgreger" class="btn btn-primary h-9"><Plus class="mr-1 size-3" /></button>
                   </div>
                 </div>
@@ -104,7 +104,7 @@
                         <span class="text-xs font-medium text-slate-500">Année :</span>
                         <div class="relative flex items-center">
                           <div v-if="isFieldEditing(`notAgreger-${index}`, 'annee')">
-                            <select v-model="annee.annee" @change="toggleFieldEdit(`notAgreger-${index}`, 'annee')" class="text-sm font-semibold text-slate-900 border border-blue-500 text-right focus:bg-blue-50 focus:ring-1 focus:ring-blue-500 rounded px-2 py-1 w-24 transition-all mr-6">
+                            <select :id="'annee_edit_' + index" :name="'annee_edit_' + index" v-model="annee.annee" @change="toggleFieldEdit(`notAgreger-${index}`, 'annee')" class="text-sm font-semibold text-slate-900 border border-blue-500 text-right focus:bg-blue-50 focus:ring-1 focus:ring-blue-500 rounded px-2 py-1 w-24 transition-all mr-6">
                               <option v-for="year in anneesCibleDisponiblesNotAgreger" :key="year" :value="year">{{ year }}</option>
                               <option :value="annee.annee">{{ annee.annee }}</option>
                             </select>
@@ -121,7 +121,7 @@
                         <span class="text-xs font-medium text-slate-500">Valeur cible :</span>
                         <div class="relative flex items-center">
                           <div v-if="isFieldEditing(`notAgreger-${index}`, 'valeurCible')">
-                            <input type="number" v-model="annee.valeurCible" @keyup.enter.prevent.stop="toggleFieldEdit(`notAgreger-${index}`, 'valeurCible')" @focus="$event.target.select()" class="text-sm font-semibold text-slate-900 border border-blue-500 text-right focus:bg-blue-50 focus:ring-1 focus:ring-blue-500 rounded px-2 py-1 w-24 transition-all mr-6" placeholder="0" step="any" />
+                            <input type="number" :id="'valeur_cible_edit_' + index" :name="'valeur_cible_edit_' + index" v-model="annee.valeurCible" @keyup.enter.prevent.stop="toggleFieldEdit(`notAgreger-${index}`, 'valeurCible')" @focus="$event.target.select()" class="text-sm font-semibold text-slate-900 border border-blue-500 text-right focus:bg-blue-50 focus:ring-1 focus:ring-blue-500 rounded px-2 py-1 w-24 transition-all mr-6" placeholder="0" step="any" />
                           </div>
                           <span v-else class="text-sm font-semibold text-slate-900 w-24 text-right">
                             {{ annee.valeurCible || '0' }}
@@ -145,10 +145,10 @@
               <!-- ANCIENNE VERSION : v-if="payload.agreger" -->
               <!-- NOUVELLE VERSION : Inverser la condition -->
               <div v-if="!payload.agreger" class="flex-1">
-                <label class="form-label">Clé valeur</label>
+                <label class="form-label" for="cle_valeur">Clé valeur</label>
                 <div class="flex gap-1">
                   <div class="relative w-full">
-                    <v-select class="w-full" :reduce="(key) => key.id" v-model="array_value_keys" label="libelle" :options="keys" placeholder="Selectionez les clés valeur..." multiple>
+                    <v-select id="cle_valeur" class="w-full" :reduce="(key) => key.id" v-model="array_value_keys" label="libelle" :options="keys" placeholder="Selectionez les clés valeur..." multiple>
                        <template #search="{ attributes, events }">
                          <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher une clé..." />
                        </template>
@@ -170,7 +170,7 @@
                         {{ base.libelle }}
                         <span v-if="hasEmptyBaseValue(base.id)" class="ml-1">⚠️</span>
                       </div>
-                      <input type="text" v-model="valeur[base.id]" class="form-control" :class="{ 'border-red-400 focus:border-red-500 focus:ring-red-500': hasEmptyBaseValue(base.id) }" placeholder="valeur" aria-label="valeur" aria-describedby="input-group-valeur" />
+                      <input type="text" :id="'valeur_base_' + base.id" :name="'valeur_base_' + base.id" v-model="valeur[base.id]" class="form-control" :class="{ 'border-red-400 focus:border-red-500 focus:ring-red-500': hasEmptyBaseValue(base.id) }" placeholder="valeur" aria-label="valeur" aria-describedby="input-group-valeur" />
                     </div>
                     <div v-if="hasEmptyBaseValue(base.id)" class="mt-2 text-danger">Ce champ doit être rempli</div>
                   </div>
@@ -211,7 +211,7 @@
                           </span>
                           <div class="relative flex items-center">
                             <div v-if="isFieldEditing(index, valeur.keyId)">
-                              <input type="number" v-model="valeur.value" @keyup.enter.prevent.stop="toggleFieldEdit(index, valeur.keyId)" @focus="$event.target.select()" class="text-sm font-semibold text-slate-900 border border-blue-500 text-right focus:bg-blue-50 focus:ring-1 focus:ring-blue-500 rounded px-2 py-1 w-24 transition-all mr-6" :class="{ 'focus:bg-green-50 focus:ring-green-500': hasEmptyTargetValue(valeur.keyId, index) }" placeholder="0" step="any" />
+                              <input type="number" :id="'target_value_' + index + '_' + valeur.keyId" :name="'target_value_' + index + '_' + valeur.keyId" v-model="valeur.value" @keyup.enter.prevent.stop="toggleFieldEdit(index, valeur.keyId)" @focus="$event.target.select()" class="text-sm font-semibold text-slate-900 border border-blue-500 text-right focus:bg-blue-50 focus:ring-1 focus:ring-blue-500 rounded px-2 py-1 w-24 transition-all mr-6" :class="{ 'focus:bg-green-50 focus:ring-green-500': hasEmptyTargetValue(valeur.keyId, index) }" placeholder="0" step="any" />
                             </div>
                             <span v-else class="text-sm font-semibold text-slate-900 w-24 text-right">
                               {{ valeur.value || '0' }}
@@ -238,10 +238,10 @@
           <div class="grid grid-cols-1 gap-4">
             <div class="flex flex-wrap items-center justify-between gap-3">
               <div class="flex-1">
-                <label class="form-label">Catégorie<span class="text-danger">*</span></label>
+                <label class="form-label" for="categorie_id">Catégorie<span class="text-danger">*</span></label>
                 <div class="flex gap-1">
                   <div class="relative w-full">
-                    <v-select class="w-full" :reduce="(categorie) => categorie.id" v-model="payload.categorieId" label="nom" :options="categories" placeholder="Selectionez une catégorie...">
+                    <v-select id="categorie_id" class="w-full" :reduce="(categorie) => categorie.id" v-model="payload.categorieId" label="nom" :options="categories" placeholder="Selectionez une catégorie...">
                       <template #search="{ attributes, events }">
                         <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher une catégorie..." />
                       </template>
@@ -258,11 +258,11 @@
                 <div v-if="errors.categorieId" class="mt-2 text-danger">{{ getFieldErrors(errors.categorieId) }}</div>
               </div>
               <div class="flex-1">
-                <label class="form-label">Type de variables <span class="text-danger">*</span></label>
+                <label class="form-label" for="type_de_variable">Type de variables <span class="text-danger">*</span></label>
                 <div class="relative w-full">
                   <!-- ANCIENNE VERSION : :options="payload.agreger ? type_variablees : type_variablees_agreger" -->
                   <!-- NOUVELLE VERSION : Inverser la condition -->
-                  <v-select class="w-full" :reduce="(variable) => variable.id" v-model="payload.type_de_variable" :options="!payload.agreger ? type_variablees : type_variablees_agreger" label="label" placeholder="Selectionez un type de variable...">
+                  <v-select id="type_de_variable" class="w-full" :reduce="(variable) => variable.id" v-model="payload.type_de_variable" :options="!payload.agreger ? type_variablees : type_variablees_agreger" label="label" placeholder="Selectionez un type de variable...">
                     <template #search="{ attributes, events }">
                       <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher un type..." />
                     </template>
@@ -273,40 +273,40 @@
             </div>
             <div class="flex flex-wrap items-center justify-between gap-3">
                 <div class="flex-1">
-                    <label class="form-label">Méthode de la collecte des données</label>
+                    <label class="form-label" for="methode_collecte">Méthode de la collecte des données</label>
                     <div class="relative w-full">
-                        <v-select class="w-full" v-model="payload.methode_de_la_collecte" :options="methodeCollecte" placeholder="Selectionez une methode..."></v-select>
+                        <v-select id="methode_collecte" class="w-full" v-model="payload.methode_de_la_collecte" :options="methodeCollecte" placeholder="Selectionez une methode..."></v-select>
                     </div>
                     <div v-if="errors.methode_de_la_collecte" class="mt-2 text-danger">{{ getFieldErrors(errors.methode_de_la_collecte) }}</div>
                 </div>
                 <div class="flex-1">
-                    <label class="form-label">Fréquence de la collecte de données</label>
+                    <label class="form-label" for="frequence_collecte">Fréquence de la collecte de données</label>
                     <div class="relative w-full">
-                        <v-select class="w-full" v-model="payload.frequence_de_la_collecte" :options="frequenceCollecte" placeholder="Selectionez une fréquence..."></v-select>
+                        <v-select id="frequence_collecte" class="w-full" v-model="payload.frequence_de_la_collecte" :options="frequenceCollecte" placeholder="Selectionez une fréquence..."></v-select>
                     </div>
                     <div v-if="errors.frequence_de_la_collecte" class="mt-2 text-danger">{{ getFieldErrors(errors.frequence_de_la_collecte) }}</div>
                 </div>
             </div>
             <div class="flex-1">
-              <label class="form-label">UG <span class="text-danger">*</span></label>
+              <label class="form-label" for="ug_responsable">UG <span class="text-danger">*</span></label>
               <div class="relative w-full">
-                <v-select class="w-full" :reduce="(ug) => ug.id" v-model="responsablesForm.ug" label="nom" :options="ugs" placeholder="Selectionez un UG..."></v-select>
+                <v-select id="ug_responsable" class="w-full" :reduce="(ug) => ug.id" v-model="responsablesForm.ug" label="nom" :options="ugs" placeholder="Selectionez un UG..."></v-select>
               </div>
               <div v-if="errors['responsables.ug']" class="mt-2 text-danger">{{ getFieldErrors(errors["responsables.ug"]) }}</div>
             </div>
             <div class="flex flex-wrap items-center justify-between gap-3">
               <div class="flex-1">
-                <label class="form-label">Responsables <span class="text-danger">*</span></label>
+                <label class="form-label" for="organisations_responsables">Responsables <span class="text-danger">*</span></label>
                 <div class="relative w-full">
-                  <v-select class="w-full" :reduce="(responsable) => responsable.id" v-model="responsablesForm.organisations" label="nom" :options="responsables" placeholder="Selectionez un responsable..." multiple></v-select>
+                  <v-select id="organisations_responsables" class="w-full" :reduce="(responsable) => responsable.id" v-model="responsablesForm.organisations" label="nom" :options="responsables" placeholder="Selectionez un responsable..." multiple></v-select>
                 </div>
                 <div v-if="errors['responsables.organisations']" class="mt-2 text-danger">{{ getFieldErrors(errors["responsables.organisations"]) }}</div>
               </div>
               <div class="flex-1">
-                <label class="form-label">Unité de mesure <span class="text-danger">*</span></label>
+                <label class="form-label" for="unite_mesure_id">Unité de mesure <span class="text-danger">*</span></label>
                 <div class="flex gap-1">
                   <div class="relative w-full">
-                    <v-select class="w-full" :reduce="(unite) => unite.id" v-model="payload.uniteeMesureId" label="nom" :options="unites" placeholder="Selectionez une unité de mesure..."></v-select>
+                    <v-select id="unite_mesure_id" class="w-full" :reduce="(unite) => unite.id" v-model="payload.uniteeMesureId" label="nom" :options="unites" placeholder="Selectionez une unité de mesure..."></v-select>
                   </div>
                   <button type="button" class="flex-1 text-sm btn btn-primary" @click.prevent="showModalUniteMesure = true"><Plus class="mr-1 size-3" /></button>
                 </div>
@@ -315,28 +315,28 @@
             </div>
             <div class="flex flex-wrap items-center justify-between w-full gap-3">
               <div class="flex-1">
-                <label class="form-label">Zone d'intervention <span class="text-danger">*</span></label>
+                <label class="form-label" for="zone_intervention">Zone d'intervention <span class="text-danger">*</span></label>
                 <div class="flex gap-1">
                   <div class="relative w-full">
-                    <v-select class="w-full" :reduce="(site) => site.id" v-model="payload.sites" label="nom" :options="sites" placeholder="Selectionez les sites..." multiple></v-select>
+                    <v-select id="zone_intervention" class="w-full" :reduce="(site) => site.id" v-model="payload.sites" label="nom" :options="sites" placeholder="Selectionez les sites..." multiple></v-select>
                   </div>
                   <button type="button" class="flex-1 text-sm btn btn-primary" @click.prevent="showModalZone = true"><Plus class="mr-1 size-3" /></button>
                 </div>
                 <div v-if="errors.sites" class="mt-2 text-danger">{{ getFieldErrors(errors.sites) }}</div>
               </div>
               <div class="flex-1">
-                <label class="form-label">Source de données</label>
+                <label class="form-label" for="source_donnees">Source de données</label>
                 <div class="relative w-full">
-                  <v-select class="w-full" v-model="payload.sources_de_donnee" :options="sourcesDonnees" placeholder="Selectionez une source..."></v-select>
+                  <v-select id="source_donnees" class="w-full" v-model="payload.sources_de_donnee" :options="sourcesDonnees" placeholder="Selectionez une source..."></v-select>
                 </div>
                 <div v-if="errors.sources_de_donnee" class="mt-2 text-danger">{{ getFieldErrors(errors.sources_de_donnee) }}</div>
               </div>
             </div>
             <div class="flex flex-wrap items-center justify-between w-full gap-3">
               <div class="flex-1">
-                <label class="form-label" for="hypothese">Hypothèses et risques</label>
+                <label class="form-label" for="indicateur_hypothese">Hypothèses et risques</label>
                 <div>
-                  <textarea name="hypothese" class="form-control" id="hypothese" v-model="payload.hypothese" cols="30" rows="3" placeholder="Décrivez les hypothèses et risques liés à cet indicateur"></textarea>
+                  <textarea name="indicateur_hypothese" class="form-control" id="indicateur_hypothese" v-model="payload.hypothese" cols="30" rows="3" placeholder="Décrivez les hypothèses et risques liés à cet indicateur"></textarea>
                 </div>
                 <div v-if="errors.hypothese" class="mt-2 text-danger">{{ getFieldErrors(errors.hypothese) }}</div>
               </div>
@@ -370,9 +370,9 @@
       <ModalBody>
         <div class="grid grid-cols-1 gap-4">
           <div class="flex-1">
-            <label class="form-label">Année</label>
+            <label class="form-label" for="modal_annee_cible">Année</label>
             <div class="relative w-full">
-              <v-select class="w-full" v-model="currentAnneeCible.annee" :options="anneesModalDisponibles" placeholder="Selectionez une année..."></v-select>
+              <v-select id="modal_annee_cible" class="w-full" v-model="currentAnneeCible.annee" :options="anneesModalDisponibles" placeholder="Selectionez une année..."></v-select>
             </div>
           </div>
           <div v-if="array_value_keys.length > 0" class="">
@@ -383,7 +383,7 @@
                     {{ key.libelle }}
                     <span v-if="hasEmptyModalValue(index)" class="ml-1">⚠️</span>
                   </div>
-                  <input type="text" v-model="currentAnneeCible.valeurCible[index].value" class="form-control" :class="{ 'border-red-400 focus:border-red-500 focus:ring-red-500': hasEmptyModalValue(index) }" placeholder="valeur" aria-label="valeur" />
+                  <input type="text" :id="'modal_valeur_' + index" :name="'modal_valeur_' + index" v-model="currentAnneeCible.valeurCible[index].value" class="form-control" :class="{ 'border-red-400 focus:border-red-500 focus:ring-red-500': hasEmptyModalValue(index) }" placeholder="valeur" aria-label="valeur" />
                 </div>
                 <div v-if="hasEmptyModalValue(index)" class="mt-2 text-danger">Ce champ doit être rempli</div>
               </div>

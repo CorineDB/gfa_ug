@@ -1379,7 +1379,7 @@ onMounted(() => {
 
                   <div class="items-center transition-all opacity-0 container-buttons">
                     <div v-if="canEditPrincipe[principe_de_gouvernance.id]">
-                      <input type="number" min="1" step="1" name="position" :value="principe_de_gouvernance.position" @keyup.enter="editTemporyPrincipe(principe_de_gouvernance.id, $event.target.value)" class="w-2/5 form-control" />
+                      <input :id="'position_principe_' + principe_de_gouvernance.id" :name="'position_principe_' + principe_de_gouvernance.id" type="number" min="1" step="1" :value="principe_de_gouvernance.position" @keyup.enter="editTemporyPrincipe(principe_de_gouvernance.id, $event.target.value)" class="w-2/5 form-control" />
                     </div>
                     <div v-else class="flex gap-1">
                       <button class="p-1.5 text-primary" @click="handleEditPrincipe(principe_de_gouvernance.id)" title="Modifier la position">
@@ -1397,7 +1397,7 @@ onMounted(() => {
                 <td>
                   <div class="flex items-center">
                     <div v-if="canEditQuestion[question_operationnelle.key]">
-                      <input type="number" min="1" step="1" name="position" :value="question_operationnelle.position" @keyup.enter="editTemporyQuestion(question_operationnelle.key, $event.target.value)" class="w-2/5 form-control" />
+                      <input :id="'position_question_' + question_operationnelle.key" :name="'position_question_' + question_operationnelle.key" type="number" min="1" step="1" :value="question_operationnelle.position" @keyup.enter="editTemporyQuestion(question_operationnelle.key, $event.target.value)" class="w-2/5 form-control" />
                     </div>
                     <div v-else class="flex gap-1">
                       <button class="p-1.5 text-primary" @click="handleEditQuestion(question_operationnelle.key)" title="Modifier la position">
@@ -1539,10 +1539,10 @@ onMounted(() => {
       <ModalBody class="space-y-5">
         <!--  <div class="flex gap-4"></div> -->
         <div class="gap-4">
-          <InputForm label="Libellé" class="w-full mb-4" :control="getFieldErrors(errors.libelle)" v-model="payload.libelle" />
+          <InputForm id="libelle_perception" name="libelle_perception" label="Libellé" class="w-full mb-4" :control="getFieldErrors(errors.libelle)" v-model="payload.libelle" />
           <!-- <div class="w-full">
-            <label for="annee" class="form-label">Année<span class="text-danger">*</span> </label>
-            <TomSelect v-model="payload.annee_exercice" :options="{ placeholder: 'Selectionez une année' }"
+            <label for="annee_perception" class="form-label">Année<span class="text-danger">*</span> </label>
+            <TomSelect id="annee_perception" name="annee_perception" v-model="payload.annee_exercice" :options="{ placeholder: 'Selectionez une année' }"
               class="w-full">
               <option v-for="(year, index) in annees" :key="index" :value="year">{{ year }}</option>
             </TomSelect>
@@ -1597,18 +1597,20 @@ onMounted(() => {
       </div>
       
       <div>
-        <label class="form-label">
+        <label for="nouveau_principe_perception" class="form-label">
           Nouveau principe de gouvernance
         </label>
-        <TomSelect 
-          v-model="modifyElement.newParentId" 
+        <TomSelect
+          id="nouveau_principe_perception"
+          name="nouveau_principe_perception"
+          v-model="modifyElement.newParentId"
           :options="{ placeholder: 'Sélectionnez un nouveau principe' }"
           class="w-full"
         >
           <option value="">Sélectionnez un nouveau principe</option>
-          <option 
-            v-for="parent in modifyElement.availableParents" 
-            :key="parent.id" 
+          <option
+            v-for="parent in modifyElement.availableParents"
+            :key="parent.id"
             :value="parent.id"
           >
             {{ parent.nom }}
