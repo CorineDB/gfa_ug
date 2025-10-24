@@ -445,32 +445,62 @@ onMounted(() => {
       <ModalBody>
         <div class="grid grid-cols-1 gap-4">
           <div class="col-span-12">
-            <InputForm label="Nom" v-model="payload.nom" />
+            <InputForm 
+              id="nom_localisation"
+              name="nom"
+              label="Nom" 
+              v-model="payload.nom" 
+            />
             <div v-if="errors.nom" class="mt-2 text-danger">{{ getFieldErrors(errors.nom) }}</div>
           </div>
 
           <!-- Coordonnées avec bouton pour ouvrir la carte -->
           <div class="grid grid-cols-2 gap-4 col-span-12">
             <div>
-              <InputForm label="Longitude" type="number" step="any" v-model="payload.longitude" />
+              <InputForm 
+                id="longitude_localisation"
+                name="longitude"
+                label="Longitude" 
+                type="number" 
+                step="any" 
+                v-model="payload.longitude" 
+              />
               <div v-if="errors.longitude" class="mt-2 text-danger">{{ getFieldErrors(errors.longitude) }}</div>
             </div>
             <div>
-              <InputForm label="Latitude" type="number" step="any" v-model.number="payload.latitude" />
+              <InputForm 
+                id="latitude_localisation"
+                name="latitude"
+                label="Latitude" 
+                type="number" 
+                step="any" 
+                v-model.number="payload.latitude" 
+              />
               <div v-if="errors.latitude" class="mt-2 text-danger">{{ getFieldErrors(errors.latitude) }}</div>
             </div>
           </div>
 
           <!-- Boutons pour la carte -->
           <div class="flex gap-2 col-span-12">
-            <button type="button" @click="openMapModal" class="flex items-center px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600">
+            <button 
+              type="button" 
+              @click="openMapModal" 
+              class="flex items-center px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
+              id="selectionner_carte"
+            >
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
               Sélectionner sur la carte
             </button>
-            <button type="button" @click="centerMapOnCoordinates" class="flex items-center px-4 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300" :disabled="!payload.latitude || !payload.longitude">
+            <button 
+              type="button" 
+              @click="centerMapOnCoordinates" 
+              class="flex items-center px-4 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300" 
+              :disabled="!payload.latitude || !payload.longitude"
+              id="centrer_coordonnees"
+            >
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
               </svg>
@@ -479,8 +509,14 @@ onMounted(() => {
           </div>
 
           <div class="col-span-12">
-            <label class="form-label">Pays<span class="text-danger">*</span> </label>
-            <select v-model="payload.pays" @change="changeCountry" class="form-select w-full">
+            <label class="form-label" for="pays_localisation">Pays<span class="text-danger">*</span> </label>
+            <select 
+              id="pays_localisation"
+              name="pays"
+              v-model="payload.pays" 
+              @change="changeCountry" 
+              class="form-select w-full"
+            >
               <option value="">Selectionez un pays</option>
               <option v-for="(country, index) in pays" :key="index" :value="country">{{ country }}</option>
             </select>
@@ -489,8 +525,14 @@ onMounted(() => {
 
           <div v-if="isBenin" class="col-span-12">
             <div class="w-full mb-4">
-              <label class="form-label">Départements<span class="text-danger">*</span> </label>
-              <select v-model="payload.departement" @change="updateCommunes" class="form-select w-full">
+              <label class="form-label" for="departement_localisation">Départements<span class="text-danger">*</span> </label>
+              <select 
+                id="departement_localisation"
+                name="departement"
+                v-model="payload.departement" 
+                @change="updateCommunes" 
+                class="form-select w-full"
+              >
                 <option value="">Selectionez un département</option>
                 <option v-for="(dep, index) in departements" :key="index" :value="dep.lib_dep">{{ dep.lib_dep }}</option>
               </select>
@@ -498,8 +540,14 @@ onMounted(() => {
             </div>
 
             <div class="mb-4" :class="[!showCommune ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
-              <label class="form-label">Communes<span class="text-danger">*</span> </label>
-              <select v-model="payload.commune" @change="updateArrondissements" class="form-select w-full">
+              <label class="form-label" for="commune_localisation">Communes<span class="text-danger">*</span> </label>
+              <select 
+                id="commune_localisation"
+                name="commune"
+                v-model="payload.commune" 
+                @change="updateArrondissements" 
+                class="form-select w-full"
+              >
                 <option value="">Sélectionner la commune</option>
                 <option v-for="commune in filteredCommunes" :key="commune.lib_com" :value="commune.lib_com">
                   {{ commune.lib_com }}
@@ -511,8 +559,14 @@ onMounted(() => {
 
           <div v-if="isBenin" class="col-span-12">
             <div class="w-full mb-4" :class="[!showArrondissement ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
-              <label class="form-label">Arrondissement<span class="text-danger">*</span> </label>
-              <select v-model="payload.arrondissement" @change="updateQuartiers" class="form-select w-full">
+              <label class="form-label" for="arrondissement_localisation">Arrondissement<span class="text-danger">*</span> </label>
+              <select 
+                id="arrondissement_localisation"
+                name="arrondissement"
+                v-model="payload.arrondissement" 
+                @change="updateQuartiers" 
+                class="form-select w-full"
+              >
                 <option value="">Selectionez arrondissement</option>
                 <option v-for="(arrond, index) in filteredArrondissements" :key="index" :value="arrond.lib_arrond">{{ arrond.lib_arrond }}</option>
               </select>
@@ -520,8 +574,13 @@ onMounted(() => {
             </div>
 
             <div class="w-full mb-4" :class="[!showQuatier ? '' : 'opacity-50 cursor-not-allowed pointer-events-none']">
-              <label class="form-label">Quartier<span class="text-danger">*</span> </label>
-              <select v-model="payload.quartier" class="form-select w-full">
+              <label class="form-label" for="quartier_localisation">Quartier<span class="text-danger">*</span> </label>
+              <select 
+                id="quartier_localisation"
+                name="quartier"
+                v-model="payload.quartier" 
+                class="form-select w-full"
+              >
                 <option value="">Sélectionner le quartier</option>
                 <option v-for="quart in filteredQuartiers" :key="quart.lib_quart" :value="quart.lib_quart">
                   {{ quart.lib_quart }}
@@ -532,17 +591,65 @@ onMounted(() => {
           </div>
 
           <div v-if="!isBenin" class="col-span-12">
-            <InputForm :required="false" :optionel="false" label="Département" v-model="payload.departement" :control="getFieldErrors(errors.departement)" class="mb-4" />
-            <InputForm :required="false" :optionel="false" label="Commune" v-model="payload.commune" :control="getFieldErrors(errors.commune)" class="mb-4" />
-            <InputForm :required="false" :optionel="false" label="Arrondissement" v-model="payload.arrondissement" :control="getFieldErrors(errors.arrondissement)" class="mb-4" />
-            <InputForm :required="false" :optionel="false" label="Quartier" v-model="payload.quartier" :control="getFieldErrors(errors.quartier)" class="mb-4" />
+            <InputForm 
+              id="departement_autre"
+              name="departement"
+              :required="false" 
+              :optionel="false" 
+              label="Département" 
+              v-model="payload.departement" 
+              :control="getFieldErrors(errors.departement)" 
+              class="mb-4" 
+            />
+            <InputForm 
+              id="commune_autre"
+              name="commune"
+              :required="false" 
+              :optionel="false" 
+              label="Commune" 
+              v-model="payload.commune" 
+              :control="getFieldErrors(errors.commune)" 
+              class="mb-4" 
+            />
+            <InputForm 
+              id="arrondissement_autre"
+              name="arrondissement"
+              :required="false" 
+              :optionel="false" 
+              label="Arrondissement" 
+              v-model="payload.arrondissement" 
+              :control="getFieldErrors(errors.arrondissement)" 
+              class="mb-4" 
+            />
+            <InputForm 
+              id="quartier_autre"
+              name="quartier"
+              :required="false" 
+              :optionel="false" 
+              label="Quartier" 
+              v-model="payload.quartier" 
+              :control="getFieldErrors(errors.quartier)" 
+              class="mb-4" 
+            />
           </div>
         </div>
       </ModalBody>
       <ModalFooter>
         <div class="flex gap-2">
-          <button type="button" @click="resetForm" class="w-full px-2 py-2 my-3 align-top btn btn-outline-secondary">Annuler</button>
-          <VButton :loading="isLoading" :label="mode" />
+          <button 
+            type="button" 
+            @click="resetForm" 
+            class="w-full px-2 py-2 my-3 align-top btn btn-outline-secondary"
+            id="annuler_localisation"
+          >
+            Annuler
+          </button>
+          <VButton 
+            :loading="isLoading" 
+            :label="mode" 
+            type="submit"
+            id="soumettre_localisation"
+          />
         </div>
       </ModalFooter>
     </form>

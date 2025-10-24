@@ -64,19 +64,34 @@
     <div v-if="!Update" class="p-4 col-span-12">
       <h1 class="text-xl font-bold">Production de rapport</h1>
 
-      <form action="" @submit.prevent="saveRapport" class="p-5 w-full">
-        <div class="form-group my-2">
-          <InputForm label="Titre du rapport" class="flex-1" v-model="nom" type="text" />
-        </div>
+       <form action="" @submit.prevent="saveRapport" class="p-5 w-full">
+          <div class="form-group my-2">
+            <InputForm 
+              id="titre_rapport"
+              name="nom"
+              label="Titre du rapport" 
+              class="flex-1" 
+              v-model="nom" 
+              type="text" 
+            />
+          </div>
 
-        <div class="form-group my-2">
-          <label class="text-xs font-semibold">Contenu du rapport </label>
-          <ClassicEditor v-model="editorData" />
-        </div>
-        <div class="py-2 my-4 flex justify-end">
-          <VButton :loading="chargement" label="Enrégistrer" />
-        </div>
-      </form>
+          <div class="form-group my-2">
+            <label class="text-xs font-semibold" for="contenu_rapport">Contenu du rapport</label>
+            <ClassicEditor 
+              id="contenu_rapport"
+              v-model="editorData" 
+            />
+          </div>
+          <div class="py-2 my-4 flex justify-end">
+            <VButton 
+              :loading="chargement" 
+              label="Enrégistrer" 
+              type="submit"
+              id="enregistrer_rapport"
+            />
+          </div>
+        </form>
 
       <div class="px-5 pb-5 flex justify-end">
         <button type="button" class="btn btn-primary px-4 py-2" :disabled="editorData == '' && nom == ''" @click="modalMail()">Envoyer par mail</button>
@@ -85,21 +100,40 @@
 
     <div v-else class="p-4 col-span-12">
       <h1 class="text-xl font-bold">Modification de rapport</h1>
-      <form action="" @submit.prevent="saveEditRapport" class="p-5 w-full">
-        <div class="form-group my-2">
-          <InputForm label="Titre du rapport" class="flex-1" v-model="edit.nom" type="text" />
-        </div>
+       <form action="" @submit.prevent="saveEditRapport" class="p-5 w-full">
+          <div class="form-group my-2">
+            <InputForm 
+              id="titre_rapport_edit"
+              name="nom"
+              label="Titre du rapport" 
+              class="flex-1" 
+              v-model="edit.nom" 
+              type="text" 
+            />
+          </div>
 
-        <div class="form-group my-2">
-          <label class="text-xs font-semibold">Contenu du rapport </label>
-          <ClassicEditor v-model="edit.Data" />
-        </div>
-        <div class="py-2 my-4 flex justify-end space-x-8">
-          <VButton :loading="chargement3" label="Enrégistrer" />
+          <div class="form-group my-2">
+            <label class="text-xs font-semibold" for="contenu_rapport_edit">Contenu du rapport</label>
+            <ClassicEditor 
+              id="contenu_rapport_edit"
+              v-model="edit.Data" 
+            />
+          </div>
+          <div class="py-2 my-4 flex justify-end space-x-8">
+            <VButton 
+              :loading="chargement3" 
+              label="Enrégistrer" 
+              type="submit"
+              id="enregistrer_rapport_edit"
+            />
 
-          <VButton @click="modalMail()" label=" Envoyer par mail " />
-        </div>
-      </form>
+            <VButton 
+              @click="modalMail()" 
+              label="Envoyer par mail" 
+              id="envoyer_mail_rapport"
+            />
+          </div>
+        </form>
     </div>
 
     <!-- fin formulaire -->

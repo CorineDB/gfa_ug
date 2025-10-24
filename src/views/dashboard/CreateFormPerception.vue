@@ -1535,38 +1535,42 @@ onMounted(() => {
     <ModalHeader>
       <h2 class="mr-auto text-base font-medium">Enregistrer le formulaire</h2>
     </ModalHeader>
-    <form @submit.prevent="createForm">
-      <ModalBody class="space-y-5">
-        <!--  <div class="flex gap-4"></div> -->
-        <div class="gap-4">
-          <InputForm id="libelle_perception" name="libelle_perception" label="Libellé" class="w-full mb-4" :control="getFieldErrors(errors.libelle)" v-model="payload.libelle" />
-          <!-- <div class="w-full">
-            <label for="annee_perception" class="form-label">Année<span class="text-danger">*</span> </label>
-            <TomSelect id="annee_perception" name="annee_perception" v-model="payload.annee_exercice" :options="{ placeholder: 'Selectionez une année' }"
-              class="w-full">
-              <option v-for="(year, index) in annees" :key="index" :value="year">{{ year }}</option>
-            </TomSelect>
-            <-- <input id="annee" type="number" required v-model.number="payload.annee_exercice" class="form-control" placeholder="Année" /> ->
-            <div v-if="errors.annee_exercice" class="mt-2 text-danger">{{ getFieldErrors(errors.annee_exercice) }}</div>
-          </div> -->
-        </div>
-        <div>
-          <p class="mb-3">Options de réponses</p>
-          <ListOptionsResponse :options="previewOptionResponses.options_de_reponse" />
-        </div>
-        <!-- 
-        <div class="max-h-[50vh] h-[50vh] overflow-y-auto">
-          <p class="mb-3">Formulaire de perception</p>
-          <PreviewPerceptionForm :principes="previewPrincipesGouvernance.principes_de_gouvernance" />
-        </div> -->
-      </ModalBody>
-      <ModalFooter>
-        <div class="flex gap-2">
-          <button type="button" @click="resetErrors" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
-          <VButton :loading="isLoadingForm" label="Enregistrer" />
-        </div>
-      </ModalFooter>
-    </form>
+     <form @submit.prevent="createForm">
+        <ModalBody class="space-y-5">
+          <div class="gap-4">
+            <InputForm 
+              id="libelle_perception"
+              name="libelle"
+              label="Libellé" 
+              class="w-full mb-4" 
+              :control="getFieldErrors(errors.libelle)" 
+              v-model="payload.libelle" 
+            />
+          </div>
+          <div>
+            <p class="mb-3">Options de réponses</p>
+            <ListOptionsResponse :options="previewOptionResponses.options_de_reponse" />
+          </div>
+        </ModalBody>
+        <ModalFooter>
+          <div class="flex gap-2">
+            <button 
+              type="button" 
+              @click="resetErrors" 
+              class="w-full px-2 py-2 my-3 btn btn-outline-secondary"
+              id="annuler_perception"
+            >
+              Annuler
+            </button>
+            <VButton 
+              :loading="isLoadingForm" 
+              label="Enregistrer" 
+              type="submit"
+              id="enregistrer_perception"
+            />
+          </div>
+        </ModalFooter>
+      </form>
   </Modal>
   <!-- END: Modal Content -->
   <!-- Modal for deleting -->

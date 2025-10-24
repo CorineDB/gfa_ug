@@ -349,13 +349,20 @@ onMounted(async () => {
       <form @submit.prevent="submitData">
         <ModalBody>
           <div class="grid grid-cols-1 gap-4">
-            <InputForm label="Libellé" v-model="payload.libelle" :control="getFieldErrors(errors.libelle)" />
+            <InputForm 
+              id="libelle_question"
+              name="libelle"
+              label="Libellé" 
+              v-model="payload.libelle" 
+              :control="getFieldErrors(errors.libelle)" 
+            />
 
             <!-- Nouveaux champs booléens -->
             <div class="col-span-12">
               <div class="form-check mb-3">
                 <input
                   id="preuveIsRequired"
+                  name="preuveIsRequired"
                   class="form-check-input"
                   type="checkbox"
                   v-model="payload.preuveIsRequired"
@@ -368,6 +375,7 @@ onMounted(async () => {
               <div class="form-check mb-3">
                 <input
                   id="sourceIsRequired"
+                  name="sourceIsRequired"
                   class="form-check-input"
                   type="checkbox"
                   v-model="payload.sourceIsRequired"
@@ -380,6 +388,7 @@ onMounted(async () => {
               <div class="form-check">
                 <input
                   id="descriptionIsRequired"
+                  name="descriptionIsRequired"
                   class="form-check-input"
                   type="checkbox"
                   v-model="payload.descriptionIsRequired"
@@ -393,8 +402,20 @@ onMounted(async () => {
         </ModalBody>
         <ModalFooter>
           <div class="flex gap-2">
-            <button type="button" @click="resetForm" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
-            <VButton :loading="isLoading" :label="modeText" />
+            <button 
+              type="button" 
+              @click="resetForm" 
+              class="w-full px-2 py-2 my-3 btn btn-outline-secondary"
+              id="annuler_question"
+            >
+              Annuler
+            </button>
+            <VButton 
+              :loading="isLoading" 
+              :label="modeText" 
+              type="submit"
+              id="soumettre_question"
+            />
           </div>
         </ModalFooter>
       </form>

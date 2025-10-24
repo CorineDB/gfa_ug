@@ -1459,34 +1459,36 @@ onMounted(async () => {
     </ModalHeader>
     <form @submit.prevent="updateForm">
       <ModalBody class="space-y-5">
-        <!--  <div class="flex gap-4"></div> -->
         <div class="gap-4">
-          <InputForm label="Libellé" class="w-full mb-4" v-model="payload.libelle" />
-          <!-- 
-            <div class="w-full">
-              <label for="annee" class="form-label">Année</label>
-              <-- <input id="annee" type="number" required v-model.number="payload.annee_exercice" class="form-control" placeholder="Année" /> ->
-              <TomSelect v-model="payload.annee_exercice" :options="{ placeholder: 'Selectionez une année' }"
-                class="w-full">
-                <option v-for="(year, index) in annees" :key="index" :value="year">{{ year }}</option>
-              </TomSelect>
-            </div>
-          -->
+          <InputForm 
+            id="libelle_perception_update"
+            name="libelle"
+            label="Libellé" 
+            class="w-full mb-4" 
+            v-model="payload.libelle" 
+          />
         </div>
         <div>
           <p class="mb-3">Options de réponses</p>
           <ListOptionsResponse :options="previewOptionResponses.options_de_reponse" />
         </div>
-        <!-- 
-        <div class="max-h-[50vh] h-[50vh] overflow-y-auto">
-          <p class="mb-3">Formulaire de perception</p>
-          <PreviewPerceptionForm :principes="previewPrincipesGouvernance.principes_de_gouvernance" />
-        </div> -->
       </ModalBody>
       <ModalFooter>
         <div class="flex gap-2">
-          <button type="button" @click="modalForm = false" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
-          <VButton :loading="isLoadingForm" label="Modifier" />
+          <button 
+            type="button" 
+            @click="modalForm = false" 
+            class="w-full px-2 py-2 my-3 btn btn-outline-secondary"
+            id="annuler_perception_update"
+          >
+            Annuler
+          </button>
+          <VButton 
+            :loading="isLoadingForm" 
+            label="Modifier" 
+            type="submit"
+            id="modifier_perception"
+          />
         </div>
       </ModalFooter>
     </form>

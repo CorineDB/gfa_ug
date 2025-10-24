@@ -215,20 +215,43 @@ onMounted(() => {
     <ModalHeader>
       <h2 class="mr-auto text-base font-medium">{{ mode }} une source de verification</h2>
     </ModalHeader>
-    <form @submit.prevent="submitData">
-      <ModalBody>
-        <div class="grid grid-cols-1 gap-4">
-          <InputForm label="Nom" v-model="payload.intitule" />
-          <InputForm label="Description" v-model="payload.description" :required="false" />
-        </div>
-      </ModalBody>
-      <ModalFooter>
-        <div class="flex gap-2">
-          <button type="button" @click="resetForm" class="w-full px-2 py-2 my-3 align-top btn btn-outline-secondary">Annuler</button>
-          <VButton :loading="isLoading" :label="mode" />
-        </div>
-      </ModalFooter>
-    </form>
+     <form @submit.prevent="submitData">
+        <ModalBody>
+          <div class="grid grid-cols-1 gap-4">
+            <InputForm 
+              id="nom_generique"
+              name="intitule"
+              label="Nom" 
+              v-model="payload.intitule" 
+            />
+            <InputForm 
+              id="description_generique"
+              name="description"
+              label="Description" 
+              v-model="payload.description" 
+              :required="false" 
+            />
+          </div>
+        </ModalBody>
+        <ModalFooter>
+          <div class="flex gap-2">
+            <button 
+              type="button" 
+              @click="resetForm" 
+              class="w-full px-2 py-2 my-3 align-top btn btn-outline-secondary"
+              id="annuler_generique"
+            >
+              Annuler
+            </button>
+            <VButton 
+              :loading="isLoading" 
+              :label="mode" 
+              type="submit"
+              id="soumettre_generique"
+            />
+          </div>
+        </ModalFooter>
+      </form>
   </Modal>
   <!-- End Modal -->
 

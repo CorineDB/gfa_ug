@@ -273,16 +273,29 @@ onMounted(getDatas);
     <!-- Modal for creating/updating -->
     <Modal backdrop="static" :show="showModalCreate" @hidden="closeModal">
       <ModalHeader>
-        <h2 class="mr-auto text-base font-medium">{{ modeText }} une question opérationnelle dklsds</h2>
+        <h2 class="mr-auto text-base font-medium">{{ modeText }} une question opérationnelle</h2>
       </ModalHeader>
-      <form @submit.prevent="submitData">
+       <form @submit.prevent="submitData">
         <ModalBody>
           <div class="grid grid-cols-1 gap-4">
-            <InputForm label="Nom" v-model="payload.nom" :control="getFieldErrors(errors.nom)" />
+            <InputForm 
+              id="nom_generique"
+              name="nom"
+              label="Nom" 
+              v-model="payload.nom" 
+              :control="getFieldErrors(errors.nom)" 
+            />
             <div class="flex-1">
-              <label class="form-label" for="description">Description</label>
+              <label class="form-label" for="description_generique">Description</label>
               <div class="">
-                <textarea name="description" class="form-control" id="description" v-model="payload.description" cols="30" rows="3"></textarea>
+                <textarea 
+                  id="description_generique"
+                  name="description"
+                  class="form-control" 
+                  v-model="payload.description" 
+                  cols="30" 
+                  rows="3"
+                ></textarea>
                 <div v-if="errors.description" class="mt-2 text-danger">{{ getFieldErrors(errors.description) }}</div>
               </div>
             </div>
@@ -290,8 +303,20 @@ onMounted(getDatas);
         </ModalBody>
         <ModalFooter>
           <div class="flex gap-2">
-            <button type="button" @click="resetForm" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
-            <VButton :loading="isLoading" :label="modeText" />
+            <button 
+              type="button" 
+              @click="resetForm" 
+              class="w-full px-2 py-2 my-3 btn btn-outline-secondary"
+              id="annuler_generique"
+            >
+              Annuler
+            </button>
+            <VButton 
+              :loading="isLoading" 
+              :label="modeText" 
+              type="submit"
+              id="soumettre_generique"
+            />
           </div>
         </ModalFooter>
       </form>

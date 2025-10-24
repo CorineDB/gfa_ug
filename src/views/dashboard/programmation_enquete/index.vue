@@ -515,74 +515,137 @@ onMounted(async () => {
     <ModalHeader>
       <h2 class="mr-auto text-base font-medium">{{ mode }} une évaluation</h2>
     </ModalHeader>
-    <form @submit.prevent="submitData">
-      <ModalBody>
-        <div class="grid grid-cols-12 gap-4">
-          <!-- Nom -->
-          <div class="col-span-12 md:col-span-6">
-            <InputForm id="nom_evaluation" name="nom_evaluation" label="Nom" v-model="payload.intitule" :control="getFieldErrors(errors.intitule)" />
-          </div>
+     <form @submit.prevent="submitData">
+        <ModalBody>
+          <div class="grid grid-cols-12 gap-4">
+            <!-- Nom -->
+            <div class="col-span-12 md:col-span-6">
+              <InputForm 
+                id="nom_evaluation"
+                name="intitule"
+                label="Nom" 
+                v-model="payload.intitule" 
+                :control="getFieldErrors(errors.intitule)" 
+              />
+            </div>
 
-          <!-- Description -->
-          <div class="col-span-12 md:col-span-6">
-            <label class="form-label" for="description_evaluation">Description</label>
-            <textarea name="description_evaluation" class="form-control w-full" id="description_evaluation" v-model="payload.description" rows="3"></textarea>
-            <div v-if="errors.description" class="mt-2 text-danger">{{ getFieldErrors(errors.description) }}</div>
-          </div>
+            <!-- Description -->
+            <div class="col-span-12 md:col-span-6">
+              <label class="form-label" for="description_evaluation">Description</label>
+              <textarea 
+                id="description_evaluation"
+                name="description"
+                class="form-control w-full" 
+                v-model="payload.description" 
+                rows="3"
+              ></textarea>
+              <div v-if="errors.description" class="mt-2 text-danger">{{ getFieldErrors(errors.description) }}</div>
+            </div>
 
-          <!-- Année -->
-          <div class="col-span-12 md:col-span-6">
-            <label for="annee_exercice_evaluation" class="form-label">Année</label>
-            <TomSelect id="annee_exercice_evaluation" name="annee_exercice_evaluation" v-model="payload.annee_exercice" :options="{ placeholder: 'Sélectionnez une année' }" class="w-full">
-              <option v-for="(year, index) in annees" :key="index" :value="year">{{ year }}</option>
-            </TomSelect>
-            <div v-if="errors.annee_exercice" class="mt-2 text-danger">{{ getFieldErrors(errors.annee_exercice) }}</div>
-          </div>
+            <!-- Année -->
+            <div class="col-span-12 md:col-span-6">
+              <label for="annee_exercice_evaluation" class="form-label">Année</label>
+              <TomSelect 
+                id="annee_exercice_evaluation"
+                name="annee_exercice"
+                v-model="payload.annee_exercice" 
+                :options="{ placeholder: 'Sélectionnez une année' }" 
+                class="w-full"
+              >
+                <option v-for="(year, index) in annees" :key="index" :value="year">{{ year }}</option>
+              </TomSelect>
+              <div v-if="errors.annee_exercice" class="mt-2 text-danger">{{ getFieldErrors(errors.annee_exercice) }}</div>
+            </div>
 
-          <!-- Dates début/fin -->
-          <div class="col-span-12 md:col-span-6">
-            <InputForm id="debut_enquete" name="debut_enquete" label="Début de l'enquête" v-model="payload.debut" type="date" :control="getFieldErrors(errors.debut)" />
-          </div>
-          <div class="col-span-12 md:col-span-6">
-            <InputForm id="fin_enquete" name="fin_enquete" label="Fin de l'enquête" v-model="payload.fin" type="date" :control="getFieldErrors(errors.fin)" />
-          </div>
+            <!-- Dates début/fin -->
+            <div class="col-span-12 md:col-span-6">
+              <InputForm 
+                id="debut_enquete"
+                name="debut"
+                label="Début de l'enquête" 
+                v-model="payload.debut" 
+                type="date" 
+                :control="getFieldErrors(errors.debut)" 
+              />
+            </div>
+            <div class="col-span-12 md:col-span-6">
+              <InputForm 
+                id="fin_enquete"
+                name="fin"
+                label="Fin de l'enquête" 
+                v-model="payload.fin" 
+                type="date" 
+                :control="getFieldErrors(errors.fin)" 
+              />
+            </div>
 
-          <!-- Formulaire Factuel -->
-          <div class="col-span-12 md:col-span-6">
-            <label for="formulaire_factuel" class="form-label">Formulaire Factuel <span class="text-danger">*</span></label>
-            <TomSelect id="formulaire_factuel" name="formulaire_factuel" v-model="idFormFactuel" :options="{ placeholder: 'Sélectionnez un formulaire' }" class="w-full">
-              <option v-for="(form, index) in formulairesFactuel" :key="index" :value="form.id">{{ form.libelle }}</option>
-            </TomSelect>
-            <div v-if="errors.formulaires_de_gouvernance" class="mt-2 text-danger">{{ getFieldErrors(errors.formulaires_de_gouvernance) }}</div>
-          </div>
+            <!-- Formulaire Factuel -->
+            <div class="col-span-12 md:col-span-6">
+              <label for="formulaire_factuel" class="form-label">Formulaire Factuel <span class="text-danger">*</span></label>
+              <TomSelect 
+                id="formulaire_factuel"
+                name="idFormFactuel"
+                v-model="idFormFactuel" 
+                :options="{ placeholder: 'Sélectionnez un formulaire' }" 
+                class="w-full"
+              >
+                <option v-for="(form, index) in formulairesFactuel" :key="index" :value="form.id">{{ form.libelle }}</option>
+              </TomSelect>
+              <div v-if="errors.formulaires_de_gouvernance" class="mt-2 text-danger">{{ getFieldErrors(errors.formulaires_de_gouvernance) }}</div>
+            </div>
 
-          <!-- Formulaire de perception -->
-          <div class="col-span-12 md:col-span-6">
-            <label for="formulaire_perception" class="form-label">Formulaire de perception <span class="text-danger">*</span></label>
-            <TomSelect id="formulaire_perception" name="formulaire_perception" v-model="idFormPerception" :options="{ placeholder: 'Sélectionnez un formulaire' }" class="w-full">
-              <option v-for="(form, index) in formulairesPerception" :key="index" :value="form.id">{{ form.libelle }}</option>
-            </TomSelect>
-            <div v-if="errors.formulaires_de_gouvernance" class="mt-2 text-danger">{{ getFieldErrors(errors.formulaires_de_gouvernance) }}</div>
-          </div>
+            <!-- Formulaire de perception -->
+            <div class="col-span-12 md:col-span-6">
+              <label for="formulaire_perception" class="form-label">Formulaire de perception <span class="text-danger">*</span></label>
+              <TomSelect 
+                id="formulaire_perception"
+                name="idFormPerception"
+                v-model="idFormPerception" 
+                :options="{ placeholder: 'Sélectionnez un formulaire' }" 
+                class="w-full"
+              >
+                <option v-for="(form, index) in formulairesPerception" :key="index" :value="form.id">{{ form.libelle }}</option>
+              </TomSelect>
+              <div v-if="errors.formulaires_de_gouvernance" class="mt-2 text-danger">{{ getFieldErrors(errors.formulaires_de_gouvernance) }}</div>
+            </div>
 
-          <!-- Organisations -->
-          <div class="col-span-12 md:col-span-6">
-            <label for="organisations_evaluation" class="form-label">Organisations <span class="text-danger">*</span></label>
-            <TomSelect id="organisations_evaluation" name="organisations_evaluation" v-model="payload.organisations" multiple :options="{ placeholder: 'Sélectionnez les organisations' }" class="w-full">
-              <option v-for="(organisation, index) in organisations" :key="index" :value="organisation.id">{{ organisation.nom }}</option>
-            </TomSelect>
-            <div v-if="errors.organisations" class="mt-2 text-danger">{{ getFieldErrors(errors.organisations) }}</div>
+            <!-- Organisations -->
+            <div class="col-span-12 md:col-span-6">
+              <label for="organisations_evaluation" class="form-label">Organisations <span class="text-danger">*</span></label>
+              <TomSelect 
+                id="organisations_evaluation"
+                name="organisations"
+                v-model="payload.organisations" 
+                multiple 
+                :options="{ placeholder: 'Sélectionnez les organisations' }" 
+                class="w-full"
+              >
+                <option v-for="(organisation, index) in organisations" :key="index" :value="organisation.id">{{ organisation.nom }}</option>
+              </TomSelect>
+              <div v-if="errors.organisations" class="mt-2 text-danger">{{ getFieldErrors(errors.organisations) }}</div>
+            </div>
           </div>
-        </div>
-      </ModalBody>
+        </ModalBody>
 
-      <ModalFooter>
-        <div class="flex gap-2">
-          <button type="button" @click="resetForm" class="w-full px-2 py-2 my-3 align-top btn btn-outline-secondary">Annuler</button>
-          <VButton :loading="isLoading" :label="mode" />
-        </div>
-      </ModalFooter>
-    </form>
+        <ModalFooter>
+          <div class="flex gap-2">
+            <button 
+              type="button" 
+              @click="resetForm" 
+              class="w-full px-2 py-2 my-3 align-top btn btn-outline-secondary"
+              id="annuler_evaluation"
+            >
+              Annuler
+            </button>
+            <VButton 
+              :loading="isLoading" 
+              :label="mode" 
+              type="submit"
+              id="soumettre_evaluation"
+            />
+          </div>
+        </ModalFooter>
+      </form>
   </Modal>
   <!-- End Modal -->
 

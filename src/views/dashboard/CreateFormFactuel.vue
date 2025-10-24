@@ -2110,30 +2110,47 @@ onMounted(() => {
     <ModalHeader>
       <h2 class="mr-auto text-base font-medium">Enregistrer le formulaire</h2>
     </ModalHeader>
-    <form @submit.prevent="createForm">
-      <ModalBody class="space-y-5">
-        <!--  <div class="flex gap-4"></div> -->
-        <div class="gap-4">
-          <InputForm label="Libellé" class="w-full mb-4" :control="getFieldErrors(errors.libelle)" v-model="payload.libelle" />
-         
+     <form @submit.prevent="createForm">
+        <ModalBody class="space-y-5">
+          <div class="gap-4">
+            <InputForm 
+              id="libelle_formulaire"
+              name="libelle"
+              label="Libellé" 
+              class="w-full mb-4" 
+              :control="getFieldErrors(errors.libelle)" 
+              v-model="payload.libelle" 
+            />
 
-          <div>
-            <p class="text-red-500 text-[12px] -mt-2 col-span-12 my-2" v-if="errors['factuel.options_de_reponse.0.point']">
-              {{ extractMessage(errors["factuel.options_de_reponse.0.point"]) }}
-            </p>
-            <p class="text-red-500 text-[12px] -mt-2 col-span-12 my-2" v-if="errors['factuel.options_de_reponse.0.point']">
-              {{ extractMessage(errors["factuel.options_de_reponse.0.point"]) }}
-            </p>
+            <div>
+              <p class="text-red-500 text-[12px] -mt-2 col-span-12 my-2" v-if="errors['factuel.options_de_reponse.0.point']">
+                {{ extractMessage(errors["factuel.options_de_reponse.0.point"]) }}
+              </p>
+              <p class="text-red-500 text-[12px] -mt-2 col-span-12 my-2" v-if="errors['factuel.options_de_reponse.0.point']">
+                {{ extractMessage(errors["factuel.options_de_reponse.0.point"]) }}
+              </p>
+            </div>
           </div>
-        </div>
-      </ModalBody>
-      <ModalFooter>
-        <div class="flex gap-2">
-          <button type="button" @click="resetErrors" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
-          <VButton :loading="isLoadingForm" label="Enregistrer" />
-        </div>
-      </ModalFooter>
-    </form>
+        </ModalBody>
+        <ModalFooter>
+          <div class="flex gap-2">
+            <button 
+              type="button" 
+              @click="resetErrors" 
+              class="w-full px-2 py-2 my-3 btn btn-outline-secondary"
+              id="annuler_formulaire"
+            >
+              Annuler
+            </button>
+            <VButton 
+              :loading="isLoadingForm" 
+              label="Enregistrer" 
+              type="submit"
+              id="enregistrer_formulaire"
+            />
+          </div>
+        </ModalFooter>
+      </form>
   </Modal>
   <!-- END: Modal Content -->
 

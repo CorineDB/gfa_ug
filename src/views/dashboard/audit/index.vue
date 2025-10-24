@@ -445,13 +445,21 @@ onMounted(async () => {
         <div class="grid grid-cols-12 gap-4">
           <!-- Prestataire -->
           <div class="col-span-12 md:col-span-6">
-            <InputForm label="Prestataire" v-model="payload.entreprise" :control="getFieldErrors(errors.entreprise)" />
+            <InputForm 
+              id="prestataire_audit"
+              name="entreprise"
+              label="Prestataire" 
+              v-model="payload.entreprise" 
+              :control="getFieldErrors(errors.entreprise)" 
+            />
             <p class="text-red-500 text-[12px] -mt-2" v-if="messageErreur.entreprise">{{ $h.extractContentFromArray(messageErreur.entreprise) }}</p>
           </div>
 
           <!-- Contact -->
           <div class="col-span-12 md:col-span-6">
             <InputForm
+              id="contact_prestataire"
+              name="entrepriseContact"
               label="Contact"
               :control="getFieldErrors(errors.entrepriseContact)"
               v-model="payload.entrepriseContact"
@@ -478,32 +486,68 @@ onMounted(async () => {
 
           <!-- Exercice audité -->
           <div class="col-span-12 md:col-span-6">
-            <InputForm label="Exercice audité" type="text" v-model="payload.annee" :control="getFieldErrors(errors.annee)" />
+            <InputForm 
+              id="exercice_audite"
+              name="annee"
+              label="Exercice audité" 
+              type="text" 
+              v-model="payload.annee" 
+              :control="getFieldErrors(errors.annee)" 
+            />
             <p class="text-red-500 text-[12px] -mt-2" v-if="messageErreur.annee">{{ $h.extractContentFromArray(messageErreur.annee) }}</p>
           </div>
 
           <!-- Date de transmission -->
           <div class="col-span-12 md:col-span-6">
-            <InputForm label="Date de transmission" type="date" v-model="payload.dateDeTransmission" :control="getFieldErrors(errors.dateDeTransmission)" />
+            <InputForm 
+              id="date_transmission"
+              name="dateDeTransmission"
+              label="Date de transmission" 
+              type="date" 
+              v-model="payload.dateDeTransmission" 
+              :control="getFieldErrors(errors.dateDeTransmission)" 
+            />
             <p class="text-red-500 text-[12px] -mt-2" v-if="messageErreur.dateDeTransmission">{{ $h.extractContentFromArray(messageErreur.dateDeTransmission) }}</p>
           </div>
 
-          <!-- État d’avancement -->
+          <!-- État d'avancement -->
           <div class="col-span-12 md:col-span-6">
-            <InputForm label="État d’avancement" v-model="payload.etat" :control="getFieldErrors(errors.etat)" />
+            <InputForm 
+              id="etat_avancement"
+              name="etat"
+              label="État d'avancement" 
+              v-model="payload.etat" 
+              :control="getFieldErrors(errors.etat)" 
+            />
             <p class="text-red-500 text-[12px] -mt-2" v-if="messageErreur.etat">{{ $h.extractContentFromArray(messageErreur.etat) }}</p>
           </div>
 
           <!-- Rapport -->
           <div class="col-span-12 md:col-span-6" v-if="isCreate">
-            <InputForm ref="fileInput" type="file" @change="handleFileChange" required="required" placeHolder="choisir un fichier" label="Rapport" />
+            <InputForm 
+              id="rapport_audit"
+              name="fichier"
+              ref="fileInput" 
+              type="file" 
+              @change="handleFileChange" 
+              required="required" 
+              placeHolder="choisir un fichier" 
+              label="Rapport" 
+            />
             <p class="text-red-500 text-[12px] -mt-2" v-if="messageErreur.fichier">{{ $h.extractContentFromArray(messageErreur.fichier) }}</p>
           </div>
 
           <!-- Partager à -->
           <div class="col-span-12 md:col-span-6" v-if="isCreate">
-            <label class="form-label">Partager à</label>
-            <TomSelect v-model="usersId" multiple :options="{ placeholder: 'Sélectionnez un utilisateur' }" class="w-full">
+            <label class="form-label" for="partager_utilisateurs">Partager à</label>
+            <TomSelect 
+              id="partager_utilisateurs"
+              name="usersId"
+              v-model="usersId" 
+              multiple 
+              :options="{ placeholder: 'Sélectionnez un utilisateur' }" 
+              class="w-full"
+            >
               <option v-for="(form, index) in users" :key="index" :value="form.id">{{ form.nom }}</option>
             </TomSelect>
             <p class="text-red-500 text-[12px] -mt-2" v-if="messageErreur.usersId">{{ $h.extractContentFromArray(messageErreur.usersId) }}</p>
@@ -511,8 +555,14 @@ onMounted(async () => {
 
           <!-- Catégories -->
           <div class="col-span-12 md:col-span-6">
-            <label class="form-label">Catégories</label>
-            <TomSelect v-model="payload.categorie" :options="{ placeholder: 'Sélectionnez une catégorie' }" class="w-full">
+            <label class="form-label" for="categorie_audit">Catégories</label>
+            <TomSelect 
+              id="categorie_audit"
+              name="categorie"
+              v-model="payload.categorie" 
+              :options="{ placeholder: 'Sélectionnez une catégorie' }" 
+              class="w-full"
+            >
               <option value="">Choisir une catégorie</option>
               <option value="0">Audit comptable et financier</option>
               <option value="1">Audit de conformité environnementale et sociale</option>
@@ -524,8 +574,14 @@ onMounted(async () => {
 
           <!-- Statut -->
           <div class="col-span-12 md:col-span-6">
-            <label class="form-label">Statut</label>
-            <TomSelect v-model="payload.statut" :options="{ placeholder: 'Sélectionnez un statut' }" class="w-full">
+            <label class="form-label" for="statut_audit">Statut</label>
+            <TomSelect 
+              id="statut_audit"
+              name="statut"
+              v-model="payload.statut" 
+              :options="{ placeholder: 'Sélectionnez un statut' }" 
+              class="w-full"
+            >
               <option value="">Choisir un statut</option>
               <option value="1">Terminé</option>
               <option value="0">En cours</option>
@@ -536,8 +592,14 @@ onMounted(async () => {
 
           <!-- Projet -->
           <div class="col-span-12 md:col-span-6">
-            <label class="form-label">Projet</label>
-            <TomSelect v-model="payload.projetId" :options="{ placeholder: 'Sélectionnez un projet' }" class="w-full">
+            <label class="form-label" for="projet_audit">Projet</label>
+            <TomSelect 
+              id="projet_audit"
+              name="projetId"
+              v-model="payload.projetId" 
+              :options="{ placeholder: 'Sélectionnez un projet' }" 
+              class="w-full"
+            >
               <option v-for="(form, index) in projets" :key="index" :value="form.id">{{ form.nom }}</option>
             </TomSelect>
             <p class="text-red-500 text-[12px] -mt-2" v-if="messageErreur.projetId">{{ $h.extractContentFromArray(messageErreur.projetId) }}</p>
@@ -547,8 +609,20 @@ onMounted(async () => {
 
       <ModalFooter>
         <div class="flex gap-2">
-          <button type="button" @click="resetForm" class="w-full px-2 py-2 my-3 align-top btn btn-outline-secondary">Annuler</button>
-          <VButton :loading="isLoading" :label="mode" />
+          <button 
+            type="button" 
+            @click="resetForm" 
+            class="w-full px-2 py-2 my-3 align-top btn btn-outline-secondary"
+            id="annuler_audit"
+          >
+            Annuler
+          </button>
+          <VButton 
+            :loading="isLoading" 
+            :label="mode" 
+            type="submit"
+            id="soumettre_audit"
+          />
         </div>
       </ModalFooter>
     </form>

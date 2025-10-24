@@ -273,117 +273,160 @@
               <div class="bg-white rounded-lg border border-gray-200 p-6">
                 <h3 class="text-lg font-medium mb-4">{{ form.nom || "Aperçu du formulaire" }}</h3>
 
-                <form class="form-preview" v-if="form.sections.length > 0">
-                  <div v-for="(section, sectionIndex) in form.sections" :key="section.id" class="preview-section mb-6">
-                    <div v-if="section.intitule" class="mb-4">
-                      <h4 class="text-base font-medium">{{ section.intitule }}</h4>
-                    </div>
+                 <form class="form-preview" v-if="form.sections.length > 0">
+                    <div v-for="(section, sectionIndex) in form.sections" :key="section.id" class="preview-section mb-6">
+                      <div v-if="section.intitule" class="mb-4">
+                        <h4 class="text-base font-medium">{{ section.intitule }}</h4>
+                      </div>
 
-                    <div class="preview-fields space-y-4">
-                      <div v-for="field in section.elements.slice().sort((a, b) => a.ordre_affichage - b.ordre_affichage)" :key="field.id" class="preview-field">
-                        <!-- Field preview (interactive) -->
-                        <div v-if="['text', 'email', 'password', 'number', 'date', 'time', 'datetime-local', 'tel', 'url'].includes(field.type_champ)">
-                          <label class="form-label">
-                            {{ field.label }}
-                            <span v-if="field.is_required" class="text-red-500 ml-1">*</span>
-                          </label>
-                          <input :type="field.type_champ" :placeholder="field.placeholder" :required="field.is_required" class="form-control" />
-                          <div v-if="field.info" class="form-help mt-2 text-sm text-gray-500">
-                            {{ field.info }}
-                          </div>
-                        </div>
-
-                        <div v-else-if="field.type_champ === 'textarea'" class="bg-white rounded-lg border border-gray-200 p-4 hover:border-blue-300 transition-all duration-200">
-                          <div class="flex items-center justify-between mb-3">
-                            <label class="form-label font-medium text-gray-700">
+                      <div class="preview-fields space-y-4">
+                        <div v-for="field in section.elements.slice().sort((a, b) => a.ordre_affichage - b.ordre_affichage)" :key="field.id" class="preview-field">
+                          <!-- Field preview (interactive) -->
+                          <div v-if="['text', 'email', 'password', 'number', 'date', 'time', 'datetime-local', 'tel', 'url'].includes(field.type_champ)">
+                            <label class="form-label">
                               {{ field.label }}
                               <span v-if="field.is_required" class="text-red-500 ml-1">*</span>
                             </label>
-                            <span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded-full"> 📝 Textarea </span>
-                          </div>
-                          <textarea :placeholder="field.placeholder || 'Saisir du texte...'" :required="field.is_required" :rows="field.meta_options?.configs?.rows || 3" class="form-control border-gray-300 focus:border-purple-500 focus:ring-purple-200 transition-colors duration-200"></textarea>
-                          <div v-if="field.info" class="form-help mt-3 p-2 bg-blue-50 border-l-4 border-blue-400 text-sm text-blue-700">
-                            <i class="fas fa-info-circle mr-1"></i>
-                            {{ field.info }}
-                          </div>
-                        </div>
-
-                        <div v-else-if="field.type_champ === 'select'" class="bg-white rounded-lg border border-gray-200 p-4 hover:border-green-300 transition-all duration-200">
-                          <div class="flex items-center justify-between mb-3">
-                            <label class="form-label font-medium text-gray-700">
-                              {{ field.label }}
-                              <span v-if="field.is_required" class="text-red-500 ml-1">*</span>
-                            </label>
-                            <span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full"> 📋 Select </span>
-                          </div>
-                          <select :required="field.is_required" class="form-select border-gray-300 focus:border-green-500 focus:ring-green-200 transition-colors duration-200">
-                            <option value="">{{ field.placeholder || "Sélectionnez une option" }}</option>
-                            <option v-for="option in field.meta_options?.configs?.options || []" :key="option.value" :value="option.value">
-                              {{ option.label }}
-                            </option>
-                          </select>
-                          <div v-if="field.meta_options?.configs?.options?.length" class="mt-2 text-xs text-gray-500">{{ field.meta_options.configs.options.length }} option(s) disponible(s)</div>
-                          <div v-if="field.info" class="form-help mt-3 p-2 bg-blue-50 border-l-4 border-blue-400 text-sm text-blue-700">
-                            <i class="fas fa-info-circle mr-1"></i>
-                            {{ field.info }}
-                          </div>
-                        </div>
-
-                        <div v-else-if="field.type_champ === 'checkbox'" class="bg-white rounded-lg border border-gray-200 p-4 hover:border-indigo-300 transition-all duration-200">
-                          <div class="flex items-center justify-between mb-4">
-                            <label class="form-label font-medium text-gray-700 mb-0">
-                              {{ field.label }}
-                              <span v-if="field.is_required" class="text-red-500 ml-1">*</span>
-                            </label>
-                            <span class="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs font-medium rounded-full"> ☑️ Checkbox </span>
-                          </div>
-                          <div class="space-y-2">
-                            <div v-for="option in field.meta_options?.configs?.options || []" :key="option.value" class="flex items-start gap-3 p-3 rounded-lg hover:bg-indigo-50 transition-colors duration-150 border border-transparent hover:border-indigo-200">
-                              <input type="checkbox" :value="option.value" :id="`${field.id}_checkbox_${option.value}`" class="w-4 h-4 text-indigo-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-indigo-500 focus:ring-offset-0 mt-0.5" />
-                              <label :for="`${field.id}_checkbox_${option.value}`" class="flex-1 text-sm font-medium text-gray-700 cursor-pointer select-none leading-5">
-                                {{ option.label }}
-                              </label>
+                            <input 
+                              :id="`field_${field.id}_input`"
+                              :name="`field_${field.id}`"
+                              :type="field.type_champ" 
+                              :placeholder="field.placeholder" 
+                              :required="field.is_required" 
+                              class="form-control" 
+                            />
+                            <div v-if="field.info" class="form-help mt-2 text-sm text-gray-500">
+                              {{ field.info }}
                             </div>
                           </div>
-                          <div v-if="field.meta_options?.configs?.options?.length" class="mt-4 text-xs text-gray-500 bg-gray-50 px-3 py-2 rounded-md">💡 {{ field.meta_options.configs.options.length }} option(s) disponible(s) - Sélection multiple</div>
-                          <div v-if="field.info" class="form-help mt-3 p-3 bg-blue-50 border-l-4 border-blue-400 text-sm text-blue-700 rounded-r-md">
-                            <i class="fas fa-info-circle mr-2"></i>
-                            {{ field.info }}
-                          </div>
-                        </div>
 
-                        <div v-else-if="field.type_champ === 'radio'" class="bg-white rounded-lg border border-gray-200 p-4 hover:border-orange-300 transition-all duration-200">
-                          <div class="flex items-center justify-between mb-4">
-                            <label class="form-label font-medium text-gray-700 mb-0">
-                              {{ field.label }}
-                              <span v-if="field.is_required" class="text-red-500 ml-1">*</span>
-                            </label>
-                            <span class="px-2 py-1 bg-orange-100 text-orange-700 text-xs font-medium rounded-full"> ⚪ Radio </span>
-                          </div>
-                          <div class="space-y-2">
-                            <div v-for="option in field.meta_options?.configs?.options || []" :key="option.value" class="flex items-start gap-3 p-3 rounded-lg hover:bg-orange-50 transition-colors duration-150 border border-transparent hover:border-orange-200">
-                              <input type="radio" :name="`radio_${field.id}`" :value="option.value" :id="`${field.id}_${option.value}`" class="w-4 h-4 text-orange-600 border-2 border-gray-300 focus:ring-2 focus:ring-orange-500 focus:ring-offset-0 mt-0.5" />
-                              <label :for="`${field.id}_${option.value}`" class="flex-1 text-sm font-medium text-gray-700 cursor-pointer select-none leading-5">
-                                {{ option.label }}
+                          <div v-else-if="field.type_champ === 'textarea'" class="bg-white rounded-lg border border-gray-200 p-4 hover:border-blue-300 transition-all duration-200">
+                            <div class="flex items-center justify-between mb-3">
+                              <label class="form-label font-medium text-gray-700">
+                                {{ field.label }}
+                                <span v-if="field.is_required" class="text-red-500 ml-1">*</span>
                               </label>
+                              <span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded-full"> 📝 Textarea </span>
+                            </div>
+                            <textarea 
+                              :id="`field_${field.id}_textarea`"
+                              :name="`field_${field.id}`"
+                              :placeholder="field.placeholder || 'Saisir du texte...'" 
+                              :required="field.is_required" 
+                              :rows="field.meta_options?.configs?.rows || 3" 
+                              class="form-control border-gray-300 focus:border-purple-500 focus:ring-purple-200 transition-colors duration-200"
+                            ></textarea>
+                            <div v-if="field.info" class="form-help mt-3 p-2 bg-blue-50 border-l-4 border-blue-400 text-sm text-blue-700">
+                              <i class="fas fa-info-circle mr-1"></i>
+                              {{ field.info }}
                             </div>
                           </div>
-                          <div v-if="field.meta_options?.configs?.options?.length" class="mt-4 text-xs text-gray-500 bg-gray-50 px-3 py-2 rounded-md">💡 {{ field.meta_options.configs.options.length }} option(s) disponible(s) - Sélection unique</div>
-                          <div v-if="field.info" class="form-help mt-3 p-3 bg-blue-50 border-l-4 border-blue-400 text-sm text-blue-700 rounded-r-md">
-                            <i class="fas fa-info-circle mr-2"></i>
-                            {{ field.info }}
+
+                          <div v-else-if="field.type_champ === 'select'" class="bg-white rounded-lg border border-gray-200 p-4 hover:border-green-300 transition-all duration-200">
+                            <div class="flex items-center justify-between mb-3">
+                              <label class="form-label font-medium text-gray-700">
+                                {{ field.label }}
+                                <span v-if="field.is_required" class="text-red-500 ml-1">*</span>
+                              </label>
+                              <span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full"> 📋 Select </span>
+                            </div>
+                            <select 
+                              :id="`field_${field.id}_select`"
+                              :name="`field_${field.id}`"
+                              :required="field.is_required" 
+                              class="form-select border-gray-300 focus:border-green-500 focus:ring-green-200 transition-colors duration-200"
+                            >
+                              <option value="">{{ field.placeholder || "Sélectionnez une option" }}</option>
+                              <option v-for="option in field.meta_options?.configs?.options || []" :key="option.value" :value="option.value">
+                                {{ option.label }}
+                              </option>
+                            </select>
+                            <div v-if="field.meta_options?.configs?.options?.length" class="mt-2 text-xs text-gray-500">{{ field.meta_options.configs.options.length }} option(s) disponible(s)</div>
+                            <div v-if="field.info" class="form-help mt-3 p-2 bg-blue-50 border-l-4 border-blue-400 text-sm text-blue-700">
+                              <i class="fas fa-info-circle mr-1"></i>
+                              {{ field.info }}
+                            </div>
+                          </div>
+
+                          <div v-else-if="field.type_champ === 'checkbox'" class="bg-white rounded-lg border border-gray-200 p-4 hover:border-indigo-300 transition-all duration-200">
+                            <div class="flex items-center justify-between mb-4">
+                              <label class="form-label font-medium text-gray-700 mb-0">
+                                {{ field.label }}
+                                <span v-if="field.is_required" class="text-red-500 ml-1">*</span>
+                              </label>
+                              <span class="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs font-medium rounded-full"> ☑️ Checkbox </span>
+                            </div>
+                            <div class="space-y-2">
+                              <div v-for="option in field.meta_options?.configs?.options || []" :key="option.value" class="flex items-start gap-3 p-3 rounded-lg hover:bg-indigo-50 transition-colors duration-150 border border-transparent hover:border-indigo-200">
+                                <input 
+                                  type="checkbox" 
+                                  :value="option.value" 
+                                  :id="`${field.id}_checkbox_${option.value}`"
+                                  :name="`field_${field.id}[]`"
+                                  class="w-4 h-4 text-indigo-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-indigo-500 focus:ring-offset-0 mt-0.5" 
+                                />
+                                <label :for="`${field.id}_checkbox_${option.value}`" class="flex-1 text-sm font-medium text-gray-700 cursor-pointer select-none leading-5">
+                                  {{ option.label }}
+                                </label>
+                              </div>
+                            </div>
+                            <div v-if="field.meta_options?.configs?.options?.length" class="mt-4 text-xs text-gray-500 bg-gray-50 px-3 py-2 rounded-md">💡 {{ field.meta_options.configs.options.length }} option(s) disponible(s) - Sélection multiple</div>
+                            <div v-if="field.info" class="form-help mt-3 p-3 bg-blue-50 border-l-4 border-blue-400 text-sm text-blue-700 rounded-r-md">
+                              <i class="fas fa-info-circle mr-2"></i>
+                              {{ field.info }}
+                            </div>
+                          </div>
+
+                          <div v-else-if="field.type_champ === 'radio'" class="bg-white rounded-lg border border-gray-200 p-4 hover:border-orange-300 transition-all duration-200">
+                            <div class="flex items-center justify-between mb-4">
+                              <label class="form-label font-medium text-gray-700 mb-0">
+                                {{ field.label }}
+                                <span v-if="field.is_required" class="text-red-500 ml-1">*</span>
+                              </label>
+                              <span class="px-2 py-1 bg-orange-100 text-orange-700 text-xs font-medium rounded-full"> ⚪ Radio </span>
+                            </div>
+                            <div class="space-y-2">
+                              <div v-for="option in field.meta_options?.configs?.options || []" :key="option.value" class="flex items-start gap-3 p-3 rounded-lg hover:bg-orange-50 transition-colors duration-150 border border-transparent hover:border-orange-200">
+                                <input 
+                                  type="radio" 
+                                  :name="`field_${field.id}`" 
+                                  :value="option.value" 
+                                  :id="`${field.id}_radio_${option.value}`"
+                                  class="w-4 h-4 text-orange-600 border-2 border-gray-300 focus:ring-2 focus:ring-orange-500 focus:ring-offset-0 mt-0.5" 
+                                />
+                                <label :for="`${field.id}_radio_${option.value}`" class="flex-1 text-sm font-medium text-gray-700 cursor-pointer select-none leading-5">
+                                  {{ option.label }}
+                                </label>
+                              </div>
+                            </div>
+                            <div v-if="field.meta_options?.configs?.options?.length" class="mt-4 text-xs text-gray-500 bg-gray-50 px-3 py-2 rounded-md">💡 {{ field.meta_options.configs.options.length }} option(s) disponible(s) - Sélection unique</div>
+                            <div v-if="field.info" class="form-help mt-3 p-3 bg-blue-50 border-l-4 border-blue-400 text-sm text-blue-700 rounded-r-md">
+                              <i class="fas fa-info-circle mr-2"></i>
+                              {{ field.info }}
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
 
-                  <!-- Submit button for demo -->
-                  <div class="mt-6">
-                    <button type="submit" class="btn btn-primary">Soumettre</button>
-                    <button type="button" class="btn btn-outline-secondary ml-2">Annuler</button>
-                  </div>
-                </form>
+                    <!-- Submit button for demo -->
+                    <div class="mt-6">
+                      <button 
+                        type="submit" 
+                        class="btn btn-primary"
+                        id="soumettre_formulaire_preview"
+                      >
+                        Soumettre
+                      </button>
+                      <button 
+                        type="button" 
+                        class="btn btn-outline-secondary ml-2"
+                        id="annuler_formulaire_preview"
+                      >
+                        Annuler
+                      </button>
+                    </div>
+                  </form>
 
                 <div v-else class="text-center py-12">
                   <div class="text-gray-400 text-lg mb-2">👁️</div>
@@ -424,36 +467,75 @@
     <ModalHeader>
       <h2 class="mr-auto text-base font-medium">{{ modeText }} un formulaire</h2>
     </ModalHeader>
-    <form @submit.prevent="submitData">
-      <ModalBody>
-        <div class="grid grid-cols-1 gap-4">
-          <InputForm id="libelle_formulaire" name="libelle_formulaire" label="Libelle" v-model="payload.libelle" :control="getFieldErrors(errors.libelle)" />
-          <div class="flex-1">
-            <label class="form-label" for="description_formulaire">Description</label>
-            <div class="">
-              <textarea name="description_formulaire" class="form-control" id="description_formulaire" v-model="payload.description" cols="30" rows="3"></textarea>
-              <div v-if="errors.description" class="mt-2 text-danger">{{ getFieldErrors(errors.description) }}</div>
-            </div>
-          </div>
-          <div class="flex-1">
-            <label class="form-label" for="form_data">Structure Formulaire <span class="text-danger">*</span> </label>
-            <div class="">
-              <div class="flex gap-2 mb-2">
-                <button type="button" @click="updateFormDataFromBuilder" class="btn btn-secondary btn-sm">Récupérer depuis le créateur</button>
+     <form @submit.prevent="submitData">
+        <ModalBody>
+          <div class="grid grid-cols-1 gap-4">
+            <InputForm 
+              id="libelle_formulaire"
+              name="libelle"
+              label="Libelle" 
+              v-model="payload.libelle" 
+              :control="getFieldErrors(errors.libelle)" 
+            />
+            <div class="flex-1">
+              <label class="form-label" for="description_formulaire">Description</label>
+              <div class="">
+                <textarea 
+                  id="description_formulaire"
+                  name="description"
+                  class="form-control" 
+                  v-model="payload.description" 
+                  cols="30" 
+                  rows="3"
+                ></textarea>
+                <div v-if="errors.description" class="mt-2 text-danger">{{ getFieldErrors(errors.description) }}</div>
               </div>
-              <textarea name="form_data" class="form-control" id="form_data" v-model="payload.form_data" cols="30" rows="3"></textarea>
-              <div v-if="errors.form_data" class="mt-2 text-danger">{{ getFieldErrors(errors.form_data) }}</div>
+            </div>
+            <div class="flex-1">
+              <label class="form-label" for="form_data">Structure Formulaire <span class="text-danger">*</span> </label>
+              <div class="">
+                <div class="flex gap-2 mb-2">
+                  <button 
+                    type="button" 
+                    @click="updateFormDataFromBuilder" 
+                    class="btn btn-secondary btn-sm"
+                    id="recuperer_structure_formulaire"
+                  >
+                    Récupérer depuis le créateur
+                  </button>
+                </div>
+                <textarea 
+                  id="form_data"
+                  name="form_data"
+                  class="form-control" 
+                  v-model="payload.form_data" 
+                  cols="30" 
+                  rows="3"
+                ></textarea>
+                <div v-if="errors.form_data" class="mt-2 text-danger">{{ getFieldErrors(errors.form_data) }}</div>
+              </div>
             </div>
           </div>
-        </div>
-      </ModalBody>
-      <ModalFooter>
-        <div class="flex gap-2">
-          <button type="button" @click="resetForm" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
-          <VButton :loading="isLoading" :label="modeText" />
-        </div>
-      </ModalFooter>
-    </form>
+        </ModalBody>
+        <ModalFooter>
+          <div class="flex gap-2">
+            <button 
+              type="button" 
+              @click="resetForm" 
+              class="w-full px-2 py-2 my-3 btn btn-outline-secondary"
+              id="annuler_formulaire"
+            >
+              Annuler
+            </button>
+            <VButton 
+              :loading="isLoading" 
+              :label="modeText" 
+              type="submit"
+              id="soumettre_formulaire"
+            />
+          </div>
+        </ModalFooter>
+      </form>
   </Modal>
 
   <!-- Modal for deleting -->
@@ -514,7 +596,15 @@
                           {{ field.type_champ }}
                         </div>
                       </div>
-                      <input :type="field.type_champ" :placeholder="field.placeholder" :required="field.is_required" class="form-control border-gray-200 focus:border-primary/50 focus:ring-2 focus:ring-primary/20" readonly />
+                      <input 
+                        :id="`field_${field.id}_input`"
+                        :name="`field_${field.id}`"
+                        :type="field.type_champ" 
+                        :placeholder="field.placeholder" 
+                        :required="field.is_required" 
+                        class="form-control border-gray-200 focus:border-primary/50 focus:ring-2 focus:ring-primary/20" 
+                        readonly 
+                      />
                       <small v-if="field.info" class="form-help text-blue-600 mt-2 flex items-center gap-1">
                         <i class="fas fa-info-circle text-xs"></i>
                         {{ field.info }}
@@ -522,20 +612,34 @@
                     </div>
 
                     <div v-else-if="field.type_champ === 'textarea'">
-                      <label class="form-label">
+                      <label class="form-label" :for="`field_${field.id}_textarea`">
                         {{ field.label }}
                         <span v-if="field.is_required" class="text-red-500 ml-1">*</span>
                       </label>
-                      <textarea :placeholder="field.placeholder" :required="field.is_required" :rows="field.rows || 3" class="form-control" readonly></textarea>
+                      <textarea 
+                        :id="`field_${field.id}_textarea`"
+                        :name="`field_${field.id}`"
+                        :placeholder="field.placeholder" 
+                        :required="field.is_required" 
+                        :rows="field.rows || 3" 
+                        class="form-control" 
+                        readonly
+                      ></textarea>
                       <small v-if="field.info" class="form-help">{{ field.info }}</small>
                     </div>
 
                     <div v-else-if="field.type_champ === 'select'">
-                      <label class="form-label">
+                      <label class="form-label" :for="`field_${field.id}_select`">
                         {{ field.label }}
                         <span v-if="field.is_required" class="text-red-500 ml-1">*</span>
                       </label>
-                      <select :required="field.is_required" class="form-control" disabled>
+                      <select 
+                        :id="`field_${field.id}_select`"
+                        :name="`field_${field.id}`"
+                        :required="field.is_required" 
+                        class="form-control" 
+                        disabled
+                      >
                         <option value="">{{ field.placeholder || "Sélectionner..." }}</option>
                         <option v-for="option in field.meta_options?.options || []" :key="option.value" :value="option.value">
                           {{ option.label }}
@@ -552,7 +656,14 @@
 
                       <div class="space-y-2">
                         <div v-for="(option, index) in field.meta_options?.options || []" :key="option.value" class="flex items-center">
-                          <input :id="`field_${field.id}_${option.value}`" :type="field.type_champ" :name="`field_${field.id}`" :value="option.value" :required="field.is_required && field.type_champ === 'radio' && index === 0" class="mr-2" />
+                          <input 
+                            :id="`field_${field.id}_${option.value}`" 
+                            :type="field.type_champ" 
+                            :name="`field_${field.id}`" 
+                            :value="option.value" 
+                            :required="field.is_required && field.type_champ === 'radio' && index === 0" 
+                            class="mr-2" 
+                          />
                           <label class="mb-0 cursor-pointer" :for="`field_${field.id}_${option.value}`">
                             {{ option.label }}
                           </label>
@@ -566,14 +677,21 @@
 
                     <div v-else-if="field.type_champ === 'file'" class="bg-white rounded-lg border border-gray-200 p-4 hover:border-pink-300 transition-all duration-200">
                       <div class="flex items-center justify-between mb-3">
-                        <label class="form-label font-medium text-gray-700">
+                        <label class="form-label font-medium text-gray-700" :for="`field_${field.id}_file`">
                           {{ field.label }}
                           <span v-if="field.is_required" class="text-red-500 ml-1">*</span>
                         </label>
                         <span class="px-2 py-1 bg-pink-100 text-pink-700 text-xs font-medium rounded-full"> 📁 Fichier </span>
                       </div>
                       <div class="relative">
-                        <input type="file" :required="field.is_required" class="form-control border-gray-300 focus:border-pink-500 focus:ring-pink-200 transition-colors duration-200" disabled />
+                        <input 
+                          :id="`field_${field.id}_file`"
+                          :name="`field_${field.id}`"
+                          type="file" 
+                          :required="field.is_required" 
+                          class="form-control border-gray-300 focus:border-pink-500 focus:ring-pink-200 transition-colors duration-200" 
+                          disabled 
+                        />
                         <div class="mt-2 text-xs text-gray-500 flex items-center">
                           <i class="fas fa-info-circle mr-1"></i>
                           Aperçu uniquement - fonctionnalité désactivée

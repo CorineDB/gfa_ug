@@ -1014,7 +1014,7 @@ onMounted(() => {
       <h2 class="mr-auto text-base font-medium">Plan de décaissement</h2>
     </ModalHeader>
 
-    <form @submit.prevent="planDeDecaissementActivite">
+     <form @submit.prevent="planDeDecaissementActivite">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
         <!-- Affichage des erreurs générales -->
         <div v-if="erreurPlanDeDecaissement && erreurPlanDeDecaissement.some((err) => err?.general)" class="col-span-12 bg-red-50 border border-red-200 rounded-md p-3">
@@ -1035,8 +1035,16 @@ onMounted(() => {
 
           <!-- Sélection de l'année -->
           <div class="col-span-12 mt-3">
-            <label for="'annee_plan_' + index" class="form-label">Année</label>
-            <TomSelect :id="'annee_plan_' + index" :name="'annee_plan_' + index" v-model="plan.annee" :options="{ placeholder: 'Sélectionnez une année' }" class="w-full" :class="{ 'border-red-500': erreurPlanDeDecaissement?.[index]?.annee }" @change="clearFieldError(index, 'annee')">
+            <label :for="'annee_plan_' + index" class="form-label">Année</label>
+            <TomSelect 
+              :id="'annee_plan_' + index" 
+              :name="'annee_plan_' + index" 
+              v-model="plan.annee" 
+              :options="{ placeholder: 'Sélectionnez une année' }" 
+              class="w-full" 
+              :class="{ 'border-red-500': erreurPlanDeDecaissement?.[index]?.annee }" 
+              @change="clearFieldError(index, 'annee')"
+            >
               <option v-for="(year, yearIndex) in years" :key="yearIndex" :value="year">{{ year }}</option>
             </TomSelect>
             <p class="text-red-500 text-xs mt-1" v-if="erreurPlanDeDecaissement?.[index]?.annee">
@@ -1046,8 +1054,16 @@ onMounted(() => {
 
           <!-- Sélection du trimestre -->
           <div class="w-full mt-3">
-            <label for="'trimestre_plan_' + index" class="form-label">Sélectionnez le trimestre</label>
-            <TomSelect :id="'trimestre_plan_' + index" :name="'trimestre_plan_' + index" v-model="plan.trimestre" :options="{ placeholder: 'Sélectionnez le trimestre' }" class="w-full" :class="{ 'border-red-500': erreurPlanDeDecaissement?.[index]?.trimestre }" @change="clearFieldError(index, 'trimestre')">
+            <label :for="'trimestre_plan_' + index" class="form-label">Sélectionnez le trimestre</label>
+            <TomSelect 
+              :id="'trimestre_plan_' + index" 
+              :name="'trimestre_plan_' + index" 
+              v-model="plan.trimestre" 
+              :options="{ placeholder: 'Sélectionnez le trimestre' }" 
+              class="w-full" 
+              :class="{ 'border-red-500': erreurPlanDeDecaissement?.[index]?.trimestre }" 
+              @change="clearFieldError(index, 'trimestre')"
+            >
               <option value="1">Trimestre 1</option>
               <option value="2">Trimestre 2</option>
               <option value="3">Trimestre 3</option>
@@ -1060,7 +1076,18 @@ onMounted(() => {
 
           <!-- Budget National / Fond propre -->
           <div class="col-span-12 mt-3">
-            <InputForm v-model="plan.budgetNational" :min="0" type="number" :required="true" placeHolder="Saisissez le fond propre" label="Saisissez le fond propre" :class="{ 'border-red-500': erreurPlanDeDecaissement?.[index]?.budgetNational }" @input="clearFieldError(index, 'budgetNational')" />
+            <InputForm 
+              :id="'budget_national_plan_' + index"
+              :name="'budget_national_plan_' + index"
+              v-model="plan.budgetNational" 
+              :min="0" 
+              type="number" 
+              :required="true" 
+              placeHolder="Saisissez le fond propre" 
+              label="Saisissez le fond propre" 
+              :class="{ 'border-red-500': erreurPlanDeDecaissement?.[index]?.budgetNational }" 
+              @input="clearFieldError(index, 'budgetNational')" 
+            />
             <p class="text-red-500 text-xs mt-1" v-if="erreurPlanDeDecaissement?.[index]?.budgetNational">
               {{ erreurPlanDeDecaissement[index].budgetNational }}
             </p>
@@ -1068,16 +1095,33 @@ onMounted(() => {
 
           <!-- Prêt / Subvention -->
           <div class="col-span-12 mt-3">
-            <InputForm v-model="plan.pret" :min="0" type="number" :required="true" placeHolder="Saisissez la subvention" label="Saisissez la subvention" :class="{ 'border-red-500': erreurPlanDeDecaissement?.[index]?.pret }" @input="clearFieldError(index, 'pret')" />
+            <InputForm 
+              :id="'pret_plan_' + index"
+              :name="'pret_plan_' + index"
+              v-model="plan.pret" 
+              :min="0" 
+              type="number" 
+              :required="true" 
+              placeHolder="Saisissez la subvention" 
+              label="Saisissez la subvention" 
+              :class="{ 'border-red-500': erreurPlanDeDecaissement?.[index]?.pret }" 
+              @input="clearFieldError(index, 'pret')" 
+            />
             <p class="text-red-500 text-xs mt-1" v-if="erreurPlanDeDecaissement?.[index]?.pret">
               {{ erreurPlanDeDecaissement[index].pret }}
             </p>
           </div>
 
           <!-- Bouton supprimer -->
-          <button type="button" @click="removePlan(index)" class="mt-2 text-red-600 text-sm underline hover:text-red-800 transition-colors">Supprimer ce plan</button>
+          <button 
+            type="button" 
+            @click="removePlan(index)" 
+            class="mt-2 text-red-600 text-sm underline hover:text-red-800 transition-colors"
+            :id="'supprimer_plan_' + index"
+          >
+            Supprimer ce plan
+          </button>
 
-        
           <!-- Affichage de la durée du projet -->
           <div v-if="getPlageProjet" class="flex items-center mt-2 col-span-12">
             <ClockIcon class="w-4 h-4 mr-2 text-gray-500" />
@@ -1103,9 +1147,13 @@ onMounted(() => {
           </div>
         </div>
 
-
         <!-- Bouton ajouter un plan -->
-        <button type="button" @click="addPlan" class="col-span-12 btn btn-outline-primary hover:bg-primary hover:text-white transition-colors">
+        <button 
+          type="button" 
+          @click="addPlan" 
+          class="col-span-12 btn btn-outline-primary hover:bg-primary hover:text-white transition-colors"
+          id="ajouter_plan_decaissement"
+        >
           <PlusIcon class="w-4 h-4 mr-2" />
           Ajouter un autre plan
         </button>
@@ -1113,8 +1161,22 @@ onMounted(() => {
 
       <ModalFooter>
         <div class="flex items-center justify-center space-x-2">
-          <button type="button" @click="closeModal" class="w-full btn btn-outline-secondary hover:bg-gray-100 transition-colors">Annuler</button>
-          <VButton class="w-full" label="Enregistrer" :loading="loadingPlanDeDecaissement" type="submit" :disabled="loaderListePlan || loadingPlanDeDecaissement" />
+          <button 
+            type="button" 
+            @click="closeModal" 
+            class="w-full btn btn-outline-secondary hover:bg-gray-100 transition-colors"
+            id="annuler_plan_decaissement"
+          >
+            Annuler
+          </button>
+          <VButton 
+            class="w-full" 
+            label="Enregistrer" 
+            :loading="loadingPlanDeDecaissement" 
+            type="submit" 
+            :disabled="loaderListePlan || loadingPlanDeDecaissement"
+            id="enregistrer_plan_decaissement"
+          />
         </div>
       </ModalFooter>
     </form>
@@ -1147,22 +1209,21 @@ onMounted(() => {
           <h3 class="text-sm font-medium mb-3">Plan {{ index + 1 }}</h3>
 
           <div class="">
-            <InputForm label="Consommé" v-model="suivi.consommer" type="number" />
+            <InputForm 
+              :id="'consommer_suivi_' + index"
+              :name="'consommer'"
+              label="Consommé" 
+              v-model="suivi.consommer" 
+              type="number" 
+            />
 
             <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurSuiviFinancier?.[index]?.consommer">
               {{ erreurSuiviFinancier[index].consommer }}
             </p>
           </div>
 
-          <!-- <div class="mt-5">
-            <InputForm v-model="suivi.trimestre" :min="1" :max="4" class="col-span-12" type="number" :required="true" :disabled="true" placeHolder="Sélectionnez le trimestre" label="Sélectionnez le trimestre" />
-            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurSuiviFinancier?.[index]?.trimestre">
-              {{ erreurSuiviFinancier[index].trimestre }}
-            </p>
-          </div> -->
-
           <div class="w-full mt-3">
-            <label for="'trimestre_suivi_' + index" class="form-label">Sélectionnez le trimestre</label>
+            <label :for="'trimestre_suivi_' + index" class="form-label">Sélectionnez le trimestre</label>
             <TomSelect :id="'trimestre_suivi_' + index" :name="'trimestre_suivi_' + index" v-model="suivi.trimestre" :options="{ placeholder: 'Selectionez le trimestre' }" class="w-full" @change="miseAjourTabSuivi(suivi.activiteId, suivi.trimestre, index)">
               <option value="1">Trimestre 1</option>
               <option value="2">Trimestre 2</option>
@@ -1174,15 +1235,8 @@ onMounted(() => {
             </p>
           </div>
 
-          <!-- <div class="mt-5">
-            <InputForm v-model="suivi.annee" :min="2000" class="col-span-12" type="number" :required="true" :disabled="true" placeHolder="Saisissez l'année" label="Saisissez l'année de décaissement" />
-            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="erreurSuiviFinancier?.[index]?.annee">
-              {{ erreurSuiviFinancier[index].annee }}
-            </p>
-          </div> -->
-
           <div class="col-span-12 mt-3">
-            <label for="'annee_suivi_' + index" class="form-label">Année</label>
+            <label :for="'annee_suivi_' + index" class="form-label">Année</label>
             <TomSelect :id="'annee_suivi_' + index" :name="'annee_suivi_' + index" v-model="suivi.annee" :options="{ placeholder: 'Selectionez une année' }" class="w-full" @change="miseAjourTabSuivi(suivi.activiteId, suivi.annee, index)">
               <option v-for="(year, index) in years" :key="index" :value="year">{{ year }}</option>
             </TomSelect>
@@ -1191,12 +1245,24 @@ onMounted(() => {
             </p>
           </div>
 
-         
-
-          <button type="button" @click="removeSuivi(index)" class="mt-2 text-red-600 text-sm underline">Supprimer ce suivi</button>
+          <button 
+            type="button" 
+            @click="removeSuivi(index)" 
+            class="mt-2 text-red-600 text-sm underline"
+            :id="'supprimer_suivi_' + index"
+          >
+            Supprimer ce suivi
+          </button>
         </div>
 
-        <button type="button" @click="addSuivi" class="col-span-12 btn btn-outline-primary">Ajouter un autre suivi</button>
+        <button 
+          type="button" 
+          @click="addSuivi" 
+          class="col-span-12 btn btn-outline-primary"
+          id="ajouter_suivi_financier"
+        >
+          Ajouter un autre suivi
+        </button>
 
         <div class="col-span-12" v-if="getPlageActivite">
           <div class="flex items-center mt-2">
@@ -1209,8 +1275,21 @@ onMounted(() => {
       </ModalBody>
       <ModalFooter>
         <div class="flex items-center justify-center">
-          <button type="button" @click="resetModalSuiviFinancierActivite" class="w-full mr-1 btn btn-outline-secondary">Annuler</button>
-          <VButton class="inline-block" label="Enregistrer" :loading="loadingSuiviFinancier" type="submit" />
+          <button 
+            type="button" 
+            @click="resetModalSuiviFinancierActivite" 
+            class="w-full mr-1 btn btn-outline-secondary"
+            id="annuler_suivi_financier"
+          >
+            Annuler
+          </button>
+          <VButton 
+            class="inline-block" 
+            label="Enregistrer" 
+            :loading="loadingSuiviFinancier" 
+            type="submit"
+            id="enregistrer_suivi_financier"
+          />
         </div>
       </ModalFooter>
     </form>
@@ -1221,10 +1300,9 @@ onMounted(() => {
     <ModalHeader>
       <h2 class="mr-auto text-base font-medium">Filtrer le pta</h2>
     </ModalHeader>
-    <form @submit.prevent="filterSuiviFinancierActivite">
+     <form @submit.prevent="filterSuiviFinancierActivite">
       <ModalBody>
         <div class="grid grid-cols-1 gap-4">
-          <!-- <pre>{{years}}</pre> -->
           <div class="">
             <label for="filtre-annee" class="form-label">Année</label>
             <TomSelect id="filtre-annee" name="filtre-annee" v-model="filterPayload.annee" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
@@ -1241,8 +1319,20 @@ onMounted(() => {
       </ModalBody>
       <ModalFooter>
         <div class="flex gap-2">
-          <button type="button" @click="resetFilterModal" class="w-full px-2 py-2 my-3 align-top btn btn-outline-secondary">Annuler</button>
-          <VButton :loading="isLoadingFilter" label="Filtrer" />
+          <button 
+            type="button" 
+            @click="resetFilterModal" 
+            class="w-full px-2 py-2 my-3 align-top btn btn-outline-secondary"
+            id="annuler_filtre_suivi"
+          >
+            Annuler
+          </button>
+          <VButton 
+            :loading="isLoadingFilter" 
+            label="Filtrer" 
+            type="submit"
+            id="appliquer_filtre_suivi"
+          />
         </div>
       </ModalFooter>
     </form>

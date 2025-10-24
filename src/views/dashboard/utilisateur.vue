@@ -33,29 +33,29 @@
       <ModalHeader>
         <h2 class="mr-auto text-base font-medium">Ajouter un utilisateur</h2>
       </ModalHeader>
-      <form @submit.prevent="storeUser">
+       <form @submit.prevent="storeUser">
         <ModalBody class="p-10">
           <div class="grid grid-cols-2 gap-4">
             <div class="col-span-6">
               <label for="nom_user" class="form-label">Nom</label>
-              <input id="nom_user" name="nom_user" type="text" required v-model="formData.nom" class="form-control" placeholder="Nom" />
+              <input id="nom_user" name="nom" type="text" required v-model="formData.nom" class="form-control" placeholder="Nom" />
               <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
             </div>
             <div class="col-span-6">
               <label for="prenom_user" class="form-label">Prenoms</label>
-              <input id="prenom_user" name="prenom_user" type="text" required v-model="formData.prenom" class="form-control" placeholder="Prenoms" />
+              <input id="prenom_user" name="prenom" type="text" required v-model="formData.prenom" class="form-control" placeholder="Prenoms" />
               <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.prenom">{{ messageErreur.prenom }}</p>
             </div>
 
             <div class="col-span-6">
               <label for="email_user" class="form-label">Email</label>
-              <input id="email_user" name="email_user" type="email" required v-model="formData.email" class="form-control" placeholder="Email" />
+              <input id="email_user" name="email" type="email" required v-model="formData.email" class="form-control" placeholder="Email" />
               <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.email">{{ messageErreur.email }}</p>
             </div>
 
             <div class="col-span-6">
               <label for="contact_user" class="form-label">Contact</label>
-              <input id="contact_user" name="contact_user" type="text" required v-model="formData.contact" class="form-control" placeholder="Contact" />
+              <input id="contact_user" name="contact" type="text" required v-model="formData.contact" class="form-control" placeholder="Contact" />
               <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.contact">{{ messageErreur.contact }}</p>
 
               <!-- Message de validation avec animation -->
@@ -77,7 +77,7 @@
 
             <div class="col-span-6">
               <label for="poste_user" class="form-label">Poste</label>
-              <input id="poste_user" name="poste_user" type="text" required v-model="formData.poste" class="form-control" placeholder="Poste" />
+              <input id="poste_user" name="poste" type="text" required v-model="formData.poste" class="form-control" placeholder="Poste" />
               <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.poste">{{ messageErreur.poste }}</p>
             </div>
 
@@ -85,10 +85,15 @@
               <div class="">
                 <label for="roles_user" class="form-label">Roles</label>
                 <div class="flex w-full">
-                  <TomSelect id="roles_user" name="roles_user" v-model="formData.roles" multiple :options="{ placeholder: 'Selectionez les roles' }" class="w-11/12 pr-3">
+                  <TomSelect id="roles_user" name="roles" v-model="formData.roles" multiple :options="{ placeholder: 'Selectionez les roles' }" class="w-11/12 pr-3">
                     <option v-for="(role, index) in roles" :key="index" :value="role.id">{{ role.nom }}</option>
                   </TomSelect>
-                  <button @click="openCreateModal" class="btn w-10 h-10 btn-primary mr-1 mb-2">
+                  <button 
+                    @click="openCreateModal" 
+                    class="btn w-10 h-10 btn-primary mr-1 mb-2"
+                    id="ajouter_role"
+                    type="button"
+                  >
                     <PlusIcon class="w-5 h-5" />
                   </button>
                 </div>
@@ -100,8 +105,20 @@
         </ModalBody>
         <ModalFooter>
           <div class="flex gap-2">
-            <button type="button" @click="resetForm" class="w-full px-2 py-2 my-3 align-top btn btn-outline-secondary">Annuler</button>
-            <VButton :loading="chargement" label="Ajouter" />
+            <button 
+              type="button" 
+              @click="resetForm" 
+              class="w-full px-2 py-2 my-3 align-top btn btn-outline-secondary"
+              id="annuler_utilisateur"
+            >
+              Annuler
+            </button>
+            <VButton 
+              :loading="chargement" 
+              label="Ajouter" 
+              type="submit"
+              id="ajouter_utilisateur"
+            />
           </div>
         </ModalFooter>
       </form>
@@ -400,38 +417,78 @@
     <ModalHeader>
       <h2 class="mr-auto text-base font-medium">Ajouter un Rôle</h2>
     </ModalHeader>
-    <form @submit.prevent="createData">
-      <ModalBody>
-        <div class="grid grid-cols-1 gap-4">
-          <InputForm label="Nom" v-model="payload.nom" />
-          <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
+     <form @submit.prevent="createData">
+        <ModalBody>
+          <div class="grid grid-cols-1 gap-4">
+            <InputForm 
+              id="nom_role"
+              name="nom"
+              label="Nom" 
+              v-model="payload.nom" 
+            />
+            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
 
-          <div class="my-2">
-            <label for="description_role" class="form-label">Description</label>
-            <textarea id="description_role" name="description_role" placeholder="Description du role" required v-model="payload.description" class="w-full px-3 py-2 mt-1 border-2 border-gray-300 form-control focus:outline-none focus:ring-2 focus:border-transparent" rows="2"></textarea>
-            <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.description">{{ messageErreur.description }}</p>
-          </div>
-
-          <div class="w-full">
-            <div class="flex w-full">
-              <v-select :reduce="(projet) => projet.id" class="w-full" v-model="payload.permissions" multiple label="nom" :options="permissions">
-                <template #search="{ attributes, events }">
-                  <input class="vs__search form-input" :required="!payload.permissions" v-bind="attributes" v-on="events" />
-                </template>
-              </v-select>
-              <label class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">Permissions <span class="text-danger">*</span> </label>
+            <div class="my-2">
+              <label for="description_role" class="form-label">Description</label>
+              <textarea 
+                id="description_role"
+                name="description"
+                placeholder="Description du role" 
+                required 
+                v-model="payload.description" 
+                class="w-full px-3 py-2 mt-1 border-2 border-gray-300 form-control focus:outline-none focus:ring-2 focus:border-transparent" 
+                rows="2"
+              ></textarea>
+              <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreur.description">{{ messageErreur.description }}</p>
             </div>
-            <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.permissions">{{ messageErreur.permissions }}</p>
+
+            <div class="w-full">
+              <div class="flex w-full">
+                <v-select 
+                  id="permissions_role"
+                  :reduce="(projet) => projet.id" 
+                  class="w-full" 
+                  v-model="payload.permissions" 
+                  multiple 
+                  label="nom" 
+                  :options="permissions"
+                >
+                  <template #search="{ attributes, events }">
+                    <input 
+                      class="vs__search form-input" 
+                      :required="!payload.permissions" 
+                      v-bind="attributes" 
+                      v-on="events" 
+                    />
+                  </template>
+                </v-select>
+                <label for="permissions_role" class="absolute z-10 px-3 ml-1 text-sm font-medium duration-100 ease-linear -translate-y-3 bg-white form-label peer-placeholder-shown:translate-y-2 peer-placeholder-shown:px-0 peer-placeholder-shown:text-slate-400 peer-focus:ml-1 peer-focus:-translate-y-3 peer-focus:px-1 peer-focus:font-medium peer-focus:text-primary peer-focus:text-sm">
+                  Permissions <span class="text-danger">*</span>
+                </label>
+              </div>
+              <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.permissions">{{ messageErreur.permissions }}</p>
+            </div>
           </div>
-        </div>
-      </ModalBody>
-      <ModalFooter>
-        <div class="flex gap-2">
-          <button type="button" @click="resetRoleForm" class="w-full px-2 py-2 my-3 align-top btn btn-outline-secondary">Annuler</button>
-          <VButton :loading="isLoading" :label="mode" />
-        </div>
-      </ModalFooter>
-    </form>
+        </ModalBody>
+        <ModalFooter>
+          <div class="flex gap-2">
+            <button 
+              type="button" 
+              @click="resetRoleForm" 
+              class="w-full px-2 py-2 my-3 align-top btn btn-outline-secondary"
+              id="annuler_role"
+            >
+              Annuler
+            </button>
+            <VButton 
+              :loading="isLoading" 
+              :label="mode" 
+              type="submit"
+              id="soumettre_role"
+            />
+          </div>
+        </ModalFooter>
+      </form>
   </Modal>
   <!-- End Modal -->
 
@@ -439,70 +496,82 @@
     <ModalHeader>
       <h2 class="mr-auto text-base font-medium">Modifier un utilisateur</h2>
     </ModalHeader>
-    <form @submit.prevent="submitUpdateData">
-      <ModalBody>
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label for="nom_user_edit" class="form-label">Nom</label>
-            <input id="nom_user_edit" name="nom_user_edit" type="text" required v-model="formEdit.nom" class="form-control" placeholder="Nom" />
-            <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
-          </div>
-          <div>
-            <label for="prenom_user_edit" class="form-label">Prenoms</label>
-            <input id="prenom_user_edit" name="prenom_user_edit" type="text" required v-model="formEdit.prenom" class="form-control" placeholder="Prenoms" />
-            <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.prenom">{{ messageErreur.prenom }}</p>
-          </div>
+     <form @submit.prevent="submitUpdateData">
+        <ModalBody>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label for="nom_user_edit" class="form-label">Nom</label>
+              <input id="nom_user_edit" name="nom" type="text" required v-model="formEdit.nom" class="form-control" placeholder="Nom" />
+              <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.nom">{{ messageErreur.nom }}</p>
+            </div>
+            <div>
+              <label for="prenom_user_edit" class="form-label">Prenoms</label>
+              <input id="prenom_user_edit" name="prenom" type="text" required v-model="formEdit.prenom" class="form-control" placeholder="Prenoms" />
+              <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.prenom">{{ messageErreur.prenom }}</p>
+            </div>
 
-          <div>
-            <label for="email_user_edit" class="form-label">Email</label>
-            <input id="email_user_edit" name="email_user_edit" type="email" required v-model="formEdit.email" class="form-control" placeholder="Email" />
-            <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.email">{{ messageErreur.email }}</p>
-          </div>
+            <div>
+              <label for="email_user_edit" class="form-label">Email</label>
+              <input id="email_user_edit" name="email" type="email" required v-model="formEdit.email" class="form-control" placeholder="Email" />
+              <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.email">{{ messageErreur.email }}</p>
+            </div>
 
-          <div>
-            <label for="contact_user_edit" class="form-label">Contact</label>
-            <input id="contact_user_edit" name="contact_user_edit" type="text" v-model="formEdit.contact" class="form-control" placeholder="Contact" />
-            <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.contact">{{ messageErreur.contact }}</p>
+            <div>
+              <label for="contact_user_edit" class="form-label">Contact</label>
+              <input id="contact_user_edit" name="contact" type="text" v-model="formEdit.contact" class="form-control" placeholder="Contact" />
+              <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.contact">{{ messageErreur.contact }}</p>
 
-            <!-- Message de validation avec animation -->
-            <div class="mt-2 min-h-[1.5rem]">
-              <p v-if="isContactEditValid" class="flex items-center text-green-600 font-medium text-sm animate-pulse">
-                <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                </svg>
-                Numéro valide
-              </p>
-              <p v-else-if="formEdit.contact && formEdit.contact.length > 0" class="flex items-center text-red-500 font-medium text-sm">
-                <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-                </svg>
-                Numéro invalide
-              </p>
+              <!-- Message de validation avec animation -->
+              <div class="mt-2 min-h-[1.5rem]">
+                <p v-if="isContactEditValid" class="flex items-center text-green-600 font-medium text-sm animate-pulse">
+                  <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  Numéro valide
+                </p>
+                <p v-else-if="formEdit.contact && formEdit.contact.length > 0" class="flex items-center text-red-500 font-medium text-sm">
+                  <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                  </svg>
+                  Numéro invalide
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <label for="poste_user_edit" class="form-label">Poste</label>
+              <input id="poste_user_edit" name="poste" type="text" v-model="formEdit.poste" class="form-control" placeholder="Poste" />
+              <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.poste">{{ messageErreur.poste }}</p>
+            </div>
+
+            <div class="">
+              <label for="roles_user_edit" class="form-label">Roles</label>
+              <TomSelect id="roles_user_edit" name="roles" v-model="formEdit.roles" multiple :options="{ placeholder: 'Selectionez les roles' }" class="w-full">
+                <option v-for="(role, index) in roles" :key="index" :value="role.id">{{ role.nom }}</option>
+              </TomSelect>
+              <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.roles">{{ messageErreur.roles }}</p>
             </div>
           </div>
-
-          <div>
-            <label for="poste_user_edit" class="form-label">Poste</label>
-            <input id="poste_user_edit" name="poste_user_edit" type="text" v-model="formEdit.poste" class="form-control" placeholder="Poste" />
-            <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.poste">{{ messageErreur.poste }}</p>
+        </ModalBody>
+        <ModalFooter>
+          <div class="flex gap-2">
+            <button 
+              type="button" 
+              @click="resetForm" 
+              class="w-full px-2 py-2 my-3 align-top btn btn-outline-secondary"
+              id="annuler_utilisateur_edit"
+            >
+              Annuler
+            </button>
+            <VButton 
+              :loading="isLoading" 
+              label="Modifier" 
+              type="submit"
+              id="modifier_utilisateur"
+            />
           </div>
-
-          <div class="">
-            <label for="roles_user_edit" class="form-label">Roles</label>
-            <TomSelect id="roles_user_edit" name="roles_user_edit" v-model="formEdit.roles" multiple :options="{ placeholder: 'Selectionez les roles' }" class="w-full">
-              <option v-for="(role, index) in roles" :key="index" :value="role.id">{{ role.nom }}</option>
-            </TomSelect>
-            <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.roles">{{ messageErreur.roles }}</p>
-          </div>
-        </div>
-      </ModalBody>
-      <ModalFooter>
-        <div class="flex gap-2">
-          <button type="button" @click="resetForm" class="w-full px-2 py-2 my-3 align-top btn btn-outline-secondary">Annuler</button>
-          <VButton :loading="isLoading" label="Modifier" />
-        </div>
-      </ModalFooter>
-    </form>
+        </ModalFooter>
+      </form>
   </Modal>
   <!-- End Modal -->
 </template>

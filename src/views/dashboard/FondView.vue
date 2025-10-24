@@ -228,14 +228,37 @@ onMounted(() => {
     <form @submit.prevent="submitData">
       <ModalBody>
         <div class="grid grid-cols-1 gap-4">
-          <InputForm label="Nom" v-model="payload.nom_du_fond" />
-          <InputForm label="Fond disponible" v-model.number="payload.fondDisponible" type="number" />
+          <InputForm 
+            id="nom_fond"
+            name="nom_du_fond"
+            label="Nom" 
+            v-model="payload.nom_du_fond" 
+          />
+          <InputForm 
+            id="fond_disponible"
+            name="fondDisponible"
+            label="Fond disponible" 
+            v-model.number="payload.fondDisponible" 
+            type="number" 
+          />
         </div>
       </ModalBody>
       <ModalFooter>
         <div class="flex gap-2">
-          <button type="button" @click="resetForm" class="w-full px-2 py-2 my-3 align-top btn btn-outline-secondary">Annuler</button>
-          <VButton :loading="isLoading" :label="mode" />
+          <button 
+            type="button" 
+            @click="resetForm" 
+            class="w-full px-2 py-2 my-3 align-top btn btn-outline-secondary"
+            id="annuler_fond"
+          >
+            Annuler
+          </button>
+          <VButton 
+            :loading="isLoading" 
+            :label="mode" 
+            type="submit"
+            id="soumettre_fond"
+          />
         </div>
       </ModalFooter>
     </form>
