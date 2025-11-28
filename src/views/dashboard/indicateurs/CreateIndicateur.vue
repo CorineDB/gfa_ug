@@ -34,7 +34,7 @@
       </button>
 
       <div class="flex items-center justify-between gap-2 my-2">
-        <h2 class="text-lg font-medium intro-y">Liste des indicateurs</h2>
+        <h2 class="text-lg font-medium intro-y">Dashboard des Indicateurs</h2>
         <div v-if="verifyPermission('voir-un-indicateur')" class="flex items-center justify-end gap-2">
           <button class="text-base btn btn-primary" @click="openCreateModal">
             <Plus class="mr-1 size-4" />Ajouter
@@ -42,13 +42,131 @@
         </div>
       </div>
 
-      <!-- Search -->
-      <div class="grid grid-cols-12 gap-6 mt-5">
-        <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
-          <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
-            <div class="relative w-56 text-slate-500">
-              <input type="text" id="search_create_indicateur" name="search_create_indicateur" v-model="search" class="w-56 pr-10 form-control box" placeholder="Recherche..." />
-              <Search class="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3" />
+      <!-- Section Statistiques KPI simplifiée -->
+      <div class="grid grid-cols-1 gap-6 mt-6 md:grid-cols-2 lg:grid-cols-4 intro-y">
+        <div class="report-box zoom-in">
+          <div class="box p-5">
+            <div class="flex">
+              <div class="flex-none w-2/4 2xl:w-3/4">
+                <div class="text-lg font-semibold leading-8">{{ totalIndicators }}</div>
+                <div class="text-base text-slate-500 mt-1">Total Indicateurs</div>
+              </div>
+              <div class="flex-none w-2/4 2xl:w-1/4 relative">
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                    <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="report-box zoom-in">
+          <div class="box p-5">
+            <div class="flex">
+              <div class="flex-none w-2/4 2xl:w-3/4">
+                <div class="text-lg font-semibold leading-8 text-success">{{ averageProgress }}%</div>
+                <div class="text-base text-slate-500 mt-1">Progression Moyenne</div>
+              </div>
+              <div class="flex-none w-2/4 2xl:w-1/4 relative">
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <div class="w-12 h-12 bg-success/10 rounded-full flex items-center justify-center">
+                    <svg class="w-6 h-6 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="report-box zoom-in">
+          <div class="box p-5">
+            <div class="flex">
+              <div class="flex-none w-2/4 2xl:w-3/4">
+                <div class="text-lg font-semibold leading-8 text-warning">{{ indicatorsOnTrack }}</div>
+                <div class="text-base text-slate-500 mt-1">Sur Cible</div>
+              </div>
+              <div class="flex-none w-2/4 2xl:w-1/4 relative">
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <div class="w-12 h-12 bg-warning/10 rounded-full flex items-center justify-center">
+                    <svg class="w-6 h-6 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="report-box zoom-in">
+          <div class="box p-5">
+            <div class="flex">
+              <div class="flex-none w-2/4 2xl:w-3/4">
+                <div class="text-lg font-semibold leading-8 text-danger">{{ indicatorsAtRisk }}</div>
+                <div class="text-base text-slate-500 mt-1">À Risque</div>
+              </div>
+              <div class="flex-none w-2/4 2xl:w-1/4 relative">
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <div class="w-12 h-12 bg-danger/10 rounded-full flex items-center justify-center">
+                    <svg class="w-6 h-6 text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Filtres Avancés -->
+      <div v-if="!isLoadingDataCadre" class="mt-6 intro-y">
+        <div class="box p-5">
+          <h3 class="text-lg font-medium mb-4">Filtres et Recherche</h3>
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
+            <div>
+              <label class="form-label">Rechercher</label>
+              <input 
+                v-model="search" 
+                type="text" 
+                class="form-control" 
+                placeholder="Nom indicateur..."
+              />
+            </div>
+            <div>
+              <label class="form-label">Catégorie</label>
+              <select v-model="selectedCategory" class="form-select">
+                <option value="">Toutes les catégories</option>
+                <option v-for="category in categories" :key="category.id" :value="category.id">{{ category.nom }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">Performance</label>
+              <select v-model="selectedPerformance" class="form-select">
+                <option value="">Toutes</option>
+                <option value="excellent">Excellent (≥100%)</option>
+                <option value="good">Bon (80-99%)</option>
+                <option value="average">Moyen (60-79%)</option>
+                <option value="poor">Faible (<60%)</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">Année</label>
+              <select v-model="selectedYear" class="form-select">
+                <option value="">Toutes les années</option>
+                <option v-for="year in annees" :key="year" :value="year">{{ year }}</option>
+              </select>
+            </div>
+            <div class="flex items-end">
+              <button @click="resetFilters" class="btn btn-outline-secondary w-full">
+                Réinitialiser
+              </button>
             </div>
           </div>
         </div>
@@ -120,6 +238,9 @@ const idProgramme = ref("");
 const debutProgramme = ref("");
 const finProgramme = ref("");
 const search = ref("");
+const selectedCategory = ref("");
+const selectedPerformance = ref("");
+const selectedYear = ref("");
 const currentPage = ref(1);
 const itemsPerPage = 2;
 const showMenu = ref(false);
@@ -145,6 +266,61 @@ const currentIndicator = ref(null);
 
 // Errors from backend
 const formErrors = ref({});
+
+// Calcul des statistiques dynamiques basées sur les vraies données
+const getAllIndicators = computed(() => {
+  const indicators = [];
+  cadreRendement.value.forEach(result => {
+    if (result.indicateurs) {
+      indicators.push(...result.indicateurs);
+    }
+    if (result.categories) {
+      result.categories.forEach(category => {
+        if (category.indicateurs) {
+          indicators.push(...category.indicateurs);
+        }
+        if (category.categories) {
+          category.categories.forEach(subCategory => {
+            if (subCategory.indicateurs) {
+              indicators.push(...subCategory.indicateurs);
+            }
+          });
+        }
+      });
+    }
+  });
+  return indicators;
+});
+
+const totalIndicators = computed(() => {
+  return getAllIndicators.value.length;
+});
+
+const averageProgress = computed(() => {
+  const indicators = getAllIndicators.value;
+  if (indicators.length === 0) return 0;
+  
+  const rates = indicators
+    .map(ind => parseFloat(ind.taux_realisation?.moy || 0))
+    .filter(rate => !isNaN(rate));
+  
+  if (rates.length === 0) return 0;
+  return Math.round(rates.reduce((sum, rate) => sum + rate, 0) / rates.length);
+});
+
+const indicatorsOnTrack = computed(() => {
+  return getAllIndicators.value.filter(ind => {
+    const rate = parseFloat(ind.taux_realisation?.moy || 0);
+    return rate >= 80;
+  }).length;
+});
+
+const indicatorsAtRisk = computed(() => {
+  return getAllIndicators.value.filter(ind => {
+    const rate = parseFloat(ind.taux_realisation?.moy || 0);
+    return rate < 60;
+  }).length;
+});
 
 // --- DATA FETCHING ---
 const getDatasCadre = async () => {
@@ -233,19 +409,117 @@ const paginatedData = computed(() => {
   return cadreRendement.value?.slice(start, end) || [];
 });
 
-const datasSearch = computed(() => {
-  if (!search.value || !cadreRendement.value) return cadreRendement.value || [];
-  return cadreRendement.value
-    .map((group) => {
-      const filteredIndicateurs = group.indicateurs.filter((indicateur) => indicateur.nom.toLowerCase().includes(search.value.toLowerCase()));
-      return filteredIndicateurs.length > 0 ? { ...group, indicateurs: filteredIndicateurs } : null;
-    })
-    .filter((group) => group !== null);
+const filteredData = computed(() => {
+  if (!cadreRendement.value) return [];
+  
+  // Si aucun filtre n'est appliqué, retourner les données paginées
+  if (!search.value && !selectedCategory.value && !selectedPerformance.value && !selectedYear.value) {
+    return paginatedData.value;
+  }
+
+  // Appliquer les filtres de manière récursive
+  const filtered = cadreRendement.value.map(result => {
+    const filteredResult = { ...result };
+    
+    // Filtrer les indicateurs du niveau principal
+    if (result.indicateurs) {
+      filteredResult.indicateurs = result.indicateurs.filter(indicateur => {
+        return matchesFilters(indicateur, null);
+      });
+    }
+
+    // Filtrer les catégories et leurs indicateurs
+    if (result.categories) {
+      filteredResult.categories = result.categories.map(category => {
+        const filteredCategory = { ...category };
+        
+        // Filtre par catégorie sélectionnée
+        if (selectedCategory.value && category.id !== parseInt(selectedCategory.value)) {
+          return null; // Exclure cette catégorie entière
+        }
+        
+        if (category.indicateurs) {
+          filteredCategory.indicateurs = category.indicateurs.filter(indicateur => {
+            return matchesFilters(indicateur, category);
+          });
+        }
+
+        // Filtrer les sous-catégories
+        if (category.categories) {
+          filteredCategory.categories = category.categories.map(subCategory => {
+            const filteredSubCategory = { ...subCategory };
+            
+            // Filtre par catégorie sélectionnée pour sous-catégories
+            if (selectedCategory.value && subCategory.id !== parseInt(selectedCategory.value)) {
+              return null;
+            }
+            
+            if (subCategory.indicateurs) {
+              filteredSubCategory.indicateurs = subCategory.indicateurs.filter(indicateur => {
+                return matchesFilters(indicateur, subCategory);
+              });
+            }
+            
+            return filteredSubCategory.indicateurs && filteredSubCategory.indicateurs.length > 0 ? filteredSubCategory : null;
+          }).filter(subCategory => subCategory !== null);
+        }
+        
+        return (filteredCategory.indicateurs && filteredCategory.indicateurs.length > 0) ||
+               (filteredCategory.categories && filteredCategory.categories.length > 0) 
+               ? filteredCategory : null;
+      }).filter(category => category !== null);
+    }
+
+    return (filteredResult.indicateurs && filteredResult.indicateurs.length > 0) ||
+           (filteredResult.categories && filteredResult.categories.length > 0) 
+           ? filteredResult : null;
+  }).filter(result => result !== null);
+
+  return filtered;
 });
 
+const matchesFilters = (indicateur, parentCategory) => {
+  // Filtre par nom
+  if (search.value && !indicateur.nom.toLowerCase().includes(search.value.toLowerCase())) {
+    return false;
+  }
+
+  // Pour le filtre par catégorie, on laisse la logique au niveau supérieur
+  // car on filtre déjà par catégorie dans filteredData
+
+  // Filtre par performance
+  if (selectedPerformance.value) {
+    const rate = parseFloat(indicateur.taux_realisation?.moy || 0);
+    switch (selectedPerformance.value) {
+      case 'excellent':
+        if (rate < 100) return false;
+        break;
+      case 'good':
+        if (rate < 80 || rate >= 100) return false;
+        break;
+      case 'average':
+        if (rate < 60 || rate >= 80) return false;
+        break;
+      case 'poor':
+        if (rate >= 60) return false;
+        break;
+    }
+  }
+
+  // Filtre par année
+  if (selectedYear.value) {
+    const hasDataForYear = indicateur.valeursCible?.some(v => v.annee === parseInt(selectedYear.value));
+    if (!hasDataForYear) return false;
+  }
+
+  return true;
+};
+
 const dataAvailable = computed(() => {
-  return search.value ? datasSearch.value : paginatedData.value;
+  return filteredData.value;
 });
+
+// Version simplifiée sans calculs complexes
 
 const nextPage = () => { if (currentPage.value < totalPages.value) currentPage.value++; };
 const prevPage = () => { if (currentPage.value > 1) currentPage.value--; };
@@ -253,6 +527,14 @@ const goToPage = (page) => { currentPage.value = page; };
 
 // --- ACTIONS ---
 const displayMenu = () => { showMenu.value = !showMenu.value; };
+
+// Fonction pour réinitialiser les filtres
+const resetFilters = () => {
+  search.value = "";
+  selectedCategory.value = "";
+  selectedPerformance.value = "";
+  selectedYear.value = "";
+};
 
 // ANCIENNE VERSION - Ouverture simple
 // const openCreateModal = () => { showModalCreate.value = true; };
@@ -315,15 +597,33 @@ const handleSubmit = async ({ payload, onSuccess, onError }) => {
   }
 };
 
+// Fonctions de graphiques supprimées pour éviter les erreurs
+
 // --- LIFECYCLE ---
 onMounted(async () => {
-  await getcurrentUser();
-  getDatasCadre();
-  getCategories();
-  getResponsables();
-  getSites();
-  getUnites();
-  getKeys();
+  console.log("🚀 Component mounted - chargement des données...");
+  try {
+    await getcurrentUser();
+    await getDatasCadre();
+    console.log("📊 Données cadre chargées:", cadreRendement.value.length, "éléments");
+    console.log("📈 Statistiques calculées:", {
+      total: totalIndicators.value,
+      progress: averageProgress.value,
+      onTrack: indicatorsOnTrack.value,
+      atRisk: indicatorsAtRisk.value
+    });
+    
+    await getCategories();
+    console.log("📋 Catégories chargées:", categories.value);
+    await getResponsables();
+    await getSites();
+    await getUnites();
+    await getKeys();
+    console.log("✅ Toutes les données chargées");
+  } catch (error) {
+    console.error("❌ Erreur lors du chargement:", error);
+    // Continuer même en cas d'erreur
+  }
 });
 
 </script>
