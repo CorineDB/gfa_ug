@@ -525,6 +525,7 @@ const resetForm = () => {
 // NOUVELLE VERSION - Séparer la fermeture et le reset
 const closeModal = () => {
   // Fermer d'abord le modal
+  document.activeElement.blur();
   emit("update:show", false);
   // Le reset sera fait dans onModalHidden
 };

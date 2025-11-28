@@ -1510,13 +1510,14 @@ export default {
         </div>
 
         <div class="col-span-12 md:col-span-6">
-          <!-- <input type="date" id="maDate" v-model="formData.debut"  min="2024-01-01" max="2024-12-31"> -->
-          <InputForm id="debut-activite" name="debut" v-model="formData.debut"  class="col-span-12 mt-4" type="date" required="required" placeHolder="Entrer la date de début*" label="Début de l'activité" />
+          
+           <!-- limiter les inputs date d'ajout de debut  et de fin des activites -->
+          <InputForm id="debut-activite" name="debut" v-model="formData.debut"  class="col-span-12 mt-4" type="date" required="required" placeHolder="Entrer la date de début*" label="Début de l'activité" :min="getPlageProjet?.debut" :max="getPlageProjet?.fin" />
           <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.debut">{{ messageErreur.debut }}</p>
         </div>
 
         <div class="col-span-12 md:col-span-6">
-          <InputForm id="fin-activite" name="fin" v-model="formData.fin" class="col-span-12 mt-4" type="date" required="required" placeHolder="Entrer la date de fin*" label="Fin de l'activité" />
+          <InputForm id="fin-activite" name="fin" v-model="formData.fin" class="col-span-12 mt-4" type="date" required="required" placeHolder="Entrer la date de fin*" label="Fin de l'activité" :min="getPlageProjet?.debut" :max="getPlageProjet?.fin" />
           <p class="text-red-500 text-[12px] mt-2 col-span-12" v-if="messageErreur.fin">{{ messageErreur.fin }}</p>
         </div>
 

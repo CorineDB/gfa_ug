@@ -143,6 +143,8 @@ export default {
       TacheService.suiviTache(form)
         .then((data) => {
           toast.success("suivie éffectué avec succès");
+          this.loadActiviteDetails();
+
         })
         .catch((error) => {
           if (error.response) {
@@ -627,14 +629,14 @@ export default {
               <span class="px-2 py-1 m-5 text-xs text-white rounded bg-danger/80" v-else-if="item.statut == 1"> En retard </span>
               <span class="pl-2" v-else-if="item.statut == 2">Terminé</span>
             </div>
-            <div class="suivi-container">
+            <!-- <div class="suivi-container">
               <span class="suivi-label">Suivre</span>
-              <select :id="'suivi-tache-' + item.id" :name="'suivi-tache-' + item.id" class="suivi-select" aria-label="Niveau de suivi" @change="togglesuivie(item)">
+              <select v-model="item.poids" :id="'suivi-tache-' + item.id" :name="'suivi-tache-' + item.id" class="suivi-select" aria-label="Niveau de suivi" @change="togglesuivie(item)">
                 <option :value="0">0%</option>
                 <option :value="50">50%</option>
                 <option :value="100">100%</option>
               </select>
-            </div>
+            </div> -->
             <div class="flex items-center mt-2">
               <ClockIcon class="w-4 h-4 mr-2" />
               <div>

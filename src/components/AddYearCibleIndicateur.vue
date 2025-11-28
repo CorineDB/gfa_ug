@@ -260,6 +260,7 @@ const deleteAnneeCible = (item) => {
   anneesCible.value.splice(item, 1);
 };
 const resetForm = () => {
+  document.activeElement.blur();
   showModalCreate.value = false;
   payloadNotAgreger.anneesCible = [];
   payloadNotAgreger.valeurDeBase = "";

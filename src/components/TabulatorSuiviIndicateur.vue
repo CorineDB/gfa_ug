@@ -251,6 +251,7 @@ import VButton from "@/components/news/VButton.vue";
 import InputForm from "@/components/news/InputForm.vue";
 import SiteService from "@/services/modules/site.service";
 import DeleteButton from "@/components/news/DeleteButton.vue";
+import LoaderSnipper from "@/components/LoaderSnipper.vue";
 import { toast } from "vue3-toastify";
 import { getAllErrorMessages } from "@/utils/gestion-error";
 import { findColorCadreMesure } from "../utils/findColorIndicator";
@@ -553,6 +554,7 @@ const resetValues = () => {
 };
 
 const resetFormSuivi = async () => {
+  document.activeElement.blur();
   if (isAgregerCurrentIndicateur.value) {
     resetValues();
   }

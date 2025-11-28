@@ -243,7 +243,7 @@
                 </v-select>
                 <button 
                   type="button" 
-                  @click="openOrganisationModal"
+                  @click="ouvrirModalAjoutOrganisation"
                   class="inline-flex items-center justify-center w-8 h-8 text-sm font-medium text-white bg-primary rounded-full hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors"
                   title="Ajouter une nouvelle organisation"
                 >
@@ -1368,6 +1368,7 @@ export default {
 
       try {
         // Créer l'organisation
+
         await OngService.create(this.payloadOrganisation);
 
         // Toast de succès
@@ -1379,6 +1380,9 @@ export default {
         // Réinitialiser le formulaire et fermer le modal
         this.resetFormOrganisation();
         this.showModalOrganisation = false;
+
+        
+
       } catch (e) {
         // Gestion des erreurs
         if (e.response && e.response.status === 422) {

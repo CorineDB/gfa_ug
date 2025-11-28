@@ -533,7 +533,7 @@
       </ModalBody>
       <ModalFooter>
         <div class="flex gap-2">
-          <button type="button" @click="showModalEdit = false" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
+          <button type="button" @click="closeUpdateModal()" class="w-full px-2 py-2 my-3 btn btn-outline-secondary">Annuler</button>
           <VButton :loading="isLoading" label="Modifier" />
         </div>
       </ModalFooter>
@@ -946,6 +946,12 @@ const payloadUpdate = reactive({
   hypothese: "",
   // valeurDeBase: [],
 });
+
+const closeUpdateModal = () => {
+  document.activeElement.blur();
+  showModalEdit.value = false;
+  
+};
 const payloadSuivi = reactive({
   annee: `${new Date().getFullYear()}`,
   trimestre: `${getCurrentQuarter()}`,
@@ -1013,6 +1019,7 @@ const resetValues = () => {
 };
 
 const resetFormAddStructure = () => {
+  document.activeElement.blur();
   responsablesForm.value.organisations = [];
   responsablesForm.value.ug = "";
   showModalStructure.value = false;
@@ -1027,10 +1034,12 @@ const resetFormUpdate = () => {
   errors.value = {};
 };
 const resetFormAddYearCible = () => {
+  document.activeElement.blur();
   showModalYearCible.value = false;
   errors.value = {};
 };
 const resetFormSuivi = async () => {
+  document.activeElement.blur();
   if (isAgregerCurrentIndicateur.value) {
     resetValues();
   }
@@ -1230,6 +1239,7 @@ const handleStructure = (id) => {
 };
 
 const cancelDelete = () => {
+  document.activeElement.blur();
   idSelect.value = "";
   deleteModalPreview.value = false;
 };
@@ -1239,7 +1249,10 @@ const truncateText = (text, maxLength = 100) => {
   }
   return text;
 };
-const closeModal = () => (showModalEdit.value = false);
+const closeModal = () => {
+  document.activeElement.blur();
+  showModalEdit.value = false
+} 
 const closeDeleteModal = () => (deleteModalPreview.value = false);
 
 function formatResponsable(responsable) {

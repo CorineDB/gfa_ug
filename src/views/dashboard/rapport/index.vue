@@ -83,18 +83,22 @@
               v-model="editorData" 
             />
           </div>
-          <div class="py-2 my-4 flex justify-end">
-            <VButton 
-              :loading="chargement" 
-              label="Enrégistrer" 
+          <div class="py-2 my-4 flex gap-4">
+            <button
               type="submit"
+              class="w-1/2 btn btn-primary px-4 py-2"
+              :disabled="chargement"
               id="enregistrer_rapport"
-            />
+            >
+              {{ chargement ? 'Enrégistrer...' : 'Enrégistrer' }}
+            </button>
+            <button type="button" class="w-1/2 btn btn-primary px-4 py-2" :disabled="editorData == '' && nom == ''" @click="modalMail()">Envoyer par mail</button>
+
           </div>
+
         </form>
 
       <div class="px-5 pb-5 flex justify-end">
-        <button type="button" class="btn btn-primary px-4 py-2" :disabled="editorData == '' && nom == ''" @click="modalMail()">Envoyer par mail</button>
       </div>
     </div>
 

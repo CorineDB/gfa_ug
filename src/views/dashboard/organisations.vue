@@ -112,6 +112,12 @@ const fonds = ref([]);
 const indexBenin = ref(1);
 const currentStep = ref(1);
 const selectedDepartementData = ref("");
+const showModalCreateFond = ref(false);
+const isLoadingFond = ref(false);
+const payloadFond = reactive({
+  nom_du_fond: "",
+  fondDisponible: "",
+});
 
 const initTabulator = () => {
   const element = document.getElementById("tabulator");
@@ -249,6 +255,31 @@ const getFonds = async () => {
     })
     .catch((e) => {
       toast.error("Une erreur est survenue: Liste des type des options.");
+    });
+};
+
+const openCreateFondModal = () => {
+  payloadFond.nom_du_fond = "";
+  payloadFond.fondDisponible = "";
+  showModalCreateFond.value = true;
+};
+
+const createFond = async () => {
+  isLoadingFond.value = true;
+  await FondsService.create(payloadFond)
+    .then((result) => {
+      toast.success("Fond créé avec succès.");
+      getFonds();
+      showModalCreateFond.value = false;
+      if (result.data && result.data.data && result.data.data.id) {
+        payload.fondId = result.data.data.id;
+      }
+    })
+    .catch((e) => {
+      toast.error("Erreur lors de la création du fond.");
+    })
+    .finally(() => {
+      isLoadingFond.value = false;
     });
 };
 
@@ -645,11 +676,22 @@ onMounted(() => {
                   <div v-if="errors.type" class="mt-2 text-danger">{{ getFieldErrors(errors.type) }}</div>
                 </div>
                 <div v-if="payload.type == 'osc_fosir' && payload.type !== ''">
-                  <label for="fond_id" class="form-label">Fonds <span class="text-danger">*</span> </label>
-                  <TomSelect id="fond_id" name="fondId" v-model="payload.fondId" :options="{ placeholder: 'Selectionez  un fond' }" class="w-full">
-                    <option value=""></option>
-                    <option v-for="(fond, index) in fonds" :key="index" :value="fond.id">{{ fond.nom_du_fond }} ({{ fond.fondDisponible }})</option>
-                  </TomSelect>
+                  <label for="fond_id" class="form-label">Fonds<span class="text-danger">*</span> </label>
+                  <div class="flex gap-2">
+                    <TomSelect id="fond_id" name="fondId" v-model="payload.fondId" :options="{ placeholder: 'Selectionez  un fond' }" class="w-full">
+                      <option value=""></option>
+                      <option v-for="(fond, index) in fonds" :key="index" :value="fond.id">{{ fond.nom_du_fond }} ({{ fond.fondDisponible }})</option>
+                    </TomSelect>
+                    <button
+                      type="button"
+                      @click="openCreateFondModal"
+                      class="btn btn-primary shrink-0"
+                      title="Ajouter un fond"
+                      id="add_fond_quick"
+                    >
+                      <PlusIcon class="w-4 h-4" />
+                    </button>
+                  </div>
                   <div v-if="errors.fondId" class="mt-2 text-danger">{{ getFieldErrors(errors.fondId) }}</div>
                 </div>
               </div>
@@ -921,6 +963,52 @@ onMounted(() => {
           <DeleteButton :loading="isLoading" @click="deleteData" />
         </div>
       </ModalBody>
+    </Modal>
+
+    <!-- Modal Ajout Rapide de Fond -->
+    <Modal backdrop="static" :show="showModalCreateFond" @hidden="showModalCreateFond = false">
+      <ModalHeader>
+        <h2 class="mr-auto text-base font-medium">Ajouter un Fond</h2>
+      </ModalHeader>
+      <form @submit.prevent="createFond">
+        <ModalBody>
+          <div class="grid grid-cols-1 gap-4">
+            <InputForm
+              id="nom_fond_quick"
+              name="nom_du_fond"
+              label="Nom"
+              v-model="payloadFond.nom_du_fond"
+              :required="true"
+            />
+            <InputForm
+              id="fond_disponible_quick"
+              name="fondDisponible"
+              label="Fond disponible"
+              v-model.number="payloadFond.fondDisponible"
+              type="number"
+              :required="true"
+            />
+          </div>
+        </ModalBody>
+        <ModalFooter>
+          <div class="flex gap-2">
+            <button
+              type="button"
+              @click="showModalCreateFond = false"
+              class="w-full px-2 py-2 my-3 btn btn-outline-secondary"
+              id="annuler_fond_quick"
+            >
+              Annuler
+            </button>
+            <VButton
+              :loading="isLoadingFond"
+              label="Ajouter"
+              type="submit"
+              id="soumettre_fond_quick"
+            />
+          </div>
+        </ModalFooter>
+      </form>
     </Modal>
   </div>
 </template>

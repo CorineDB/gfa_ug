@@ -247,6 +247,7 @@ const filterSuiviIndicateur = async () => {
 };
 
 const resetFilterModal = () => {
+  document.activeElement.blur();
   isLoadingFilter.value = false;
   showModalFiltre.value = false;
   filterPayload.trimestre = `${getCurrentQuarter()}`;
@@ -282,253 +283,7 @@ const years = computed(() => {
 const barChart = ref(null);
 let chartInstance = null;
 
- // Méthode pour formater les données du graphique
-/*const formatChartData = () => {
-  if (!datas.value || datas.value.length === 0) return null;
 
-  const isAgregated = datas.value[0]?.valeurCible?.indicateur?.agreger;
-
-  if (isAgregated) {
-    // Pour les indicateurs agrégés : afficher chaque clé séparément
-    return formatAgregatedChartData();
-  } else {
-    // Pour les indicateurs non agrégés : comportement actuel
-    return formatSimpleChartData();
-  }
-};
-
-// Format des données pour indicateurs non agrégés (comportement actuel)
-const formatSimpleChartData = () => {
-  const labels = datas.value.map((item) => {
-    const trimestre = item.trimestre || 'N/A';
-    const annee = item.valeurCible?.annee || new Date(item.dateSuivie).getFullYear();
-    return `T${trimestre} - ${annee}`;
-  });
-
-  const realisedValues = datas.value.map((item) => {
-    const valeurRealise = item.valeurRealise;
-    if (valeurRealise == null) return 0;
-    if (typeof valeurRealise === 'number') return valeurRealise;
-    if (typeof valeurRealise === 'object') {
-      if (valeurRealise.moy !== undefined) return valeurRealise.moy;
-      const values = Object.values(valeurRealise);
-      return values.find(v => typeof v === 'number') || 0;
-    }
-    return 0;
-  });
-
-  const targetValues = datas.value.map((item) => {
-    const valeurCible = item.valeurCible?.valeurCible;
-    if (valeurCible == null) return 0;
-    if (typeof valeurCible === 'number') return valeurCible;
-    if (typeof valeurCible === 'object') {
-      if (valeurCible.moy !== undefined) return valeurCible.moy;
-      const values = Object.values(valeurCible);
-      return values.find(v => typeof v === 'number') || 0;
-    }
-    return 0;
-  });
-
-  return {
-    labels,
-    datasets: [
-      {
-        label: "Valeur Réalisée",
-        data: realisedValues,
-        backgroundColor: "rgba(75, 192, 192, 0.6)",
-        borderColor: "rgba(75, 192, 192, 1)",
-        borderWidth: 2,
-        barThickness: 30,
-        borderRadius: 4,
-      },
-      {
-        label: "Valeur Cible",
-        data: targetValues,
-        backgroundColor: "rgba(239, 68, 68, 0.6)",
-        borderColor: "rgba(239, 68, 68, 1)",
-        borderWidth: 2,
-        barThickness: 30,
-        borderRadius: 4,
-      },
-    ],
-  };
-};
-
-
-// Format des données pour indicateurs agrégés
-const formatAgregatedChartData = () => {
-  const labels = datas.value.map((item) => {
-    const trimestre = item.trimestre || 'N/A';
-    const annee = item.valeurCible?.annee || new Date(item.dateSuivie).getFullYear();
-    return `T${trimestre} - ${annee}`;
-  });
-
-  // Récupérer toutes les clés uniques depuis les données
-  const allKeys = new Set();
-  datas.value.forEach(item => {
-    if (item.valeurCible?.valeurCible && typeof item.valeurCible.valeurCible === 'object') {
-      Object.keys(item.valeurCible.valeurCible).forEach(key => allKeys.add(key));
-    }
-    if (item.valeurRealise && typeof item.valeurRealise === 'object') {
-      Object.keys(item.valeurRealise).forEach(key => allKeys.add(key));
-    }
-  });
-
-  const keys = Array.from(allKeys);
-  
-  // Couleurs pour les différentes clés
-  const colorPalette = [
-    { bg: 'rgba(75, 192, 192, 0.6)', border: 'rgba(75, 192, 192, 1)' },
-    { bg: 'rgba(239, 68, 68, 0.6)', border: 'rgba(239, 68, 68, 1)' },
-    { bg: 'rgba(153, 102, 255, 0.6)', border: 'rgba(153, 102, 255, 1)' },
-    { bg: 'rgba(255, 159, 64, 0.6)', border: 'rgba(255, 159, 64, 1)' },
-    { bg: 'rgba(54, 162, 235, 0.6)', border: 'rgba(54, 162, 235, 1)' },
-    { bg: 'rgba(255, 99, 132, 0.6)', border: 'rgba(255, 99, 132, 1)' },
-  ];
-
-  const datasets = [];
-
-  // Ajouter les datasets pour les valeurs réalisées par clé
-  keys.forEach((key, index) => {
-    const color = colorPalette[index % colorPalette.length];
-    const data = datas.value.map(item => {
-      const valeurRealise = item.valeurRealise;
-      if (valeurRealise && typeof valeurRealise === 'object' && valeurRealise[key] !== undefined) {
-        return valeurRealise[key];
-      }
-      return 0;
-    });
-
-    datasets.push({
-      label: `Réalisé - ${key}`,
-      data: data,
-      backgroundColor: color.bg,
-      borderColor: color.border,
-      borderWidth: 2,
-      barThickness: 20,
-      borderRadius: 4,
-    });
-  });
-
-  // Ajouter les datasets pour les valeurs cibles par clé (en ligne)
-  keys.forEach((key, index) => {
-    const color = colorPalette[index % colorPalette.length];
-    const data = datas.value.map(item => {
-      const valeurCible = item.valeurCible?.valeurCible;
-      if (valeurCible && typeof valeurCible === 'object' && valeurCible[key] !== undefined) {
-        return valeurCible[key];
-      }
-      return 0;
-    });
-
-    datasets.push({
-      label: `Cible - ${key}`,
-      data: data,
-      borderColor: color.border,
-      borderWidth: 3,
-      borderDash: [5, 5],
-      fill: false,
-      type: 'line',
-      pointRadius: 4,
-      pointHoverRadius: 6,
-    });
-  });
-
-  return {
-    labels,
-    datasets,
-  };
-};
-*/
-
-// Méthode pour formater les données du graphique
-/* const formatChartData = () => {
-  if (!datas.value || datas.value.length === 0) return null;
-
-  const labels = datas.value.map((item) => {
-    const trimestre = item.trimestre || 'N/A';
-    const annee = item.valeurCible?.annee || new Date(item.dateSuivie).getFullYear();
-    return `T${trimestre} - ${annee}`;
-  });
-
-
-  // Extraction des valeurs réalisées avec gestion des différents formats
-  const realisedValues = datas.value.map((item) => {
-    const valeurRealise = item.valeurRealise;
-
-    // Si null ou undefined
-    if (valeurRealise == null) return 0;
-
-    // Si c'est déjà un nombre simple (valeur non agrégée)
-    if (typeof valeurRealise === 'number') {
-      return valeurRealise;
-    }
-
-    // Si c'est un objet
-    if (typeof valeurRealise === 'object') {
-      // Si c'est un objet avec une moyenne (valeur agrégée)
-      if (valeurRealise.moy !== undefined) {
-        return valeurRealise.moy;
-      }
-      // Si c'est un objet avec des clés dynamiques, prendre la première valeur numérique
-      const values = Object.values(valeurRealise);
-      return values.find(v => typeof v === 'number') || 0;
-    }
-
-    return 0;
-  });
-
-  // Extraction des valeurs cibles avec gestion des différents formats
-  const targetValues = datas.value.map((item) => {
-    const valeurCible = item.valeurCible?.valeurCible;
-
-    // Si null ou undefined
-    if (valeurCible == null) return 0;
-
-    // Si c'est déjà un nombre simple (valeur non agrégée)
-    if (typeof valeurCible === 'number') {
-      return valeurCible;
-    }
-
-    // Si c'est un objet
-    if (typeof valeurCible === 'object') {
-      // Si c'est un objet avec une moyenne (valeur agrégée)
-      if (valeurCible.moy !== undefined) {
-        return valeurCible.moy;
-      }
-      // Si c'est un objet avec des clés dynamiques, prendre la première valeur numérique
-      const values = Object.values(valeurCible);
-      return values.find(v => typeof v === 'number') || 0;
-    }
-
-    return 0;
-  });
-
-  return {
-    labels,
-    datasets: [
-      {
-        label: "Valeur Réalisée",
-        data: realisedValues,
-        backgroundColor: "rgba(75, 192, 192, 0.6)",
-        borderColor: "rgba(75, 192, 192, 1)",
-        borderWidth: 2,
-        barThickness: 30,
-        borderRadius: 4,
-      },
-      {
-        label: "Valeur Cible",
-        data: targetValues,
-        backgroundColor: "rgba(239, 68, 68, 0.6)",
-        borderColor: "rgba(239, 68, 68, 1)",
-        borderWidth: 2,
-        barThickness: 30,
-        borderRadius: 4,
-      },
-    ],
-  };
-};
-*/
 
 // Méthode pour formater les données du graphique
 const formatChartData = () => {
@@ -1104,6 +859,7 @@ const resetValues = () => {
 };
 
 const resetFormSuivi = () => {
+   document.activeElement.blur();
   if (isAgregerCurrentIndicateur.value) {
     resetValues();
   }
@@ -1240,6 +996,11 @@ const closeModal = () => {
 };
 const closeDeleteSuiviModal = () => (deleteSuiviModalPreview.value = false);
 
+const closeModalValidate = () => {
+  document.activeElement.blur();
+  showModalValidate.value = false;
+};
+
 onMounted(() => {
   getcurrentUser();
   getDatas();
@@ -1336,7 +1097,7 @@ onMounted(() => {
       </div>
 
       <div class="flex gap-2">
-        <button type="button" @click="showModalValidate = false" class="w-full px-2 py-2 my-3 align-top btn btn-outline-secondary">Annuler</button>
+        <button type="button" @click="closeModalValidate" class="w-full px-2 py-2 my-3 align-top btn btn-outline-secondary">Annuler</button>
         <VButton :loading="isLoading" @click="validateData" label="Valider" />
       </div>
     </ModalBody>
@@ -1351,14 +1112,14 @@ onMounted(() => {
       <ModalBody>
         <div class="grid grid-cols-1 gap-4">
           <div class="">
-            <label class="form-label">Année</label>
-            <TomSelect v-model="filterPayload.annee" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+            <label class="form-label" for="filtre_annee_suivi">Année</label>
+            <TomSelect v-model="filterPayload.annee" id="filtre_annee_suivi" name="filtre_annee_suivi" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
               <option v-for="(annee, index) in annees" :key="index" :value="annee">{{ annee }}</option>
             </TomSelect>
           </div>
           <div class="">
-            <label class="form-label">Trimestre</label>
-            <TomSelect v-model="filterPayload.trimestre" :options="{ placeholder: 'Selectionez le trimestre' }" class="w-full">
+            <label class="form-label" for="filtre_trimestre_suivi">Trimestre</label>
+            <TomSelect v-model="filterPayload.trimestre" id="filtre_trimestre_suivi" name="filtre_trimestre_suivi" :options="{ placeholder: 'Selectionez le trimestre' }" class="w-full">
               <option v-for="(i, index2) in 4" :key="index2" :value="i">Trimestre {{ i }}</option>
             </TomSelect>
           </div>
@@ -1383,9 +1144,9 @@ onMounted(() => {
       <ModalBody>
         <div class="grid grid-cols-1 gap-5">
           <div class="flex-1">
-            <label class="form-label">Année de suivi</label>
+            <label class="form-label" for="annee_suivi">Année de suivi</label>
 
-            <TomSelect v-model="payloadSuivi.annee" name="annee_suivi" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
+            <TomSelect v-model="payloadSuivi.annee" id="annee_suivi" name="annee_suivi" :options="{ placeholder: 'Selectionez une année' }" class="w-full">
               <option v-for="annee in years" :key="annee" :value="annee">{{ annee }}</option>
             </TomSelect>
             <div v-if="formErrors.annee" class="mt-1 text-sm text-red-600">
@@ -1395,13 +1156,13 @@ onMounted(() => {
           <!-- <InputForm label="Année de suivi" class="flex-1" v-model="payloadSuivi.annee" type="number" /> -->
           <div v-if="!isAgregerCurrentIndicateur" class="flex flex-wrap items-center justify-between gap-3">
             <div class="flex-1">
-              <InputForm label="Valeur cible" v-model="payloadSuivi.valeurCible" type="number" :disabled="shouldDisableNonAgregerFields" />
+              <InputForm label="Valeur cible" id="valeur_cible_suivi" name="valeur_cible_suivi" v-model="payloadSuivi.valeurCible" type="number" :disabled="shouldDisableNonAgregerFields" />
               <div v-if="formErrors.valeurCible" class="mt-1 text-sm text-red-600">
                 <p v-for="error in formErrors.valeurCible" :key="error">{{ error }}</p>
               </div>
             </div>
             <div class="flex-1">
-              <InputForm label="Valeur réalisée" v-model="payloadSuivi.valeurRealise" type="number" />
+              <InputForm label="Valeur réalisée" id="valeur_realise_suivi" name="valeur_realise_suivi" v-model="payloadSuivi.valeurRealise" type="number" />
               <div v-if="formErrors.valeurRealise" class="mt-1 text-sm text-red-600">
                 <p v-for="error in formErrors.valeurRealise" :key="error">{{ error }}</p>
               </div>
@@ -1413,7 +1174,7 @@ onMounted(() => {
             <div class="grid gap-3 grid-cols-[repeat(auto-fill,_minmax(300px,_1fr))]">
               <div v-for="(base, index) in valueKeysIndicateurSuivi" :key="index" class="input-group">
                 <div class="flex items-center justify-center text-sm truncate input-group-text">{{ base.libelle }}</div>
-                <input type="number" class="form-control" v-model="valeurCible.find((item) => item.keyId === base.id).value" @input="updateValueCible(base.id, $event.target.value)" placeholder="valeur cible" aria-label="valeur" aria-describedby="input-group-valeur" :disabled="shouldDisableAgregerFields" />
+                <input type="number" class="form-control" :id="'valeur_cible_agreger_' + index" :name="'valeur_cible_agreger[' + index + ']'" v-model="valeurCible.find((item) => item.keyId === base.id).value" @input="updateValueCible(base.id, $event.target.value)" placeholder="valeur cible" aria-label="valeur" aria-describedby="input-group-valeur" :disabled="shouldDisableAgregerFields" />
               </div>
             </div>
           </div>
@@ -1422,7 +1183,7 @@ onMounted(() => {
             <div class="grid gap-3 grid-cols-[repeat(auto-fill,_minmax(300px,_1fr))]">
               <div v-for="(base, index) in valueKeysIndicateurSuivi" :key="index" class="input-group">
                 <div class="flex items-center justify-center text-sm truncate input-group-text">{{ base.libelle }}</div>
-                <input type="number" class="form-control" v-model="valeurRealise.find((item) => item.keyId === base.id).value" @input="updateValueRealiser(base.id, $event.target.value)" placeholder="valeur réalisée" aria-label="valeur" aria-describedby="input-group-valeur" />
+                <input type="number" class="form-control" :id="'valeur_realise_agreger_' + index" :name="'valeur_realise_agreger[' + index + ']'" v-model="valeurRealise.find((item) => item.keyId === base.id).value" @input="updateValueRealiser(base.id, $event.target.value)" placeholder="valeur réalisée" aria-label="valeur" aria-describedby="input-group-valeur" />
               </div>
             </div>
           </div>
@@ -1437,8 +1198,8 @@ onMounted(() => {
             </div>
           </div>
           <div v-if="suiviOption == 'trimestre'" class="flex-1">
-            <label class="form-label">Trimestre</label>
-            <TomSelect v-model="payloadSuivi.trimestre" name="trimestre_suivi" :options="{ placeholder: 'Selectionez un trimestre' }" class="w-full">
+            <label class="form-label" for="trimestre_suivi">Trimestre</label>
+            <TomSelect v-model="payloadSuivi.trimestre" id="trimestre_suivi" name="trimestre_suivi" :options="{ placeholder: 'Selectionez un trimestre' }" class="w-full">
               <option value=""></option>
               <option v-for="trimestre in 4" :key="trimestre" :value="trimestre">Trimestre {{ trimestre }}</option>
             </TomSelect>
@@ -1448,14 +1209,14 @@ onMounted(() => {
           </div>
 
           <div v-else class="flex-1">
-            <InputForm label="Date de suivi" v-model="payloadSuivi.dateSuivie" type="date" />
+            <InputForm label="Date de suivi" id="date_suivi" name="date_suivi" v-model="payloadSuivi.dateSuivie" type="date" />
             <div v-if="formErrors.dateSuivie" class="mt-1 text-sm text-red-600">
               <p v-for="error in formErrors.dateSuivie" :key="error">{{ error }}</p>
             </div>
           </div>
           <div class="flex-1">
-            <label class="form-label">Source de données</label>
-            <TomSelect v-model="payloadSuivi.sources_de_donnee" name="source" :options="{ placeholder: 'Selectionez une source' }" class="w-full">
+            <label class="form-label" for="source_donnee_suivi">Source de données</label>
+            <TomSelect v-model="payloadSuivi.sources_de_donnee" id="source_donnee_suivi" name="source" :options="{ placeholder: 'Selectionez une source' }" class="w-full">
               <option value=""></option>
               <option v-for="(source, index) in sourcesDonnees" :key="index" :value="source">{{ source }}</option>
             </TomSelect>
