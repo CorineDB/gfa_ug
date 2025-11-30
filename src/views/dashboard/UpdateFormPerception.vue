@@ -1164,13 +1164,15 @@ onMounted(async () => {
   <div class="flex w-full gap-2">
     <section class="w-[30%] _h-screen pr-1 overflow-y-auto border-r-2 pt-5">
       <AccordionGroup :selectedIndex="indexAccordion" class="space-y-1">
-        <AccordionItem class="">
+        
+
+        <AccordionItem>
           <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
-            <p>Options de réponses</p>
+            <p>Principes de gouvernance</p>
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <OptionsResponsePerception :reset-to="resetOptions" :is-update="true" :id-form="idForm" v-model:previewOptionResponses="previewOptionResponses" v-model:globalOptionResponses="globalOptionResponses" />
+            <PrincipeDeGouvernancPerception :to-reset="resetCurrentForm" :is-available="isAvailable.principe" @selected="getPrincipe" />
           </AccordionPanel>
         </AccordionItem>
 
@@ -1190,15 +1192,17 @@ onMounted(async () => {
           </AccordionPanel>
         </AccordionItem>
 
-        <AccordionItem>
+        <AccordionItem class="">
           <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
-            <p>Principes de gouvernance</p>
+            <p>Options de réponses</p>
             <ChevronDownIcon />
           </Accordion>
           <AccordionPanel class="p-2">
-            <PrincipeDeGouvernancPerception :to-reset="resetCurrentForm" :is-available="isAvailable.principe" @selected="getPrincipe" />
+            <OptionsResponsePerception :reset-to="resetOptions" :is-update="true" :id-form="idForm" v-model:previewOptionResponses="previewOptionResponses" v-model:globalOptionResponses="globalOptionResponses" />
           </AccordionPanel>
         </AccordionItem>
+
+        
       </AccordionGroup>
     </section>
 

@@ -507,10 +507,12 @@
                 <textarea 
                   id="form_data"
                   name="form_data"
-                  class="form-control" 
+                  class="form-control font-mono text-sm bg-gray-50" 
                   v-model="payload.form_data" 
                   cols="30" 
-                  rows="3"
+                  rows="10"
+                  readonly
+                  placeholder="Cliquez sur 'Récupérer depuis le créateur' pour remplir ce champ"
                 ></textarea>
                 <div v-if="errors.form_data" class="mt-2 text-danger">{{ getFieldErrors(errors.form_data) }}</div>
               </div>

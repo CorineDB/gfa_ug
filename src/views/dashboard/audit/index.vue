@@ -363,63 +363,85 @@ onMounted(async () => {
   <div class="p-5 mt-5 intro-y">
     <LoaderSnipper v-if="isLoadingData" />
     <div v-else class="overflow-x-auto mt-5">
-      <table class="w-full text-left table-auto min-w-max">
-        <thead class="bg-gray-100 text-gray-700 text-sm">
-          <tr>
-            <th class="p-4 border-b border-slate-300 bg-slate-50">#</th>
-            <th class="p-4 border-b border-slate-300 bg-slate-50">Projets</th>
-            <th class="p-4 border-b border-slate-300 bg-slate-50">Prestataire</th>
-            <th class="p-4 border-b border-slate-300 bg-slate-50">Contact</th>
-            <th class="p-4 border-b border-slate-300 bg-slate-50">Exercice audité</th>
-            <th class="p-4 border-b border-slate-300 bg-slate-50">Date de transmission</th>
-            <th class="p-4 border-b border-slate-300 bg-slate-50">Etat d'avancement</th>
-            <th class="p-4 border-b border-slate-300 bg-slate-50">Catégorie</th>
-            <th class="p-4 border-b border-slate-300 bg-slate-50">Statut du projet</th>
-            <th class="p-4 border-b border-slate-300 bg-slate-50">Date creation</th>
-            <th class="p-4 border-b border-slate-300 bg-slate-50">Actions</th>
-          </tr>
-        </thead>
-        <tbody class="text-sm divide-y divide-gray-200 bg-white">
-          <tr v-for="(data, index) in paginatedAndFilteredData" :key="index"  class="hover:bg-gray-50">
-            <td class="p-4 border-b border-slate-200" >{{ index + 1 }}</td>
-            <td class="p-4 border-b border-slate-200" >{{ data.projet.nom }}</td>
-            <td class="p-4 border-b border-slate-200" >{{ data.entreprise }}</td>
+      <div class="overflow-hidden rounded-xl border border-gray-200 shadow-sm bg-white">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-gray-50 text-gray-700">
+                <th scope="col" class="p-4 text-xs font-bold uppercase tracking-wider border border-gray-200 whitespace-nowrap">#</th>
+                <th scope="col" class="p-4 text-xs font-bold uppercase tracking-wider border border-gray-200 whitespace-nowrap">Projets</th>
+                <th scope="col" class="p-4 text-xs font-bold uppercase tracking-wider border border-gray-200 whitespace-nowrap">Prestataire</th>
+                <th scope="col" class="p-4 text-xs font-bold uppercase tracking-wider border border-gray-200 whitespace-nowrap">Contact</th>
+                <th scope="col" class="p-4 text-xs font-bold uppercase tracking-wider border border-gray-200 whitespace-nowrap">Exercice</th>
+                <th scope="col" class="p-4 text-xs font-bold uppercase tracking-wider border border-gray-200 whitespace-nowrap">Transmission</th>
+                <th scope="col" class="p-4 text-xs font-bold uppercase tracking-wider border border-gray-200 whitespace-nowrap">Avancement</th>
+                <th scope="col" class="p-4 text-xs font-bold uppercase tracking-wider border border-gray-200 whitespace-nowrap">Catégorie</th>
+                <th scope="col" class="p-4 text-xs font-bold uppercase tracking-wider border border-gray-200 whitespace-nowrap">Statut</th>
+                <th scope="col" class="p-4 text-xs font-bold uppercase tracking-wider border border-gray-200 whitespace-nowrap">Création</th>
+                <th scope="col" class="p-4 text-xs font-bold uppercase tracking-wider border border-gray-200 text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white">
+              <tr v-for="(data, index) in paginatedAndFilteredData" :key="index" class="hover:bg-blue-50/30 transition-colors duration-150">
+                <td class="p-4 text-sm text-gray-500 font-mono border border-gray-200 text-center">{{ index + 1 }}</td>
+                
+                <td class="p-4 border border-gray-200">
+                  <div class="font-semibold text-gray-800">{{ data.projet.nom }}</div>
+                </td>
+                
+                <td class="p-4 text-sm text-gray-600 border border-gray-200">{{ data.entreprise }}</td>
+                <td class="p-4 text-sm text-gray-500 border border-gray-200">{{ data.entrepriseContact }}</td>
+                <td class="p-4 text-sm text-gray-500 border border-gray-200 text-center">{{ data.annee }}</td>
+                <td class="p-4 text-sm text-gray-500 border border-gray-200">{{ data.dateDeTransmission }}</td>
+                <td class="p-4 text-sm text-gray-500 border border-gray-200">{{ data.etat }}</td>
+                
+                <td class="p-4 border border-gray-200 text-center">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-100">
+                    {{ data.categorie }}
+                  </span>
+                </td>
 
-            <td class="p-4 border-b border-slate-200" >{{ data.entrepriseContact }}</td>
-            <td class="p-4 border-b border-slate-200" >{{ data.annee }}</td>
-            
-            <td class="p-4 border-b border-slate-200" >{{ data.dateDeTransmission }}</td>
-            <td class="p-4 border-b border-slate-200" >{{ data.etat }}</td>
-            <td class="p-4 border-b border-slate-200" >{{ data.categorie }}</td>
-            <td class="p-4 border-b border-slate-200" >
-              <span v-if="data.statut == 1">Terminer</span>
-              <span v-if="data.statut == 0">En cours</span>
-              <span v-if="data.statut == -1">En attente</span>
-            </td>
-            
-           
+                <td class="p-4 border border-gray-200 text-center">
+                  <span v-if="data.statut == 1" class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-emerald-100 text-emerald-800 border border-emerald-200">
+                    <span class="w-1.5 h-1.5 mr-1.5 bg-emerald-500 rounded-full"></span>
+                    Terminé
+                  </span>
+                  <span v-else-if="data.statut == 0" class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+                    <span class="w-1.5 h-1.5 mr-1.5 bg-blue-500 rounded-full"></span>
+                    En cours
+                  </span>
+                  <span v-else class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">
+                    <span class="w-1.5 h-1.5 mr-1.5 bg-gray-500 rounded-full"></span>
+                    En attente
+                  </span>
+                </td>
 
-            
+                <td class="p-4 text-sm text-gray-500 whitespace-nowrap border border-gray-200">{{ data.created_at }}</td>
+                
+                <td class="p-4 border border-gray-200 text-center">
+                  <div class="flex items-center justify-center gap-2">
+                    <button 
+                      @click="handleEdit(data)" 
+                      class="p-1.5 text-blue-600 hover:bg-blue-100 rounded-md transition-colors"
+                      title="Modifier"
+                    >
+                      <EditIcon class="w-4 h-4" />
+                    </button>
 
-            <td class="p-4 border-b border-slate-200">{{ data.created_at }}</td>
-            <td class="p-4 border-b border-slate-200">
-              <span @click="handleEdit(data)" class="text-blue-500 cursor-pointer">
-                <EditIcon />
-              </span>
-
-              <span @click="handleDelete(data)" class="text-red-500 cursor-pointer">
-                <Trash2Icon />
-              </span>
-            </td>
-            <!-- <td>
-              <div class="flex justify-evenly">
-                <EditIcon @click="openUpdateModal(data)" class="w-4 h-4 mr-3" />
-                <TrashIcon class="w-4 h-4 mr-3" />
-              </div>
-            </td> -->
-          </tr>
-        </tbody>
-      </table>
+                    <button 
+                      @click="handleDelete(data)" 
+                      class="p-1.5 text-red-600 hover:bg-red-100 rounded-md transition-colors"
+                      title="Supprimer"
+                    >
+                      <Trash2Icon class="w-4 h-4" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
     <!-- <pre>{{ paginatedAndFilteredData }}</pre> -->

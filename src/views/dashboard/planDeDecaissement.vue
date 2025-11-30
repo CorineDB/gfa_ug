@@ -51,7 +51,7 @@
         </table>
       </div>
 
-      <div class="absolute shadow-md perso left-28 sm:rounded-lg">
+      <div class="absolute shadow-md perso sm:rounded-lg" :class="{ 'left-[11rem]': dataNew.length > 0, 'left-28': dataNew.length === 0 }">
         <table class="w-full overflow-auto text-sm text-left text-gray-500 dark:text-gray-400">
           <thead class="sticky top-0 text-xs text-gray-700 uppercase _z-20 bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr class="">

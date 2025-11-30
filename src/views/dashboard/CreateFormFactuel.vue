@@ -1447,7 +1447,7 @@ const createForm = async () => {
     await FormulaireFactuel.create(payload);
     toast.success(`Formulaire créé avec succès.`);
     fetchListForms.value = !fetchListForms.value;
-    // resetForm();
+    resetForm();
     resetAllFormWithDataLocalStorage();
     clearUniqueKeys();
     errors.value = {};

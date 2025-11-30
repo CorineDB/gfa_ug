@@ -27,12 +27,12 @@
             <!-- <pre>Edit data {{ edit.Data }}</pre> -->
 
             <div class="form-group my-2">
-              <InputForm label="Destinataire" class="flex-1" v-model="bcc" type="text" />
+              <InputForm label="Destinataire" class="flex-1" v-model="bcc" type="email" multiple />
               <!-- <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreurs.destinataires">{{ $h.extractContentFromArray(messageErreurs.destinaires) }}</p> -->
             </div>
             <!-- <pre>{{ Update }}</pre> -->
             <div class="form-group my-2">
-              <InputForm class="col-span-12" type="file" @change="handleFileChange" required="required" placeHolder="choisir un fichier" label="Fichiers" />
+              <InputForm class="col-span-12" type="file" :key="fileInputKey" @change="handleFileChange" required="required" placeHolder="choisir un fichier" label="Fichiers" />
               <!-- <p class="text-red-500 text-[12px] -mt-2 col-span-12" v-if="messageErreurs.rapport">{{ $h.extractContentFromArray(messageErreurs.rapport) }}</p> -->
             </div>
             <!-- <pre>{{ FormRapport }}</pre> -->
@@ -92,7 +92,7 @@
             >
               {{ chargement ? 'Enrégistrer...' : 'Enrégistrer' }}
             </button>
-            <button type="button" class="w-1/2 btn btn-primary px-4 py-2" :disabled="editorData == '' && nom == ''" @click="modalMail()">Envoyer par mail</button>
+            <button type="button" class="w-1/2 btn btn-primary px-4 py-2" :disabled="!editorData || !nom" @click="modalMail()">Envoyer par mail</button>
 
           </div>
 
@@ -314,6 +314,7 @@ export default {
       },
       selectedFile: null,
       FormRapport: new FormData(),
+      fileInputKey: 0,
     };
   },
   computed: {},
@@ -597,6 +598,7 @@ export default {
     resetFileInput() {
       // Réinitialiser le champ de fichier
       this.selectedFile = null; // Réinitialiser la variable selectedFile
+      this.fileInputKey++; // Forcer le re-rendu de l'input file
     },
 
     sendRapport() {
@@ -641,23 +643,31 @@ export default {
             this.resetFileInput();
             $h.clearFormData(this.FormRapport);
             $h.clearObjectValues(form);
+            this.objet = "";
+            this.bcc = "";
             // this.messageErreur = {};
           })
           .catch((errors) => {
             this.isLoading = false;
 
-            if (errors.response && errors.response.data && Object.keys(errors.response.data.errors).length > 0) {
-              if ("destinataires.0" in errors.response.data.errors) {
-                errors.response.data.errors["destinataires"] = errors.response.data.errors["destinataires.0"];
-                delete errors.response.data.errors["destinataires.0"];
-              }
+            if (errors.response && errors.response.data && errors.response.data.errors) {
+              const errorList = errors.response.data.errors;
+              
+              // Afficher chaque message d'erreur retourné par l'API
+              Object.keys(errorList).forEach(key => {
+                const messages = errorList[key];
+                if (Array.isArray(messages)) {
+                  messages.forEach(msg => toast.error(msg));
+                } else {
+                  toast.error(messages);
+                }
+              });
 
-              this.messageErreurs = errors.response.data.errors;
-
-
-              toast.error("Une erreur s'est produite dans votre formulaire");
-            } else {
+              this.messageErreurs = errorList;
+            } else if (errors.response && errors.response.data && errors.response.data.message) {
               toast.error(errors.response.data.message);
+            } else {
+              toast.error("Une erreur inattendue s'est produite");
             }
           });
       }

@@ -213,12 +213,13 @@
 
         <div class="col-span-12 md:col-span-6">
            
-            <label class="form-label">Organisation*</label>
-          
+            <label class="form-label">Organisation* frere</label>
           <!-- Organisation Select Dropdown -->
           <div class="relative w-full">
             <div class="flex items-center justify-between mb-2">
-                <v-select 
+              <!-- je veux afficher la liste des organisations du projet ici-->
+          
+              <v-select  v-if="!isUpdate"
                   :id="'formData.organisationId'" :name="'formData.organisationId'"
                   class="w-full mr-3" 
                   :reduce="(ong) => ong.id" 
@@ -226,6 +227,7 @@
                   label="nom" 
                   :options="ongs" 
                   placeholder="Selectionner une organisation..."
+                  multiple
                 >
                   <template v-if="!formData.organisationId || formData.organisationId.length === 0" #search="{ attributes, events }">
                     <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher une organisation..." />
@@ -240,7 +242,32 @@
                   <template #option="{ nom }">
                     {{ nom }}
                   </template>
-                </v-select>
+              </v-select>
+              <v-select  v-else
+                  :id="'formData.organisationId'" :name="'formData.organisationId'"
+                  class="w-full mr-3" 
+                  :reduce="(ong) => ong.id" 
+                  v-model="formData.organisationId" 
+                  label="nom" 
+                  :options="allOrganisation" 
+                  placeholder="Selectionner une organisation..."
+                  multiple
+                >
+                  <template v-if="!formData.organisationId || formData.organisationId.length === 0" #search="{ attributes, events }">
+                    <input class="vs__search form-input" v-bind="attributes" v-on="events" placeholder="Rechercher une organisation..." />
+                  </template>
+
+                  <!-- Selected value display -->
+                  <template v-else #selected="{ nom }">
+                    {{ nom }}
+                  </template>
+                  
+                  <!-- Custom option template to show organization name -->
+                  <template #option="{ nom }">
+                    {{ nom }}
+                  </template>
+              </v-select>
+               
                 <button 
                   type="button" 
                   @click="ouvrirModalAjoutOrganisation"
@@ -395,6 +422,7 @@
   <LoaderSnipper v-if="isLoadingProjets" />
   <NoRecordsMessage class="col-span-12" v-if="!paginatedAndFilteredData.length" title="Aucun projet trouvé" description="Il semble qu'il n'y ait pas de projet à afficher. Veuillez en créer un." />
 
+ 
    <div v-if="verifyPermission('voir-un-projet') && !isLoadingProjets" class="grid grid-cols-1 gap-4 mt-6 sm:gap-5 _md:grid-cols-2 lg:grid-cols-2 3xl:grid-cols-3 2xl:gap-6">
     <div href="#" class="relative transition-all duration-500 border-l-4 shadow-lg md:shadow-xl lg:shadow-2xl box group _bg-white zoom-in border-primary hover:border-secondary" v-for="(item, index) in paginatedAndFilteredData" :key="index">
       
@@ -1003,7 +1031,7 @@ export default {
         fin: "",
         pays: "",
         pret: 0,
-        organisationId: "",
+        organisationId: [],
         nombreEmploie: 0,
         budgetNational: 0,
         codePta : ''
@@ -1062,6 +1090,7 @@ export default {
       selectedDepartementDataOrganisation: null,
       isBeninOrganisation: false,
       errorsOrganisation: {},
+      allOrganisation : [],
     };
   },
 
@@ -1837,9 +1866,9 @@ export default {
       OngService.get()
         .then((data) => {
           const datas = data.data.data;
-
+        
+          this.allOrganisation = datas  
           
-
           this.ongs = datas.filter((ong) => ong.type !== "autre_osc" && (ong.projet == null || ong.projet == "null") );
 
         })
@@ -2161,6 +2190,7 @@ export default {
           this.deleteModal = false;
           toast.success("Operation effectué avec success !");
           this.fetchProjets();
+          this.fetchOngs()
         })
         .catch((error) => {
           this.isLoading = false;

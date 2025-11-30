@@ -3,7 +3,7 @@
   <div class="min-h-screen p-6 bg-gradient-to-br from-gray-50 to-blue-50">
     <div class="flex justify-between my-4 items-center">
       <div>
-        <h2 class="text-2xl font-bold text-gray-800 intro-y">📊 Dashboard Projet Avancé </h2>
+        <h2 class="text-2xl font-bold text-gray-800 intro-y">📊 Dashboard Projet Avancé</h2>
         <p class="text-sm text-gray-600 mt-1">Analyses, projections et prédictions en temps réel</p>
       </div>
       <div class="flex space-x-2">
@@ -384,6 +384,8 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount, computed, reactive, watch } from "vue";
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import ProjetService from "@/services/modules/projet.service.js";
 import ReportDonutChart2 from "@/components/report-donut-chart-2/Main.vue";
 import { toast } from "vue3-toastify";
@@ -403,7 +405,6 @@ import ChartJauge from "../../../../components/news/ChartJauge.vue";
 import Tabulator from "tabulator-tables";
 import ResultatCadreRendementService from "@/services/modules/resultat.cadre.rendement.service";
 import TabulatorSuiviIndicateur from "@/components/TabulatorSuiviIndicateur.vue";
-
 // Import icons - removed problematic lucide icons for build compatibility
 
 // Import new advanced components
@@ -942,87 +943,182 @@ const initializeMap = () => {
 };
 
 const exportDashboard = () => {
-  toast.info('Export du dashboard en cours...');
+  toast.info('Génération du rapport PDF en cours...');
   
-  // Generate comprehensive dashboard export
-  const dashboardData = {
-    project: {
-      code: graphiqueData.value?.codePta,
-      name: graphiqueData.value?.nom,
-      description: graphiqueData.value?.description,
-      status: graphiqueData.value?.statut,
-      score: calculateProjectScore()
-    },
-    financial: {
-      totalBudget: (graphiqueData.value?.budgetNational || 0) + (graphiqueData.value?.pret || 0),
-      budgetUsage: calculateBudgetUsagePercentage(),
-      efficiency: 'Calculé dynamiquement'
-    },
-    activities: graphiqueData.value?.statistiqueActivite,
-    timeline: {
-      start: graphiqueData.value?.debut,
-      end: graphiqueData.value?.fin,
-      remainingDays: graphiqueData.value?.nbrJourRestant
-    },
-    team: {
-      manager: graphiqueData.value?.projet_manager,
-      members: graphiqueData.value?.equipes?.length || 0
-    },
-    exportDate: new Date().toISOString(),
-    exportedBy: 'Dashboard Avancé GFA Survey'
-  };
-  
-  // Create and download JSON file
-  const blob = new Blob([JSON.stringify(dashboardData, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `dashboard-${graphiqueData.value?.codePta || 'project'}-${new Date().toISOString().split('T')[0]}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-  
-  toast.success('Dashboard exporté avec succès!');
-};
-
-// Map event handlers
-const onSiteSelected = (site) => {
-  toast.info(`Site "${site.nom}" sélectionné`);
+  try {
+    const doc = new jsPDF();
+    const data = graphiqueData.value;
+    
+    // Header
+    doc.setFontSize(22);
+    doc.setTextColor(41, 128, 185); // Blue color
+    doc.text("Rapport de Projet", 14, 20);
+    
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Généré le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}`, 14, 28);
+    doc.text(`Par: Dashboard Avancé GFA Survey`, 14, 33);
+    
+    // Line separator
+    doc.setDrawColor(200, 200, 200);
+    doc.line(14, 38, 196, 38);
+    
+    // 1. Project Overview
+    doc.setFontSize(16);
+    doc.setTextColor(0, 0, 0);
+    doc.text("1. Vue d'ensemble", 14, 50);
+    
+    const projectInfo = [
+      ["Code Projet", data?.codePta || "-"],
+      ["Nom du Projet", data?.nom || "-"],
+      ["Description", data?.description ? (data.description.substring(0, 50) + (data.description.length > 50 ? '...' : '')) : "-"],
+      ["Statut", getProjectStatusText(data?.statut)],
+      ["Score de Performance", calculateProjectScore() + "%"],
+      ["Chef de Projet", data?.projet_manager || "Non assigné"],
+      ["Taille de l'équipe", (data?.equipes?.length || 0) + " membres"]
+    ];
+    
+    autoTable(doc, {
+      startY: 55,
+      head: [['Information', 'Détail']],
+      body: projectInfo,
+      theme: 'grid',
+      headStyles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' },
+      styles: { fontSize: 10, cellPadding: 5 },
+      columnStyles: { 0: { fontStyle: 'bold', width: 60 } }
+    });
+    
+    // 2. Financial Status
+    let finalY = doc.lastAutoTable.finalY + 15;
+    
+    // Check if we need a new page
+    if (finalY > 250) {
+      doc.addPage();
+      finalY = 20;
+    }
+    
+    doc.setFontSize(16);
+    doc.text("2. Situation Financière", 14, finalY);
+    
+    const financialInfo = [
+      ["Budget National", formatCompactCurrency(data?.budgetNational)],
+      ["Financement Extérieur (Prêt/Don)", formatCompactCurrency(data?.pret)],
+      ["Budget Total", formatCompactCurrency((data?.budgetNational || 0) + (data?.pret || 0))],
+      ["Taux d'exécution financière", calculateBudgetUsagePercentage() + "%"]
+    ];
+    
+    autoTable(doc, {
+      startY: finalY + 5,
+      head: [['Indicateur Financier', 'Montant / Valeur']],
+      body: financialInfo,
+      theme: 'grid',
+      headStyles: { fillColor: [39, 174, 96], textColor: 255, fontStyle: 'bold' }, // Green
+      styles: { fontSize: 10, cellPadding: 5 },
+      columnStyles: { 0: { fontStyle: 'bold', width: 80 } }
+    });
+    
+    // 3. Activity Statistics
+    finalY = doc.lastAutoTable.finalY + 15;
+    
+    if (finalY > 250) {
+      doc.addPage();
+      finalY = 20;
+    }
+    
+    doc.setFontSize(16);
+    doc.text("3. Suivi des Activités", 14, finalY);
+    
+    const stats = data?.statistiqueActivite || {};
+    const activityInfo = [
+      ["Total Activités Planifiées", stats.total || 0],
+      ["Activités Terminées", stats.effectue || 0],
+      ["Activités En Cours", stats.enCours || 0],
+      ["Activités En Retard", stats.enRetard || 0],
+      ["Activités Non Démarrées", stats.nonDemarree || 0]
+    ];
+    
+    autoTable(doc, {
+      startY: finalY + 5,
+      head: [['Statut', 'Nombre']],
+      body: activityInfo,
+      theme: 'striped',
+      headStyles: { fillColor: [243, 156, 18], textColor: 255, fontStyle: 'bold' }, // Orange
+      styles: { fontSize: 10, halign: 'center' },
+      columnStyles: { 0: { halign: 'left', fontStyle: 'bold' } }
+    });
+    
+    // 4. Timeline
+    finalY = doc.lastAutoTable.finalY + 15;
+    
+    if (finalY > 250) {
+      doc.addPage();
+      finalY = 20;
+    }
+    
+    doc.setFontSize(16);
+    doc.text("4. Calendrier & Échéances", 14, finalY);
+    
+    const timelineInfo = [
+      ["Date de Démarrage", data?.debut || "-"],
+      ["Date de Fin Prévue", data?.fin || "-"],
+      ["Jours Restants", data?.nbrJourRestant || 0],
+      ["Durée écoulée", convertDaysToYearsMonthsDays((new Date() - new Date(data?.debut)) / (1000 * 60 * 60 * 24))]
+    ];
+    
+    autoTable(doc, {
+      startY: finalY + 5,
+      body: timelineInfo,
+      theme: 'plain',
+      styles: { fontSize: 10, cellPadding: 2 },
+      columnStyles: { 0: { fontStyle: 'bold', width: 50 } }
+    });
+    
+    // Footer
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(150);
+      doc.text(`Page ${i} sur ${pageCount}`, 196, 290, { align: 'right' });
+      doc.text("Document confidentiel - Usage interne uniquement", 14, 290);
+    }
+    
+    // Save
+    doc.save(`Rapport_Projet_${data?.codePta || 'export'}_${new Date().toISOString().split('T')[0]}.pdf`);
+    toast.success('Rapport PDF généré avec succès !');
+    
+  } catch (error) {
+    console.error("Erreur lors de la génération du PDF:", error);
+    toast.error("Erreur lors de la génération du PDF");
+  }
 };
 
 const onMapExport = () => {
   toast.info('Export de la carte en cours...');
-  // Implement map export logic here
 };
 
-// Advanced map event handlers
 const onShowRouteOptimization = () => {
   toast.info('Optimisation des routes en cours...');
-  // Implement route optimization logic
 };
 
 const onAnalyzeAccessibility = () => {
   toast.info('Analyse de l\'accessibilité en cours...');
-  // Implement accessibility analysis
 };
 
 const onPredictExpansion = () => {
   toast.info('Prédiction d\'extension en cours...');
-  // Implement expansion prediction
 };
 
 const onGenerateGeospatialReport = () => {
   toast.info('Génération du rapport géospatial...');
-  // Implement geospatial report generation
 };
 
 const onQuickAnalyze = (site) => {
   toast.info(`Analyse rapide du site: ${site.nom || site}`);
-  // Implement quick site analysis
 };
 
 const onOptimizeRoute = (site) => {
   toast.info(`Optimisation de route vers: ${site.nom || site}`);
-  // Implement route optimization for specific site
 };
 
 // Indicator filter functions

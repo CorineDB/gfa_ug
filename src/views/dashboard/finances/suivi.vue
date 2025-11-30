@@ -806,7 +806,7 @@ onMounted(() => {
         </div>
       </div>
       <div class="flex">
-        <button class="mr-2 shadow-md btn btn-primary" @click="openFilterModal"><FilterIcon class="w-4 h-4 mr-3" />Filtrer le suivi financier</button>
+        <button class="mr-2 shadow-md btn btn-primary" @click="openFilterModal"><FilterIcon class="w-4 h-4 mr-3" />Filtrer le suivi financier fsds</button>
         <button class="mr-2 shadow-md btn btn-primary" @click="generateMultiTablePDF(['suiviFinancier'], 'suivi_FInancier', 'A4')">Exporter</button>
 
         <button class="btn btn-primary" title="Réinitialiser le filtre" @click="resetFilter()">
@@ -839,7 +839,7 @@ onMounted(() => {
               </table>
             </div>
 
-            <div class="absolute shadow-md perso left-60 sm:rounded-lg">
+            <div class="absolute shadow-md perso sm:rounded-lg" :class="{ 'left-[7rem]': filteredSuiviFinanciers.length === 0, 'left-60': filteredSuiviFinanciers.length > 0 }">
               <table class="w-full overflow-auto text-sm text-left text-gray-500 dark:text-gray-400">
                 <thead class="sticky top-0 text-xs text-gray-700 uppercase _z-20 bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                   <tr>
