@@ -1,11 +1,11 @@
 <template>
   <div>
-    <canvas ref="chartCanvas" style="height: 600px; width: 100%"></canvas>
+    <canvas ref="chartCanvas" style="height: 400px; width: 100%"></canvas>
   </div>
 </template>
 
 <script>
-import { onMounted, ref, defineProps, computed, nextTick } from "vue";
+import { onMounted, ref, defineProps, watch, nextTick } from "vue";
 import { Chart, registerables } from "chart.js";
 
 Chart.register(...registerables);
@@ -20,12 +20,17 @@ export default {
   },
   setup(props) {
     const chartCanvas = ref(null);
+    let chartInstance = null;
 
-    // Log de props.data pour vérifier si les données sont bien reçues
-    onMounted(() => {
+    const createChart = () => {
+      // Détruire l'ancien graphique s'il existe
+      if (chartInstance) {
+        chartInstance.destroy();
+      }
+
       // Vérification de la présence des données
-      if (props.datas && Array.isArray(props.datas) && props.datas.length > 0) {
-      } else {
+      if (!props.datas || !Array.isArray(props.datas) || props.datas.length === 0) {
+        return;
       }
 
       nextTick(() => {
@@ -38,7 +43,7 @@ export default {
           const perception = props.datas.map((item) => item.indice_de_perception);
           const synthese = props.datas.map((item) => item.indice_synthetique);
 
-          new Chart(ctx, {
+          chartInstance = new Chart(ctx, {
             type: "bar",
             data: {
               labels, // Les labels extraits des données
@@ -68,6 +73,7 @@ export default {
             },
             options: {
               responsive: true,
+              maintainAspectRatio: false,
               plugins: {
                 legend: {
                   display: true,
@@ -95,10 +101,19 @@ export default {
               },
             },
           });
-        } else {
         }
       });
+    };
+
+    // Créer le graphique au montage
+    onMounted(() => {
+      createChart();
     });
+
+    // Recréer le graphique quand les données changent
+    watch(() => props.datas, () => {
+      createChart();
+    }, { deep: true });
 
     return {
       chartCanvas,

@@ -1,6 +1,9 @@
 <template>
-  <div class="h-4 mt-1 progress">
-    <div :style="`width:${prop.percent >= 100 ? 100 : prop.percent}%`" :class="color" class="rounded-full progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">{{ Math.round(prop.percent) }} %</div>
+  <div class="w-full">
+    <div class="text-sm mb-1">{{ Number(prop.percent).toFixed(2) }} %</div>
+    <div class="h-4 progress w-full">
+      <div :style="`width:${prop.percent >= 100 ? 100 : prop.percent}%`" :class="color" class="rounded-full progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
   </div>
 </template>
 
@@ -22,4 +25,16 @@ const color = computed(() => {
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.progress {
+  width: 100%;
+  background-color: #e5e7eb;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+</style>

@@ -464,7 +464,7 @@ onMounted(async () => {
                   </div>
                 </div>
                 <div v-if="getFirstPerceptionForm(item)" class="p-4 bg-gray-100 rounded-lg flex items-center space-x-4 mt-3">
-                  <pre>{{ getFirstPerceptionForm(item).lien }}</pre>
+                  
                   <a href="google.com" target="_blank" class="text-blue-600 underline"> google.com </a>
                   <button @click="copierLien('google.com')" class="px-4 py-2 btn btn-primary text-white rounded-lg hover:bg-pending hover:text-primary transition" title="Cliquer pour copier le lien du formulaire de perception">Copier lien Perception</button>
                   <span v-if="copié" class="text-green-600">Copié !</span>

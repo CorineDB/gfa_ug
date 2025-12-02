@@ -4,7 +4,7 @@ import VButton from "@/components/news/VButton.vue";
 import InputForm from "@/components/news/InputForm.vue";
 import SiteService from "@/services/modules/site.service";
 import TypeGouvernance from "@/services/modules/typeGouvernance.service";
-import SimpleTable from "@/components/SimpleTable.vue";
+// SimpleTable retiré - tableau personnalisé créé directement dans le template
 import DeleteButton from "@/components/news/DeleteButton.vue";
 import { toast } from "vue3-toastify";
 import LoaderSnipper from "@/components/LoaderSnipper.vue";
@@ -389,7 +389,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <h2 class="mt-10 text-lg font-medium intro-y">Sites</h2>
+  <h2 class="mt-10 text-lg font-medium intro-y">Sites fdfsdfs</h2>
   <div class="grid grid-cols-12 gap-6 mt-5">
     <div class="flex flex-wrap items-center justify-between col-span-12 mt-2 intro-y sm:flex-nowrap">
       <div class="w-full mt-3 sm:w-auto sm:mt-0 sm:ml-auto md:ml-0">
@@ -425,13 +425,78 @@ onMounted(() => {
         </Dropdown>
       </div>
     </div>
-    <!-- SimpleTable remplace Tabulator -->
-    <div v-if="!isLoadingData" class="mt-5">
-      <SimpleTable
-        :data="filteredDatas"
-        @edit="handleEdit"
-        @delete="handleDelete"
-      />
+    <!-- Tableau personnalisé -->
+    <div v-if="!isLoadingData" class="mt-5 overflow-hidden rounded-xl shadow-sm bg-white">
+      <div class="overflow-x-auto">
+        <table class="min-w-full">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                Nom
+              </th>
+              <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                Longitude
+              </th>
+              <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                Latitude
+              </th>
+              <th scope="col" class="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider w-32">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-100">
+            <tr
+              v-for="item in filteredDatas"
+              :key="item.id"
+              class="hover:bg-blue-50/30 transition-colors duration-150"
+            >
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                {{ item.nom }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
+                {{ item.longitude }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
+                {{ item.latitude }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
+                <div class="flex items-center justify-center gap-2">
+                  <button
+                    @click="handleEdit(item)"
+                    class="p-1.5 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors duration-200"
+                    title="Modifier"
+                  >
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                  </button>
+                  <button
+                    @click="handleDelete(item)"
+                    class="p-1.5 text-red-600 hover:bg-red-100 rounded-lg transition-colors duration-200"
+                    title="Supprimer"
+                  >
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr v-if="filteredDatas.length === 0">
+              <td colspan="4" class="px-6 py-10 text-center text-gray-500 bg-gray-50/50">
+                <div class="flex flex-col items-center justify-center">
+                  <svg class="w-12 h-12 text-gray-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  <p class="text-lg font-medium">Aucun résultat trouvé</p>
+                  <p class="text-sm text-gray-400 mt-1">Essayez de modifier vos critères de recherche</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
     <LoaderSnipper v-if="isLoadingData" />
   </div>
