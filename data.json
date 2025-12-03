@@ -1,54 +1,317 @@
 [
-  {
-    "type": {
-      "id": "",
-      "nom": "",
-      "key": "",
-      "position": 0
+    {
+        "id": "WxYdLavM6vpMz4enA2E5PQlDjV3mGZJz7GNxwYL7oR91aydr8bgKWOqk05217K4l",
+        "annee": null,
+        "trimestre": 4,
+        "dateSuivie": "2025-12-03",
+        "estValider": true,
+        "sources_de_donnee": "Documment",
+        "cumul": [
+            45
+        ],
+        "valeurRealise": {
+            "moy": 45
+        },
+        "valeurCible": {
+            "id": "ny5xop4Y3n6AY4mB9rog5NMdlVOZWRJBzeJ80qjpxKGyvwP1kbLaDe2z71ed0mgD",
+            "annee": 2025,
+            "valeurCible": {
+                "moy": 45
+            }
+        },
+        "indicateur": {
+            "id": "k3wWojGxLlNwoQrWVZjE0Kgeb1pBk5dQYqdv3JnmyqzDa2G74O689YARxNya52ZL",
+            "nom": "dfqdfdqq dfqdfqsdfqdqdqd",
+            "description": "dqddfds dqfdqs",
+            "indice": 5757,
+            "code": "45.5757",
+            "kobo": null,
+            "koboVersion": null,
+            "categorieId": "kA54nyZgLdKG3Rw6zj5v8Qyb9VMeD0m2OJAgalnrWNoBYE4PpO12XkZqo6OD38Bq",
+            "categorie": {
+                "id": "kA54nyZgLdKG3Rw6zj5v8Qyb9VMeD0m2OJAgalnrWNoBYE4PpO12XkZqo6OD38Bq",
+                "nom": "yiuyyiyi"
+            },
+            "agreger": false,
+            "type_de_variable": "qualitatif",
+            "hypothese": "fdgfgdfdf",
+            "value_keys": [
+                {
+                    "id": "yDEpKV0vvGb0ymgJYKrpnqo54wWZXNLDNO6E1l2P9Re38ADaQzx7VkMd5mX6JMY8",
+                    "libelle": "Moyennee",
+                    "key": "moy",
+                    "description": null,
+                    "type": "uiuuiuiui",
+                    "uniteeMesureId": "3PWe09BROA3wPBRk2W0Lb9Xq18yp4GoxYKdYVMxQzgarveZlnmN76DEjy7zbYVMj"
+                }
+            ],
+            "unitee_mesure": {
+                "id": "3PWe09BROA3wPBRk2W0Lb9Xq18yp4GoxYKdYVMxQzgarveZlnmN76DEjy7zbYVMj",
+                "nom": "uiuuiuiui"
+            },
+            "anneeDeBase": 2025,
+            "valeurDeBase": {
+                "moy": "75"
+            },
+            "valeursCible": [
+                {
+                    "id": "ny5xop4Y3n6AY4mB9rog5NMdlVOZWRJBzeJ80qjpxKGyvwP1kbLaDe2z71ed0mgD",
+                    "annee": 2025,
+                    "valeurCible": {
+                        "moy": 45
+                    },
+                    "valeur_realiser": {
+                        "moy": 45
+                    }
+                }
+            ],
+            "valeurCibleTotal": {
+                "moy": 45
+            },
+            "valeurRealiserTotal": {
+                "moy": 45
+            },
+            "taux_realisation": {
+                "moy": 1
+            },
+            "sources_de_donnee": "Documment",
+            "methode_de_la_collecte": "Examen de rapport et analyse statistique",
+            "frequence_de_la_collecte": "Une fois en 2024",
+            "ug_responsable": {
+                "id": "yNdbmLGMMR3bQrzA4KNJ7laE2WjePmoazB6gXk1ZwLOGVxqyn9d0vYp5nj2A31g7",
+                "nom": "Unité de test des statistque",
+                "programme": {
+                    "id": "4nRrAdoy5e2nwaYQq1oMy4pdr9BL6AVoKVg0jklZPGv7bRxOWXKDm83zPZaDYvb1",
+                    "nom": "Test de Statistique",
+                    "code": "897",
+                    "budgetNational": null,
+                    "debut": "2023-01",
+                    "fin": "2035-12",
+                    "description": "tester les statistiques",
+                    "objectifGlobaux": "tester les statisque",
+                    "created_at": "2025-11-30T23:50:33.000000Z",
+                    "organismeDeTutelle": "Ministère"
+                },
+                "user": {
+                    "id": "QBdLpk4NVPBM9G7qwKnjpgrbL2m0vxOae5OEyoAk6a51NZDWXlzdQ4YeR2ADglVW",
+                    "nom": "Unité de test des statistque",
+                    "prenom": null,
+                    "contact": "22958784512",
+                    "email": "sofrovuleuta-6329@yopmail.com",
+                    "type": "unitee-de-gestion",
+                    "programmeId": "4nRrAdoy5e2nwaYQq1oMy4pdr9BL6AVoKVg0jklZPGv7bRxOWXKDm83zPZaDYvb1",
+                    "poste": null,
+                    "created_at": "2025-11-30 11:51:52"
+                },
+                "created_at": "2025-11-30 11:51:52"
+            },
+            "organisations_responsable": [
+                {
+                    "id": "1lOxvYd845p1n8DPj2evKgGkZW6mAXQ4g03NYyo9dJlwLxz0rbOVEaMRBBw5aXRz",
+                    "nom": "ORGANISATION 2",
+                    "sigle": "OP",
+                    "code": 44,
+                    "type": "osc_partenaire",
+                    "nom_point_focal": "point",
+                    "prenom_point_focal": "focal 2",
+                    "contact_point_focal": "22987423652",
+                    "longitude": 1.4787,
+                    "latitude": 4.7878,
+                    "addresse": "Cotonou , Littoral , BENIN",
+                    "quartier": "TEST",
+                    "arrondissement": "TEST",
+                    "commune": "COTONOU",
+                    "departement": "TEST",
+                    "pays": "Île de Man",
+                    "secteurActivite": "Secteur2",
+                    "fondId": null,
+                    "fonds": [],
+                    "user": {
+                        "id": "v5RLxDZbrjp6aNxKw50B1QEoPqRdeW89AY8AbVXl7M9zDZLgyvGnmk42YkVXonQK",
+                        "nom": "ORGANISATION 2",
+                        "prenom": null,
+                        "contact": "22987423652",
+                        "email": "prauquaussusouna-9354@yopmail.com",
+                        "type": "organisation",
+                        "programmeId": "4nRrAdoy5e2nwaYQq1oMy4pdr9BL6AVoKVg0jklZPGv7bRxOWXKDm83zPZaDYvb1",
+                        "poste": null,
+                        "created_at": "2025-12-01 01:15:58"
+                    },
+                    "projet": null,
+                    "created_at": "2025-12-01 01:15:58"
+                }
+            ],
+            "created_at": "2025-12-02 02:04:54"
+        },
+        "auteur": {
+            "id": "yNdbmLGMMR3bQrzA4KNJ7laE2WjePmoazB6gXk1ZwLOGVxqyn9d0vYp5nj2A31g7",
+            "nom": "Unité de test des statistque",
+            "prenom": null
+        },
+        "commentaire": null,
+        "commentaires": [],
+        "created_at": "2025-12-02 02:06:33"
     },
-    "principe": {
-      "id": "",
-      "nom": "",
-      "key": "",
-      "position": 0
-    },
-    "critere": {
-      "id": "",
-      "nom": "",
-      "key": "",
-      "position": 0
-    },
-    "indicateur": {
-      "id": "6gMLNKbP8pNa7OylXVw2JkA43qDW1zoLYNnYZRdvEP5me9gxjMGLKb0r6XEy4VA9",
-      "nom": "Voluptates numquam v",
-      "key": "16gMLNKbP8pNa7OylXVw2JkA43qDW1zoLYNnYZRdvEP5me9gxjMGLKb0r6XEy4VA9",
-      "position": 1
+    {
+        "id": "wdQVnRYWG7OmPg8LZ49EYreR56MxovBb9MNqk3AnQlyad1WbjVpDzK0w2vK016b9",
+        "annee": null,
+        "trimestre": 4,
+        "dateSuivie": "2025-12-03",
+        "estValider": true,
+        "sources_de_donnee": "Documment",
+        "cumul": [
+            "565",
+            "64",
+            "456"
+        ],
+        "valeurRealise": {
+            "moy": "565",
+            "gar": "64",
+            "test": "456"
+        },
+        "valeurCible": {
+            "id": "VpAbB06xP4ZygNxrGM30ApD7jOaRwKQkK1Q9z12e5qm6okBnlV8bvYLWdwPZok7L",
+            "annee": 2025,
+            "valeurCible": {
+                "moy": "100",
+                "gar": "100",
+                "test": "100"
+            }
+        },
+        "indicateur": {
+            "id": "RbEzrJQkB0poV8QYnxzr9ZljN7e6L4P8ZlXAkRDWgyqmaJKEO2G5w31bvlx01npj",
+            "nom": "Indicateur Agréger",
+            "description": "test",
+            "indice": 1,
+            "code": "1.1",
+            "kobo": null,
+            "koboVersion": null,
+            "categorieId": "OVR0KW5LpyZY6gW0R3BeVoqrbw4AjQmpAJ5N2a1Ml8vkG9DnPEXdKOLzrBbenj3a",
+            "categorie": {
+                "id": "OVR0KW5LpyZY6gW0R3BeVoqrbw4AjQmpAJ5N2a1Ml8vkG9DnPEXdKOLzrBbenj3a",
+                "nom": "categorie 1"
+            },
+            "agreger": true,
+            "type_de_variable": "quantitatif",
+            "hypothese": "hypothese",
+            "value_keys": [
+                {
+                    "id": "KrE306zGaGRXzP3Agr6eyqQ5oxlnpbBXAOwdZ2VD4NK9Mm0k1WE8J7vYxwgloYdm",
+                    "libelle": "Moyenne",
+                    "key": "moy",
+                    "description": "description",
+                    "type": "unité 1",
+                    "uniteeMesureId": "alGjE3V62marN03kM8w7Ypgy4WzEjOoDlovqRLxnBbQVPXGDe9dlZA162WMYkAnD"
+                },
+                {
+                    "id": "ADN8Z6m0MevD8lA3qboQ6YJKr95VxRBW7BmG10WE4nZPyzgNX2pdk7awbJyxRv1g",
+                    "libelle": "garçàn",
+                    "key": "gar",
+                    "description": "test",
+                    "type": "unité 1",
+                    "uniteeMesureId": "alGjE3V62marN03kM8w7Ypgy4WzEjOoDlovqRLxnBbQVPXGDe9dlZA162WMYkAnD"
+                },
+                {
+                    "id": "v6lR0x49eRNPlo0GaXnE7Q4r512ZpyBRljYxdbvm9gD3qWwJ6z8KAkVMXnrZDdAm",
+                    "libelle": "test",
+                    "key": "test",
+                    "description": "test",
+                    "type": "unité 1",
+                    "uniteeMesureId": "alGjE3V62marN03kM8w7Ypgy4WzEjOoDlovqRLxnBbQVPXGDe9dlZA162WMYkAnD"
+                }
+            ],
+            "unitee_mesure": {
+                "id": "alGjE3V62marN03kM8w7Ypgy4WzEjOoDlovqRLxnBbQVPXGDe9dlZA162WMYkAnD",
+                "nom": "unité 1"
+            },
+            "anneeDeBase": 2023,
+            "valeurDeBase": {
+                "test": "1",
+                "moy": "1",
+                "gar": "1"
+            },
+            "valeursCible": [
+                {
+                    "id": "vAglYOn4ovPjz90DdWYnMgwr57OeqBJ3ekX261bGxNlaRp3Am4LK8VkZybW36r2e",
+                    "annee": 2030,
+                    "valeurCible": {
+                        "moy": 100,
+                        "gar": 100,
+                        "test": 100
+                    },
+                    "valeur_realiser": []
+                },
+                {
+                    "id": "VpAbB06xP4ZygNxrGM30ApD7jOaRwKQkK1Q9z12e5qm6okBnlV8bvYLWdwPZok7L",
+                    "annee": 2025,
+                    "valeurCible": {
+                        "moy": "100",
+                        "gar": "100",
+                        "test": "100"
+                    },
+                    "valeur_realiser": {
+                        "moy": 565,
+                        "gar": 64,
+                        "test": 456
+                    }
+                }
+            ],
+            "valeurCibleTotal": {
+                "moy": 200,
+                "gar": 200,
+                "test": 200
+            },
+            "valeurRealiserTotal": {
+                "moy": 565,
+                "gar": 64,
+                "test": 456
+            },
+            "taux_realisation": {
+                "moy": 2.825,
+                "gar": 0.32,
+                "test": 2.28
+            },
+            "sources_de_donnee": "Documment",
+            "methode_de_la_collecte": "Examen de rapport",
+            "frequence_de_la_collecte": "Annuelle",
+            "ug_responsable": {
+                "id": "yNdbmLGMMR3bQrzA4KNJ7laE2WjePmoazB6gXk1ZwLOGVxqyn9d0vYp5nj2A31g7",
+                "nom": "Unité de test des statistque",
+                "programme": {
+                    "id": "4nRrAdoy5e2nwaYQq1oMy4pdr9BL6AVoKVg0jklZPGv7bRxOWXKDm83zPZaDYvb1",
+                    "nom": "Test de Statistique",
+                    "code": "897",
+                    "budgetNational": null,
+                    "debut": "2023-01",
+                    "fin": "2035-12",
+                    "description": "tester les statistiques",
+                    "objectifGlobaux": "tester les statisque",
+                    "created_at": "2025-11-30T23:50:33.000000Z",
+                    "organismeDeTutelle": "Ministère"
+                },
+                "user": {
+                    "id": "QBdLpk4NVPBM9G7qwKnjpgrbL2m0vxOae5OEyoAk6a51NZDWXlzdQ4YeR2ADglVW",
+                    "nom": "Unité de test des statistque",
+                    "prenom": null,
+                    "contact": "22958784512",
+                    "email": "sofrovuleuta-6329@yopmail.com",
+                    "type": "unitee-de-gestion",
+                    "programmeId": "4nRrAdoy5e2nwaYQq1oMy4pdr9BL6AVoKVg0jklZPGv7bRxOWXKDm83zPZaDYvb1",
+                    "poste": null,
+                    "created_at": "2025-11-30 11:51:52"
+                },
+                "created_at": "2025-11-30 11:51:52"
+            },
+            "organisations_responsable": [],
+            "created_at": "2025-12-02 07:59:44"
+        },
+        "auteur": {
+            "id": "yNdbmLGMMR3bQrzA4KNJ7laE2WjePmoazB6gXk1ZwLOGVxqyn9d0vYp5nj2A31g7",
+            "nom": "Unité de test des statistque",
+            "prenom": null
+        },
+        "commentaire": null,
+        "commentaires": [],
+        "created_at": "2025-12-02 09:04:53"
     }
-  },
-  {
-    "type": {
-      "id": "",
-      "nom": "",
-      "key": "",
-      "position": 0
-    },
-    "principe": {
-      "id": "",
-      "nom": "",
-      "key": "",
-      "position": 0
-    },
-    "critere": {
-      "id": "",
-      "nom": "",
-      "key": "",
-      "position": 0
-    },
-    "indicateur": {
-      "id": "zK3j2pJNgWX75Rq48GpDV3dJaZN2vYByZvQj1zLK09mlxkbEew6yrOMPAAg6W1R4",
-      "nom": "Asperiores voluptate",
-      "key": "2zK3j2pJNgWX75Rq48GpDV3dJaZN2vYByZvQj1zLK09mlxkbEew6yrOMPAAg6W1R4",
-      "position": 2
-    }
-  }
 ]

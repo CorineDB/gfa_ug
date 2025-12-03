@@ -2158,7 +2158,17 @@ export default {
       this.formData.pret = projet.pret;
       this.sitesId = projet.sites.map((site) => site.id);
       this.formData.sites = this.sitesId;
-      this.formData.organisationId = projet.owner.id;
+      
+      // Logique conditionnelle : vérifier le type de l'utilisateur du propriétaire
+      // Si le type est 'unitee-de-gestion', ne pas préremplir le champ organisation
+      if (projet.owner && projet.owner.user && projet.owner.user.type === 'unitee-de-gestion') {
+        // Ne pas préremplir le champ organisation pour les unités de gestion
+        this.formData.organisationId = null;
+      } else {
+        // Préremplir normalement pour les autres types d'organisations
+        this.formData.organisationId = projet.owner ? projet.owner.id : null;
+      }
+      
       this.formData.nombreEmploie = 0;
       this.formData.budgetNational = projet.budgetNational;
       this.formData.codePta = projet.codePta

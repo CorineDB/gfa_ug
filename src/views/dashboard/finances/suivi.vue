@@ -349,9 +349,9 @@ const years = computed(() => {
   let anneeFin = parseInt(`${finProgramme.value.split("-")[0]}`);
   let annees = [];
   for (let annee = anneeDebut; annee <= anneeFin; annee++) {
-    if (annee <= new Date().getFullYear()) {
+    
       annees.push(annee);
-    }
+    
   }
   return annees;
 });
@@ -689,7 +689,15 @@ const suiviFinancierActivite = async () => {
 
     // 
 
-    const action = suivi.length > 0 ? SuiviFinancier.update(suivi[0]?.id, suiviFinancier.value[index]) : SuiviFinancierService.create(suiviFinancier.value[index]);
+        // Convertir les valeurs string en number pour éviter les problèmes de type
+      const payload = {
+        ...suiviFinancier.value[index],
+        trimestre: parseInt(suiviFinancier.value[index].trimestre),
+        annee: parseInt(suiviFinancier.value[index].annee),
+        consommer: parseInt(suiviFinancier.value[index].consommer)
+      };
+
+      const action = suivi.length > 0 ? SuiviFinancier.update(suivi[0]?.id, payload) : SuiviFinancierService.create(payload);
 
     try {
       await action;
@@ -705,6 +713,7 @@ const suiviFinancierActivite = async () => {
 
         setTimeout(() => {
           resetModalSuiviFinancierActivite();
+          getDatas();
         }, 500);
       }
 
@@ -754,9 +763,8 @@ const filteredSuiviFinanciers = computed(() => {
   });
 });
 
-const openFilterModal = () => {
-  
-  filterPayload.trimestre = 3; //getCurrentQuarter();
+const openFilterModal = () => {  
+  filterPayload.trimestre = getCurrentQuarter();
   showModalFiltre.value = true;
 };
 
@@ -839,7 +847,7 @@ onMounted(() => {
               </table>
             </div>
 
-            <div class="absolute shadow-md perso sm:rounded-lg" :class="{ 'left-[7rem]': filteredSuiviFinanciers.length === 0, 'left-60': filteredSuiviFinanciers.length > 0 }">
+            <div class="absolute shadow-md perso sm:rounded-lg" :class="{ 'left-[7rem]': filteredSuiviFinanciers.length === 0, 'left-[9rem]': filteredSuiviFinanciers.length > 0 }">
               <table class="w-full overflow-auto text-sm text-left text-gray-500 dark:text-gray-400">
                 <thead class="sticky top-0 text-xs text-gray-700 uppercase _z-20 bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                   <tr>
@@ -1311,9 +1319,17 @@ onMounted(() => {
           </div>
           <div class="">
             <label for="filtre-trimestre" class="form-label">Trimestre</label>
-            <TomSelect id="filtre-trimestre" name="filtre-trimestre" v-model="filterPayload.trimestre" :options="{ placeholder: 'Selectionez le trimestre' }" class="w-full">
-              <option v-for="(i, index2) in 4" :key="index2" :value="i">Trimestre {{ i }}</option>
-            </TomSelect>
+            <TomSelect id="filtre-trimestre"
+           name="filtre-trimestre"
+           v-model="filterPayload.trimestre"
+           :options="{ placeholder: 'Selectionez le trimestre' }"
+           class="w-full">
+            <option value="">choisir un trimestre</option>
+            <option value="1">Trimestre 1</option>
+            <option value="2">Trimestre 2</option>
+            <option value="3">Trimestre 3</option>
+            <option value="4">Trimestre 4</option>
+          </TomSelect>
           </div>
         </div>
       </ModalBody>

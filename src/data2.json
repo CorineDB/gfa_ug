@@ -1,33 +1,72 @@
-[
-  "Veuillez remplir tout le formulaire. Count34",
-  "La question « Rôles et responsabilité clairement définis » n'a pas été répondue.",
-  "La question « Organes statutaires fonctionnels » n'a pas été répondue.",
-  "La question « Tenue régulière des réunions statutaires » n'a pas été répondue.",
-  "La question « Existence d'un dispositif d'écoute et de prise en compte des préoccupations des bénéficiaires » n'a pas été répondue.",
-  "La question « Informations accessibles » n'a pas été répondue.",
-  "La question « Rapports publiés » n'a pas été répondue.",
-  "La question « Renouvellement régulier des organes de gestion » n'a pas été répondue.",
-  "La question « Existence de mécanisme fonctionnel de participation des bénéficiaires de l'action » n'a pas été répondue.",
-  "La question « Représentation de toutes les parties prenantes au niveau des instances de décision » n'a pas été répondue.",
-  "La question « Prise en compte du genre » n'a pas été répondue.",
-  "La question « Existence de fiche descriptive de poste ou de cahier de charge » n'a pas été répondue.",
-  "La question « Existence d'un mécanisme d'évaluation de la qualité des services par les bénéficiaires » n'a pas été répondue.",
-  "La question « Accessibilité des rapports » n'a pas été répondue.",
-  "La question « Connaissance et respect des procédures de prise de décision » n'a pas été répondue.",
-  "La question « Existence de procédures de recrutement et de gestion des ressources humaines connues et respectées de tous » n'a pas été répondue.",
-  "La question « Existence d'une politique de rémunération équitable » n'a pas été répondue.",
-  "La question « Politique de recrutement et de gestion des ressources humaines sensible au genre » n'a pas été répondue.",
-  "La question « Existence d'un mécanisme de sanction/récompense » n'a pas été répondue.",
-  "La question « Existence d'un cadre de concertation pour la prise en compte des besoins réels des bénéficiaires dans le cadre de la formulation des projets, la planification et le suivi-évaluation des activités » n'a pas été répondue.",
-  "La question « Implication de tous les acteurs dans le processus de planification des activités » n'a pas été répondue.",
-  "La question « Existence d'un système de suivi évaluation fonctionnel » n'a pas été répondue.",
-  "La question « Capacité de mobilisation de ressources externes de l'organisation » n'a pas été répondue.",
-  "La question « Forte capacité de consommation efficiente des crédits alloués » n'a pas été répondue.",
-  "La question « Respect des délais d'exécution des activité » n'a pas été répondue.",
-  "La question « Rôles et responsabilités des acteurs de la chaîne de dépenses clairement définis » n'a pas été répondue.",
-  "La question « Disponibilité en temps réel des différents rapports (financier, d'audit, d'évaluation, etc.) » n'a pas été répondue.",
-  "La question « Existence de procédures de passation de marché clairement définies et connues de tous » n'a pas été répondue.",
-  "La question « Respect des procédures de passation de marché » n'a pas été répondue.",
-  "La question « Existence de dispositifs de contrôle interne et de contrôle de gestion fonctionnels et efficaces » n'a pas été répondue.",
-  "La question « Tenue régulière des missions d'audit » n'a pas été répondue."
-]
+{
+    "id": "3q5kGYLr6yQjlGOKvNJaD4YVwEmeZLPyLbM3Wpk701x2qbnRBozr8g59AlzgZnBQ",
+    "nom": "Indicateur A",
+    "description": "description",
+    "indice": 1,
+    "code": "1.1",
+    "kobo": null,
+    "koboVersion": null,
+    "categorieId": "OVR0KW5LpyZY6gW0R3BeVoqrbw4AjQmpAJ5N2a1Ml8vkG9DnPEXdKOLzrBbenj3a",
+    "categorie": {
+        "id": "OVR0KW5LpyZY6gW0R3BeVoqrbw4AjQmpAJ5N2a1Ml8vkG9DnPEXdKOLzrBbenj3a",
+        "nom": "categorie 1"
+    },
+    "agreger": false,
+    "type_de_variable": "quantitatif",
+    "hypothese": "test",
+    "value_keys": [
+        {
+            "id": "yDEpKV0vvGb0ymgJYKrpnqo54wWZXNLDNO6E1l2P9Re38ADaQzx7VkMd5mX6JMY8",
+            "libelle": "Moyennee",
+            "key": "moy",
+            "description": null,
+            "type": "unité 1",
+            "uniteeMesureId": "alGjE3V62marN03kM8w7Ypgy4WzEjOoDlovqRLxnBbQVPXGDe9dlZA162WMYkAnD"
+        }
+    ],
+    "unitee_mesure": {
+        "id": "alGjE3V62marN03kM8w7Ypgy4WzEjOoDlovqRLxnBbQVPXGDe9dlZA162WMYkAnD",
+        "nom": "unité 1"
+    },
+    "anneeDeBase": 2023,
+    "valeurDeBase": {
+        "moy": "1"
+    },
+    "valeursCible": [],
+    "valeurCibleTotal": [],
+    "valeurRealiserTotal": [],
+    "taux_realisation": [],
+    "sources_de_donnee": "Documment",
+    "methode_de_la_collecte": "Examen de rapport et analyse statistique",
+    "frequence_de_la_collecte": "Semestrielle",
+    "ug_responsable": {
+        "id": "yNdbmLGMMR3bQrzA4KNJ7laE2WjePmoazB6gXk1ZwLOGVxqyn9d0vYp5nj2A31g7",
+        "nom": "Unité de test des statistque",
+        "programme": {
+            "id": "4nRrAdoy5e2nwaYQq1oMy4pdr9BL6AVoKVg0jklZPGv7bRxOWXKDm83zPZaDYvb1",
+            "nom": "Test de Statistique",
+            "code": "897",
+            "budgetNational": null,
+            "debut": "2023-01",
+            "fin": "2035-12",
+            "description": "tester les statistiques",
+            "objectifGlobaux": "tester les statisque",
+            "created_at": "2025-11-30T23:50:33.000000Z",
+            "organismeDeTutelle": "Ministère"
+        },
+        "user": {
+            "id": "QBdLpk4NVPBM9G7qwKnjpgrbL2m0vxOae5OEyoAk6a51NZDWXlzdQ4YeR2ADglVW",
+            "nom": "Unité de test des statistque",
+            "prenom": null,
+            "contact": "22958784512",
+            "email": "sofrovuleuta-6329@yopmail.com",
+            "type": "unitee-de-gestion",
+            "programmeId": "4nRrAdoy5e2nwaYQq1oMy4pdr9BL6AVoKVg0jklZPGv7bRxOWXKDm83zPZaDYvb1",
+            "poste": null,
+            "created_at": "2025-11-30 11:51:52"
+        },
+        "created_at": "2025-11-30 11:51:52"
+    },
+    "organisations_responsable": [],
+    "created_at": "2025-12-02 06:13:27"
+}

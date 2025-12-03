@@ -36,6 +36,10 @@ const props = defineProps({
     type: String,
     required: false,
   },
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits(["update:modelValue"]);
@@ -59,7 +63,7 @@ function updateValue(event) {
 <template>
   <div>
     <label :for="inputId" class="form-label">{{ label }} <span class="text-danger" v-if="required || !optionel">*</span> </label>
-    <input :id="inputId" :name="inputId" :type="type" :required="required" :value="modelValue" @input="updateValue" class="form-control" :placeholder="label" :min="min" :max="max" />
+    <input :id="inputId" :name="inputId" :type="type" :required="required" :value="modelValue" @input="updateValue" class="form-control" :placeholder="label" :min="min" :max="max" :disabled="disabled" />
     <div v-if="control" class="mt-2 text-danger">{{ control }}</div>
   </div>
 </template>

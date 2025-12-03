@@ -867,10 +867,23 @@ export default {
       const anneesUniques = [...new Set(this.trimestres.map((t) => t.annee))];
       this.trimestreYears = anneesUniques.sort((a, b) => a - b);
 
+      // Calculer le trimestre actuel basé sur la date système
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth(); // 0-11
+      const currentQuarter = Math.floor(currentMonth / 3) + 1; // 1-4
+      const currentYear = currentDate.getFullYear();
+
+      // Chercher le trimestre actuel dans la liste des trimestres disponibles
+      const currentQuarterData = this.trimestres.find(
+        t => t.trimestre === currentQuarter && t.annee === currentYear
+      );
+
       const newItem = {
         activiteId: item.id,
-        trimestre: this.trimestres.length > 0 ? this.trimestres[0].value : 1,
-        annee: this.trimestreYears.length > 0 ? this.trimestreYears[0] : new Date().getFullYear(),
+        // Utiliser le trimestre actuel s'il existe, sinon le premier disponible
+        trimestre: currentQuarterData ? currentQuarterData.value : (this.trimestres.length > 0 ? this.trimestres[0].value : currentQuarter),
+        // Utiliser l'année actuelle si le trimestre actuel existe, sinon la première année disponible
+        annee: currentQuarterData ? currentYear : (this.trimestreYears.length > 0 ? this.trimestreYears[0] : currentYear),
         budgetNational: 0,
         pret: 0,
         id: Date.now() + "-" + Math.random().toString(36).substr(2, 9),
@@ -886,10 +899,23 @@ export default {
     },
 
     addPlan() {
+      // Calculer le trimestre actuel
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth(); // 0-11
+      const currentQuarter = Math.floor(currentMonth / 3) + 1; // 1-4
+      const currentYear = currentDate.getFullYear();
+
+      // Chercher le trimestre actuel dans la liste des trimestres disponibles
+      const currentQuarterData = this.trimestres.find(
+        t => t.trimestre === currentQuarter && t.annee === currentYear
+      );
+
       const newItem = {
         activiteId: this.planDeDecaissementPayload.activiteId,
-        trimestre: 1, // Trimestre actuel
-        annee: new Date().getFullYear(), // Set current year as default
+        // Utiliser le trimestre actuel s'il existe, sinon le premier disponible
+        trimestre: currentQuarterData ? currentQuarterData.value : (this.trimestres.length > 0 ? this.trimestres[0].value : currentQuarter),
+        // Utiliser l'année actuelle si le trimestre actuel existe, sinon la première année disponible
+        annee: currentQuarterData ? currentYear : (this.trimestreYears.length > 0 ? this.trimestreYears[0] : currentYear),
         budgetNational: 0,
         pret: 0,
         id: Date.now() + "-" + Math.random().toString(36).substr(2, 9),
@@ -1439,7 +1465,7 @@ export default {
 
   <Modal size="modal-xl" backdrop="static" :show="showModal" @hidden="showModal = false">
     <ModalHeader>
-      <h2 v-if="!isUpdate" class="mr-auto text-base font-medium">Ajouter une Activité hjsd</h2>
+      <h2 v-if="!isUpdate" class="mr-auto text-base font-medium">Ajouter une Activité</h2>
       <h2 v-else class="mr-auto text-base font-medium">Modifier une Activité</h2>
     </ModalHeader>
     <form @submit.prevent="sendForm">

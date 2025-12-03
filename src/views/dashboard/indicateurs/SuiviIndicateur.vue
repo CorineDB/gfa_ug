@@ -86,81 +86,298 @@
     </div>
     
     
-    <!-- Section Filtres Améliorés -->
+    <!-- Section Filtres Améliorés avec Compteurs et Badges -->
     <div v-if="!isLoadingDataCadre" class="mt-6 intro-y">
-      <div class="box p-5">
-        <h3 class="text-lg font-medium mb-4">Filtres Avancés</h3>
+      <div class="box p-6 bg-gradient-to-br from-white to-gray-50">
+        <!-- En-tête avec compteur de résultats -->
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+              <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+              </svg>
+              Filtres Avancés
+            </h3>
+            <p class="text-sm text-gray-600 mt-1">
+              <span class="font-semibold text-blue-600">{{ filteredData.length }}</span> résultat(s) sur {{ totalSuivis }}
+            </p>
+          </div>
+          
+          <!-- Badges des filtres actifs -->
+          <div v-if="hasActiveFilters" class="flex items-center gap-2">
+            <span class="text-xs font-medium text-gray-600">Filtres actifs:</span>
+            <div class="flex gap-2 flex-wrap">
+              <span v-if="search" class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                🔍 {{ search }}
+                <button @click="search = ''" class="ml-1 hover:text-blue-900">×</button>
+              </span>
+              <span v-if="selectedTrimestre" class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                📅 T{{ selectedTrimestre }}
+                <button @click="selectedTrimestre = ''" class="ml-1 hover:text-green-900">×</button>
+              </span>
+              <span v-if="selectedYear" class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                📆 {{ selectedYear }}
+                <button @click="selectedYear = ''" class="ml-1 hover:text-purple-900">×</button>
+              </span>
+              <span v-if="selectedIndicateur" class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                📊 Indicateur
+                <button @click="selectedIndicateur = ''" class="ml-1 hover:text-orange-900">×</button>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Grille de filtres -->
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <div>
-            <label class="form-label">Rechercher</label>
-            <input 
-              v-model="search" 
-              type="text" 
-              class="form-control" 
-              placeholder="Nom indicateur ou auteur..."
-            />
+          <!-- Recherche -->
+          <div class="relative">
+            <label class="form-label text-sm font-semibold text-gray-700 mb-2">
+              🔍 Rechercher
+            </label>
+            <div class="relative">
+              <input 
+                v-model="search" 
+                type="text" 
+                class="form-control pl-10 pr-10 border-2 focus:border-blue-500 transition-all" 
+                placeholder="Nom indicateur ou auteur..."
+              />
+              <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+              <button v-if="search" @click="search = ''" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
           </div>
+
+          <!-- Trimestre -->
           <div>
-            <label class="form-label">Trimestre</label>
-            <select v-model="selectedTrimestre" class="form-select">
+            <label class="form-label text-sm font-semibold text-gray-700 mb-2">
+              📅 Trimestre
+              <span v-if="selectedTrimestre" class="ml-2 text-xs font-normal text-green-600">({{ trimestreCount }} résultat(s))</span>
+            </label>
+            <select v-model="selectedTrimestre" class="form-select border-2 focus:border-green-500 transition-all">
               <option value="">Tous les trimestres</option>
-              <option value="1">Trimestre 1</option>
-              <option value="2">Trimestre 2</option>
-              <option value="3">Trimestre 3</option>
-              <option value="4">Trimestre 4</option>
+              <option value="1">Trimestre 1 ({{ getTrimestreCount(1) }})</option>
+              <option value="2">Trimestre 2 ({{ getTrimestreCount(2) }})</option>
+              <option value="3">Trimestre 3 ({{ getTrimestreCount(3) }})</option>
+              <option value="4">Trimestre 4 ({{ getTrimestreCount(4) }})</option>
             </select>
           </div>
+
+          <!-- Année -->
           <div>
-            <label class="form-label">Année</label>
-            <select v-model="selectedYear" class="form-select">
+            <label class="form-label text-sm font-semibold text-gray-700 mb-2">
+              📆 Année
+              <span v-if="selectedYear" class="ml-2 text-xs font-normal text-purple-600">({{ yearCount }} résultat(s))</span>
+            </label>
+            <select v-model="selectedYear" class="form-select border-2 focus:border-purple-500 transition-all">
               <option value="">Toutes les années</option>
-              <option v-for="year in availableYears" :key="year" :value="year">{{ year }}</option>
+              <option v-for="year in availableYears" :key="year" :value="year">
+                {{ year }} ({{ getYearCount(year) }})
+              </option>
             </select>
           </div>
+
+          <!-- Bouton Réinitialiser -->
           <div class="flex items-end">
-            <button @click="resetFilters" class="btn btn-outline-secondary w-full">
+            <button 
+              @click="resetFilters" 
+              :disabled="!hasActiveFilters"
+              :class="hasActiveFilters ? 'btn-outline-secondary hover:bg-gray-100' : 'btn-outline-secondary opacity-50 cursor-not-allowed'"
+              class="btn w-full transition-all flex items-center justify-center gap-2"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+              </svg>
               Réinitialiser
             </button>
+          </div>
+        </div>
+
+        <!-- Statistiques rapides des filtres -->
+        <div v-if="hasActiveFilters" class="mt-4 pt-4 border-t border-gray-200">
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div class="bg-blue-50 p-3 rounded-lg">
+              <div class="text-xs text-blue-600 font-medium">Indicateurs uniques</div>
+              <div class="text-lg font-bold text-blue-800">{{ filteredUniqueIndicateurs }}</div>
+            </div>
+            <div class="bg-green-50 p-3 rounded-lg">
+              <div class="text-xs text-green-600 font-medium">Performance moy.</div>
+              <div class="text-lg font-bold text-green-800">{{ filteredAveragePerformance }}%</div>
+            </div>
+            <div class="bg-purple-50 p-3 rounded-lg">
+              <div class="text-xs text-purple-600 font-medium">Validés</div>
+              <div class="text-lg font-bold text-purple-800">{{ filteredValidatedCount }}</div>
+            </div>
+            <div class="bg-orange-50 p-3 rounded-lg">
+              <div class="text-xs text-orange-600 font-medium">Ce mois</div>
+              <div class="text-lg font-bold text-orange-800">{{ filteredThisMonthCount }}</div>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Section Graphiques -->
+    <!-- Section Graphiques Améliorée avec Support Agrégé -->
     <div v-if="!isLoadingDataCadre && suivis.length > 0" class="mt-6 intro-y">
+      <!-- Sélecteur de clé pour indicateurs agrégés -->
+      <div class="box p-5 mb-6 bg-gradient-to-r from-indigo-50 to-purple-50">
+        <div class="flex items-center justify-between flex-wrap gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 bg-indigo-600 rounded-lg flex items-center justify-center">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path>
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-lg font-bold text-gray-800">Analyse Graphique des Indicateurs</h3>
+              <p class="text-sm text-gray-600">Visualisez les données selon différentes dimensions</p>
+            </div>
+          </div>
+          
+          <div class="flex items-center gap-3">
+            <!-- Sélecteur de clé -->
+            <div class="flex items-center gap-2">
+              <label class="text-sm font-semibold text-gray-700">📊 Dimension:</label>
+              <select v-model="selectedKey" @change="updateAllCharts" class="form-select w-48 border-2 border-indigo-300 focus:border-indigo-500">
+                <option value="moy">Moyenne (moy)</option>
+                <option value="gar">Garçons (gar)</option>
+                <option value="test">Test</option>
+                <option value="all">Toutes les dimensions</option>
+              </select>
+            </div>
+            
+            <!-- Bouton export -->
+            <button @click="exportAllCharts" class="btn btn-primary flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+              </svg>
+              Exporter
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- Première ligne avec 2 graphiques -->
       <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 mb-6">
-        <div class="box p-5">
-          <h3 class="text-lg font-medium mb-4">Répartition par Trimestre</h3>
-          <div class="relative">
-            <canvas ref="trimestreChart" width="400" height="300"></canvas>
+        <!-- Graphique 1 : Répartition par Trimestre -->
+        <div class="box p-5 relative group">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+              <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+              Répartition par Trimestre
+            </h3>
+            <div class="flex gap-2">
+              <button @click="exportChart('trimestre')" class="opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-gray-100 rounded" title="Exporter">
+                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                </svg>
+              </button>
+              <button @click="toggleFullscreen('trimestre')" class="opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-gray-100 rounded" title="Plein écran">
+                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="relative" style="height: 300px;">
+            <canvas ref="trimestreChart"></canvas>
           </div>
         </div>
         
-        <div class="box p-5">
-          <h3 class="text-lg font-medium mb-4">Performance Moyenne par Mois</h3>
-          <div class="relative">
-            <canvas ref="performanceChart" width="400" height="300"></canvas>
+        <!-- Graphique 2 : Performance Moyenne -->
+        <div class="box p-5 relative group">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+              <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+              Performance Moyenne par Mois
+            </h3>
+            <div class="flex gap-2">
+              <button @click="exportChart('performance')" class="opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-gray-100 rounded" title="Exporter">
+                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                </svg>
+              </button>
+              <button @click="toggleFullscreen('performance')" class="opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-gray-100 rounded" title="Plein écran">
+                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="relative" style="height: 300px;">
+            <canvas ref="performanceChart"></canvas>
           </div>
         </div>
       </div>
       
-      <!-- Deuxième ligne avec le graphique complet -->
-      <div class="box p-5">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-medium">Comparaison Cibles vs Réalisées par Indicateur</h3>
-          <div class="flex items-center space-x-3">
-            <label class="text-sm font-medium">Filtrer par indicateur:</label>
-            <select v-model="selectedIndicateur" @change="updateComparisonChart" class="form-select w-64">
-              <option value="">Tous les indicateurs</option>
-              <option v-for="indicateur in availableIndicateurs" :key="indicateur.id" :value="indicateur.id">
-                {{ indicateur.nom.length > 50 ? indicateur.nom.substring(0, 50) + '...' : indicateur.nom }}
-              </option>
-            </select>
+      <!-- Deuxième ligne : Graphique de comparaison avec support multi-clés -->
+      <div class="box p-5 relative group">
+        <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+          <div>
+            <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+              <span class="w-2 h-2 bg-purple-500 rounded-full"></span>
+              Comparaison Cibles vs Réalisées
+              <span v-if="selectedKey !== 'all'" class="text-sm font-normal text-gray-600">
+                ({{ getKeyLabel(selectedKey) }})
+              </span>
+            </h3>
+            <p class="text-xs text-gray-500 mt-1">
+              {{ selectedIndicateur ? 'Mode évolution temporelle' : 'Vue d\'ensemble par indicateur' }}
+            </p>
+          </div>
+          
+          <div class="flex items-center gap-3 flex-wrap">
+            <!-- Filtre par indicateur -->
+            <div class="flex items-center gap-2">
+              <label class="text-sm font-medium text-gray-700">🎯 Indicateur:</label>
+              <select v-model="selectedIndicateur" @change="updateComparisonChart" class="form-select w-64 border-2 border-purple-300 focus:border-purple-500">
+                <option value="">Tous les indicateurs</option>
+                <option v-for="indicateur in availableIndicateurs" :key="indicateur.id" :value="indicateur.id">
+                  {{ indicateur.nom.length > 50 ? indicateur.nom.substring(0, 50) + '...' : indicateur.nom }}
+                </option>
+              </select>
+            </div>
+            
+            <!-- Actions -->
+            <div class="flex gap-2">
+              <button @click="exportChart('comparison')" class="opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-gray-100 rounded" title="Exporter">
+                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                </svg>
+              </button>
+              <button @click="toggleFullscreen('comparison')" class="opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-gray-100 rounded" title="Plein écran">
+                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
-        <div class="relative">
-          <canvas ref="comparisonChart" width="800" height="400"></canvas>
+        
+        <div class="relative" style="height: 400px;">
+          <canvas ref="comparisonChart"></canvas>
+        </div>
+        
+        <!-- Légende pour mode multi-clés -->
+        <div v-if="selectedKey === 'all' && !selectedIndicateur" class="mt-4 p-3 bg-gray-50 rounded-lg">
+          <p class="text-xs text-gray-600 mb-2 font-semibold">📌 Légende des dimensions:</p>
+          <div class="flex flex-wrap gap-3">
+            <div class="flex items-center gap-2">
+              <div class="w-4 h-4 bg-red-500 rounded"></div>
+              <span class="text-xs">Cibles</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-4 h-4 bg-green-500 rounded"></div>
+              <span class="text-xs">Réalisées</span>
+            </div>
+            <div class="text-xs text-gray-500 ml-4">
+              Les barres sont groupées par dimension (moy, gar, test)
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -223,6 +440,7 @@ const search = ref("");
 const selectedTrimestre = ref("");
 const selectedYear = ref("");
 const selectedIndicateur = ref("");
+const selectedKey = ref("moy"); // Nouvelle ref pour la clé sélectionnée
 
 // Etat de la page et items par page
 const currentPage = ref(1);
@@ -236,6 +454,93 @@ let trimestreChartInstance = null;
 let performanceChartInstance = null;
 let comparisonChartInstance = null;
 const chartsRendered = ref({ trimestre: false, performance: false, comparison: false });
+
+// Fonction pour obtenir le label d'une clé
+const getKeyLabel = (key) => {
+  const labels = {
+    moy: "Moyenne",
+    gar: "Garçons",
+    test: "Test",
+    all: "Toutes les dimensions"
+  };
+  return labels[key] || key;
+};
+
+// Fonction pour exporter un graphique en image
+const exportChart = (chartType) => {
+  let chartInstance = null;
+  let fileName = "";
+  
+  switch(chartType) {
+    case 'trimestre':
+      chartInstance = trimestreChartInstance;
+      fileName = "repartition_trimestre.png";
+      break;
+    case 'performance':
+      chartInstance = performanceChartInstance;
+      fileName = "performance_mensuelle.png";
+      break;
+    case 'comparison':
+      chartInstance = comparisonChartInstance;
+      fileName = "comparaison_cibles_realisees.png";
+      break;
+  }
+  
+  if (chartInstance) {
+    const url = chartInstance.toBase64Image();
+    const link = document.createElement('a');
+    link.download = fileName;
+    link.href = url;
+    link.click();
+    toast.success(`Graphique exporté : ${fileName}`);
+  }
+};
+
+// Fonction pour exporter tous les graphiques
+const exportAllCharts = () => {
+  exportChart('trimestre');
+  setTimeout(() => exportChart('performance'), 100);
+  setTimeout(() => exportChart('comparison'), 200);
+  toast.success("Tous les graphiques ont été exportés !");
+};
+
+// Fonction pour basculer en plein écran
+const toggleFullscreen = (chartType) => {
+  let element = null;
+  
+  switch(chartType) {
+    case 'trimestre':
+      element = trimestreChart.value?.parentElement?.parentElement;
+      break;
+    case 'performance':
+      element = performanceChart.value?.parentElement?.parentElement;
+      break;
+    case 'comparison':
+      element = comparisonChart.value?.parentElement?.parentElement;
+      break;
+  }
+  
+  if (element) {
+    if (!document.fullscreenElement) {
+      element.requestFullscreen().catch(err => {
+        console.error("Erreur plein écran:", err);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  }
+};
+
+// Fonction pour mettre à jour tous les graphiques selon la clé sélectionnée
+const updateAllCharts = () => {
+  chartsRendered.value = { trimestre: false, performance: false, comparison: false };
+  
+  setTimeout(() => {
+    renderTrimestreChart();
+    renderPerformanceChart();
+    renderComparisonChart(true);
+  }, 100);
+};
 
 
 const nextPage = () => {
@@ -396,7 +701,72 @@ const resetFilters = () => {
   search.value = "";
   selectedTrimestre.value = "";
   selectedYear.value = "";
+  selectedIndicateur.value = "";
 };
+
+// Computed pour vérifier si des filtres sont actifs
+const hasActiveFilters = computed(() => {
+  return search.value || selectedTrimestre.value || selectedYear.value || selectedIndicateur.value;
+});
+
+// Fonctions pour compter les résultats par trimestre
+const getTrimestreCount = (trimestre) => {
+  return suivis.value.filter(suivi => suivi.trimestre === trimestre).length;
+};
+
+// Fonction pour compter les résultats par année
+const getYearCount = (year) => {
+  return suivis.value.filter(suivi => {
+    if (!suivi.dateSuivie) return false;
+    return new Date(suivi.dateSuivie).getFullYear() === year;
+  }).length;
+};
+
+// Computed pour le compteur du trimestre sélectionné
+const trimestreCount = computed(() => {
+  if (!selectedTrimestre.value) return 0;
+  return getTrimestreCount(parseInt(selectedTrimestre.value));
+});
+
+// Computed pour le compteur de l'année sélectionnée
+const yearCount = computed(() => {
+  if (!selectedYear.value) return 0;
+  return getYearCount(parseInt(selectedYear.value));
+});
+
+// Statistiques sur les données filtrées
+const filteredUniqueIndicateurs = computed(() => {
+  const uniqueIndicateurs = new Set(filteredData.value.map(suivi => suivi.indicateur?.id));
+  return uniqueIndicateurs.size;
+});
+
+const filteredAveragePerformance = computed(() => {
+  if (filteredData.value.length === 0) return 0;
+  const rates = filteredData.value
+    .map(suivi => {
+      const taux = suivi.indicateur?.taux_realisation?.moy;
+      return taux ? parseFloat(taux) : 0;
+    })
+    .filter(rate => !isNaN(rate));
+  
+  if (rates.length === 0) return 0;
+  return Math.round(rates.reduce((sum, rate) => sum + rate, 0) / rates.length);
+});
+
+const filteredValidatedCount = computed(() => {
+  return filteredData.value.filter(suivi => suivi.estValider === true).length;
+});
+
+const filteredThisMonthCount = computed(() => {
+  const currentMonth = new Date().getMonth() + 1;
+  const currentYear = new Date().getFullYear();
+  
+  return filteredData.value.filter(suivi => {
+    if (!suivi.dateSuivie) return false;
+    const suiviDate = new Date(suivi.dateSuivie);
+    return suiviDate.getMonth() + 1 === currentMonth && suiviDate.getFullYear() === currentYear;
+  }).length;
+});
 
 // Fonction pour rendre le graphique trimestre
 const renderTrimestreChart = () => {
@@ -467,20 +837,25 @@ const renderPerformanceChart = () => {
       performanceChartInstance = null;
     }
 
-    // Grouper les données par mois
+    // Grouper les données par mois selon la clé sélectionnée
     const monthlyPerformance = {};
     
     for (const suivi of suivis.value) {
-      if (suivi.dateSuivie && suivi.indicateur?.taux_realisation?.moy) {
+      if (suivi.dateSuivie && suivi.indicateur?.taux_realisation) {
         const date = new Date(suivi.dateSuivie);
         const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
         
-        if (!monthlyPerformance[monthKey]) {
-          monthlyPerformance[monthKey] = { total: 0, count: 0 };
-        }
+        // Support des clés agrégées
+        const tauxValue = suivi.indicateur.taux_realisation[selectedKey.value];
         
-        monthlyPerformance[monthKey].total += parseFloat(suivi.indicateur.taux_realisation.moy);
-        monthlyPerformance[monthKey].count++;
+        if (tauxValue !== undefined && tauxValue !== null) {
+          if (!monthlyPerformance[monthKey]) {
+            monthlyPerformance[monthKey] = { total: 0, count: 0 };
+          }
+          
+          monthlyPerformance[monthKey].total += parseFloat(tauxValue);
+          monthlyPerformance[monthKey].count++;
+        }
       }
     }
 
@@ -500,7 +875,7 @@ const renderPerformanceChart = () => {
       data: {
         labels: labels,
         datasets: [{
-          label: 'Performance Moyenne (%)',
+          label: `Performance Moyenne (%) - ${getKeyLabel(selectedKey.value)}`,
           data: data,
           borderColor: '#10B981',
           backgroundColor: 'rgba(16, 185, 129, 0.1)',

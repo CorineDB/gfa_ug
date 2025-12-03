@@ -28,9 +28,10 @@ const years = computed(() => {
   let anneeFin = parseInt(`${finProgramme.value.split("-")[0]}`);
   let annees = [];
   for (let annee = anneeDebut; annee <= anneeFin; annee++) {
-    if (annee <= new Date().getFullYear()) {
-      annees.push(annee);
-    }
+    // if (annee <= new Date().getFullYear()) {
+    //   annees.push(annee);
+    // }
+    annees.push(annee);
   }
   return annees;
 });

@@ -154,7 +154,7 @@
                        </template>
                     </v-select>
                   </div>
-                  <button type="button" class="flex-1 text-sm btn btn-primary" @click.prevent="showModalKey = true"><Plus class="mr-1 size-3" /></button>
+                  <button type="button" class="flex-1 text-sm btn btn-primary" @click.prevent="emit('update:showModalKey', true)"><Plus class="mr-1 size-3" /></button>
                 </div>
                 <div v-if="errors.value_keys" class="mt-2 text-danger">{{ getFieldErrors(errors.value_keys) }}</div>
               </div>
@@ -253,7 +253,7 @@
                       </template>
                     </v-select>
                   </div>
-                  <button type="button" class="flex-1 text-sm btn btn-primary" @click.prevent="showModalCategorie = true"><Plus class="mr-1 size-3" /></button>
+                  <button type="button" class="flex-1 text-sm btn btn-primary" @click.prevent="emit('update:showModalCategorie', true)"><Plus class="mr-1 size-3" /></button>
                 </div>
                 <div v-if="errors.categorieId" class="mt-2 text-danger">{{ getFieldErrors(errors.categorieId) }}</div>
               </div>
@@ -308,7 +308,7 @@
                   <div class="relative w-full">
                     <v-select id="unite_mesure_id" class="w-full" :reduce="(unite) => unite.id" v-model="payload.uniteeMesureId" label="nom" :options="unites" placeholder="Selectionez une unité de mesure..."></v-select>
                   </div>
-                  <button type="button" class="flex-1 text-sm btn btn-primary" @click.prevent="showModalUniteMesure = true"><Plus class="mr-1 size-3" /></button>
+                  <button type="button" class="flex-1 text-sm btn btn-primary" @click.prevent="emit('update:showModalUniteMesure', true)"><Plus class="mr-1 size-3" /></button>
                 </div>
                 <div v-if="errors.uniteeMesureId" class="mt-2 text-danger">{{ getFieldErrors(errors.uniteeMesureId) }}</div>
               </div>
@@ -320,7 +320,7 @@
                   <div class="relative w-full">
                     <v-select id="zone_intervention" class="w-full" :reduce="(site) => site.id" v-model="payload.sites" label="nom" :options="sites" placeholder="Selectionez les sites..." multiple></v-select>
                   </div>
-                  <button type="button" class="flex-1 text-sm btn btn-primary" @click.prevent="showModalZone = true"><Plus class="mr-1 size-3" /></button>
+                  <button type="button" class="flex-1 text-sm btn btn-primary" @click.prevent="emit('update:showModalZone', true)"><Plus class="mr-1 size-3" /></button>
                 </div>
                 <div v-if="errors.sites" class="mt-2 text-danger">{{ getFieldErrors(errors.sites) }}</div>
               </div>
@@ -422,19 +422,19 @@ const props = defineProps({
   responsables: { type: Array, required: true },
   sites: { type: Array, required: true },
   annees: { type: Array, required: true },
+  showModalCategorie: { type: Boolean, default: false },
+  showModalUniteMesure: { type: Boolean, default: false },
+  showModalZone: { type: Boolean, default: false },
+  showModalKey: { type: Boolean, default: false },
 });
 
-const emit = defineEmits(["update:show", "submit"]);
+const emit = defineEmits(["update:show", "submit", "update:showModalCategorie", "update:showModalUniteMesure", "update:showModalZone", "update:showModalKey"]);
 
 const isLoading = ref(false);
 const errors = ref({});
 const steps = ref([ { label: "Informations 1", id: 1 }, { label: "Informations 2", id: 2 } ]);
 const currentStep = ref(1);
 const showModalAnnee = ref(false);
-const showModalKey = ref(false);
-const showModalCategorie = ref(false);
-const showModalUniteMesure = ref(false);
-const showModalZone = ref(false);
 const isEditingAnneeCible = ref(false);
 const editingAnneeCibleIndex = ref(-1);
 const editingFields = ref(new Set());

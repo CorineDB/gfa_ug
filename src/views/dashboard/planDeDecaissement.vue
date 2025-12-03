@@ -51,7 +51,7 @@
         </table>
       </div>
 
-      <div class="absolute shadow-md perso sm:rounded-lg" :class="{ 'left-[11rem]': dataNew.length > 0, 'left-28': dataNew.length === 0 }">
+      <div class="absolute shadow-md perso sm:rounded-lg" :class="{ 'left-[6rem]': dataNew.length > 0, 'left-28': dataNew.length === 0 }">
         <table class="w-full overflow-auto text-sm text-left text-gray-500 dark:text-gray-400">
           <thead class="sticky top-0 text-xs text-gray-700 uppercase _z-20 bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr class="">
@@ -379,9 +379,9 @@ export default {
         let anneeFin = parseInt(`${this.finProgramme.split("-")[0]}`);
         let annees = [];
         for (let annee = anneeDebut; annee <= anneeFin; annee++) {
-          if (annee <= new Date().getFullYear()) {
+          
             annees.push(annee);
-          }
+         
         }
         return annees;
       },
@@ -1403,7 +1403,16 @@ export default {
       this.loadingSuiviFinancier = true;
 
       for (let index = 0; index < this.suiviFinancier.length; index++) {
-        SuiviFinancierService.create(this.suiviFinancier[index])
+        // Convertir les valeurs string en number pour éviter les problèmes de type
+        const payload = {
+          ...this.suiviFinancier[index],
+          trimestre: parseInt(this.suiviFinancier[index].trimestre),
+          annee: parseInt(this.suiviFinancier[index].annee),
+          consommer: parseInt(this.suiviFinancier[index].consommer),
+          type: parseInt(this.suiviFinancier[index].type)
+        };
+
+        SuiviFinancierService.create(payload)
           .then(() => {
             this.loadingSuiviFinancier = false;
             toast.success("Suivi Financier créer.");

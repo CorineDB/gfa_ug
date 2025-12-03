@@ -49,7 +49,7 @@
 
           <DropdownDivider class="border-white/[0.08]" />
           <DropdownItem class="dropdown-item hover:bg-white/5">
-            <span class="flex items-center space-x-2 cursor-pointer" @click="logout"> <ToggleRightIcon class="w-4 h-4 mr-2" /> Se jdéconnecter</span>
+            <span class="flex items-center space-x-2 cursor-pointer" @click="logout"> <ToggleRightIcon class="w-4 h-4 mr-2" /> Se déconnecter</span>
           </DropdownItem>
         </DropdownContent>
       </DropdownMenu>

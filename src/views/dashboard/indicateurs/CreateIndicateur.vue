@@ -176,14 +176,6 @@
       <div>
         <LoaderSnipper v-if="isLoadingDataCadre" />
         <TabulatorCadreMesure v-else :data="dataAvailable" :unites="unites" :categories="categories" :years="annees" :ongs="responsables" :ugs="ugs" :prop-sites="sites" @update-datas="getDatasCadre" @refreshData="refreshDatasCadreSilently" @edit-indicator="openEditModal" />
-
-        <!-- <h2 class="mt-8 text-lg font-medium intro-y">Nouveau Cadre de Mesure (Refactored)</h2>
-        <CadreDeMesure v-if="!isLoadingDataCadre" :data="dataAvailable" :unites="unites" :categories="categories" :years="annees" :ongs="responsables" :ugs="ugs" :prop-sites="sites" @update-datas="getDatasCadre" @refreshData="refreshDatasCadreSilently" @edit-indicator="openEditModal" />
-        <LoaderSnipper v-else /> -->
-
-        <div v-if="!isLoadingDataCadre && verifyPermission('voir-un-indicateur')" class="flex justify-center gap-3 my-8">
-            <!-- Pagination controls -->
-        </div>
       </div>
     </section>
 
@@ -201,6 +193,10 @@
       :responsables="responsables"
       :sites="sites"
       :annees="annees"
+      v-model:showModalCategorie="showModalCategorie"
+      v-model:showModalUniteMesure="showModalUniteMesure"
+      v-model:showModalZone="showModalZone"
+      v-model:showModalKey="showModalKey"
     />
 
   </div>

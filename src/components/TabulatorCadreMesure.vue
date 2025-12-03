@@ -3,7 +3,7 @@
     <ExportationIndicateur :data="data" :years="years" />
   </div>
 
-  <!-- <pre>{{  data }}</pre> -->
+ 
 
   <TabGroup>
     <TabList class="space-x-4 font-bold uppercase nav-boxed-tabs">
@@ -61,13 +61,14 @@
 
                         <!-- Troisième colonne fixe -->
                         <td class="">
-                          {{ indicateur.nom }}
+                          {{ indicateur.nom }} 
                         </td>
 
                         <!-- Colonnes restantes -->
                         <td>{{ indicateur.description ?? "" }}</td>
                         <td class="p-2">
                           <div class="text-center">
+                          
                             <div class="font-medium text-gray-700" v-html="formatObject(indicateur.valeurDeBase)"></div>
                             <div class="text-xs text-gray-500 mt-1">Base</div>
                           </div>
@@ -482,48 +483,110 @@
       </TabPanel>
 
       <TabPanel>
-        <div class="w-full">
-          <AccordionGroup :selectedIndex="indexAccordion" class="space-y-6 py-4">
-            <AccordionItem v-for="(result, i) in data" :key="result.id">
-              <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white flex items-center justify-between">
-                <div v-if="result.indicateurs && result.indicateurs.length > 0" class="w-full">
-                  <div class="text-base font-medium text-white inline-block">Type de la Catégorie</div>
-                  <div class="text-white dark:text-slate-500 text-opacity-80">{{ result.type }} {{ result.indice }}</div>
-                </div>
-                <ChevronDownIcon />
-              </Accordion>
+        <div class="w-full max-w-6xl mx-auto p-6">
+          <!-- Select d'indicateur -->
+          <div class="mb-8">
+            <label class="block text-base font-semibold mb-3 text-gray-700">
+              📊 Sélectionner un indicateur pour visualiser son évolution
+            </label>
+            <select 
+              v-model="selectedIndicateurId" 
+              class="w-full p-4 border-2 border-gray-300 rounded-lg text-base focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+            >
+              <option value="">-- Choisir un indicateur --</option>
+              <optgroup 
+                v-for="(group, key) in indicateursGroupes" 
+                :key="key" 
+                :label="key"
+                class="font-semibold"
+              >
+                <option 
+                  v-for="ind in group" 
+                  :key="ind.id" 
+                  :value="ind.id"
+                  class="py-2"
+                >
+                  {{ ind.code }} - {{ ind.nom }}
+                </option>
+              </optgroup>
+            </select>
+          </div>
 
-              <AccordionPanel class="p-2">
-                <AccordionGroup :selectedIndex="indexAccordion2" class="space-y-6 py-4">
-                  <AccordionItem class="" v-for="(indicateur, j) in result.indicateurs" :key="indicateur.id">
-                    <Accordion class="text-lg !p-3 font-semibold bg-gray-700 !text-white">
-                      <!-- <pre>{{ result }}</pre> -->
-                      <div class="grid grid-cols-12 gap-5 text-gray-700">
-                        <div class="col-span-12 p-5 cursor-pointer sm:col-span-4 2xl:col-span-4 box zoom-in">
-                          <div class="text-base font-medium">Catégorie</div>
-                          <div>{{ result.nom }}</div>
-                        </div>
-                        <div class="col-span-12 p-5 cursor-pointer sm:col-span-4 2xl:col-span-4 box zoom-in">
-                          <div class="text-base font-medium">Indicateur</div>
-                          <div class="">{{ indicateur.nom }}</div>
-                        </div>
-                        <div class="col-span-12 p-5 cursor-pointer sm:col-span-4 2xl:col-span-4 box zoom-in">
-                          <div class="text-base font-medium">Unité de mesure</div>
-                          <div class="">{{ indicateur.unitee_mesure.nom }}</div>
-                        </div>
-                      </div>
-                    </Accordion>
-                    <AccordionPanel class="p-2">
-                      <div class="w-full mt-5 box">
-                        <p class="p-2 text-lg font-medium">Suivi des valeurs cibles et des valeurs réalisées</p>
-                        <ChartDetailIndicateur :data="indicateur.valeursCible" />
-                      </div>
-                    </AccordionPanel>
-                  </AccordionItem>
-                </AccordionGroup>
-              </AccordionPanel>
-            </AccordionItem>
-          </AccordionGroup>
+          <!-- Contenu affiché seulement si un indicateur est sélectionné -->
+          <div v-if="indicateurSelectionne" class="space-y-6 animate-fade-in">
+            <!-- Carte d'information de l'indicateur -->
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl shadow-md border border-blue-100">
+              <h3 class="text-2xl font-bold mb-4 text-gray-800 flex items-center gap-2">
+                <span class="text-blue-600">📈</span>
+                {{ indicateurSelectionne.nom }}
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                <div class="bg-white p-3 rounded-lg shadow-sm">
+                  <span class="font-semibold text-gray-600">Catégorie:</span>
+                  <p class="text-gray-800 mt-1">{{ indicateurSelectionne.categoriePath }}</p>
+                </div>
+                <div class="bg-white p-3 rounded-lg shadow-sm">
+                  <span class="font-semibold text-gray-600">Code:</span>
+                  <p class="text-gray-800 mt-1">{{ indicateurSelectionne.code }}</p>
+                </div>
+                <div class="bg-white p-3 rounded-lg shadow-sm">
+                  <span class="font-semibold text-gray-600">Unité de mesure:</span>
+                  <p class="text-gray-800 mt-1">{{ indicateurSelectionne.unitee_mesure.nom }}</p>
+                </div>
+                <div class="bg-white p-3 rounded-lg shadow-sm">
+                  <span class="font-semibold text-gray-600">Type de variable:</span>
+                  <p class="text-gray-800 mt-1 capitalize">{{ indicateurSelectionne.type_de_variable }}</p>
+                </div>
+                <div class="bg-white p-3 rounded-lg shadow-sm">
+                  <span class="font-semibold text-gray-600">Agrégé:</span>
+                  <p class="text-gray-800 mt-1">
+                    <span v-if="indicateurSelectionne.agreger" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      ✓ Oui
+                    </span>
+                    <span v-else class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                      ✗ Non
+                    </span>
+                  </p>
+                </div>
+                <div class="bg-white p-3 rounded-lg shadow-sm">
+                  <span class="font-semibold text-gray-600">Année de base:</span>
+                  <p class="text-gray-800 mt-1">{{ indicateurSelectionne.anneeDeBase || 'N/A' }}</p>
+                </div>
+                <div class="bg-white p-3 rounded-lg shadow-sm col-span-full">
+                  <span class="font-semibold text-gray-600">Hypothèse:</span>
+                  <p class="text-gray-800 mt-1">{{ indicateurSelectionne.hypothese }}</p>
+                </div>
+                <div class="bg-white p-3 rounded-lg shadow-sm col-span-full">
+                  <span class="font-semibold text-gray-600">Source de données:</span>
+                  <p class="text-gray-800 mt-1">{{ indicateurSelectionne.sources_de_donnee }}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Graphique d'évolution -->
+            <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+              <h4 class="text-xl font-semibold mb-4 text-gray-800 flex items-center gap-2">
+                <span class="text-green-600">📊</span>
+                Évolution des valeurs cibles et réalisées au fil du temps
+              </h4>
+              <ChartDetailIndicateur :data="indicateurSelectionne.valeursCible" />
+            </div>
+          </div>
+
+          <!-- Message si aucun indicateur sélectionné -->
+          <div v-else class="text-center py-20">
+            <div class="inline-block p-8 bg-gray-50 rounded-2xl">
+              <svg class="w-24 h-24 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+              </svg>
+              <p class="text-gray-600 text-lg font-medium">
+                Sélectionnez un indicateur pour visualiser son évolution
+              </p>
+              <p class="text-gray-500 text-sm mt-2">
+                Utilisez le menu déroulant ci-dessus pour choisir parmi {{ indicateursPlats.length }} indicateur(s) disponible(s)
+              </p>
+            </div>
+          </div>
         </div>
       </TabPanel>
     </TabPanels>
@@ -685,17 +748,7 @@
     <form @submit.prevent="submitYearCible">
       <ModalBody>
         <div class="grid grid-cols-1 gap-4">
-          <!-- <div v-if="payload.agreger" class="space-y-3">
-            <button v-show="array_value_keys.length > 0" class="text-sm btn btn-primary" @click.prevent="showModalAnnee = true"><PlusIcon class="mr-1 size-3" /> Ajouter une année cible</button>
-          </div>
-          <div v-if="payload.agreger && anneesCible.length > 0" class="flex flex-wrap items-center w-full gap-3">
-            <p>Années cible:</p>
-            <div class="flex items-center justify-between gap-2 px-2 py-0.5 text-sm font-medium bg-white rounded-full shadow cursor-pointer text-primary" v-for="(annee, index) in anneesCible" :key="index">
-              <span>{{ annee.annee }} </span>
-              <button @click.prevent="deleteAnneeCible(index)" class="p-1.5 transition-colors rounded-full hover:bg-red-100"><XIcon class="size-4 text-danger" /></button>
-            </div>
-            <div v-if="errors.anneesCible" class="mt-2 text-danger">{{ getFieldErrors(errors.anneesCible) }}</div>
-          </div> -->
+          
         </div>
       </ModalBody>
       <ModalFooter>
@@ -725,18 +778,51 @@
           </div>
           <!-- <InputForm label="Année de suivi" class="flex-1" v-model="payloadSuivi.annee" :control="getFieldErrors(errors.annee)" type="number" /> -->
           <div v-if="!isAgregerCurrentIndicateur" class="flex flex-wrap items-center justify-between gap-3">
-            <InputForm label="Valeur cible" class="flex-1" v-model="payloadSuivi.valeurCible" :control="getFieldErrors(errors.valeurCible)" type="number" :disabled="shouldDisableAgregerFields" />
+            <div class="flex-1">
+              <InputForm 
+                label="Valeur cible" 
+                v-model="payloadSuivi.valeurCible" 
+                :control="getFieldErrors(errors.valeurCible)" 
+                type="number" 
+                :disabled="shouldDisableValeurCible || shouldDisableAgregerFields"
+                :class="{ 'opacity-60': shouldDisableValeurCible }"
+              />
+             
+            </div>
+            
             <InputForm label="Valeur réalisée" class="flex-1" v-model="payloadSuivi.valeurRealise" :control="getFieldErrors(errors.valeurRealise)" type="number" />
           </div>
+           <p v-if="shouldDisableValeurCible" class="mt-1 text-xs text-blue-600">
+                ℹ️ Valeur cible existante pour cette année (non modifiable)
+              </p>
+              <p v-else class="mt-1 text-xs text-gray-500">
+                ✏️ Aucune valeur cible pour cette année, vous pouvez en saisir une
+              </p>
 
           <div v-if="valueKeysIndicateurSuivi.length > 0 && isAgregerCurrentIndicateur" class="">
             <label class="form-label">Valeur Cible <span class="text-danger">*</span> </label>
             <div class="grid gap-3 grid-cols-[repeat(auto-fill,_minmax(300px,_1fr))]">
               <div v-for="(base, index) in valueKeysIndicateurSuivi" :key="index" class="input-group">
                 <div class="flex items-center justify-center text-sm truncate input-group-text">{{ base.libelle }}</div>
-                <input type="number" class="form-control" :disabled="shouldDisableNonAgregerFields" v-model.number="valeurCible.find((item) => item.keyId === base.id).value" @input="updateValueCible(base.id, $event.target.value)" placeholder="valeur cible" aria-label="valeur" aria-describedby="input-group-valeur" />
+                <input 
+                  type="number" 
+                  class="form-control" 
+                  :disabled="shouldDisableValeurCible || shouldDisableNonAgregerFields" 
+                  :class="{ 'opacity-60': shouldDisableValeurCible }"
+                  v-model.number="valeurCible.find((item) => item.keyId === base.id).value" 
+                  @input="updateValueCible(base.id, $event.target.value)" 
+                  placeholder="valeur cible" 
+                  aria-label="valeur" 
+                  aria-describedby="input-group-valeur" 
+                />
               </div>
             </div>
+            <p v-if="shouldDisableValeurCible" class="mt-1 text-xs text-blue-600">
+              ℹ️ Valeurs cibles existantes pour cette année (non modifiables)
+            </p>
+            <p v-else class="mt-1 text-xs text-gray-500">
+              ✏️ Aucune valeur cible pour cette année, vous pouvez en saisir
+            </p>
             <div v-if="errors.valeurCible" class="mt-2 text-danger">{{ getFieldErrors(errors.valeurCible) }}</div>
           </div>
           <div v-if="valueKeysIndicateurSuivi.length > 0 && isAgregerCurrentIndicateur" class="">
@@ -814,7 +900,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref , watch } from "vue";
 import VButton from "@/components/news/VButton.vue";
 import InputForm from "@/components/news/InputForm.vue";
 import IndicateursService from "@/services/modules/indicateur.service";
@@ -1064,20 +1150,18 @@ const valeurCible = ref([]);
 const valeurRealise = ref([]);
 
 // Computed pour déterminer si les champs doivent être désactivés (pour les champs non agrégés)
+// Computed pour déterminer si les champs doivent être désactivés (pour les champs non agrégés)
 const shouldDisableAgregerFields = computed(() => {
-  if (isAgregerCurrentIndicateur.value) return false;
-
-  const valeur = payloadSuivi.valeurCible;
-  // Vérifier que la valeur existe et n'est pas vide (0 est accepté comme valeur valide)
-  return valeur !== "" && valeur !== null && valeur !== undefined && String(valeur).trim() !== "";
+  // Cette logique est maintenant gérée par shouldDisableValeurCible pour le pré-remplissage
+  // On retourne false pour ne pas interférer avec la saisie manuelle
+  return false;
 });
 
 // Computed pour désactiver les champs de valeurs cibles agrégées
+// Computed pour désactiver les champs de valeurs cibles agrégées
 const shouldDisableNonAgregerFields = computed(() => {
-  if (!isAgregerCurrentIndicateur.value) return false;
-
-  return valeurCible.value.length > 0 &&
-         valeurCible.value.some(item => item.value !== "" && item.value !== null && item.value !== undefined);
+  // Cette logique est maintenant gérée par shouldDisableValeurCible
+  return false;
 });
 
 const goToDetailSuivi = (id) => {
@@ -1298,25 +1382,143 @@ const handleEdit = (data) => {
   
   emit("edit-indicator", data);
 };
-const handleSuivi = (data) => {
 
- 
-  valeurCible.value = data.valeursCible.filter((valeurCible) => valeurCible.annee === Number(payloadSuivi.annee)).map((v) => v.valeurCible);
-  isAgregerCurrentIndicateur.value = data.agreger;
-  if(isAgregerCurrentIndicateur.value == false){
-    // Vérifier que valeurCible.value[0] existe et n'est pas null/undefined
-    if (valeurCible.value && valeurCible.value.length > 0 && valeurCible.value[0]) {
-      Object.keys(valeurCible.value[0]).forEach((key) => {
-        payloadSuivi.valeurCible = valeurCible.value[0][key];
-      });
+// Ref pour gérer l'état disabled du champ valeur cible
+const shouldDisableValeurCible = ref(false);
+
+// Stocker les données de l'indicateur pour le watcher
+const currentIndicateurData = ref(null);
+
+// Fonction pour pré-remplir la valeur cible basée sur l'année
+const preremplirValeurCible = (data, annee) => {
+  if (!data) return;
+
+  // Filtrer les valeurs cibles pour l'année sélectionnée
+  const valeursCibleFiltered = data.valeursCible.filter(
+    (vc) => vc.annee === Number(annee)
+  );
+
+  const valeurCibleTrouvee = valeursCibleFiltered.length > 0 ? valeursCibleFiltered[0].valeurCible : null;
+  const existeValeur = valeurCibleTrouvee && Object.keys(valeurCibleTrouvee).length > 0;
+
+  if (data.agreger) {
+    // Cas AGRÉGÉ
+    if (existeValeur) {
+      // Pré-remplir les champs agrégés
+      valeurCible.value = data.value_keys.map((keyItem) => ({
+        keyId: keyItem.id,
+        value: valeurCibleTrouvee[keyItem.key] !== undefined ? valeurCibleTrouvee[keyItem.key] : ""
+      }));
+      shouldDisableValeurCible.value = true;
+    } else {
+      // Réinitialiser les champs agrégés (vide)
+      valeurCible.value = data.value_keys.map((keyItem) => ({
+        keyId: keyItem.id,
+        value: ""
+      }));
+      shouldDisableValeurCible.value = false;
+    }
+  } else {
+    // Cas NON AGRÉGÉ
+    if (existeValeur) {
+      // Extraire la première valeur
+      const firstKey = Object.keys(valeurCibleTrouvee)[0];
+      payloadSuivi.valeurCible = valeurCibleTrouvee[firstKey];
+      shouldDisableValeurCible.value = true;
+    } else {
+      // Objet vide ou null
+      payloadSuivi.valeurCible = null;
+      shouldDisableValeurCible.value = false;
     }
   }
+};
 
+// Watcher pour détecter le changement d'année
+watch(() => payloadSuivi.annee, (newAnnee) => {
+  if (currentIndicateurData.value && newAnnee) {
+    preremplirValeurCible(currentIndicateurData.value, newAnnee);
+  }
+});
+
+const handleSuivi = (data) => {
+  // Stocker les données de l'indicateur pour le watcher
+  currentIndicateurData.value = data;
+  
+  // Initialiser l'année par défaut si elle n'est pas définie
+  if (!payloadSuivi.annee) {
+    payloadSuivi.annee = new Date().getFullYear();
+  }
+  
+  // Initialiser les métadonnées de l'indicateur
   payloadSuivi.indicateurId = data.id;
   valueKeysIndicateurSuivi.value = data.value_keys;
+  isAgregerCurrentIndicateur.value = data.agreger;
+
+  // Réinitialiser les valeurs (crée la structure vide pour les tableaux valeurCible et valeurRealise)
   resetValues();
+
+  // Pré-remplir la valeur cible pour l'année actuelle
+  // Cela écrasera les valeurs vides de resetValues si des données existent
+  preremplirValeurCible(data, payloadSuivi.annee);
+  
   showModalSuivi.value = true;
 };
+
+// Fonction pour aplatir la structure hiérarchique des indicateurs
+const flattenIndicateurs = (data) => {
+  const result = [];
+  
+  const traverse = (items, parentPath = []) => {
+    items.forEach(item => {
+      // Chemin hiérarchique pour le groupement visuel
+      const currentPath = [...parentPath, item.nom];
+      
+      // Ajouter les indicateurs directs
+      if (item.indicateurs && item.indicateurs.length > 0) {
+        item.indicateurs.forEach(ind => {
+          result.push({
+            ...ind,
+            categoriePath: currentPath.join(' > '), // Ex: "yiuyyiyi > poiîojkhjkh"
+            categorieNom: item.nom,
+            categorieType: item.type,
+            categorieCode: item.code
+          });
+        });
+      }
+      
+      // Parcourir les sous-catégories récursivement
+      if (item.categories && item.categories.length > 0) {
+        traverse(item.categories, currentPath);
+      }
+    });
+  };
+  
+  traverse(data);
+  return result;
+};
+
+// Computed pour obtenir tous les indicateurs aplatis
+const indicateursPlats = computed(() => {
+  return flattenIndicateurs(props.data);
+});
+
+// Computed pour grouper les indicateurs par catégorie (pour le select)
+const indicateursGroupes = computed(() => {
+  return indicateursPlats.value.reduce((acc, ind) => {
+    const key = ind.categoriePath;
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(ind);
+    return acc;
+  }, {});
+});
+
+// Ref pour l'indicateur sélectionné dans le select
+const selectedIndicateurId = ref('');
+
+// Computed pour obtenir l'indicateur sélectionné complet
+const indicateurSelectionne = computed(() => {
+  return indicateursPlats.value.find(ind => ind.id === selectedIndicateurId.value);
+});
 
 // Handle delete action
 const handleDelete = (data) => {
@@ -1358,7 +1560,7 @@ function formatResponsable(responsable) {
 function formatObject(obj) {
   if (!obj) return "";
   return Object.entries(obj)
-    .map(([key, value]) => (key === "moy" ? value : `${key}: ${value}`))
+    .map(([key, value]) => `${key}: ${value}`)
     .join("<br>");
 }
 

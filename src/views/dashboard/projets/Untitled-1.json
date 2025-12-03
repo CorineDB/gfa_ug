@@ -1,0 +1,35 @@
+{
+    "id": "yNdbmLGMMR3bQrzA4KNJ7laE2WjePmoazB6gXk1ZwLOGVxqyn9d0vYp5nj2A31g7",
+    "nom": "Unité de test des statistque",
+    "created_at": "2025-11-30",
+    "user": {
+        "id": "QBdLpk4NVPBM9G7qwKnjpgrbL2m0vxOae5OEyoAk6a51NZDWXlzdQ4YeR2ADglVW",
+        "nom": "Unité de test des statistque",
+        "prenom": null,
+        "email": "sofrovuleuta-6329@yopmail.com",
+        "contact": "22958784512",
+        "poste": null,
+        "type": "unitee-de-gestion",
+        "emailVerifiedAt": "2025-11-30T23:53:21.000000Z",
+        "code": 0,
+        "created_at": "2025-11-30",
+        "first_connexion": 1,
+        "statut": 1,
+        "account_verification_request_sent_at": null,
+        "password_update_at": "2025-11-30 23:54:41",
+        "last_password_remember": "$2y$10$qo76WGTJO3uf/wMy8hJEJ.hheFZpZwG4qaHvsYzRuZ14JTqjMaJX6",
+        "link_is_valide": 1,
+        "lastRequest": "2025-12-01 02:37:20",
+        "roles": [
+            {
+                "id": "Zvma3YGBeVYjlWbBgRQEqv39y6oNA8JD0JO02XzraxGPw1mdDn5Zp7KMMNoyR5V7",
+                "nom": "Unitee de gestion",
+                "description": "Unitee de gestion",
+                "roleable_type": null,
+                "roleable_id": null,
+                "created_at": "2025-06-02T20:03:28.000000Z",
+                "programmeId": null
+            }
+        ]
+    }
+}
