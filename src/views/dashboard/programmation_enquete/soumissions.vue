@@ -263,6 +263,7 @@ function changeOrganisationScore() {
 }
 
 const copyPerceptionLink = async (links) => {
+  
   try {
     //const link = `${window.location.origin}/tools-perception/${statistiques.value.formulaire_de_perception_de_gouvernance?.token || idEvaluation}`;
 

@@ -273,7 +273,7 @@
             </div>
             <div class="flex flex-wrap items-center justify-between gap-3">
                 <div class="flex-1">
-                    <label class="form-label" for="methode_collecte">Méthode de la collecte des données</label>
+                    <label class="form-label" for="methode_collecte">Méthode de la collecte des données fgdf</label>
                     <div class="relative w-full">
                         <v-select id="methode_collecte" class="w-full" v-model="payload.methode_de_la_collecte" :options="methodeCollecte" placeholder="Selectionez une methode..."></v-select>
                     </div>
@@ -290,6 +290,7 @@
             <div class="flex-1">
               <label class="form-label" for="ug_responsable">UG <span class="text-danger">*</span></label>
               <div class="relative w-full">
+               
                 <v-select id="ug_responsable" class="w-full" :reduce="(ug) => ug.id" v-model="responsablesForm.ug" label="nom" :options="ugs" placeholder="Selectionez un UG..."></v-select>
               </div>
               <div v-if="errors['responsables.ug']" class="mt-2 text-danger">{{ getFieldErrors(errors["responsables.ug"]) }}</div>
@@ -298,6 +299,7 @@
               <div class="flex-1">
                 <label class="form-label" for="organisations_responsables">Responsables <span class="text-danger">*</span></label>
                 <div class="relative w-full">
+               
                   <v-select id="organisations_responsables" class="w-full" :reduce="(responsable) => responsable.id" v-model="responsablesForm.organisations" label="nom" :options="responsables" placeholder="Selectionez un responsable..." multiple></v-select>
                 </div>
                 <div v-if="errors['responsables.organisations']" class="mt-2 text-danger">{{ getFieldErrors(errors["responsables.organisations"]) }}</div>

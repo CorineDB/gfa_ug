@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref ,nextTick} from "vue";
 import VButton from "@/components/news/VButton.vue";
 import InputForm from "@/components/news/InputForm.vue";
 import SuiviFinancierService from "@/services/modules/suiviFinancier.service";
@@ -21,6 +21,19 @@ import PlanDeDecaissementService from "@/services/modules/plan.decaissement.serv
 import generateMultiTablePDF from "@/plugins/exportPdf.js";
 
 //generateMultiTablePDF(['suiviFinancier'], 'Suivi_financier')
+
+
+
+
+// Computed property pour calculer automatiquement le left
+const dynamicLeftPosition = computed(() => {
+  return '9%'; // 35% = width de la sticky, 1% = margin-right
+});
+
+
+
+
+
 
 // Ajout de plan de décaissement
 
@@ -798,8 +811,8 @@ const resetFilterModal = () => {
 
 onMounted(() => {
   getDatas();
-
   getcurrentUser();
+
 });
 </script>
 
@@ -814,7 +827,7 @@ onMounted(() => {
         </div>
       </div>
       <div class="flex">
-        <button class="mr-2 shadow-md btn btn-primary" @click="openFilterModal"><FilterIcon class="w-4 h-4 mr-3" />Filtrer le suivi financier fsds</button>
+        <button class="mr-2 shadow-md btn btn-primary" @click="openFilterModal"><FilterIcon class="w-4 h-4 mr-3" />Filtrer le suivi financier</button>
         <button class="mr-2 shadow-md btn btn-primary" @click="generateMultiTablePDF(['suiviFinancier'], 'suivi_FInancier', 'A4')">Exporter</button>
 
         <button class="btn btn-primary" title="Réinitialiser le filtre" @click="resetFilter()">
@@ -831,6 +844,7 @@ onMounted(() => {
         <div class="current">
           <div class="overflow-y-auto overflow-x-auto flex relative shadow-md sm:rounded-lg">
             <div style="width: 35%; position: sticky; left: 0; background: transparent; z-index: 1; margin-right: 1%">
+            
               <table class="top-0 left-0 block w-full text-sm text-left table-fixed border-collaspe table1">
                 <thead class="sticky top-0 z-20 text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                   <tr style="height: 82px">
@@ -847,7 +861,7 @@ onMounted(() => {
               </table>
             </div>
 
-            <div class="absolute shadow-md perso sm:rounded-lg" :class="{ 'left-[7rem]': filteredSuiviFinanciers.length === 0, 'left-[9rem]': filteredSuiviFinanciers.length > 0 }">
+           <div class="absolute shadow-md perso sm:rounded-lg" :style="{ left: dynamicLeftPosition }">
               <table class="w-full overflow-auto text-sm text-left text-gray-500 dark:text-gray-400">
                 <thead class="sticky top-0 text-xs text-gray-700 uppercase _z-20 bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                   <tr>

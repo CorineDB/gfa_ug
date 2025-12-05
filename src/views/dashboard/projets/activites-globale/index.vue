@@ -31,7 +31,7 @@ export default {
 
   data() {
     return {
-      loaderStatut: false,
+      loaderStatut: {},
       loaderListePlan: false,
       listePlanDeDecaissement: [],
       search: "",
@@ -794,11 +794,12 @@ export default {
         this.prolongementActivite();
       }
     },
+        changerStatut(item, statut = 2) {
+      // On active le loader uniquement pour cet item et ce statut spécifique
+      const loaderKey = `${item.id}_${statut}`;
+      this.loaderStatut[loaderKey] = true;
 
-    changerStatut(item, statut = 2) {
-      this.loaderStatut = true;
-
-      const nouveauStatut = statut; //item.statut === 0 ? 2 : 0;
+      const nouveauStatut = statut;
 
       const payLoad = {
         statut: nouveauStatut,
@@ -806,7 +807,9 @@ export default {
 
       this.changerStatutActivite({ statut: payLoad, id: item.id })
         .then((response) => {
-          this.loaderStatut = false;
+          // On désactive le loader pour cet item spécifique
+          this.loaderStatut[loaderKey] = false;
+          
           if (response.status == 200 || response.status == 201) {
             toast.success("Statut changé avec succès");
 
@@ -819,14 +822,11 @@ export default {
           }
         })
         .catch((error) => {
-          this.loaderStatut = false;
+          // IMPORTANT : On désactive uniquement pour cet item en cas d'erreur
+          this.loaderStatut[loaderKey] = false;
 
-          toast.error(error.response.data.message);
-
-          // Mettre à jour les messages d'erreurs dynamiquement
-          if (error.response && error.response.data && error.response.data.errors) {
-            this.erreurProlongation = error.response.data.errors;
-            toast.error("Une erreur s'est produite");
+          if (error.response && error.response.data) {
+             toast.error(error.response.data.message);
           }
         });
     },
@@ -1287,10 +1287,47 @@ export default {
                     <DropdownContent>
                       <DropdownItem v-if="verifyPermission('modifier-une-activite')" @click="modifierActivite(item)"> <Edit2Icon class="w-4 h-4 mr-2" /> Modifier </DropdownItem>
                       <DropdownItem v-if="verifyPermission('prolonger-une-activite')" @click="ouvrirModalProlongerActivite(item)"> <CalendarIcon class="w-4 h-4 mr-2" /> Prolonger </DropdownItem>
-                      <DropdownItem title="cliquer pour marquer l'activité comme terminer" v-if="verifyPermission('modifier-une-activite') && item.statut == 0" @click="changerStatut(item, 2)"> <CalendarIcon class="w-4 h-4 mr-2" /> Terminer </DropdownItem>
-                      <DropdownItem title="cliquer pour marquer l'activité comme pas démarré" v-if="verifyPermission('modifier-une-activite') && item.statut == 0" @click="changerStatut(item, -1)"> <CalendarIcon class="w-4 h-4 mr-2" /> Pas Démarrer </DropdownItem>
+                      <!-- Bouton Terminer -->
+                      <DropdownItem title="cliquer pour marquer l'activité comme terminer" v-if="verifyPermission('modifier-une-activite') && item.statut == 0" @click="changerStatut(item, 2)"> 
+                        <span v-if="loaderStatut[item.id + '_2']" class="flex items-center">
+                          <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Chargement...
+                        </span>
+                        <span v-else class="flex items-center">
+                          <CalendarIcon class="w-4 h-4 mr-2" /> Terminer 
+                        </span>
+                      </DropdownItem>
 
-                      <DropdownItem title="cliquer pour démarré l'activité" v-else-if="verifyPermission('modifier-une-activite') && item.statut !== 0" @click="changerStatut(item, 0)"> <CalendarIcon class="w-4 h-4 mr-2" /> Démarrer </DropdownItem>
+                      <!-- Bouton Pas Démarrer -->
+                      <DropdownItem title="cliquer pour marquer l'activité comme pas démarré" v-if="verifyPermission('modifier-une-activite') && item.statut == 0" @click="changerStatut(item, -1)"> 
+                        <span v-if="loaderStatut[item.id + '_-1']" class="flex items-center">
+                          <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Chargement...
+                        </span>
+                        <span v-else class="flex items-center">
+                          <CalendarIcon class="w-4 h-4 mr-2" /> Pas Démarrer 
+                        </span>
+                      </DropdownItem>
+
+                      <!-- Bouton Démarrer -->
+                      <DropdownItem title="cliquer pour démarré l'activité" v-else-if="verifyPermission('modifier-une-activite') && item.statut !== 0" @click="changerStatut(item, 0)"> 
+                        <span v-if="loaderStatut[item.id + '_0']" class="flex items-center">
+                          <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Chargement...
+                        </span>
+                        <span v-else class="flex items-center">
+                          <CalendarIcon class="w-4 h-4 mr-2" /> Démarrer 
+                        </span>
+                      </DropdownItem>
 
                       <DropdownItem v-if="verifyPermission('creer-un-plan-de-decaissement')" @click="ouvrirModalPlanDeDecaissementActivite(item)"> <CalendarIcon class="w-4 h-4 mr-2" /> Plan de decaissement </DropdownItem>
 

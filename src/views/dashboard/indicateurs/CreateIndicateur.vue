@@ -1,6 +1,7 @@
 
 <template>
   <div class="flex w-full gap-2">
+    
     <!-- Side Menu -->
     <Transition name="menu">
       <section :class="[showMenu ? 'translate-x-0 w-[30%] border-r-2' : '-translate-x-full w-0']" class="h-screen pt-[130px] pr-1 overflow-y-auto transition-transform duration-300 transform menu-crud">
@@ -174,7 +175,9 @@
 
       <!-- Tables and Pagination -->
       <div>
+       
         <LoaderSnipper v-if="isLoadingDataCadre" />
+        
         <TabulatorCadreMesure v-else :data="dataAvailable" :unites="unites" :categories="categories" :years="annees" :ongs="responsables" :ugs="ugs" :prop-sites="sites" @update-datas="getDatasCadre" @refreshData="refreshDatasCadreSilently" @edit-indicator="openEditModal" />
       </div>
     </section>
@@ -348,7 +351,8 @@ const getCategories = async () => {
 const getResponsables = async () => {
   try {
     const { data } = await OngService.get();
-    responsables.value = data.data.filter((ong) => ong.type !== "autre_osc" && (ong.projet !== null));
+     //responsables.value = data.data
+     responsables.value = data.data.filter((ong) => ong.type !== "autre_osc" && (ong.projet !== null));
   } catch (e) { toast.error("Erreur lors de la récupération des organisations."); }
 };
 

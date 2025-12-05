@@ -295,7 +295,7 @@ onMounted(async () => {
               </tr>
             </tbody>
           </table>
-          <table id="my-table12" v-if="!isLoadingData && currentFactuel?.resultats" class="w-full max-w-screen-lg mt-12 text-sm border-collapse table-fixed">
+          <table id="my-table12" v-if="!isLoadingData && currentFactuel?.resultats" class="w-full max-w-screen-lg my-12 text-sm border-collapse table-fixed">
             <tbody>
               <tr class="font-semibold border-slate-300 bg-slate-300">
                 <td class="p-2">Principe</td>

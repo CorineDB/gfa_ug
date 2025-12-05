@@ -487,7 +487,6 @@ onMounted(async () => {
                     <option v-for="organisation in ongsProgramme" :key="organisation.id" :value="organisation.id">{{ organisation.nom }}</option>
                   </TomSelect>
                 </div>
-                <!-- <pre>{{ currentScore }}</pre> -->
                 <ChartProgressionByTime :chartData="currentScore" v-if="ongSelectedScore && !isLoadingDataScore" />
                 <div class="h-[600px] flex justify-center items-center" v-if="!ongSelectedScore && !isLoadingDataScore">
                   <p class="text-xl font-medium text-slate-600">Veuillez choisir une organisation pour afficher le graphique</p>
@@ -507,7 +506,7 @@ onMounted(async () => {
                     <option v-for="year in annees" :key="year" :value="year">{{ year }}</option>
                   </TomSelect>
                 </div>
-                <ChartScroreByPrincipe v-if="currentScore[yearSelectedOng]?.length > 0" :datas="currentScore[yearSelectedOng]" />
+                <ChartProgressionByTime v-if="currentScore[yearSelectedOng]?.length > 0" :chartData="currentScore" :filterYear="yearSelectedOng" />
                 <div v-else class="h-[600px] flex justify-center items-center">
                   <p class="text-xl font-medium text-slate-600">Aucune données disponible</p>
                 </div>

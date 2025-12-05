@@ -95,19 +95,37 @@ async function extractTableData(tableId) {
     const rowData = [];
     const rowStyles = extractElementStyles(row);
     
+    // Récupérer aussi les styles du tbody parent
+    const tbodyParent = row.closest('tbody');
+    const tbodyStyles = tbodyParent ? extractElementStyles(tbodyParent) : null;
+    
     row.querySelectorAll('td').forEach(td => {
       const cellStyles = extractElementStyles(td);
       
+      // Cascade de couleurs : cellule → ligne → tbody → blanc
       let finalBgColor = cellStyles.backgroundColor;
+      
+      // Si pas de couleur sur la cellule, vérifier la ligne
       if ((!finalBgColor || finalBgColor === 'rgba(0, 0, 0, 0)' || finalBgColor === 'transparent') && 
           rowStyles.backgroundColor && 
-          rowStyles.backgroundColor !== 'rgba(0, 0, 0, 0)' && 
+          rowStyles.backgroundColor !== 'rgba(0, 0, 0, 0)' &&
           rowStyles.backgroundColor !== 'transparent') {
         finalBgColor = rowStyles.backgroundColor;
       }
       
+      // Si toujours pas de couleur, vérifier le tbody parent
+      if ((!finalBgColor || finalBgColor === 'rgba(0, 0, 0, 0)' || finalBgColor === 'transparent') && 
+          tbodyStyles && 
+          tbodyStyles.backgroundColor && 
+          tbodyStyles.backgroundColor !== 'rgba(0, 0, 0, 0)' &&
+          tbodyStyles.backgroundColor !== 'transparent') {
+        finalBgColor = tbodyStyles.backgroundColor;
+      }
+      
       rowData.push({
         content: td.textContent.trim(),
+        colSpan: td.colSpan || 1,
+        rowSpan: td.rowSpan || 1,
         styles: {
           fillColor: finalBgColor && 
                     finalBgColor !== 'rgba(0, 0, 0, 0)' && 
@@ -149,12 +167,24 @@ function addTableToPDF(doc, tableData, startY, tableTitle) {
     startY += 10;
   }
 
+  // Préparer les en-têtes avec colspan et rowspan
   const headData = tableData.headers.map(headerRow => 
-    headerRow.map(cell => cell.content)
+    headerRow.map(cell => ({
+      content: cell.content,
+      colSpan: cell.colSpan || 1,
+      rowSpan: cell.rowSpan || 1,
+      styles: cell.styles || {}
+    }))
   );
   
+  // Préparer les données du corps avec colspan et rowspan
   const bodyData = tableData.rows.map(row => 
-    row.map(cell => cell.content)
+    row.map(cell => ({
+      content: cell.content,
+      colSpan: cell.colSpan || 1,
+      rowSpan: cell.rowSpan || 1,
+      styles: cell.styles || {}
+    }))
   );
 
   // Note: vous devez avoir jsPDF et autoTable disponibles globalement
@@ -186,6 +216,13 @@ function addTableToPDF(doc, tableData, startY, tableTitle) {
             data.cell.styles.fillColor = cellData.styles.fillColor;
             data.cell.styles.textColor = cellData.styles.textColor;
           }
+          // Appliquer colspan et rowspan
+          if (cellData.colSpan && cellData.colSpan > 1) {
+            data.cell.colSpan = cellData.colSpan;
+          }
+          if (cellData.rowSpan && cellData.rowSpan > 1) {
+            data.cell.rowSpan = cellData.rowSpan;
+          }
         }
       }
       
@@ -200,6 +237,13 @@ function addTableToPDF(doc, tableData, startY, tableTitle) {
             data.cell.styles.textColor = headerCell.styles.textColor;
             data.cell.styles.fontStyle = 'bold';
             data.cell.styles.halign = 'center';
+          }
+          // Appliquer colspan et rowspan pour les en-têtes
+          if (headerCell.colSpan && headerCell.colSpan > 1) {
+            data.cell.colSpan = headerCell.colSpan;
+          }
+          if (headerCell.rowSpan && headerCell.rowSpan > 1) {
+            data.cell.rowSpan = headerCell.rowSpan;
           }
         }
       }

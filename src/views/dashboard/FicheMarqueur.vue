@@ -162,7 +162,7 @@ onMounted(async () => {
                 <button @click="generateMultiTablePDF(['my-table6' , 'tableauMarqueurFactuel'] , 'Marqueur Factuel' , 'A4' , info0)" class=" ml-2 btn btn-primary text-left">Télécharger PDF</button>
               </div>
             </div>
-
+FICHE SYNTHESE SCORE FACTUEL GOUVERNANCE
             <table id="my-table6" class="w-full mt-12 text-sm border-collapse table-fixed">
               <thead>
                  <tr class="border-b rounded-sm border-slate-300 bg-slate-300">
