@@ -256,10 +256,14 @@ const applyFilter = () => {
 const handleEdit = (params) => {
   isCreate.value = false;
   idSelect.value = params.id;
-  //payload.activiteId = params.id;
-  payload.trimestre = params.trimestre;
-  payload.annee = params.annee;
-  payload.consommer = params.consommer;
+  
+  // Conversion explicite en nombres pour assurer le pré-remplissage correct
+  payload.trimestre = Number(params.trimestre);
+  payload.annee = Number(params.annee);
+  payload.consommer = Number(params.consommer);
+  
+  // L'activiteId reste inchangé (déjà défini dans le payload initial)
+  // payload.activiteId est déjà défini et ne doit pas être modifié
 
   showModalCreate.value = true;
 };
