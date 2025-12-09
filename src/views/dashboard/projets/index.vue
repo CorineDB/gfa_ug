@@ -201,19 +201,19 @@
           <div v-if="errors.pays" class="mt-2 text-danger">{{ getFieldErrors(errors.pays) }}</div>
         </div>
 
-        <div class="col-span-12 md:col-span-6">
+        <!-- <div class="col-span-12 md:col-span-6">
           <InputForm :id="'formData.budgetNational'" :name="'formData.budgetNational'" v-model="formData.budgetNational" class="w-full" type="number" :required="true" placeHolder="Ex : 100000" label="Fond Propre" />
           <div v-if="errors.budgetNational" class="mt-2 text-danger">{{ getFieldErrors(errors.budgetNational) }}</div>
-        </div>
+        </div> -->
 
-        <div class="col-span-12 md:col-span-6">
+        <!-- <div class="col-span-12 md:col-span-6">
           <InputForm :id="'formData.pret'" :name="'formData.pret'" v-model="formData.pret" class="w-full" type="number" :required="true" placeHolder="Ex : 100000" label="Subvention" />
           <div v-if="errors.pret" class="mt-2 text-danger">{{ getFieldErrors(errors.pret) }}</div>
-        </div>
+        </div> -->
 
         <div class="col-span-12 md:col-span-6">
            
-            <label class="form-label">Organisation* frere</label>
+            <label class="form-label">Organisation*</label>
           <!-- Organisation Select Dropdown -->
           <div class="relative w-full">
             <div class="flex items-center justify-between mb-2">
