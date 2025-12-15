@@ -3,7 +3,7 @@ import axios from "axios";
 import { API_BASE_URL } from "@/services/configs/environment";
 import { SET_LOADER, SET_ERRORS_MESSAGE } from "../stores/mutations.type";
 import store from "../stores/index";
- 
+
 
 function determineContentType(payLoad) {
   if (payLoad instanceof FormData) {
@@ -16,6 +16,9 @@ function determineContentType(payLoad) {
 const config = {
   baseURL: `${API_BASE_URL}/api/`,
   timeout: 60 * 100000000, // Timeout
+  withCredentials: true, // Enable cookies for cross-origin requests
+  xsrfCookieName: 'XSRF-TOKEN', // Name of the CSRF cookie
+  xsrfHeaderName: 'X-XSRF-TOKEN', // Name of the CSRF header
   headers: {
     common: {
       Accept: "application/json",
@@ -23,14 +26,15 @@ const config = {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
       "Access-Control-Allow-Headers": "X-Requested-With, Content-Type, X-Token-Auth, Authorization",
+      "X-Requested-With": "XMLHttpRequest", // Required for Sanctum
     },
   },
 };
 
- 
+
 const httpClient = axios.create(config);
 
- 
+
 const authInterceptor = (config) => {
   let token = store.getters["auths/GET_ACCESS_TOKEN"];
   if (token) {
@@ -44,7 +48,7 @@ const authInterceptor = (config) => {
   return config;
 };
 
- 
+
 
 httpClient.interceptors.request.use(authInterceptor);
 

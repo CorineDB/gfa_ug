@@ -45,7 +45,7 @@ const ApiService = {
           resolve(response, status);
         })
         .catch((response, status) => {
-          
+
           reject(response, status);
         });
     });

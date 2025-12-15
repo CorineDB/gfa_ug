@@ -94,6 +94,7 @@ import { mapState, mapActions, mapMutations, mapGetters } from "vuex";
 
 //import Vmodal from '@/components/Vmodal'
 import axios from "axios";
+//import { httpClient as axios } from "@/plugins/http-client";
 import VButton from "@/components/news/VButton.vue";
 import { API_BASE_URL } from "@/services/configs/environment.js";
 import { toast } from "vue3-toastify";
@@ -165,7 +166,7 @@ export default {
         const datas = await axios.get(`${this.base_url}/sanctum/csrf-cookie`);
         //const datas = true;
         // datas.status == 204
-        if (datas) {
+        if (datas.status == 204) {
           await this.authentification(identifiant)
             .then((response, status) => {
               if (response.statut === "success" || response.status === 200) {
