@@ -24,9 +24,6 @@ export default {
 
     async [LOGIN]({ commit }, payload) {
 
-        // Get CSRF cookie first for Sanctum authentication
-        await ApiService.get("../sanctum/csrf-cookie");
-
         const { data, status } = await AuthService.login(payload)
 
         let response = data.data

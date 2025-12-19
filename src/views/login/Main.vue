@@ -164,9 +164,7 @@ export default {
         identifiant.email = this.login;
         identifiant.password = this.password;
         const datas = await axios.get(`${this.base_url}/sanctum/csrf-cookie`);
-        //const datas = true;
-        // datas.status == 204
-        if (datas.status == 204) {
+        if (datas.status == 204 || datas.status == 200) {
           await this.authentification(identifiant)
             .then((response, status) => {
               if (response.statut === "success" || response.status === 200) {
