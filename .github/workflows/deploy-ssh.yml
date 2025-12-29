@@ -1,0 +1,51 @@
+name: Deploy UG Frontend to Staging
+
+on:
+  push:
+    branches: [tmp-ug]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    
+    steps:
+      - name: Deploy UG Frontend
+        run: |
+          echo "🚀 Starting UG frontend deployment..."
+          
+          # Create deployment directory if it doesn't exist
+          if [ ! -d "/var/www/html/gfa/ug" ]; then
+            echo "📁 Creating deployment directory..."
+            sudo mkdir -p /var/www/html/gfa/ug
+            sudo chown -R pc-1:pc-1 /var/www/html/gfa/ug
+          fi
+          
+          # Navigate to deployment directory
+          cd /var/www/html/gfa/ug
+          
+          # Clone repository if not already cloned
+          if [ ! -d ".git" ]; then
+            echo "📦 Cloning repository..."
+            git clone ${{ secrets.UG_REPO_URL }} .
+            git checkout tmp-ug
+          fi
+          
+          # Pull latest changes
+          echo "📥 Pulling latest code..."
+          git pull origin tmp-ug
+          
+          # Fix permissions
+          echo "🔧 Fixing permissions..."
+          sudo chown -R pc-1:pc-1 .
+          
+          # Deploy with Docker
+          echo "🐳 Deploying with Docker..."
+          sudo docker-compose -f docker-compose.staging.yml down
+          sudo VITE_API_BASE_URL="https://dms-redevabilite.dev" \
+               VITE_PUSHER_BASE_URL="https://dms-redevabilite.dev" \
+               docker-compose -f docker-compose.staging.yml up -d --build
+          
+          # Check status
+          echo "✅ Deployment complete!"
+          sudo docker-compose -f docker-compose.staging.yml ps
